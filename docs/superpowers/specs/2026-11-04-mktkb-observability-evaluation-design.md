@@ -436,7 +436,7 @@ docs/evaluation/
 
 var/observability/qa-traces.sqlite3   # 运行时，不入库
 var/eval/runs/<run_id>/               # 运行时产物
-docs/evidence/OBS-EVAL/P0/            # 验收证据与锚
+docs/reports/OBS-EVAL/P0/             # 验收证据与锚（入库；docs/evidence 仅本地）
 
 backend/tests/observability/
   conftest.py

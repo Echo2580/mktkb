@@ -25,7 +25,7 @@
 - 必需 Span 按 `path + outcome + 条件属性` 检查；未执行的可选阶段不得伪造。
 - Baseline 同 `pipeline_version` 才能放行；跨版本只能 `--compare-with` 做分析。
 - P0 只跑 B0 40 + Bad Case 13；Holdout 30 在 P1 引入。
-- 仓库没有 `.git`：每个任务结束写 `docs/evidence/OBS-EVAL/P0/anchors.json` 的 SHA-256，不执行 `git commit`。
+- 仓库已启用 Git（GitHub `Echo2580/mktkb`，v0.1 冻结锚点 commit `366046d` / tag `v0.1-local-20261104`）：每个任务结束以 **git commit** 为版本锚；`docs/reports/OBS-EVAL/P0/anchors.json` 只记录 P0 运行产物（trace/dataset/gate 文件）的 SHA-256，不再手工替代版本控制。
 - 所有新增文档、JSON、JSONL、SQL 使用 UTF-8；路径使用 `pathlib`，兼容中文路径。
 
 ## Review Focus
@@ -514,7 +514,7 @@ def test_report_hard_failures_first():
 - Create: `tools/rag_eval.py`
 - Create: `backend/tests/evaluation/golden/chat_response.json`
 - Test: `backend/tests/evaluation/test_p0_acceptance.py`
-- Create: `docs/evidence/OBS-EVAL/P0/p0-report.md`
+- Create: `docs/reports/OBS-EVAL/P0/p0-report.md`（入库；原始运行产物 var/eval 不入库）
 
 **Interfaces / Commands:**
 
