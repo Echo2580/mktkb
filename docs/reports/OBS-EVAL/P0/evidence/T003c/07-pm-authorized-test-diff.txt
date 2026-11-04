@@ -1,0 +1,27 @@
+=== PM ruling: .claude/handoffs/T003c-rag-spans/handoff.md section 4 lines 31-34 === 
+=== git diff -- backend/tests/observability/test_middleware.py === 
+diff --git a/backend/tests/observability/test_middleware.py b/backend/tests/observability/test_middleware.py
+index a684449..21478c0 100644
+--- a/backend/tests/observability/test_middleware.py
++++ b/backend/tests/observability/test_middleware.py
+@@ -215,7 +215,7 @@ def test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace(trace_empl
+     # 未埋业务 Span + 未设置 outcome → incomplete 是预期（不是缺陷）。
+     assert trace.status == "incomplete"
+     assert trace.question_hash is None
+-    assert spans == []
++    assert spans and {"recall", "fuse", "hard_filter"} <= {span.name for span in spans}
+     # 一条 QA POST 恰好写一行 trace。
+     assert len(trace_rows(trace_db_path)) == 1
+ 
+@@ -294,7 +294,7 @@ def test_trace_content_mode_off_is_wired(trace_settings):
+         assert response.status_code == 200, response.text
+         trace, spans = app.state.trace_repo.get(response.headers["X-Trace-ID"])
+         assert trace.content_mode == "off"
+-        assert spans == []
++        assert spans and {"recall", "fuse", "hard_filter"} <= {span.name for span in spans}
+     finally:
+         _close_app(app)
+ 
+=== git diff --numstat === 
+2	2	backend/tests/observability/test_middleware.py
+exit_code=0
