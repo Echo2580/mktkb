@@ -194,3 +194,53 @@ __all__ = [
     "conditional_required_spans",
     "required_spans",
 ]
+
+
+def validate_required_spans(record: TraceRecord, span_names: Any) -> list[str]:
+    """按设计 §6.4 校验一条 Trace 的 Span 完整性，返回排序后的缺失 Span 名称列表。
+
+    T003a 在文件末尾追加的纯函数（不改动本文件既有常量 / 类 / 函数）：
+
+    - 基础必需 Span：``required_spans(record.path, record.outcome_kind)``；
+    - 条件必需 Span：执行属性从记录的任意 ``*_json`` 字段载荷中读取，只取该 JSON
+      object 的**顶层键**，认 ``vector_enabled`` / ``rerank_enabled`` /
+      ``expansion_triggered`` / ``index_sync_performed`` 四个键（T003a 的 tracer 会把
+      ``annotate(...)`` 的条件属性并入 ``filter_decisions_json``）；
+    - 完整集合返回 ``[]``；缺任意必需 / 条件必需 Span 返回缺失清单；
+      ``rag + clarification`` 不要求 ``answer``（规则来自 T001 冻结表）；
+    - ``record.path`` 或 ``record.outcome_kind`` 缺失、或属于设计未定义的组合时
+      抛 ``ValueError``（fail closed，不返回空集冒充完整）；
+    - ``span_names`` 必须是 Span 名称的可迭代对象；单个字符串会抛 ``TypeError``。
+    """
+    if isinstance(span_names, str):
+        raise TypeError(
+            "span_names 必须是 Span 名称的可迭代对象（如 list[str]），不能是单个字符串"
+        )
+    path = record.path
+    outcome = record.outcome_kind
+    if path is None or outcome is None:
+        raise ValueError(
+            "TraceRecord 缺少 path 或 outcome_kind，无法判定必需 Span（fail closed）"
+        )
+    required = set(required_spans(path, outcome))
+
+    from dataclasses import fields as _fields
+    import json as _json
+
+    attrs: dict[str, Any] = {}
+    for field in _fields(TraceRecord):
+        if not field.name.endswith("_json"):
+            continue
+        payload = getattr(record, field.name, None)
+        if isinstance(payload, str):
+            try:
+                payload = _json.loads(payload)
+            except (TypeError, ValueError):
+                continue  # 不可解析的 JSON 文本不能提供属性证据
+        if isinstance(payload, Mapping):
+            for flag, _span in _CONDITIONAL_SPANS:
+                if flag in payload:
+                    attrs[flag] = payload[flag]
+    required |= set(conditional_required_spans(attrs))
+    return sorted(required - set(span_names))
+

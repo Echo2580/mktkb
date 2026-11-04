@@ -19,7 +19,9 @@ from .contracts import (
     TraceRecord,
     conditional_required_spans,
     required_spans,
+    validate_required_spans,
 )
+from .tracer import SpanHandle, TraceContext, current_trace, start_trace
 from .versioning import (
     CONFIG_HASH_FIELDS,
     config_hash,
@@ -34,14 +36,19 @@ __all__ = [
     "GATE_SCHEMA_VERSION",
     "TRACE_SCHEMA_VERSION",
     "OutcomeKind",
+    "SpanHandle",
     "SpanRecord",
+    "TraceContext",
     "TraceMode",
     "TracePath",
     "TraceRecord",
     "conditional_required_spans",
     "config_hash",
+    "current_trace",
     "hash_question",
     "key_fingerprint",
     "pipeline_version",
     "required_spans",
+    "start_trace",
+    "validate_required_spans",
 ]
