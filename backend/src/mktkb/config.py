@@ -110,6 +110,20 @@ class Settings(BaseSettings):
     rag_sync_on_startup: bool = True
     rag_embedding_retry_seconds: float = 30.0
 
+    # ---- T003b 可观测性 Trace 接线（设计 §5 / §6.1 / §6.2 / §6.5 / §6.6） ----
+    # 默认 False：不构造 Trace 仓储、不创建任何 Trace DB 文件、响应头与业务行为完全不变。
+    # 本地 P0 用 MKTKB_TRACE_ENABLED=1 开启（计划 Task 3 Interfaces）。
+    trace_enabled: bool = False
+    # 独立 SQLite 位置（设计 §6.2：与 mktkb.sqlite3 / rag-index.sqlite3 完全分离）；
+    # None 时落到 <data_dir>/observability/qa-traces.sqlite3。
+    trace_db_path: Path | None = None
+    # 内容模式（设计 §6.5）：P0 只实现最保守的 off / hash；redacted / full 显式拒绝。
+    trace_content_mode: str = "hash"
+    # 真实业务问题的 HMAC 密钥（设计 §6.5）：只用于 question_hash，记录里只存 key 指纹；
+    # 未配置时 tracer 退化为 sha256（合成语料/测试口径）。该值不得出现在日志 / 响应 /
+    # 异常 / Trace 记录里。
+    trace_hmac_key: SecretStr | None = None
+
 
     @field_validator("trusted_origins", mode="before")
     @classmethod
@@ -151,6 +165,46 @@ class Settings(BaseSettings):
             if normalised not in cleaned:
                 cleaned.append(normalised)
         return cleaned
+
+    @field_validator("trace_content_mode")
+    @classmethod
+    def _validate_trace_content_mode(cls, mode: str) -> str:
+        """P0 只允许 ``off`` / ``hash``（设计 §6.5）；``redacted`` / ``full`` 显式 fail closed。"""
+        if not isinstance(mode, str):
+            raise TypeError("trace_content_mode 必须是字符串")
+        normalized = mode.strip().lower()
+        if normalized in {"redacted", "full"}:
+            raise ValueError(
+                "trace_content_mode=redacted/full 在 P0 未实现，显式拒绝；P0 只允许 off / hash"
+            )
+        if normalized not in {"off", "hash"}:
+            raise ValueError("trace_content_mode 只允许 off / hash（P0）")
+        return normalized
+
+    @field_validator("trace_hmac_key", mode="before")
+    @classmethod
+    def _normalize_trace_hmac_key(cls, value: object) -> object:
+        """空白 key 视为“未配置”（tracer 退化为 sha256）；非 str / SecretStr 交给类型校验。"""
+        if value is None:
+            return None
+        if isinstance(value, SecretStr):
+            raw = value.get_secret_value()
+        elif isinstance(value, str):
+            raw = value
+        else:
+            return value
+        return None if not raw.strip() else SecretStr(raw)
+
+    @field_validator("trace_db_path", mode="before")
+    @classmethod
+    def _normalize_trace_db_path(cls, value: object) -> object:
+        """空白路径视为未配置（回落到默认目录）；字符串转成 ``Path``。"""
+        if value is None:
+            return None
+        if isinstance(value, str):
+            text = value.strip()
+            return None if not text else Path(text)
+        return value
 
     @model_validator(mode="after")
     def _check_secrets(self) -> "Settings":
@@ -276,6 +330,28 @@ class Settings(BaseSettings):
     def resolved_storage_dir(self) -> Path:
         """原文件/暂存目录；默认位于数据目录下，不对外静态挂载。"""
         return Path(self.storage_dir) if self.storage_dir else Path(self.data_dir) / "storage"
+
+    @property
+    def resolved_trace_db_path(self) -> Path:
+        """Trace 独立库路径（设计 §6.2）：默认 ``<data_dir>/observability/qa-traces.sqlite3``。
+
+        与业务库 ``mktkb.sqlite3`` / ``rag-index.sqlite3`` 完全分离；只有
+        ``trace_enabled=True`` 时 ``create_app`` 才会按该路径创建仓储与库文件。
+        """
+        if self.trace_db_path is not None:
+            return Path(self.trace_db_path)
+        return Path(self.data_dir) / "observability" / "qa-traces.sqlite3"
+
+    @property
+    def trace_hmac_key_bytes(self) -> bytes | None:
+        """HMAC key 的字节形式；未配置时 ``None``（tracer 退化为 sha256，设计 §6.5）。
+
+        只供 ``start_trace(hmac_key=...)`` 在内存中使用：不打印、不落库、不进异常。
+        """
+        if self.trace_hmac_key is None:
+            return None
+        raw = self.trace_hmac_key.get_secret_value().encode("utf-8")
+        return raw or None
 
     def resolved_database_url(self) -> str:
         if self.database_url:
