@@ -1,68 +1,167 @@
-# 市场部 AI 知识库（本地开发）
+<div align="center">
 
-企业入职考核项目：管理员维护部门资料，员工通过 AI 助手查询有来源的答案。
-当前进度：T01 模拟语料与冻结基线、T02 应用/数据库/登录权限基础、T03 管理员 xlsx/docx 上传/解析/持久任务、T04 发布/取消/删除、T05 精确记录与中文全文检索已由经理接收；T06 问答/个人会话/来源校验已本地交付，等待经理复核（仅 L 层，未做真实模型验证）。
-未实现：真实 DeepSeek 接通验证（R）、PDF/图片/OCR（T07）、前端页面（T08）与部署（T10）。
+# 市场部 AI 知识库 · MKTKB
 
-## 目录
+**把散落在表格、制度、通知和扫描件里的部门资料，变成一个「有来源、可追溯、敢说不知道」的 AI 问答知识库。**
 
-- `backend/`：FastAPI 应用、Alembic 迁移、测试
-  - `src/mktkb/`：`config.py`（配置）、`db.py`（数据库/迁移）、`errors.py`（稳定错误）、`auth/`（账号与会话）、`documents/`（逻辑文件/版本/上传/预览/原件/发布/取消/删除）、`ingestion/`（持久任务/worker/解析器）、`retrieval/`（分词/索引/精确与正文检索）、`providers/`（模型网关类型与 DeepSeek 文本适配）、`conversations/`（个人会话/问答编排/请求幂等/提交事务）、`sources/`（消息引用来源与受保护原件）、`main.py`（应用工厂）
-  - `migrations/`：Alembic 迁移（`0001_auth` 账号与会话；`0002_documents` 资料/版本/来源单元/任务；`0003_lifecycle` 发布/删除/版本状态；`0004_retrieval` 检索索引与复合归属约束；`0005_conversations` 会话/消息/请求/来源引用）
-  - `tests/`：`acceptance/`（T01 语料检查）、`unit/`（T03 解析器、T05 分词/字段/输入边界、T06 意图/模型协议）、`integration/`（T02 登录/迁移，T03 上传/预览/worker，T04 生命周期，T05 检索/索引完整性/并发，T06 会话/六类结果/提交竞态/来源/恢复/升级）
-- `fixtures/acceptance/`：冻结的模拟语料（只读，勿改）
-- `tools/`：语料生成与字体链路探针（T01）
-- `docs/`：需求、技术方案、契约、验收矩阵、任务单、开发证据
+<p>
+  <img alt="Python" src="https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.162-009688?logo=fastapi&logoColor=white">
+  <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=black">
+  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-FTS5-003B57?logo=sqlite&logoColor=white">
+  <img alt="pytest" src="https://img.shields.io/badge/tests-948%20passed%20(v0.1)-2ea44f">
+  <img alt="status" src="https://img.shields.io/badge/status-v0.1%20local%20delivery-f9a825">
+</p>
 
-## 环境
+<p>
+  <a href="#-项目简介">项目简介</a> ·
+  <a href="#-功能特性">功能特性</a> ·
+  <a href="#-界面预览">界面预览</a> ·
+  <a href="#-系统架构">系统架构</a> ·
+  <a href="#-技术栈">技术栈</a> ·
+  <a href="#-快速开始">快速开始</a> ·
+  <a href="#-测试与评测">测试与评测</a> ·
+  <a href="#-当前状态与已知限制">当前状态</a> ·
+  <a href="#-路线图">路线图</a> ·
+  <a href="#-文档导航">文档</a>
+</p>
 
-- Windows 本地开发：Python 3.12.7，项目虚拟环境 `.venv`
-- 依赖：`backend/requirements.lock`（生产）、`backend/requirements-dev.lock`（开发，含测试）
+</div>
+
+---
+
+## 📖 项目简介
+
+市场部每天要回答很多「资料题」：城东店的宣传海报放在哪个货架？跨店调拨物料由谁确认？活动申请要提前几个工作日提交？这些答案散落在 Excel 表格、Word 制度、PDF 通知和扫描件里，人工翻找慢，直接问通用大模型又容易一本正经地编。
+
+**MKTKB 是一个面向企业部门场景的本地 RAG 知识库**：管理员上传资料 → 系统解析、建索引、按版本发布 → 员工用自然语言提问 → 得到带来源引用的答案；资料里没有的，就明确返回「未找到」，而不是猜。
+
+设计上坚持三条原则：
+
+1. **能精确就别语义**：表格里的门店、物品、字段值走结构化记录检索；流程、制度、正文类问题走语义检索，两条路各有门禁。
+2. **答案必须可溯源**：每条回答引用已发布资料的具体单元；无引用、伪造值、跨实体、失效来源一律拒绝。
+3. **知识有版本**：资料可替换、可删除、按版本发布；回答与引用绑定当时的知识库 revision，答案不会「穿越」到新版本。
+
+> ℹ️ 本项目为个人作品 / 学习项目，不是 SaaS 服务。仓库内语料全部为**模拟数据**；模型、向量与 OCR 服务通过各自官方 API 在本地运行时接入，真实调用默认关闭，费用受本地预算账本约束。
+
+## ✨ 功能特性
+
+### 📚 资料管理
+
+- 支持 **xlsx / docx / PDF / png / jpg / jpeg**（单文件 ≤ 20MB，PDF ≤ 50 页，Excel ≤ 5000 数据行，图片 ≤ 2000 万像素）
+- 上传即创建**持久处理任务**：worker 租约 + 心跳续期 + 检查点恢复，中断后可续跑
+- 解析结果可预览、可重试、可查看处理报告
+- **版本化与生命周期**：追加新版本、发布 / 取消、逻辑删除；发布前对索引完整性逐项核对
+- 管理员可查看受保护原件；员工只能通过消息引用访问，服务端校验归属
+
+### 🔍 检索与问答
+
+- **混合召回**：结构化精确检索（门店 / 物品 / 字段）＋ 中文全文检索（jieba + SQLite FTS5）＋ 向量召回，**RRF 融合**后可选 **rerank**
+- **事实门禁**：拒绝伪造值、跨实体、跨字段、无引用、失效来源
+- **业务日期过滤**：按业务基准日过滤未生效 / 已失效资料（历史版本不串台）
+- **六类结果**：`answer` / `clarification` / `not_found` / `conflict` / `service_error` / `knowledge_changed`
+- **引用溯源**：答案返回来源单元，可查看引用详情与受保护原件
+- **多轮会话**：支持槽位继承与短追问（当前版本对未识别门店的继承逻辑有已知缺陷，见「当前状态」）
+
+### 🛠️ 工程化
+
+- **请求幂等**：`(conversation_id, client_request_id)` 唯一约束 + 在途请求防护 + 迟到结果 fencing
+- **提交事务**：回答落库前重检 revision、会话归属与引用有效性，避免过期答案落库
+- **预算账本**：真实调用前预留、按实际 usage 结算、失败留账、阶段额度 / 请求上限、零自动重试
+- **全本地运行**：SQLite 单机 + Alembic 迁移 + `.env` 隔离凭据，不依赖云服务
+- **948 个 pytest 用例** + Playwright 端到端测试
+- Windows **一键启动**：后端 + 前端 + 文件自动处理，一个窗口跑完整套服务
+
+## 🖼️ 界面预览
+
+> 本地运行实拍（模拟语料，管理员视角）。
+
+<table>
+  <tr>
+    <td width="50%"><img src="docs/assets/screenshot-chat.png" alt="带来源引用的 AI 问答"><br><sub>问答：答案 + 来源与依据</sub></td>
+    <td width="50%"><img src="docs/assets/screenshot-documents.png" alt="资料管理与版本状态"><br><sub>资料管理：类型 / 版本 / 状态</sub></td>
+  </tr>
+  <tr>
+    <td width="50%"><img src="docs/assets/screenshot-source.png" alt="来源详情抽屉"><br><sub>来源详情：原文、定位与原始字段</sub></td>
+    <td width="50%"><img src="docs/assets/screenshot-login.png" alt="登录页"><br><sub>登录：服务端预置账号</sub></td>
+  </tr>
+</table>
+## 🏗️ 系统架构
+
+```mermaid
+flowchart LR
+  UI["React 19 前端<br/>资料 / 问答 / 来源"] -->|"/api/v1"| API["FastAPI 应用"]
+  API --> AUTH["认证 / 会话 / CSRF"]
+  API --> DOC["资料与版本管理"]
+  DOC --> JOB["持久任务队列 + Worker"]
+  JOB --> PARSE["解析器<br/>xlsx / docx / PDF / 图片"]
+  PARSE --> OCR["腾讯云 OCR<br/>(live)"]
+  PARSE --> IDX[("rag-index.sqlite3<br/>精确索引 / FTS5 / 向量")]
+  API --> QA["问答编排"]
+  QA --> RET["混合检索<br/>精确 + FTS + 向量 → RRF → rerank"]
+  RET --> IDX
+  QA --> FACT["事实门禁 / 冲突检测 / 引用"]
+  FACT --> LLM["DeepSeek Chat<br/>(live)"]
+  QA --> BIZ[("mktkb.sqlite3<br/>业务数据 / 会话 / 引用")]
+  QA -. "P0 规划" .-> TRACE[("qa-traces.sqlite3<br/>Trace 内核")]
+  TRACE -. "P0 规划" .-> EVAL["离线评测<br/>Replay / Local → 双层门禁 → Baseline/Diff"]
+```
+
+- 资料库与索引库**物理分离**（`mktkb.sqlite3` / `rag-index.sqlite3`），问答不直接读写业务主库
+- 精确检索、全文检索、向量召回在检索层内完成融合与重排，事实门禁在生成前后各校验一次
+- P0 阶段将新增**独立 Trace 库**与离线评测器，不改动现有问答行为（见 [路线图](#-路线图)）
+
+## 🧰 技术栈
+
+| 层次 | 选型 |
+| --- | --- |
+| 后端框架 | Python 3.12 · FastAPI 0.162 · Uvicorn 0.54 |
+| 数据层 | SQLite（WAL + FTS5）· SQLAlchemy 2.1 · Alembic 1.20 |
+| 配置与校验 | Pydantic 2.14 · pydantic-settings |
+| 文档解析 | openpyxl 3.1 · python-docx 1.2 · pdfplumber 0.11 · pypdfium2 5.14 · Pillow 13 |
+| 中文检索 | jieba 0.42（本地词典）· SQLite FTS5 · numpy 2.5（向量矩阵） |
+| 模型服务 | DeepSeek Chat Completions（httpx 0.28）· DashScope text-embedding-v4 · gte-rerank-v2 · 腾讯云 OCR |
+| 前端 | React 19 · TypeScript 5.9 · Vite 8 · React Router 7 |
+| 测试 | pytest（948 用例）· Playwright 1.64 |
+| 运行环境 | Windows 本地；Python 3.12.7 / Node.js ≥ 22.12（Linux / macOS 未验证） |
+
+## 🚀 快速开始
+
+### 环境要求
+
+- Windows 10 / 11（本地开发环境；Linux / macOS 未验证）
+- Python **3.12**（仓库按 3.12.7 开发）
+- Node.js **≥ 22.12**（前端）
+- 可选：DeepSeek / DashScope / 腾讯云 OCR 凭据（仅「真实问答」模式需要）
+
+### 1. 安装
 
 ```powershell
-Set-Location -LiteralPath 'D:\GPT项目\市场部AI知识库'
+git clone https://github.com/Echo2580/mktkb.git
+cd mktkb
+
+python -m venv .venv
 .\.venv\Scripts\python.exe -B -m pip install -r backend\requirements-dev.lock
 .\.venv\Scripts\python.exe -B -m pip install --no-deps -e backend
 ```
 
-## 日常启动（一键）
-
-双击项目根目录的 `一键启动.cmd`：自动启动本机后端、前台页面与文件自动处理线程，并打开浏览器；窗口内按回车或 Ctrl+C 停止整套服务。详见 `一键启动-使用说明.md`。手工分窗口启动方式仍可按下文“初始化与迁移”“单次处理 worker”执行。
-
-## 配置
-
-复制 `.env.example` 为 `.env` 并填写**本地**模拟值；变量前缀 `MKTKB_`。真实部署密码不在本步交付。
-
-| 变量 | 说明 |
-| --- | --- |
-| `MKTKB_DATA_DIR` | 数据目录（SQLite 文件所在），默认 `var` |
-| `MKTKB_DATABASE_URL` | 可选，显式 SQLite URL；缺省用 `<data_dir>/mktkb.sqlite3` |
-| `MKTKB_STORAGE_DIR` | 可选，原件/暂存根目录；缺省 `<data_dir>/storage`，不作为静态目录挂载 |
-| `MKTKB_CSRF_SECRET` | CSRF 派生密钥，至少 16 字符（无默认值） |
-| `MKTKB_ADMIN_PASSWORD` / `MKTKB_EMPLOYEE_PASSWORD` | 预置账号初始密码，8–72 字节（无默认值） |
-| `MKTKB_TRUSTED_ORIGINS` | 受信任 Origin，支持三种写法：单个 `http://127.0.0.1:8077`、逗号分隔多个、JSON 数组字符串；不接受 `*`、`null`、无 scheme/主机或带路径的来源 |
-| `MKTKB_COOKIE_SECURE` | HTTPS 生产置 `true`；本地 HTTP 开发可置 `false` |
-| `MKTKB_SESSION_TTL_SECONDS` | 登录会话有效期，默认 8 小时 |
-| `MKTKB_MAX_UPLOAD_BYTES` | 单文件字节上限，默认 `20971520`（20 MB） |
-| `MKTKB_EXCEL_MAX_DATA_ROWS` | 单文件跨可见工作表有效数据行上限，默认 `5000` |
-| `MKTKB_JOB_LEASE_SECONDS` / `MKTKB_JOB_LEASE_RENEW_SECONDS` | worker 租约秒数与续期周期，默认 `120` / `30` |
-| `MKTKB_MODEL_BASE_URL` / `MKTKB_MODEL_NAME` / `MKTKB_MODEL_API_KEY` | T06 服务端模型配置（三项必须同时提供）；示例密钥留空，不提交真实凭据。未配置时问答返回 `MODEL_NOT_CONFIGURED`，其余接口照常 |
-| `MKTKB_MODEL_REQUEST_TIMEOUT_SECONDS` | 单次模型 HTTP 超时上限，默认 `30` 秒；总体问答预算固定 60 秒 |
-
-OOXML 解压资源预算（成员数/解压总量/单成员/压缩比）默认 `2000` / `134217728` / `67108864` / `100`，可通过同名 `MKTKB_OOXML_*` 变量调整；默认值依据见 `docs/evidence/T03/import-foundation-report.md`。
-
-## 初始化与迁移
-
-全新目录（没有 `var/`）必须先创建数据目录，否则迁移会报 `unable to open database file`：
+### 2. 配置
 
 ```powershell
-# 0) 准备数据目录（全新目录必做；已存在时该命令无副作用）
-New-Item -ItemType Directory -Force -Path var | Out-Null
+Copy-Item .env.example .env
+```
 
-# 1) 迁移到 head（空库即建表；重复执行不破坏数据）
+`.env` 至少填写：`MKTKB_CSRF_SECRET`（≥16 字符）、`MKTKB_ADMIN_PASSWORD`、`MKTKB_EMPLOYEE_PASSWORD`。
+需要真实问答 / OCR 时再填模型与 OCR 凭据；真实密钥只放本机 `.env`，不会进入仓库或前端。
+
+### 3. 初始化与启动
+
+```powershell
+# 数据目录 + 数据库迁移（幂等）
+New-Item -ItemType Directory -Force -Path var | Out-Null
 .\.venv\Scripts\python.exe -B -c "from mktkb.db import run_migrations; run_migrations('sqlite:///var/mktkb.sqlite3')"
 
-# 2) 单独执行账号初始化（幂等：只补缺失账号，不重置已有密码）
+# 初始化内置账号（幂等：只补缺失账号，不重置已有密码）
 @'
 from mktkb.auth.service import bootstrap_accounts
 from mktkb.config import Settings
@@ -83,174 +182,143 @@ with database.session_scope() as session:
     )
 print("created:", created)
 '@ | .\.venv\Scripts\python.exe -B -
+```
 
-# 3) 应用工厂检查（也可直接启动）；create_app 默认会再跑一次幂等迁移与账号初始化
-.\.venv\Scripts\python.exe -B -c "from mktkb.main import create_app; print(sorted(create_app().openapi()['paths']))"
+**方式 A（推荐）：一键启动** —— 双击根目录 `一键启动.cmd`，自动启动后端（默认 `127.0.0.1:8077`）、前端（默认 `127.0.0.1:5673`）与文件自动处理，并打印实际访问地址。
 
-# 4) 本地启动（可选，需自行停止）
+**方式 B：手工分窗口**
+
+```powershell
+# 后端
 .\.venv\Scripts\python.exe -B -m uvicorn mktkb.main:create_app --factory --host 127.0.0.1 --port 8077
+
+# 前端（另开窗口）
+cd frontend
+npm install
+npm run dev
 ```
 
-## 单次处理 worker（不常驻）
+> 默认 RAG 提供方为 `offline`（不产生真实调用）。需要真实模型 / OCR 时，使用 `启动-真实问答.cmd` 或在环境变量中显式设置 `MKTKB_RAG_PROVIDER_MODE=live` 及凭据；真实调用会计入本地预算账本，请按需使用。
 
-上传只建立 `queued` 任务；处理由独立 worker 领取。本步提供“处理一个任务后退出”的单次入口，不启动后台常驻服务：
+### 4. 登录与使用
+
+打开前端地址，用 `.env` 中配置的管理员 / 员工账号登录 →「资料」页上传并发布资料 →「问答」页提问。答案下方可展开查看来源引用。
+
+## 🧪 测试与评测
 
 ```powershell
-# 处理一个待处理任务；--storage-dir 必须与创建任务时一致
-.\.venv\Scripts\python.exe -B -m mktkb.ingestion.worker `
-  --database-url "sqlite:///var/mktkb.sqlite3" `
-  --storage-dir var\storage
+# 全量自动化测试（预算门相关用例需要与 .env.example 一致的总额度）
+$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
+.\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\readme
 ```
 
-- 输出一行 JSON：`job_id/state/units_written/units_reused/total_pages/error_code`。
-- 成功时任务 `succeeded`、版本 `review_required`；本步**从不发布**、不切换有效版本。
-- 中途退出后，租约到期（默认 120 秒）可由新进程恢复；已保存检查点不重复写入。
-- `--max-units N` 仅用于有界测试：处理 N 个来源单元后保存检查点并退出，不是业务接口。
+- `backend/tests/unit`：解析器、分词、意图、模型协议等纯单元用例
+- `backend/tests/integration`：登录 / 上传 / worker / 发布 / 检索 / 会话 / 来源 / 恢复
+- `backend/tests/rag`：RAG 内核、事实门禁、预算与结算
+- `backend/tests/acceptance`：冻结语料与端到端验收支撑
+- `frontend`：Playwright 端到端（`npm run test:e2e`，需要后端与前端已启动）
 
-## 检查
+**真实质量矩阵**（2026-11-04，v0.1 冻结版）：40 题真实调用实测 **31/40**，其中精确记录题 **24/24**、语义 / 扫描件题 **7/16**。失败集中在流程规范类问题的「记录路」路由缺陷，详见 [错误记录](错误记录-20261104.md)。
 
-pytest 的 `--basetemp` 只创建最后一级目录，因此首次运行前需创建父目录：
+> P0 阶段将引入确定性离线评测：B0 40 题 + Bad Case 13 题 → Replay / Local 双模式 → 硬门禁 + 分 stratum 质量门禁 → Baseline / Diff 报告。评测方案见 [设计文档](docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md) 与 [P0 计划](docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md)。
 
-```powershell
-New-Item -ItemType Directory -Force -Path backend\.pytest-tmp | Out-Null
+## 📊 当前状态与已知限制
 
-.\.venv\Scripts\python.exe -B -m pytest backend/tests/unit backend/tests/integration -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t03-local
-.\.venv\Scripts\python.exe -B -m pytest backend/tests/acceptance/test_corpus.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\corpus
-.\.venv\Scripts\python.exe -B -m pip check
-```
+**v0.1 本地交付版**（2026-11-04 冻结，tag `v0.1-local-20261104`）：
 
-`--basetemp` 必须指向本步骤专用的全新目录（pytest 会清理该目录），不要指向 `fixtures/` 或已有证据目录。
-
-## 接口
-
-### T02（已通过）
-
-| 方法 | 路径 | 行为 |
-| --- | --- | --- |
-| POST | `/api/v1/auth/login` | 校验受信任 Origin；成功 200 `{user, csrf_token}` 并设置 Cookie |
-| GET | `/api/v1/auth/me` | 登录有效返回 `{user, csrf_token}`；未登录/过期/撤销 401 |
-| POST | `/api/v1/auth/logout` | 校验 Origin + `X-CSRF-Token`，撤销当前会话，204（重复退出仍 204） |
-| GET | `/api/v1/healthz` | `{"status":"ok"}` |
-
-### T03（本步，全部管理员；写操作另需受信任 Origin + 会话 CSRF）
-
-| 方法 | 路径 | 行为 |
-| --- | --- | --- |
-| POST | `/api/v1/documents` | multipart 上传 `.xlsx/.docx`；`allow_same_name` 显式允许同名独立资料；202 `{document, version, job}` |
-| GET | `/api/v1/documents` | 分页列表（`q/file_type/state/offset/limit`），分别返回 `active_version`/`latest_version` |
-| GET | `/api/v1/documents/{document_id}` | 资料元信息与版本摘要（不返回提取正文） |
-| POST | `/api/v1/documents/{document_id}/versions` | 追加版本（`expected_active_version_id` 可选）；202，旧版仍保留 |
-| GET | `/api/v1/jobs/{job_id}` | 任务状态与进度、错误与可重试标志 |
-| POST | `/api/v1/jobs/{job_id}/retry` | 合法失败任务重新排队（复用同字节检查点）；运行中 409 |
-| GET | `/api/v1/documents/{document_id}/versions/{version_id}/preview` | 分页来源单元 + 完整处理/工作表摘要；可按 `sheet` 过滤 |
-| GET | `/api/v1/documents/{document_id}/versions/{version_id}/file` | 管理员受保护原件；不接受客户端服务器路径 |
-
-错误统一为 `{error:{code,message,retryable,details}, request_id}`；角色与写保护由服务端依赖执行。
-本步仅接收 `.xlsx/.docx`；PDF/图片返回稳定的 `415 UNSUPPORTED_FILE_TYPE`。
-
-### T04（本步，全部管理员；写操作另需受信任 Origin + 会话 CSRF）
-
-| 方法 | 路径 | 行为 |
-| --- | --- | --- |
-| GET | `/api/v1/documents/{document_id}` | 保留 `document`/`versions`，顶层新增 `revision`（读取时的全库知识库版本，供发布/删除前置条件） |
-| POST | `/api/v1/documents/{document_id}/versions/{version_id}/publish` | JSON `{expected_active_version_id, expected_revision}`；200 `{document_id, active_version_id, revision, published_at}`；旧有效版转 superseded，revision 只加 1 |
-| POST | `/api/v1/documents/{document_id}/versions/{version_id}/cancel` | 无请求体；204。仅取消未生效版本及其任务，保留旧有效版；published/superseded 返回 409 |
-| DELETE | `/api/v1/documents/{document_id}?expected_revision=N` | 200 `{document_id, deleted:true, revision}`；首次逻辑删除 revision+1，撤销全部内容访问并取消未完成任务；重复删除返回原结果 |
-
-发布要求版本为 `review_required`、任务成功、处理报告 `quality.complete` 为 true 且单元/检查点一致；
-冲突返回 409 `PUBLISH_CONFLICT` / `VERSION_NOT_PUBLISHABLE` / `DELETE_CONFLICT` / `VERSION_NOT_CANCELLABLE`；
-已删除资料的内容与发布/取消返回 410 `CONTENT_UNAVAILABLE`。删除后默认列表排除，详情仅保留元信息，
-提取内容/摘要/原件不可再读；旧来源单元与原件保留供后续受控清理（本步不启动常驻清理服务）。
-
-### T05（已由经理接收；无新增 HTTP 路由）
-
-检索以服务函数提供，供 T06 消费，不新增公开路由：
-
-- `mktkb.retrieval.service.retrieve(db, QueryIntent(...), *, revision, limit=20) -> EvidenceSet`：
-  当前有效资料的精确记录检索（门店/物品/标识、别名与 1～2 字短词、电话/编号原值）与中文正文检索；
-  `entity_filters` 只接受 `store/item/store_id/item_id`，`requested_fields` 是业务字段标签而非 SQL 列；
-  返回真实 SourceUnit、定位、候选总数（record 按逻辑实体、document 按来源单元）与
-  `matches/ambiguous/conflict/none`；索引未就绪抛 `IndexNotReady`，revision 过时抛
-  `KnowledgeRevisionChanged`（都不当作 none）。
-- **一致短读快照**：`retrieve` 在独立数据库连接上显式 `BEGIN`，revision、就绪判断、字段/别名/短词/FTS
-  召回、候选/冲突计数与最终来源读取处于同一数据库级短读快照；不提交或回滚调用方 Session，也不复用
-  其 ORM 缓存。查询中途发生发布/删除时，只返回请求 revision 下的完整旧快照，或明确抛
-  `KnowledgeRevisionChanged`；不会返回“旧 revision + 新事实/假 none”。回答最终提交的 revision 重检仍属 T06。
-- **真实索引完整性**：prepare 完成判定、发布事务内核对与有效版本检索就绪共用同一套真实行核对：
-  ready marker + SourceUnit + 单元映射 + FTS 正文 + 字段索引逐项对应；缺行、额外/错归属、
-  同数量错内容都会拒绝发布（409 `VERSION_NOT_PUBLISHABLE`）或使检索抛 `IndexNotReady`。
-  FTS 表缺失/故障不是 none；分词与全量构建仍在发布写事务之外。
-- **复合归属**：`0004_retrieval` 为 `source_units(id,version_id,document_id)` 与
-  `document_versions(id,document_id)` 增加父唯一索引，检索表用复合外键绑定该关系；服务查询同时
-  关联 SourceUnit 归属。跨 document/version 的伪造索引组合会被数据库约束拒绝，或在检索时按索引
-  异常处理，不会召回另一资料名下的单元；外键保持启用。
-- **显式重建/回填**：损坏样本不会被自动静默修复。发布返回 409 或检索抛出 `IndexNotReady` 后，
-  需先显式重建索引，再发布一次；重复发布/回填保持幂等。正常发布流程仍在进入原子写事务前准备索引。
-- 升级到 `0004_retrieval` 后，既有已发布资料需要显式回填一次（不在每次启动重建全库）：
-
-```python
-from mktkb.db import Database
-from mktkb.retrieval.index import backfill_published_indexes, prepare_version_index
-
-database = Database("sqlite:///var/mktkb.sqlite3")
-with database.session() as session:
-    statuses = backfill_published_indexes(session)  # 可重复执行，不重复单元/FTS 行
-print([(str(item.version_id), item.ready, item.unit_count) for item in statuses])
-database.dispose()
-```
-
-- `0004_retrieval` 尚未部署；本轮不提供“已部署旧 0004 结构”的在线升级。已有旧结构库不能仅执行
-  `upgrade head` 就宣称复合约束已生效；应在全新空库或保留的 `0003_lifecycle` 真实快照副本上升级，
-  再显式回填。正常发布/删除/取消后的旧索引与原件仍物理保留，本阶段不启动清理服务。
-- 中文分词使用 jieba 0.42.1（本地词典、不联网、不写 jieba 缓存文件）；入库与查询共用同一规则版本，
-  正文同时索引 jieba 词与汉字二元组；FTS 表达式只由安全引号包裹的 token 组成，用户输入不成为运算符。
-- 旧索引可物理保留，但替换/删行/取消/删除后立即不可见；检索不提供问答、会话、员工来源入口或前端。
-
-### T06（本地交付，待经理复核；L 层，不含真实模型验证）
-
-公开前缀仍为 `/api/v1`，新增且仅新增契约规定的 7 个操作；本人会话对 admin/employee 都适用，
-管理员没有他人会话特权；写操作复用受信任 Origin + 会话 CSRF：
-
-| 方法与路径 | 说明 |
+| 指标 | 值 |
 | --- | --- |
-| `POST /conversations` | 201 `{id,title,created_at}`，属于当前用户 |
-| `GET /conversations` | 分页列出本人会话（默认 limit=20，上限 100） |
-| `GET /conversations/{id}/messages` | 本人消息及来源摘要（实时 active/superseded/deleted） |
-| `POST /conversations/{id}/messages` | `{client_request_id, question}` → 200 六类 `AskResult` |
-| `DELETE /conversations/{id}` | 204，逻辑删除并使未完成请求失效；重复删除仍 204 |
-| `GET /messages/{message_id}/sources/{source_id}` | 本人消息引用详情；失效来源 410 仅元信息 |
-| `GET /messages/{message_id}/sources/{source_id}/file` | 受保护原件；`no-store`/`nosniff` |
+| 自动化测试 | 948 passed / 0 failed |
+| 真实 40 题矩阵 | 31/40；精确题 24/24；语义 / 扫描件题 7/16 |
+| 真实调用成本 | 共享账本保守占用 15.050980 / 20 元（供应商实账未核对） |
+| 本地演示索引 | 25 文档 / 642 units / 457 chunks |
+| 部署状态 | 未部署公网；无域名 / HTTPS |
 
-- **六类结果统一 200**：`answer / clarification / not_found / conflict / service_error / knowledge_changed`；
-  权限 403、未知资源 404、校验 422、处理中 409 `QUESTION_IN_PROGRESS`、同 ID 不同载荷 409
-  `REQUEST_PAYLOAD_MISMATCH`、过载 503 保留 HTTP 错误。
-- **持久幂等**：`conversation_requests` 上 `(conversation_id, client_request_id)` 唯一，
-  `status='running'` 上另有部分唯一索引保证每会话最多一个处理中请求；同 ID 同载荷重放既有结果，
-  不新增消息或模型调用；持久截止时间可回收崩溃遗留的 running，旧 attempt 的迟到结果被 fencing 拒绝。
-- **提交事务**：领取 → 独立读 revision/上下文 → 检索 → 事务外模型 await → 同一个短
-  `BEGIN IMMEDIATE` 写事务重检 revision、请求 attempt、会话所有者/未删除与所有引用有效性 →
-  原子保存结果/消息/引用。资料在问答期间变化（含无关资料）返回 `knowledge_changed`，不保存旧事实。
-- **模型适配**：只实现 DeepSeek 官方非流式 Chat Completions 文本协议，地址/模型/密钥只来自服务端配置；
-  最多一次 `query_expansion` + 一次 `answer`，总预算 60 秒，不自动重发；密钥不进响应/日志/异常/OpenAPI。
-- **来源**：先校验当前用户拥有 message 所属未删除会话、source_id 确为该消息引用，再核对
-  SourceUnit/version/document 归属与当前有效性；同字节重导入不会恢复旧链接。
-- 迁移 head 为 `0005_conversations`；`0004` 真实快照升级、旧表行值/原件/revision/索引保护见
-  `docs/evidence/T06/qa-report.md`。本地用可控模型与 HTTP 模拟验证，**不代表真实 DeepSeek 已接通**。
+**已知缺陷**（本版冻结不修，待 P0 评测门禁建立后按顺序修复）：
 
-```powershell
-# T06 定向自测（真实上传/worker/发布 + 可控模型；不使用真实模型/OCR）
-.\.venv\Scripts\python.exe -B -m pytest backend/tests/unit/test_conversations.py backend/tests/unit/test_deepseek.py `
-  backend/tests/integration/test_chat.py backend/tests/integration/test_source_access.py `
-  backend/tests/integration/test_answer_commit.py backend/tests/integration/test_conversation_recovery.py `
-  -q -p no:cacheprovider --basetemp='docs\evidence\T06\tmp\<唯一批次>-targeted'
+| 编号 | 级别 | 问题 |
+| --- | --- | --- |
+| D4 | P1 | 流程 / 规范类问题被路由成「记录枚举」，候选过多后直接返回澄清，不回落语义检索 |
+| D1 | P1 | 预发送阶段异常被统一包装成 `MODEL_UNAVAILABLE`，真实原因丢失 |
+| D5 | P2 | 未识别门店词（如「城西区」）会沿用上一轮门店，可能张冠李戴 |
+| D6 | P2 | 字段错配 / 含糊问题直接吐整条记录，未澄清 |
+| D3 | P2 | 澄清文案与实际原因不符 |
+
+**其他限制**：
+
+- 未部署公网；无 HTTPS / 域名；未做多浏览器与真机验收
+- 容量（100 资料 / 10000 记录 / 3 并发）与供应商错误形态（429 / 超时 / 5xx）未系统验证
+- 扫描件识别质量依赖真实腾讯 OCR，离线测试中仅以替身 / 跳过覆盖
+- Holdout 30 题集尚未建立（P1 引入）
+- 真实供应商实账未核对；账本为保守口径，不等于账单
+
+## 🗺️ 路线图
+
+| 阶段 | 内容 | 状态 |
+| --- | --- | --- |
+| **v0.1 本地交付** | 资料管理 / 检索 / 问答 / 权限 / 预算账本 / 一键启动 / 真实链路小样本验证 | ✅ 已冻结（`v0.1-local-20261104`） |
+| **P0 评测与可观测性** | Trace 内核 + SQLite 存储、确定性评测器（Replay / Local）、双层发布门禁、Baseline / Diff、JSON / Markdown / HTML 报告 | 📐 设计定稿，任务拆解待审 |
+| **P1 修复与检索评测** | 按 D4 → D1 → D5 → D6 → D3 修复；Holdout 30；真实 embedding / rerank 的检索级评测；监控 API | 🗓 计划 |
+| **P2 真实效果评测** | 预算内 live 端到端评测；Ragas 软指标；可选 Langfuse 导出 | 🗓 计划 |
+| **P3 看板与部署** | 历史趋势 / 告警看板；HTTPS / 域名部署与备份恢复 | 🗓 计划 |
+
+## 📁 目录结构
+
+```text
+├─ backend/                 FastAPI 应用
+│  ├─ src/mktkb/            认证、资料、任务、会话、检索、RAG、预算、来源
+│  ├─ migrations/           Alembic 迁移（0001 → 0005）
+│  └─ tests/                unit / integration / rag / acceptance
+├─ frontend/                React 19 + TypeScript + Vite 前端
+├─ tools/                   语料生成、受控真实调用、启动器、探针
+├─ fixtures/                冻结验收语料（只读，D01–D10 / 边界样本 / 64 题）
+├─ corpus/                  企业模拟资料库（69 文件 / 155 题答案键）
+├─ docs/                    需求、技术方案、契约、验收矩阵、进度、P0 方案
+├─ 原型设计/                 早期 HTML 交互原型
+├─ 一键启动.cmd              Windows 本地一键启动
+├─ 启动-真实问答.cmd         live 模式启动（真实供应商 / 预算账本）
+└─ .env.example             配置模板（真实凭据不进仓库）
 ```
 
-## 限制
+## 📚 文档导航
 
-- 仅本地 L 层检查：未做浏览器验收、真实 OCR/模型、Ubuntu 或部署检查；无前端页面。
-- T06 为本地交付、尚未经理复核：模型均为测试内可控替身或 HTTP 模拟，**未调用真实 DeepSeek**，
-  未读取密钥；Q29～Q40、完整 B0、PDF/图片/OCR 场景仍留 T07/T09。真实接通与产品验收关口未关闭。
-- T05 已由经理接收；`0004_retrieval` 尚未部署，不提供已部署旧 0004 结构的在线升级保证；损坏索引需
-  显式重建/回填，不存在自动清理服务。
-- 未做真实 50 文件/10000 记录/3 人并发负载验收；20 MB 与 5000 行是单文件规则上限，不是容量承诺。
-- T01 语料只读，测试不导入冻结语料作为验收数据源；本轮未重新生成语料或字体。
+| 文档 | 内容 |
+| --- | --- |
+| [产品需求文档](市场部AI知识库-产品需求文档.md) | 目标、范围、用户故事与验收边界 |
+| [技术方案](市场部AI知识库-技术方案.md) | 选型、数据设计、导入 / 检索 / 发布 / 部署方案 |
+| [接口与数据契约](docs/接口与数据契约.md) | API 契约、错误码、六类结果结构 |
+| [验收矩阵](docs/验收矩阵.md) | 功能验收项与判定口径 |
+| [项目进度](docs/项目进度.md) | 分阶段进度、裁决与证据索引 |
+| [本地交付说明](本地交付说明-20261104.md) | v0.1 可用入口、实测结果、成本与未覆盖项 |
+| [错误记录](错误记录-20261104.md) | 缺陷台账（ERR-20261104-01 ~ 07） |
+| [测试场景对照](测试场景对照与注意事项-20261104.md) | 手工验收场景与判分口径 |
+| [P0 设计](docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md) | 评测与可观测性方案（定稿） |
+| [P0 实施计划](docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md) | Task 1–7 实施步骤与验收映射 |
+| [语料说明](corpus/enterprise-20261101/README.md) | 企业模拟资料库结构与分组 |
+| [冻结语料说明](fixtures/acceptance/README.md) | 验收冻结语料与 B0 初始化配方 |
+
+## ⚠️ 数据与合规说明
+
+- 仓库内全部语料为**模拟 / 虚构数据**（公司、门店、人名、电话、价格均无真实指向）；`corpus` 中 3 份法规原文来自公开政务网站。
+- `.env`、业务数据库、运行证据均不进入仓库；真实凭据只在运行时从本机 `.env` 读取。
+- 真实模型 / OCR 调用按官方价格计费，项目内置预算账本（预留 / 结算 / 失败留账 / 阶段上限），不会静默超支。
+- 本项目仅用于学习与作品展示；请勿直接用于生产环境的真实业务数据处理。
+
+## 🙏 参考项目
+
+设计思路上参考了以下同类开源项目（排名不分先后）：
+
+- [RAGFlow](https://github.com/infiniflow/ragflow) —— 文档解析与可解释 RAG 流程
+- [FastGPT](https://github.com/labring/FastGPT) —— 知识库构建与问答编排
+- [AnythingLLM](https://github.com/Mintplex-Labs/anything-llm) —— 本地优先的一体化知识库体验
+- [QAnything](https://github.com/netease-youdao/QAnything) —— 中文场景的本地问答实践
+
+## 📄 License
+
+本仓库目前**未声明开源许可证**（All rights reserved），公开用于展示与学习。如需引用或复用代码 / 语料，请先联系作者。
+
+---
+
+<div align="center">
+<sub>Built with FastAPI · React · SQLite FTS5 · DeepSeek · 本地优先</sub>
+</div>
