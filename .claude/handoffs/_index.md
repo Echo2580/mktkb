@@ -16,6 +16,7 @@
 | T009 | 独立验收与 P0 收口 | G0 待审 | 0 | 否 | T001–T008 |
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`
-- **PM 交接提示词（新窗口用）**：`prompts/p0-pm-handoff-20261104.md`
+- **PM 交接提示词（新窗口用，长版）**：`prompts/p0-pm-handoff-20261104.md`
+- **PM 交接提示词（简版，直接复制）**：`prompts/p0-pm-handoff-short-20261104.md`
 - 方案：`docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md`、`docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md`
 - 冻结基线证据：`docs/evidence/LOCAL-R1-20261101/TEST-20261104/`（本地，不入库）
