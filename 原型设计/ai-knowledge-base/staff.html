@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>员工角色 · 市场部 AI 知识库</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+</head>
+<body class="m-0 h-full overflow-hidden bg-slate-50 font-sans text-[14px] text-slate-800 antialiased">
+<div class="flex h-full min-w-[1120px] overflow-hidden">
+<aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
+<div class="flex h-16 shrink-0 items-center border-b border-slate-100 px-4">
+<a class="flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[19px]" icon="lucide:book-open"></iconify-icon>
+</span>
+<span class="min-w-0">
+<span class="block truncate text-[14px] font-semibold tracking-tight text-slate-900">市场部 AI 知识库</span>
+<span class="mt-0.5 block text-[11px] text-slate-500">部门知识查询</span>
+</span>
+</a>
+</div>
+<div class="shrink-0 px-3 pt-4">
+<p class="px-2 pb-1.5 text-[11px] font-medium text-slate-400">工作台</p>
+<nav aria-label="主要导航" class="space-y-1">
+<a class="flex h-9 items-center gap-2.5 rounded-lg bg-blue-50 px-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:sparkles"></iconify-icon>
+<span>AI 助手</span>
+</a>
+</nav>
+</div>
+<div class="mt-4 shrink-0 px-3">
+<a class="flex w-full items-center justify-between gap-2 rounded-lg border border-blue-200 bg-blue-50/70 px-3 py-2.5 text-[13px] font-semibold text-blue-700 transition hover:border-blue-300 hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html" id="newChatLink">
+<span class="flex items-center gap-2">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:plus"></iconify-icon>
+<span>新建对话</span>
+</span>
+<span class="rounded-md bg-white px-1.5 py-0.5 text-[10px] font-medium text-blue-600 shadow-sm ring-1 ring-blue-100">当前</span>
+</a>
+</div>
+<div class="mt-5 flex min-h-0 flex-1 flex-col px-3">
+<div class="flex shrink-0 items-center justify-between px-2 pb-2">
+<h2 class="text-[11px] font-medium text-slate-400">我的历史</h2>
+<span class="text-[10px] text-slate-400" id="historyCount">3</span>
+</div>
+<nav aria-label="我的历史会话" class="min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-0.5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden" id="historyList">
+<div class="group flex items-start gap-1 rounded-lg pr-1 text-slate-600 transition hover:bg-slate-50" data-history="poster">
+<a class="flex min-w-0 flex-1 items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="#history">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">城东店的宣传海报位置</span>
+</a>
+<button aria-label="删除会话：城东店的宣传海报位置" class="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-300 transition hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400" data-delete-session="poster" data-title="城东店的宣传海报位置" title="删除会话" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:trash-2"></iconify-icon>
+</button>
+</div>
+<div class="group flex items-start gap-1 rounded-lg pr-1 text-slate-600 transition hover:bg-slate-50" data-history="materials">
+<a class="flex min-w-0 flex-1 items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="#history">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">物料领用流程</span>
+</a>
+<button aria-label="删除会话：物料领用流程" class="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-300 transition hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400" data-delete-session="materials" data-title="物料领用流程" title="删除会话" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:trash-2"></iconify-icon>
+</button>
+</div>
+<div class="group flex items-start gap-1 rounded-lg pr-1 text-slate-600 transition hover:bg-slate-50" data-history="schedule">
+<a class="flex min-w-0 flex-1 items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="#history">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">十一月内容排期口径</span>
+</a>
+<button aria-label="删除会话：十一月内容排期口径" class="mt-1.5 flex h-6 w-6 shrink-0 items-center justify-center rounded text-slate-300 transition hover:bg-rose-50 hover:text-rose-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-400" data-delete-session="schedule" data-title="十一月内容排期口径" title="删除会话" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:trash-2"></iconify-icon>
+</button>
+</div>
+</nav>
+<p class="hidden px-2.5 pb-2 text-[11px] leading-5 text-slate-400" id="historyEmpty">暂无历史会话，新建对话后会出现在这里。</p>
+</div>
+<div class="shrink-0 border-t border-slate-200 p-3">
+<div class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[12px] font-semibold text-slate-700">周</div>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[13px] font-semibold text-slate-800">周敏</p>
+<p class="truncate text-[11px] text-slate-500">市场部 · 员工</p>
+</div>
+<button aria-label="退出登录" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="logoutButton" title="退出登录" type="button">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:log-out"></iconify-icon>
+</button>
+</div>
+</div>
+</aside>
+<main class="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-50">
+<header class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
+<div class="flex items-center gap-2.5">
+<h1 class="text-[17px] font-semibold tracking-tight text-slate-900">AI 助手</h1>
+<span class="inline-flex items-center gap-1.5 rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<iconify-icon aria-hidden="true" class="text-[11px]" icon="lucide:user-round"></iconify-icon>
+            员工角色
+          </span>
+</div>
+<div class="flex items-center gap-1.5 text-[12px] text-slate-500">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+<span>资料库已同步</span>
+<span class="text-slate-300">·</span>
+<span>10 月 27 日</span>
+</div>
+</header>
+<div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden" id="chatScroll">
+<section class="mx-auto w-full max-w-[880px] px-8 py-7">
+<div class="mb-5 flex items-center justify-between gap-4">
+<div class="flex min-w-0 items-center gap-2">
+<h2 class="truncate text-[15px] font-semibold tracking-tight text-slate-900">员工角色 · 可见范围</h2>
+<span class="shrink-0 rounded-md border border-slate-200 bg-white px-2 py-0.5 text-[11px] text-slate-500">只读角色</span>
+</div>
+<a class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-2.5 text-[12px] font-medium text-slate-600 transition hover:border-slate-300 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="states.html#s10">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:layout-grid"></iconify-icon>
+<span>状态画板</span>
+</a>
+</div>
+<div class="space-y-6">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的宣传海报放在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 10:30</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-medium text-emerald-700">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>基于已发布资料
+                  </span>
+<span class="text-[11px] text-slate-400">10:30</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">城东店的宣传海报位于 B区1号货架第二层。</p>
+<dl class="mt-3 divide-y divide-slate-100 rounded-lg bg-slate-50/70 px-3 py-1">
+<div class="flex items-baseline gap-3 py-1.5">
+<dt class="w-[88px] shrink-0 text-[12px] text-slate-500">资料生效时间</dt>
+<dd class="min-w-0 flex-1 text-[12px] font-medium text-slate-800">2026-10-27 10:30</dd>
+</div>
+<div class="flex items-baseline gap-3 py-1.5">
+<dt class="w-[88px] shrink-0 text-[12px] text-slate-500">记录位置</dt>
+<dd class="min-w-0 flex-1 text-[12px] font-medium text-slate-800">物品位置工作表 · 第8行</dd>
+</div>
+</dl>
+<div class="mt-3.5 border-t border-slate-100 pt-3">
+<div class="mb-2 flex items-center justify-between gap-2">
+<span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:link-2"></iconify-icon>来源与依据
+                      </span>
+<span class="text-[11px] text-slate-400">生效时间与发送时间分开显示</span>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2">
+<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-50 text-slate-500 ring-1 ring-slate-200">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:file-spreadsheet"></iconify-icon>
+</span>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[12px] font-medium text-slate-800">物品位置表.xlsx · V2</p>
+<p class="mt-0.5 truncate text-[11px] text-slate-500">Excel · 生效 2026-10-27 10:30</p>
+</div>
+<button class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-700 transition hover:border-blue-300 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1" data-staff-drawer="" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:scan-eye"></iconify-icon>查看依据
+                      </button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<section class="scroll-mt-6 rounded-xl border border-slate-200 bg-white p-4 shadow-sm" id="history">
+<div class="flex items-start justify-between gap-3">
+<div>
+<h3 class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-900">
+<iconify-icon aria-hidden="true" class="text-[14px] text-slate-400" icon="lucide:shield-check"></iconify-icon>
+                    当前角色能力
+                  </h3>
+<p class="mt-1 text-[12px] leading-5 text-slate-500">角色由系统分配，此处仅展示当前账号可用的导航与操作。</p>
+</div>
+<span class="shrink-0 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">不可切换</span>
+</div>
+<div class="mt-3 grid gap-2 sm:grid-cols-3">
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>可用</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">AI 助手 · 新建对话 · 本人历史 · 退出</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>未开放</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">资料管理（仅管理员）</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>不提供</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">角色切换 · 分享 · 团队会话 · 导出</p>
+</div>
+</div>
+</section>
+<div class="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white px-4 py-3">
+<p class="flex items-center gap-1.5 text-[12px] text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:info"></iconify-icon>
+                左侧历史会话可删除，删除前需二次确认。
+              </p>
+<a class="text-[12px] font-medium text-blue-700 transition hover:text-blue-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="states.html">返回状态画板</a>
+</div>
+</div>
+</section>
+</div>
+<footer class="shrink-0 border-t border-slate-200 bg-white px-8 py-4">
+<div class="mx-auto max-w-[880px]">
+<div class="mb-2 flex items-center justify-between">
+<label class="text-[12px] font-semibold text-slate-700" for="questionInput">输入你的问题</label>
+<span class="text-[11px] text-slate-400">Shift + Enter 换行</span>
+</div>
+<form class="rounded-xl border border-slate-300 bg-white p-2 shadow-sm transition focus-within:border-blue-500 focus-within:ring-2 focus-within:ring-blue-100" id="askForm">
+<div class="flex items-end gap-3">
+<textarea class="min-h-[44px] max-h-32 flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2.5 text-[14px] leading-6 text-slate-800 placeholder:text-slate-400 focus:outline-none [scrollbar-width:thin]" id="questionInput" placeholder="描述你想查询的物品、门店或流程…" rows="1"></textarea>
+<button class="mb-0.5 inline-flex h-10 shrink-0 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400 disabled:shadow-none disabled:hover:bg-slate-200" disabled="" id="sendButton" type="submit">
+<span>发送</span>
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:arrow-up"></iconify-icon>
+</button>
+</div>
+</form>
+<p class="mt-2 flex items-center gap-1.5 text-[11px] leading-5 text-slate-500">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[13px] text-slate-400" icon="lucide:shield-check"></iconify-icon>
+<span>员工角色仅可查询已发布资料，无法维护资料。</span>
+</p>
+</div>
+</footer>
+</main>
+</div>
+<aside aria-labelledby="drawerTitle" aria-modal="true" class="absolute inset-y-0 right-0 z-40 flex w-[480px] max-w-full translate-x-full flex-col border-l border-slate-200 bg-white shadow-2xl outline-none transition-transform duration-200 ease-out" id="sourceDrawer" role="dialog" tabindex="-1">
+<div class="flex h-16 shrink-0 items-start justify-between gap-3 border-b border-slate-200 px-5">
+<div class="min-w-0 pt-3.5">
+<div class="flex items-center gap-2">
+<h2 class="truncate text-[15px] font-semibold tracking-tight text-slate-900" id="drawerTitle">来源详情</h2>
+<span class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">只读</span>
+</div>
+<p class="mt-1 truncate text-[11px] text-slate-500">物品位置表.xlsx · V2</p>
+</div>
+<button aria-label="关闭来源详情" class="mt-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="drawerClose" type="button">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:x"></iconify-icon>
+</button>
+</div>
+<div class="min-h-0 flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<h3 class="text-[15px] font-semibold text-slate-900">物品位置表.xlsx</h3>
+<p class="mt-1 text-[11px] text-slate-500">物品位置工作簿 · 工作表：物品位置</p>
+<div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[11px] text-slate-500">
+<span class="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">Excel</span>
+<span class="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">V2</span>
+<span class="inline-flex items-center gap-1"><iconify-icon aria-hidden="true" class="text-[12px] text-slate-400" icon="lucide:clock-3"></iconify-icon>生效 2026-10-27 10:30</span>
+</div>
+<div class="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-semibold text-blue-800">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:highlighter"></iconify-icon>本次引用的单元格记录
+        </p>
+<p class="mt-1 text-[13px] leading-6 text-slate-800">城东店：B区1号货架第二层</p>
+</div>
+<div class="mt-4 overflow-hidden rounded-lg border border-slate-200">
+<div class="flex items-center justify-between border-b border-slate-200 bg-slate-50 px-3 py-2 text-[12px] font-medium text-slate-700">
+<span class="flex items-center gap-1.5"><iconify-icon aria-hidden="true" class="text-[13px] text-emerald-600" icon="lucide:table-2"></iconify-icon>工作表：物品位置</span>
+<span class="rounded bg-white px-1.5 py-0.5 text-[10px] text-slate-500 ring-1 ring-slate-200">原始行号 8</span>
+</div>
+<table class="w-full border-collapse text-left">
+<thead><tr class="bg-slate-50">
+<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">行号</th>
+<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">门店</th>
+<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">物品</th>
+<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">位置</th>
+</tr></thead>
+<tbody>
+<tr class="odd:bg-white even:bg-slate-50/60">
+<td class="border-t border-slate-100 px-2.5 py-2 text-[11px] text-slate-500">6</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">城东店</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">易拉宝</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">B区1号货架第一层</td>
+</tr>
+<tr class="bg-blue-50 ring-1 ring-inset ring-blue-200">
+<td class="border-t border-slate-100 px-2.5 py-2 text-[11px] text-slate-500">8<span class="ml-1 rounded bg-blue-600 px-1 py-0.5 text-[9px] font-semibold text-white">引用</span></td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] font-semibold text-slate-900">城东店</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] font-semibold text-slate-900">宣传海报</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] font-semibold text-blue-800">B区1号货架第二层</td>
+</tr>
+<tr class="odd:bg-white even:bg-slate-50/60">
+<td class="border-t border-slate-100 px-2.5 py-2 text-[11px] text-slate-500">9</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">城西店</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">宣传海报</td>
+<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">A区2号货架第一层</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-3">
+<p class="flex items-center gap-1.5 text-[11px] text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:lock"></iconify-icon>
+        来源为只读资料，不支持编辑
+      </p>
+<button class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="drawerFootClose" type="button">关闭来源</button>
+</div>
+</aside>
+<div aria-labelledby="deleteTitle" aria-modal="true" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/30 p-4" id="deleteModal" role="dialog">
+<div class="w-full max-w-[380px] rounded-xl border border-slate-200 bg-white shadow-2xl">
+<div class="p-5">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+<iconify-icon aria-hidden="true" class="text-[18px]" icon="lucide:trash-2"></iconify-icon>
+</div>
+<h2 class="mt-4 text-[16px] font-semibold text-slate-900" id="deleteTitle">删除这条历史会话？</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500">会话「<span id="deleteSessionTitle"></span>」将从你的历史中移除，删除后无法恢复。</p>
+<p class="mt-2 text-[12px] leading-5 text-slate-400">仅影响你本人的历史记录，不影响知识库资料。</p>
+</div>
+<div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-3">
+<button class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="cancelDelete" type="button">取消</button>
+<button class="inline-flex h-9 items-center justify-center rounded-lg bg-rose-600 px-3.5 text-[13px] font-medium text-white transition hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2" id="confirmDelete" type="button">删除会话</button>
+</div>
+</div>
+</div>
+<div aria-labelledby="logoutTitle" aria-modal="true" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/30 p-4" id="logoutModal" role="dialog">
+<div class="w-full max-w-[360px] rounded-xl border border-slate-200 bg-white shadow-2xl">
+<div class="p-5">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+<iconify-icon aria-hidden="true" class="text-[18px]" icon="lucide:log-out"></iconify-icon>
+</div>
+<h2 class="mt-4 text-[16px] font-semibold text-slate-900" id="logoutTitle">退出登录？</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500">退出后需要重新登录才能继续使用 AI 知识库。</p>
+</div>
+<div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-3">
+<button class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="cancelLogout" type="button">取消</button>
+<button class="inline-flex h-9 items-center justify-center rounded-lg bg-slate-800 px-3.5 text-[13px] font-medium text-white transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="confirmLogout" type="button">退出登录</button>
+</div>
+</div>
+</div>
+<div class="pointer-events-none fixed bottom-6 left-1/2 z-[60] hidden -translate-x-1/2 items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-[12px] font-medium text-white shadow-xl" id="toast">
+<iconify-icon aria-hidden="true" class="text-[14px] text-emerald-400" icon="lucide:check"></iconify-icon>
+<span id="toastText"></span>
+</div>
+<script>
+    const questionInput = document.getElementById('questionInput');
+    const sendButton = document.getElementById('sendButton');
+    const askForm = document.getElementById('askForm');
+    const chatScroll = document.getElementById('chatScroll');
+    const historyCount = document.getElementById('historyCount');
+    const historyEmpty = document.getElementById('historyEmpty');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    function updateSendState() {
+      sendButton.disabled = questionInput.value.trim().length === 0;
+    }
+
+    function resizeInput() {
+      questionInput.style.height = 'auto';
+      const height = Math.min(questionInput.scrollHeight, 128);
+      questionInput.style.height = Math.max(height, 44) + 'px';
+    }
+
+    questionInput.addEventListener('input', () => {
+      resizeInput();
+      updateSendState();
+    });
+
+    askForm.addEventListener('submit', event => {
+      event.preventDefault();
+      if (!questionInput.value.trim()) return;
+      const form = askForm;
+      form.querySelectorAll('button').forEach(btn => { btn.disabled = true; });
+      const note = document.createElement('p');
+      note.className = 'mt-2 flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[12px] text-slate-600';
+      note.innerHTML = '<iconify-icon icon="lucide:loader-circle" class="animate-spin text-[13px] text-blue-600" aria-hidden="true"></iconify-icon>正在查找已发布资料…';
+      form.insertAdjacentElement('afterend', note);
+      setTimeout(() => {
+        note.className = 'mt-2 flex items-center gap-1.5 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[12px] text-amber-800';
+        note.innerHTML = '<iconify-icon icon="lucide:info" class="text-[13px]" aria-hidden="true"></iconify-icon>原型演示：员工角色的完整问答请在 AI 助手页面体验。';
+        form.querySelectorAll('button').forEach(btn => { btn.disabled = false; });
+        updateSendState();
+      }, 900);
+    });
+
+    function showToast(message) {
+      toastText.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2200);
+    }
+
+    // 历史会话删除 + 二次确认
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteSessionTitle = document.getElementById('deleteSessionTitle');
+    const cancelDelete = document.getElementById('cancelDelete');
+    const confirmDelete = document.getElementById('confirmDelete');
+    let pendingDelete = null;
+    let deleteTrigger = null;
+
+    function updateHistoryCount() {
+      const rows = document.querySelectorAll('[data-history]');
+      historyCount.textContent = String(rows.length);
+      historyEmpty.classList.toggle('hidden', rows.length !== 0);
+    }
+
+    function openDeleteModal(button) {
+      pendingDelete = button.dataset.deleteSession;
+      deleteTrigger = button;
+      deleteSessionTitle.textContent = button.dataset.title;
+      deleteModal.classList.remove('hidden');
+      deleteModal.classList.add('flex');
+      cancelDelete.focus();
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.add('hidden');
+      deleteModal.classList.remove('flex');
+      pendingDelete = null;
+      if (deleteTrigger && document.body.contains(deleteTrigger)) deleteTrigger.focus();
+    }
+
+    document.querySelectorAll('[data-delete-session]').forEach(button => {
+      button.addEventListener('click', () => openDeleteModal(button));
+    });
+
+    cancelDelete.addEventListener('click', closeDeleteModal);
+    confirmDelete.addEventListener('click', () => {
+      const row = pendingDelete ? document.querySelector('[data-history="' + pendingDelete + '"]') : null;
+      const title = row ? (row.querySelector('.line-clamp-2') || {}).textContent : '';
+      if (row) row.remove();
+      updateHistoryCount();
+      closeDeleteModal();
+      showToast('已删除历史会话「' + (title || '') + '」');
+    });
+    deleteModal.addEventListener('click', event => {
+      if (event.target === deleteModal) closeDeleteModal();
+    });
+
+    // 来源抽屉
+    const drawer = document.getElementById('sourceDrawer');
+    function closeDrawer() {
+      drawer.classList.add('translate-x-full');
+    }
+    document.querySelector('[data-staff-drawer]').addEventListener('click', () => {
+      drawer.classList.remove('translate-x-full');
+      drawer.focus();
+    });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerFootClose').addEventListener('click', closeDrawer);
+
+    // 退出登录
+    const logoutModal = document.getElementById('logoutModal');
+    const logoutButton = document.getElementById('logoutButton');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+    let logoutTrigger = null;
+
+    logoutButton.addEventListener('click', () => {
+      logoutTrigger = logoutButton;
+      logoutModal.classList.remove('hidden');
+      logoutModal.classList.add('flex');
+      cancelLogout.focus();
+    });
+    function closeLogoutModal() {
+      logoutModal.classList.add('hidden');
+      logoutModal.classList.remove('flex');
+      if (logoutTrigger) logoutTrigger.focus();
+    }
+    cancelLogout.addEventListener('click', closeLogoutModal);
+    confirmLogout.addEventListener('click', () => {
+      closeLogoutModal();
+      showToast('已退出登录');
+    });
+    logoutModal.addEventListener('click', event => {
+      if (event.target === logoutModal) closeLogoutModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (!deleteModal.classList.contains('hidden')) {
+        closeDeleteModal();
+      } else if (!logoutModal.classList.contains('hidden')) {
+        closeLogoutModal();
+      } else if (!drawer.classList.contains('translate-x-full')) {
+        closeDrawer();
+      }
+    });
+
+    document.getElementById('historyList').addEventListener('click', event => {
+      const link = event.target.closest('a[href="#history"]');
+      if (!link) return;
+      document.querySelectorAll('[data-history]').forEach(row => {
+        row.classList.remove('bg-slate-50');
+        row.querySelector('a').removeAttribute('aria-current');
+      });
+      const row = link.closest('[data-history]');
+      row.classList.add('bg-slate-50');
+      link.setAttribute('aria-current', 'true');
+    });
+
+    updateHistoryCount();
+    updateSendState();
+  </script>
+</body>
+</html>

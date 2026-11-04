@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>资料管理 · 市场部 AI 知识库</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+</head>
+<body class="m-0 h-full overflow-hidden bg-slate-50 font-sans text-[14px] text-slate-800 antialiased">
+<div class="flex h-full min-w-[1120px] overflow-hidden">
+<aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
+<div class="flex h-16 shrink-0 items-center border-b border-slate-100 px-4">
+<a class="flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[19px]" icon="lucide:book-open"></iconify-icon>
+</span>
+<span class="min-w-0">
+<span class="block truncate text-[14px] font-semibold tracking-tight text-slate-900">市场部 AI 知识库</span>
+<span class="mt-0.5 block text-[11px] text-slate-500">部门知识查询</span>
+</span>
+</a>
+</div>
+<div class="shrink-0 px-3 pt-4">
+<p class="px-2 pb-1.5 text-[11px] font-medium text-slate-400">工作台</p>
+<nav aria-label="主要导航" class="space-y-1">
+<a class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-normal text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<iconify-icon aria-hidden="true" class="text-[17px] text-slate-400" icon="lucide:sparkles"></iconify-icon>
+<span>AI 助手</span>
+</a>
+<a aria-current="page" class="flex h-9 items-center gap-2.5 rounded-lg bg-blue-50 px-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="materials.html">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:files"></iconify-icon>
+<span>资料管理</span>
+</a>
+<a class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-normal text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="states.html">
+<iconify-icon aria-hidden="true" class="text-[17px] text-slate-400" icon="lucide:layout-grid"></iconify-icon>
+<span>状态画板</span>
+</a>
+<a class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-normal text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="staff.html">
+<iconify-icon aria-hidden="true" class="text-[17px] text-slate-400" icon="lucide:user-round"></iconify-icon>
+<span>员工角色</span>
+</a>
+</nav>
+</div>
+<div class="mt-4 shrink-0 px-3">
+<a class="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html" id="newChatLink">
+<span class="flex items-center gap-2">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:plus"></iconify-icon>
+<span>新建对话</span>
+</span>
+</a>
+</div>
+<div class="mt-5 flex min-h-0 flex-1 flex-col px-3">
+<div class="flex shrink-0 items-center justify-between px-2 pb-2">
+<h2 class="text-[11px] font-medium text-slate-400">最近对话</h2>
+<span class="text-[10px] text-slate-400">4</span>
+</div>
+<nav aria-label="最近对话" class="min-h-0 flex-1 space-y-0.5 overflow-y-auto pr-0.5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<a class="group flex items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-session="poster" href="session.html?session=poster">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400 group-hover:text-slate-500" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">城东店的宣传海报位置</span>
+</a>
+<a class="group flex items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-session="materials" href="session.html?session=materials">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400 group-hover:text-slate-500" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">物料领用流程</span>
+</a>
+<a class="group flex items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-session="contacts" href="session.html?session=contacts">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400 group-hover:text-slate-500" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">城东店联系人确认</span>
+</a>
+<a class="group flex items-start gap-2 rounded-lg px-2.5 py-2 text-[13px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-session="schedule" href="session.html?session=schedule">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400 group-hover:text-slate-500" icon="lucide:message-square"></iconify-icon>
+<span class="line-clamp-2">十一月内容排期口径</span>
+</a>
+</nav>
+</div>
+<div class="shrink-0 border-t border-slate-200 p-3">
+<div class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[12px] font-semibold text-slate-700">林</div>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[13px] font-semibold text-slate-800">林晓彤</p>
+<p class="truncate text-[11px] text-slate-500">市场部 · 管理员</p>
+</div>
+<button aria-label="退出登录" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="logoutButton" title="退出登录" type="button">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:log-out"></iconify-icon>
+</button>
+</div>
+</div>
+</aside>
+<main class="flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-50">
+<header class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
+<div class="flex items-center gap-2.5">
+<h1 class="text-[17px] font-semibold tracking-tight text-slate-900">资料管理</h1>
+<span class="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-500">资料维护</span>
+</div>
+<div class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-1 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:shield-check"></iconify-icon>
+<span>管理员权限</span>
+</div>
+</header>
+<div class="min-h-0 flex-1 overflow-y-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<section class="mx-auto max-w-[1120px] px-8 py-8">
+<div class="flex flex-wrap items-end justify-between gap-4">
+<div>
+<h2 class="text-[21px] font-semibold tracking-tight text-slate-900">资料管理</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500">上传后先检查提取内容，确认发布后才会参与 AI 问答。</p>
+</div>
+<div class="flex items-center gap-2.5">
+<a class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+<span>返回 AI 助手</span>
+</a>
+<button class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="openUploadButton" type="button">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:upload"></iconify-icon>
+<span>上传资料</span>
+</button>
+</div>
+</div>
+<div class="mt-5 hidden items-start gap-2.5 rounded-lg border px-4 py-3 text-[12px] leading-5" id="listNotice"></div>
+<div class="mt-5 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+<div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-4 py-3">
+<div class="relative">
+<iconify-icon aria-hidden="true" class="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-[15px] text-slate-400" icon="lucide:search"></iconify-icon>
+<input aria-label="按文件名搜索" class="h-9 w-[260px] rounded-lg border border-slate-300 bg-white pl-8 pr-3 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" id="fileSearch" placeholder="搜索文件名" type="search"/>
+</div>
+<p class="text-[12px] text-slate-500">共 <span class="font-semibold text-slate-700" id="recordCount">4</span> 份资料 · 新版需确认发布后生效</p>
+</div>
+<div class="w-full overflow-x-auto [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<table class="w-full text-left text-[13px]">
+<thead class="bg-slate-50 text-[12px] font-medium text-slate-500">
+<tr>
+<th class="px-4 py-2.5 font-medium">文件名</th>
+<th class="px-3 py-2.5 font-medium">类型</th>
+<th class="px-3 py-2.5 font-medium">当前生效版本</th>
+<th class="px-3 py-2.5 font-medium">新版处理状态</th>
+<th class="px-3 py-2.5 font-medium">最近生效时间</th>
+<th class="px-4 py-2.5 text-right font-medium">操作</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100" id="materialsBody"></tbody>
+</table>
+</div>
+<div class="hidden px-4 py-10 text-center" id="emptySearch">
+<iconify-icon aria-hidden="true" class="text-[22px] text-slate-300" icon="lucide:search-x"></iconify-icon>
+<p class="mt-2 text-[13px] text-slate-500">没有找到匹配的文件名，换个关键词试试。</p>
+</div>
+</div>
+<p class="mt-3 flex items-start gap-1.5 text-[12px] leading-5 text-slate-400">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[13px]" icon="lucide:info"></iconify-icon>
+<span>新版处理中或识别失败时，旧版本继续生效；问答引用以当前生效版本为准。</span>
+</p>
+</section>
+</div>
+</main>
+</div>
+<div aria-labelledby="logoutTitle" aria-modal="true" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/30 p-4" id="logoutModal" role="dialog">
+<div class="w-full max-w-[360px] rounded-xl border border-slate-200 bg-white shadow-2xl">
+<div class="p-5">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-slate-100 text-slate-600">
+<iconify-icon aria-hidden="true" class="text-[18px]" icon="lucide:log-out"></iconify-icon>
+</div>
+<h2 class="mt-4 text-[16px] font-semibold text-slate-900" id="logoutTitle">退出登录？</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500">退出后需要重新登录才能继续使用 AI 知识库。</p>
+</div>
+<div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-3">
+<button class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="cancelLogout" type="button">取消</button>
+<button class="inline-flex h-9 items-center justify-center rounded-lg bg-slate-800 px-3.5 text-[13px] font-medium text-white transition hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="confirmLogout" type="button">退出登录</button>
+</div>
+</div>
+</div>
+<div class="pointer-events-none fixed bottom-6 left-1/2 z-[60] hidden -translate-x-1/2 items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-[12px] font-medium text-white shadow-xl" id="toast">
+<iconify-icon aria-hidden="true" class="text-[14px] text-emerald-400" icon="lucide:check"></iconify-icon>
+<span id="toastText">已退出登录</span>
+</div>
+<div aria-labelledby="uploadTitle" aria-modal="true" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/30 p-4" id="uploadModal" role="dialog">
+<div class="w-full max-w-[520px] rounded-xl border border-slate-200 bg-white shadow-2xl">
+<div class="flex items-start justify-between gap-4 border-b border-slate-100 px-5 py-4">
+<div>
+<h2 class="text-[16px] font-semibold text-slate-900" id="uploadTitle">上传资料</h2>
+<p class="mt-1 text-[12px] leading-5 text-slate-500" id="uploadSubtitle">上传后先完成提取与检查，确认发布后才生效。</p>
+</div>
+<button aria-label="关闭上传窗口" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="closeUploadButton" type="button">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:x"></iconify-icon>
+</button>
+</div>
+<div class="px-5 py-4">
+<div class="hidden items-center gap-2 rounded-lg border border-blue-100 bg-blue-50/60 px-3 py-2 text-[12px] text-blue-800" id="currentVersionNote">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[14px]" icon="lucide:git-branch"></iconify-icon>
+<span id="currentVersionText"></span>
+</div>
+<button class="mt-3 flex w-full flex-col items-center justify-center gap-1.5 rounded-xl border border-dashed border-slate-300 bg-slate-50/70 px-4 py-7 text-center transition hover:border-blue-400 hover:bg-blue-50/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="pickFileButton" type="button">
+<iconify-icon aria-hidden="true" class="text-[22px] text-slate-400" icon="lucide:upload-cloud"></iconify-icon>
+<span class="text-[13px] font-medium text-slate-700">选择文件</span>
+<span class="text-[12px] text-slate-500">支持 .docx / .xlsx / .pdf / .png / .jpg / .jpeg，单文件 20MB 以内</span>
+</button>
+<input accept=".docx,.xlsx,.pdf,.png,.jpg,.jpeg" class="hidden" id="fileInput" type="file"/>
+<div class="mt-3">
+<label class="text-[12px] font-medium text-slate-600" for="fileNameInput">文件名</label>
+<input class="mt-1.5 h-9 w-full rounded-lg border border-slate-300 bg-white px-3 text-[13px] text-slate-800 outline-none transition placeholder:text-slate-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-100" id="fileNameInput" placeholder="选择文件后自动填入，可修改" type="text"/>
+</div>
+<div class="mt-3 flex items-start gap-2 rounded-lg border border-slate-100 bg-slate-50/80 px-3 py-2 text-[12px] leading-5 text-slate-500" id="uploadSampleHint">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-amber-500" icon="lucide:lightbulb"></iconify-icon>
+<span>没有本地文件？可直接填写 <button class="font-medium text-blue-600 underline underline-offset-2 hover:text-blue-700" id="fillSampleButton" type="button">物品位置表.xlsx</button> 以演示 V3 替换流程。</span>
+</div>
+<div class="mt-3 hidden items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5" id="uploadStatus"></div>
+</div>
+<div class="flex items-center justify-end gap-2 border-t border-slate-100 px-5 py-3">
+<button class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="cancelUploadButton" type="button">取消</button>
+<button class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" disabled="" id="submitUploadButton" type="button">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:upload"></iconify-icon>
+<span id="submitUploadText">上传</span>
+</button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-40 hidden bg-slate-900/20" id="drawerBackdrop"></div>
+<aside aria-labelledby="drawerTitle" aria-modal="true" class="fixed inset-y-0 right-0 z-50 hidden w-full max-w-[520px] flex-col border-l border-slate-200 bg-white shadow-2xl" id="detailDrawer" role="dialog">
+<div class="flex h-16 shrink-0 items-center justify-between gap-4 border-b border-slate-200 px-5">
+<div class="flex min-w-0 items-center gap-2.5">
+<span class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-600" id="drawerIcon">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:file-spreadsheet"></iconify-icon>
+</span>
+<div class="min-w-0">
+<h2 class="truncate text-[15px] font-semibold text-slate-900" id="drawerTitle">查看 / 检查</h2>
+<p class="truncate text-[12px] text-slate-500" id="drawerFileName">物品位置表.xlsx</p>
+</div>
+</div>
+<button aria-label="关闭检查抽屉" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="closeDrawerButton" type="button">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:x"></iconify-icon>
+</button>
+</div>
+<div class="min-h-0 flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<div class="grid grid-cols-2 gap-3" id="drawerMeta"></div>
+<div class="mt-5" id="drawerContent"></div>
+</div>
+<div class="shrink-0 border-t border-slate-200 px-5 py-3">
+<div class="mb-2.5 hidden items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5" id="publishNotice"></div>
+<div class="flex items-center justify-between gap-3" id="drawerFooter"></div>
+</div>
+</aside>
+<div aria-labelledby="deleteTitle" aria-modal="true" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/30 p-4" id="deleteModal" role="dialog">
+<div class="w-full max-w-[400px] rounded-xl border border-slate-200 bg-white shadow-2xl">
+<div class="p-5">
+<div class="flex h-10 w-10 items-center justify-center rounded-lg bg-rose-50 text-rose-600">
+<iconify-icon aria-hidden="true" class="text-[18px]" icon="lucide:trash-2"></iconify-icon>
+</div>
+<h2 class="mt-4 text-[16px] font-semibold text-slate-900" id="deleteTitle">删除此资料？</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500" id="deleteText"></p>
+</div>
+<div class="flex justify-end gap-2 border-t border-slate-100 px-5 py-3">
+<button class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="cancelDeleteButton" type="button">取消</button>
+<button class="inline-flex h-9 items-center justify-center rounded-lg bg-rose-600 px-3.5 text-[13px] font-medium text-white transition hover:bg-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2" id="confirmDeleteButton" type="button">删除资料</button>
+</div>
+</div>
+</div>
+<script>
+    const logoutModal = document.getElementById('logoutModal');
+    const logoutButton = document.getElementById('logoutButton');
+    const cancelLogout = document.getElementById('cancelLogout');
+    const confirmLogout = document.getElementById('confirmLogout');
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+    let toastTimer = null;
+    let previousFocus = null;
+
+    function openLogoutModal() {
+      previousFocus = document.activeElement;
+      logoutModal.classList.remove('hidden');
+      logoutModal.classList.add('flex');
+      cancelLogout.focus();
+    }
+
+    function closeLogoutModal() {
+      logoutModal.classList.add('hidden');
+      logoutModal.classList.remove('flex');
+      if (previousFocus) {
+        previousFocus.focus();
+      }
+    }
+
+    function showToast(message) {
+      toastText.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2200);
+    }
+
+    logoutButton.addEventListener('click', openLogoutModal);
+    cancelLogout.addEventListener('click', closeLogoutModal);
+    confirmLogout.addEventListener('click', () => {
+      closeLogoutModal();
+      showToast('已退出登录');
+    });
+    logoutModal.addEventListener('click', event => {
+      if (event.target === logoutModal) {
+        closeLogoutModal();
+      }
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !logoutModal.classList.contains('hidden')) {
+        closeLogoutModal();
+      }
+    });
+
+    const typeMeta = {
+      excel: { label: 'Excel', icon: 'lucide:file-spreadsheet', badge: 'bg-emerald-50 text-emerald-700 ring-emerald-200', tile: 'bg-emerald-50 text-emerald-600' },
+      word: { label: 'Word', icon: 'lucide:file-text', badge: 'bg-blue-50 text-blue-700 ring-blue-200', tile: 'bg-blue-50 text-blue-600' },
+      pdf: { label: 'PDF', icon: 'lucide:file-type-2', badge: 'bg-rose-50 text-rose-700 ring-rose-200', tile: 'bg-rose-50 text-rose-600' },
+      image: { label: '图片', icon: 'lucide:image', badge: 'bg-violet-50 text-violet-700 ring-violet-200', tile: 'bg-violet-50 text-violet-600' }
+    };
+
+    const records = [
+      {
+        id: 'positions',
+        name: '物品位置表.xlsx',
+        type: 'excel',
+        version: 2,
+        effectiveAt: '2026-09-18 10:24',
+        pending: null,
+        sheets: [
+          {
+            sheet: '门店物料位置',
+            rows: [
+              { row: 2, store: '城东店', item: '宣传海报', location: 'B区1号货架第二层' },
+              { row: 3, store: '城西店', item: '易拉宝', location: '前台右侧立架' },
+              { row: 4, store: '城南店', item: '宣传折页', location: '收银台资料架 A 格' }
+            ]
+          }
+        ],
+        pendingSheets: [
+          {
+            sheet: '门店物料位置',
+            rows: [
+              { row: 2, store: '城东店', item: '宣传海报', location: 'D区暂存柜' },
+              { row: 3, store: '城西店', item: '易拉宝', location: '前台右侧立架' },
+              { row: 4, store: '城南店', item: '宣传折页', location: '收银台资料架 A 格' }
+            ]
+          }
+        ],
+        pendingFailedText: 'V3 提取内容未识别到「城东店」所在行，发布被拦截；当前生效版本仍为 V2。'
+      },
+      {
+        id: 'brief',
+        name: '十一活动brief.docx',
+        type: 'word',
+        version: 1,
+        effectiveAt: '2026-09-26 15:40',
+        pending: null
+      },
+      {
+        id: 'policy',
+        name: '物料领用规范.pdf',
+        type: 'pdf',
+        version: 4,
+        effectiveAt: '2026-10-08 09:12',
+        pending: null
+      },
+      {
+        id: 'stores',
+        name: '门店活动日程图.png',
+        type: 'image',
+        version: 1,
+        effectiveAt: '2026-09-02 17:05',
+        pending: null
+      }
+    ];
+
+    let activeRecordId = null;
+    let uploadTargetId = null;
+    let uploadFile = null;
+    let uploadTimer = null;
+    let deleteTargetId = null;
+    let activeNewId = null;
+
+    const materialsBody = document.getElementById('materialsBody');
+    const fileSearch = document.getElementById('fileSearch');
+    const recordCount = document.getElementById('recordCount');
+    const emptySearch = document.getElementById('emptySearch');
+    const listNotice = document.getElementById('listNotice');
+    const uploadModal = document.getElementById('uploadModal');
+    const uploadTitle = document.getElementById('uploadTitle');
+    const uploadSubtitle = document.getElementById('uploadSubtitle');
+    const currentVersionNote = document.getElementById('currentVersionNote');
+    const currentVersionText = document.getElementById('currentVersionText');
+    const pickFileButton = document.getElementById('pickFileButton');
+    const fileInput = document.getElementById('fileInput');
+    const fileNameInput = document.getElementById('fileNameInput');
+    const fillSampleButton = document.getElementById('fillSampleButton');
+    const uploadStatus = document.getElementById('uploadStatus');
+    const submitUploadButton = document.getElementById('submitUploadButton');
+    const submitUploadText = document.getElementById('submitUploadText');
+    const drawerBackdrop = document.getElementById('drawerBackdrop');
+    const detailDrawer = document.getElementById('detailDrawer');
+    const drawerIcon = document.getElementById('drawerIcon');
+    const drawerFileName = document.getElementById('drawerFileName');
+    const drawerMeta = document.getElementById('drawerMeta');
+    const drawerContent = document.getElementById('drawerContent');
+    const drawerFooter = document.getElementById('drawerFooter');
+    const publishNotice = document.getElementById('publishNotice');
+    const deleteModal = document.getElementById('deleteModal');
+    const deleteText = document.getElementById('deleteText');
+
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    }
+
+    function recordTypeByName(name) {
+      if (/\.(xlsx|docx|pdf|png|jpe?g)$/i.test(name)) {
+        const ext = name.split('.').pop().toLowerCase();
+        if (ext === 'xlsx') return 'excel';
+        if (ext === 'docx') return 'word';
+        if (ext === 'pdf') return 'pdf';
+        return 'image';
+      }
+      return null;
+    }
+
+    function pendingBadge(record) {
+      if (!record.pending) {
+        return '<span class="inline-flex items-center gap-1 text-[12px] text-slate-400"><span class="h-1.5 w-1.5 rounded-full bg-slate-300"></span>无待处理新版</span>';
+      }
+      if (record.pending.status === 'processing') {
+        return '<span class="inline-flex items-center gap-1.5 rounded-md bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600"><iconify-icon icon="lucide:loader-circle" class="text-[12px]" aria-hidden="true"></iconify-icon>V' + record.pending.version + ' 处理中</span>' +
+          (record.version > 0 ? '<span class="mt-1 block text-[11px] text-slate-500">生效 V' + record.version + '，完成后转为待确认</span>' : '');
+      }
+      return '<span class="inline-flex items-center gap-1.5 rounded-md bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>V' + record.pending.version + ' 待确认</span>' +
+        (record.version > 0 ? '<span class="mt-1 block text-[11px] text-slate-500">生效 V' + record.version + '／V' + record.pending.version + ' 待确认</span>' : '<span class="mt-1 block text-[11px] text-slate-500">尚未生效，确认发布后生效</span>');
+    }
+
+    function renderMaterials() {
+      const keyword = fileSearch.value.trim().toLowerCase();
+      const visible = records.filter(record => record.name.toLowerCase().includes(keyword));
+      recordCount.textContent = records.length;
+      emptySearch.classList.toggle('hidden', visible.length > 0);
+      materialsBody.innerHTML = visible.map(record => {
+        const meta = typeMeta[record.type];
+        const actions = [];
+        if (record.pending) {
+          actions.push('<button type="button" data-action="review-pending" data-id="' + record.id + '" class="inline-flex h-7 items-center rounded-md bg-blue-600 px-2.5 text-[12px] font-medium text-white transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">查看/检查</button>');
+        } else {
+          actions.push('<button type="button" data-action="review" data-id="' + record.id + '" class="inline-flex h-7 items-center rounded-md px-2 text-[12px] font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">查看/检查</button>');
+        }
+        actions.push('<button type="button" data-action="replace" data-id="' + record.id + '" class="inline-flex h-7 items-center rounded-md px-2 text-[12px] font-medium text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">替换</button>');
+        actions.push('<button type="button" data-action="delete" data-id="' + record.id + '" class="inline-flex h-7 items-center rounded-md px-2 text-[12px] font-medium text-rose-600 transition hover:bg-rose-50 hover:text-rose-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-rose-500 focus-visible:ring-offset-2">删除</button>');
+
+        const showPositionHint = record.id === 'positions' && record.version > 0 && (record.version > 2 || (record.pending && record.pending.version > 2) || Boolean(record.lastFailed));
+        let positionHint = '';
+        if (showPositionHint) {
+          if (record.pending) {
+            positionHint = 'V' + record.pending.version + ' 待确认 · 城东店宣传海报 → D区暂存柜';
+          } else if (record.version > 2) {
+            positionHint = 'V' + record.version + ' 已生效 · 城东店宣传海报 → D区暂存柜';
+          } else if (record.lastFailed) {
+            positionHint = 'V' + record.version + ' 生效 · 城东店宣传海报 → B区1号货架第二层';
+          }
+        }
+        const nameCell = '<span class="block truncate font-medium text-slate-800">' + escapeHtml(record.name) + '</span>' +
+          (positionHint ? '<span class="mt-0.5 block text-[11px] text-slate-400">' + positionHint + '</span>' : '') +
+          (record.lastFailed
+            ? '<span class="mt-0.5 block text-[11px] text-rose-600">' + escapeHtml(record.lastFailed) + '</span>'
+            : '');
+
+        return '<tr class="align-top transition hover:bg-slate-50/70">' +
+          '<td class="px-4 py-3">' +
+            '<div class="flex items-start gap-2.5">' +
+              '<span class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + meta.tile + '"><iconify-icon icon="' + meta.icon + '" class="text-[16px]" aria-hidden="true"></iconify-icon></span>' +
+              '<div class="min-w-0">' + nameCell + '</div>' +
+            '</div>' +
+          '</td>' +
+          '<td class="px-3 py-3"><span class="inline-flex items-center rounded-md px-2 py-0.5 text-[11px] font-medium ring-1 ' + meta.badge + '">' + meta.label + '</span></td>' +
+          '<td class="px-3 py-3 whitespace-nowrap">' + (record.version > 0
+            ? '<span class="font-semibold text-slate-800">V' + record.version + '</span><span class="ml-1 text-[11px] text-emerald-600">生效中</span>'
+            : '<span class="text-[12px] text-slate-400">尚未生效</span>') + '</td>' +
+          '<td class="px-3 py-3">' + pendingBadge(record) + '</td>' +
+          '<td class="px-3 py-3 whitespace-nowrap text-[12px] text-slate-500">' + record.effectiveAt + '</td>' +
+          '<td class="px-4 py-3"><div class="flex items-center justify-end gap-0.5 whitespace-nowrap">' + actions.join('') + '</div></td>' +
+        '</tr>';
+      }).join('');
+    }
+
+    function showNotice(message, tone) {
+      if (!message) {
+        listNotice.classList.add('hidden');
+        listNotice.classList.remove('flex');
+        return;
+      }
+      const tones = {
+        success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+        warning: 'border-amber-200 bg-amber-50 text-amber-800',
+        error: 'border-rose-200 bg-rose-50 text-rose-800'
+      };
+      listNotice.className = 'mt-5 flex items-start gap-2.5 rounded-lg border px-4 py-3 text-[12px] leading-5 ' + tones[tone || 'warning'];
+      const icons = { success: 'lucide:check-circle-2', warning: 'lucide:alert-circle', error: 'lucide:circle-alert' };
+      listNotice.innerHTML = '<iconify-icon icon="' + icons[tone || 'warning'] + '" class="mt-0.5 shrink-0 text-[15px]" aria-hidden="true"></iconify-icon><span>' + message + '</span>';
+    }
+
+    materialsBody.addEventListener('click', event => {
+      const button = event.target.closest('button[data-action]');
+      if (!button) return;
+      const record = records.find(item => item.id === button.dataset.id);
+      if (!record) return;
+      if (button.dataset.action === 'review') {
+        openDrawer(record.id, 'effective');
+      } else if (button.dataset.action === 'review-pending') {
+        openDrawer(record.id, record.pending && record.pending.status === 'processing' ? 'processing' : 'pending');
+      } else if (button.dataset.action === 'replace') {
+        openUploadModal(record.id);
+      } else if (button.dataset.action === 'delete') {
+        openDeleteModal(record.id);
+      }
+    });
+
+    fileSearch.addEventListener('input', renderMaterials);
+
+    function resetUploadStatus() {
+      uploadStatus.className = 'mt-3 hidden items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5';
+      uploadStatus.innerHTML = '';
+    }
+
+    function setUploadStatus(message, tone) {
+      if (!message) {
+        resetUploadStatus();
+        return;
+      }
+      const tones = {
+        info: 'border-slate-200 bg-slate-50 text-slate-600',
+        success: 'border-emerald-200 bg-emerald-50 text-emerald-800',
+        warning: 'border-amber-200 bg-amber-50 text-amber-800',
+        error: 'border-rose-200 bg-rose-50 text-rose-800'
+      };
+      const icons = { info: 'lucide:loader-circle', success: 'lucide:check-circle-2', warning: 'lucide:alert-circle', error: 'lucide:circle-alert' };
+      uploadStatus.className = 'mt-3 flex items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5 ' + tones[tone];
+      uploadStatus.innerHTML = '<iconify-icon icon="' + icons[tone] + '" class="mt-0.5 shrink-0 text-[14px]" aria-hidden="true"></iconify-icon><span>' + message + '</span>';
+    }
+
+    function syncSubmitState() {
+      const name = fileNameInput.value.trim();
+      const processing = submitUploadButton.dataset.processing === 'true';
+      submitUploadButton.disabled = processing || !name;
+    }
+
+    function openUploadModal(recordId) {
+      uploadTargetId = recordId || null;
+      uploadFile = null;
+      fileInput.value = '';
+      fileNameInput.value = '';
+      submitUploadButton.dataset.processing = 'false';
+      submitUploadText.textContent = '上传';
+      resetUploadStatus();
+      const record = records.find(item => item.id === uploadTargetId);
+      if (record) {
+        uploadTitle.textContent = '替换资料';
+        uploadSubtitle.textContent = '上传后进入检查确认，确认发布前旧版继续生效。';
+        currentVersionNote.classList.remove('hidden');
+        currentVersionNote.classList.add('flex');
+        currentVersionText.innerHTML = '当前有效版本 <span class="font-semibold">V' + record.version + '</span> · 本次将生成 <span class="font-semibold">V' + (record.version + 1) + '</span><span class="mt-0.5 block text-[11px] text-blue-700/80">新版本处理中或失败时，旧版 V' + record.version + ' 继续生效。</span>';
+        fileNameInput.placeholder = '例如 ' + record.name.replace(/\.(xlsx|docx|pdf|png|jpe?g)$/i, '') + ' (新版).' + (record.name.split('.').pop());
+      } else {
+        uploadTitle.textContent = '上传资料';
+        uploadSubtitle.textContent = '上传后先完成提取与检查，确认发布后才生效。';
+        currentVersionNote.classList.add('hidden');
+        currentVersionNote.classList.remove('flex');
+        fileNameInput.placeholder = '选择文件后自动填入，可修改';
+      }
+      uploadModal.classList.remove('hidden');
+      uploadModal.classList.add('flex');
+      pickFileButton.focus();
+      syncSubmitState();
+    }
+
+    function closeUploadModal() {
+      clearTimeout(uploadTimer);
+      uploadModal.classList.add('hidden');
+      uploadModal.classList.remove('flex');
+    }
+
+    function setChosenFile(file) {
+      uploadFile = file;
+      const name = file ? file.name : '';
+      if (name) {
+        fileNameInput.value = name;
+      }
+      resetUploadStatus();
+      if (file) {
+        if (file.size > 20 * 1024 * 1024) {
+          setUploadStatus('文件超过 20MB，请压缩后再上传。', 'error');
+          submitUploadButton.disabled = true;
+          return;
+        }
+        if (!recordTypeByName(file.name)) {
+          setUploadStatus('暂不支持该格式，请上传 .docx / .xlsx / .pdf / .png / .jpg / .jpeg 文件。', 'error');
+          submitUploadButton.disabled = true;
+          return;
+        }
+        setUploadStatus('已选择 ' + escapeHtml(file.name) + '，可以上传。', 'info');
+      }
+      syncSubmitState();
+    }
+
+    pickFileButton.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => setChosenFile(fileInput.files && fileInput.files[0] ? fileInput.files[0] : null));
+    fileNameInput.addEventListener('input', syncSubmitState);
+    fillSampleButton.addEventListener('click', () => {
+      uploadFile = null;
+      fileNameInput.value = '物品位置表.xlsx';
+      resetUploadStatus();
+      setUploadStatus('将模拟上传 V3（城东店宣传海报位置改为 D区暂存柜），上传后需检查并发布。', 'info');
+      syncSubmitState();
+    });
+
+    document.getElementById('openUploadButton').addEventListener('click', () => openUploadModal(null));
+    document.getElementById('closeUploadButton').addEventListener('click', closeUploadModal);
+    document.getElementById('cancelUploadButton').addEventListener('click', closeUploadModal);
+    uploadModal.addEventListener('click', event => {
+      if (event.target === uploadModal && submitUploadButton.dataset.processing !== 'true') {
+        closeUploadModal();
+      }
+    });
+
+    submitUploadButton.addEventListener('click', () => {
+      const name = fileNameInput.value.trim();
+      if (!name) return;
+      if (!recordTypeByName(name)) {
+        setUploadStatus('暂不支持该格式，请上传 .docx / .xlsx / .pdf / .png / .jpg / .jpeg 文件。', 'error');
+        return;
+      }
+      if (uploadFile && uploadFile.size > 20 * 1024 * 1024) {
+        setUploadStatus('文件超过 20MB，请压缩后再上传。', 'error');
+        return;
+      }
+      submitUploadButton.dataset.processing = 'true';
+      submitUploadText.textContent = '处理中…';
+      syncSubmitState();
+      setUploadStatus('正在上传并提取内容… 旧版本在此期间继续生效。', 'info');
+      clearTimeout(uploadTimer);
+      const targetRecord = uploadTargetId ? records.find(item => item.id === uploadTargetId) : null;
+      const nextVersion = targetRecord ? targetRecord.version + 1 : 1;
+      if (targetRecord) {
+        targetRecord.pending = {
+          version: nextVersion,
+          status: 'processing',
+          fileName: name,
+          uploadedAt: '刚刚',
+          sheets: null
+        };
+        targetRecord.lastFailed = '';
+      }
+      const isFailureDemo = targetRecord && targetRecord.id === 'positions' && /失败|\bfail\b/i.test(name);
+      uploadTimer = setTimeout(() => {
+        const record = targetRecord;
+        activeNewId = null;
+        if (record) {
+          record.type = recordTypeByName(name) || record.type;
+          if (isFailureDemo) {
+            record.pending = null;
+            record.lastFailed = 'V' + nextVersion + ' 识别失败（提取服务超时，或识别额度不足）。当前生效版本仍为 V' + record.version + '。';
+            showNotice('V' + nextVersion + ' 处理失败，当前生效版本仍为 V' + record.version + '，未发布任何更新。可重新点击「替换」重试。', 'error');
+          } else {
+            record.pending = {
+              version: nextVersion,
+              status: 'pending',
+              fileName: name,
+              uploadedAt: '刚刚',
+              sheets: record.id === 'positions' ? null : [
+                { sheet: 'Sheet1', rows: [{ row: 2, store: '城东店', item: name.replace(/\.[^.]+$/, ''), location: 'D区暂存柜' }] }
+              ]
+            };
+            record.lastFailed = '';
+          }
+        } else {
+          const type = recordTypeByName(name);
+          const newRecord = {
+            id: 'upload-' + Date.now(),
+            name,
+            type,
+            version: 0,
+            effectiveAt: '—',
+            pending: {
+              version: 1,
+              status: 'pending',
+              fileName: name,
+              uploadedAt: '刚刚',
+              sheets: [
+                { sheet: 'Sheet1', rows: [{ row: 2, store: '—', item: name, location: '待人工核对' }] }
+              ]
+            }
+          };
+          records.unshift(newRecord);
+          activeNewId = newRecord.id;
+        }
+        uploadTargetId = null;
+        submitUploadButton.dataset.processing = 'false';
+        submitUploadText.textContent = '上传';
+        closeUploadModal();
+        renderMaterials();
+        const current = records.find(item => item.id === activeNewId);
+        if (current) {
+          showNotice('已上传 <span class="font-semibold">' + escapeHtml(current.name) + '</span>，状态为「待确认」。请点击「查看/检查」核对提取内容后发布。', 'warning');
+        } else {
+          const target = targetRecord;
+          if (isFailureDemo && target) {
+            showNotice('V' + nextVersion + ' 处理失败，当前生效版本仍为 V' + target.version + '，未发布任何更新。可重新点击「替换」重试。', 'error');
+          } else if (target && target.pending && target.pending.status === 'pending') {
+            showNotice('<span class="font-semibold">' + escapeHtml(target.name) + '</span> 的 V' + target.pending.version + ' 已处理完成，状态为「待确认」。当前仍生效 V' + target.version + '，请点击「查看/检查」发布。', 'warning');
+          } else if (target && target.lastFailed) {
+            showNotice(target.lastFailed, 'error');
+          }
+        }
+      }, 1400);
+    });
+
+    function pendingContentFor(record) {
+      if (record.pending && record.pending.sheets) {
+        return record.pending.sheets;
+      }
+      if (record.id === 'positions' && record.pending) {
+        return record.pendingSheets;
+      }
+      return [{ sheet: 'Sheet1', rows: [{ row: 2, store: '城东店', item: record.name.replace(/\.[^.]+$/, ''), location: 'D区暂存柜' }] }];
+    }
+
+    function renderTableSample(sheets) {
+      return sheets.map(group => {
+        const header = '<p class="flex items-center gap-1.5 text-[12px] font-medium text-slate-500"><iconify-icon icon="lucide:table-2" class="text-[14px] text-slate-400" aria-hidden="true"></iconify-icon>工作表：' + escapeHtml(group.sheet) + '</p>';
+        const rows = group.rows.map(item =>
+          '<tr class="border-t border-slate-100">' +
+            '<td class="whitespace-nowrap px-3 py-2 text-[11px] text-slate-400">第 ' + item.row + ' 行</td>' +
+            '<td class="px-3 py-2">' + escapeHtml(item.store) + '</td>' +
+            '<td class="px-3 py-2">' + escapeHtml(item.item) + '</td>' +
+            '<td class="px-3 py-2 font-medium text-slate-800">' + escapeHtml(item.location) + '</td>' +
+          '</tr>'
+        ).join('');
+        return '<div class="mt-4">' + header +
+          '<div class="mt-2 overflow-hidden rounded-lg border border-slate-200">' +
+            '<table class="w-full text-left text-[12px] text-slate-600"><thead class="bg-slate-50 text-[11px] text-slate-500">' +
+              '<tr><th class="px-3 py-2 font-medium">原始行号</th><th class="px-3 py-2 font-medium">门店</th><th class="px-3 py-2 font-medium">物品</th><th class="px-3 py-2 font-medium">位置</th></tr>' +
+            '</thead><tbody>' + rows + '</tbody></table>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+    }
+
+    function metaCard(label, value) {
+      return '<div class="rounded-lg border border-slate-200 bg-slate-50/60 px-3 py-2.5"><p class="text-[11px] text-slate-400">' + label + '</p><p class="mt-0.5 text-[13px] font-medium text-slate-800">' + value + '</p></div>';
+    }
+
+    function openDrawer(recordId, mode) {
+      const record = records.find(item => item.id === recordId);
+      if (!record) return;
+      activeRecordId = recordId;
+      const meta = typeMeta[record.type];
+      const isPending = mode === 'pending' && record.pending && record.pending.status === 'pending';
+      const isProcessing = mode === 'processing' && record.pending && record.pending.status === 'processing';
+      drawerIcon.className = 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ' + (isPending ? 'bg-amber-50 text-amber-600' : (isProcessing ? 'bg-slate-100 text-slate-500' : meta.tile));
+      drawerIcon.innerHTML = '<iconify-icon icon="' + (isPending ? 'lucide:clipboard-check' : (isProcessing ? 'lucide:loader-circle' : meta.icon)) + '" class="text-[16px]" aria-hidden="true"></iconify-icon>';
+      drawerFileName.textContent = record.name;
+      document.getElementById('drawerTitle').textContent = isPending ? '检查待确认新版' : (isProcessing ? '查看处理进度' : '查看提取内容');
+      const version = isProcessing ? 'V' + record.pending.version + ' 处理中' : (isPending ? 'V' + record.pending.version + ' 待确认' : 'V' + record.version + ' 已生效');
+      const statusValue = isPending
+        ? '<span class="inline-flex items-center gap-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">待确认发布</span>'
+        : (isProcessing
+          ? '<span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-1.5 py-0.5 text-[11px] font-medium text-slate-600 ring-1 ring-slate-200">提取中</span>'
+          : '<span class="inline-flex items-center gap-1 rounded-md bg-emerald-50 px-1.5 py-0.5 text-[11px] font-medium text-emerald-700 ring-1 ring-emerald-200">已生效 · 只读</span>');
+      drawerMeta.innerHTML = metaCard('当前版本', version) + metaCard('状态', statusValue);
+      publishNotice.className = 'mb-2.5 hidden items-start gap-2 rounded-lg border px-3 py-2 text-[12px] leading-5';
+      publishNotice.innerHTML = '';
+
+      if (isProcessing) {
+        drawerContent.innerHTML =
+          '<div class="rounded-xl border border-slate-200 bg-slate-50/70 px-4 py-8 text-center">' +
+            '<span class="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-white text-slate-400 ring-1 ring-slate-200"><iconify-icon icon="lucide:loader-circle" class="text-[18px]" aria-hidden="true"></iconify-icon></span>' +
+            '<p class="mt-3 text-[13px] font-medium text-slate-700">V' + record.pending.version + ' 正在提取内容</p>' +
+            '<p class="mx-auto mt-1 max-w-[320px] text-[12px] leading-5 text-slate-500">处理完成后状态变为「待确认」，届时可核对提取内容并发布。当前生效版本仍为 V' + record.version + '。</p>' +
+          '</div>';
+        drawerFooter.innerHTML =
+          '<span class="text-[12px] text-slate-400">处理中暂不可发布</span>' +
+          '<button id="closeDrawerTextButton" type="button" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">关闭</button>';
+        document.getElementById('closeDrawerTextButton').addEventListener('click', closeDrawer);
+      } else if (record.type === 'excel') {
+        const sheets = isPending ? pendingContentFor(record) : (record.sheets || []);
+        drawerContent.innerHTML =
+          '<div class="flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[12px] leading-5 text-slate-600">' +
+            '<iconify-icon icon="lucide:scan-line" class="mt-0.5 shrink-0 text-[14px] text-blue-500" aria-hidden="true"></iconify-icon>' +
+            '<span>以下为本次提取的门店 / 物品 / 位置示例，保留工作表名与原始行号，方便与源文件核对。</span>' +
+          '</div>' +
+          renderTableSample(sheets) +
+          (isPending
+            ? (record.id === 'positions'
+              ? '<p class="mt-3 flex items-start gap-1.5 text-[12px] leading-5 text-amber-700"><iconify-icon icon="lucide:git-compare" class="mt-0.5 shrink-0 text-[13px]" aria-hidden="true"></iconify-icon><span>与生效 V' + record.version + ' 对比：城东店「宣传海报」位置由 B区1号货架第二层 改为 <span class="font-semibold">D区暂存柜</span>。确认发布后才对问答生效。</span></p>'
+              : '<p class="mt-3 text-[12px] text-slate-400">以上为新版提取样例，请核对后确认发布。</p>')
+            : '<p class="mt-3 text-[12px] text-slate-400">已生效版本为只读，如需更新请点击列表中的「替换」。</p>');
+      } else {
+        drawerContent.innerHTML =
+          '<div class="rounded-xl border border-dashed border-slate-200 bg-slate-50/70 px-4 py-8 text-center">' +
+            '<span class="mx-auto flex h-10 w-10 items-center justify-center rounded-lg bg-white text-slate-400 ring-1 ring-slate-200"><iconify-icon icon="' + meta.icon + '" class="text-[19px]" aria-hidden="true"></iconify-icon></span>' +
+            '<p class="mt-3 text-[13px] font-medium text-slate-700">' + meta.label + ' 提取内容预览暂未开放</p>' +
+            '<p class="mx-auto mt-1 max-w-[320px] text-[12px] leading-5 text-slate-500">本轮仅提供 Excel 提取内容样例。' + (isPending ? '该新版仍需确认发布，可先发布后查看提取摘要。' : '已生效版本可在 AI 助手中直接检索。') + '</p>' +
+          '</div>';
+      }
+
+      if (isPending) {
+        const disabledReason = record.type === 'excel'
+          ? ''
+          : '发布服务暂时不可用（识别额度不足），请稍后重试。当前版本继续生效。';
+        if (disabledReason) {
+          publishNotice.className = 'mb-2.5 flex items-start gap-2 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-[12px] leading-5 text-rose-800';
+          publishNotice.innerHTML = '<iconify-icon icon="lucide:circle-alert" class="mt-0.5 shrink-0 text-[14px]" aria-hidden="true"></iconify-icon><span>' + disabledReason + '</span>';
+        }
+        drawerFooter.innerHTML =
+          '<button id="closeDrawerTextButton" type="button" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">稍后处理</button>' +
+          '<button id="publishButton" type="button" ' + (disabledReason ? 'disabled' : '') + ' class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[13px] font-semibold text-white shadow-sm transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:bg-slate-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">' +
+            '<iconify-icon icon="lucide:send" class="text-[15px]" aria-hidden="true"></iconify-icon><span id="publishButtonText">确认并发布</span></button>';
+        document.getElementById('closeDrawerTextButton').addEventListener('click', closeDrawer);
+        if (!disabledReason) {
+          document.getElementById('publishButton').addEventListener('click', () => publishPending(recordId));
+        }
+      } else {
+        drawerFooter.innerHTML =
+          '<span class="text-[12px] text-slate-400">已生效资料为只读</span>' +
+          '<button id="closeDrawerTextButton" type="button" class="inline-flex h-9 items-center justify-center rounded-lg border border-slate-300 bg-white px-3.5 text-[13px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2">关闭</button>';
+        document.getElementById('closeDrawerTextButton').addEventListener('click', closeDrawer);
+      }
+
+      drawerBackdrop.classList.remove('hidden');
+      detailDrawer.classList.remove('hidden');
+      detailDrawer.classList.add('flex');
+      showNotice('');
+      document.getElementById('closeDrawerButton').focus();
+    }
+
+    function closeDrawer() {
+      detailDrawer.classList.add('hidden');
+      detailDrawer.classList.remove('flex');
+      drawerBackdrop.classList.add('hidden');
+      activeRecordId = null;
+    }
+
+    function publishPending(recordId) {
+      const record = records.find(item => item.id === recordId);
+      if (!record || !record.pending || record.pending.status !== 'pending') return;
+      const button = document.getElementById('publishButton');
+      const buttonText = document.getElementById('publishButtonText');
+      const publishedVersion = record.pending.version;
+      const now = new Date();
+      const pad = value => String(value).padStart(2, '0');
+      const stamp = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate()) + ' ' + pad(now.getHours()) + ':' + pad(now.getMinutes());
+      if (button) {
+        button.disabled = true;
+        buttonText.textContent = '发布中…';
+      }
+      publishNotice.className = 'mb-2.5 flex items-start gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-[12px] leading-5 text-slate-600';
+      publishNotice.innerHTML = '<iconify-icon icon="lucide:loader-circle" class="mt-0.5 shrink-0 text-[14px]" aria-hidden="true"></iconify-icon><span>正在发布 V' + publishedVersion + '，请稍候…</span>';
+      setTimeout(() => {
+        const target = records.find(item => item.id === recordId);
+        if (!target || !target.pending || target.pending.status !== 'pending') return;
+        target.version = publishedVersion;
+        target.effectiveAt = stamp;
+        if (publishedVersion === 3 && target.id === 'positions' && target.pendingSheets) {
+          target.sheets = target.pendingSheets;
+        }
+        target.pending = null;
+        target.lastFailed = '';
+        renderMaterials();
+        closeDrawer();
+        showNotice('V' + publishedVersion + ' 已发布并生效。后续在 AI 助手查询该资料时，将使用新版内容（城东店宣传海报位于 D区暂存柜）。', 'success');
+        showToast('V' + publishedVersion + ' 已发布');
+      }, 1200);
+    }
+
+    document.getElementById('closeDrawerButton').addEventListener('click', closeDrawer);
+    drawerBackdrop.addEventListener('click', closeDrawer);
+
+    function openDeleteModal(recordId) {
+      const record = records.find(item => item.id === recordId);
+      if (!record) return;
+      deleteTargetId = recordId;
+      deleteText.textContent = '将删除「' + record.name + '」及其全部版本，删除后 AI 助手将无法再引用该资料。此操作不可撤销。';
+      deleteModal.classList.remove('hidden');
+      deleteModal.classList.add('flex');
+      document.getElementById('cancelDeleteButton').focus();
+    }
+
+    function closeDeleteModal() {
+      deleteModal.classList.add('hidden');
+      deleteModal.classList.remove('flex');
+      deleteTargetId = null;
+    }
+
+    document.getElementById('cancelDeleteButton').addEventListener('click', closeDeleteModal);
+    document.getElementById('confirmDeleteButton').addEventListener('click', () => {
+      const index = records.findIndex(item => item.id === deleteTargetId);
+      if (index >= 0) {
+        const removed = records.splice(index, 1)[0];
+        closeDeleteModal();
+        renderMaterials();
+        showNotice('已删除「' + escapeHtml(removed.name) + '」。', 'success');
+        showToast('资料已删除');
+      } else {
+        closeDeleteModal();
+      }
+    });
+    deleteModal.addEventListener('click', event => {
+      if (event.target === deleteModal) closeDeleteModal();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (event.key !== 'Escape') return;
+      if (!deleteModal.classList.contains('hidden')) {
+        closeDeleteModal();
+        return;
+      }
+      if (!detailDrawer.classList.contains('hidden')) {
+        closeDrawer();
+        return;
+      }
+      if (!uploadModal.classList.contains('hidden') && submitUploadButton.dataset.processing !== 'true') {
+        closeUploadModal();
+      }
+    });
+
+    renderMaterials();
+  </script>
+</body>
+</html>

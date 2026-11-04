@@ -1,0 +1,1163 @@
+<!DOCTYPE html>
+
+<html class="h-full" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>AI 助手状态画板 · 市场部 AI 知识库</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+</head>
+<body class="m-0 h-full overflow-hidden bg-slate-50 font-sans text-[14px] text-slate-800 antialiased">
+<div class="flex h-full min-w-[1120px] overflow-hidden">
+<aside class="flex w-56 shrink-0 flex-col border-r border-slate-200 bg-white">
+<div class="flex h-16 shrink-0 items-center border-b border-slate-100 px-4">
+<a class="flex min-w-0 items-center gap-2.5 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[19px]" icon="lucide:book-open"></iconify-icon>
+</span>
+<span class="min-w-0">
+<span class="block truncate text-[14px] font-semibold tracking-tight text-slate-900">市场部 AI 知识库</span>
+<span class="mt-0.5 block text-[11px] text-slate-500">部门知识查询</span>
+</span>
+</a>
+</div>
+<div class="shrink-0 px-3 pt-4">
+<p class="px-2 pb-1.5 text-[11px] font-medium text-slate-400">工作台</p>
+<nav aria-label="主要导航" class="space-y-1">
+<a class="flex h-9 items-center gap-2.5 rounded-lg bg-blue-50 px-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:sparkles"></iconify-icon>
+<span>AI 助手</span>
+</a>
+<a class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-normal text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="materials.html">
+<iconify-icon aria-hidden="true" class="text-[17px] text-slate-400" icon="lucide:files"></iconify-icon>
+<span>资料管理</span>
+</a>
+<a aria-current="page" class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-medium text-blue-700 transition hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="states.html">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:layout-grid"></iconify-icon>
+<span>状态画板</span>
+</a>
+<a class="flex h-9 items-center gap-2.5 rounded-lg px-2.5 text-[13px] font-normal text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="staff.html">
+<iconify-icon aria-hidden="true" class="text-[17px] text-slate-400" icon="lucide:user-round"></iconify-icon>
+<span>员工角色</span>
+</a>
+</nav>
+</div>
+<div class="mt-4 shrink-0 px-3">
+<a class="flex w-full items-center justify-between gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5 text-[13px] font-semibold text-slate-700 transition hover:border-slate-300 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html">
+<span class="flex items-center gap-2">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:plus"></iconify-icon>
+<span>新建对话</span>
+</span>
+</a>
+</div>
+<div class="mt-5 flex min-h-0 flex-1 flex-col px-3">
+<div class="flex shrink-0 items-center justify-between px-2 pb-2">
+<h2 class="text-[11px] font-medium text-slate-400">状态索引</h2>
+<span class="text-[10px] text-slate-400">10</span>
+</div>
+<nav aria-label="状态索引" class="min-h-0 flex-1 space-y-0.5 overflow-y-auto pb-2 pr-0.5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden">
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s1" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">01</span><span class="line-clamp-2">查询有歧义</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s2" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">02</span><span class="line-clamp-2">没有答案</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s3" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">03</span><span class="line-clamp-2">部分可答</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s4" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">04</span><span class="line-clamp-2">资料冲突</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s5" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">05</span><span class="line-clamp-2">查询中资料更新</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s6" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">06</span><span class="line-clamp-2">打开历史回答</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s7" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">07</span><span class="line-clamp-2">历史来源已删除</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s8" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">08</span><span class="line-clamp-2">服务暂不可用</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s9" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">09</span><span class="line-clamp-2">知识库为空</span>
+</button>
+<button class="flex w-full items-start gap-2 rounded-lg px-2.5 py-2 text-left text-[12px] leading-5 text-slate-600 transition hover:bg-slate-50 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-jump="s10" type="button">
+<span class="mt-px w-4 shrink-0 text-[10px] font-medium text-slate-400">10</span><span class="line-clamp-2">员工角色</span>
+</button>
+</nav>
+</div>
+<div class="shrink-0 border-t border-slate-200 p-3">
+<div class="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5">
+<div class="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[12px] font-semibold text-slate-700">林</div>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[13px] font-semibold text-slate-800">林晓彤</p>
+<p class="truncate text-[11px] text-slate-500">市场部 · 管理员</p>
+</div>
+<a aria-label="返回 AI 助手" class="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-400 transition hover:bg-slate-100 hover:text-slate-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="home.html" title="返回 AI 助手">
+<iconify-icon aria-hidden="true" class="text-[16px]" icon="lucide:log-out"></iconify-icon>
+</a>
+</div>
+</div>
+</aside>
+<main class="relative flex min-w-0 flex-1 flex-col overflow-hidden bg-slate-50">
+<header class="flex h-16 shrink-0 items-center justify-between border-b border-slate-200 bg-white px-8">
+<div class="flex items-center gap-2.5">
+<h1 class="text-[17px] font-semibold tracking-tight text-slate-900">AI 助手 · 状态画板</h1>
+<span class="rounded-md border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-500">管理员视角</span>
+</div>
+<div class="flex items-center gap-1.5 text-[12px] text-slate-500">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+<span>资料库已同步</span>
+<span class="text-slate-300">·</span>
+<span>10 月 27 日</span>
+</div>
+</header>
+<div class="min-h-0 flex-1 overflow-y-auto overflow-x-hidden [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden" id="boardScroll">
+<section class="mx-auto w-full max-w-[880px] px-8 py-7">
+<div class="mb-6">
+<h2 class="text-[20px] font-semibold tracking-tight text-slate-900">AI 助手必要状态</h2>
+<p class="mt-1.5 text-[13px] leading-6 text-slate-500">异常状态均出现在对应会话中，复用现有消息与来源组件；每个画板可独立操作验证。</p>
+<div class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-[11px] text-slate-500">
+<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-blue-500"></span>蓝色：可操作或信息提示</span>
+<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-amber-500"></span>琥珀色：需要用户确认或核实</span>
+<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-rose-500"></span>玫瑰色：请求失败或不可用</span>
+<span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-slate-400"></span>灰色：范围外信息或不可访问</span>
+</div>
+</div>
+<div class="mb-7 flex items-center justify-between gap-3 rounded-xl border border-blue-100 bg-blue-50/50 px-4 py-3">
+<p class="flex items-center gap-1.5 text-[12px] leading-5 text-slate-600">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[13px] text-blue-600" icon="lucide:info"></iconify-icon>
+<span>示例资料与门店均为模拟数据。员工角色变体请在项目内切换查看。</span>
+</p>
+<a class="inline-flex h-8 shrink-0 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="staff.html">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:user-round"></iconify-icon>
+              查看员工角色
+            </a>
+</div>
+<div class="space-y-6 pb-10">
+<!-- 01 查询有歧义 -->
+<section aria-labelledby="s1Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s1" id="s1">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">01</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s1Title">查询有歧义</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>待用户确认
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">宣传海报在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 11:06</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>需要确认
+                      </span>
+<span class="text-[11px] text-slate-400">11:06</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">找到了多个门店的记录，请确认门店</p>
+<p class="mt-1.5 text-[12px] leading-5 text-slate-500">确认门店后再给出对应位置，避免把不同门店的记录混在一起。</p>
+<div aria-label="选择门店" class="mt-3 flex flex-wrap items-center gap-2" role="group">
+<button aria-pressed="false" class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 text-[12px] font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-pressed:border-blue-500 aria-pressed:bg-blue-50 aria-pressed:text-blue-700" data-ambiguous="east" type="button">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:store"></iconify-icon>
+                          城东店
+                        </button>
+<button aria-pressed="false" class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 text-[12px] font-medium text-slate-700 transition hover:border-blue-300 hover:bg-blue-50/50 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2 aria-pressed:border-blue-500 aria-pressed:bg-blue-50 aria-pressed:text-blue-700" data-ambiguous="west" type="button">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:store"></iconify-icon>
+                          城西店
+                        </button>
+</div>
+<div aria-live="polite" class="mt-4" data-ambiguous-result="">
+<p class="flex items-center gap-1.5 rounded-lg border border-dashed border-slate-300 bg-slate-50 px-3 py-2 text-[12px] leading-5 text-slate-500">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[13px] text-slate-400" icon="lucide:mouse-pointer-click"></iconify-icon>
+                          尚未选择门店，暂不显示确定位置。
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 02 没有答案 -->
+<section aria-labelledby="s2Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s2" id="s2">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">02</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s2Title">没有答案</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>资料中未找到
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城南店的联系人</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 11:08</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>无匹配资料
+                      </span>
+<span class="text-[11px] text-slate-400">11:08</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">当前已发布资料中未找到城南店的联系人</p>
+<p class="mt-1.5 text-[12px] leading-5 text-slate-500">为避免提供错误信息，这里不展示任何联系人姓名或电话。</p>
+<div class="mt-3 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2.5">
+<p class="text-[11px] text-slate-500">建议你可以：</p>
+<ul class="mt-1.5 space-y-1 text-[12px] leading-5 text-slate-700">
+<li class="flex items-start gap-1.5"><iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400" icon="lucide:dot"></iconify-icon><span>补充准确店名后重新查询</span></li>
+<li class="flex items-start gap-1.5"><iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[14px] text-slate-400" icon="lucide:dot"></iconify-icon><span>或联系管理员更新资料</span></li>
+</ul>
+</div>
+<div class="mt-3 flex items-start gap-2 rounded-lg border border-slate-200 bg-white px-3 py-2.5">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[13px] text-slate-400" icon="lucide:pencil-line"></iconify-icon>
+<div class="min-w-0 flex-1">
+<p class="text-[11px] text-slate-500">原问题</p>
+<p class="mt-0.5 text-[13px] leading-5 text-slate-800">城南店的联系人</p>
+</div>
+<button class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-700 transition hover:border-blue-300 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1" data-edit-question="" type="button">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:corner-down-left"></iconify-icon>
+                          修改后重试
+                        </button>
+</div>
+<p class="mt-2 flex items-center gap-1.5 text-[11px] leading-5 text-slate-400">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[12px]" icon="lucide:info"></iconify-icon>
+                        未检索到可引用来源，因此本回答不附带资料出处。
+                      </p>
+</div>
+</div>
+</div>
+<div class="hidden" data-retry-slot=""></div>
+</div>
+</section>
+<!-- 03 部分可答 -->
+<section aria-labelledby="s3Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s3" id="s3">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">03</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s3Title">部分可答</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>部分已记录
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的地址和营业时间</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 11:10</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>部分已记录
+                      </span>
+<span class="text-[11px] text-slate-400">11:10</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">城东店的地址已找到，营业时间暂未记录。</p>
+<dl class="mt-3 divide-y divide-slate-100 rounded-lg bg-slate-50/70 px-3 py-1">
+<div class="flex items-baseline gap-3 py-1.5">
+<dt class="w-[88px] shrink-0 text-[12px] text-slate-500">地址</dt>
+<dd class="min-w-0 flex-1 text-[12px] font-medium text-slate-800">东城区民安路 18 号（模拟）</dd>
+</div>
+<div class="flex items-baseline gap-3 py-1.5">
+<dt class="w-[88px] shrink-0 text-[12px] text-slate-500">营业时间</dt>
+<dd class="flex min-w-0 flex-1 items-center gap-1.5 text-[12px] text-slate-500">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[12px] text-slate-400" icon="lucide:minus-circle"></iconify-icon>
+                            未记录
+                          </dd>
+</div>
+</dl>
+<div class="mt-3.5 border-t border-slate-100 pt-3">
+<div class="mb-2 flex items-center justify-between gap-2">
+<span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:link-2"></iconify-icon>已知部分的来源
+                          </span>
+<span class="text-[11px] text-slate-400">仅覆盖地址字段</span>
+</div>
+<div class="space-y-1.5" data-source-group="stores"></div>
+</div>
+<p class="mt-2.5 flex items-start gap-1.5 rounded-lg bg-amber-50/70 px-3 py-2 text-[11px] leading-5 text-amber-800 ring-1 ring-inset ring-amber-100">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[12px]" icon="lucide:clock-alert"></iconify-icon>
+                        营业时间未记录，可联系管理员补充资料后再查询。
+                      </p>
+</div>
+</div>
+</div>
+<div class="hidden" data-retry-slot=""></div>
+</div>
+</section>
+<!-- 04 资料冲突 -->
+<section aria-labelledby="s4Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s4" id="s4">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">04</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s4Title">资料冲突</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700 ring-1 ring-amber-200">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>需管理员核实
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的宣传海报现在放在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 14:20</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-medium text-amber-700">
+<span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>资料记载不一致
+                      </span>
+<span class="text-[11px] text-slate-400">14:20</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-amber-200 bg-white p-4 shadow-sm">
+<div class="flex items-start gap-2.5">
+<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-amber-50 text-amber-700 ring-1 ring-amber-200">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:alert-triangle"></iconify-icon>
+</span>
+<div class="min-w-0">
+<p class="text-[15px] font-medium leading-7 text-slate-900">资料记载不一致</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-600">两份当前有效的资料记录了不同位置，系统不会自动判断哪个位置正确。</p>
+</div>
+</div>
+<div class="mt-3 grid gap-2 sm:grid-cols-2">
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[12px] text-emerald-600" icon="lucide:file-spreadsheet"></iconify-icon>
+                            记录 A
+                          </p>
+<p class="mt-1 text-[13px] font-semibold leading-6 text-slate-900">B区1号货架第二层</p>
+<p class="mt-0.5 text-[11px] text-slate-500">物品位置表.xlsx · V2</p>
+<p class="mt-0.5 text-[11px] text-slate-500">生效时间 2026-10-27 10:30</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[12px] text-rose-500" icon="lucide:file-type-2"></iconify-icon>
+                            记录 B
+                          </p>
+<p class="mt-1 text-[13px] font-semibold leading-6 text-slate-900">D区暂存柜</p>
+<p class="mt-0.5 text-[11px] text-slate-500">临时物料位置通知.pdf · V1</p>
+<p class="mt-0.5 text-[11px] text-slate-500">生效时间 2026-10-27 12:00</p>
+</div>
+</div>
+<div class="mt-3.5 border-t border-slate-100 pt-3">
+<div class="mb-2 flex items-center justify-between gap-2">
+<span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:link-2"></iconify-icon>冲突来源
+                          </span>
+<span class="text-[11px] text-slate-400">两份均为当前有效资料</span>
+</div>
+<div class="space-y-1.5" data-source-group="conflict"></div>
+</div>
+<p class="mt-2.5 flex items-start gap-1.5 rounded-lg bg-amber-50/70 px-3 py-2 text-[11px] leading-5 text-amber-800 ring-1 ring-inset ring-amber-100">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[12px]" icon="lucide:shield-alert"></iconify-icon>
+                        请先联系管理员核实实际位置，取用前以现场核对为准。
+                      </p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 05 查询过程中资料更新 -->
+<section aria-labelledby="s5Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s5" id="s5">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">05</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s5Title">查询过程中资料更新</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700 ring-1 ring-blue-200">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>需重新查询
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的宣传海报放在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 15:02</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-medium text-blue-700">
+<span class="h-1.5 w-1.5 rounded-full bg-blue-500"></span>资料已更新
+                      </span>
+<span class="text-[11px] text-slate-400">15:02</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-blue-200 bg-blue-50/40 p-4">
+<p class="flex items-center gap-1.5 text-[15px] font-medium leading-7 text-slate-900">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[15px] text-blue-600" icon="lucide:refresh-cw"></iconify-icon>
+                        资料刚刚更新，请重新查询
+                      </p>
+<p class="mt-1 text-[12px] leading-5 text-slate-600">原回答基于更新前的 V1 生成，已不再展示，避免引用过期位置。</p>
+<div class="mt-2.5 flex items-center justify-between gap-2 rounded-lg border border-blue-100 bg-white px-3 py-2">
+<span class="text-[11px] leading-5 text-slate-500">物品位置表.xlsx：V1 → V2，更新于 15:02</span>
+<span class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">待重新查询</span>
+</div>
+<button class="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-refresh-query="s5" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:search"></iconify-icon>
+                        重新查询
+                      </button>
+</div>
+</div>
+</div>
+<div class="hidden" data-refresh-slot=""></div>
+</div>
+</section>
+<!-- 06 打开历史回答 -->
+<section aria-labelledby="s6Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s6" id="s6">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">06</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s6Title">打开历史回答</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>历史 · 原样保留
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的宣传海报放在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">历史会话 · 发送于 09-18 10:12</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>历史回答
+                      </span>
+<span class="text-[11px] text-slate-400">09-18 10:12</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">城东店的宣传海报位于 A区3号货架第二层。</p>
+<p class="mt-2 flex items-start gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-[11px] leading-5 text-slate-600 ring-1 ring-inset ring-slate-200">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[12px] text-slate-400" icon="lucide:history"></iconify-icon>
+                        该来源已被替换，当前位置请重新查询
+                      </p>
+<div class="mt-3.5 border-t border-slate-100 pt-3">
+<div class="mb-2 flex items-center justify-between gap-2">
+<span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:link-2"></iconify-icon>当时的来源
+                          </span>
+<span class="text-[11px] text-slate-400">V1 已被 V2 替换</span>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50/70 px-2.5 py-2">
+<span class="relative flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-slate-400 ring-1 ring-slate-200">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:file-spreadsheet"></iconify-icon>
+</span>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[12px] font-medium text-slate-500">物品位置表.xlsx · V1</p>
+<p class="mt-0.5 flex flex-wrap items-center gap-x-1.5 text-[11px] text-slate-400">
+<span class="rounded bg-white px-1.5 py-0.5 font-medium text-slate-500 ring-1 ring-slate-200">已替换</span>
+<span>生效 2026-08-20 09:00</span>
+</p>
+</div>
+<button class="inline-flex h-7 shrink-0 cursor-not-allowed items-center gap-1 rounded-md border border-slate-200 bg-slate-100 px-2 text-[11px] font-medium text-slate-400" data-replaced-source="" disabled="" type="button">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:ban"></iconify-icon>
+                            不可打开
+                          </button>
+</div>
+</div>
+<button class="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg bg-blue-600 px-3 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-refresh-query="s6" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:rotate-cw"></iconify-icon>
+                        重新查询
+                      </button>
+</div>
+</div>
+</div>
+<div class="hidden" data-refresh-slot=""></div>
+</div>
+</section>
+<!-- 07 历史来源已删除 -->
+<section aria-labelledby="s7Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s7" id="s7">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-3.5 py-3.5 sm:px-5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">07</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s7Title">历史来源已删除</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700 ring-1 ring-rose-200">
+<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>来源不可访问
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的联系人和电话</div>
+<div class="pr-1 text-[11px] text-slate-400">历史会话 · 发送于 09-05 16:40</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>历史回答
+                      </span>
+<span class="text-[11px] text-slate-400">09-05 16:40</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+<p class="text-[15px] font-medium leading-7 text-slate-900">当时回答：城东店的联系人是模拟联系人·陈宁，电话 010-00000001（模拟）。</p>
+<p class="mt-2 flex items-start gap-1.5 rounded-lg bg-slate-50 px-3 py-2 text-[11px] leading-5 text-slate-600 ring-1 ring-inset ring-slate-200">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[12px] text-slate-400" icon="lucide:archive"></iconify-icon>
+                        回答文本按当时记录保留；对应来源已被删除，无法再打开原文核对。
+                      </p>
+<div class="mt-3.5 border-t border-slate-100 pt-3">
+<div class="mb-2 flex items-center justify-between gap-2">
+<span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:link-2"></iconify-icon>当时的来源
+                          </span>
+</div>
+<div class="flex items-center gap-2 rounded-lg border border-rose-100 bg-rose-50/40 px-2.5 py-2">
+<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-white text-slate-400 ring-1 ring-slate-200">
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:file-spreadsheet"></iconify-icon>
+</span>
+<div class="min-w-0 flex-1">
+<p class="truncate text-[12px] font-medium text-slate-700">合作店家信息.xlsx · V1</p>
+<p class="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-[11px] text-slate-500">
+<span class="inline-flex items-center gap-1 rounded bg-white px-1.5 py-0.5 font-medium text-rose-700 ring-1 ring-rose-200">
+<iconify-icon aria-hidden="true" class="text-[11px]" icon="lucide:trash-2"></iconify-icon>
+                                已删除
+                              </span>
+<span>原生效时间 2026-07-30 10:00</span>
+</p>
+</div>
+<button class="inline-flex h-7 shrink-0 cursor-not-allowed items-center gap-1 rounded-md border border-slate-200 bg-slate-100 px-2 text-[11px] font-medium text-slate-400" data-deleted-source="" disabled="" type="button">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:lock"></iconify-icon>
+                            不可打开
+                          </button>
+</div>
+<p class="mt-2 flex items-start gap-1.5 text-[11px] leading-5 text-slate-500">
+<iconify-icon aria-hidden="true" class="mt-0.5 shrink-0 text-[12px] text-slate-400" icon="lucide:info"></iconify-icon>
+                          仅保留文件名、版本与删除状态，无法提取原文、原图或识别文本。如需准确信息，请联系管理员重新发布资料。
+                        </p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 08 服务暂不可用 -->
+<section aria-labelledby="s8Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s8" id="s8">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">08</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s8Title">服务暂不可用</h3>
+</div>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700 ring-1 ring-rose-200">
+<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>请求失败
+                </span>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex flex-col items-end gap-1">
+<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">城东店的宣传海报放在哪里？</div>
+<div class="pr-1 text-[11px] text-slate-400">发送于 16:08</div>
+</div>
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700" data-service-status="" role="status">
+<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>服务异常
+                      </span>
+<span class="text-[11px] text-slate-400">16:08</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-rose-200 bg-rose-50/40 p-4">
+<p class="flex items-center gap-1.5 text-[15px] font-medium leading-7 text-slate-900">
+<iconify-icon aria-hidden="true" class="shrink-0 text-[15px] text-rose-600" icon="lucide:cloud-off"></iconify-icon>
+                        暂时无法完成查询，请稍后重试
+                      </p>
+<p class="mt-1 text-[12px] leading-5 text-slate-600">这是服务连接问题，不代表资料中没有答案；输入内容已保留。</p>
+<button class="mt-3 inline-flex h-8 items-center gap-1.5 rounded-lg bg-white px-3 text-[12px] font-semibold text-slate-800 ring-1 ring-rose-200 transition hover:bg-rose-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-service-retry="" type="button">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:rotate-cw"></iconify-icon>
+                        重试
+                      </button>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
+<label class="sr-only" for="serviceInput">输入你的问题</label>
+<input autocomplete="off" class="h-9 min-w-0 flex-1 bg-transparent px-1 text-[13px] text-slate-800 placeholder:text-slate-400 focus:outline-none" id="serviceInput" type="text" value="城东店的宣传海报放在哪里？"/>
+<button class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="serviceSend" type="button">
+<span>发送</span>
+<iconify-icon aria-hidden="true" class="text-[14px]" icon="lucide:arrow-up"></iconify-icon>
+</button>
+</div>
+</div>
+</section>
+<!-- 09 知识库为空 -->
+<section aria-labelledby="s9Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s9" id="s9">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">09</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s9Title">知识库为空</h3>
+</div>
+<div aria-label="知识库为空角色变体" class="inline-flex items-center rounded-lg bg-slate-100 p-0.5" role="group">
+<button aria-pressed="true" class="h-7 rounded-md bg-white px-2.5 text-[11px] font-medium text-slate-800 shadow-sm transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" data-empty-tab="admin" type="button">管理员</button>
+<button aria-pressed="false" class="h-7 rounded-md px-2.5 text-[11px] font-medium text-slate-500 transition hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500" data-empty-tab="staff" type="button">员工</button>
+</div>
+</header>
+<div class="space-y-5 px-5 py-5">
+<div class="flex items-start gap-3.5">
+<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">
+<iconify-icon aria-hidden="true" class="text-[15px]" icon="lucide:sparkles"></iconify-icon>
+</div>
+<div class="min-w-0 flex-1">
+<div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>
+<span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-2 py-0.5 text-[11px] font-medium text-slate-600">
+<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>知识库为空
+                      </span>
+<span class="text-[11px] text-slate-400">现在</span>
+</div>
+<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-6 text-center shadow-sm">
+<span class="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-slate-100 text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[20px]" icon="lucide:book-dashed"></iconify-icon>
+</span>
+<p class="mt-3 text-[15px] font-medium text-slate-900">暂无已发布资料</p>
+<p class="mx-auto mt-1.5 max-w-[380px] text-[12px] leading-5 text-slate-500" data-empty-note=""></p>
+<div class="mt-4 flex items-center justify-center" data-empty-actions="">
+<a class="inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" data-empty-action="" href="materials.html">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:upload"></iconify-icon>
+<span>进入资料管理上传资料</span>
+</a>
+</div>
+<p class="mt-2 text-[11px] text-slate-400" data-empty-footnote=""></p>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 10 员工角色 -->
+<section aria-labelledby="s10Title" class="scroll-mt-6 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm" data-board="s10" id="s10">
+<header class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-5 py-3.5">
+<div class="flex items-center gap-2.5">
+<span class="flex h-6 w-6 items-center justify-center rounded-md bg-slate-100 text-[11px] font-semibold text-slate-500">10</span>
+<h3 class="text-[14px] font-semibold text-slate-900" id="s10Title">员工角色</h3>
+</div>
+<span aria-label="当前角色：员工，只读" class="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-2 py-0.5 text-[11px] font-medium text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[11px]" icon="lucide:lock"></iconify-icon>
+                  员工 · 只读角色
+                </span>
+</header>
+<div class="space-y-4 px-5 py-5">
+<p class="text-[13px] leading-6 text-slate-600">员工登录后隐藏「资料管理」导航，只保留 AI 助手、新建对话、本人历史与退出；角色只读展示，不提供任何提权开关。</p>
+<div class="flex flex-wrap gap-2">
+<a class="inline-flex h-9 items-center gap-1.5 rounded-lg bg-blue-600 px-3.5 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="staff.html">
+<iconify-icon aria-hidden="true" class="text-[13px]" icon="lucide:panel-left"></iconify-icon>
+                    打开员工角色画板
+                  </a>
+<a class="inline-flex h-9 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3.5 text-[12px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" href="staff.html#history">
+<iconify-icon aria-hidden="true" class="text-[13px] text-slate-400" icon="lucide:trash-2"></iconify-icon>
+                    历史会话删除与确认
+                  </a>
+</div>
+<div class="grid gap-2 sm:grid-cols-3">
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>保留</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">AI 助手、新建对话、本人历史、退出</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>隐藏</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">资料管理入口</p>
+</div>
+<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>不提供</p>
+<p class="mt-1 text-[12px] leading-5 text-slate-700">角色切换、分享、团队会话、导出</p>
+</div>
+</div>
+</div>
+</section>
+</div>
+</section>
+</div>
+</main>
+</div>
+<aside aria-labelledby="drawerTitle" aria-modal="true" class="absolute inset-y-0 right-0 z-40 flex w-[480px] max-w-full translate-x-full flex-col border-l border-slate-200 bg-white shadow-2xl outline-none transition-transform duration-200 ease-out" id="sourceDrawer" role="dialog" tabindex="-1">
+<div class="flex h-16 shrink-0 items-start justify-between gap-3 border-b border-slate-200 px-5">
+<div class="min-w-0 pt-3.5">
+<div class="flex items-center gap-2">
+<h2 class="truncate text-[15px] font-semibold tracking-tight text-slate-900" id="drawerTitle">来源详情</h2>
+<span class="shrink-0 rounded bg-slate-100 px-1.5 py-0.5 text-[10px] font-medium text-slate-500">只读</span>
+</div>
+<p class="mt-1 truncate text-[11px] text-slate-500" id="drawerSubtitle"></p>
+</div>
+<button aria-label="关闭来源详情" class="mt-3 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="drawerClose" title="关闭" type="button">
+<iconify-icon aria-hidden="true" class="text-[17px]" icon="lucide:x"></iconify-icon>
+</button>
+</div>
+<div aria-label="来源文件" class="flex shrink-0 items-center gap-1 border-b border-slate-100 px-5 py-3" id="drawerTabs" role="tablist"></div>
+<div class="min-h-0 flex-1 overflow-y-auto px-5 py-5 [scrollbar-width:none] [&amp;::-webkit-scrollbar]:hidden" id="drawerBody"></div>
+<div class="flex shrink-0 items-center justify-between gap-3 border-t border-slate-200 bg-slate-50 px-5 py-3">
+<p class="flex items-center gap-1.5 text-[11px] text-slate-500">
+<iconify-icon aria-hidden="true" class="text-[12px]" icon="lucide:lock"></iconify-icon>
+        来源为只读资料，不支持编辑
+      </p>
+<button class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-3 text-[12px] font-medium text-slate-700 transition hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2" id="drawerFootClose" type="button">关闭来源</button>
+</div>
+</aside>
+<div class="pointer-events-none fixed bottom-6 left-1/2 z-[60] hidden -translate-x-1/2 items-center gap-2 rounded-lg bg-slate-900 px-3.5 py-2 text-[12px] font-medium text-white shadow-xl" id="toast">
+<iconify-icon aria-hidden="true" class="text-[14px] text-blue-300" icon="lucide:info"></iconify-icon>
+<span id="toastText"></span>
+</div>
+<script>
+    const chatScroll = document.getElementById('boardScroll');
+
+    const toast = document.getElementById('toast');
+    const toastText = document.getElementById('toastText');
+
+    const sources = {
+      posterV2: {
+        key: 'posterV2',
+        name: '物品位置表.xlsx',
+        version: 'V2',
+        effective: '2026-10-27 10:30',
+        label: 'Excel',
+        icon: 'lucide:file-spreadsheet',
+        store: '城东店',
+        place: 'B区1号货架第二层',
+        row: 8
+      },
+      posterWest: {
+        key: 'posterWest',
+        name: '物品位置表.xlsx',
+        version: 'V2',
+        effective: '2026-10-27 10:30',
+        label: 'Excel',
+        icon: 'lucide:file-spreadsheet',
+        store: '城西店',
+        place: 'C区2号货架第一层',
+        row: 11
+      },
+      notice: {
+        key: 'notice',
+        name: '临时物料位置通知.pdf',
+        version: 'V1',
+        effective: '2026-10-27 12:00',
+        label: 'PDF',
+        icon: 'lucide:file-type-2',
+        store: '城东店',
+        place: 'D区暂存柜'
+      },
+      stores: {
+        key: 'stores',
+        name: '合作店家信息.xlsx',
+        version: 'V2',
+        effective: '2026-10-25 09:30',
+        label: 'Excel',
+        icon: 'lucide:file-spreadsheet',
+        fact: '城东店地址：东城区民安路 18 号（模拟）；营业时间字段为空。'
+      }
+    };
+
+    const drawer = document.getElementById('sourceDrawer');
+    const drawerBody = document.getElementById('drawerBody');
+    const drawerSubtitle = document.getElementById('drawerSubtitle');
+    const drawerTabs = document.getElementById('drawerTabs');
+    let lastTrigger = null;
+    let currentKey = null;
+
+    function metaChips(source) {
+      return '<div class="mt-3 flex flex-wrap items-center gap-x-2 gap-y-1.5 text-[11px] text-slate-500">' +
+        '<span class="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">' + source.label + '</span>' +
+        '<span class="rounded bg-slate-100 px-1.5 py-0.5 font-medium text-slate-600">' + source.version + '</span>' +
+        '<span class="inline-flex items-center gap-1"><iconify-icon icon="lucide:clock-3" class="text-[12px] text-slate-400" aria-hidden="true"></iconify-icon>生效 ' + source.effective + '</span>' +
+        '<span class="inline-flex items-center gap-1 text-emerald-700"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>当前有效</span>' +
+        '</div>';
+    }
+
+    function tableRow(label, value, emphasis) {
+      return '<tr><td class="border-t border-slate-100 px-2.5 py-2 text-[11px] text-slate-500">' + label + '</td>' +
+        '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] ' + (emphasis ? 'font-semibold text-blue-800' : 'text-slate-700') + '">' + value + '</td></tr>';
+    }
+
+    function posterView(source) {
+      const rows = [
+        { no: source.row - 2, store: '城东店', item: '易拉宝', place: 'B区1号货架第一层' },
+        { no: source.row, store: source.store, item: '宣传海报', place: source.place, focus: true },
+        { no: source.row + 3, store: '城西店', item: '宣传海报', place: 'C区2号货架第一层' }
+      ];
+      const body = rows.map(row => {
+        const cls = row.focus ? 'bg-blue-50 ring-1 ring-inset ring-blue-200' : 'odd:bg-white even:bg-slate-50/60';
+        return '<tr class="' + cls + '">' +
+          '<td class="whitespace-nowrap border-t border-slate-100 px-2.5 py-2 text-[11px] text-slate-500">' + row.no + (row.focus ? '<span class="ml-1 rounded bg-blue-600 px-1 py-0.5 text-[9px] font-semibold text-white">引用</span>' : '') + '</td>' +
+          '<td class="whitespace-nowrap border-t border-slate-100 px-2.5 py-2 text-[12px] ' + (row.focus ? 'font-semibold text-slate-900' : 'text-slate-700') + '">' + row.store + '</td>' +
+          '<td class="whitespace-nowrap border-t border-slate-100 px-2.5 py-2 text-[12px] ' + (row.focus ? 'font-semibold text-slate-900' : 'text-slate-700') + '">' + row.item + '</td>' +
+          '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] ' + (row.focus ? 'font-semibold text-blue-800' : 'text-slate-700') + '">' + row.place + '</td>' +
+          '</tr>';
+      }).join('');
+      return '<h3 class="break-words text-[15px] font-semibold text-slate-900">' + source.name + '</h3>' +
+        '<p class="mt-1 text-[11px] text-slate-500">物品位置工作簿 · 工作表：物品位置</p>' + metaChips(source) +
+        '<div class="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">' +
+        '<p class="flex items-center gap-1.5 text-[11px] font-semibold text-blue-800"><iconify-icon icon="lucide:highlighter" class="text-[12px]" aria-hidden="true"></iconify-icon>本次引用的单元格记录</p>' +
+        '<p class="mt-1 text-[13px] leading-6 text-slate-800">' + source.store + '：' + source.place + '</p></div>' +
+        '<div class="mt-4 overflow-hidden rounded-lg border border-slate-200">' +
+        '<div class="flex items-center justify-between gap-2 border-b border-slate-200 bg-slate-50 px-3 py-2">' +
+        '<span class="flex items-center gap-1.5 text-[12px] font-medium text-slate-700"><iconify-icon icon="lucide:table-2" class="text-[13px] text-emerald-600" aria-hidden="true"></iconify-icon>工作表：物品位置</span>' +
+        '<span class="rounded bg-white px-1.5 py-0.5 text-[10px] text-slate-500 ring-1 ring-slate-200">原始行号 ' + source.row + '</span></div>' +
+        '<table class="w-full border-collapse text-left"><thead><tr class="bg-slate-50">' +
+        ['行号', '门店', '物品', '位置'].map(h => '<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">' + h + '</th>').join('') +
+        '</tr></thead><tbody>' + body + '</tbody></table></div>';
+    }
+
+    function noticeView(source) {
+      return '<h3 class="break-words text-[15px] font-semibold text-slate-900">' + source.name + '</h3>' +
+        '<p class="mt-1 text-[11px] text-slate-500">临时物料位置通知 · 第 1 页</p>' + metaChips(source) +
+        '<div class="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">' +
+        '<p class="flex items-center gap-1.5 text-[11px] font-semibold text-blue-800"><iconify-icon icon="lucide:highlighter" class="text-[12px]" aria-hidden="true"></iconify-icon>本次引用文字片段</p>' +
+        '<p class="mt-1 text-[13px] leading-6 text-slate-800">城东店宣传海报临时调整至 D区暂存柜。</p></div>' +
+        '<div class="mt-4 rounded-lg border border-slate-200 bg-slate-100 p-3">' +
+        '<div class="mx-auto max-w-[320px] rounded bg-white p-4 shadow-sm ring-1 ring-slate-200">' +
+        '<div class="flex items-center justify-between border-b border-slate-200 pb-2 text-[10px] text-slate-400"><span>市场部 · 临时通知</span><span>1 / 1</span></div>' +
+        '<p class="mt-3 text-[11px] font-semibold text-slate-800">城东店临时物料位置通知</p>' +
+        '<div class="mt-2 space-y-1.5 text-[10px] leading-5 text-slate-600">' +
+        '<p>因 B 区货架盘点，宣传海报临时移至 D区暂存柜。</p>' +
+        '<p class="rounded bg-amber-50 px-1 ring-1 ring-inset ring-amber-200 text-slate-800">暂存期间取用须联系门店负责人登记。</p>' +
+        '<p>盘点结束后另行通知。</p></div></div></div>';
+    }
+
+    function storesView(source) {
+      return '<h3 class="break-words text-[15px] font-semibold text-slate-900">' + source.name + '</h3>' +
+        '<p class="mt-1 text-[11px] text-slate-500">合作店家信息 · 工作表：店家信息</p>' + metaChips(source) +
+        '<div class="mt-4 rounded-lg border border-blue-100 bg-blue-50/60 px-3.5 py-2.5">' +
+        '<p class="flex items-center gap-1.5 text-[11px] font-semibold text-blue-800"><iconify-icon icon="lucide:highlighter" class="text-[12px]" aria-hidden="true"></iconify-icon>本次引用的地址字段</p>' +
+        '<p class="mt-1 text-[13px] leading-6 text-slate-800">' + source.fact + '</p></div>' +
+        '<div class="mt-4 overflow-hidden rounded-lg border border-slate-200">' +
+        '<table class="w-full border-collapse text-left"><thead><tr class="bg-slate-50">' +
+        ['门店', '地址', '营业时间'].map(h => '<th class="px-2.5 py-2 text-[11px] font-medium text-slate-500">' + h + '</th>').join('') +
+        '</tr></thead><tbody>' +
+        '<tr class="bg-blue-50 ring-1 ring-inset ring-blue-200"><td class="border-t border-slate-100 px-2.5 py-2 text-[12px] font-semibold text-slate-900">城东店</td>' +
+        '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] font-semibold text-blue-800">东城区民安路 18 号（模拟）</td>' +
+        '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-400">空</td></tr>' +
+        '<tr class="odd:bg-white even:bg-slate-50/60"><td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">城西店</td>' +
+        '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">西城区望湖街 6 号（模拟）</td>' +
+        '<td class="border-t border-slate-100 px-2.5 py-2 text-[12px] text-slate-700">09:00–18:00（模拟）</td></tr>' +
+        '</tbody></table></div>' +
+        '<p class="mt-2.5 flex items-start gap-1.5 text-[11px] leading-5 text-slate-500">' +
+        '<iconify-icon icon="lucide:info" class="mt-0.5 shrink-0 text-[12px] text-slate-400" aria-hidden="true"></iconify-icon>' +
+        '<span>营业时间字段为空，因此回答中不会推测营业时间。</span></p>';
+    }
+
+    const views = { posterV2: posterView, posterWest: posterView, notice: noticeView, stores: storesView };
+
+    function selectTab(key) {
+      const source = sources[key];
+      currentKey = key;
+      drawerSubtitle.textContent = source.name + ' · ' + source.version;
+      drawerBody.innerHTML = views[key](source);
+      drawerBody.scrollTop = 0;
+    }
+
+    function openDrawer(key, trigger) {
+      if (!trigger) {
+        const active = document.activeElement && document.activeElement.closest
+          ? document.activeElement.closest('[data-open-source]')
+          : null;
+        lastTrigger = active || lastTrigger;
+      } else {
+        lastTrigger = trigger;
+      }
+      drawer.classList.remove('translate-x-full');
+      selectTab(key);
+      drawer.querySelectorAll('[data-drawer-tab]').forEach(tab => {
+        const active = tab.dataset.drawerTab === key;
+        tab.setAttribute('aria-pressed', String(active));
+        tab.className = 'inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md text-[11px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ' +
+          (active ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800');
+      });
+      drawer.focus();
+    }
+
+    function closeDrawer() {
+      drawer.classList.add('translate-x-full');
+      if (lastTrigger && document.body.contains(lastTrigger)) lastTrigger.focus();
+    }
+
+    function buildDrawerTabs(keys) {
+      drawerTabs.innerHTML = keys.map((key, index) =>
+        '<button type="button" data-drawer-tab="' + key + '" aria-pressed="' + (index === 0 ? 'true' : 'false') + '" class="inline-flex h-8 flex-1 items-center justify-center gap-1.5 rounded-md text-[11px] font-medium transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 ' +
+        (index === 0 ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-800') + '">' +
+        '<iconify-icon icon="' + sources[key].icon + '" class="text-[13px]" aria-hidden="true"></iconify-icon>' + sources[key].version + '</button>'
+      ).join('');
+      openDrawer(keys[0]);
+    }
+
+    function sourceBar(key, fact, index, note) {
+      const source = sources[key];
+      return '<div class="flex items-center gap-2 rounded-lg border border-slate-200 bg-white px-2.5 py-2">' +
+        '<span class="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-slate-50 text-slate-500 ring-1 ring-slate-200">' +
+        '<iconify-icon icon="' + source.icon + '" class="text-[14px]" aria-hidden="true"></iconify-icon></span>' +
+        '<div class="min-w-0 flex-1">' +
+        '<p class="truncate text-[12px] font-medium text-slate-800">' + (typeof index === 'number' ? '[' + (index + 1) + '] ' : '') + source.name + ' · ' + source.version + '</p>' +
+        '<p class="mt-0.5 truncate text-[11px] text-slate-500">' + source.label + ' · ' + fact + ' · 生效 ' + source.effective + (note ? ' · ' + note : '') + '</p>' +
+        '</div>' +
+        '<button type="button" data-open-source="' + key + '" class="inline-flex h-7 shrink-0 items-center gap-1 rounded-md border border-slate-200 bg-white px-2 text-[11px] font-medium text-slate-700 transition hover:border-blue-300 hover:text-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-1">' +
+        '<iconify-icon icon="lucide:scan-eye" class="text-[13px]" aria-hidden="true"></iconify-icon>查看依据</button></div>';
+    }
+
+    function answerHeader(badge, badgeClass, time) {
+      return '<div class="flex flex-wrap items-center gap-x-2 gap-y-1">' +
+        '<span class="text-[13px] font-semibold text-slate-900">知识库回答</span>' +
+        '<span class="inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-medium ' + badgeClass + '">' +
+        '<span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>' + badge + '</span>' +
+        '<span class="text-[11px] text-slate-400">' + time + '</span></div>';
+    }
+
+    function avatarBlock() {
+      return '<div class="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm">' +
+        '<iconify-icon icon="lucide:sparkles" class="text-[15px]" aria-hidden="true"></iconify-icon></div>';
+    }
+
+    function userBubble(text, time) {
+      return '<div class="flex flex-col items-end gap-1">' +
+        '<div class="max-w-[78%] rounded-2xl rounded-tr-md bg-blue-600 px-4 py-2.5 text-[14px] leading-6 text-white shadow-sm">' + text + '</div>' +
+        '<div class="pr-1 text-[11px] text-slate-400">' + time + '</div></div>';
+    }
+
+    function refreshAnswer(mode) {
+      const isHistory = mode === 's6';
+      const body = isHistory
+        ? '<p class="text-[15px] font-medium leading-7 text-slate-900">城东店的宣传海报位于 B区1号货架第二层。</p>' +
+          '<dl class="mt-3 divide-y divide-slate-100 rounded-lg bg-slate-50/70 px-3 py-1">' +
+          '<div class="flex items-baseline gap-3 py-1.5"><dt class="w-[88px] shrink-0 text-[12px] text-slate-500">当前位置</dt><dd class="min-w-0 flex-1 text-[12px] font-medium text-slate-800">B区1号货架第二层</dd></div>' +
+          '<div class="flex items-baseline gap-3 py-1.5"><dt class="w-[88px] shrink-0 text-[12px] text-slate-500">资料版本</dt><dd class="min-w-0 flex-1 text-[12px] font-medium text-slate-800">V2（替换历史 V1）</dd></div>' +
+          '</dl>' +
+          '<div class="mt-3.5 border-t border-slate-100 pt-3">' +
+          '<div class="mb-2 flex items-center justify-between gap-2"><span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">' +
+          '<iconify-icon icon="lucide:link-2" class="text-[13px] text-slate-400" aria-hidden="true"></iconify-icon>当前来源</span>' +
+          '<span class="text-[11px] text-slate-400">已替换历史 V1</span></div>' +
+          sourceBar('posterV2', 'B区1号货架第二层') + '</div>'
+        : '<p class="text-[15px] font-medium leading-7 text-slate-900">城东店的宣传海报位于 B区1号货架第二层。</p>' +
+          '<p class="mt-1 text-[12px] leading-5 text-slate-500">已按更新后的 V2 重新检索，位置与此前草稿中的记录不同。</p>' +
+          '<div class="mt-3.5 border-t border-slate-100 pt-3">' +
+          '<div class="mb-2 flex items-center justify-between gap-2"><span class="flex items-center gap-1.5 text-[12px] font-semibold text-slate-700">' +
+          '<iconify-icon icon="lucide:link-2" class="text-[13px] text-slate-400" aria-hidden="true"></iconify-icon>更新后的来源</span>' +
+          '<span class="text-[11px] text-slate-400">V2 · 更新于 15:02</span></div>' +
+          sourceBar('posterV2', 'B区1号货架第二层') + '</div>';
+      return '<div class="flex flex-col items-end gap-1"><div class="max-w-[78%] rounded-2xl rounded-tr-md bg-slate-100 px-4 py-2 text-[13px] leading-6 text-slate-700">重新查询</div>' +
+        '<div class="pr-1 text-[11px] text-slate-400">发送于 刚刚</div></div>' +
+        '<div class="flex items-start gap-3.5">' + avatarBlock() +
+        '<div class="min-w-0 flex-1">' + answerHeader('基于已发布资料', 'bg-emerald-50 text-emerald-700', '刚刚') +
+        '<div class="mt-2.5 rounded-xl border border-slate-200 bg-white p-4 shadow-sm">' + body + '</div></div></div>';
+    }
+
+    function findBoard(id) {
+      return document.querySelector('[data-board="' + id + '"]');
+    }
+
+    function showToast(message) {
+      toastText.textContent = message;
+      toast.classList.remove('hidden');
+      toast.classList.add('flex');
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => {
+        toast.classList.add('hidden');
+        toast.classList.remove('flex');
+      }, 2200);
+    }
+
+    // 01 有歧义：未选择前不输出确定位置
+    const ambiguousResult = document.querySelector('[data-ambiguous-result]');
+    const ambiguousData = {
+      east: { source: 'posterV2', place: 'B区1号货架第二层', store: '城东店' },
+      west: { source: 'posterWest', place: 'C区2号货架第一层', store: '城西店' }
+    };
+    document.querySelectorAll('[data-ambiguous]').forEach(button => {
+      button.addEventListener('click', () => {
+        const key = button.dataset.ambiguous;
+        const item = ambiguousData[key];
+        document.querySelectorAll('[data-ambiguous]').forEach(btn => {
+          const active = btn.dataset.ambiguous === key;
+          btn.setAttribute('aria-pressed', String(active));
+          if (active) {
+            btn.classList.add('border-blue-500', 'bg-blue-50', 'text-blue-700');
+            btn.classList.remove('border-slate-300', 'bg-white', 'text-slate-700');
+          } else {
+            btn.classList.remove('border-blue-500', 'bg-blue-50', 'text-blue-700');
+            btn.classList.add('border-slate-300', 'bg-white', 'text-slate-700');
+          }
+        });
+        ambiguousResult.innerHTML = '<div class="rounded-lg border border-slate-200 bg-slate-50/70 px-3 py-2.5">' +
+          '<p class="text-[11px] text-slate-500">已确认门店：' + item.store + '</p>' +
+          '<p class="mt-1 text-[14px] font-medium leading-6 text-slate-900">宣传海报位于 ' + item.place + '。</p>' +
+          '<div class="mt-2">' + sourceBar(item.source, item.place) + '</div></div>';
+      });
+    });
+
+    // 02 没有答案：保留原问题便于修改
+    document.querySelector('[data-edit-question]').addEventListener('click', () => {
+      showToast('已保留原问题「城南店的联系人」，可补充准确店名后重新查询');
+    });
+
+    // 03 / 04 来源组件
+    document.querySelector('[data-source-group="stores"]').innerHTML = sourceBar('stores', '地址');
+    document.querySelector('[data-source-group="conflict"]').innerHTML =
+      sourceBar('posterV2', 'B区1号货架第二层 · 生效 2026-10-27 10:30', 0) +
+      sourceBar('notice', 'D区暂存柜 · 生效 2026-10-27 12:00', 1);
+
+    // 05 / 06 重新查询
+    document.querySelectorAll('[data-refresh-query]').forEach(button => {
+      button.addEventListener('click', () => {
+        const board = findBoard(button.dataset.refreshQuery);
+        const slot = board.querySelector('[data-refresh-slot]');
+        const wrap = document.createElement('div');
+        wrap.className = 'space-y-5';
+        wrap.innerHTML = refreshAnswer(button.dataset.refreshQuery);
+        slot.className = 'rounded-xl border border-slate-200 bg-slate-50/60 p-3';
+        slot.innerHTML = '';
+        slot.appendChild(wrap);
+        button.closest('[data-board]').querySelectorAll('[data-refresh-query]').forEach(btn => {
+          btn.disabled = true;
+          btn.classList.add('cursor-not-allowed', 'bg-slate-200', 'text-slate-400', 'shadow-none');
+          btn.classList.remove('bg-blue-600', 'text-white', 'hover:bg-blue-700');
+        });
+        showToast('已按当前资料重新查询');
+        slot.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      });
+    });
+
+    // 08 服务重试：不清空输入
+    const serviceInput = document.getElementById('serviceInput');
+    function retryService() {
+      const value = serviceInput.value;
+      if (!value.trim()) {
+        serviceInput.focus();
+        return;
+      }
+      const status = document.querySelector('[data-service-status]');
+      status.innerHTML = '<iconify-icon icon="lucide:loader-circle" class="animate-spin text-[11px]" aria-hidden="true"></iconify-icon>重试中';
+      serviceInput.value = value;
+      setTimeout(() => {
+        status.className = 'inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-medium text-rose-700';
+        status.innerHTML = '<span class="h-1.5 w-1.5 rounded-full bg-rose-500"></span>服务异常';
+        serviceInput.value = value;
+        showToast('仍未连接成功，输入内容已保留');
+        serviceInput.focus();
+      }, 900);
+    }
+    document.querySelector('[data-service-retry]').addEventListener('click', retryService);
+    document.getElementById('serviceSend').addEventListener('click', retryService);
+    serviceInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter' && !event.isComposing) {
+        event.preventDefault();
+        retryService();
+      }
+    });
+
+    // 09 知识库为空：管理员 / 员工两个变体
+    const emptyCopy = {
+      admin: {
+        note: '已发布资料尚未上传。可进入资料管理上传 Word、Excel、PDF 或图片资料，发布后即可开始查询。',
+        footnote: '上传并发布前，AI 助手无法给出回答。'
+      },
+      staff: {
+        note: '资料库暂未上线内容，请联系管理员补充并发布资料后再查询。',
+        footnote: '员工无资料上传权限，无需重复尝试。'
+      }
+    };
+    function applyEmptyRole(role) {
+      const copy = emptyCopy[role];
+      const state = document.querySelector('[data-board="s9"]');
+      state.querySelector('[data-empty-note]').textContent = copy.note;
+      state.querySelector('[data-empty-footnote]').textContent = copy.footnote;
+      const action = state.querySelector('[data-empty-action]');
+      action.setAttribute('href', role === 'admin' ? 'materials.html' : 'staff.html#history');
+      action.setAttribute('aria-disabled', role === 'staff' ? 'true' : 'false');
+      action.innerHTML = role === 'admin'
+        ? '<iconify-icon icon="lucide:upload" class="text-[13px]" aria-hidden="true"></iconify-icon><span>进入资料管理上传资料</span>'
+        : '<iconify-icon icon="lucide:user-round" class="text-[13px]" aria-hidden="true"></iconify-icon><span>联系管理员补充资料</span>';
+      action.className = role === 'admin'
+        ? 'inline-flex h-9 items-center justify-center gap-1.5 rounded-lg bg-blue-600 px-4 text-[12px] font-semibold text-white shadow-sm transition hover:bg-blue-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2'
+        : 'inline-flex h-9 cursor-default items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-4 text-[12px] font-medium text-slate-600';
+      document.querySelectorAll('[data-empty-tab]').forEach(tab => {
+        const active = tab.dataset.emptyTab === role;
+        tab.setAttribute('aria-pressed', String(active));
+        tab.classList.toggle('bg-white', active);
+        tab.classList.toggle('shadow-sm', active);
+        tab.classList.toggle('text-slate-800', active);
+        tab.classList.toggle('text-slate-500', !active);
+      });
+    }
+    document.querySelectorAll('[data-empty-tab]').forEach(tab => {
+      tab.addEventListener('click', () => applyEmptyRole(tab.dataset.emptyTab));
+    });
+    document.querySelector('[data-empty-action]').addEventListener('click', event => {
+      if (event.currentTarget.getAttribute('aria-disabled') === 'true') event.preventDefault();
+    });
+    applyEmptyRole('admin');
+    document.querySelector('[data-empty-actions]').classList.add('mt-4', 'flex', 'items-center', 'justify-center');
+
+    // 来源抽屉
+    drawerTabs.addEventListener('click', event => {
+      const tab = event.target.closest('[data-drawer-tab]');
+      if (!tab) return;
+      openDrawer(tab.dataset.drawerTab);
+    });
+    document.getElementById('drawerClose').addEventListener('click', closeDrawer);
+    document.getElementById('drawerFootClose').addEventListener('click', closeDrawer);
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && !drawer.classList.contains('translate-x-full')) closeDrawer();
+    });
+    document.addEventListener('click', event => {
+      const button = event.target.closest('[data-open-source]');
+      if (!button) return;
+      const related = button.closest('[data-source-group]');
+      const keys = related
+        ? Array.from(related.querySelectorAll('[data-open-source]')).map(item => item.dataset.openSource)
+        : [button.dataset.openSource];
+      buildDrawerTabs(keys);
+      openDrawer(button.dataset.openSource, button);
+    });
+
+    // 状态索引跳转
+    document.querySelectorAll('[data-jump]').forEach(button => {
+      button.addEventListener('click', () => {
+        const target = document.getElementById(button.dataset.jump);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          target.classList.add('board-focus');
+          setTimeout(() => target.classList.remove('board-focus'), 1200);
+        }
+      });
+    });
+  </script>
+</body>
+</html>

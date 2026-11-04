@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=69"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mktkb"
+version = "0.1.0"
+description = "市场部 AI 知识库（T03：上传、持久任务与 Excel/Word 检查）"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "pydantic-settings",
+    "sqlalchemy",
+    "alembic",
+    "bcrypt",
+    # T03：本地 Excel/Word 解析在运行期需要，故提升为生产依赖
+    "openpyxl",
+    "python-docx",
+    # T03：FastAPI multipart 上传所需（普通 python-multipart，不是 httpx2）
+    "python-multipart",
+    # T05：中文分词（本地词典，不联网、不调用模型）；入库与查询使用同一版本/规则
+    "jieba==0.42.1",
+    # T06：DeepSeek 适配只使用已安装的 httpx 0.28.1（官方非流式 Chat Completions 文本协议），
+    # 不引入 OpenAI/DeepSeek SDK 或 httpx2；版本与 dev 锁一致，不升级。
+    "httpx==0.28.1",
+    # LOCAL-R1/S1：隔离 RAG 的归一化矩阵检索；仅新增兼容 Python 3.12 的锁定依赖，不升级既有包。
+    "numpy==2.5.4",
+    # T07：本地 PDF/图片解析在运行期需要；按已安装的精确版本提升为运行依赖，不升级。
+    "Pillow==13.0.0",
+    "pdfplumber==0.11.10",
+    "pypdfium2==5.14.0",
+]
+
+# T01 语料生成/检查依赖保留。pytest/fonttools 等仅开发用途包不进入生产锁。
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pip-tools",
+    "reportlab",
+    "Pillow",
+    "pdfplumber",
+    "pypdfium2",
+    "fonttools",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]

@@ -1,0 +1,33 @@
+{
+  "name": "mktkb-frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "市场部 AI 知识库前端（React 19 + TypeScript 5 + Vite 8）",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run typecheck && vite build",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "preview": "vite preview",
+    "test:e2e": "playwright test",
+    "api:types": "openapi-typescript ../docs/evidence/T08/R1B/api/openapi.json -o src/api/schema.d.ts"
+  },
+  "dependencies": {
+    "react": "19.3.1",
+    "react-dom": "19.3.1",
+    "react-router-dom": "7.18.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.64.0",
+    "@types/node": "24.19.2",
+    "@types/react": "19.3.0",
+    "@types/react-dom": "19.3.0",
+    "@vitejs/plugin-react": "6.1.2",
+    "openapi-typescript": "7.13.0",
+    "typescript": "5.9.3",
+    "vite": "8.3.5"
+  },
+  "engines": {
+    "node": ">=22.12.0"
+  }
+}

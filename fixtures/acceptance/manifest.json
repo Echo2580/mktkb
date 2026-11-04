@@ -1,0 +1,722 @@
+{
+  "root": ".",
+  "built_at": "2026-10-27",
+  "font": {
+    "family": "Noto Sans SC Static",
+    "regular_sha256": "F2B1C83E95DA726AA0A10FD5B6A9252A15E75AF9FFB3B25A2930D09860E39669",
+    "medium_sha256": "EFF5ACBE28D97768E393285F71A7B9672747ABAAA5E2A99330CDF57FE612555F",
+    "license": "SIL OFL 1.1",
+    "license_file": "font-license/OFL.txt"
+  },
+  "b0_initialization": {
+    "id": "b0_initialization",
+    "description": "同一 D01 逻辑文件先导入并发布历史 V1（V03），再导入并发布正常 D01 作为业务 V2；其余正常文件首次导入后发布。",
+    "logical_slots": {
+      "doc-positions": {
+        "files": [
+          "V03",
+          "D01"
+        ],
+        "active_business_version": "V2"
+      },
+      "doc-stores": {
+        "files": [
+          "D02"
+        ],
+        "active_business_version": "V1"
+      }
+    },
+    "steps": [
+      {
+        "step": 1,
+        "op": "import_document",
+        "file": "V03",
+        "document_slot": "doc-positions",
+        "business_version": "V1"
+      },
+      {
+        "step": 2,
+        "op": "process",
+        "file": "V03"
+      },
+      {
+        "step": 3,
+        "op": "publish",
+        "file": "V03"
+      },
+      {
+        "step": 4,
+        "op": "import_version",
+        "file": "D01",
+        "document_slot": "doc-positions",
+        "business_version": "V2"
+      },
+      {
+        "step": 5,
+        "op": "process",
+        "file": "D01"
+      },
+      {
+        "step": 6,
+        "op": "publish",
+        "file": "D01"
+      },
+      {
+        "step": 7,
+        "op": "import_document",
+        "file": "D02",
+        "document_slot": "doc-stores",
+        "business_version": "V1"
+      },
+      {
+        "step": 8,
+        "op": "process",
+        "file": "D02"
+      },
+      {
+        "step": 9,
+        "op": "publish",
+        "file": "D02"
+      },
+      {
+        "step": 10,
+        "op": "import_document",
+        "file": "D03",
+        "document_slot": "doc-guide",
+        "business_version": "V1"
+      },
+      {
+        "step": 11,
+        "op": "process",
+        "file": "D03"
+      },
+      {
+        "step": 12,
+        "op": "publish",
+        "file": "D03"
+      },
+      {
+        "step": 13,
+        "op": "import_document",
+        "file": "D04",
+        "document_slot": "doc-planning",
+        "business_version": "V1"
+      },
+      {
+        "step": 14,
+        "op": "process",
+        "file": "D04"
+      },
+      {
+        "step": 15,
+        "op": "publish",
+        "file": "D04"
+      },
+      {
+        "step": 16,
+        "op": "import_document",
+        "file": "D05",
+        "document_slot": "doc-usage",
+        "business_version": "V1"
+      },
+      {
+        "step": 17,
+        "op": "process",
+        "file": "D05"
+      },
+      {
+        "step": 18,
+        "op": "publish",
+        "file": "D05"
+      },
+      {
+        "step": 19,
+        "op": "import_document",
+        "file": "D06",
+        "document_slot": "doc-store-ops",
+        "business_version": "V1"
+      },
+      {
+        "step": 20,
+        "op": "process",
+        "file": "D06"
+      },
+      {
+        "step": 21,
+        "op": "publish",
+        "file": "D06"
+      },
+      {
+        "step": 22,
+        "op": "import_document",
+        "file": "D07",
+        "document_slot": "doc-application-scan",
+        "business_version": "V1"
+      },
+      {
+        "step": 23,
+        "op": "process",
+        "file": "D07"
+      },
+      {
+        "step": 24,
+        "op": "publish",
+        "file": "D07"
+      },
+      {
+        "step": 25,
+        "op": "import_document",
+        "file": "D08",
+        "document_slot": "doc-safety-scan",
+        "business_version": "V1"
+      },
+      {
+        "step": 26,
+        "op": "process",
+        "file": "D08"
+      },
+      {
+        "step": 27,
+        "op": "publish",
+        "file": "D08"
+      },
+      {
+        "step": 28,
+        "op": "import_document",
+        "file": "D09",
+        "document_slot": "doc-notice-image",
+        "business_version": "V1"
+      },
+      {
+        "step": 29,
+        "op": "process",
+        "file": "D09"
+      },
+      {
+        "step": 30,
+        "op": "publish",
+        "file": "D09"
+      },
+      {
+        "step": 31,
+        "op": "import_document",
+        "file": "D10",
+        "document_slot": "doc-stocktake-image",
+        "business_version": "V1"
+      },
+      {
+        "step": 32,
+        "op": "process",
+        "file": "D10"
+      },
+      {
+        "step": 33,
+        "op": "publish",
+        "file": "D10"
+      }
+    ],
+    "assertions": [
+      "发布 V03 后，D01 逻辑槽的 P01 位置为 A区3号货架第二层（业务 V1）",
+      "发布 D01 后，P01 为 B区1号货架第二层，且为当前有效业务 V2",
+      "其余正常文件各自首次导入即业务 V1，无历史版本",
+      "应用 revision 由实际运行读取，不在本配方中预设"
+    ],
+    "forbidden": [
+      "不得用 V04 建立 B0（V04 是 D 区新位置，仅用于 U01/U02/U07/U08）",
+      "不得把 D01 首次导入直接命名为业务 V2"
+    ]
+  },
+  "normal_files": [
+    {
+      "id": "D01",
+      "path": "normal/D01_物品位置表.xlsx",
+      "kind": "xlsx",
+      "business_version": "V2",
+      "bytes": 6758,
+      "sha256": "644604ccdb0ba30e802afd94cfc69425192b7eaf996a054081fe1bbef141b54d"
+    },
+    {
+      "id": "D02",
+      "path": "normal/D02_合作店家信息.xlsx",
+      "kind": "xlsx",
+      "business_version": "V1",
+      "bytes": 5392,
+      "sha256": "6a210e0629e5ccfd701c0e92fe10b51accf5528dc759bcb8480b0bd718603227"
+    },
+    {
+      "id": "D03",
+      "path": "normal/D03_市场部工作指南.docx",
+      "kind": "docx",
+      "business_version": "V1",
+      "bytes": 37107,
+      "sha256": "adbf69b520a2385a6a92b83929bb0ced68b1d6e925de994e150cff0fcee30c2e"
+    },
+    {
+      "id": "D04",
+      "path": "normal/D04_活动策划流程.docx",
+      "kind": "docx",
+      "business_version": "V1",
+      "bytes": 37032,
+      "sha256": "cb64bcfd86acf35b2135ee812fcda1cda4106b0d863d6ca964d3cc6029c830f3"
+    },
+    {
+      "id": "D05",
+      "path": "normal/D05_物料领用规范.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "bytes": 36604,
+      "sha256": "c38a13436be8552df4b388ab82fdfba20362e19a2d8f747522430e16fad0fda6"
+    },
+    {
+      "id": "D06",
+      "path": "normal/D06_店家资料维护说明.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "bytes": 33032,
+      "sha256": "30edb4383c37dc77b51eb2a8d71b8cacc4539576792d6a1c80702526a08d1dea"
+    },
+    {
+      "id": "D07",
+      "path": "normal/D07_活动申请扫描件.pdf",
+      "kind": "pdf-scan",
+      "business_version": "V1",
+      "bytes": 339802,
+      "sha256": "f4f7e5c187b4fd9ba2aaa4b06917d52cb7bade28cfd792a1663bc800bf611201"
+    },
+    {
+      "id": "D08",
+      "path": "normal/D08_仓库安全须知扫描件.pdf",
+      "kind": "pdf-scan",
+      "business_version": "V1",
+      "bytes": 84122,
+      "sha256": "9c4043e196af6c4afe525cb746f8f9fc75c12c14ab8bc9e67428ffc8713c61fb"
+    },
+    {
+      "id": "D09",
+      "path": "normal/D09_物料领用通知.png",
+      "kind": "png",
+      "business_version": "V1",
+      "bytes": 42389,
+      "sha256": "7e16ef249ed14a023cc103cef326fae2df60f56a30d2d4b0ca07c1d35cb0a8d3"
+    },
+    {
+      "id": "D10",
+      "path": "normal/D10_盘点通知.jpg",
+      "kind": "jpg",
+      "business_version": "V1",
+      "bytes": 78518,
+      "sha256": "e6aa536b7887735663f89abf5784334359489b47801e8b1f5da55146ad3bbdd2"
+    }
+  ],
+  "variants": [
+    {
+      "id": "V01",
+      "path": "variants/V01_临时物料位置通知.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "purpose": "C05 位置冲突的另一有效来源",
+      "scenario": "C05",
+      "bytes": 32110,
+      "sha256": "50e74141e2cf032202108b51afaee11df8b5816bfd3130113bd99c992dddc131"
+    },
+    {
+      "id": "V02",
+      "path": "variants/V02_店家联系方式变更通知.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "purpose": "C06 电话冲突的另一有效来源",
+      "scenario": "C06",
+      "bytes": 30142,
+      "sha256": "829b9d54be941953dade7a973180899153f24fdc8a5018dc8cf3390ef3a1549f"
+    },
+    {
+      "id": "V03",
+      "path": "variants/V03_物品位置表_历史V1.xlsx",
+      "kind": "xlsx",
+      "business_version": "V1",
+      "purpose": "P01 历史位置（U01/U02 建立历史版本用）",
+      "scenario": "U01",
+      "bytes": 6759,
+      "sha256": "d1a7be2c1f64804fdb123873bd30dbc66577e7da3a1321ef904eda201ad5d708"
+    },
+    {
+      "id": "V04",
+      "path": "variants/V04_物品位置表_新版V3.xlsx",
+      "kind": "xlsx",
+      "business_version": "V3",
+      "purpose": "P01 新位置（U02 发布后用）",
+      "scenario": "U02",
+      "bytes": 6768,
+      "sha256": "d27f4bc25376e9a8ad68ca4613ddeb39989aca147f8698e36dafed24cc4670a0"
+    },
+    {
+      "id": "V05",
+      "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+      "kind": "xlsx",
+      "business_version": "V3",
+      "purpose": "新版删除 P01 整行（U04）",
+      "scenario": "U04",
+      "bytes": 6730,
+      "sha256": "30548bc0ee8184381b40ab0fcc0bde4a099a379540ffbc9e3e42dcbb22eac6c2"
+    },
+    {
+      "id": "V06",
+      "path": "variants/V06_合作店家信息_新电话.xlsx",
+      "kind": "xlsx",
+      "business_version": "V2",
+      "purpose": "S01 电话变更（U03/U06 恢复基础）",
+      "scenario": "U03",
+      "bytes": 5393,
+      "sha256": "0da6f5999fcd810833094342bb945a1cb65e7bf0dc176bac3dbdde8bda306c95"
+    },
+    {
+      "id": "V07",
+      "path": "variants/V07_物料位置独立通知.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "purpose": "U06 删除 D01 后的剩余有效来源",
+      "scenario": "U06",
+      "bytes": 31396,
+      "sha256": "0805ee4307ce36cc703d674f7cfabb194bc318fcaef139721afe3235339f0616"
+    },
+    {
+      "id": "A01",
+      "path": "variants/A01_损坏的文档.docx",
+      "kind": "docx",
+      "business_version": "V1",
+      "purpose": "损坏 docx（截断字节，非合法 ZIP）",
+      "scenario": "anomaly",
+      "bytes": 400,
+      "sha256": "708de190fd58b13b026d26855042162ee6e4d185f3a161d99b65958d960a9722"
+    },
+    {
+      "id": "A02",
+      "path": "variants/A02_损坏的表格.xlsx",
+      "kind": "xlsx",
+      "business_version": "V1",
+      "purpose": "损坏 xlsx（截断字节）",
+      "scenario": "anomaly",
+      "bytes": 300,
+      "sha256": "d59aaef67fa76d97162ba571605fa208c39b6232aad8481cfd7e2f78f55739e5"
+    },
+    {
+      "id": "A03",
+      "path": "variants/A03_加密的规范.pdf",
+      "kind": "pdf-text",
+      "business_version": "V1",
+      "purpose": "真实口令加密 PDF（reportlab StandardEncryption）",
+      "scenario": "anomaly",
+      "bytes": 14864,
+      "sha256": "89e12de15aaac4fc7eaec95677616157043a79f342c1a076f87f41d53d2c36e2"
+    },
+    {
+      "id": "A04",
+      "path": "variants/A04_模糊的照片.png",
+      "kind": "png",
+      "business_version": "V1",
+      "purpose": "模糊图片（文字不可辨）",
+      "scenario": "anomaly",
+      "bytes": 32287,
+      "sha256": "bace37613aa31746c0dbfba59ac8fa7db2e938794d19a800c4762c72116e585a"
+    },
+    {
+      "id": "A05",
+      "path": "variants/A05_无文字的照片.png",
+      "kind": "png",
+      "business_version": "V1",
+      "purpose": "无文字图片（纯白）",
+      "scenario": "anomaly",
+      "bytes": 4586,
+      "sha256": "47210aae47a1b70a3f76cd8b9635de5cd97fb8dcaadbf0adc83978798519d1bd"
+    },
+    {
+      "id": "A06",
+      "path": "variants/A06_行列不可恢复的表格.jpg",
+      "kind": "jpg",
+      "business_version": "V1",
+      "purpose": "表格行列无法可靠恢复（错位、缺线）",
+      "scenario": "anomaly",
+      "bytes": 58701,
+      "sha256": "b796ef45ae56fbe4179611f9e631b183a880909b765ffa9bc9b368bf2565d0ea"
+    },
+    {
+      "id": "A07",
+      "path": "variants/A07_混合页文档.pdf",
+      "kind": "pdf-mixed",
+      "business_version": "V1",
+      "purpose": "混合 PDF：文字页 + 扫描页（支持路径，不含失败页）",
+      "scenario": "anomaly",
+      "bytes": 30140,
+      "sha256": "ae90c4bf3f127165f36970e4aa0ca8ae6c718866270309a0bd7876d5f5a696d8"
+    },
+    {
+      "id": "A08",
+      "path": "variants/A08_混合页含失败页文档.pdf",
+      "kind": "pdf-mixed",
+      "business_version": "V1",
+      "purpose": "混合 PDF 含不可识别失败页（不得整份发布）",
+      "scenario": "anomaly",
+      "bytes": 32266,
+      "sha256": "bf26d76b0aef12e4e6dd0cd6ab705e506a735f6ab44be2b8f96f00335517f2ea"
+    }
+  ],
+  "boundary": [
+    {
+      "id": "B01",
+      "path": "boundary/B01_恰好20MB.pdf",
+      "kind": "pdf-text",
+      "measure": {
+        "bytes": 20971520,
+        "limit": 20971520
+      },
+      "note": "恰好 20×1024×1024 字节（PDF 尾部合法注释填充，可正常打开与提取）；为控制仓库体积，计量与哈希记录后删除，复现命令见 C2 报告",
+      "kept": false,
+      "bytes": 20971520,
+      "sha256": "82439586391d37e907aa087c11c7ebcc6d2e564bb7a83ee4c751ac8a4ed8723f"
+    },
+    {
+      "id": "B02",
+      "path": "boundary/B02_超过20MB一字节.pdf",
+      "kind": "pdf-text",
+      "measure": {
+        "bytes": 20971521,
+        "limit": 20971520
+      },
+      "note": "超出 1 字节（同上填充方式）；为控制仓库体积，计量与哈希记录后删除，复现命令见 C2 报告",
+      "kept": false,
+      "bytes": 20971521,
+      "sha256": "f7f1b61c8c6410049a6a8b5e10f33596ba1e73a12881ab1302c9157c851e3bd3"
+    },
+    {
+      "id": "B03",
+      "path": "boundary/B03_恰好50页.pdf",
+      "kind": "pdf-text",
+      "measure": {
+        "pages": 50,
+        "limit": 50
+      },
+      "note": "PDF 页数边界",
+      "kept": true,
+      "bytes": 36863,
+      "sha256": "851d2442bd7b0512797a16f5293f42d970986f3f2318aa33da184300501037d5"
+    },
+    {
+      "id": "B04",
+      "path": "boundary/B04_超过50页.pdf",
+      "kind": "pdf-text",
+      "measure": {
+        "pages": 51,
+        "limit": 50
+      },
+      "note": "PDF 页数边界",
+      "kept": true,
+      "bytes": 37378,
+      "sha256": "9877245d3d78c83880c97f1e2a674cc2bfbc4267ddf745697ea08e6c4eeea126"
+    },
+    {
+      "id": "B05",
+      "path": "boundary/B05_恰好5000行.xlsx",
+      "kind": "xlsx",
+      "measure": {
+        "data_rows": 5000,
+        "limit": 5000
+      },
+      "note": "Excel 有效数据行边界（跨可见表合计）",
+      "kept": true,
+      "bytes": 118327,
+      "sha256": "8ad0ea7a4ee369b2d8a4bcfb6cb6c81d88c099ac8bc8ddec1f06a2928e19d5d9"
+    },
+    {
+      "id": "B06",
+      "path": "boundary/B06_超过5000行.xlsx",
+      "kind": "xlsx",
+      "measure": {
+        "data_rows": 5001,
+        "limit": 5000
+      },
+      "note": "Excel 有效数据行边界（跨可见表合计）",
+      "kept": true,
+      "bytes": 118351,
+      "sha256": "d8a9979adaaa1073db49ab1c183f3752e38eed21741dfc602fe10281f570eb01"
+    },
+    {
+      "id": "B07",
+      "path": "boundary/B07_恰好2000万像素.png",
+      "kind": "png",
+      "measure": {
+        "pixels": 20000000,
+        "limit": 20000000
+      },
+      "note": "图片像素边界",
+      "kept": true,
+      "bytes": 67276,
+      "sha256": "6d946e11e1703083e9c703480e1fc2e53aa882ef20adb5542bd3930b150f698e"
+    },
+    {
+      "id": "B08",
+      "path": "boundary/B08_超过2000万像素.png",
+      "kind": "png",
+      "measure": {
+        "pixels": 20005000,
+        "limit": 20000000
+      },
+      "note": "图片像素边界",
+      "kept": true,
+      "bytes": 67293,
+      "sha256": "d73ed615aa78a564dfcf8ecdaccf7c259c4537b6f6be1a5c251d40464671a4b3"
+    }
+  ],
+  "records": {
+    "P01": {
+      "门店": "城东店",
+      "物品": "宣传海报",
+      "别名": "海报",
+      "位置": "B区1号货架第二层"
+    },
+    "P02": {
+      "门店": "城西店",
+      "物品": "宣传海报",
+      "别名": "海报",
+      "位置": "C区2号货架第一层"
+    },
+    "P03": {
+      "门店": "城东店",
+      "物品": "展架",
+      "别名": "展示架",
+      "位置": "A区2号货架底层"
+    },
+    "P04": {
+      "门店": "城西店",
+      "物品": "展架",
+      "别名": "展示架",
+      "位置": "B区3号货架中层"
+    },
+    "P05": {
+      "门店": "城东店",
+      "物品": "易拉宝",
+      "别名": "",
+      "位置": "D区1号柜第二层"
+    },
+    "P06": {
+      "门店": "城西店",
+      "物品": "易拉宝",
+      "别名": "",
+      "位置": "D区2号柜第二层"
+    },
+    "P07": {
+      "门店": "城东店",
+      "物品": "促销贴纸",
+      "别名": "贴纸",
+      "位置": "A区4号货架第一层"
+    },
+    "P08": {
+      "门店": "城西店",
+      "物品": "价签卡纸",
+      "别名": "价签纸",
+      "位置": "C区1号柜第一层"
+    },
+    "S01": {
+      "店家": "城东店",
+      "联系人": "模拟联系人·陈宁",
+      "电话": "010-00000001",
+      "地址": "示例市示例路18号（模拟）",
+      "合作状态": "合作中"
+    },
+    "S02": {
+      "店家": "城西店",
+      "联系人": "模拟联系人·王平",
+      "电话": "010-00000002",
+      "地址": "示例市示例路26号（模拟）",
+      "合作状态": "合作中"
+    },
+    "S03": {
+      "店家": "城北店",
+      "联系人": "模拟联系人·李禾",
+      "电话": "010-00000003",
+      "地址": "示例市北街8号（模拟）",
+      "合作状态": "暂停合作"
+    },
+    "S04": {
+      "店家": "滨河店",
+      "联系人": "模拟联系人·周安",
+      "电话": "010-00000004",
+      "地址": "示例市滨河路6号（模拟）",
+      "合作状态": "待签约"
+    }
+  },
+  "sources": {
+    "P01": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 8,
+      "business_version": "V2"
+    },
+    "P02": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 9,
+      "business_version": "V2"
+    },
+    "P03": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 10,
+      "business_version": "V2"
+    },
+    "P04": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 11,
+      "business_version": "V2"
+    },
+    "P05": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 12,
+      "business_version": "V2"
+    },
+    "P06": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 13,
+      "business_version": "V2"
+    },
+    "P07": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 14,
+      "business_version": "V2"
+    },
+    "P08": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 15,
+      "business_version": "V2"
+    },
+    "S01": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 5,
+      "business_version": "V1"
+    },
+    "S02": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 6,
+      "business_version": "V1"
+    },
+    "S03": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 7,
+      "business_version": "V1"
+    },
+    "S04": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 8,
+      "business_version": "V1"
+    }
+  },
+  "questions_file": "questions.json"
+}
