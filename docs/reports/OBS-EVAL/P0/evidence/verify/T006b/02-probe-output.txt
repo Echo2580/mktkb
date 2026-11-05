@@ -1,0 +1,77 @@
+== A. config ==
+PASS A1 status unapproved | unapproved
+PASS A2 15 metrics / four groups | 15
+PASS A3 all thresholds null
+PASS A4 hard_gate_min_sample b0=32 badcase=13 | {'b0': 32, 'badcase': 13}
+PASS A5 config hash | eeb70a6c2d3b7c32
+PASS A6 file sha256 | 8b37182472087b87
+PASS A7 legacy min_sample rejected | ValueError
+PASS A8 quality_layer metadata
+PASS A9 no composite metric
+== B. calibration ==
+PASS B1 b0 proposal object-identical
+PASS B2 badcase proposal object-identical
+PASS B3 config bytes unchanged
+PASS B4 proposal status/run/hash
+PASS B5 proposal counts 45/105
+PASS B6 b0 denominators 32/32 | 32/32
+PASS B7 badcase denominators 10/13 | 10/13
+PASS B8 badcase refusal denominators 2/11/2
+PASS B9 badcase 7 strata, no ocr
+PASS B10 b0 only 3 strata
+PASS B11 b0 Recall observation/suggestion
+PASS B12 badcase Recall observation/suggestion
+PASS B13 runtime not auto-suggested
+PASS B14 value_no_fabricated diagnostic-only
+PASS B15 write proposal onto gate config rejected | ValueError
+PASS B17 calibration status stays unapproved even with approved config
+PASS B16 proposal write UTF-8 no BOM
+== C. quality outcomes ==
+PASS C1 unapproved b0 exit 3 / quality unknown | exit=3 status=unknown
+PASS C2 b0 42 approval unknowns, all thresholds_unapproved | 42
+PASS C3 no quality failure in unapproved
+PASS C4 unapproved badcase exit 3 / 105 metrics
+PASS C5 approved pass exit 0 | exit=0 status=pass
+PASS C6 per-stratum observed exact=1.0 text=0.875
+PASS C7 no composite key
+PASS C8 absolute_min miss exit 2 | exit=2 failures=[('absolute_min', 'all'), ('absolute_min', 'text')]
+PASS C9 missing metric min_sample -> unknown
+PASS C10 all-level min_sample 32 makes exact/text unknown (T009 constraint) | exit=3
+PASS C11 proposal-as-approved never passes (runtime/cost + text stratum thresholds) | exit=3 quality=fail unknown check ids=['min_sample_missing', 'min_sample_not_met', 'no_eligible_sample', 'no_threshold_configured', 'observed_missing']
+== D. denominators ==
+PASS D1 retrieval denominator 10 (13 scored, 2 OCR passed rows excluded) | exit=0
+PASS D2 min_sample 11 on 10 gold -> unknown (no hard_gate 13 reuse)
+PASS D3 answer denominator 13 (OCR rows excluded) | exit=0 denom={('value_hit', 'all'): 13, ('value_hit', 'price'): 13}
+PASS D4 min_sample 14 on 13 scored -> unknown (proves 13, not 15)
+PASS D5 no ocr stratum in quality report | ('all', 'price')
+PASS D6 summary missing metric -> unknown observed=None
+INFO summary metrics mapping entirely absent -> exit=0 quality=pass (recomputed from cases.jsonl, warning only)
+PASS D7 refusal excludes knowledge_changed/service_error/error (denominator 1, observed 1.0) | exit=0 denom=1 obs=1.0
+PASS D8 absolute_max on lower_is_better -> exit 2 | exit=2
+PASS D9 error row excluded from answer denominator (12) | exit=3 denom=12
+PASS D10 hard error row still forces exit 3 (hard layer regression) | exit=3
+== E. baseline ==
+PASS E1 same-version regression -> exit 2 | exit=2 delta=2.124999999999999
+PASS E2 cross-version regression rejected -> unknown exit 3 | exit=3
+PASS E3 no baseline -> max_regression_pp skipped, exit 0
+== F. waiver ==
+PASS F1 missing reason | ValueError
+PASS F2 missing approver | ValueError
+PASS F3 hard gate id rejected | ValueError
+PASS F4 global quality waiver -> exit 0 pass_with_waivers | exit=0 status=pass_with_waivers waived=2
+PASS F5 waiver reason/approver in warnings
+PASS F6 stratum-scoped waiver leaves text failure -> exit 2
+PASS F7 waiver does not turn unapproved unknown into pass | exit=3
+PASS F8 hard security_leak + quality fail + waiver -> exit 1 | exit=1 hard=('security_leak',) quality=pass_with_waivers
+== G. hard gates ==
+PASS G1 8 hard gate ids unchanged
+PASS G2 trace skip still exit 3 only for quality approval
+PASS G3 trace schema mismatch -> hard exit 1 | exit=1 hard=('trace_integrity',)
+PASS G4 live -> exit 4, quality not evaluated
+PASS G5 quality=False keeps T006a exit 0 / quality None
+== H. mutations ==
+PASS H1 mutation unapproved-as-approved turns green (exit 0, not 3) | mutant exit=0
+PASS H2 mutation accepts hard-gate waiver (guard removal turns probe red)
+PASS H3 mutation cross-version regression applies (exit 2, not unknown 3) | mutant exit=2
+PASS H4 mutation hard-gate 13 used for retrieval (exit 3, not 0) | mutant exit=3
+SUMMARY total=67 passed=67 failed=0

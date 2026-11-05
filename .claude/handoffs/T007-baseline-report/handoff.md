@@ -56,10 +56,16 @@ git show --stat --oneline HEAD
 
 ## 7. 已知边界（必须遵守）
 
-- **阈值审批是 T009 人工门**：真实 P0 baseline 在本包**不生成**（`gate_v0_1.json` 仍是 `unapproved`，门禁 exit 3 → 审批必须被拒）。本包只证明"门禁通过时可审批、未通过时拒绝"的能力，真实 baseline 由主人批阈值后生成。
+- **阈值审批是 T009 人工门**：真实 P0 baseline 在本包**不生成**（`gate_v0_1.json` 仍是 `unapproved`，`quality=True` 的干净 run 必然 exit 3 → 审批必须被拒）。本包只证明"门禁通过时可审批、未通过时拒绝"的能力，真实 baseline 由主人批阈值后生成。
+- **T006b 验收输入约束（2026-11-05，`T006b-gate-quality/review.md`）**：
+  1. `baseline_id` 必须自行校验完整身份（`dataset_version` + `pipeline_version` + `mode` + `scope` + `gate_version` + `corpus_sha256`）；门禁侧 `max_regression_pp` 只校验 pipeline/suite/dataset，**不足以**当 baseline 身份，不得复用。
+  2. 审批只在 top-level `status=approved` 时才可能通过；`quality_layer.status` 只是元数据，不得据此放行。
+  3. `calibrate_gate` 的 per-stratum 建议不能 1:1 写入单值阈值配置；报告展示时按最小 stratum 的 `min_sample` 提示，不得自动改写配置。
+  4. 干净真实 run 在 `quality=True` 下必然 exit 3（阈值未审批）；`quality=False` 的 0 只代表硬门禁通过；报告中不得混写。
+  5. `cost_per_case_cny` 零样本、`p95` 无 SLA 会持续 unknown，diff/报告要如实呈现，不得补零。
 - 跨版本只分析不放行（设计 §8.3）；`max_regression_pp` 只在同 `pipeline_version` 生效。
 - `report.html` 非门禁展示层（设计 §8.5），不得被 gate 读取。
-- 指标分母沿用 T005/T006a 口径（`scored_count`，排除 OCR/error）。
+- 指标分母沿用 T005/T006a/T006b 口径（检索 b0 32 / badcase 10；答案 32/13；OCR/error 排除）。
 - 既有 flake `test_g08_short_budget_cancels_inflight_model_call` 与本包无关；命中则隔离复跑并记录。
 
 ## 8. 提交
