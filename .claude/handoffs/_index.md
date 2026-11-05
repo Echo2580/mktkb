@@ -1,7 +1,7 @@
 # 协调区索引（_index.md）
 
 > 唯一事实源；状态一律用门编号（G0–G6）。「待审」列有且最多一个「是」。
-> 当前阶段：**P0 G5 待主人审核**（T009 总验收 = 有保留 PASS，`docs/reports/OBS-EVAL/P0/review.md`；38 commit / 398 路径全合规；全量 1593 passed；NOT-RUN 与 3 项保留见 review §5）。主人四选一决策前冻结派单。
+> 当前阶段：**P0 已通过（主人 2026-11-05 G5 决策：通过）**，T009 G6 已收口；PR #1 待主人决定是否合并（合并前可选项：阈值审批 / 真实 baseline / 设计 §7.2 回写）。下一阶段 **P1 待主人签 GO 与预算划转**（`P1-RETRIEVAL` 3.0 元，自 S2-DEV 划转，总上限仍 20）。
 > 基线：`main` @ `8e44158`，tag `v0.1-local-20261104`；分支 `p0/obs-eval` 自 `8e44158` 建。
 > 已确认参数（主人 2026-11-04）：一包一个新开发助手 + 一包一个新验收助手；全部完成后开 1 个 PR；允许继续拆分（见下表 T003a–T008b）；分支基线 `8e44158`；`fixtures/` 既有只读、允许新增 `fixtures/evaluation/**`。
 > 人工门：主人已接管验收节奏（2026-11-05 起）；P0 T009 收口门保留待主人决策。
@@ -22,7 +22,7 @@
 | T007 | Baseline + Diff + 报告 | **G4 通过**（R1 定向复验 PASS：`review-R1.md`；dev commits `6447b85`+`08536ed`；全量 1551 passed） | 1 | 否 | T006b ✅ |
 | T008a | CLI 与 P0 全流程 run | **G4 通过**（独立验收 PASS：`review.md`；exit 4 端到端 NOT-RUN 记为 GAP；dev commit `f2c0209`；全量 1586 passed） | 0 | 否 | T007 ✅ |
 | T008b | P0 七条验收测试 + p0-report | **G4 通过**（独立验收 PASS：`review.md`；5 LOW 非阻断；dev commit `2f7b174`；全量 1593 passed） | 0 | 否 | T008a ✅ |
-| T009 | 独立验收与 P0 收口 | **G5 待人工审核**（总验收「有保留 PASS」：`docs/reports/OBS-EVAL/P0/{review.md,anchors.json}`；全量 1593 passed；3 项保留见 review §5） | 0 | **是** | T008b ✅ |
+| T009 | 独立验收与 P0 收口 | **G6 已收口**（主人 2026-11-05 决策「通过」；总验收「有保留 PASS」`docs/reports/OBS-EVAL/P0/review.md`；全量 1593 passed） | 0 | 否 | T008b ✅ |
 
 ## 遗留项（非阻塞，T009 时逐条复核是否仍存在）
 
@@ -88,7 +88,9 @@
     - `refusal_recall` 零样本时 `status=pass` 的展示有误导性（b0 无拒答题；分母 0、observed=None）；不得读作"拒答召回通过"。
     - T006b `calibrate_gate` 的 per-stratum 建议不能直接写入单值 `MetricSpec`，审批时需人工按最小非零 stratum 取值。
     - NOT-RUN（review §5）：`mode=live→4` 端到端、真实 baseline/阈值审批（主人人工门）、真实 OCR/embedding/rerank/模型、P1/P2 质量、HTML 渲染、`cross_entity`/`stale_bypass` 真实 case 类、`pagination` 真实期望值。
-36. **P0 收口与 PR（2026-11-05）**：分支 `p0/obs-eval` 已 push，**PR #1**：https://github.com/Echo2580/mktkb/pull/1 （base `main` @ `8e44158`；38 个 commit；工作树干净）。**合并前主人人工门项**：阈值审批（`gate_v0_1.json status`）与真实 baseline 建立、设计 §7.2 口径回写；PR 描述含 NOT-RUN 清单与建议阈值。
+36. **P0 收口与 PR（2026-11-05）**：分支 `p0/obs-eval` 已 push，**PR #1**：https://github.com/Echo2580/mktkb/pull/1 （base `main` @ `8e44158`；38 个交付/簿记 commit + 收口提交；工作树干净）。**合并前主人人工门项**：阈值审批（`gate_v0_1.json status`）与真实 baseline 建立、设计 §7.2 口径回写；PR 描述含 NOT-RUN 清单与建议阈值。
+37. **主人 G5 决策（2026-11-05 晚）：P0 通过**。T009 记为 G6 收口；`_index` 待审列已清空。主人用网页实测（离线+trace 启动）通过第 1 步问答（D01 来源正确、回答为离线抽取式），并确认同一套启动方式可用。**未执行（主人未下指令）**：阈值审批、真实 baseline 建立、设计 §7.2 回写、PR #1 合并——三项均为可选收尾，PR 保持 OPEN 等主人决定。
+38. **P1 开工前置（新窗口执行）**：`P1-PRE-2` 预算划转与 GO 改版（`P1-RETRIEVAL` 3.0 元，自 S2-DEV 划转，总上限仍 20；主人签 `budget.json` + `S2-LIVE-GO.json`）、`P1-PRE-3` P0 遗留复核（PM）、`P1-PRE-4` D-3 兼容授权（主人书面确认，T104/T106 需要）。PRE-2 未签前 T111 及任何 live 调用一律不得开工。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
