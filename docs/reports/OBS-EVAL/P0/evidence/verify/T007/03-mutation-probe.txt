@@ -1,0 +1,31 @@
+== T007 mutation probe: delivered tests must turn red ==
+method: probe writes one pytest plugin per mutation under %TEMP%\t007-verify\mutplugins,
+        monkeypatches the loaded module at pytest_configure time, and runs the exact delivered
+        test node ids. Repo files are never modified. A mutation is "caught" only when pytest
+        exits non-zero with a FAILED result (not a collection/import error).
+command: .\.venv\Scripts\python.exe -B ...\probe_t007.py --mutations
+result: 4/4 mutations caught; exit 0.
+
+== mutation probe (repo unmodified; plugin lives in %TEMP%) ==
+PASS mutation 'id' turns tests red (exit=1)
+  =========================== short test summary info ===========================
+  FAILED backend\tests\evaluation\test_baseline.py::test_baseline_id_matches_documented_formula
+  FAILED backend\tests\evaluation\test_baseline.py::test_baseline_id_changes_when_any_field_changes
+  2 failed, 1 warning in 0.29s
+PASS mutation 'approval' turns tests red (exit=1)
+  FAILED backend\tests\evaluation\test_baseline.py::test_approval_rejects_nonzero_gate[3]
+  FAILED backend\tests\evaluation\test_baseline.py::test_approval_rejects_nonzero_gate[4]
+  FAILED backend\tests\evaluation\test_baseline.py::test_approval_rejects_unapproved_thresholds_exit_three
+  5 failed, 1 warning in 0.42s
+PASS mutation 'cross' turns tests red (exit=1)
+  =========================== short test summary info ===========================
+  FAILED backend\tests\evaluation\test_baseline.py::test_cross_version_load_requires_explicit_compare_with
+  FAILED backend\tests\evaluation\test_report.py::test_diff_cross_version_is_rejected_by_default
+  2 failed, 1 warning in 0.42s
+PASS mutation 'html' turns tests red (exit=1)
+  -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+  =========================== short test summary info ===========================
+  FAILED backend\tests\evaluation\test_report.py::test_html_is_single_file_inline_css_no_script_no_external
+  1 failed, 1 warning in 0.39s
+
+mutation: all caught

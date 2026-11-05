@@ -1,0 +1,117 @@
+== T007 independent functional probe (fresh synthetic runs + read-only real %TEMP% artifacts) ==
+probe: docs/reports/OBS-EVAL/P0/evidence/verify/T007/probe_t007.py
+command: .\.venv\Scripts\python.exe -B ...\probe_t007.py
+method: builds its own RunManifest/CaseSpec/RunResult/GateResult (does not import delivery fixtures),
+        writes only under %TEMP%\t007-verify\functional, uses no network/.env/provider.
+result: 63/63 PASS, exit 0.
+
+== functional probe (synthetic runs, fresh root) ==
+PASS 5.1 independent formula matches baseline_id :: 2cdbcce6d19c
+PASS 5.1 run_id/time/path do not enter identity
+PASS 5.1 field dataset_version changes id :: 11d74757b2a7
+PASS 5.1 field pipeline_version changes id :: 330252cd8cd9
+PASS 5.1 field mode changes id :: 9719182e1570
+PASS 5.1 mode=live rejected
+PASS 5.1 field scope changes id :: 4f623588313b
+PASS 5.1 field gate_version changes id :: e23e14b4e63e
+PASS 5.1 field corpus_manifest_sha256 changes id :: ff5e57bd358c
+PASS 5.1 save/load roundtrip id
+PASS 5.1 no copy/rename API
+PASS 5.2 missing approver rejected :: BaselineApprovalError: baseline 审批必须提供非空 approver
+PASS 5.2 missing approver writes nothing
+PASS 5.2 blank reason rejected :: BaselineApprovalError: baseline 审批必须提供非空 reason
+PASS 5.2 blank reason writes nothing
+PASS 5.2 exit 3 rejected with reason :: 门禁未通过（exit_code=3：不可判定：数据/配置/gold 不可用、样本不足、阈值未审批（T009 人工门）或跨版本 baseline），不得建立/审批 baseline
+PASS 5.2 exit 3 writes no baseline/approval
+PASS 5.2 approval.json exists
+PASS 5.2 approval.json has 8 required fields :: run_id,gate_result_sha256,dataset_version,pipeline_version,corpus_sha256,approver,reason,approved_at
+PASS 5.2 gate_result_sha256 independently matches
+PASS 5.2 approval binds identity
+PASS 5.2 approval cannot be overwritten :: BaselineApprovalError: approval.json 已存在且内容不同，拒绝覆盖（审批只写一次，无 copy/rename 语义）
+PASS 5.3 diff cross-version rejected without compare_with :: CrossVersionBaselineError: 跨 pipeline_version 的 baseline 默认拒绝：'pipeline-p1' != 'pipeline-p2'；必须显式 compare_with=<baseline_id>（仅分
+PASS 5.3 load cross-version rejected without compare_with :: CrossVersionBaselineError: 跨 pipeline_version 的 baseline 默认拒绝：'pipeline-p1' != 'pipeline-p2'；必须显式 compare_with=<baseline_id>（仅分
+PASS 5.3 explicit compare marks explicit_cross_version :: explicit_cross_version/False
+PASS 5.3 release path rejects cross-version :: CrossVersionBaselineError: comparison='explicit_cross_version' 不能作为发布放行依据（explicit_cross_version_analysis_only）；设计 §8.3：跨版本只分析、
+PASS 5.3 explicit load works
+PASS 5.4 new/fixed/still by case_id :: ('Q03',)/('Q01',)/('Q02',)
+PASS 5.4 release blocked for unapproved baseline :: allowed=False reason=baseline_unapproved approval=None
+PASS 5.4 strata all/exact/text
+PASS 5.4 overall metric delta :: 0.5->0.6666666666666666
+PASS 5.4 exact stratum delta
+PASS 5.4 zero-sample cost stays unknown/non-zero :: baseline_zero_sample+current_zero_sample
+PASS 5.4 p95 no-SLA is regression not pass
+PASS 5.4 identical runs -> empty=True, no exception
+PASS 5.4 gate transition fields 3->0 :: 3->0
+PASS 5.4 gate transition fields 1->0 :: 1->0
+PASS 5.4 gate transition fields 2->0 :: 2->0
+PASS 5.4 error rows separate from pass/fail :: new_err=('Q03',) resolved=('Q02',)
+PASS 5.4 failed current gate blocks release
+PASS 5.4 approved same-version + exit0 allows release
+PASS OBSERVE no-gate call reports release_allowed :: risk: current gate unknown but release_allowed=True
+PASS 5.5 markdown hard gate first :: 1. 硬门禁（置顶）
+
+- exit_c
+PASS 5.5 markdown shows exit and hard failure
+PASS 5.5 markdown unknown thresholds not pass
+PASS 5.5 html single file no script/link/external :: bytes=12224
+PASS 5.5 md/html share token 2cdbcce6d19c
+PASS 5.5 md/html share token run-cur
+PASS 5.5 md/html share token Q03
+PASS 5.5 md/html share token citation_required
+PASS 5.5 gate source never mentions report
+PASS 5.5 renderers leave run dir untouched
+== real %TEMP% artifacts recheck ==
+PASS real baseline id c0ce2856938f :: c0ce2856938f
+PASS real id independent recompute
+PASS real clean run default quality=True -> exit 3 :: exit=3 unknowns=42
+PASS real exit 3 unknown reason thresholds_unapproved :: ['thresholds_unapproved']
+PASS real approval rejected :: 门禁未通过（exit_code=3：不可判定：数据/配置/gold 不可用、样本不足、阈值未审批（T009 人工门）或跨版本 baseline），不得建立/审批 baseline
+PASS real rejection writes no root
+PASS real diff new Q27 / still Q25,Q26,Q31 :: new=('Q27',) still=('Q25', 'Q26', 'Q31')
+PASS real gate transition 0->2 :: 0->2
+PASS real html self-check 0/0/0 :: (0, 0, 0)
+PASS real html <style> inline
+PASS real md first section hard gate
+INFO real md bytes=8521 lines=129
+INFO real html bytes=14701
+
+functional: 63/63 passed
+
+
+== Extra rechecks of delivered %TEMP% artifacts (same script family) ==
+- real baseline identity from run-baseline/run_manifest.json: c0ce2856938f
+  six-field perturb ids (exact scratch values): dataset 05667cb3145a, pipeline 75b435b02b58,
+  mode ca2c6bb2c80b, scope 3edc8c9b9d0a, gate 05570148184a, corpus f27b417b5f89
+- fixture gate recomputed on the same run: exit=0 quality=pass unknowns=0;
+  gate_result_digest == approval.json gate_result_sha256 (147d94a9...), match True
+- run-current artifact hashes match evidence/T007/03-diff-report.txt:
+  run_manifest 9c088bda..., cases fc35ca75..., summary d34530ee...
+- delivered report.html: 16392 bytes on disk, 37 LF -> 16355 LF bytes;
+  <script=0, http(s)=0, <link=0, <style>=1; report.md: 9818 bytes, 138 LF -> 9680 LF bytes;
+  first section = "## 1. 硬门禁（置顶）"; exact 03-diff-report counts reproduced.
+- default config (real P0 state) gate on run-current: exit=3, quality=unknown,
+  unknowns=42, all check_id=thresholds_unapproved.
+
+== Defect observations (see review.md MEDIUM-1 / LOW-1 / LOW-2) ==
+identity base c0ce2856938f expected c0ce2856938f True
+identity perturb dataset_version 05667cb3145a
+identity perturb pipeline_version 75b435b02b58
+identity perturb mode ca2c6bb2c80b
+identity perturb scope 3edc8c9b9d0a
+identity perturb gate_version 05570148184a
+identity perturb corpus_sha256 f27b417b5f89
+fixture gate 0 pass digest_match True
+approval fields ['approved_at', 'approver', 'baseline_id', 'corpus_sha256', 'dataset_version', 'gate_exit_code', 'gate_result_sha256', 'gate_version', 'mode', 'pipeline_version', 'quality_status', 'reason', 'run_id', 'schema_version', 'scope']
+default gate exit/unknowns 3 42
+default hint: - min_sample 提示: 最小 stratum 分母 = 0（cost_per_case_cny/all）；单值配置的 min_sample 不得超过该值，报告只提示、不自动改写配置
+expected min positive denominator 1
+evidence 03 line 91: - min_sample 提示: 最小 stratum 分母 = 8（Recall@10/text）；单值配置的 min_sample 不得超过该值，
+fixture hint: - min_sample 提示: 最小 stratum 分母 = 8（Recall@10/text）；单值配置的 min_sample 不得超过该值，报告只提示、不自动改写配置
+p95 diff status regressed threshold_configured False
+p95 note: - unknown 口径: p95_latency_ms 无 SLA（配置无已审批阈值）：只展示观测值与差值，状态 unknown，不判定通过
+no-gate diff release_allowed True current_exit None reason None
+hash run_manifest.json 9c088bdaef35f30b1212647eeb31b751516fb871ccdc2f7a4e21c76a3b8a3cb6
+hash cases.jsonl fc35ca754444ed50f66baf626bf36c12303bbfd378c7fbcacb44d8bb58a9edd1
+hash summary.json d34530eed49132ccd812f069ef333cbcf65ad819883599fb61aef7fdd3c8c78a
+report.html bytes 16392 lf 37 script 0 http 0 link 0 style 1
+report.md bytes 9818 lines 138 first 1. 硬门禁（置顶）

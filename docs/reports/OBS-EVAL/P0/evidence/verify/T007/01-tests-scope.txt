@@ -1,0 +1,52 @@
+== T007 independent acceptance: tests and commit scope ==
+date: 2026-11-05 (Asia/Shanghai)
+target commit: 6447b85 p0/T007 baseline diff report (parent eb6eeb9)
+verification HEAD: 525aa40 (T007 verify prompt + index bookkeeping only)
+  - git diff --stat 6447b85 HEAD -> only .claude/handoffs/_index.md + prompts/T007-verify.md
+  - git diff --stat 6447b85 HEAD -- backend docs/evaluation -> empty
+env: Windows/PowerShell; MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0; .venv Python 3.12.7
+      .\.venv\Scripts\python.exe -B; serial runs; no old T005/T006 baseline rerun
+basetemp: %TEMP%\t007-verify\{pkg,evalall,full} (repo left untouched)
+
+[1. T007 package tests]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_baseline.py backend/tests/evaluation/test_report.py -q -p no:cacheprovider --basetemp %TEMP%\t007-verify\pkg
+  -> 42 passed, 1 warning in 0.64s
+  collect-only -> 42 tests collected in 0.21s
+  (test_baseline.py: 21 test functions / 25 items; test_report.py: 17 items)
+
+[2. affected directory]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t007-verify\evalall
+  -> 275 passed, 1 warning in 11.71s
+
+[3. full suite, once]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t007-verify\full
+  -> 1548 passed, 1 warning in 528.53s (0:08:48); 0 failed / 0 error
+  known flake test_g08_short_budget_cancels_inflight_model_call did NOT hit.
+
+[4. commit scope: exactly the 9 allowed files]
+$ git show --name-status --oneline 6447b85
+A .claude/handoffs/T007-baseline-report/report.md                  (58 lines, <=80)
+A backend/src/mktkb/evaluation/baseline.py                         (851 lines)
+A backend/src/mktkb/evaluation/report.py                           (1118 lines)
+A backend/tests/evaluation/test_baseline.py                        (558 lines)
+A backend/tests/evaluation/test_report.py                          (606 lines)
+A docs/reports/OBS-EVAL/P0/evidence/T007/01-baseline-identity.txt
+A docs/reports/OBS-EVAL/P0/evidence/T007/02-approval-fixture.txt
+A docs/reports/OBS-EVAL/P0/evidence/T007/03-diff-report.txt
+A docs/reports/OBS-EVAL/P0/evidence/T007/04-tests.txt
+  - no gate.py / runner.py / scorer.py / dataset.py / gold.py / corpus.py / conftest.py
+  - no existing test assertions changed; no new dependencies (stdlib + internal imports)
+  - git diff --name-only eb6eeb9 6447b85 -- docs/evaluation/gate_v0_1.json -> empty
+
+[5. gate config unchanged and still unapproved]
+python read of docs/evaluation/gate_v0_1.json:
+  status=unapproved                         (line 4)
+  quality_layer.status=unapproved            (line 21)
+  metrics=15; non-null min_sample/absolute_min/absolute_max/max_regression_pp = 0
+  hard_gate_min_sample={b0:32, badcase:13}
+  No approved real P0 baseline exists in the repo (only historical docs/evidence baselines
+  from earlier packs and test temp dirs); T009 human gate still owns thresholds.
+
+[6. working tree at end of verification]
+Only review.md + verify/T007/* are added by this verification; evidence/T007/ untouched;
+no commit/push. (Final git status recorded in review.md.)

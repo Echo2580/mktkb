@@ -61,6 +61,13 @@ git show --stat --oneline HEAD
 
 ## 7. 已知边界（必须遵守）
 
+- **T007 验收输入约束（2026-11-05，`T007-baseline-report/review.md` §4，CLI 必须照此实现）**：
+  1. 可依赖 API：`baseline_id(source)`、`save_baseline(run, root, *, gate=None)`、`approve_baseline(run, gate, root, *, approver, reason)`、`load_baseline(baseline_id, root, *, expected=None, compare_with=None)`、`diff_runs(baseline, run, *, comparison=None, compare_with=None, config=None, gate=None)`、`render_markdown(diff, gate=None, *, summary=None)`、`render_html(summary=None, diff=None, gate=None, *, title=None)`、`require_release_baseline(diff)`。
+  2. **`diff` 子命令必须传当前 run 的 `gate=` 并调用 `require_release_baseline`**；否则"已审批 baseline + 无 gate"会 `release_allowed=True`（T007 验收 MEDIUM-2）。门禁非 0 必须阻断放行。
+  3. 真实 baseline 缺失时：`load_baseline` 抛 `BaselineError`、`diff_runs(None, run)` 抛 `BaselineComparabilityError`；CLI 必须 **fail closed**（非 0 退出 + 明确提示"baseline 未建立，待 T009"），**不得**自动 `save_baseline`、不得复制/伪造。
+  4. `baseline approve` 必须用同一 run 现场 `evaluate_gate(..., quality=True)`，只接受 `exit_code==0` + 质量层已评估 + `quality.config_status=="approved"` + 非空 `approver`/`reason`；1/2/3/4 一律拒绝且不写 `approval.json`；不得把用户给的 gate JSON 当审批依据。
+  5. 报告直接写 `render_markdown`/`render_html` 返回值（UTF-8 无 BOM）；默认配置 exit 3、`thresholds_unapproved`、cost/p95 unknown 必须原样呈现，不补零、不写成"质量通过"。
+  6. `baseline list` 读 `<root>/<baseline_id>/baseline.json`；无 copy/rename。
 - 质量阈值未审批（`gate_v0_1.json status=unapproved`）：干净集 gate 允许返回 **3**（unknown）而不是 0；全流程证据要区分"硬门禁通过（无 hard_failures）"与"质量 unknown"，**不得写成质量通过**。若为演示 exit 0 需要固定阈值，只允许用 `%TEMP%` 里的测试配置，不得改仓库配置。
 - `baseline approve` 在未审批阈值下必须被拒；真实 baseline 是 T009 人工门后的事。
 - 运行产物（`var/eval/**`）不入库；证据只留命令、退出码、关键摘要与 sha256。
