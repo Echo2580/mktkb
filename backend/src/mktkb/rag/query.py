@@ -87,6 +87,24 @@ ENUMERATE_WORDS = (
 )
 ANAPHORA_WORDS = ("它", "这个", "那个", "该", "上述", "刚才", "前面", "这家", "那家", "这种", "该项", "其")
 SWITCH_WORDS = ("换成", "改为", "另外", "其他", "不说", "重新问", "换个", "再问一个", "换一个话题")
+#: T102/ERR-02：无显式实体、无记录字段时，哪些问法仍应按“政策/制度/流程题”独立检索，
+#: 而不是继承上一轮门店/物品。法规名词由 ``is_regulation_question`` 统一覆盖，这里只补
+#: 流程与提交时限类说法（如“档期物料要提前多少天提报需求”）。
+POLICY_WORDS = (
+    "政策",
+    "规则",
+    "标准",
+    "要求",
+    "流程",
+    "提报",
+    "提交",
+    "申请",
+    "审批",
+    "时限",
+    "权限",
+    "条件",
+    "提前",
+)
 PAGE_WORDS = ("下一页", "继续看", "更多", "下一页呢")
 FUTURE_WORDS = ("调整后", "通知", "生效后", "之后", "未来", "新版", "将调整", "拟")
 STOPWORDS = frozenset(
@@ -149,6 +167,44 @@ _STORE_NAME_LIMIT = 8
 _STORE_CONNECTORS = "和与及跟同"
 _STORE_SEPARATORS = "、、，,；;：:。.·/|\\|\t\n\r（）()【】[]「」""'' \u3000"
 _STORE_MASK = "\u0000"
+#: T102/ERR-01：资料未收录的“区域形态词”（城西区、城南片区…）同样是作用域约束。
+#: 它们不以「店」结尾，旧 `_unknown_store_tokens` 抓不到，于是静默继承上一轮门店。
+#: 这里只做形态识别（区/片区 + 前面的中文名），是否收录由词表决定；命中即澄清。
+_REGION_NAME_LIMIT = 6
+#: 这些是通用行政区/功能区的后缀或整词，不是某家门店的区域名，不能当未知门店依据。
+_BAD_REGION_WORDS = (
+    "大区",
+    "区域",
+    "城区",
+    "市区",
+    "园区",
+    "小区",
+    "社区",
+    "厂区",
+    "库区",
+    "展区",
+    "专区",
+    "货区",
+    "辖区",
+    "地区",
+    "景区",
+    "校区",
+    "营区",
+    "灾区",
+    "疫区",
+    "开发区",
+    "城市片区",
+)
+_BAD_REGION_PREFIXES = ("这个", "那个", "该", "本", "各", "全", "所有", "哪个", "哪些", "上述", "前面", "刚才")
+#: `区` 后接这些字时是“区间/区域/区号/货架区…”的一部分，不是独立的区域名。
+_REGION_FOLLOWERS = "间域号货柜层架位"
+#: 区域名前一个汉字是这些虚词/动词/地名后缀时，才认为区域名从下一个字开始；
+#: 否则“经销商跨区”会被切成“商跨区”，“城东店物料区”会被当成新作用域。
+_REGION_LEADINS = frozenset("是在和与及或的看查询问去到的从往对关于这那市省县镇乡村解道")
+#: 产品层 `_rag_owns_turn` 只把带 identifier 过滤的记录型计划交回 RAG 直答；未知区域澄清
+#: 必须由 RAG 自己返回（含 state 重置），否则会落到 legacy 意图层重新继承上一轮门店。
+#: 该键只用于让澄清计划被识别，`answer_question` 在 clarification 分支提前返回，不参与检索。
+_RAG_OWNED_CLARIFICATION_FILTER = "identifier"
 _BAD_STORE_WORDS = (
     "门店",
     "店家",
@@ -250,15 +306,34 @@ def is_regulation_question(question: str) -> bool:
     return any(noun in text for noun in REGULATION_NOUNS)
 
 
+def is_policy_question(question: str) -> bool:
+    """问题是否在问政策/制度/流程（T102/ERR-02）。
+
+    只用于“无显式实体时是否继承上一轮门店/物品”的判定：政策题紧跟一次实体查询时，
+    不能把旧实体带进来。法规名词沿用 ``is_regulation_question`` 的同一口径，避免两套判别。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if is_regulation_question(text):
+        return True
+    return any(word in text for word in POLICY_WORDS)
+
+
 def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
-    """查询规划用的字段识别（T101/ERR-03）：法规题与无实体语境的泛化词不判记录字段。
+    """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
+    不判记录字段。
 
     - 法规/制度题里的「价格」由“价格欺诈”这类术语带出，按 record 规划会向用户索要商品规格，
       从而把“何时施行/废止了哪两个规定”挡在检索之前；这里让法规题优先走正文检索。
+    - 政策/流程题（如“档期物料要提前多少天提报需求”）同理：没有实体时，「时间/数量」是
+      政策问题的一部分，不应把问题变成“请补充门店”的记录题。
     - 没有商品/物品/门店/渠道/标识等实体的「价格」同理：没有所指对象就不该按 price 取值，
       更不能向用户索要商品名称（E118 这类条文题）。
     """
     if is_regulation_question(question):
+        return ()
+    if is_policy_question(question) and not has_entity:
         return ()
     roles = _match_fields(question)
     if not roles or has_entity:
@@ -578,6 +653,55 @@ def _match_store(question: str, lexicon: Lexicon) -> tuple[str | None, str | Non
     return store, (unknown[0] if unknown else None)
 
 
+def _unknown_region_tokens(question: str, lexicon: Lexicon) -> tuple[str, ...]:
+    """提取词表外的“区域形态词”（如「城西区」「城南片区」）。
+
+    T102/ERR-01：`城西区` 不以「店」结尾，旧 `_unknown_store_tokens` 抓不到，门店槽为空后
+    会静默继承上一轮的 `城东店`。这里按形态找“2 个以上汉字 + 区/片区”，再用通用词表与
+    后缀排除「高度区间」「华东大区」「开发区」这类非区域名；是否收录仍只看当前索引词表。
+    """
+    masked = _mask_known_stores(question, lexicon)
+    tokens: list[str] = []
+    for index, char in enumerate(masked):
+        if char != "区":
+            continue
+        suffix = "区"
+        prefix_end = index
+        if index > 0 and masked[index - 1] == "片":
+            suffix = "片区"
+            prefix_end = index - 1
+        # `区` 后接“间/域/号/货架…”时不是独立区域名（高度区间、B区1号货架）。
+        following = masked[index + 1] if index + 1 < len(masked) else ""
+        if following and following in _REGION_FOLLOWERS:
+            continue
+        run_match = re.search(r"([\u4e00-\u9fff]{1,%d})$" % _REGION_NAME_LIMIT, masked[:prefix_end])
+        if not run_match:
+            continue
+        run = run_match.group(1)
+        if len(run) < 2:
+            continue
+        # 区域名必须从词边界开始：前面是句首/非汉字/常见虚词或地名后缀。这样
+        # “经销商跨区”不会被切成“商跨区”，“城东店物料区”也不会被当成门店作用域。
+        token_start = prefix_end - 2
+        if token_start > 0:
+            previous = masked[token_start - 1]
+            if previous == _STORE_MASK or ("\u4e00" <= previous <= "\u9fff" and previous not in _REGION_LEADINS):
+                continue
+        # 长候选只用于排除通用词；真正的区域名取最短的中文名 + 后缀（避免把“看看城西”
+        # 这类动词一起吞进来）。
+        candidates = [run[offset:] + suffix for offset in range(0, max(0, len(run) - 1))]
+        if any(any(candidate.endswith(bad) for bad in _BAD_REGION_WORDS) for candidate in candidates):
+            continue
+        token = run[-2:] + suffix
+        if any(token.startswith(bad) for bad in _BAD_REGION_PREFIXES):
+            continue
+        if any(_norm(token) == _norm(label) or _norm(token) in _norm(label) for label in lexicon.stores):
+            continue
+        if token not in tokens:
+            tokens.append(token)
+    return tuple(tokens)
+
+
 def _match_field(question: str) -> str | None:
     normalized = _norm(question)
     # 明确的生效/失效词优先于“组合价/价格”等泛化词。
@@ -816,8 +940,10 @@ def parse_query(
     normalized = _norm(question)
     stores = _match_stores(question, lexicon)
     unknown_stores = _unknown_store_tokens(question, lexicon)
+    unknown_regions = _unknown_region_tokens(question, lexicon)
     store = stores[0] if stores else None
     unknown_store = unknown_stores[0] if unknown_stores else None
+    unknown_region = unknown_regions[0] if unknown_regions else None
     item_hits = _match_aliases(question, lexicon.items, lexicon)
     product, product_candidates = _match_products(question, lexicon)
     channel_hits = _match_channels(question, lexicon)
@@ -826,6 +952,12 @@ def parse_query(
     document, document_candidates = _match_document(question, lexicon)
     missing_document = _missing_document(question) if document is None else None
     missing_stores = unknown_stores if stores else ()
+    # T102/ERR-02：政策题里的“档期”指物料档期，不是“档期特价”这个价格类型；无实体时
+    # 不能把它当成记录型价格条件，否则会被 _required_missing 判成“请补充门店”。
+    if is_policy_question(question) and not any(
+        (store, item_hits, product, product_candidates, channel_hits, identifier)
+    ):
+        price_type_hits = []
     slots: dict[str, str | None] = {
         "store": store if len(stores) <= 1 else None,
         "item": item_hits[0] if len(item_hits) == 1 and not product else None,
@@ -863,13 +995,44 @@ def parse_query(
     previous_entity = any(
         getattr(previous, key) for key in ("store", "item", "product", "identifier", "doc_id")
     )
+    # T102/ERR-02：“给出所有内容”跟在政策事实题后时，命中 ENUMERATE_WORDS 会让检索走
+    # 记录枚举分支（按标签排序取页），反而把 W02 这类制度正文挤出证据面。政策题无实体
+    # 且不是“列出/清单/逐一”这类明确列表请求时，按正文问题检索，不进入枚举。
+    if (
+        is_policy_question(question)
+        and not explicit_entity
+        and not any(
+            word in question
+            for word in ("列出", "列一下", "清单", "逐一", "分别", "每一条", "各店", "每个")
+        )
+    ):
+        enumerate_flag = False
     overlap = any(
         slots.get(key) and slots.get(key) == getattr(previous, key)
         for key in ("store", "item", "product", "identifier", "doc_id")
     )
     anaphora = any(word in question for word in ANAPHORA_WORDS)
+    # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
+    # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
+    # 普通字段追问（“电话呢”“数量呢”）仍保留实体，裸补槽、指代与分页也不在此重置。
+    topic_switch = (
+        previous_entity
+        and not explicit_entity
+        and not anaphora
+        and page_request is None
+        and not previous.pending_slot
+        and (field_role is None or is_policy_question(question))
+    )
+    # T102/ERR-01：未知区域词（城西区）不是已知门店；即使上一轮有门店，也必须先重置，
+    # 不能让 _new_state 原样继承 store。词表外的 `*店` 仍走既有 UNKNOWN_STORE 分支
+    # （无上一轮门店时拒答）；该分支的检索预算行为已有 P0 live 结构上界测试锁定，本包不改。
+    unknown_region_scope = bool(unknown_regions and not stores)
     reset = False
     if any(word in question for word in SWITCH_WORDS):
+        reset = True
+    elif unknown_region_scope:
+        reset = True
+    elif topic_switch:
         reset = True
     elif explicit_entity and previous_entity and not overlap and field_role is not None:
         reset = True
@@ -1026,6 +1189,32 @@ def parse_query(
             unknown_stores=unknown_stores,
             include_future=include_future,
             reason="UNKNOWN_STORE",
+        )
+    if unknown_region:
+        # T102/ERR-01：区域形态词不在门店词表里，不能当门店名去检索，更不能沿用上一轮门店。
+        # 采用 PM 口径澄清，不做区域→门店展开；candidates 留空，避免把上一轮门店名回显进答案。
+        # ``identifier`` 键只是产品层 `_rag_owns_turn` 识别“本轮由 RAG 直答”的既有入口；
+        # 本计划在 clarification 分支提前返回，该值不会进入检索或持久状态。
+        return QueryPlan(
+            question=question,
+            mode="record",
+            query_text=question,
+            field_role=state.field_role,
+            field_label=state.field_role,
+            filters={_RAG_OWNED_CLARIFICATION_FILTER: unknown_region},
+            terms=_terms(question),
+            state=state,
+            enumerate=state.enumerate,
+            page=state.page,
+            page_size=state.page_size,
+            clarification=(
+                f"资料中没有收录“{unknown_region}”这个门店/区域，"
+                "请补充准确的门店名称后再查询。"
+            ),
+            candidates=(),
+            unknown_stores=unknown_regions,
+            include_future=include_future,
+            reason="UNKNOWN_REGION",
         )
 
     filters = {
