@@ -1,0 +1,13 @@
+﻿PASS digest: hash_question math :: HMAC-SHA256 / SHA-256 recomputed independently, match
+PASS digest: pipeline_version explicit math :: explicit-components digest == manual sha256(canonical JSON)[:12]
+PASS digest: pipeline_version documented defaults :: default digest matches documented component mapping (12 keys), value=735da1397044
+PASS digest: config_hash math :: config_hash == sha256(canonical JSON of whitelisted subset)[:12]
+PASS digest: key_fingerprint math :: key_fingerprint == sha256(domain || key)[:12]
+PASS docs: trace/span field tables :: trace_schema doc: 41 trace fields + 9 span fields listed in design order
+PASS docs: required-span table (8 rows) :: doc 6.1: 8-row design table present, incl. both pitfall notes
+PASS docs: config_hash whitelist + format :: doc 7.2: whitelist (16) == CONFIG_HASH_FIELDS; 12-hex + canonical JSON defined
+PASS docs: eval_data version protocol :: eval_data doc: dataset_version formula + CASE_SCHEMA_VERSION bound
+PASS design: source of truth :: design spec confirms 8 rows + 4 conditional flags
+PASS package: re-exports :: package __init__ re-exports all 15 contract/versioning names
+
+RESULT: ALL INDEPENDENT PROBES PASSED

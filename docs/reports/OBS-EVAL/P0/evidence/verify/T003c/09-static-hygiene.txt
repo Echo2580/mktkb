@@ -1,0 +1,68 @@
+﻿
+=== new/changed files imports (non-stdlib) ===
+trace_attrs.py:19: from __future__ import annotations
+trace_attrs.py:21: import hashlib
+trace_attrs.py:22: import json
+trace_attrs.py:23: from contextlib import contextmanager
+trace_attrs.py:24: from typing import Any, Iterator
+trace_attrs.py:26: from .tracer import SpanHandle, current_trace
+retrieval.py:9: from __future__ import annotations
+retrieval.py:11: import math
+retrieval.py:12: import time
+retrieval.py:13: from typing import Any, Iterable, Mapping
+retrieval.py:15: import numpy as np
+retrieval.py:16: from sqlalchemy import func, or_, select, text
+retrieval.py:17: from sqlalchemy.orm import Session
+retrieval.py:19: from ..observability import trace_attrs
+retrieval.py:20: from ..retrieval.tokenize import match_expression, normalize
+retrieval.py:21: from .errors import KnowledgeChanged
+retrieval.py:22: from .models import RagChunk, RagChunkEmbedding, RagDocument, RagEmbeddingCache
+retrieval.py:23: from .types import Citation, EvidenceItem, IndexedChunk, QueryPlan, RetrievalResult
+answer.py:7: from __future__ import annotations
+answer.py:9: import json
+answer.py:10: import re
+answer.py:11: import time
+answer.py:12: from contextlib import contextmanager
+answer.py:13: from typing import Any, Iterable, Iterator, Mapping
+answer.py:15: from ..observability import trace_attrs
+answer.py:16: from ..retrieval.tokenize import cut, normalize
+answer.py:17: from .chunking import first_value, role_label
+answer.py:18: from .errors import FactRejected, RagError
+answer.py:19: from .facts import FactValidator
+answer.py:20: from .query import Lexicon, build_lexicon, parse_query
+answer.py:21: from .types import Citation, EvidenceItem, Fact, QueryPlan, QueryState, RagAnswer, RetrievalResult
+=== dangerous references in changed src ===
+=== dependency files in commit ===
+
+=== types.py diff d41d19f..776497f ===
+
+=== new tests count ===
+tests/observability/test_rag_spans.py::test_no_trace_matches_traced_answer_and_creates_nothing
+tests/observability/test_rag_spans.py::test_no_trace_does_not_touch_observability
+tests/observability/test_rag_spans.py::test_answer_path_span_set_and_hierarchy
+tests/observability/test_rag_spans.py::test_conditional_spans_agree_with_filter_decisions_json
+tests/observability/test_rag_spans.py::test_vector_span_absent_when_query_embedding_disabled
+tests/observability/test_rag_spans.py::test_rerank_span_only_when_rerank_actually_executes
+tests/observability/test_rag_spans.py::test_clarification_early_exit_has_only_parse_and_commit
+tests/observability/test_rag_spans.py::test_pre_retrieval_no_answer_does_not_fabricate_retrieval_spans
+tests/observability/test_rag_spans.py::test_retrieval_no_answer_passes_integrity
+tests/observability/test_rag_spans.py::test_conflict_path_includes_answer_and_fact_validate
+tests/observability/test_rag_spans.py::test_knowledge_changed_path_has_parse_and_commit
+tests/observability/test_rag_spans.py::test_trace_and_span_attributes_are_canonical_and_content_free
+tests/observability/test_rag_spans.py::test_commit_span_and_citation_refs_use_stable_references
+tests/observability/test_rag_spans.py::test_internal_exception_marks_span_error_and_still_propagates
+tests/observability/test_rag_spans.py::test_embedding_failure_marks_embedding_span_error_without_new_exception
+tests/observability/test_rag_spans.py::test_fact_rejection_marks_fact_span_error_and_returns_refusal
+tests/observability/test_rag_spans.py::test_public_result_structures_unchanged
+tests/observability/test_rag_spans.py::test_each_ask_gets_its_own_trace
+tests/observability/test_rag_spans.py::test_trace_attrs_span_is_noop_without_trace
+tests/observability/test_rag_spans.py::test_trace_attrs_helpers_are_pure_and_stable
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 tests collected in 0.10s
+exit_code=0 

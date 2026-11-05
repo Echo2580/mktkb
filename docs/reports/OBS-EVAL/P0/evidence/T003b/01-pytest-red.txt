@@ -1,0 +1,719 @@
+FFEEFEFFFFFFFFFFFF                                                       [100%]
+=================================== ERRORS ====================================
+_____ ERROR at setup of test_enabled_app_creates_repo_at_configured_path ______
+
+self = <starlette.datastructures.State object at 0x000001B8DEA930E0>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+trace_app = <fastapi.applications.FastAPI object at 0x000001B8DEA92FC0>
+
+    @pytest.fixture
+    def trace_repo(trace_app) -> TraceRepository:
+        """``trace_enabled=True`` 时 ``create_app`` 必须挂上的 Trace 仓储。"""
+>       repo = trace_app.state.trace_repo
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\conftest.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8DEA930E0>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+_ ERROR at setup of test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace _
+
+self = <starlette.datastructures.State object at 0x000001B8DEB2CD70>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+trace_app = <fastapi.applications.FastAPI object at 0x000001B8DEB2EA20>
+
+    @pytest.fixture
+    def trace_repo(trace_app) -> TraceRepository:
+        """``trace_enabled=True`` 时 ``create_app`` 必须挂上的 Trace 仓储。"""
+>       repo = trace_app.state.trace_repo
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\conftest.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8DEB2CD70>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+_ ERROR at setup of test_middleware_passes_local_mode_and_settings_content_mode _
+
+self = <starlette.datastructures.State object at 0x000001B8DE8DF5C0>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+trace_app = <fastapi.applications.FastAPI object at 0x000001B8DEBE5040>
+
+    @pytest.fixture
+    def trace_repo(trace_app) -> TraceRepository:
+        """``trace_enabled=True`` 时 ``create_app`` 必须挂上的 Trace 仓储。"""
+>       repo = trace_app.state.trace_repo
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\conftest.py:137: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8DE8DF5C0>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+================================== FAILURES ===================================
+_____________ test_settings_trace_defaults_are_disabled_and_safe ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B8DE1B6930>
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_settings_trace_defaults_a0')
+
+    def test_settings_trace_defaults_are_disabled_and_safe(monkeypatch, tmp_path: Path):
+        """默认关闭：不建库、无请求头；内容模式默认 hash、无 HMAC key（设计 §6.5）。"""
+        monkeypatch.delenv("MKTKB_TRACE_ENABLED", raising=False)
+        settings = _make_settings(tmp_path / "defaults")
+>       assert settings.trace_enabled is False
+               ^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:129: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_settings_t...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+item = 'trace_enabled'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'trace_enabled'. Did you mean: 'rag_qa_enabled'?
+
+.venv\Lib\site-packages\pydantic\main.py:1105: AttributeError
+_____ test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id _____
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B8DC9124E0>
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_disabled_app_has_no_trace0')
+
+    def test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id(monkeypatch, tmp_path: Path):
+        """关闭时：不构造 TraceRepository、不建任何 Trace DB 文件、不调用 start_trace。"""
+        monkeypatch.delenv("MKTKB_TRACE_ENABLED", raising=False)
+        settings = _make_settings(tmp_path / "disabled")
+        app = create_app(settings)
+        started: list[dict] = []
+    
+        def _forbid_start(**kwargs):  # noqa: ANN001 - 替身签名与 start_trace 一致即可
+            started.append(kwargs)
+            raise AssertionError("trace_enabled=False 时中间件不得启动 trace")
+    
+>       monkeypatch.setattr(main_module, "start_trace", _forbid_start)
+E       AttributeError: <module 'mktkb.main' from 'D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\main.py'> has no attribute 'start_trace'
+
+backend\tests\observability\test_middleware.py:148: AttributeError
+_________________ test_each_qa_post_writes_exactly_one_trace __________________
+
+trace_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B8DECEF800>, csrf='9ab8f11fa2115a8f0ff2be37c72f4fa...be37c72f4fa35954067dbc657db96c56cd1d24b07319'}, upload=<function open_session.<locals>.<lambda> at 0x000001B8B0C50D60>)
+trace_db_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_each_qa_post_writes_exact0/observability/qa-traces.sqlite3')
+
+    def test_each_qa_post_writes_exactly_one_trace(trace_employee, trace_db_path):
+        conversation_id = create_conversation(trace_employee)
+        first = ask_question(trace_employee, conversation_id)
+        second = ask_question(trace_employee, conversation_id)
+        assert first.status_code == 200, first.text
+        assert second.status_code == 200, second.text
+>       first_id = first.headers["X-Trace-ID"]
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:216: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': 'da2813d2-5c87-4630-90dc-c5893bfbfc57'})
+key = 'X-Trace-ID'
+
+    def __getitem__(self, key: str) -> str:
+        """
+        Return a single header value.
+    
+        If there are multiple headers with the same key, then we concatenate
+        them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2
+        """
+        normalized_key = key.lower().encode(self.encoding)
+    
+        items = [
+            header_value.decode(self.encoding)
+            for _, header_key, header_value in self._list
+            if header_key == normalized_key
+        ]
+    
+        if items:
+            return ", ".join(items)
+    
+>       raise KeyError(key)
+E       KeyError: 'X-Trace-ID'
+
+.venv\Lib\site-packages\httpx\_models.py:302: KeyError
+____________________ test_trace_content_mode_off_is_wired _____________________
+
+self = <starlette.datastructures.State object at 0x000001B8E1E8AC90>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+trace_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_cont...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+
+    def test_trace_content_mode_off_is_wired(trace_settings):
+        """构造 Settings 打开 off 模式：落库记录的 content_mode 跟随配置。"""
+        settings = trace_settings.model_copy(
+            update={"trace_content_mode": "off", "trace_db_path": trace_settings.data_dir / "off-traces" / "traces.sqlite3"}
+        )
+        app = create_app(settings)
+        try:
+            session = open_session(app, "employee", "EmployeePass-1")
+            conversation_id = create_conversation(session)
+            response = ask_question(session, conversation_id)
+            assert response.status_code == 200, response.text
+>           trace, spans = app.state.trace_repo.get(response.headers["X-Trace-ID"])
+                           ^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:263: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8E1E8AC90>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+____________ test_only_qa_post_gets_trace_header_and_writes_trace _____________
+
+trace_app = <fastapi.applications.FastAPI object at 0x000001B8E1FDFF20>
+trace_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B8E21901A0>, csrf='94f415578c1f293b19bc5970717556d...5970717556dde06694c4eae20d9338d46da0e561bfe0'}, upload=<function open_session.<locals>.<lambda> at 0x000001B8E2232520>)
+trace_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B8E2192090>, csrf='729deaeaac1a64e1c3f486a4e217a0f...86a4e217a0f1af15d5db70a5aabbbc270b8d415998b2'}, upload=<function open_session.<locals>.<lambda> at 0x000001B8E1FD5120>)
+trace_db_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_only_qa_post_gets_trace_h0/observability/qa-traces.sqlite3')
+
+    def test_only_qa_post_gets_trace_header_and_writes_trace(trace_app, trace_employee, trace_admin, trace_db_path):
+        """登录/健康检查/会话 GET、创建会话 POST、上传 POST 均无 X-Trace-ID、不写 trace。"""
+        # 上传需要管理员，且必须走真实 multipart（POST /api/v1/documents）。
+        assert trace_admin.upload(content=_xlsx_bytes(), name="T003b-scope.xlsx").status_code == 202
+    
+        fresh = TestClient(trace_app, raise_server_exceptions=False)
+        login_response = fresh.post(
+            "/api/v1/auth/login",
+            json={"username": "employee", "password": "EmployeePass-1"},
+            headers={"Origin": ORIGIN},
+        )
+        assert login_response.status_code == 200, login_response.text
+    
+        healthz = fresh.get("/api/v1/healthz")
+        assert healthz.status_code == 200, healthz.text
+    
+        listing = trace_employee.client.get("/api/v1/conversations")
+        assert listing.status_code == 200, listing.text
+    
+        created = trace_employee.client.post("/api/v1/conversations", json={}, headers=trace_employee.headers)
+        assert created.status_code == 201, created.text
+        conversation_id = created.json()["id"]
+    
+        messages = trace_employee.client.get(f"/api/v1/conversations/{conversation_id}/messages")
+        assert messages.status_code == 200, messages.text
+    
+        non_qa_responses = (
+            ("登录", login_response),
+            ("健康检查", healthz),
+            ("会话列表 GET", listing),
+            ("创建会话 POST", created),
+            ("消息列表 GET", messages),
+        )
+        for label, response in non_qa_responses:
+            assert "X-Trace-ID" not in response.headers, f"{label}不应返回 X-Trace-ID"
+            assert response.headers.get("X-Request-ID"), f"{label}应保留既有 X-Request-ID"
+        assert trace_rows(trace_db_path) == []
+    
+        # 正向对照：QA POST 才有 X-Trace-ID 且写一条 trace。
+        qa_response = ask_question(trace_employee, conversation_id)
+        assert qa_response.status_code == 200, qa_response.text
+>       assert qa_response.headers.get("X-Trace-ID")
+E       AssertionError: assert None
+E        +  where None = get('X-Trace-ID')
+E        +    where get = Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '3a4dc31c-00ba-4c29-8ef1-ccbf1a166900'}).get
+E        +      where Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '3a4dc31c-00ba-4c29-8ef1-ccbf1a166900'}) = <Response [200 OK]>.headers
+
+backend\tests\observability\test_middleware.py:314: AssertionError
+_____________ test_monkeypatched_write_failure_keeps_qa_response ______________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B8E2260E30>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x000001B8E2260C50>
+trace_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B8E1FDCDA0>, csrf='0051d413bb7560564a75df765583979...df76558397932b9cda0f13604ebcef4d9a38cae8d1c0'}, upload=<function open_session.<locals>.<lambda> at 0x000001B8E22325C0>)
+trace_db_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_monkeypatched_write_failu0/observability/qa-traces.sqlite3')
+
+    def test_monkeypatched_write_failure_keeps_qa_response(monkeypatch, caplog, trace_employee, trace_db_path):
+        """仓储写入抛异常：QA POST 仍返回正常状态码与 body，日志只记错误、不泄漏给响应。"""
+    
+        def _boom(self, trace, spans):  # noqa: ANN001 - 模拟真实 write_best_effort 抛异常
+            raise RuntimeError("PM-SIMULATED-TRACE-WRITE-FAILURE")
+    
+        monkeypatch.setattr(TraceRepository, "write_best_effort", _boom)
+        caplog.set_level(logging.WARNING)
+        conversation_id = create_conversation(trace_employee)
+        response = ask_question(trace_employee, conversation_id)
+    
+        assert response.status_code == 200, response.text
+>       assert response.headers.get("X-Trace-ID")
+E       AssertionError: assert None
+E        +  where None = get('X-Trace-ID')
+E        +    where get = Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '2e7a8a1d-2acb-4ce5-9602-ea896bb175c6'}).get
+E        +      where Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '2e7a8a1d-2acb-4ce5-9602-ea896bb175c6'}) = <Response [200 OK]>.headers
+
+backend\tests\observability\test_middleware.py:333: AssertionError
+_______________ test_unwritable_trace_db_path_keeps_qa_response _______________
+
+self = <starlette.datastructures.State object at 0x000001B8E1FDC200>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B8E1FC2E40>
+caplog = <_pytest.logging.LogCaptureFixture object at 0x000001B8E1FC14C0>
+settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_unwritable...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_unwritable_trace_db_path_0')
+
+    def test_unwritable_trace_db_path_keeps_qa_response(monkeypatch, caplog, settings, tmp_path: Path):
+        """Trace 库路径不可写：QA POST 仍 200，仓储自身日志 trace_write_error，响应无内部错误。"""
+        blocker = tmp_path / "blocked-parent"
+        blocker.write_text("not a directory", encoding="utf-8")
+        trace_path = blocker / "qa-traces.sqlite3"
+        trace_settings = settings.model_copy(
+            update={"trace_enabled": True, "trace_db_path": trace_path, "trace_content_mode": "hash"}
+        )
+        app = create_app(trace_settings)
+        caplog.set_level(logging.WARNING)
+        try:
+            # 构造期打不开库不崩溃（TraceRepository 延迟失败），产品侧照常可用。
+>           assert app.state.trace_repo is not None
+                   ^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:355: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8E1FDC200>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+_________ test_fixed_request_body_is_identical_with_trace_off_and_on __________
+
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_fixed_request_body_is_ide0')
+
+    def test_fixed_request_body_is_identical_with_trace_off_and_on(tmp_path: Path):
+        """trace 关闭 vs 开启：状态码与归一化后的响应 body 完全一致（仅多 X-Trace-ID）。"""
+        off_settings = _make_settings(tmp_path / "off-data")
+        on_settings = _make_settings(tmp_path / "on-data", trace_enabled=True)
+        off_app = create_app(off_settings)
+        on_app = create_app(on_settings)
+        frames = []
+        try:
+            off_session = open_session(off_app, "employee", "EmployeePass-1")
+            on_session = open_session(on_app, "employee", "EmployeePass-1")
+            off_conversation = create_conversation(off_session)
+            on_conversation = create_conversation(on_session)
+            off_response = ask_question(
+                off_session, off_conversation, client_request_id=FIXED_CLIENT_REQUEST_ID
+            )
+            on_response = ask_question(
+                on_session, on_conversation, client_request_id=FIXED_CLIENT_REQUEST_ID
+            )
+            assert off_response.status_code == on_response.status_code == 200
+            assert "X-Trace-ID" not in off_response.headers
+>           assert on_response.headers.get("X-Trace-ID")
+E           AssertionError: assert None
+E            +  where None = get('X-Trace-ID')
+E            +    where get = Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '03413949-7222-46dc-88f1-0a679b6c8cf6'}).get
+E            +      where Headers({'content-length': '310', 'content-type': 'application/json', 'x-request-id': '03413949-7222-46dc-88f1-0a679b6c8cf6'}) = <Response [200 OK]>.headers
+
+backend\tests\observability\test_middleware.py:397: AssertionError
+___________ test_middleware_source_hardcodes_local_mode_never_live ____________
+
+    def test_middleware_source_hardcodes_local_mode_never_live():
+        """静态断言：main.py 的 start_trace 调用把 mode 写死为 TraceMode.LOCAL，无 LIVE。"""
+        source = Path(main_module.__file__).read_text(encoding="utf-8")
+        assert "TraceMode.LIVE" not in source
+    
+        tree = ast.parse(source)
+        start_trace_calls = [
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, ast.Call) and _call_name(node) == "start_trace"
+        ]
+>       assert len(start_trace_calls) == 1, "中间件应只有一处 start_trace 调用"
+E       AssertionError: 中间件应只有一处 start_trace 调用
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+backend\tests\observability\test_middleware.py:425: AssertionError
+_____________________ test_trace_enabled_accepts_env_flag _____________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B8DE8DC3B0>
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_enabled_accepts_env0')
+
+    def test_trace_enabled_accepts_env_flag(monkeypatch, tmp_path: Path):
+        """``MKTKB_TRACE_ENABLED=1`` 是本地 P0 的开启方式（计划 Task 3 Interfaces）。"""
+        monkeypatch.setenv("MKTKB_TRACE_ENABLED", "1")
+>       assert _make_settings(tmp_path / "env-on").trace_enabled is True
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:450: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_enab...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+item = 'trace_enabled'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'trace_enabled'. Did you mean: 'rag_qa_enabled'?
+
+.venv\Lib\site-packages\pydantic\main.py:1105: AttributeError
+______________ test_trace_content_mode_accepts_only_off_and_hash ______________
+
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_content_mode_accept0')
+
+    def test_trace_content_mode_accepts_only_off_and_hash(tmp_path: Path):
+        """P0 只允许 off/hash；redacted/full 显式拒绝（设计 §6.5）。"""
+>       assert _make_settings(tmp_path / "hash-mode", trace_content_mode="hash").trace_content_mode == "hash"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:458: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_cont...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+item = 'trace_content_mode'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'trace_content_mode'
+
+.venv\Lib\site-packages\pydantic\main.py:1105: AttributeError
+_____________ test_trace_hmac_key_is_secret_and_never_serialized ______________
+
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_hmac_key_is_secret_0')
+
+    def test_trace_hmac_key_is_secret_and_never_serialized(tmp_path: Path):
+        """HMAC key 用 SecretStr：repr/JSON 均显示掩码，只能显式取值；空值归一为 None。"""
+        settings = _make_settings(tmp_path / "secret", trace_hmac_key=FAKE_HMAC_KEY)
+>       assert isinstance(settings.trace_hmac_key, SecretStr)
+                          ^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:472: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_hmac...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+item = 'trace_hmac_key'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'trace_hmac_key'
+
+.venv\Lib\site-packages\pydantic\main.py:1105: AttributeError
+___________ test_invalid_trace_config_error_does_not_echo_hmac_key ____________
+
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_invalid_trace_config_erro0')
+
+    def test_invalid_trace_config_error_does_not_echo_hmac_key(tmp_path: Path):
+        """配置校验失败时异常文本不回显任何密钥（全局 hide_input_in_errors）。"""
+>       with pytest.raises(ValidationError) as excinfo:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValidationError
+
+backend\tests\observability\test_middleware.py:486: Failed
+____________ test_trace_db_path_resolution_and_blank_normalization ____________
+
+settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_db_p...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_db_path_resolution_0')
+
+    def test_trace_db_path_resolution_and_blank_normalization(settings, tmp_path: Path):
+        """默认独立库路径；显式路径优先；空白路径归一为 None（回落到默认）。"""
+>       assert settings.resolved_trace_db_path == settings.data_dir / "observability" / "qa-traces.sqlite3"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:495: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_trace_db_p...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+item = 'resolved_trace_db_path'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'Settings' object has no attribute 'resolved_trace_db_path'. Did you mean: 'resolved_rag_index_path'?
+
+.venv\Lib\site-packages\pydantic\main.py:1105: AttributeError
+_______________________ test_lifespan_closes_trace_repo _______________________
+
+self = <starlette.datastructures.State object at 0x000001B8DE911C70>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+>           return self._state[key]
+                   ^^^^^^^^^^^^^^^^
+E           KeyError: 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:696: KeyError
+
+During handling of the above exception, another exception occurred:
+
+trace_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/obs-mw-red/test_lifespan_c...ne', rag_page_size=10, rag_top_k=8, rag_business_date=None, rag_sync_on_startup=True, rag_embedding_retry_seconds=30.0)
+
+    def test_lifespan_closes_trace_repo(trace_settings):
+        """``create_app`` 的 lifespan 退出时必须关闭 Trace 仓储（不留 SQLite 连接）。"""
+        app = create_app(trace_settings)
+>       repo = app.state.trace_repo
+               ^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_middleware.py:510: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <starlette.datastructures.State object at 0x000001B8DE911C70>
+key = 'trace_repo'
+
+    def __getattr__(self, key: Any) -> Any:
+        try:
+            return self._state[key]
+        except KeyError:
+            message = "'{}' object has no attribute '{}'"
+>           raise AttributeError(message.format(self.__class__.__name__, key))
+E           AttributeError: 'State' object has no attribute 'trace_repo'
+
+.venv\Lib\site-packages\starlette\datastructures.py:699: AttributeError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_middleware.py::test_settings_trace_defaults_are_disabled_and_safe
+FAILED backend\tests\observability\test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id
+FAILED backend\tests\observability\test_middleware.py::test_each_qa_post_writes_exactly_one_trace
+FAILED backend\tests\observability\test_middleware.py::test_trace_content_mode_off_is_wired
+FAILED backend\tests\observability\test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace
+FAILED backend\tests\observability\test_middleware.py::test_monkeypatched_write_failure_keeps_qa_response
+FAILED backend\tests\observability\test_middleware.py::test_unwritable_trace_db_path_keeps_qa_response
+FAILED backend\tests\observability\test_middleware.py::test_fixed_request_body_is_identical_with_trace_off_and_on
+FAILED backend\tests\observability\test_middleware.py::test_middleware_source_hardcodes_local_mode_never_live
+FAILED backend\tests\observability\test_middleware.py::test_trace_enabled_accepts_env_flag
+FAILED backend\tests\observability\test_middleware.py::test_trace_content_mode_accepts_only_off_and_hash
+FAILED backend\tests\observability\test_middleware.py::test_trace_hmac_key_is_secret_and_never_serialized
+FAILED backend\tests\observability\test_middleware.py::test_invalid_trace_config_error_does_not_echo_hmac_key
+FAILED backend\tests\observability\test_middleware.py::test_trace_db_path_resolution_and_blank_normalization
+FAILED backend\tests\observability\test_middleware.py::test_lifespan_closes_trace_repo
+ERROR backend\tests\observability\test_middleware.py::test_enabled_app_creates_repo_at_configured_path
+ERROR backend\tests\observability\test_middleware.py::test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace
+ERROR backend\tests\observability\test_middleware.py::test_middleware_passes_local_mode_and_settings_content_mode
+15 failed, 1 warning, 3 errors in 7.69s
+exit_code=1

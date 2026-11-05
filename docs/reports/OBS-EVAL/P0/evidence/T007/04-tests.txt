@@ -1,0 +1,44 @@
+== T007 tests + regression (speed strategy A; serial; 0 failed / 0 error) ==
+date: 2026-11-05 (Asia/Shanghai)
+env: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; python: .\.venv\Scripts\python.exe -B (3.12.7)
+baseline: p0/obs-eval @ eb6eeb9 (bookkeeping; code baseline = 5a4c054 T006b)
+
+[1. new test files only]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_baseline.py backend/tests/evaluation/test_report.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\baseline-report
+  -> 42 passed, 1 warning in 0.83s
+  (test_baseline.py: 21 test functions, parameterized to 25 items; test_report.py: 17 items;
+   combined 38 functions -> 42 items)
+
+[2. evaluation directory, once on frozen code]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp backend\.pytest-tmp\eval-all
+  -> 275 passed, 1 warning in 13.01s
+  (T006b baseline 233 + T007 42 = 275)
+
+[3. full backend/tests, once before commit, on frozen code]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t007-full
+  -> 1548 passed, 1 warning in 550.45s (0:09:10); 0 failed / 0 error
+  (T006b full baseline 1506 + 42 new = 1548)
+  (the known flake test_g08_short_budget_cancels_inflight_model_call did NOT hit; no isolated rerun needed)
+  (wall time is longer than the 6-7 min reference because the two real b0 runs and the full suite
+   were executed while this session was also active; no failures/timeouts)
+
+[4. no new dependencies / no real calls]
+- no pyproject/requirements/lock changes; only stdlib (hashlib/json/re/html/dataclasses/pathlib) used.
+- real-chain runs use provider_mode="offline" (runner enforces); zero real model / OCR / embedding /
+  rerank calls; no .env read; no var/ or docs/evidence/ writes.
+- no changes to gate.py / runner.py / scorer.py / dataset.py / gold.py / corpus.py / conftest.py /
+  existing test assertions.
+
+[5. working tree at commit time]
+$ git status --short
+  A  backend/src/mktkb/evaluation/baseline.py
+  A  backend/src/mktkb/evaluation/report.py
+  A  backend/tests/evaluation/test_baseline.py
+  A  backend/tests/evaluation/test_report.py
+  A  docs/reports/OBS-EVAL/P0/evidence/T007/01-baseline-identity.txt
+  A  docs/reports/OBS-EVAL/P0/evidence/T007/02-approval-fixture.txt
+  A  docs/reports/OBS-EVAL/P0/evidence/T007/03-diff-report.txt
+  A  docs/reports/OBS-EVAL/P0/evidence/T007/04-tests.txt
+  A  .claude/handoffs/T007-baseline-report/report.md
+single commit: p0/T007 baseline diff report (no push; _index.md untouched; no other package artifacts)
+$ git show --stat --oneline HEAD   # reproducible after commit; sha is in the delivery receipt

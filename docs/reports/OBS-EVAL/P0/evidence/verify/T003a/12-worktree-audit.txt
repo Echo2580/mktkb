@@ -1,0 +1,106 @@
+# 工作树/越界审计（验收者不应修改任何交付物、不 commit、不 push、不改 _index.md）
+# 文档 _index.md 的已跟踪修改为本任务开始前 PM 既有状态（本次验收未触碰）。
+# 本次验收开始时间（epoch）=1793807790.0（2026-11-04T23:56:30）
+
+## git status --porcelain（全量）
+ M .claude/handoffs/_index.md
+?? .claude/handoffs/2026-11-04-p1-design.md
+?? .claude/handoffs/2026-11-04-p1-task-breakdown.md
+?? .claude/handoffs/T001-obs-contracts/handoff.md
+?? .claude/handoffs/T001-obs-contracts/review.md
+?? .claude/handoffs/T002-trace-store/handoff.md
+?? .claude/handoffs/T002-trace-store/review.md
+?? .claude/handoffs/T003a-tracer/handoff.md
+?? .claude/handoffs/T003a-tracer/review.md
+?? .claude/handoffs/prompts/T001-dev-done.md
+?? .claude/handoffs/prompts/T001-dev.md
+?? .claude/handoffs/prompts/T001-verify-done.md
+?? .claude/handoffs/prompts/T001-verify.md
+?? .claude/handoffs/prompts/T002-dev-done.md
+?? .claude/handoffs/prompts/T002-dev.md
+?? .claude/handoffs/prompts/T002-verify-done.md
+?? .claude/handoffs/prompts/T002-verify.md
+?? .claude/handoffs/prompts/T003a-dev-done.md
+?? .claude/handoffs/prompts/T003a-dev.md
+?? .claude/handoffs/prompts/T003a-verify-done.md
+?? .claude/handoffs/prompts/T003a-verify.md
+?? .claude/handoffs/prompts/p1-holdout-author.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/
+
+## 已跟踪文件改动（期望只有任务开始前已存在的 _index.md）
+ M .claude/handoffs/_index.md
+
+## 未跟踪文件：验收者新增（允许：review.md + verify/T003a 证据）
+.claude/handoffs/T003a-tracer/review.md
+
+## 未跟踪文件：非本次验收新增（任务开始前既有 PM 文件）
+.claude/handoffs/2026-11-04-p1-design.md
+.claude/handoffs/2026-11-04-p1-task-breakdown.md
+.claude/handoffs/T001-obs-contracts/handoff.md
+.claude/handoffs/T001-obs-contracts/review.md
+.claude/handoffs/T002-trace-store/handoff.md
+.claude/handoffs/T002-trace-store/review.md
+.claude/handoffs/T003a-tracer/handoff.md
+.claude/handoffs/prompts/T001-dev-done.md
+.claude/handoffs/prompts/T001-dev.md
+.claude/handoffs/prompts/T001-verify-done.md
+.claude/handoffs/prompts/T001-verify.md
+.claude/handoffs/prompts/T002-dev-done.md
+.claude/handoffs/prompts/T002-dev.md
+.claude/handoffs/prompts/T002-verify-done.md
+.claude/handoffs/prompts/T002-verify.md
+.claude/handoffs/prompts/T003a-dev-done.md
+.claude/handoffs/prompts/T003a-dev.md
+.claude/handoffs/prompts/T003a-verify-done.md
+.claude/handoffs/prompts/T003a-verify.md
+.claude/handoffs/prompts/p1-holdout-author.md
+docs/reports/OBS-EVAL/P0/evidence/verify/
+
+## 不可解释的未跟踪文件（期望为空）
+
+## 本次会话开始后被修改的仓库文件（排除 .git/.venv/backend/.pytest-tmp/本任务证据/review.md）
+### 除 docs/evidence/ 与 .claude/handoffs/ 外（期望为空；非空=可能越界）
+(none)
+
+### .claude/handoffs/ 下（共享工作区中 PM/其它助手的并发文档改动；非本验收者所写，与 T003a 交付物无关）
+count=4
+.claude/handoffs/2026-11-04-p1-design.md
+.claude/handoffs/2026-11-04-p1-task-breakdown.md
+.claude/handoffs/_index.md
+.claude/handoffs/_scratch/p1-holdout-validate.py
+
+### docs/evidence/ 下（gitignore 忽略的既有验收证据目录；被既有 T09/RAG acceptance 测试在跑全量套件时写入，属既有测试副作用，非本包 commit 内容）
+count=47（路径样例）
+docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/labels.jsonl
+docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/questions.jsonl
+docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/README.md
+docs/evidence/T09/D1/actual/b0/b0-initialization.json
+docs/evidence/T09/D1/actual/b0/questions-ambiguity-clean.json
+docs/evidence/T09/D1/actual/b0/questions-conflict-c05.json
+docs/evidence/T09/D1/actual/b0/questions-conflict-c06.json
+docs/evidence/T09/D1/actual/b0/questions-negative.json
+docs/evidence/T09/D1/actual/b0/questions-normal.json
+docs/evidence/T09/D1/actual/b0/questions.json
+
+## var/ 下 SQLite 文件（产品库；期望：既有文件均未修改）
+var/mktkb.sqlite3
+var/mktkb.sqlite3-shm
+var/mktkb.sqlite3-wal
+var/rag-index.sqlite3
+var/rag-index.sqlite3-shm
+var/rag-index.sqlite3-wal
+--- 本次会话新增/修改 var/ SQLite：
+(none)
+
+## docs/evidence/ 之外的其它 SQLite（期望为空）
+--- 本次会话新增：
+(none)
+
+## 结论
+- 已跟踪改动数=1（只有任务开始前既有的 _index.md）
+- 不可解释未跟踪文件数=0
+- 除 docs/evidence/ 与 .claude/handoffs/ 外本次会话修改文件数=0
+- .claude/handoffs/ 下 PM 并发改动文件数=4（非本验收者）
+- var/ SQLite 本次新增/修改数=0
+- docs/evidence/ 外其它 SQLite 本次新增数=0
+- docs/evidence/ 本次被既有测试写入文件数=47（gitignore 忽略，未进入 commit）

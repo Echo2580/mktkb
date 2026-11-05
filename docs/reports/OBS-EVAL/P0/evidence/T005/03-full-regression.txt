@@ -1,0 +1,25 @@
+T005 full regression (run once before commit)
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t005-full
+1397 passed, 1 warning in 385.26s (0:06:25)
+elapsed incl. startup: 389.3s
+0 failed / 0 error
+baseline 1377 (T004b) + 20 new runner tests = 1397
+known flake test_g08_short_budget_cancels_inflight_model_call: not triggered in this run
+
+Repository state (branch p0/obs-eval, base d1a9d92 = PM bookkeeping on top of f126598):
+$ git diff --cached --stat=200
+ .claude/handoffs/T005-runner/report.md                        |   80 ++++++++
+ backend/src/mktkb/evaluation/corpus.py                        |  294 ++++++++++++++++++++++++++++
+ backend/src/mktkb/evaluation/runner.py                        | 1387 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ backend/tests/evaluation/test_runner.py                       |  631 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ docs/reports/OBS-EVAL/P0/evidence/T005/00-baseline.txt        |   15 ++
+ docs/reports/OBS-EVAL/P0/evidence/T005/01-tests.txt           |   19 ++
+ docs/reports/OBS-EVAL/P0/evidence/T005/02-local-replay.txt    |   47 +++++
+ docs/reports/OBS-EVAL/P0/evidence/T005/03-full-regression.txt |   25 +++
+ 8 files changed, 2498 insertions(+)
+
+$ git show --stat --oneline HEAD   (run after commit; same file set as staged stat above)
+commit subject: p0/T005 runner
+note: commit sha is produced by the commit itself; final sha is reported in the handoff
+summary (report.md tail) and via `git log -1 --format=%h`. No push.

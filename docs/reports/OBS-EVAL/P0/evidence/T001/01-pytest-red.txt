@@ -1,0 +1,33 @@
+
+=================================== ERRORS ====================================
+___________ ERROR collecting tests/observability/test_contracts.py ____________
+ImportError while importing test module 'D:\GPT项目\市场部AI知识库\backend\tests\observability\test_contracts.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\observability\test_contracts.py:13: in <module>
+    from mktkb.observability.contracts import (
+E   ModuleNotFoundError: No module named 'mktkb.observability'
+___________ ERROR collecting tests/observability/test_versioning.py ___________
+ImportError while importing test module 'D:\GPT项目\市场部AI知识库\backend\tests\observability\test_versioning.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\observability\test_versioning.py:18: in <module>
+    from mktkb.observability.versioning import (
+E   ModuleNotFoundError: No module named 'mktkb.observability'
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR backend\tests\observability\test_contracts.py
+ERROR backend\tests\observability\test_versioning.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 2 errors during collection !!!!!!!!!!!!!!!!!!!
+1 warning, 2 errors in 0.46s

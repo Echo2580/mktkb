@@ -1,0 +1,62 @@
+# CMD: D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B C:\Users\dell1712\AppData\Local\Temp\t003a-verify\static_checks.py
+[PASS] 测试只 import 标准库/pytest/mktkb：['__future__', 'ast', 'dataclasses', 'datetime', 'hashlib', 'hmac', 'json', 'logging', 'mktkb', 'pathlib', 'pytest', 'sys', 'threading', 'time', 'uuid']
+[PASS] 测试无相对导入：set()
+[PASS] 使用 pytest
+[PASS] 测试不读环境变量/dotenv（AST）
+[PASS] 测试无 skip/xfail 标记（AST）
+[PASS] 测试不 monkeypatch 生产代码
+[PASS] 测试不 import os（无法读 .env/环境）
+[PASS] 测试代码无仓库路径字面量写入
+[PASS] TraceRepository 调用数=2
+[PASS] TraceRepository 路径均来自 tmp_path：['tmp_path / "traces.sqlite3"', 'tmp_path / "traces.sqlite3"']
+[PASS] 测试无真实调用：build_gateway
+[PASS] 测试无真实调用：build_ocr_gateway
+[PASS] 测试无真实调用：embedding_query(
+[PASS] 测试无真实调用：rerank_documents(
+[PASS] 测试无真实调用：requests.
+[PASS] 测试无真实调用：httpx.
+[PASS] 测试无真实调用：socket.
+[PASS] 测试函数数=58（实际 58）
+[PASS] 参数化后用例数=66（实际 66）
+[PASS] 断言密度：assert/raises 共 216 处
+[PASS] 测试包含关键断言：断言 incomplete 行为
+[PASS] 测试包含关键断言：断言异常 status=error
+[PASS] 测试包含关键断言：断言 parent_span_id 行为
+[PASS] 测试包含关键断言：调用完整性校验
+[PASS] 测试包含关键断言：断言 finish 走 write_best_effort
+[PASS] tracer 仅标准库导入：['__future__', 'contextlib', 'contextvars', 'dataclasses', 'datetime', 'enum', 'json', 'logging', 'pathlib', 'threading', 'time', 'typing', 'uuid']
+[PASS] tracer 相对导入受限：{'.contracts', '.versioning', '.store'}
+[PASS] tracer 无危险/违规片段：os.environ
+[PASS] tracer 无危险/违规片段：load_dotenv
+[PASS] tracer 无危险/违规片段：.env
+[PASS] tracer 无危险/违规片段：eval(
+[PASS] tracer 无危险/违规片段：exec(
+[PASS] 交付文件存在
+[PASS] git diff --numstat 2ac976f..dea4d5d exit=0
+[PASS] backend/src/mktkb/observability/__init__.py 纯新增（deleted=0）
+[PASS] backend/src/mktkb/observability/contracts.py 纯新增（deleted=0）
+[PASS] git diff -U0 2ac976f..dea4d5d -- backend/src/mktkb/observability/contracts.py exit=0
+[PASS] contracts.py 无删除/修改行：[]
+[PASS] contracts.py 前缀与旧文件一致（仅末尾追加）
+[PASS] contracts.py __all__ 未被修改
+[PASS] git diff --name-only 2ac976f..dea4d5d -- backend/src/mktkb/main.py backend/src/mktkb/config.py backend/src/mktkb/qa backend/src/mktkb/rag backend/src/mktkb/conversations backend/src/mktkb/observability/store.py backend/src/mktkb/observability/versioning.py backend/pyproject.toml backend/requirements.lock backend/requirements-dev.lock docs/evidence var fixtures exit=0
+[PASS] 受保护路径零改动：
+[PASS] git diff --name-status 2ac976f..dea4d5d -- backend/tests exit=0
+[PASS] 仅新增 test_tracer.py：A	backend/tests/observability/test_tracer.py
+[PASS] git diff --name-status 2ac976f..dea4d5d exit=0
+[PASS] commit 文件数=12（实际 12）
+[PASS] commit 路径均在 §2 允许范围：['.claude/handoffs/T003a-tracer/report.md', 'backend/src/mktkb/observability/__init__.py', 'backend/src/mktkb/observability/contracts.py', 'backend/src/mktkb/observability/tracer.py', 'backend/tests/observability/test_tracer.py', 'docs/reports/OBS-EVAL/P0/evidence/T003a/00-git-rev-parse.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/02-pytest-tracer.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/03-pytest-observability.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/05-git-show-stat.txt', 'docs/reports/OBS-EVAL/P0/evidence/T003a/06-deliverable-sha256.txt']
+[PASS] git diff --diff-filter=D --name-only 2ac976f..dea4d5d exit=0
+[PASS] commit 无删除文件
+[PASS] git rev-parse dea4d5d^ exit=0
+[PASS] 提交父=2ac976f（实际 2ac976f）
+[PASS] git rev-parse HEAD exit=0
+[PASS] HEAD=dea4d5d（实际 dea4d5d）
+[PASS] git branch --show-current exit=0
+[PASS] 分支 p0/obs-eval（实际 p0/obs-eval）
+[PASS] git diff --name-only 2ac976f..dea4d5d -- backend/pyproject.toml backend/requirements.lock backend/requirements-dev.lock exit=0
+[PASS] 依赖清单零改动：
+
+STATIC-SUMMARY::pass=57 fail=0 failures=[]
+
+EXIT_CODE=0

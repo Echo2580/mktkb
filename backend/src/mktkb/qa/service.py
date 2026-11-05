@@ -27,6 +27,8 @@ from sqlalchemy import select
 
 from ..documents.lifecycle import get_revision, visible_source_units_stmt
 from ..documents.models import Document, DocumentVersion, SourceUnit
+from ..observability import trace_attrs
+from ..observability.tracer import current_trace
 from ..rag import DocumentSpec, RagConfig, RagIndex, safe_config_summary
 from ..rag.chunking import adapt_parsed_unit
 from ..rag.errors import KnowledgeChanged, RagError
@@ -301,7 +303,17 @@ class QaEngine:
         return self.sync(force=force)
 
     def sync(self, *, force: bool = False) -> QaIndexStatus:
-        """按产品可见面增量同步索引；失败写 error 元数据并抛 QaNotReady。"""
+        """按产品可见面增量同步索引；失败写 error 元数据并抛 QaNotReady。
+
+        T003d：只有真正执行同步（``ensure_ready`` 未命中已就绪缓存 / 启动同步 /
+        发布钩子）时才创建 ``index_sync`` Span 并置 ``index_sync_performed=true``；
+        命中缓存直接返回时不会进入本方法，因此不会伪造该条件 Span。
+        """
+        trace_attrs.annotate_trace(index_sync_performed=True)
+        with trace_attrs.span("index_sync"):
+            return self._sync(force=force)
+
+    def _sync(self, *, force: bool = False) -> QaIndexStatus:
         index = self.index()
         with self._sync_lock:
             self._last_attempt = time.monotonic()
@@ -413,10 +425,21 @@ class QaEngine:
         return previous, plan
 
     def answer(self, question: str, user_id: str, conversation_id: str, *, limit: int | None = None) -> RagAnswer:
+        """执行一次 RAG 直答；不新建 Trace，只在已有 Trace 上写 outcome/reason。
+
+        T003d：``path`` 由调用方（``conversations._answer``）按 ``_rag_owns_turn`` 设置；
+        这里把 ``RagAnswer.kind``（与 ``OutcomeKind`` 同值）映射为 outcome，``reason``
+        交给 ``required_spans`` 识别“检索前拒答”的 reason-aware 例外（§5.9）。
+        ``current_trace()`` 为 None 时全部 no-op。
+        """
         self.ensure_ready()
-        return self.index().ask(
+        result = self.index().ask(
             question, user_id=str(user_id), conversation_id=str(conversation_id), limit=limit
         )
+        trace = current_trace()
+        if trace is not None:
+            trace.set_outcome(result.kind, result.reason)
+        return result
 
     def search(self, plan: QueryPlan, *, limit: int | None = None) -> RetrievalResult:
         self.ensure_ready()

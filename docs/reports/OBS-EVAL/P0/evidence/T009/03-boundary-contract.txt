@@ -1,0 +1,74 @@
+# T009 复跑证据 03 — 越界/契约/遗留复核
+# 环境：Windows PowerShell；p0/obs-eval @ a1a40cc；基线 main 8e44158；只读审计；UTF-8 无 BOM。
+
+[1] P0 提交与改动路径
+git log --oneline main..p0/obs-eval → 38 个 commit（17 个开发 commit + 21 个簿记 commit）
+git diff --name-only main..p0/obs-eval → 398 个唯一路径
+逐 commit 路径审计（git show --name-only --format= 每个 commit）：0 个路径落在以下允许前缀之外：
+  backend/src/mktkb/observability/、backend/src/mktkb/evaluation/、tools/、backend/tests/、
+  docs/evaluation/、docs/reports/OBS-EVAL/P0/、.claude/handoffs/、fixtures/evaluation/
+另有 6 个接线文件，均为各包 handoff 明确授权：
+  main.py / config.py                 ← T003b（d41d19f）handoff §2
+  rag/answer.py / rag/retrieval.py    ← T003c（776497f）handoff §2
+  qa/service.py / conversations/service.py ← T003d（b811f9f + 71756f5）handoff §2
+依赖清单、迁移/schema、var/、docs/evidence、fixtures（非 evaluation）均无改动：
+  git diff --name-only main..p0/obs-eval -- pyproject.toml backend/pyproject.toml requirements*.txt uv.lock poetry.lock package.json pnpm-lock.yaml → 空
+  git diff --name-only main..p0/obs-eval -- var docs/evidence → 空
+
+[2] 业务 API / Body schema 不变（OpenAPI）
+T003b 验收快照 07-openapi-baseline.json 与 07-openapi-target.json：
+  sha256 均为 2154b8b55087418fc0174756e468dc9c8689b577bf7cd10d782c3c6cd2cdae7a（47962 B，逐字节相同）
+当前 app.openapi()（create_app + 测试 Settings + model_gateway 占位）：
+  与 baseline JSON 语义相等（json.loads(current) == json.loads(baseline)）
+  18 paths / 31 component schemas；未新增/删除/改名字段。
+结论：无业务 API 请求参数/响应 Body 字段结构改动；仅新增 X-Trace-ID 响应头（T003b 授权）。
+
+[3] gate_v0_1.json 仍为未审批骨架
+文件：docs/evaluation/gate_v0_1.json（5716 B，sha256 8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209）
+status=unapproved；quality_layer.status=unapproved；hard_gates=8 项；
+hard_gate_min_sample={b0:32, badcase:13}；metrics=15 项；
+全部 metric 的 min_sample/absolute_min/absolute_max/max_regression_pp 均为 null（阈值空）。
+该哈希与 T008b 报告一致；T009 未改写。
+
+[4] trace_schema_v0_1.md reason-aware 抽查（3 行）
+| schema 行 | 契约内容 | contracts.py 实现 |
+| trace_schema_v0_1.md:163 | rag+no_answer + reason∈{DOCUMENT_NOT_FOUND,UNKNOWN_STORE,RECORD_ONLY} → {parse,commit} | contracts.py:149-154 |
+| trace_schema_v0_1.md:182 | legacy/legacy_with_rag_candidates+not_found + reason∈{UNKNOWN_IDENTIFIER,IDENTIFIER_NOT_RETRIEVABLE,NO_INTENT,UNRECORDED_FIELD} → {intent_parse,commit} | contracts.py:155-160 |
+| trace_schema_v0_1.md:185 | legacy/…+knowledge_changed + reason=KNOWLEDGE_CHANGED_AT_COMMIT → {intent_parse,commit}；其它 reason 仍要求 retrieve | contracts.py:161-166 |
+validate_required_spans 读取 record.reason（contracts.py:269-297）；gate 的 trace_integrity 按 reason 重新计算（gate.py:1838-1856）。
+另：legacy_with_rag_candidates 与 legacy 共用规则（trace_schema_v0_1.md:147），不再存在 T001 遗留 3 的未明示。
+
+[5] 分母口径（gate 配置 + 实测 gate.json）
+硬门禁 min_sample（evaluated_count）：b0=32、badcase=13；实测 b0 gate scored=32/32、badcase gate scored=13/13。
+质量检索分母（gold_cases_non_ocr）：b0 Recall@10 denominator=32；badcase Recall@10 denominator=10。
+质量答案分母（scored_cases_non_ocr）：b0 value_hit denominator=32；badcase value_hit denominator=13。
+拒答分母：badcase refusal_recall=2、false_refusal_rate=11；error/service_error/knowledge_changed 被排除（gate.py:216, 2009-2011）。
+结论：10 与 13 未混用；硬门禁 32/13 与质量 32/10 分别成立。
+
+[6] 遗留项抽查（不是全部重做，按 _index 1–34 + 后续 review）
+仍存在且非阻断：
+  - T004a MEDIUM-1：设计 §7.2 仍写“解析到 0 个或多个 unit → GoldUnresolved”（design.md:260），
+    与 gold.py 的 locator 范围语义（gold.py:7-9,182-199）未在文档层对齐；T004a 要求 T009 前补正式口径，尚未补。
+  - T004a MEDIUM-2 / T005 MEDIUM-2：gold.py:200-201 在 record_code 无 unit_key/locator 时仍匹配整篇 unit；
+    gate 已 fail closed：record_code-only / record_code+空 locator → unknown/exit 3（test_gate.py:1290-1307）。
+  - T006a LOW-1 / T006b LOW-3：GateConfig.to_dict 仍输出旧键 min_sample（gate.py:310-316），loader 只认 hard_gate_min_sample；
+    GateResult.to_dict 只暴露 scored_count（gate.py:568），evaluated_count 为属性别名（gate.py:548）。
+  - T007 R1 残余：b0 默认 gate 的 refusal_recall/all 为 denominator=0、observed=None、status=pass；
+    这是零样本显示口径，不得读作“拒答召回通过”（T007-R1 §6；本次复跑 gate-default.json 复现）。
+  - T006b MEDIUM-1：proposal 的 per-stratum 阈值不能直接转写为单值 MetricSpec；审批需选跨 stratum 可行单值或扩展 schema。
+  - T006b MEDIUM-3：proposal provenance 仅 %TEMP% run_id 可复现；仓库内不能重建该 run（证据已保留 proposal 值）。
+  - T003d 证据 01 为 UTF-16；T003d 证据 10 漏列 06；属历史证据精度，不影响本轮结论。
+  - T005 LOW：replay 行 outcome.trace_id 指向源 local；b0 range_gold_case_ids 含 OCR Q33–Q40；
+    cases.jsonl/manifest 字节含时间/ID，跨 run 哈希不可复现。
+  - T004b LOW-3/4/5：expected_pagination=null 时只验契约；同 chunk 多 unit 的 nDCG 口径；value_no_fabricated 符号/千分位。
+已由后续包闭环（复核结论）：
+  - T003c §5.4 检索前拒答 → T003d reason-aware + R1 KNOWLEDGE_CHANGED_AT_COMMIT（§4 三行）。
+  - T003d R1 FAIL → 71756f5 修复并复验；test_rag_spans.py:425-448 已补 rerank 失败断言。
+  - T004b MEDIUM-2 → gate.py:216 排除 error/service_error/knowledge_changed。
+  - T004b MEDIUM-4 → security_leak 按解析后 unit 映射；record_code 不可解析 → unknown（test_gate.py:645-654）。
+  - T005 MEDIUM-1 → gate 用 evaluated_count（gate.py:3122）；质量分母独立（§5）。
+  - T007 MEDIUM-1/2 → report 排除零分母；CLI 始终传当前 gate（cli.py:317-340）并调用 require_release_baseline。
+  - T008a live→4 GAP、T008b LOW-1..5 均为已知 NOT-RUN/文档级，未在 T009 变成通过。
+
+[7] 工作树
+git status --short → 空（写入本证据/review/anchors 前）。

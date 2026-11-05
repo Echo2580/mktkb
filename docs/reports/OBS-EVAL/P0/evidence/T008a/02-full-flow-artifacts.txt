@@ -1,0 +1,68 @@
+T008a 全流程真实 run 三件套与门禁/校准产物
+==============================================
+所有运行产物位于 var/eval/**（.gitignore: var/），不入库；本文件只记录命令结果、关键字段与 sha256。
+
+一、三件套（run_manifest.json / cases.jsonl / summary.json 齐全）
+--------------------------------------------------------------
+p0-b0（local）
+  run_id        = b0-local-20261105T090359232489Z-6e3eb84c
+  mode/scope    = local / end_to_end
+  suite/cases   = b0 / 40
+  dataset       = b0:b0-2026-11-04:bd4f0f7ccc6e（sha256 bd4f0f7c...）
+  corpus_sha256 = 6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6
+  pipeline      = 735da1397044 ; gate_version = mktkb.gate.v0.1
+  error_count   = 0
+  sha256        = 98bc7f05b74ce79dda84430911e82f209f84142aa2b03f1ff99ef6693f56d7b6 run_manifest.json
+                  966d51d5384e18d06d9dc1ead79482273e34842dd605d41de8523cb4ac8b354f cases.jsonl（203740 B）
+                  b084f5b5c6a26e296f5f99388a19b79c5fcfd6658763b42fe78ab4152dcdaa50 summary.json（2470 B）
+
+p0-badcase（local）
+  run_id        = badcase-local-20261105T090409960294Z-f03d4b5f
+  mode/suite    = local / badcase ; cases = 13 ; error_count = 0
+  dataset       = badcase:badcase-2026-11-04:e5f0662af3f2
+  pipeline      = 735da1397044 ; gate_version = mktkb.gate.v0.1
+
+p0-b0-replay（replay）
+  run_id        = b0-replay-20261105T090412743897Z-f2388a91
+  mode/suite    = replay / b0 ; cases = 40 ; error_count = 0
+  dataset       = b0:b0-2026-11-04:bd4f0f7ccc6e
+  replay_from   = D:\...\var\eval\runs\p0-b0
+  pipeline      = 735da1397044 ; gate_version = mktkb.gate.v0.1
+
+二、门禁（仓库默认配置 docs/evaluation/gate_v0_1.json，status=unapproved）
+---------------------------------------------------------------------
+p0-b0       exit=3 hard_failures=[] scored=32/32 quality=unknown config_status=unapproved
+p0-badcase  exit=3 hard_failures=[] scored=13/13 quality=unknown config_status=unapproved
+p0-b0-replay exit=3 hard_failures=[] scored=32/32 quality=unknown config_status=unapproved
+口径：exit 3 是"质量阈值未审批（thresholds_unapproved）"，不是硬门禁失败，更不是质量通过。
+p0-b0/gate.json：42 个 quality unknown，reason 全部 thresholds_unapproved；
+  quality metrics 45 行（15 指标 × all/exact/text），not_applicable 5 项（硬门禁层）。
+  cost_per_case_cny 三个 stratum 均 observed=null、denominator=0（不补零）；
+  p95_latency_ms 三个 stratum 有观测（15/15/14ms）但阈值未审批，状态仍 unknown。
+  sha256 e30572acc9e18330ad458300fad7ea597ccab978cff625d358670e5777b672ae（86740 B）
+p0-badcase/gate.json sha256 412001328909da8fd28e0a55b4791c00f334bacdfdc6842364980525cd3a2ede
+p0-b0-replay/gate.json sha256 2db77cb8f890982350acb46c1d91f7b5b3170f2ea10596b5d446368806808a03
+
+三、校准提案（--calibrate）
+--------------------------
+var/eval/runs/p0-b0/gate_proposal.json
+  status=unapproved ; approval_owner="T009 human gate" ; strata=all,exact,text
+  metrics=45 行（15 指标 × 3 stratum，含观测值/分母/建议阈值/rationale）
+  gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293
+  sha256 c85b50b5de4e8cce306054016e68c8ea34dfb95f1af6f11015b89cb06139b408（27982 B）
+  -> 只写提案，未改 docs/evaluation/gate_v0_1.json（git status 为空）
+
+四、干净集 exit 0 分支（仅 %TEMP% 演示，不是审批）
+-----------------------------------------------
+%TEMP%\t008a\gate-approved-fixture.json（sha256 355244220cdeb2d7c42df7b87cd8ba10f28a3f9eb9a313b1645c6f515b699fbb）
+  status=approved；由 proposal 的实测值派生 12 个有正分母且观测非空的指标（剔除 refusal_recall、
+  refusal_precision、cost_per_case_cny），min_sample=1，max_regression_pp=null；
+  阈值/配置不写回仓库。
+  gate --run var\eval\runs\p0-b0 --config %TEMP%\...\gate-approved-fixture.json
+  -> exit=0 hard_failures=[] quality=pass config_status=approved
+  随后用仓库默认配置重跑同一 run，gate.json 恢复 exit=3（本文件二节即该默认结果）。
+
+五、零真实调用
+--------------
+local 使用 provider_mode="offline" 隔离索引；replay 只读 cases.jsonl 重评分；gate/diff 只读产物；
+未读 .env；未新增依赖；dataset build 只解析本地 fixture/corpus。

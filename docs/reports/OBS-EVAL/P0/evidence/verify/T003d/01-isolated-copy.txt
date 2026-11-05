@@ -1,0 +1,52 @@
+T003d independent verification - isolated copy & environment
+date: 2026-11-05 (Asia/Shanghai)
+reviewer: independent verifier, no T003d implementation history
+
+--- target ---
+commit:      b811f9f01fe266af38855b3f1ed92373b1dae6ee  p0/T003d qa legacy spans
+parent:      776497faa6081d7dafb888a773d7c09ea95d481c  p0/T003c rag spans
+branch:      p0/obs-eval
+baseline:    main @ 8e44158 (per handoff)
+
+--- isolation ---
+%TEMP% = C:\Users\dell1712\AppData\Local\Temp
+copy    = %TEMP%\t003d-0915e17e\t003d   (outside the repository)
+command = git archive --format=tar --output=<temp>\t003d.tar b811f9f
+        + Python 3.12 tarfile extraction into <temp>\t003d\t003d
+NOT used: git worktree; main repository .git was not modified.
+Note: Windows bsdtar rejected 70+ non-ASCII member names ("Invalid empty pathname"),
+so extraction was done with Python tarfile (r:), 574 entries / 486 files / 53.1 MB.
+All backend source/tests/docs/fixtures needed by the suite were extracted.
+
+--- interpreter ---
+D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B   (project venv, Python 3.12.7)
+pytest 9.1.1
+env: PYTHONPATH=<copy>\backend\src
+     MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+     PYTHONDONTWRITEBYTECODE=1
+basetemp: inside the isolated copy (backend/.pytest-tmp equivalent: <copy>\.pytest-tmp\...)
+cwd for every run: <copy>
+
+--- gitignored assets ---
+The archive contains no docs/evidence/ (gitignored, ~5.8 GB in the shared worktree).
+First full run (03-full-suite-initial.txt) shows 16 failed + 15 skipped, all caused by
+missing docs/evidence files (fonts, T04/T05/T06 snapshots, budget ledger, GO json,
+tokenizer artifact) - unrelated to T003d code paths.
+For the final full run, a 37.8 MB subset of those gitignored assets was copied read-only
+from the shared worktree into the isolated copy:
+  docs/evidence/T01/C1-R1/derived-fonts
+  docs/evidence/T06/before/0004-snapshot
+  docs/evidence/T05/before/t04-snapshot
+  docs/evidence/LOCAL-R1-20261101/budget
+  docs/evidence/LOCAL-R1-20261101/PM (small json/md files)
+  docs/evidence/LOCAL-R1-20261101/S1-DEV/{delivery.md,interfaces.md}
+  docs/evidence/LOCAL-R1-20261101/S2-DEV/H/vendor
+No tracked b811f9f source/test file was modified (re-verified at the end against
+evidence T003d/10: 19/19 SHA-256 match, see 09-submission-hygiene.txt).
+
+--- main worktree hygiene ---
+Shared worktree was dirty with concurrent T004a changes during this verification.
+Nothing in this verification wrote to the shared worktree except:
+  .claude/handoffs/T003d-paths/review.md
+  docs/reports/OBS-EVAL/P0/evidence/verify/T003d/* (this directory)
+No commit, no push, no _index.md edit.

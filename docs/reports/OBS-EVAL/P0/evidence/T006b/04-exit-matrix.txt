@@ -1,0 +1,33 @@
+== T006b exit-code matrix (synthetic fixtures, zero real model/OCR calls) ==
+fixture_root (temp, not committed): C:\Users\dell1712\AppData\Local\Temp\t006b-exit-btidf93c
+
+[exit 0] pass: exit=0 hard=[] quality=pass failures=0 unknowns=0 strata=('all', 'exact', 'text')
+[exit 1] hard failure outranks quality: exit=1 hard=['citation_required'] quality=fail quality_failures=2
+[exit 2] quality threshold miss: exit=2 hard=[] quality=fail checks=['absolute_min', 'absolute_min']
+[exit 3] unapproved: exit=3 hard=[] quality=unknown failures=0 unknown_check_ids=['thresholds_unapproved']
+[exit 4] live unauthorized: exit=4 hard=[] quality=None
+
+== waiver guards ==
+[waiver] missing reason rejected: ValueError(质量 waiver 必须提供非空 reason)
+[waiver] missing approver rejected: ValueError(质量 waiver 必须提供非空 approver)
+[waiver] hard gate rejected: ValueError(硬门禁不可豁免：'trace_integrity' 属第一层硬门禁，waiver 只允许质量指标)
+
+EXIT MATRIX ASSERTIONS PASSED (0/1/2/3/4)
+
+== Verification commands (repo root, 2026-11-05, .venv Python) ==
+code baseline: T006a R1 439fc1b; git HEAD at run time = 1ea649f (bookkeeping-only commit); T006b changes uncommitted at run time
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate_quality.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\gateq
+  -> 29 passed, 1 warning in 0.66s
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t006b-eval
+  -> 233 passed, 1 warning in 9.12s (T006a baseline 204 + 29 new)
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t006b-full
+  -> 1506 passed, 1 warning in 373.49s (0:06:13); 0 failed / 0 error
+  (T006a baseline 1477; 1477 + 29 new = 1506)
+
+$ .\.venv\Scripts\python.exe -B -c "from mktkb.evaluation.gate import load_gate_config; ..."
+  -> docs/evaluation/gate_v0_1.json: status=unapproved, config_hash=eeb70a6c...,
+     file sha256=8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209,
+     metrics=15, non-null thresholds=[] (absolute_min/absolute_max/max_regression_pp/min_sample all null)

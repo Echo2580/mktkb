@@ -16,6 +16,7 @@ import numpy as np
 from sqlalchemy import func, or_, select, text
 from sqlalchemy.orm import Session
 
+from ..observability import trace_attrs
 from ..retrieval.tokenize import match_expression, normalize
 from .errors import KnowledgeChanged
 from .models import RagChunk, RagChunkEmbedding, RagDocument, RagEmbeddingCache
@@ -39,15 +40,48 @@ def search(index: Any, plan: QueryPlan, *, limit: int | None = None) -> Retrieva
         "candidate_limit": index.config.candidate_limit,
     }
     degraded: list[str] = []
+    # 查询向量面被运行时关闭时该通道不执行：不创建 Span、不置条件属性（设计 §6.4）。
+    vector_enabled = not getattr(index.config, "disable_query_embedding", False)
     with index.session() as session:
-        exact_chunks = _exact_recall(session, index, plan, diagnostics)
-        hints = _effective_hints(session, index, plan, diagnostics)
-        lexical_chunks = _lexical_recall(session, index, plan, diagnostics)
-        vector_chunks, vector_error = _vector_recall(session, index, plan, diagnostics)
-        if vector_error:
-            degraded.append("vector")
-            diagnostics["vector_error"] = vector_error
-        fused = _fuse(index, plan, exact_chunks, lexical_chunks, vector_chunks, diagnostics)
+        with trace_attrs.span("recall") as recall_span:
+            if plan.mode == "record":
+                with trace_attrs.span("exact_recall") as exact_span:
+                    exact_chunks = _exact_recall(session, index, plan, diagnostics)
+                    exact_span.annotate(candidates=len(exact_chunks))
+            else:
+                exact_chunks = _exact_recall(session, index, plan, diagnostics)
+            hints = _effective_hints(session, index, plan, diagnostics)
+            with trace_attrs.span("lexical_recall") as lexical_span:
+                lexical_chunks = _lexical_recall(session, index, plan, diagnostics)
+                lexical_span.annotate(
+                    candidates=len(lexical_chunks),
+                    expression_present=diagnostics.get("lexical_expression") is not None,
+                )
+            if vector_enabled:
+                with trace_attrs.span("vector_recall") as vector_span:
+                    vector_chunks, vector_error = _vector_recall(session, index, plan, diagnostics)
+                    vector_span.annotate(
+                        candidates=len(vector_chunks),
+                        degraded=bool(vector_error),
+                        degraded_reason=vector_error,
+                    )
+            else:
+                vector_chunks, vector_error = _vector_recall(session, index, plan, diagnostics)
+            if vector_error:
+                degraded.append("vector")
+                diagnostics["vector_error"] = vector_error
+            recall_span.annotate(
+                exact=len(exact_chunks),
+                lexical=len(lexical_chunks),
+                vector=len(vector_chunks),
+                hints=len(hints),
+                vector_enabled=vector_enabled,
+            )
+        with trace_attrs.span("fuse") as fuse_span:
+            fused = _fuse(index, plan, exact_chunks, lexical_chunks, vector_chunks, diagnostics)
+            # 重排只在融合结果非空时真实执行（_fuse 内创建 rerank Span 并写 diagnostics["rerank"]）。
+            rerank_enabled = "rerank" in diagnostics
+            fuse_span.annotate(candidates=len(fused), rerank_enabled=rerank_enabled)
         if plan.enumerate:
             base = _enumerate_base(exact_chunks, fused)
             total = len(base)
@@ -102,6 +136,22 @@ def search(index: Any, plan: QueryPlan, *, limit: int | None = None) -> Retrieva
             degraded=tuple(degraded),
             effective_hints=hints,
         )
+    # Trace 级字段只写计数/布尔/稳定引用（设计 §6.3/§6.5）；条件属性经 annotate 并入
+    # filter_decisions_json（T003a 约定），与 Span 的实际执行保持一致。
+    trace_attrs.annotate_trace(
+        index_revision=str(start_revision),
+        retrieval_counts_json=recall_counts,
+        filter_decisions_json={
+            "mode": plan.mode,
+            "enumerate": bool(plan.enumerate),
+            "applied_filters": sorted(plan.filters),
+            "vector_enabled": vector_enabled,
+            "rerank_enabled": rerank_enabled,
+        },
+        degraded_json=list(degraded),
+        vector_enabled=vector_enabled,
+        rerank_enabled=rerank_enabled,
+    )
     if index.revision() != start_revision:
         raise KnowledgeChanged("检索期间知识库版本发生变化")
     return result
@@ -245,7 +295,14 @@ def _vector_recall(
         diagnostics["query_embedding_error"] = "QUERY_EMBEDDING_DISABLED"
         return [], "QUERY_EMBEDDING_DISABLED"
     try:
-        response = index.embedder.embed([plan.query_text], purpose="query")
+        with trace_attrs.span("embedding_query") as embed_span:
+            response = index.embedder.embed([plan.query_text], purpose="query")
+            embed_span.annotate(
+                provider=getattr(response, "provider", None),
+                model=getattr(response, "model", None),
+                dimensions=int(getattr(response, "dimensions", 0) or 0),
+                vectors=len(getattr(response, "vectors", ()) or ()),
+            )
         query_vector = np.asarray(response.vectors[0], dtype=np.float32)
     except Exception as exc:
         diagnostics["query_embedding_error"] = getattr(exc, "code", type(exc).__name__)
@@ -392,18 +449,27 @@ def _fuse(
     rrf: dict[str, float] = {}
     by_id: dict[str, IndexedChunk] = {}
     channels: dict[str, set[str]] = {}
+    filter_stats = {"candidates": 0, "passed": 0}
 
     def add(items: Iterable[IndexedChunk], weight: float, name: str) -> None:
         for rank, chunk in enumerate(items):
+            filter_stats["candidates"] += 1
             if not _passes_filters(chunk, plan):
                 continue
+            filter_stats["passed"] += 1
             by_id.setdefault(chunk.chunk_id, chunk)
             channels.setdefault(chunk.chunk_id, set()).add(name)
             rrf[chunk.chunk_id] = rrf.get(chunk.chunk_id, 0.0) + weight / (RRF_K + rank + 1)
 
-    add(exact, EXACT_WEIGHT, "exact")
-    add(lexical, LEXICAL_WEIGHT, "lexical")
-    add(vector, VECTOR_WEIGHT, "vector")
+    with trace_attrs.span("hard_filter") as filter_span:
+        add(exact, EXACT_WEIGHT, "exact")
+        add(lexical, LEXICAL_WEIGHT, "lexical")
+        add(vector, VECTOR_WEIGHT, "vector")
+        filter_span.annotate(
+            candidates=filter_stats["candidates"],
+            passed=filter_stats["passed"],
+            dropped=filter_stats["candidates"] - filter_stats["passed"],
+        )
     for chunk in exact:
         if chunk.chunk_id in rrf:
             rrf[chunk.chunk_id] += 0.004
@@ -417,36 +483,45 @@ def _fuse(
         return []
     rerank_candidates = ranked[: max(1, index.config.rerank_top_n)]
     rerank_started = time.monotonic()
-    try:
-        response = index.reranker.rerank(
-            plan.question,
-            [chunk.text for chunk, _ in rerank_candidates],
-            top_n=len(rerank_candidates),
-        )
-        scores = {result.index: result.score for result in response.results}
-        maximum = max(scores.values(), default=0.0) or 1.0
-        reranked: list[tuple[IndexedChunk, float]] = []
-        for position, (chunk, rrf_score) in enumerate(rerank_candidates):
-            rerank_score = scores.get(position, 0.0) / maximum
-            combined = 0.5 * _normalize_score(rrf_score, ranked) + 0.5 * rerank_score
-            reranked.append((chunk, combined))
-        reranked.sort(key=lambda item: (-item[1], item[0].chunk_id))
-        # 未进入重排的候选保留较低 RRF 分数，排在重排候选之后。
-        head_ids = {chunk.chunk_id for chunk, _ in reranked}
-        tail = [(chunk, score * 0.5) for chunk, score in ranked if chunk.chunk_id not in head_ids]
-        diagnostics["rerank"] = {
-            "provider": getattr(response, "provider", None),
-            "model": getattr(response, "model", None),
-            "candidates": len(rerank_candidates),
-            "usage": dict(getattr(response, "usage", {}) or {}),
-            "estimated_list_price_cny": getattr(response, "estimated_list_price_cny", 0.0),
-            "ms": round((time.monotonic() - rerank_started) * 1000, 2),
-        }
-        return reranked + tail
-    except Exception as exc:
-        diagnostics["rerank_error"] = getattr(exc, "code", type(exc).__name__)
-        diagnostics["rerank"] = {"error": diagnostics["rerank_error"]}
-        return ranked
+    with trace_attrs.span("rerank") as rerank_span:
+        try:
+            response = index.reranker.rerank(
+                plan.question,
+                [chunk.text for chunk, _ in rerank_candidates],
+                top_n=len(rerank_candidates),
+            )
+            scores = {result.index: result.score for result in response.results}
+            maximum = max(scores.values(), default=0.0) or 1.0
+            reranked: list[tuple[IndexedChunk, float]] = []
+            for position, (chunk, rrf_score) in enumerate(rerank_candidates):
+                rerank_score = scores.get(position, 0.0) / maximum
+                combined = 0.5 * _normalize_score(rrf_score, ranked) + 0.5 * rerank_score
+                reranked.append((chunk, combined))
+            reranked.sort(key=lambda item: (-item[1], item[0].chunk_id))
+            # 未进入重排的候选保留较低 RRF 分数，排在重排候选之后。
+            head_ids = {chunk.chunk_id for chunk, _ in reranked}
+            tail = [(chunk, score * 0.5) for chunk, score in ranked if chunk.chunk_id not in head_ids]
+            diagnostics["rerank"] = {
+                "provider": getattr(response, "provider", None),
+                "model": getattr(response, "model", None),
+                "candidates": len(rerank_candidates),
+                "usage": dict(getattr(response, "usage", {}) or {}),
+                "estimated_list_price_cny": getattr(response, "estimated_list_price_cny", 0.0),
+                "ms": round((time.monotonic() - rerank_started) * 1000, 2),
+            }
+            rerank_span.annotate(
+                candidates=len(rerank_candidates),
+                provider=getattr(response, "provider", None),
+                model=getattr(response, "model", None),
+                scored=len(scores),
+            )
+            return reranked + tail
+        except Exception as exc:
+            diagnostics["rerank_error"] = getattr(exc, "code", type(exc).__name__)
+            diagnostics["rerank"] = {"error": diagnostics["rerank_error"]}
+            # 既有语义是“重排失败回退 RRF、异常不外抛”；Span 记录错误状态，不改变控制流。
+            rerank_span.annotate(status="error", error_code=diagnostics["rerank_error"])
+            return ranked
 
 
 def _normalize_score(score: float, ranked: list[tuple[IndexedChunk, float]]) -> float:

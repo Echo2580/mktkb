@@ -1,0 +1,14 @@
+﻿# T006a R1 - offline T005 local/replay products through gate (normal TraceRepository stores)
+# object commit: 90d7133; command: .\.venv\Scripts\python.exe -B docs\reports\OBS-EVAL\P0\evidence\verify\T006a\probe.py --real
+# temp out dirs only; no real provider / OCR / embedding / rerank calls; b0 and badcase each local then replay.
+# normal stores carry schema_meta (HIGH-3 normal path) and real evaluated_count = 32 / 13.
+
+PASS real.b0.local.exit0 :: rows=40 scored=32 min=32 exit=0 hard=[] unknown=[] na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'pagination_contract']
+PASS real.b0.local.denominator :: scored=32 (T005 b0=32, badcase rows pass/fail=13; T005 metric denominator badcase=10 excluding empty gold)
+PASS real.b0.replay.exit0 :: rows=40 scored=32 min=32 exit=0 hard=[] unknown=[] na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'pagination_contract']
+PASS real.b0.replay.denominator :: scored=32 (T005 b0=32, badcase rows pass/fail=13; T005 metric denominator badcase=10 excluding empty gold)
+PASS real.badcase.local.exit0 :: rows=13 scored=13 min=13 exit=0 hard=[] unknown=[] na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'exact_value_contract']
+PASS real.badcase.local.denominator :: scored=13 (T005 b0=32, badcase rows pass/fail=13; T005 metric denominator badcase=10 excluding empty gold)
+PASS real.badcase.replay.exit0 :: rows=13 scored=13 min=13 exit=0 hard=[] unknown=[] na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'exact_value_contract']
+PASS real.badcase.replay.denominator :: scored=13 (T005 b0=32, badcase rows pass/fail=13; T005 metric denominator badcase=10 excluding empty gold)
+SUMMARY checks=8 failed=0

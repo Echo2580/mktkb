@@ -1,0 +1,24 @@
+$ cd /d C:\Users\dell1712\AppData\Local\Temp\t002-verify && D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B manual_probes.py
+probe temp dir: C:\Users\dell1712\AppData\Local\Temp\t002-probe-xprrbn_5
+python: 3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]
+sqlite3: 3.45.3
+trace_schema_version(contract): mktkb.trace.v0.1
+TraceRecord fields: 41; SpanRecord fields: 9
+----------------------------------------------------------------------------------------------------
+[PASS] 5.1 write/get roundtrip (rich + bare + normalized span, Chinese JSON) :: 全字段 trace/spans 整体相等；中文 JSON 原样；最小记录/归一 span 往返
+[PASS] 5.2 write_best_effort after close: no raise, log, write raises :: best_effort 不抛且日志含 trace_write_error；write 抛 TraceWriteError（TraceRepository 已关闭，不能访问 trace 数据库...）
+[PASS] 5.2 write_best_effort when parent path is regular file :: 构造不抛；best_effort 不抛且记日志；write 抛 TraceWriteError
+[PASS] 5.2 read/export/purge after close raise TraceWriteError :: close 后 get/list/export/purge 均抛 TraceWriteError: {"get": "TraceWriteError", "list_by_request": "TraceWriteError", "export_jsonl": "TraceWriteError", "purge": "TraceWriteError"}
+[PASS] 5.3 idempotent schema + schema_meta + WAL + dual open :: 两次 close 不抛；tables=['schema_meta', 'spans', 'traces']；meta=mktkb.trace.v0.1；journal_mode=wal；traces 列=41、spans 列=9；双开重开不坏
+[PASS] 5.4 list_by_request multiple attempts + unknown :: attempt 乱序写入后按 1/2/3 全量返回；未知 request=[]；其它 request 不串
+[PASS] 5.5 export_jsonl count/parse/nested/since/chinese :: count=行数=2；json.loads 全通过；嵌套 spans；41 字段+spans；中文原文；since 过滤 1 条（aware+naive）
+[PASS] 5.6 purge age/count/union/no-arg/negative/spans :: 无参数不删/按天数删2/按条数删1/并集删2/负值 ValueError/spans 全清
+[PASS] 5.7 SQL injection parameterization :: 注入字符串作为值原样回环；查询不放大；traces/spans/schema_meta 完好；count=3
+[PASS] 5.7 concurrent threads + repeated open :: 两线程各 5 写入无异常；条数正确；schema 完好；integrity_check=ok
+[PASS] hard-constraint: store imports stdlib only + SQL call-site audit :: imports=['.contracts', '__future__', 'collections', 'dataclasses', 'datetime', 'json', 'logging', 'pathlib', 'sqlite3', 'threading', 'typing', 'uuid']；SQL 调用点 18 个全部为常量/变量（无 f-string/%）；常量 SQL=['"BEGIN IMMEDIATE"', '"BEGIN"', '"DELETE FROM spans WHERE trace_id = ?"', '"DELETE FROM traces WHERE trace_id = ?"', '"INSERT OR IGNORE INTO schema_meta (key, value) ', '"PRAGMA foreign_keys = ON"', '"PRAGMA journal_mode = WAL"', '"PRAGMA synchronous = NORMAL"', '"SELECT * FROM spans ORDER BY rowid ASC"', '"SELECT * FROM spans WHERE trace_id = ? ORDER BY', '"SELECT * FROM traces ORDER BY rowid ASC"', '"SELECT * FROM traces WHERE request_id = ? ORDER', '"SELECT * FROM traces WHERE trace_id = ?"', '"SELECT rowid AS store_rowid, trace_id, created_', '"SELECT value FROM schema_meta WHERE key = ?"']；变量 SQL=['_INSERT_SPAN_SQL', '_INSERT_TRACE_SQL', '_SCHEMA_SQL']
+[PASS] hard-constraint: test file isolation/imports static audit :: imports=['__future__', 'ast', 'dataclasses', 'datetime', 'inspect', 'json', 'logging', 'mktkb', 'pathlib', 'pytest', 'sqlite3', 'threading']；可执行代码无 var/业务库/fixtures/docs/网络/配置痕迹；TraceRepository 参数均溯源到 tmp_path（29 处）；无绝对路径字面量
+[PASS] hard-constraint: no ORM/third-party in store :: 仅 stdlib sqlite3；无 ORM/SQLAlchemy 依赖
+----------------------------------------------------------------------------------------------------
+SUMMARY: 13/13 PASS, 0 FAIL
+
+[exit code: 0]

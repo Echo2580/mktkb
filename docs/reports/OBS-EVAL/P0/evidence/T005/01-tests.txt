@@ -1,0 +1,19 @@
+T005 focused tests (run after final code, before commit)
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_runner.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\runner
+20 passed, 1 warning in 7.82s
+(warning: starlette/httpx deprecation from fastapi.testclient; unrelated)
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp backend\.pytest-tmp\eval-all
+124 passed, 1 warning in 8.09s
+
+Coverage (handoff §5):
+1. three artifacts + both modes/both suites: test_runner.py:130, :156, :266, :288
+2. version binding + identity stability: test_runner.py:187, :203
+3. zero real providers / zero socket / no Settings(.env) instantiation: test_runner.py:226
+4. replay determinism (checks/metrics equal, no index, replay_from required,
+   replayed traces without spans): test_runner.py:266, :288, :328, :341, :373
+5. unit-level closure (real chunk unit_ids + unit_key, forbidden_sources match,
+   OCR excluded, missing unit_ids fail closed, record_code-only fail closed):
+   test_runner.py:468, :498, :514, :389, :589
+6. no new dependencies; conftest/dataset/gold/scorers/observability untouched.

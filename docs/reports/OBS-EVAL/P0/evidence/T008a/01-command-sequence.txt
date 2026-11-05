@@ -1,0 +1,60 @@
+T008a CLI 命令序列与逐条退出码
+================================
+环境：Windows PowerShell；cwd = D:\GPT项目\市场部AI知识库；分支 p0/obs-eval
+会话预算：$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
+HEAD（提交前）：09ea77b（纯簿记；代码基线 08536ed T007 R1）
+Python：.\.venv\Scripts\python.exe -B
+
+[01] git rev-parse --short HEAD
+     -> 09ea77b ; exit=0
+
+[02] .\.venv\Scripts\python.exe -B tools\rag_eval.py --help
+     -> 列出 dataset / run / gate / baseline / diff / export；无 --allow-holdout-details ; exit=0
+
+[03] .\.venv\Scripts\python.exe -B tools\rag_eval.py dataset validate --suite b0 --path fixtures\evaluation\b0.jsonl
+     -> suite=b0 cases=40 dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e
+        sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f
+        strata=exact:24,ocr:8,text:8 ; exit=0
+
+[04] .\.venv\Scripts\python.exe -B tools\rag_eval.py dataset build --b0 fixtures\acceptance\questions.json
+     --badcase docs\evidence\LOCAL-R1-20261101\S1-DEV\questions.json --out %TEMP%\t008a\dataset-build
+     -> b0: cases=40 sha256=bd4f0f7ccc6e... dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e
+        badcase: cases=13 sha256=e5f0662af3f2... dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2
+        （只写 %TEMP%；fixtures/evaluation 无改动） ; exit=0
+
+[05] ... rag_eval.py run --suite b0 --mode local --out var\eval\runs\p0-b0
+     -> run_id=b0-local-20261105T090359232489Z-6e3eb84c suite=b0 mode=local cases=40 ; exit=0
+
+[06] ... rag_eval.py run --suite badcase --mode local --out var\eval\runs\p0-badcase
+     -> run_id=badcase-local-20261105T090409960294Z-f03d4b5f suite=badcase mode=local cases=13 ; exit=0
+
+[07] ... rag_eval.py run --suite b0 --mode replay --from-run var\eval\runs\p0-b0 --out var\eval\runs\p0-b0-replay
+     -> run_id=b0-replay-20261105T090412743897Z-f2388a91 suite=b0 mode=replay cases=40 ; exit=0
+
+[08] ... rag_eval.py gate --run var\eval\runs\p0-b0 --config docs\evaluation\gate_v0_1.json --calibrate
+     -> gate exit_code=3 scored=32/32 hard_failures=[] quality=unknown config_status=unapproved
+        wrote var\eval\runs\p0-b0\gate.json
+        proposal=var\eval\runs\p0-b0\gate_proposal.json status=unapproved ; exit=3
+     -> git status --short -- docs\evaluation\gate_v0_1.json 为空（配置未被改写）
+
+[09] ... rag_eval.py gate --run var\eval\runs\p0-badcase --config docs\evaluation\gate_v0_1.json
+     -> gate exit_code=3 scored=13/13 hard_failures=[] quality=unknown config_status=unapproved ; exit=3
+
+[10] ... rag_eval.py gate --run var\eval\runs\p0-b0-replay --config docs\evaluation\gate_v0_1.json
+     -> gate exit_code=3 scored=32/32 hard_failures=[] quality=unknown config_status=unapproved ; exit=3
+
+[11] 演示用已审批阈值（仅 %TEMP%，由 proposal 实测值派生，不是审批）：
+     ... rag_eval.py gate --run var\eval\runs\p0-b0 --config %TEMP%\t008a\gate-approved-fixture.json
+     -> gate exit_code=0 scored=32/32 hard_failures=[] quality=pass config_status=approved ; exit=0
+     -> 随即用仓库默认配置重跑，gate.json 恢复 exit=3（见 02/04 的 sha256）
+
+[12] 测试：
+     pytest backend/tests/evaluation/test_cli.py -q --basetemp backend\.pytest-tmp\t008a-cli
+     -> 35 passed, 1 warning in 0.38s
+     pytest backend/tests/evaluation -q --basetemp backend\.pytest-tmp\t008a-eval
+     -> 313 passed, 1 warning in 9.70s
+     pytest backend/tests -q --basetemp backend\.pytest-tmp\t008a-full
+     -> 1586 passed, 1 warning in 341.83s (0:05:41)；0 failed / 0 error
+     （T007 基线 1551 + 本包 35 = 1586）
+
+说明：控制台对中文存在代码页显示乱码，但进程输出与测试 capsys 均为 UTF-8；上表退出码为 $LASTEXITCODE 实测。

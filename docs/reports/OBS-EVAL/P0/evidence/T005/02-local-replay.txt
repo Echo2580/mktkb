@@ -1,0 +1,47 @@
+T005 real two-mode run (scratch script, not committed)
+run root: %TEMP%\t005-runs  (var/ is gitignored; nothing committed)
+command: .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T005\two_mode_run.py
+exit: 0
+
+[b0-local]  rows=40  statuses={fail:3, pass:29, skipped_requires_ocr:8}  errors=0
+  dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e  dataset_sha256=bd4f0f7ccc6e...
+  corpus_manifest_sha256=6889915267c5...  business_date=2026-10-28  index_revision=6
+  pipeline_version=735da1397044  gate_version=mktkb.gate.v0.1
+  metrics: Recall@10=0.96875  MRR@10=0.8697916666666666  nDCG@10=0.8954577739955403
+           value_hit=0.90625  source_hit=0.9375  kind_correct=0.96875
+  artifacts:
+    run_manifest.json bytes=876    sha256=6f350ff9e2c56864d932d11c7f9b710824bfc01d5eee1e6cb7b4d1067a974ed8
+    cases.jsonl       bytes=203749 sha256=e44d032e83afdbc27cfcc3fa05ab5f513e79f9da8a665d4fba71006d82070032
+    summary.json      bytes=2470   sha256=c599e527e60842de60e4a0668a5f360bc2450978ae82555a7dca530a12ff6dd2
+
+[b0-replay] rows=40  statuses={fail:3, pass:29, skipped_requires_ocr:8}  errors=0
+  identity copied from source local run; index_revision=6; pipeline_version=735da1397044
+  metrics: Recall@10=0.96875  MRR@10=0.8697916666666666  nDCG@10=0.8954577739955403
+           value_hit=0.90625  source_hit=0.9375  kind_correct=0.96875
+  artifacts:
+    run_manifest.json bytes=976    sha256=fd6e1ed9b4fd82a3a92664fdad15725d2ef90241a9160a27b8d08eaca760e42f
+    cases.jsonl       bytes=204943 sha256=9f8db4da993412affd37f9baec3b10e9f641bc07421c31c0d9bb252477700db5
+    summary.json      bytes=2476   sha256=77f43f2a90d37f2c05874be495c244dc81b3f25e448c8d834729fe3d4e0d9cce
+
+[badcase-local] rows=13  statuses={fail:4, pass:9}  errors=0
+  dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2  dataset_sha256=e5f0662af3f2...
+  corpus_manifest_sha256=5f41b1b811a5...  index_revision=4
+  metrics: Recall@10=0.7679144385026737  MRR@10=0.7166666666666667  nDCG@10=0.6851021519869538
+           value_hit=0.8  source_hit=0.9  kind_correct=0.9230769230769231
+  artifacts:
+    run_manifest.json bytes=913   sha256=257e16d18dae57956d22ee240f14de2c646bfb0fc242eec42c4ca3401f71ed22
+    cases.jsonl       bytes=95640 sha256=c989885b8d0eff63625b01e80b93a58faf5e42702df94fb37fe2d14c99bbe832
+    summary.json      bytes=2406  sha256=c9421102b410b5253075d328fbed82209b2b5176ea431b997457a278f9ebcedb
+
+Consistency checks (script asserts, exit 0):
+- replay vs local: 40/40 rows identical on status + checks + metrics.
+- summary retrieval/answer metrics: local == replay (6 keys: Recall@10, MRR@10, nDCG@10,
+  value_hit, source_hit, kind_correct).
+- badcase declarations: single_turn (N06/N11, multi_turn_verified=false),
+  pagination claimed=false (N05 note-only), range_gold_case_ids=[N05, N09],
+  record_code_only_allowed=false.
+
+Allowed replay/local differences (documented in report):
+- trace_id / previous_trace_id / replayed flag;
+- duration_ms, latency_ms (replay passes trace=None: p50/p95 null; checks/metrics unchanged);
+- cases.jsonl byte size (replay adds previous_trace_id/replayed fields).

@@ -1,0 +1,17 @@
+T005 independent verification: focused and directory tests
+date: 2026-11-05 Asia/Shanghai
+object commit: 80fd092 (p0/T005 runner)
+HEAD at session start: 80fd092
+HEAD at end: b68bb0d (PM bookkeeping only: _index.md + prompts; code identical to 80fd092)
+python: Python 3.12.7, .venv\Scripts\python.exe -B
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_runner.py -q -p no:cacheprovider --basetemp C:\Users\dell1712\AppData\Local\Temp\t005-verify-runner-42f041a8
+20 passed, 1 warning in 9.16s
+
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp C:\Users\dell1712\AppData\Local\Temp\t005-verify-eval-c8f81426
+124 passed, 1 warning in 11.68s
+
+The single warning is the pre-existing fastapi/starlette httpx deprecation, unrelated.
+Dev report claimed 20 passed / 124 passed; independently reproduced (timings vary with host load).
+No test artifact was written inside the repository (basetemp is under %TEMP%).

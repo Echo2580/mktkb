@@ -1,0 +1,112 @@
+T003d §5.11 legacy 契约缺口探针矩阵（解析级早退 reason-aware + 表外 outcome 补行）
+captured_at: 2026-11-05（T003d 收尾；契约修订前后各跑一次）
+baseline: `p0/obs-eval` @ 776497f（T003c 收口）
+command: .\.venv\Scripts\python.exe -B backend\.pytest-tmp\t003d-probes\probe_legacy_matrix.py
+环境: Windows / Python 3.12.7；MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0；Trace 开启、可控模型替身
+（EvidenceEchoGateway），零真实模型/embedding/rerank 调用；只写系统临时目录。
+说明: 探针问题均为合成回归语料（与 handoff §5.11 的复现问题一致），不含任何生产数据。
+
+=== 0. 本次契约修订（`contracts.py`）===
+- `legacy` / `legacy_with_rag_candidates` + `not_found`：
+  reason ∈ {UNKNOWN_IDENTIFIER, IDENTIFIER_NOT_RETRIEVABLE, NO_INTENT, UNRECORDED_FIELD}
+  → {intent_parse, commit}；其余 reason（含缺省）仍 {intent_parse, retrieve, commit}。
+- 新增补充行（实际可达、T001 未定义）：
+  - legacy + conflict → {intent_parse, retrieve, commit}
+  - legacy + knowledge_changed → {intent_parse, retrieve, commit}
+- legacy + no_answer / ambiguous / error 保持未定义（fail closed 抛 ValueError）。
+- 代码: `backend/src/mktkb/observability/contracts.py:76-77,93-96,136-140`；
+  reason 写入: `backend/src/mktkb/conversations/service.py:1462,1741,1925,1935,1950,1958,2071,2190`。
+
+=== 1. 契约修订前（基线缺陷复现）===
+=== A. legacy 解析级早退（plan 分支 + trace outcome/reason/Span）===
+Q='滨江店的负责人是谁？'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=['负责人'] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'commit']
+  validate=['retrieve']
+Q='滨江店宣传海报的负责人是谁？'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=['负责人'] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'commit']
+  validate=['retrieve']
+Q='你好'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=[] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'retrieve', 'query_expansion', 'commit']
+  validate=[]
+Q='。'
+  plan: mode='document' intent=None requested_fields=[] missing_fields=[] unknown_identifier=None identifier=None clarification=True
+  product kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit']
+  validate=[]
+Q='P9999在哪里？'
+  plan: mode='record' intent=None requested_fields=['位置'] missing_fields=[] unknown_identifier=None identifier=None clarification=True
+  product kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit']
+  validate=[]
+
+=== B. legacy conflict（同标识不同位置）===
+product kind='conflict' path='legacy_with_rag_candidates' outcome='conflict' reason=None status='ok'
+  spans=['intent_parse', 'recall', 'exact_recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'retrieve', 'commit']
+  validate=ValueError: 设计 §6.4 未定义 path='legacy_with_rag_candidates' + outcome='conflict' 的必需 Span 契约
+
+=== C. legacy knowledge_changed（检索阶段注入 KnowledgeRevisionChanged）===
+product kind='knowledge_changed' path='legacy_with_rag_candidates' outcome='knowledge_changed' reason='KNOWLEDGE_CHANGED' status='ok'
+  spans=['intent_parse', 'recall', 'exact_recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'retrieve', 'commit']
+  validate=ValueError: 设计 §6.4 未定义 path='legacy_with_rag_candidates' + outcome='knowledge_changed' 的必需 Span 契约
+
+=== D. legacy _answer 的 kind 产出与不可达 outcome 静态核对 ===
+_answer 内 kind= 字面量: ['answer', 'clarification', 'conflict', 'knowledge_changed', 'not_found']
+kind='no_answer' 在 _answer 中: 未出现（不可达）
+kind='ambiguous' 在 _answer 中: 未出现（不可达）
+kind='error' 在 _answer 中: 未出现（不可达）
+RAG→产品映射（_RAG_KIND_MAP）: no_answer→not_found、ambiguous→clarification、error→service_error；legacy 不产生这三个 outcome。
+
+=== 2. 契约修订后（最终状态）===
+=== A. legacy 解析级早退（plan 分支 + trace outcome/reason/Span）===
+Q='滨江店的负责人是谁？'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=['负责人'] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason='UNRECORDED_FIELD' spans=['intent_parse', 'commit']
+  validate=[]
+Q='滨江店宣传海报的负责人是谁？'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=['负责人'] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason='UNRECORDED_FIELD' spans=['intent_parse', 'commit']
+  validate=[]
+Q='你好'
+  plan: mode='document' intent=QueryIntent requested_fields=[] missing_fields=[] unknown_identifier=None identifier=None clarification=False
+  product kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'retrieve', 'query_expansion', 'commit']
+  validate=[]
+Q='。'
+  plan: mode='document' intent=None requested_fields=[] missing_fields=[] unknown_identifier=None identifier=None clarification=True
+  product kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit']
+  validate=[]
+Q='P9999在哪里？'
+  plan: mode='record' intent=None requested_fields=['位置'] missing_fields=[] unknown_identifier=None identifier=None clarification=True
+  product kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit']
+  validate=[]
+
+=== B. legacy conflict（同标识不同位置）===
+product kind='conflict' path='legacy_with_rag_candidates' outcome='conflict' reason='CONFLICTING_VALUES' status='ok'
+  spans=['intent_parse', 'recall', 'exact_recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'retrieve', 'commit']
+  validate=[]
+
+=== C. legacy knowledge_changed（检索阶段注入 KnowledgeRevisionChanged）===
+product kind='knowledge_changed' path='legacy_with_rag_candidates' outcome='knowledge_changed' reason='KNOWLEDGE_CHANGED' status='ok'
+  spans=['intent_parse', 'recall', 'exact_recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'retrieve', 'commit']
+  validate=[]
+
+=== D. legacy _answer 的 kind 产出与不可达 outcome 静态核对 ===
+_answer 内 kind= 字面量: ['answer', 'clarification', 'conflict', 'knowledge_changed', 'not_found']
+kind='no_answer' 在 _answer 中: 未出现（不可达）
+kind='ambiguous' 在 _answer 中: 未出现（不可达）
+kind='error' 在 _answer 中: 未出现（不可达）
+RAG→产品映射（_RAG_KIND_MAP）: no_answer→not_found、ambiguous→clarification、error→service_error；legacy 不产生这三个 outcome。
+
+=== 3. 结论 ===
+- 两条复现问题（滨江店的负责人是谁？/ 滨江店宣传海报的负责人是谁？）都命中
+  “requested_fields=[] 且 missing_fields=['负责人']”的解析级早退：只执行 intent_parse
+  与 commit，reason 修订后为 UNRECORDED_FIELD，validate 由 ['retrieve'] 变为 []。
+- legacy conflict：path=legacy_with_rag_candidates、outcome=conflict、reason=CONFLICTING_VALUES，
+  实测 Span（含 RAG 候选 recall/fuse 等）覆盖补充行 {intent_parse, retrieve, commit}，
+  validate 由 ValueError 变为 []。
+- legacy knowledge_changed（检索阶段 revision 变化）：检索真实执行（异常也留下 retrieve Span），
+  Span 覆盖补充行，validate 由 ValueError 变为 []。
+- 不可达组合：legacy 产品 `_answer` 的 kind 字面量只有
+  {answer, clarification, conflict, knowledge_changed, not_found}；no_answer / ambiguous /
+  error 只存在于 `_RAG_KIND_MAP`（rag → 产品映射），legacy 不产生，故保持 fail closed。
+- 未伪造任何未执行阶段；产品响应字段/业务分支未改（只补 Trace 的 reason 字段）。

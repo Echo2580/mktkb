@@ -1,0 +1,330 @@
+D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+mktkb.__file__ = D:\GPT项目\市场部AI知识库\backend\src\mktkb\__init__.py
+sys.path[0] = D:\GPT项目\市场部AI知识库\backend\src
+PASS P0.导入的是目标仓库源码（非 .venv editable 副本） :: D:\GPT项目\市场部AI知识库\backend\src\mktkb\__init__.py
+
+== P1 默认关闭：零副作用 ==
+PASS P1.settings.trace_enabled 默认 False
+PASS P1.settings.trace_db_path 默认 None
+PASS P1.settings.trace_content_mode 默认 hash
+PASS P1.settings.trace_hmac_key 默认 None
+PASS P1.resolved_trace_db_path 默认 <data_dir>/observability/qa-traces.sqlite3
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+PASS P1.app.state.trace_repo is None
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+PASS P1.login 响应无 X-Trace-ID
+PASS P1.login 响应有 X-Request-ID
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/ff7766cc-d101-4999-ace3-016fd953a158/messages "HTTP/1.1 200 OK"
+PASS P1.QA POST 状态码 200
+PASS P1.QA POST 响应无 X-Trace-ID
+PASS P1.QA POST 有 X-Request-ID
+PASS P1.X-Request-ID 是 UUID 形态
+PASS P1.QA POST body 正常(kind)
+PASS P1.未创建 observability 目录
+PASS P1.未创建 Trace DB 文件
+PASS P1.data 目录下仅业务 DB，无 qa-traces
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/healthz "HTTP/1.1 200 OK"
+PASS P1.GET /healthz 无 X-Trace-ID
+PASS P1.GET /healthz 有 X-Request-ID
+
+== P2 开启后：X-Trace-ID + 落一条 trace ==
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+PASS P2.create_app 创建 trace_repo
+PASS P2.Trace DB 文件在配置路径
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/bc7f53ed-4e4f-4f3b-aed1-927bb6147ca6/messages "HTTP/1.1 200 OK"
+PASS P2.QA POST 状态码 200
+PASS P2.响应有 X-Trace-ID
+PASS P2.X-Trace-ID 为合法 UUID 形态
+PASS P2.响应有 X-Request-ID
+P2.trace fields = {"trace_id": "17044f7a1c5f4394bb9772f2ca938945", "request_id": null, "http_request_id": "1244895f-9be3-4071-8a30-406728520cf5", "mode": "local", "scope": "end_to_end", "path": "rag", "content_mode": "hash", "outcome_kind": null, "status": "incomplete", "replayed": false, "attempt": 1, "question_hash": null, "span_count": 0}
+PASS P2.trace_id 与响应头一致
+PASS P2.http_request_id == X-Request-ID
+PASS P2.mode == local
+PASS P2.scope == end_to_end
+PASS P2.content_mode == hash
+PASS P2.replayed is False
+PASS P2.attempt == 1
+PASS P2.spans 为空（T003b 不埋业务 Span，预期）
+PASS P2.request_id 为 None（T003c/d 前预期边界）
+PASS P2.question_hash 为 None（未 set_question，预期）
+PASS P2.outcome_kind 为 None（未埋 outcome，预期）
+PASS P2.status == incomplete（T003c/d 前预期）
+PASS P2.path 记录值（内核默认）
+PASS P2.恰写 1 行 trace
+PASS P2.记录字段复核(mode/scope/path/status)
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/bc7f53ed-4e4f-4f3b-aed1-927bb6147ca6/messages "HTTP/1.1 200 OK"
+PASS P2.第二次 QA POST 不同 trace_id
+PASS P2.两次 QA POST 共 2 行
+PASS P2.两行 trace_id 集合正确
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+PASS P2b.开启且未显式路径时创建默认 Trace DB
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/08af9f05-ecc9-4e75-83ae-c0848b644563/messages "HTTP/1.1 200 OK"
+PASS P2b.默认路径下 QA POST 200 且有头
+PASS P2b.默认路径库中 1 行
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/900ac5f2-8c37-438a-b7f4-9d3c84c08fa4/messages "HTTP/1.1 200 OK"
+PASS P2c.content_mode=off 配置生效
+PASS P2c.off 模式下 spans 仍空
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/19dac3c4-ab14-472a-be6f-2c58e73a43d4/messages "HTTP/1.1 200 OK"
+PASS P2d.HMAC key 不在响应文本中
+PASS P2d.HMAC key 不在响应头中
+PASS P2d.HMAC key 不在 Trace DB 字节中
+PASS P2d.HMAC key 不在 Trace 记录中
+
+== P3 范围只限 QA POST ==
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+PASS P3.OpenAPI 枚举到 >=20 个 /api/v1 端点方法
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/logout "HTTP/1.1 403 Forbidden"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/documents "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/documents "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/documents/probe-id/versions "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/documents/probe-id "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: DELETE http://testserver/api/v1/documents/probe-id "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/documents/probe-id/versions/probe-id/publish "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/documents/probe-id/versions/probe-id/cancel "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/documents/probe-id/versions/probe-id/preview "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/documents/probe-id/versions/probe-id/file "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/jobs/probe-id "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/jobs/probe-id/retry "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/conversations "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/conversations/probe-id/messages "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: DELETE http://testserver/api/v1/conversations/probe-id "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/messages/probe-id/sources/probe-id "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/messages/probe-id/sources/probe-id/file "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/healthz "HTTP/1.1 200 OK"
+PASS P3.枚举非 QA POST 路由全部无 X-Trace-ID（21 条）
+PASS P3.枚举后 Trace 库 0 行
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/conversations "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/conversations/b513995a-66f4-4dd3-863e-be3e1114f87f/messages "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/documents "HTTP/1.1 202 Accepted"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/logout "HTTP/1.1 204 No Content"
+PASS P3.已登录非 QA 端点无 X-Trace-ID
+PASS P3.已登录非 QA 请求后 Trace 库 0 行
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/probe-id/messages/ "HTTP/1.1 307 Temporary Redirect"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/probe-id/messages/extra "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/conversations/probe-id/messages "HTTP/1.1 401 Unauthorized"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/other/messages "HTTP/1.1 404 Not Found"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/probe-id/messagesx "HTTP/1.1 404 Not Found"
+PASS P3.非精确匹配变体无 X-Trace-ID
+PASS P3.变体请求后 Trace 库 0 行
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/probe-id/messages "HTTP/1.1 401 Unauthorized"
+PASS P3.未登录 QA POST 仍返回 X-Trace-ID（端点级观测的已知行为）
+PASS P3.端点内失败也会写 1 条 incomplete trace（报告 §4.3 偏离属实）
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/b513995a-66f4-4dd3-863e-be3e1114f87f/messages "HTTP/1.1 200 OK"
+PASS P3.正常 QA POST 有 X-Trace-ID
+PASS P3.正常 QA POST 后共 2 行
+
+== P4 写入失败不影响产品 ==
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+WARNING:mktkb.observability.tracer:trace_finish_error: trace_id='2297c6d99cc648e0b4eef9f263b73d44'
+Traceback (most recent call last):
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\tracer.py", line 551, in finish
+    self._repo.write_best_effort(record, spans)
+  File "D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P0\evidence\verify\T003b\probe_independent.py", line 472, in _boom
+    raise RuntimeError("VERIFY-SIMULATED-WRITE-FAILURE")
+RuntimeError: VERIFY-SIMULATED-WRITE-FAILURE
+PASS P4a.写入抛异常时 QA POST 仍 200
+PASS P4a.响应仍有 X-Trace-ID
+PASS P4a.body 正常(kind=not_found)
+PASS P4a.响应不泄漏内部错误
+PASS P4a.日志命中内核兜底 trace_finish_error
+PASS P4a.无半条 trace 落库
+PASS P4b.create_app 在不可写 Trace 路径下不崩溃
+WARNING:mktkb.observability.store:trace_write_error: trace_id='39de23cc664341929183cfd6fe9428e6' request_id=None
+Traceback (most recent call last):
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 387, in _connection
+    self._conn = self._open_connection()
+                 ^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 349, in _open_connection
+    self._path.parent.mkdir(parents=True, exist_ok=True)
+  File "C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py", line 1311, in mkdir
+    os.mkdir(self, mode)
+FileExistsError: [WinError 183] 当文件已存在时，无法创建该文件。: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003b-verify-p4b-7zuahpuu\\blocked-parent'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 206, in write_best_effort
+    self.write(trace, spans)
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 193, in write
+    conn = self._connection()
+           ^^^^^^^^^^^^^^^^^^
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 389, in _connection
+    raise TraceWriteError(f"无法打开 trace 数据库 {self._path}：{exc}") from exc
+mktkb.observability.store.TraceWriteError: 无法打开 trace 数据库 C:\Users\dell1712\AppData\Local\Temp\t003b-verify-p4b-7zuahpuu\blocked-parent\qa-traces.sqlite3：[WinError 183] 当文件已存在时，无法创建该文件。: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003b-verify-p4b-7zuahpuu\\blocked-parent'
+PASS P4b.不可写路径下 QA POST 仍 200
+PASS P4b.响应有 X-Trace-ID
+PASS P4b.body 正常
+PASS P4b.响应不泄漏内部错误
+PASS P4b.仓储日志命中 trace_write_error
+PASS P4b.未创建 Trace DB
+
+== P5 行为不变：off/on body 归一化一致 ==
+P5.off body = {"request_id": "5c7138ba-21fb-4999-904b-18a2204fa1a7", "message_id": "0c1dbdd0-f02f-4745-b952-587774d45cf5", "kind": "not_found", "text": "资料中未找到“城东店”的记录。", "revision": 0, "sources": [], "candidates": [], "conflicts": [], "missing_fields": [], "pagination": null, "error_code": null, "retryable": false}
+P5.on  body = {"request_id": "e9a62ca8-9fd0-4aa0-b3f2-ebdd2df1c4f1", "message_id": "778842d0-f647-4b98-979d-85ee00eff0b9", "kind": "not_found", "text": "资料中未找到“城东店”的记录。", "revision": 0, "sources": [], "candidates": [], "conflicts": [], "missing_fields": [], "pagination": null, "error_code": null, "retryable": false}
+PASS P5.两设置状态码一致且为 200
+PASS P5.off 无 X-Trace-ID
+PASS P5.on 有 X-Trace-ID
+PASS P5.归一化后 body 完全一致
+PASS P5.响应键集合一致
+PASS P5.归一化比较非空（防空比较）
+PASS P5.两边都有既有 X-Request-ID
+
+== P6 配置安全 ==
+PASS P6.默认 trace_enabled=False
+PASS P6.默认 trace_db_path=None
+PASS P6.默认 trace_content_mode=hash
+PASS P6.默认 trace_hmac_key=None
+PASS P6.默认 resolved_trace_db_path
+PASS P6.无 key 时 trace_hmac_key_bytes=None
+PASS P6.仅旧字段构造 Settings 成功且 trace 默认关闭
+PASS P6.trace_content_mode 接受 'off'
+PASS P6.trace_content_mode 接受 'hash'
+PASS P6.trace_content_mode 接受 ' HASH '
+PASS P6.trace_content_mode 接受 'Off'
+PASS P6.trace_content_mode 拒绝 'redacted' 且信息含 off/hash
+PASS P6.trace_content_mode 拒绝 'full' 且信息含 off/hash
+PASS P6.trace_content_mode 拒绝 'sampled' 且信息含 off/hash
+PASS P6.trace_content_mode 拒绝 '' 且信息含 off/hash
+PASS P6.trace_content_mode 拒绝 'live' 且信息含 off/hash
+PASS P6.HMAC key 是 SecretStr
+PASS P6.HMAC key 可显式取原文
+PASS P6.HMAC key bytes 正确
+PASS P6.HMAC key 不出现在 repr/str/JSON
+PASS P6.HMAC key 渲染为掩码
+PASS P6.配置校验异常不回显 HMAC key
+PASS P6.空白 HMAC key 归一 None
+PASS P6.空白 trace_db_path 归一 None 且回落默认
+PASS P6.显式 trace_db_path 优先
+PASS P6.MKTKB_TRACE_ENABLED=1 生效
+PASS P6.MKTKB_TRACE_HMAC_KEY 载入为 SecretStr
+PASS P6.MKTKB_TRACE_HMAC_KEY repr/JSON 不泄漏
+PASS P6.MKTKB_TRACE_DB_PATH 生效
+PASS P6.MKTKB_TRACE_CONTENT_MODE=off 生效
+PASS P6.Settings 无 trace_mode 字段（无 live 配置入口）
+
+== P7 mode 硬约束 ==
+PASS P7.main.py 无 TraceMode.LIVE 文本
+PASS P7.main.py 仅一处 start_trace 调用
+PASS P7.start_trace mode 静态绑定 TraceMode.LOCAL
+PASS P7.main.py AST 无 LIVE 属性引用
+PASS P7.全 src 无 TraceMode.LIVE 使用点（仅契约定义不存在该文本）
+PASS P7.中间件恰好调用 1 次 start_trace
+PASS P7.运行时 mode is TraceMode.LOCAL
+PASS P7.运行时 mode != TraceMode.LIVE
+PASS P7.运行时 mode 字符串为 local
+PASS P7.运行时 scope=end_to_end
+PASS P7.运行时 content_mode=hash
+PASS P7.运行时 repo 为 app.state.trace_repo
+PASS P7.落库记录 mode=local
+
+== P8 零真实网络/模型调用 ==
+PASS P8.socket 守卫下 QA POST 仍 200
+PASS P8.socket 守卫下仍落 1 条 trace
+PASS P8.model_gateway 为 None（无真实模型配置）
+PASS P8.ocr_gateway 为 None（无真实 OCR 配置）
+
+===== SUMMARY =====
+{
+  "python": "3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]",
+  "mktkb_file": "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\__init__.py",
+  "total": 131,
+  "passed": 131,
+  "failed": 0,
+  "failed_items": []
+}
+exit_code=0

@@ -1,0 +1,117 @@
+mutation_root=C:\Users\dell1712\AppData\Local\Temp\t003b-mutation-f4fvqi6g
+copy import mktkb -> C:\Users\dell1712\AppData\Local\Temp\t003b-mutation-f4fvqi6g\backend\src\mktkb\__init__.py
+M0 unmutated copy: 0 ['    from starlette.testclient import TestClient as TestClient  # noqa', '-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html', '20 passed, 1 warning in 9.20s']
+
+===== MUTATION SUMMARY =====
+DETECTED M0-unmutated-copy: rc=0 failed=[] tail=['    from starlette.testclient import TestClient as TestClient  # noqa', '-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html', '20 passed, 1 warning in 9.20s']
+DETECTED M1-default-enabled: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_settings_trace_defaults_are_disabled_and_safe', 'FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id'] tail=['FAILED tests/observability/test_middleware.py::test_settings_trace_defaults_are_disabled_and_safe', 'FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id', '2 failed, 1 warning in 0.80s']
+DETECTED M2-broad-qapath: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace'] tail=['=========================== short test summary info ===========================', 'FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace', '1 failed, 1 warning in 0.85s']
+DETECTED M3-live-mode: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_middleware_passes_local_mode_and_settings_content_mode', 'FAILED tests/observability/test_middleware.py::test_middleware_source_hardcodes_local_mode_never_live'] tail=['FAILED tests/observability/test_middleware.py::test_middleware_passes_local_mode_and_settings_content_mode', 'FAILED tests/observability/test_middleware.py::test_middleware_source_hardcodes_local_mode_never_live', '2 failed, 1 warning in 1.22s']
+DETECTED M4-enabled-noop: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace'] tail=['=========================== short test summary info ===========================', 'FAILED tests/observability/test_middleware.py::test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace', '1 failed, 1 warning in 1.20s']
+DETECTED M5-write-failure-propagates: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_monkeypatched_write_failure_keeps_qa_response'] tail=['=========================== short test summary info ===========================', 'FAILED tests/observability/test_middleware.py::test_monkeypatched_write_failure_keeps_qa_response', '1 failed, 1 warning in 1.22s']
+DETECTED M6-header-all-paths: rc=1 failed=['FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id', 'FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace'] tail=['FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id', 'FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace', '2 failed, 1 warning in 1.81s']
+[
+ {
+  "mutation": "M0-unmutated-copy",
+  "tag": "baseline",
+  "returncode": 0,
+  "failed": [],
+  "errors": [],
+  "tail": [
+   "    from starlette.testclient import TestClient as TestClient  # noqa",
+   "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+   "20 passed, 1 warning in 9.20s"
+  ]
+ },
+ {
+  "mutation": "M1-default-enabled",
+  "tag": "M1",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_settings_trace_defaults_are_disabled_and_safe",
+   "FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id"
+  ],
+  "errors": [],
+  "tail": [
+   "FAILED tests/observability/test_middleware.py::test_settings_trace_defaults_are_disabled_and_safe",
+   "FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id",
+   "2 failed, 1 warning in 0.80s"
+  ]
+ },
+ {
+  "mutation": "M2-broad-qapath",
+  "tag": "M2",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace"
+  ],
+  "errors": [],
+  "tail": [
+   "=========================== short test summary info ===========================",
+   "FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace",
+   "1 failed, 1 warning in 0.85s"
+  ]
+ },
+ {
+  "mutation": "M3-live-mode",
+  "tag": "M3",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_middleware_passes_local_mode_and_settings_content_mode",
+   "FAILED tests/observability/test_middleware.py::test_middleware_source_hardcodes_local_mode_never_live"
+  ],
+  "errors": [],
+  "tail": [
+   "FAILED tests/observability/test_middleware.py::test_middleware_passes_local_mode_and_settings_content_mode",
+   "FAILED tests/observability/test_middleware.py::test_middleware_source_hardcodes_local_mode_never_live",
+   "2 failed, 1 warning in 1.22s"
+  ]
+ },
+ {
+  "mutation": "M4-enabled-noop",
+  "tag": "M4",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace"
+  ],
+  "errors": [],
+  "tail": [
+   "=========================== short test summary info ===========================",
+   "FAILED tests/observability/test_middleware.py::test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace",
+   "1 failed, 1 warning in 1.20s"
+  ]
+ },
+ {
+  "mutation": "M5-write-failure-propagates",
+  "tag": "M5",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_monkeypatched_write_failure_keeps_qa_response"
+  ],
+  "errors": [
+   "ERROR    mktkb.errors:errors.py:366 unhandled_error type=RuntimeError request_id=b0fe15a5-927a-48a4-ab31-a14ddc6e9593"
+  ],
+  "tail": [
+   "=========================== short test summary info ===========================",
+   "FAILED tests/observability/test_middleware.py::test_monkeypatched_write_failure_keeps_qa_response",
+   "1 failed, 1 warning in 1.22s"
+  ]
+ },
+ {
+  "mutation": "M6-header-all-paths",
+  "tag": "M6",
+  "returncode": 1,
+  "failed": [
+   "FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id",
+   "FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace"
+  ],
+  "errors": [],
+  "tail": [
+   "FAILED tests/observability/test_middleware.py::test_disabled_app_has_no_trace_repo_or_db_file_and_keeps_request_id",
+   "FAILED tests/observability/test_middleware.py::test_only_qa_post_gets_trace_header_and_writes_trace",
+   "2 failed, 1 warning in 1.81s"
+  ]
+ }
+]
+mutation_probe_result=PASS
+exit_code=0

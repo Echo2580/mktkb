@@ -1,0 +1,56 @@
+===== sha256 of committed T002 evidence files =====
+d18fb69c5a3b62f09a4c640a9efe13b49726f5bab01e181a41129f78b36b9e1a  00-git-rev-parse.txt
+4fa871c5a6f5680d76068fdcb485db8d5078f4dda0a4c50f97662f254d171df8  01-pytest-red.txt
+f4381ae2d2b07d762e70bb4076d620c0d8c448ea26dcf3cf7802ac463d7fcb8c  02-pytest-store.txt
+23c2b0f43589d59de930e7bbfa3b733472c15a81719381909df5ac4ae159ad0c  03-pytest-observability.txt
+e8b2978e315fa51ace1df4ee8108d7698b62aab0f25d86a839215d708807dc33  04-pytest-full.txt
+15c32c4f935c635dc13263b48f26805871f5d9c4d172697c128e7c3ef0b16bae  05-git-show-stat.txt
+f8800618b79b4613df7fc2b89b4f63f661c79e94c5aa6e8d60568bb753c75a63  06-deliverable-sha256.txt
+
+===== 06-listed entries matched against actual files =====
+MATCH  backend/src/mktkb/observability/store.py
+MATCH  backend/tests/observability/test_store.py
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/00-git-rev-parse.txt
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/01-pytest-red.txt
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/02-pytest-store.txt
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/03-pytest-observability.txt
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/04-pytest-full.txt
+MATCH  docs/reports/OBS-EVAL/P0/evidence/T002/05-git-show-stat.txt
+
+===== commit stat of final HEAD vs evidence 05 (pre-amend C1') =====
+final HEAD stat:
+2ac976f p0/T002 sqlite trace repository
+ .claude/handoffs/T002-trace-store/report.md        | 132 +++++
+ backend/src/mktkb/observability/store.py           | 464 +++++++++++++++
+ backend/tests/observability/test_store.py          | 630 +++++++++++++++++++++
+ .../OBS-EVAL/P0/evidence/T002/00-git-rev-parse.txt |   1 +
+ .../OBS-EVAL/P0/evidence/T002/01-pytest-red.txt    |  22 +
+ .../OBS-EVAL/P0/evidence/T002/02-pytest-store.txt  |   8 +
+ .../P0/evidence/T002/03-pytest-observability.txt   |   9 +
+ .../OBS-EVAL/P0/evidence/T002/04-pytest-full.txt   |  23 +
+ .../OBS-EVAL/P0/evidence/T002/05-git-show-stat.txt |  10 +
+ .../P0/evidence/T002/06-deliverable-sha256.txt     |   8 +
+ 10 files changed, 1307 insertions(+)
+evidence 05 records C1' (pre-amend): b3e5337 p0/T002 sqlite trace repository
+
+===== protected paths after verification runs (empty means clean) =====
+protected-status-lines: 0
+
+backend/.pytest-tmp ignored: True
+verify evidence dir tracked? False
+working tree status:
+ M .claude/handoffs/_index.md
+?? .claude/handoffs/2026-11-04-p1-design.md
+?? .claude/handoffs/2026-11-04-p1-task-breakdown.md
+?? .claude/handoffs/T001-obs-contracts/handoff.md
+?? .claude/handoffs/T001-obs-contracts/review.md
+?? .claude/handoffs/T002-trace-store/handoff.md
+?? .claude/handoffs/prompts/T001-dev-done.md
+?? .claude/handoffs/prompts/T001-dev.md
+?? .claude/handoffs/prompts/T001-verify-done.md
+?? .claude/handoffs/prompts/T001-verify.md
+?? .claude/handoffs/prompts/T002-dev-done.md
+?? .claude/handoffs/prompts/T002-dev.md
+?? .claude/handoffs/prompts/T002-verify-done.md
+?? .claude/handoffs/prompts/T002-verify.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/

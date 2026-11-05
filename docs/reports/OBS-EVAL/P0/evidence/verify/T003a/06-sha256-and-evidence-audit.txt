@@ -1,0 +1,43 @@
+# 独立验收：交付物 SHA-256 与 dev 证据 00-06 哈希核对
+
+### 交付物 SHA-256（Get-FileHash，与 dev 证据 06 对照）
+98c0953321035c91eebb5a24ef285c1554e1d10f191844ae39bd1cc945c313c4  backend/src/mktkb/observability/tracer.py
+f04c1b53bafccbbe50dfb05f72e63e91cff09143150918e3c5713d24e1a639c3  backend/src/mktkb/observability/contracts.py
+ba642d169490ef737300511f93cb697cf66db2c9535c4c7c0641b36f5ff0f870  backend/src/mktkb/observability/__init__.py
+62d8dd95084a0ca3e3ee95464a413be152cc9ce518afeb284b5b75b9c45e539e  backend/tests/observability/test_tracer.py
+
+### dev 证据 00-06 的文件 SHA-256（与 dev 证据 06 中的自述值对照）
+490e35c5cac38298a5e282705a402cc36e95dbe4664df1c2cfc700361ae357d5  docs/reports/OBS-EVAL/P0/evidence/T003a/00-git-rev-parse.txt
+185ace27fc2c37e7d75261eef126ce09c47e5fc452f407cb0758a39a0b8e4ae1  docs/reports/OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt
+2d0c761bef7154051f3a55e0e56eea03f13a2b565bb27be06a729124b3df35e6  docs/reports/OBS-EVAL/P0/evidence/T003a/02-pytest-tracer.txt
+649d9a07f6ec0618eb26951c1793a08bca2618850ebdeaddb8dc3b7a95f35133  docs/reports/OBS-EVAL/P0/evidence/T003a/03-pytest-observability.txt
+2b9a4079098d20bb990691a75d642c28390e6f5579af6d7c3bef95ee2f1e41af  docs/reports/OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt
+31dd1115885717c3ad9794bd87b0c4523d1145a51583ef9c21f1542d9c7348d3  docs/reports/OBS-EVAL/P0/evidence/T003a/05-git-show-stat.txt
+a853f08de83c792dfb8b75d60a87864ed207aacadd6a98fd6c09e70fe6f2c709  docs/reports/OBS-EVAL/P0/evidence/T003a/06-deliverable-sha256.txt
+
+### dev 证据 06 原文
+98c0953321035c91eebb5a24ef285c1554e1d10f191844ae39bd1cc945c313c4  backend/src/mktkb/observability/tracer.py
+f04c1b53bafccbbe50dfb05f72e63e91cff09143150918e3c5713d24e1a639c3  backend/src/mktkb/observability/contracts.py
+ba642d169490ef737300511f93cb697cf66db2c9535c4c7c0641b36f5ff0f870  backend/src/mktkb/observability/__init__.py
+62d8dd95084a0ca3e3ee95464a413be152cc9ce518afeb284b5b75b9c45e539e  backend/tests/observability/test_tracer.py
+490e35c5cac38298a5e282705a402cc36e95dbe4664df1c2cfc700361ae357d5  docs/reports/OBS-EVAL/P0/evidence/T003a/00-git-rev-parse.txt
+185ace27fc2c37e7d75261eef126ce09c47e5fc452f407cb0758a39a0b8e4ae1  docs/reports/OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt
+2d0c761bef7154051f3a55e0e56eea03f13a2b565bb27be06a729124b3df35e6  docs/reports/OBS-EVAL/P0/evidence/T003a/02-pytest-tracer.txt
+649d9a07f6ec0618eb26951c1793a08bca2618850ebdeaddb8dc3b7a95f35133  docs/reports/OBS-EVAL/P0/evidence/T003a/03-pytest-observability.txt
+2b9a4079098d20bb990691a75d642c28390e6f5579af6d7c3bef95ee2f1e41af  docs/reports/OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt
+31dd1115885717c3ad9794bd87b0c4523d1145a51583ef9c21f1542d9c7348d3  docs/reports/OBS-EVAL/P0/evidence/T003a/05-git-show-stat.txt
+
+### dev 证据 05 原文（注意：其记录的是 amend 前 C1'=826aa33 / 9 files，而非最终 HEAD dea4d5d / 12 files）
+826aa33 p0/T003a tracer core
+ backend/src/mktkb/observability/__init__.py        |    7 +
+ backend/src/mktkb/observability/contracts.py       |   50 +
+ backend/src/mktkb/observability/tracer.py          |  760 ++++++++++++
+ backend/tests/observability/test_tracer.py         | 1224 ++++++++++++++++++++
+ .../P0/evidence/T003a/00-git-rev-parse.txt         |    3 +
+ .../OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt   |   24 +
+ .../P0/evidence/T003a/02-pytest-tracer.txt         |   10 +
+ .../P0/evidence/T003a/03-pytest-observability.txt  |   12 +
+ .../OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt  |   26 +
+ 9 files changed, 2116 insertions(+)
+
+exit_code=0

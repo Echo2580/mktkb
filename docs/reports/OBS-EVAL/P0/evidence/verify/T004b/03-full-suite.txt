@@ -1,0 +1,57 @@
+commit=9d52b7c
+target=f126598
+parent=71756f5
+branch=p0/obs-eval
+--- git show --name-status f126598 ---
+A	.claude/handoffs/T004b-scorer/report.md
+A	backend/src/mktkb/evaluation/scorers.py
+A	backend/tests/evaluation/test_scorers.py
+A	docs/reports/OBS-EVAL/P0/evidence/T004b/00-baseline.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004b/01-scorers.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004b/02-evaluation-dir.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004b/03-full-suite.txt
+--- git diff --stat f126598 9d52b7c -- backend ---
+
+--- git diff --stat 71756f5 f126598 ---
+ .claude/handoffs/T004b-scorer/report.md            |   68 ++
+ backend/src/mktkb/evaluation/scorers.py            | 1176 ++++++++++++++++++++
+ backend/tests/evaluation/test_scorers.py           |  956 ++++++++++++++++
+ .../OBS-EVAL/P0/evidence/T004b/00-baseline.txt     |    9 +
+ .../OBS-EVAL/P0/evidence/T004b/01-scorers.txt      |   36 +
+ .../P0/evidence/T004b/02-evaluation-dir.txt        |   10 +
+ .../OBS-EVAL/P0/evidence/T004b/03-full-suite.txt   |   28 +
+ 7 files changed, 2283 insertions(+)
+
+T004b reviewer evidence 03: full backend/tests (one run) + commit boundary
+captured_at: 2026-11-05 (Asia/Shanghai)
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+command: .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t004b-full
+
+exit=0
+........................................................................ [  5%]
+........................................................................ [ 10%]
+........................................................................ [ 15%]
+........................................................................ [ 20%]
+........................................................................ [ 26%]
+........................................................................ [ 31%]
+........................................................................ [ 36%]
+........................................................................ [ 41%]
+........................................................................ [ 47%]
+........................................................................ [ 52%]
+........................................................................ [ 57%]
+........................................................................ [ 62%]
+........................................................................ [ 67%]
+........................................................................ [ 73%]
+........................................................................ [ 78%]
+........................................................................ [ 83%]
+........................................................................ [ 88%]
+........................................................................ [ 94%]
+........................................................................ [ 99%]
+.........                                                                [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1377 passed, 1 warning in 655.26s (0:10:55)

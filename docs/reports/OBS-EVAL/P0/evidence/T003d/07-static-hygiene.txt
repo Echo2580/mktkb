@@ -1,0 +1,29 @@
+T003d 静态边界与卫生检查（提交前，§5.11 收尾后重采）
+captured_at: 2026-11-05T08:33:17.6194996+08:00
+--- changed/untracked files (本包相关路径) ---
+ M backend/src/mktkb/conversations/service.py
+ M backend/src/mktkb/observability/contracts.py
+ M backend/src/mktkb/qa/service.py
+ M backend/tests/observability/conftest.py
+ M backend/tests/observability/test_contracts.py
+ M backend/tests/observability/test_middleware.py
+ M backend/tests/observability/test_rag_spans.py
+ M docs/evaluation/trace_schema_v0_1.md
+?? .claude/handoffs/T003d-paths/
+?? backend/tests/observability/test_paths_e2e.py
+?? docs/reports/OBS-EVAL/P0/evidence/T003d/
+--- forbidden paths changed? (expect empty) ---
+(empty)
+--- new tests collected per file ---
+106 tests collected in 0.22s
+--- prod diff stat (only allowed 3 files) ---
+ backend/src/mktkb/conversations/service.py   | 212 ++++++++++++++++++++-------
+ backend/src/mktkb/observability/contracts.py |  52 ++++++-
+ backend/src/mktkb/qa/service.py              |  27 +++-
+ 3 files changed, 233 insertions(+), 58 deletions(-)
+--- no new dependency (pyproject diff, expect empty) ---
+(empty)
+--- credential-shape scan on changed files (expect no matches) ---
+(no matches)
+--- .env reads in changed production files (expect empty) ---
+(empty)

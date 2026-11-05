@@ -1,0 +1,59 @@
+T008a 独立验收：测试、提交边界与仓库状态
+==========================================
+环境：HEAD f2c0209；Python .\.venv\Scripts\python.exe -B；MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0；
+      测试 basetemp 全部在 %TEMP%\t008a-verify，串行执行，未并发跑测试。
+
+一、测试（交付测试 + 全量）
+---------------------------
+[T01] pytest backend\tests\evaluation\test_cli.py -q -p no:cacheprovider
+      -> 35 passed, 1 warning in 0.38s（进程 exit 0）
+[T02] pytest backend\tests\evaluation -q -p no:cacheprovider
+      -> 313 passed, 1 warning in 10.77s（进程 exit 0）
+[T03] pytest backend\tests -q -p no:cacheprovider
+      -> 1586 passed, 1 warning in 433.43s（0 failed / 0 error；进程 exit 0）
+      -> 与 T007 基线 1551 + 本包 35 = 1586 一致；已知 flake test_g08_short_budget_cancels_inflight_model_call 本轮未命中。
+      注：T03 是本次唯一一次全量；耗时 7:13 属机器负载波动，不影响结果。
+
+二、零真实调用 / 未读 .env
+--------------------------
+- local 由 runner 强制 provider_mode="offline"（backend/src/mktkb/evaluation/runner.py:305-309），
+  replay 只读 cases.jsonl；gate/diff/export 只读本地产物。
+- CLI 源码无 dotenv/.env 读取；本次所有命令均未设置真实 API/OCR/embedding/rerank 凭据。
+- 全量测试包含既有 provider spy/socket guard 用例并通过；未额外做网络抓包。
+
+三、提交边界与配置不可变
+------------------------
+[T04] git show --name-status f2c0209：仅 8 个新增文件，全部在 handoff §2 允许路径内：
+      .claude/handoffs/T008a-cli/report.md
+      backend/src/mktkb/evaluation/cli.py
+      backend/tests/evaluation/test_cli.py
+      docs/reports/OBS-EVAL/P0/evidence/T008a/01-command-sequence.txt
+      docs/reports/OBS-EVAL/P0/evidence/T008a/02-full-flow-artifacts.txt
+      docs/reports/OBS-EVAL/P0/evidence/T008a/03-sensitive-and-baseline.txt
+      docs/reports/OBS-EVAL/P0/evidence/T008a/04-report-export-tests.txt
+      tools/rag_eval.py
+[T05] docs/evaluation/gate_v0_1.json：
+      worktree blob = parent blob = f2c0209 blob = cfbbe0a0b55a1c782f55b23f3ec9cde35a39a645；
+      status=unapproved；quality_layer.status=unapproved；15 metrics 的 min_sample/absolute_min/
+      absolute_max/max_regression_pp 全为 null。未改配置。
+[T06] var/eval/** 均被 .gitignore 的 var/ 忽略；f2c0209 未包含任何 var/eval 文件。
+      仓库既有 p0-b0 gate.json sha256=E30572...、gate_proposal.json sha256=C85B50... 与
+      T008a 开发证据一致，本次验收未改动（全部操作在 %TEMP%）。
+[T07] 交付报告 70 行（≤80）；证据 4 份（§2 允许 ≤4）；未新增依赖/未改既有 evaluation 模块。
+      本次验收只新增 review.md 与本目录 3 份证据；命令产物均在 %TEMP%。
+
+四、发现的文档偏差（不阻断）
+----------------------------
+[D01] report.md 第 17/46 行称 gate_proposal.json “45 行”；实际文件 887 行、45 条 metric 行。
+      语义结论（status=unapproved、只写提案、不改配置）不受影响；建议 T008b 引用时写“45 条 metric 行”。
+[D02] report.md 第 54 行称“真实 live 由 evaluate_gate 内部拒绝”；实际 CLI 在 load_run_result 的
+      RunManifest.from_dict 阶段即以 exit 3 拒绝，未触达 evaluate_gate 的 live→4 分支（见 01 [V17]）。
+      不影响 P0（CLI 本就不允许 live），但 T008b 不应声称 exit 4 已端到端覆盖。
+
+五、其他观察
+------------
+- 验收期间仓库出现未跟踪文件 .claude/handoffs/prompts/T008b-dev.md（非本次验收创建）；
+  工作树跟踪文件相对 f2c0209 无改动，代码基线未漂移。
+- diff 在 gate=0 且 baseline 未审批时 exit 0（release_allowed=False、blocked=baseline_unapproved）；
+  export 成功即 exit 0（即使 gate=3）。二者均为已说明的报告层语义，T008b 引用时需区分
+  “命令成功/退出码”与“发布放行资格”。

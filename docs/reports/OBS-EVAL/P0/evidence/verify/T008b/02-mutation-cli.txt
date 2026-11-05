@@ -1,0 +1,42 @@
+T008b 独立验收 · 仓库外变异与 CLI 边界
+=====================================
+日期：2026-11-05；对象 2f7b174。
+隔离方式：git worktree add --detach %TEMP%\t008b-wt-<id> 2f7b174；主仓库 tracked 文件未改。
+变异测试使用主仓库 .venv 的 python，cwd=worktree，basetemp 在 %TEMP%。
+
+M1：去掉 `X-Trace-ID` 响应头（worktree backend/src/mktkb/main.py:147）
+  原 sha256 = a0473f7c734f282bd7b9b4ea9cedfd639db3975f99e31d60495474e680e77800
+  变异后运行：pytest backend/tests/evaluation/test_p0_acceptance.py -q -k "01 or 02"
+  -> 2 failed, 5 deselected, 1 warning in 2.40s（exit 1）
+     FAILED test_acceptance_01_business_behavior_unchanged
+     FAILED test_acceptance_02_trace_id_is_queryable_end_to_end
+     （#2 在 response.headers["X-Trace-ID"] 处 KeyError）
+  还原后 sha256 = a0473f7c734f282bd7b9b4ea9cedfd639db3975f99e31d60495474e680e77800
+  git -C worktree status --porcelain 为空。
+  注：开发证据 01 §C 记录的 main.py 原 sha 与本次一致。
+
+M2：让 gate 不再上报 forbidden_source_citation（worktree backend/src/mktkb/evaluation/gate.py:1229）
+  将 `if verdict == "matched":` 改为 `if False:`（仅此一处）。
+  原 sha256 = c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5
+  变异后运行：pytest backend/tests/evaluation/test_p0_acceptance.py -q -k "06"
+  -> 1 failed, 6 deselected, 1 warning in 1.77s（exit 1）
+     FAILED test_acceptance_06_hard_gate_failure_returns_nonzero_exit
+     实际 captured stdout：gate exit_code=3（期望 1），hard_failures=[]，
+     quality=unknown config_status=unapproved -> 证明缺失 security_leak 上报会被测试捕获。
+  还原后 sha256 = c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5
+  git -C worktree status --porcelain 为空。
+  注：开发证据 01 §D 记录的 gate.py 原 sha 与本次一致。
+
+清理：git worktree remove --force；git worktree prune；主仓库 git status --porcelain 为空。
+
+CLI 边界冒烟（主仓库，产物仅在 %TEMP%\t008b-verify-cli-<id>，零真实调用）
+  01 run --suite b0 --mode local                         -> exit 0（40 cases）
+  02 gate --run <b0>（默认配置）                         -> exit 3；scored=32/32；
+     hard_failures=[]；quality=unknown；config_status=unapproved（gate.json 实测）
+  03 diff --run <b0> --root <empty baselines>            -> exit 3（baseline 未建立，待 T009）
+  04 export --run <b0> --root <empty baselines>          -> exit 3（同上）
+  05 baseline approve ...（默认配置）                    -> exit 3（现场重算拒绝；无 approval.json）
+  06 baseline list --root <empty baselines>              -> exit 0（0 条）
+  07 run --suite b0 --mode live                          -> exit 2（argparse invalid choice）
+  08 run --suite b0 --allow-holdout-details              -> exit 2（unrecognized arguments）
+结论：p0-report §2 的默认门禁路径、live 拒绝与无 holdout 开关可独立复现。

@@ -1,0 +1,62 @@
+# 独立验收：提交边界（HEAD=dea4d5d / parent=2ac976f / branch p0/obs-eval）
+
+### git rev-parse HEAD / --short / dea4d5d^ / branch --show-current
+dea4d5d7e94b1b20c409d9d35a20bd2567c976fe
+dea4d5d
+2ac976fef54035f52e133e3ca0691166ec1e996e
+p0/obs-eval
+
+### git show --name-status dea4d5d
+commit dea4d5d7e94b1b20c409d9d35a20bd2567c976fe
+Author: Echo2580 <zhaot2580@gmail.com>
+Date:   Wed Nov 4 23:52:00 2026 +0800
+
+    p0/T003a tracer core
+
+A	.claude/handoffs/T003a-tracer/report.md
+M	backend/src/mktkb/observability/__init__.py
+M	backend/src/mktkb/observability/contracts.py
+A	backend/src/mktkb/observability/tracer.py
+A	backend/tests/observability/test_tracer.py
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/00-git-rev-parse.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/02-pytest-tracer.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/03-pytest-observability.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/05-git-show-stat.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003a/06-deliverable-sha256.txt
+
+### git show --stat --oneline HEAD
+dea4d5d p0/T003a tracer core
+ .claude/handoffs/T003a-tracer/report.md            |  135 +++
+ backend/src/mktkb/observability/__init__.py        |    7 +
+ backend/src/mktkb/observability/contracts.py       |   50 +
+ backend/src/mktkb/observability/tracer.py          |  760 ++++++++++++
+ backend/tests/observability/test_tracer.py         | 1224 ++++++++++++++++++++
+ .../P0/evidence/T003a/00-git-rev-parse.txt         |    3 +
+ .../OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt   |   24 +
+ .../P0/evidence/T003a/02-pytest-tracer.txt         |   10 +
+ .../P0/evidence/T003a/03-pytest-observability.txt  |   12 +
+ .../OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt  |   26 +
+ .../P0/evidence/T003a/05-git-show-stat.txt         |   13 +
+ .../P0/evidence/T003a/06-deliverable-sha256.txt    |   10 +
+ 12 files changed, 2274 insertions(+)
+
+### git diff --name-status 2ac976f..dea4d5d -- <protected paths>
+A	backend/tests/observability/test_tracer.py
+
+### git diff --diff-filter=D --name-only 2ac976f..dea4d5d （应为空）
+
+### git diff --numstat 2ac976f..dea4d5d
+135	0	.claude/handoffs/T003a-tracer/report.md
+7	0	backend/src/mktkb/observability/__init__.py
+50	0	backend/src/mktkb/observability/contracts.py
+760	0	backend/src/mktkb/observability/tracer.py
+1224	0	backend/tests/observability/test_tracer.py
+3	0	docs/reports/OBS-EVAL/P0/evidence/T003a/00-git-rev-parse.txt
+24	0	docs/reports/OBS-EVAL/P0/evidence/T003a/01-pytest-red.txt
+10	0	docs/reports/OBS-EVAL/P0/evidence/T003a/02-pytest-tracer.txt
+12	0	docs/reports/OBS-EVAL/P0/evidence/T003a/03-pytest-observability.txt
+26	0	docs/reports/OBS-EVAL/P0/evidence/T003a/04-pytest-full.txt
+13	0	docs/reports/OBS-EVAL/P0/evidence/T003a/05-git-show-stat.txt
+10	0	docs/reports/OBS-EVAL/P0/evidence/T003a/06-deliverable-sha256.txt

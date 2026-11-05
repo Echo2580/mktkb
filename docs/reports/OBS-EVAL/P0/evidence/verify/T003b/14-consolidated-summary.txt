@@ -1,0 +1,46 @@
+﻿=== T003b independent verification - consolidated summary ===
+commit: d41d19fde15684b67c7c2034cb7b8ddda634f0e9 (p0/obs-eval), parent dea4d5d, main baseline 8e44158
+verifier: verify-t003b (independent, no shared context with developer)
+date: 2026-11-05 01:12-01:55 Asia/Shanghai
+
+VERDICTS
+  handoff 5.1 default-off zero side effects ............ PASS (independent probe P1 + 13c)
+  handoff 5.2 enabled -> UUID header + trace row ....... PASS (with T003c/d boundary note: request_id None, path rag default, status incomplete)
+  handoff 5.3 scope limited to QA POST ................. PASS (21 non-QA endpoints enumerated; endpoint-internal 401/422 still traced - documented)
+  handoff 5.4 write failure does not affect product ... PASS (P4a kernel trace_finish_error; P4b store trace_write_error; no leak, no half row)
+  handoff 5.5 behavior unchanged ....................... PASS (normalized bodies identical; scope suite 239 passed; full rerun green)
+  handoff 5.6 never pass TraceMode.LIVE ................ PASS (static AST + runtime spy; no LIVE usage anywhere in src)
+  handoff 5.7 config safety ............................ PASS (defaults/off-hash whitelist/SecretStr/no key leak/no trace_mode field)
+  handoff 5.8 full suite no new failures ............... PASS (clean rerun 1196 passed; baseline collect 1176; one pre-existing timing flake in first run, rerun+isolated green)
+  commit boundary (handoff section 2 allowlist) ....... PASS (12 files, no forbidden paths, no deletions, 1 commit since baseline)
+  hard constraints (no deps/zero real calls/no .env/API struct) ... PASS
+
+RERUNS (this verifier)
+  test_middleware.py .................... 20 passed (01)
+  observability+chat+answer_commit ..... 239 passed (02)
+  full suite first run ................. 1 failed / 1195 passed (03) -> failure: test_g08_short_budget_cancels_inflight_model_call (calls==0, timing flake, test file unchanged)
+  full suite clean rerun ............... 1196 passed / 0 failed (03b)
+  flaky test isolated 3 reruns ......... 3/3 passed (08)
+  baseline dea4d5d collect-only ........ 1176 tests (09)
+
+INDEPENDENT PROBES
+  probe_independent.py ........................ 131 PASS / 0 FAIL (05)
+  mutation probes (outside repo copy) ......... 6/6 DETECTED + M0 20 passed (06)
+  OpenAPI baseline vs target .................. byte-identical (07)
+
+KEY SOURCE LINES
+  config.py:116,119,121,125 (defaults), 169-207 (validators), 335-355 (resolved path/hmac bytes)
+  main.py:31-38 (mode/scope/path regex), 99-101 (repo only when enabled), 115-116 (lifespan close),
+           125 (app.state.trace_repo), 129-152 (middleware; 135 gate, 136-143 start_trace, 147 X-Trace-ID)
+  tests: test_middleware.py:138,150,183,192,223,237,265,284,305,353,375,409,446,485,494,507,522,531,541,555
+
+NON-BLOCKING FINDINGS
+  1) path defaults to TracePath.RAG (tracer default) before T003c/d set_path -> data semantics risk (reported)
+  2) QA POST 401/422 also writes incomplete trace -> documented endpoint-level tradeoff (reproduced 13b)
+  3) first full run flaked on pre-existing timing-sensitive test (unchanged by this commit); clean rerun green
+  4) report amend chain under-described (actual 3 amends: 20f0105 -> 0616492 -> 5ce6999 -> d41d19f)
+  5) dev tests miss hmac_key pass-through / default-path-enabled / initialize=False cases (verifier probed green)
+  6) RED evidence has 18 test cases vs final 20 (2 tests added after RED)
+
+WORKTREE: verifier did not modify tracked files, did not commit/push; only review.md + evidence/verify/T003b/ created.
+RESULT: PASS -> ready for human review gate.

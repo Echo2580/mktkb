@@ -1,0 +1,56 @@
+# CMD: D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B C:\Users\dell1712\AppData\Local\Temp\t003a-verify\edge_observations.py
+== 1. replayed 优先级 vs incomplete（§5.4 与设计 §6.1 的边界） ==
+replayed=True, 未设置 outcome -> status='replayed' outcome=None path='rag'
+replayed=True, path=None, 未设置 outcome -> status='replayed'
+
+== 2. mode=live 是否被内核拒绝（设计 §9：P0 不得用 live） ==
+start_trace(mode='live') 被接受 -> record.mode='live'
+
+== 3. annotate 可覆盖 start_trace 参数字段（mode/replayed/outcome_kind/path/scope） ==
+after annotate: mode='live' replayed=True path='legacy' outcome_kind='answer' scope='retrieval_only' status='replayed'
+
+== 4. 线程池/子线程是否继承当前 trace（contextvars 不跨线程传播） ==
+子线程 current_trace() = None
+
+== 5. validate_required_spans 对非法 JSON 文本的容忍度（fail-open?） ==
+filter_decisions_json='{not-json' -> missing=[]（条件属性无法读取，被忽略）
+retrieval_counts_json='{not-json' -> missing=[]（条件属性无法读取，被忽略）
+
+== 6. Span 属性不可序列化时的兜底（报告已列为风险） ==
+attributes_json=None status='ok'
+
+== 7. 空 question 字符串是否视为“未设置” ==
+question='' -> question_hash=None question_chars=None
+
+== 8. 非法 filter_decisions_json 是否在 annotate 处 fail closed ==
+annotate 立即 fail closed：ValueError: filter_decisions_json 必须是 JSON object 文本或 dict
+write calls=1
+
+== 9. current_trace() 返回上下文中的同一对象 ==
+current_trace() is trace: True
+
+EDGE-OBSERVATIONS-DONE
+
+[stderr]
+trace_span_attributes_error: span='bad'
+Traceback (most recent call last):
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\tracer.py", line 627, in _to_span_record
+    attributes_json = _canonical_json(handle._attrs)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\tracer.py", line 146, in _canonical_json
+    return json.dumps(
+           ^^^^^^^^^^^
+  File "C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ^^^^^^^^^^^
+  File "C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\json\encoder.py", line 258, in iterencode
+    return _iterencode(o, 0)
+           ^^^^^^^^^^^^^^^^^
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\tracer.py", line 141, in _json_default
+    raise TypeError(f"无法稳定序列化到 trace attributes 的类型：{type(value).__name__}")
+TypeError: 无法稳定序列化到 trace attributes 的类型：object
+
+EXIT_CODE=0

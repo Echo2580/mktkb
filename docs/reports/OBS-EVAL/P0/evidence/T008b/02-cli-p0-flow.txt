@@ -1,0 +1,165 @@
+T008b P0 全流程（真实 CLI，产物只在 %TEMP%）
+========================================================
+时间：2026-11-05T17:47:51+0800
+cwd = D:\GPT项目\市场部AI知识库；分支 p0/obs-eval；Python = .venv\Scripts\python.exe -B
+会话预算：MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+产物根：C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow
+
+[00] git rev-parse --short HEAD -> 5152298
+     git status --short -> M backend/tests/evaluation/conftest.py
+?? backend/tests/evaluation/golden/
+?? backend/tests/evaluation/test_p0_acceptance.py
+     docs/evaluation/gate_v0_1.json sha256(before) = 8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209
+
+[01] .\.venv\Scripts\python.exe -B tools\rag_eval.py --help
+     -> exit=0  (1.75s)
+        usage: rag_eval [-h] {dataset,run,gate,baseline,diff,export} ...
+        P0 评测 CLI：dataset / run / gate / baseline / diff / export（零真实调用）
+        positional arguments:
+          {dataset,run,gate,baseline,diff,export}
+            dataset             构建或校验评测数据集
+            run                 跑 local / replay suite
+            gate                评估硬门禁 + 质量层；--calibrate 只写提案
+            baseline            baseline 审批 / 列表（无 copy/rename）
+            diff                baseline vs 当前 run 的 diff + 报告
+            export              只导出 report.md / report.html（非门禁层）
+        options:
+          -h, --help            show this help message and exit
+
+[02] .\.venv\Scripts\python.exe -B tools\rag_eval.py dataset validate --suite b0 --path fixtures\evaluation\b0.jsonl
+     -> exit=0  (1.74s)
+        suite=b0 cases=40 dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f strata=exact:24,ocr:8,text:8
+
+[03] .\.venv\Scripts\python.exe -B tools\rag_eval.py dataset validate --suite badcase --path fixtures\evaluation\badcase.jsonl
+     -> exit=0  (1.75s)
+        suite=badcase cases=13 dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2 sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a strata=clarify:2,notice:2,policy:1,poster:2,price:4,safety:2
+
+[04] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite b0 --mode local --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local
+     -> exit=0  (2.92s)
+        run_id=b0-local-20261105T094758564741Z-225210f7 suite=b0 mode=local cases=40 out=C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local
+
+[05] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite badcase --mode local --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\badcase-local
+     -> exit=0  (3.41s)
+        run_id=badcase-local-20261105T094801662340Z-3ea1fcd8 suite=badcase mode=local cases=13 out=C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\badcase-local
+
+[06] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite b0 --mode replay --from-run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-replay
+     -> exit=0  (1.71s)
+        run_id=b0-replay-20261105T094804728473Z-baa24732 suite=b0 mode=replay cases=40 out=C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-replay
+
+[07] .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --calibrate
+     -> exit=3  (1.73s)
+        gate exit_code=3 run_id=b0-local-20261105T094758564741Z-225210f7 suite=b0 mode=local scored=32/32 hard_failures=[] quality=unknown config_status=unapproved
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate.json
+        proposal=C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate_proposal.json status=unapproved （T009 人工门审批前不生效，未改写 gate 配置）
+
+[08] .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\badcase-local
+     -> exit=3  (2.00s)
+        gate exit_code=3 run_id=badcase-local-20261105T094801662340Z-3ea1fcd8 suite=badcase mode=local scored=13/13 hard_failures=[] quality=unknown config_status=unapproved
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\badcase-local\gate.json
+
+[09] .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-replay
+     -> exit=3  (2.47s)
+        gate exit_code=3 run_id=b0-replay-20261105T094804728473Z-baa24732 suite=b0 mode=replay scored=32/32 hard_failures=[] quality=unknown config_status=unapproved
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-replay\gate.json
+
+[10] .\.venv\Scripts\python.exe -B tools\rag_eval.py baseline approve --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --gate C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate.json --approver t008b-dev --reason must be rejected: thresholds unapproved --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+     -> exit=3  (1.74s)
+        现场重算 gate exit_code=3（--gate 声明 exit_code=3；仅审计，不作为审批依据）
+        baseline approve 拒绝: 门禁未通过（exit_code=3：不可判定：数据/配置/gold 不可用、样本不足、阈值未审批（T009 人工门）或跨版本 baseline），不得建立/审批 baseline
+
+[11] .\.venv\Scripts\python.exe -B tools\rag_eval.py baseline list --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+     -> exit=0  (1.70s)
+        baseline 目录不存在（0 条）: C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+
+     approval.json 计数 = 0
+
+[12] .\.venv\Scripts\python.exe -B tools\rag_eval.py diff --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+     -> exit=3  (1.72s)
+        ERROR: baseline 未建立，待 T009（c0ce2856938f）：baseline 不存在: C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines\c0ce2856938f\baseline.json
+
+[13] .\.venv\Scripts\python.exe -B tools\rag_eval.py export --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+     -> exit=3  (1.76s)
+        ERROR: baseline 未建立，待 T009（c0ce2856938f）：baseline 不存在: C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines\c0ce2856938f\baseline.json
+
+[14] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite b0 --mode live --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\live
+     -> exit=2  (1.81s)
+        usage: rag_eval run [-h] --suite {b0,badcase} [--mode {local,replay}]
+                            [--out OUT] [--from-run FROM_RUN] [--dataset DATASET]
+                            [--scope SCOPE]
+        rag_eval run: error: argument --mode: invalid choice: 'live' (choose from 'local', 'replay')
+
+[15] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite b0 --mode replay --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\replay-missing
+     -> exit=3  (1.76s)
+        ERROR: ValueError: mode='replay' 必须提供 replay_from（上一轮 local run 目录）；不得静默降级为 local
+
+[16] .\.venv\Scripts\python.exe -B tools\rag_eval.py run --suite b0 --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\holdout --allow-holdout-details
+     -> exit=2  (1.89s)
+        usage: rag_eval [-h] {dataset,run,gate,baseline,diff,export} ...
+        rag_eval: error: unrecognized arguments: --allow-holdout-details
+
+[17] 写演示审批配置（%TEMP%，仅机制演示；真实 baseline/阈值待 T009）
+     C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\gate_test_approved.json
+
+[18] .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --config C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\gate_test_approved.json
+     -> exit=0  (1.90s)
+        gate exit_code=0 run_id=b0-local-20261105T094758564741Z-225210f7 suite=b0 mode=local scored=32/32 hard_failures=[] quality=pass config_status=approved
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate.json
+
+[19] .\.venv\Scripts\python.exe -B tools\rag_eval.py baseline approve --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --gate C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate.json --approver t008b-test-only --reason test-only approval for acceptance #5; real baseline waits for T009 --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines --config C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\gate_test_approved.json
+     -> exit=0  (1.77s)
+        现场重算 gate exit_code=0（--gate 声明 exit_code=0；仅审计，不作为审批依据）
+        baseline approved baseline_id=c0ce2856938f run_id=b0-local-20261105T094758564741Z-225210f7 approver=t008b-test-only
+
+[20] .\.venv\Scripts\python.exe -B tools\rag_eval.py baseline list --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines
+     -> exit=0  (1.82s)
+        baseline_id=c0ce2856938f run_id=b0-local-20261105T094758564741Z-225210f7 suite=b0 pipeline_version=735da1397044 approved=yes
+
+[21] .\.venv\Scripts\python.exe -B tools\rag_eval.py diff --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines --config C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\gate_test_approved.json
+     -> exit=0  (1.82s)
+        diff run_id=b0-local-20261105T094758564741Z-225210f7 baseline_id=c0ce2856938f comparison=release_baseline release_allowed=True blocked=None gate_exit=0
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\diff.json C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\report.md C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\report.html
+
+[22] .\.venv\Scripts\python.exe -B tools\rag_eval.py export --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local --root C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\baselines --config C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\gate_test_approved.json --out C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\export
+     -> exit=0  (1.82s)
+        export run_id=b0-local-20261105T094758564741Z-225210f7 baseline_id=c0ce2856938f gate_exit=0 release_allowed=True
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\export\report.md C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\export\report.html
+
+[23] .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local
+     -> exit=3  (1.78s)
+        gate exit_code=3 run_id=b0-local-20261105T094758564741Z-225210f7 suite=b0 mode=local scored=32/32 hard_failures=[] quality=unknown config_status=unapproved
+        wrote C:\Users\dell1712\AppData\Local\Temp\t008b-p0-flow\b0-local\gate.json
+
+产物 sha256（%TEMP%）
+-------------------
+        9b7ff3ed8b04bd153b056ba39caab8a086ddc6a19b3a0faac3834c47e4217945  876 B  b0-local\run_manifest.json
+        3641207902972064436c2f6dbd662b75e728667f92a1e7f3ce5bbc109262fdfb  203749 B  b0-local\cases.jsonl
+        bfa5425f976c84666767f0ba949c5ad8674fc8a1e8c76d11cd84c1ec72802027  2470 B  b0-local\summary.json
+        106035803019e7a72ed5f2f4fb9f34b14997450dd0dc3219592cf9daa4c83efc  217088 B  b0-local\traces.sqlite3
+        7690cad1f057df742f6b676b91bf572f87552e6bdb0056ec9fdebcd63509b870  86740 B  b0-local\gate.json
+        0d95c0d9dc03787c305248433d752d2e579f6762bb7f0473127f2880219e17c7  27982 B  b0-local\gate_proposal.json
+        6e321e448b0257e6fda18b59fee8810ab4aa2e7c15af952c8c92de22c8dfbe24  2406 B  badcase-local\summary.json
+        f6c4c19970cc74a9ccdd59d4e80e01bc3c137a269a611419b376555ece842202  2476 B  b0-replay\summary.json
+        e7302b4b73b7eb91de9c3ed43aedbb233c492999693ea375c72e540a3d53756f  16855 B  b0-local\diff.json
+        d9f1a1391295b3bb387fda95d691beab6b0e5f914f517de539e59da83ba8bc45  7888 B  b0-local\report.md
+        5196be631faa831d67a3d6caa3ef6938ed7fec0fd06ea2fad780cedfb9984884  13451 B  b0-local\report.html
+        d9f1a1391295b3bb387fda95d691beab6b0e5f914f517de539e59da83ba8bc45  7888 B  export\report.md
+        5196be631faa831d67a3d6caa3ef6938ed7fec0fd06ea2fad780cedfb9984884  13451 B  export\report.html
+        5d639b4a94de66948247ca3b20796abb6b2f7dd062331e3ded24e3c0eab277e1  4122 B  gate_test_approved.json
+        a57d21cc71c7f9299cc56270150afc02c5459ce49b6345d5e2b3b30350de0667  712 B  baselines\c0ce2856938f\approval.json
+        f3ab9e0ca6b3013e786cfa5826aeb7f054d07cb80490b860b31adb02488943b6  1666 B  baselines\c0ce2856938f\baseline.json
+
+关键计数（来自 summary.json / gate.json）
+----------------------------------------
+b0-local: case_count=40 scored=32 skipped_ocr=8 error=0 status={"fail": 3, "pass": 29, "skipped_requires_ocr": 8} dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e index_revision=6 pipeline_version=735da1397044 gate_version=mktkb.gate.v0.1
+badcase-local: case_count=13 scored=13 skipped_ocr=0 error=0 status={"fail": 4, "pass": 9} dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2 index_revision=4 pipeline_version=735da1397044 gate_version=mktkb.gate.v0.1
+b0-replay: case_count=40 scored=32 skipped_ocr=8 error=0 status={"fail": 3, "pass": 29, "skipped_requires_ocr": 8} dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e index_revision=6 pipeline_version=735da1397044 gate_version=mktkb.gate.v0.1
+b0 gate(after rollback): exit_code=3 hard_failures=[] quality.status=unknown quality.config_status=unapproved
+b0 gate(after rollback): 质量层 unknown 条数=42；reason 集合=['thresholds_unapproved']
+b0 gate(after rollback): quality.metrics 状态分布=[["all", "pass"], ["all", "unknown"], ["exact", "pass"], ["exact", "unknown"], ["text", "pass"], ["text", "unknown"]]
+b0 gate_proposal.json: status=unapproved approval_owner=T009 human gate
+
+repo gate_v0_1.json sha256(after) = 8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209（未改写=True）
+提交前 git status --short -> M backend/tests/evaluation/conftest.py
+?? backend/tests/evaluation/golden/
+?? backend/tests/evaluation/test_p0_acceptance.py
+%TEMP% 产物总量 = 36 个路径

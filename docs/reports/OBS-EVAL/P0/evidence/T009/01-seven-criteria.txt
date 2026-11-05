@@ -1,0 +1,88 @@
+# T009 复跑证据 01 — 七条 P0（设计 §11）
+# 环境：Windows PowerShell；分支 p0/obs-eval；HEAD a1a40cc；基线 main 8e44158；Python 3.12.7
+# 预算：MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0；串行 pytest；零真实模型/OCR/embedding/rerank；未读 .env
+# 所有运行产物在 %TEMP%\t009\，本文件为 UTF-8 无 BOM。
+
+[1] 业务行为不变
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p0_acceptance.py -q -p no:cacheprovider --basetemp %TEMP%\t009\p0-acc
+结果：7 passed, 1 warning in 7.18s（exit 0）
+用例：test_acceptance_01_business_behavior_unchanged（test_p0_acceptance.py:181）
+      golden=backend/tests/evaluation/golden/chat_response.json（sha256 b86484dc…8e52，4244 B）
+      归一化后响应 == golden；二次相同提问仍相等；X-Trace-ID/X-Request-ID 存在。
+既有 integration：.\.venv\Scripts\python.exe -B -m pytest backend/tests/integration -q -p no:cacheprovider --basetemp %TEMP%\t009\integration
+结果：345 passed, 1 warning in 262.14s (0:04:22)（exit 0）
+
+[2] trace_id 端到端
+用例：test_acceptance_02_trace_id_is_queryable_end_to_end（test_p0_acceptance.py:213）通过（真实 TestClient HTTP + 真实 TraceRepository）。
+独立查询该用例落盘库 %TEMP%\t009\p0-acc\test_acceptance_02_trace_id_is0\observability\qa-traces.sqlite3：
+  trace_rows=1
+  trace_id=b597f890855a4dea915d5e440516799f
+  request_id=dd91e7d9-0492-4a57-9870-569f52652c27（测试断言 == 响应体 request_id）
+  http_request_id=23bc84ad-21cc-47d2-b56b-75458573fd0b
+  path=rag outcome_kind=answer status=ok
+  spans=12：parse, recall, exact_recall, lexical_recall, vector_recall, embedding_query,
+           fuse, hard_filter, rerank, answer, fact_validate, commit
+  required_spans(RAG, ANSWER)={answer,commit,fuse,parse,recall} 全部命中
+  换只读 TraceRepository 重开同库仍按 trace_id 查到同记录/同 Span（测试断言）。
+说明：业务 HTTP trace 不绑定 dataset_version/index_revision（非评测 run）；评测 run 的绑定见 [4]。
+
+[3] B0 40 与 BadCase 13 独立回归（真实 CLI，产物 %TEMP%\t009）
+dataset validate b0：40 题，dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e，
+  sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f（exit 0）
+dataset validate badcase：13 题，dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2，
+  sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a（exit 0）
+run --suite b0 --mode local        → exit 0，run_id=b0-local-20261105T102555047266Z-81355cc7，40 行
+run --suite b0 --mode replay …     → exit 0，run_id=b0-replay-20261105T102557755743Z-55882726，40 行
+run --suite badcase --mode local   → exit 0，run_id=badcase-local-20261105T102559782509Z-ed1d0fc0，13 行
+三件套 + traces 齐全（每个 run 目录均有 summary.json / run_manifest.json / cases.jsonl / traces.sqlite3）。
+b0：pass 29 / fail 3（Q25/Q26/Q31）/ skipped_requires_ocr 8；scored=32；error=0
+badcase：pass 9 / fail 4（N05/N06/N09/N11）；scored=13；OCR=0；error=0
+独立：b0 与 badcase 的 run_id、case 集合（Q* vs N*）、dataset_sha256 不同；badcase 检索分母=10（N10/N12/N13 无 gold）。
+replay 与 local 逐 case 比较 status/checks/metrics：40/40 相同；replay trace 全 status=replayed、span_count=0（设计预期）。
+
+[4] 版本绑定（manifest = summary = trace）
+suite   dataset_version                              dataset_sha256(前12)  index_revision  pipeline_version  gate_version
+b0      b0:b0-2026-11-04:bd4f0f7ccc6e               bd4f0f7ccc6e           6               735da1397044      mktkb.gate.v0.1
+badcase badcase:badcase-2026-11-04:e5f0662af3f2     e5f0662af3f2           4               735da1397044      mktkb.gate.v0.1
+manifest.dataset_sha256 == 数据集文件实测 SHA-256；corpus_manifest_sha256：
+  b0=6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6（fixtures/acceptance/manifest.json）
+  badcase=5f41b1b811a5fecb0c0beab1b5070540e3c622a175a59939e293cc9b17ec3218（corpus/enterprise-20261101/manifest.json）
+trace 记录逐条绑定：b0 40/40、b0-replay 40/40、badcase 13/13 的 dataset_version/index_revision/pipeline_version/run_id
+与 manifest 一致（probe_versions.py，exit 0）。
+样例：b0 trace e9040699bd1a41efaa5438d5e770c140，12 Span，status=ok；
+      badcase trace 07d7c1012d7f4175a29cfb17900a3e8a，12 Span，status=ok。
+
+[5] baseline + diff + JSON 报告（%TEMP% 测试内审批配置；不是主人审批）
+默认 gate b0：exit 3，scored=32/32，hard_failures=[]，quality=unknown，config_status=unapproved
+%TEMP%\t009\gate-approved.json（10 指标、min_sample=1、宽松阈值）：gate b0 → exit 0，quality=pass，config_status=approved
+baseline approve（同一 run 现场重算）→ exit 0，baseline_id=c0ce2856938f
+diff → exit 0，release_allowed=True，release_blocked_reason=None，empty=True，30 个 metric_deltas
+产物：diff.json 16855 B；report.md 7888 B；report.html 13451 B
+默认配置 baseline approve → exit 3（现场重算拒绝）；baselines-default 下 approval.json 计数=0
+无 baseline 根目录：baseline list → 0 条（exit 0）；diff → exit 3「baseline 未建立，待 T009（c0ce2856938f）」
+真实 baseline：仓库内不存在；本次仅证明机制可跑通。阈值/baseline 审批仍是主人人工门。
+
+[6] 硬门禁 8 项各注入 1 次 → exit 1
+交付矩阵：pytest test_gate.py::test_hard_gate_trigger_matrix + 3 个 live 单测 → 11 passed（exit 0）
+独立 CLI 探针（probe_hard_gates.py，调用 tools/rag_eval.py 同一 cli.main，exit 0）：
+  security_leak            exit 1  check=forbidden_value
+  cross_entity             exit 1  check=retrieved_hard_filter_violation
+  stale_bypass             exit 1  check=retrieved_hard_filter_violation
+  conflict_not_rejected    exit 1  check=conflict_not_rejected
+  exact_value_contract     exit 1  check=exact_value_miss
+  pagination_contract      exit 1  check=pagination_contract_violation
+  citation_required        exit 1  check=citation_missing
+  trace_integrity          exit 1  check=trace_missing
+  每项 scored=1/1、min_sample=1、hard_failures 恰为该项。
+mode=live：
+  单测 test_live_mode_exits_four / not_dependent_on_kernel_refusal / is_case_insensitive → 3 passed（exit 4 断言）
+  端到端 NOT-RUN：run --mode live 被 argparse 拒绝（exit 2）；手改 run_manifest.mode=live 后 gate 在
+  RunManifest.from_dict 处 exit 3（ValueError: run_manifest.mode 非法），未触达 evaluate_gate 的 exit 4。
+
+[7] 零真实调用
+test_acceptance_07_zero_real_calls（test_p0_acceptance.py:524）通过：provider spy=0、socket connect=0、.env 读取=0、
+业务问答 chat_model.calls=[]；测试进程 Settings.model_config["env_file"]=None。
+独立 probe_zero_calls.py（badcase local + 默认 gate，exit 0）：
+  cases=13；gate_exit=3；quality_config_status=unapproved
+  provider_calls=0；socket_connects=0；env_reads=0
+  说明：Settings 默认声明 .env；探针以 Settings.__init__ guard 阻止读取，env_reads=0；pytest conftest 另设 env_file=None。

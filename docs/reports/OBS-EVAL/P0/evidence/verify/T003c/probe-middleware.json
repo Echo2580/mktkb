@@ -1,0 +1,199 @@
+{
+  "ok": true,
+  "results": [
+    {
+      "detail": {
+        "checks": {
+          "content_mode_hash": true,
+          "core_spans_present": true,
+          "no_question_text_in_trace_db": true,
+          "not_empty": true,
+          "one_trace_row": true,
+          "outcome_none": true,
+          "question_hash_none": true,
+          "request_id_none": true,
+          "response_body_shape": true,
+          "status_incomplete": true
+        },
+        "http_request_id": "1c2fc423-3dbb-4908-88c7-8835b68310fb",
+        "response_body_keys": [
+          "candidates",
+          "conflicts",
+          "error_code",
+          "kind",
+          "message_id",
+          "missing_fields",
+          "pagination",
+          "request_id",
+          "retryable",
+          "revision",
+          "sources",
+          "text"
+        ],
+        "response_kind": "not_found",
+        "response_text": "资料中未找到“城东店”的记录。",
+        "span_names": [
+          "recall",
+          "exact_recall",
+          "lexical_recall",
+          "vector_recall",
+          "embedding_query",
+          "fuse",
+          "hard_filter",
+          "recall",
+          "lexical_recall",
+          "vector_recall",
+          "embedding_query",
+          "fuse",
+          "hard_filter"
+        ],
+        "spans": [
+          {
+            "attributes": {
+              "exact": 0,
+              "hints": 0,
+              "lexical": 0,
+              "vector": 0,
+              "vector_enabled": true
+            },
+            "name": "recall",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0
+            },
+            "name": "exact_recall",
+            "parent": "5fb4fab8ea584fd3b7f4c4b32481eab3",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "expression_present": false
+            },
+            "name": "lexical_recall",
+            "parent": "5fb4fab8ea584fd3b7f4c4b32481eab3",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "degraded": false,
+              "degraded_reason": null
+            },
+            "name": "vector_recall",
+            "parent": "5fb4fab8ea584fd3b7f4c4b32481eab3",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "dimensions": 1024,
+              "model": "text-embedding-v4",
+              "provider": "mock",
+              "vectors": 1
+            },
+            "name": "embedding_query",
+            "parent": "fecca7b333c84d478569c614bcb042c5",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "rerank_enabled": false
+            },
+            "name": "fuse",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "dropped": 0,
+              "passed": 0
+            },
+            "name": "hard_filter",
+            "parent": "8c28ba0e26ff4187a2fdccd26047cc25",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "exact": 0,
+              "hints": 0,
+              "lexical": 0,
+              "vector": 0,
+              "vector_enabled": true
+            },
+            "name": "recall",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "expression_present": false
+            },
+            "name": "lexical_recall",
+            "parent": "86a37ddba1364c268e9633e61c4a5130",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "degraded": false,
+              "degraded_reason": null
+            },
+            "name": "vector_recall",
+            "parent": "86a37ddba1364c268e9633e61c4a5130",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "dimensions": 1024,
+              "model": "text-embedding-v4",
+              "provider": "mock",
+              "vectors": 1
+            },
+            "name": "embedding_query",
+            "parent": "3d063be29bc94b7fbc4ee0c26e4ce61d",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "rerank_enabled": false
+            },
+            "name": "fuse",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 0,
+              "dropped": 0,
+              "passed": 0
+            },
+            "name": "hard_filter",
+            "parent": "fcfc31ffde7b46d3b20a834c1804e465",
+            "status": "ok"
+          }
+        ],
+        "trace": {
+          "attempt": 1,
+          "content_mode": "hash",
+          "mode": "local",
+          "outcome_kind": null,
+          "path": "rag",
+          "question_hash": null,
+          "replayed": false,
+          "request_id": null,
+          "scope": "end_to_end",
+          "status": "incomplete"
+        },
+        "trace_id": "09ef5999b34f4f798b36069755c268b2"
+      },
+      "ok": true
+    }
+  ]
+}

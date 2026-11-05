@@ -9,8 +9,10 @@ from __future__ import annotations
 import json
 import re
 import time
-from typing import Any, Iterable, Mapping
+from contextlib import contextmanager
+from typing import Any, Iterable, Iterator, Mapping
 
+from ..observability import trace_attrs
 from ..retrieval.tokenize import cut, normalize
 from .chunking import first_value, role_label
 from .errors import FactRejected, RagError
@@ -32,13 +34,25 @@ def answer_question(
     started = time.monotonic()
     previous = index.load_state(user_id, conversation_id)
     lexicon = build_lexicon(index.lexicon_data())
-    plan = parse_query(
-        question,
-        previous=previous,
-        lexicon=lexicon,
-        business_date=index.config.business_date,
-        page_size=index.config.page_size,
-    )
+    with trace_attrs.span("parse") as parse_span:
+        plan = parse_query(
+            question,
+            previous=previous,
+            lexicon=lexicon,
+            business_date=index.config.business_date,
+            page_size=index.config.page_size,
+        )
+        parse_span.annotate(
+            mode=plan.mode,
+            enumerate=bool(plan.enumerate),
+            page=int(plan.page),
+            page_size=int(plan.page_size),
+            filter_keys=sorted(plan.filters),
+            term_count=len(plan.terms),
+            clarification=bool(plan.clarification),
+            unknown_store=bool(plan.unknown_store),
+            reason=plan.reason,
+        )
     diagnostics: dict[str, Any] = {
         "provider_mode": index.config.provider_mode,
         "plan": {
@@ -66,7 +80,7 @@ def answer_question(
             answer_source="refusal",
             diagnostics=_finish_diagnostics(index, diagnostics, started),
         )
-        index.save_state(plan.state)
+        _commit(index, plan.state)
         return answer
     if plan.clarification:
         text = plan.clarification
@@ -81,7 +95,7 @@ def answer_question(
             answer_source="clarification",
             diagnostics=_finish_diagnostics(index, diagnostics, started),
         )
-        index.save_state(plan.state)
+        _commit(index, plan.state)
         return answer
     if plan.unknown_store:
         unknowns = tuple(getattr(plan, "unknown_stores", ()) or ()) or (plan.unknown_store,)
@@ -96,7 +110,7 @@ def answer_question(
             answer_source="refusal",
             diagnostics=_finish_diagnostics(index, diagnostics, started),
         )
-        index.save_state(plan.state)
+        _commit(index, plan.state)
         return answer
     if getattr(index.config, "record_only", False) and plan.mode != "record":
         # record_only 的运行时约束：正文/文档型问题不进检索、不构造 chat provider，
@@ -110,7 +124,7 @@ def answer_question(
             answer_source="refusal",
             diagnostics=_finish_diagnostics(index, diagnostics, started),
         )
-        index.save_state(plan.state)
+        _commit(index, plan.state)
         return answer
 
     try:
@@ -125,18 +139,77 @@ def answer_question(
             answer_source="error",
             diagnostics=_finish_diagnostics(index, diagnostics, started, error=getattr(exc, "code", "RAG_ERROR")),
         )
-        index.save_state(plan.state)
+        _commit(index, plan.state)
         return answer
     diagnostics.update(_result_diagnostics(result))
+    trace_attrs.annotate_trace(
+        pagination_json={
+            "enumerate": bool(plan.enumerate),
+            "page": int(plan.page),
+            "page_size": int(plan.page_size),
+            "total": int(result.total),
+            "returned": int(result.returned),
+            "has_more": bool(result.has_more),
+            "next_page": result.next_page,
+            "revision": int(result.revision),
+        },
+    )
     validator = FactValidator(index, plan, lexicon)
 
-    if plan.mode == "record":
-        answer = _answer_record(index, plan, result, validator, diagnostics, started)
-    else:
-        answer = _answer_document(index, plan, result, validator, diagnostics, started)
+    with trace_attrs.span("answer") as answer_span:
+        if plan.mode == "record":
+            answer = _answer_record(index, plan, result, validator, diagnostics, started)
+        else:
+            answer = _answer_document(index, plan, result, validator, diagnostics, started)
+        answer_span.annotate(
+            kind=answer.kind,
+            answer_source=answer.answer_source,
+            reason=answer.reason,
+            fact_count=len(answer.facts),
+            citation_count=len(answer.citations),
+        )
+    trace_attrs.annotate_trace(
+        citation_refs_json=[
+            {
+                "doc_id": citation.doc_id,
+                "unit_id_hash": trace_attrs.hash_ref(citation.source_id),
+                "locator": dict(citation.locator),
+            }
+            for citation in answer.citations
+        ],
+    )
     answer.diagnostics = _finish_diagnostics(index, answer.diagnostics, started)
-    index.save_state(QueryState.from_dict(answer.state))
+    _commit(index, QueryState.from_dict(answer.state))
     return answer
+
+
+@contextmanager
+def _fact_gate(units: int) -> Iterator[None]:
+    """``fact_validate`` Span + ``fact_gate_json``：只记计数/状态，不含答案文本。"""
+    with trace_attrs.span("fact_validate") as span:
+        try:
+            yield
+        except FactRejected as exc:
+            trace_attrs.annotate_trace(
+                fact_gate_json={
+                    "checked": True,
+                    "passed": False,
+                    "units": int(units),
+                    "code": exc.code,
+                }
+            )
+            raise
+        span.annotate(units=int(units), passed=True)
+        trace_attrs.annotate_trace(
+            fact_gate_json={"checked": True, "passed": True, "units": int(units), "code": None}
+        )
+
+
+def _commit(index: Any, state: QueryState) -> None:
+    """``commit`` Span 包住查询状态持久化（异常照旧向上抛）。"""
+    with trace_attrs.span("commit") as span:
+        span.annotate(turn=int(getattr(state, "turn", 0)), last_kind=getattr(state, "last_kind", None))
+        index.save_state(state)
 
 
 def _answer_record(
@@ -217,7 +290,8 @@ def _answer_record(
                 + "。未按上传时间自动选择其一。"
             )
             try:
-                validator.validate_record_text(text, facts)
+                with _fact_gate(len(facts)):
+                    validator.validate_record_text(text, facts)
             except FactRejected as exc:
                 return _reject(plan, exc, diagnostics)
             return RagAnswer(
@@ -237,7 +311,8 @@ def _answer_record(
         formatted = _format_value(entries[0][0], plan.field_role or "", entries[0][1])
         text = f"根据资料，{_entity_label(entries[0][0])}的{_field_label(plan, entries[0][0])}：{formatted}。"
         try:
-            validator.validate_record_text(text, facts)
+            with _fact_gate(len(facts)):
+                validator.validate_record_text(text, facts)
         except FactRejected as exc:
             return _reject(plan, exc, diagnostics)
         state = QueryState.from_dict(plan.state.to_dict())
@@ -362,7 +437,8 @@ def _multi_field_answer(
         citations.append(_citation(index, member))
     text = f"根据资料，{_entity_label(chunk)}的" + "，".join(parts) + "。"
     try:
-        validator.validate_record_text(text, facts)
+        with _fact_gate(len(facts)):
+            validator.validate_record_text(text, facts)
     except FactRejected as exc:
         return _reject(plan, exc, diagnostics)
     state = QueryState.from_dict(plan.state.to_dict())
@@ -478,14 +554,15 @@ def _enumerate_answer(
     state.pending_slot = None
     state.candidates = ()
     try:
-        FactValidator(index, plan, build_lexicon(index.lexicon_data())).validate_record_text(
-            text,
-            facts,
-            extra_tokens={str(total), str(page), str(returned), str(result.next_page or "")},
-            allow_all_roles=all_fields,
-            disclosure_entities=missing_stores,
-            disclosure_complete=coverage_complete,
-        )
+        with _fact_gate(len(facts)):
+            FactValidator(index, plan, build_lexicon(index.lexicon_data())).validate_record_text(
+                text,
+                facts,
+                extra_tokens={str(total), str(page), str(returned), str(result.next_page or "")},
+                allow_all_roles=all_fields,
+                disclosure_entities=missing_stores,
+                disclosure_complete=coverage_complete,
+            )
     except FactRejected as exc:
         return _reject(plan, exc, diagnostics)
     return RagAnswer(
@@ -539,7 +616,8 @@ def _document_fallback(
         return _no_answer(plan, "找到的资料与问题没有足够重合，不能据此作答。", "NO_SUPPORTING_SENTENCE", diagnostics)
     text = f"根据资料，{sentence}"
     try:
-        validator.validate_document_text(text, evidence)
+        with _fact_gate(len(evidence)):
+            validator.validate_document_text(text, evidence)
     except FactRejected as exc:
         return _reject(plan, exc, diagnostics)
     state = QueryState.from_dict(plan.state.to_dict())
@@ -611,7 +689,8 @@ def _live_document_answer(
         if not text or not source_ids or any(item not in allowed for item in source_ids):
             raise ValueError("模型引用不合法")
         cited = [item for item in evidence if item.chunk_id in set(source_ids)]
-        validator.validate_document_text(text, cited)
+        with _fact_gate(len(cited)):
+            validator.validate_document_text(text, cited)
     except FactRejected as exc:
         return _reject(plan, exc, diagnostics)
     except Exception as exc:

@@ -1,0 +1,49 @@
+T006b independent verification - commit/config boundary
+object: 5a4c054 (parent 1ea649f5b8fd9fd75abcd9d33ad351b04da34641)
+HEAD at verification: fb0b937 (bookkeeping commits 6d6ea97/fb0b937 after 5a4c054; deliverable tree unchanged)
+git diff --stat 5a4c054..HEAD -- backend docs/evaluation: (empty)
+git diff --stat 439fc1b..5a4c054 -- backend docs/evaluation:
+backend/src/mktkb/evaluation/gate.py          | 1514 ++++++++++++++++++++++++-
+ backend/tests/evaluation/test_gate_quality.py | 1138 +++++++++++++++++++
+ docs/evaluation/gate_v0_1.json                |   19 +-
+ 3 files changed, 2645 insertions(+), 26 deletions(-)
+
+git show --name-status 5a4c054:
+5a4c054 p0/T006b gate quality layer
+
+A	.claude/handoffs/T006b-gate-quality/report.md
+M	backend/src/mktkb/evaluation/gate.py
+A	backend/tests/evaluation/test_gate_quality.py
+M	docs/evaluation/gate_v0_1.json
+A	docs/reports/OBS-EVAL/P0/evidence/T006b/04-exit-matrix.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006b/badcase-proposal.json
+A	docs/reports/OBS-EVAL/P0/evidence/T006b/gate-proposal.json
+A	docs/reports/OBS-EVAL/P0/evidence/T006b/quality-chain.txt
+
+git show --numstat 5a4c054:
+63	0	.claude/handoffs/T006b-gate-quality/report.md
+1489	25	backend/src/mktkb/evaluation/gate.py
+1138	0	backend/tests/evaluation/test_gate_quality.py
+18	1	docs/evaluation/gate_v0_1.json
+33	0	docs/reports/OBS-EVAL/P0/evidence/T006b/04-exit-matrix.txt
+2032	0	docs/reports/OBS-EVAL/P0/evidence/T006b/badcase-proposal.json
+887	0	docs/reports/OBS-EVAL/P0/evidence/T006b/gate-proposal.json
+128	0	docs/reports/OBS-EVAL/P0/evidence/T006b/quality-chain.txt
+
+config: docs/evaluation/gate_v0_1.json
+  status=unapproved; gate_version=mktkb.gate.v0.1; metrics=15
+  hard_gate_min_sample={'b0': 32, 'badcase': 13}
+  quality_layer.status=unapproved
+  config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293
+  file_sha256=8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209
+  non_null_thresholds=[]
+
+proposal reproducibility (read-only T005 runs in %TEMP%\t005-runs):
+  b0 run_id=b0-local-20261105T035721820024Z-9462c0d1; gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293; status=unapproved; metrics=45
+  badcase run_id=badcase-local-20261105T035723357224Z-b712d96d; gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293; status=unapproved; metrics=105
+  b0 proposal object-identical to evidence/gate-proposal.json: True (probe B1)
+  badcase proposal object-identical to evidence/badcase-proposal.json: True (probe B2)
+
+report.md lines (committed): 63
+git status --short:
+(clean)

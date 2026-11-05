@@ -1,0 +1,36 @@
+# T009 复跑证据 02 — 全量回归与测试计数
+# 环境：Windows PowerShell；p0/obs-eval @ a1a40cc；Python 3.12.7；MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+# 串行执行：同一时刻仅一个 pytest；basetemp 均在 %TEMP%\t009\；UTF-8 无 BOM。
+
+[1] P0 七条验收用例
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p0_acceptance.py -q -p no:cacheprovider --basetemp %TEMP%\t009\p0-acc
+结果：7 passed, 1 warning in 7.18s（exit 0）
+
+[2] 既有 integration
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests/integration -q -p no:cacheprovider --basetemp %TEMP%\t009\integration
+结果：345 passed, 1 warning in 262.14s (0:04:22)（exit 0）
+
+[3] 评测目录（定向）
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t009\evaluation
+结果：320 passed, 1 warning in 17.03s（exit 0）
+（与 T008b 报告 320 一致；含 T008b 新增 7 项。）
+
+[4] 全量（仅 1 次）
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t009\full
+结果：1593 passed, 1 warning in 428.69s (0:07:08)（exit 0；0 failed / 0 error / 0 skipped 之外无异常）
+基线：T008a 全量 1586 + T008b 新增 7 = 1593；与本轮实测一致。
+未重跑旧 commit 基线全量（按提速策略 A）；回归由“当前 0 failed + 新增 7 + 改动范围 398 文件审计”证明。
+已知 flake test_g08_short_budget_cancels_inflight_model_call 本轮未命中。
+唯一 warning：fastapi/testclient 的 StarletteDeprecationWarning（第三方，既有）。
+
+[5] 门禁矩阵（8 项硬门禁 + live 单测）
+命令：.\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate.py::test_hard_gate_trigger_matrix
+      backend/tests/evaluation/test_gate.py::test_live_mode_exits_four
+      backend/tests/evaluation/test_gate.py::test_live_mode_not_dependent_on_kernel_refusal
+      backend/tests/evaluation/test_gate.py::test_live_mode_is_case_insensitive -q -p no:cacheprovider --basetemp %TEMP%\t009\gate-matrix
+结果：11 passed, 1 warning in 0.42s（exit 0）
+
+[6] 运行后工作树
+命令：git status --short
+结果：空（仅本 T009 尚未写入的 review/anchors/evidence 会在随后出现；测试未改 tracked 文件）。
+全量/定向运行均未 commit、未 push、未改代码/测试/配置/fixtures。

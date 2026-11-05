@@ -1,0 +1,15 @@
+T006b independent verification - test runs (serial, zero real calls)
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0; .venv Python; basetemp under %TEMP%\t006b-verify.
+HEAD during verification: 6d6ea97 -> fb0b937 (bookkeeping-only commits after 5a4c054);
+backend/docs/evaluation identical to 5a4c054 (see 03-commit-config.txt).
+
+package: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate_quality.py -q -p no:cacheprovider
+  -> 29 passed, 1 warning in 1.03s (exit 0)
+
+directory: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider
+  -> 233 passed, 1 warning in 10.11s (exit 0; T006a baseline 204 + 29)
+
+full: .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider
+  -> 1506 passed, 1 warning in 389.41s (0:06:29) (exit 0; 0 failed / 0 error; T006a baseline 1477 + 29)
+
+flake test_g08_short_budget_cancels_inflight_model_call: not observed.

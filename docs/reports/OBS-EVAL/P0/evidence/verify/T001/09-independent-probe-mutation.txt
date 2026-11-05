@@ -1,0 +1,13 @@
+﻿baseline copy: rc=0 :: 68 passed in 2.98s
+CAUGHT M1 rag+clarification wrongly requires answer :: rc=1 :: 2 failed, 66 passed in 3.03s
+CAUGHT M2 legacy+not_found wrongly requires query_expansion :: rc=1 :: 3 failed, 65 passed in 2.93s
+CAUGHT M3 conditional spans honour a 5th unknown key :: rc=1 :: 1 failed, 67 passed in 2.92s
+CAUGHT M4 TraceRecord frozen=False :: rc=1 :: 2 failed, 66 passed in 2.99s
+CAUGHT M5 TraceRecord drops a design field (degraded_json) :: rc=1 :: 2 failed, 66 passed in 2.94s
+CAUGHT M6 hash_question no longer rejects empty HMAC key :: rc=1 :: 1 failed, 67 passed in 3.02s
+CAUGHT M7 config_hash no longer rejects secret-like keys :: rc=1 :: 8 failed, 60 passed in 3.09s
+CAUGHT M8 pipeline_version ignores explicit components :: rc=1 :: 5 failed, 63 passed in 3.09s
+CAUGHT M9 default components bound at module import (not lazy) :: rc=1 :: 4 failed, 64 passed in 2.91s
+CAUGHT M10 top-level business import added :: rc=1 :: 1 failed, 67 passed in 2.93s
+
+RESULT: 10/10 mutations caught; test suite is behaviourally strict

@@ -1,0 +1,56 @@
+T005 independent verification: full regression and commit boundary
+date: 2026-11-05 Asia/Shanghai
+object commit: 80fd092 (p0/T005 runner)
+HEAD at session start: 80fd092
+HEAD at end: b68bb0d (PM bookkeeping: _index.md + T005-verify.md + T006a-dev.md only)
+
+== full regression ==
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp C:\Users\dell1712\AppData\Local\Temp\t005-verify-full-ee3fe4ac
+1397 passed, 1 warning in 397.60s (0:06:37)
+EXIT=0
+baseline 1377 (T004b) + 20 new runner tests = 1397; 0 failed / 0 error.
+Known flake test_g08_short_budget_cancels_inflight_model_call was not triggered.
+
+== object commit is a single commit on d1a9d92 ==
+$ git rev-parse 80fd092
+80fd092002c0c3fd91c928680268cf79bdb10cfc
+$ git log --oneline d1a9d92..80fd092
+80fd092 p0/T005 runner
+
+== commit paths (all new files; no modification) ==
+$ git show --name-status --format='%H %s' 80fd092
+80fd092002c0c3fd91c928680268cf79bdb10cfc p0/T005 runner
+A	.claude/handoffs/T005-runner/report.md
+A	backend/src/mktkb/evaluation/corpus.py
+A	backend/src/mktkb/evaluation/runner.py
+A	backend/tests/evaluation/test_runner.py
+A	docs/reports/OBS-EVAL/P0/evidence/T005/00-baseline.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T005/01-tests.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T005/02-local-replay.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T005/03-full-regression.txt
+8 files changed, 2498 insertions(+)
+
+All paths are within handoff section 2 (corpus/runner/test_runner, T005 evidence, report).
+No changes to evaluation/dataset/gold/scorers.py, observability, business code/API,
+rag-index schema, conftest.py, fixtures, dependencies, var/, or docs/evidence/.
+
+== conftest.py and forbidden-path check ==
+$ git diff d1a9d92 80fd092 -- backend/tests/evaluation/conftest.py
+(0 lines)
+$ git diff --name-status d1a9d92 80fd092
+(the same 8 A paths above; no M/D paths)
+
+== HEAD movement during verification (external, not verifier) ==
+$ git show --stat --oneline b68bb0d
+b68bb0d chore(p0): bookkeeping - T005 verify prompt + T006a dev prompt + index
+ .claude/handoffs/_index.md              |  4 ++--
+ .claude/handoffs/prompts/T005-verify.md | 16 ++++++++++++++++
+ .claude/handoffs/prompts/T006a-dev.md   |  6 ++++++
+3 files changed, 24 insertions(+), 2 deletions(-)
+This is a PM docs-only commit after 80fd092; T005 code/tests are unchanged.
+
+== verifier repository state at end ==
+$ git status --short
+?? .claude/handoffs/T005-runner/review.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/T005/
+(no tracked file was modified by the verifier; no commit and no push)

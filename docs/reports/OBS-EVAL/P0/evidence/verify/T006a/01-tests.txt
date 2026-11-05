@@ -1,0 +1,33 @@
+# T006a verify — automated tests (independent rerun, 2026-11-05)
+
+Environment: Windows / PowerShell; branch p0/obs-eval; HEAD f6bb3c4; Python 3.12.7; MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0; serial runs; `--basetemp` under %TEMP%.
+
+[1] .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate.py -q -p no:cacheprovider --basetemp %TEMP%\t006a-verify-gate
+........................................................................ [100%]
+72 passed, 1 warning in 1.99s
+
+[2] .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t006a-verify-eval
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+....................................................                     [100%]
+196 passed, 1 warning in 9.48s
+
+[3] .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t006a-verify-full
+........................................................................ [  4%]
+...
+........................................................................ [100%]
+1469 passed, 1 warning in 389.18s (0:06:29); elapsed_seconds=393.04
+
+No old baseline rerun; no package changes were made during verification.
+
+[4] git show --name-status --format='%H%n%s' f6bb3c4
+A	.claude/handoffs/T006a-gate-hard/report.md
+A	backend/src/mktkb/evaluation/gate.py
+A	backend/tests/evaluation/test_gate.py
+A	docs/evaluation/gate_v0_1.json
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/01-tests.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/02-gate-demo.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/03-trigger-matrix.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/04-full-regression.txt
+
+8 added paths; all within handoff §2. No existing delivery file was changed by verification.

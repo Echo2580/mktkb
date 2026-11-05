@@ -1,0 +1,64 @@
+== T007 R1 independent re-verification: regression tests + commit boundary ==
+date: 2026-11-05 (Asia/Shanghai)
+target: p0/obs-eval @ 08536ed (R1; parent 7e9ee34)
+env: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; .\.venv\Scripts\python.exe -B (3.12.7)
+serial, no live calls; basetemp under %TEMP%\t007-verify-r1\pytest; no repo test artifacts.
+
+[1. targeted files]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_report.py -q -p no:cacheprovider --basetemp %TEMP%\t007-verify-r1\pytest\report-only
+  -> 20 passed, 1 warning in 0.48s
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_baseline.py -q -p no:cacheprovider --basetemp %TEMP%\t007-verify-r1\pytest\baseline-only
+  -> 25 passed, 1 warning in 0.27s
+$ ... both files in one invocation
+  -> 45 passed, 1 warning in 0.69s
+
+[2. evaluation directory, once]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t007-verify-r1\pytest\eval-all
+  -> 278 passed, 1 warning in 25.75s (0 failed / 0 error)
+
+[3. full backend/tests, once]
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t007-verify-r1\pytest\full
+  -> 1551 passed, 1 warning in 771.86s (0:12:51); pytest_exit=0
+  (target 1551; 1548 first-round + 3 R1 tests; no failed/error lines in the log)
+
+[4. commit boundary]
+$ git show --name-status --format='%H%n%P%n%s' 08536ed
+  08536edaf661a02c30973d482d410567617d859d
+  7e9ee344a749d4f45414624371577a0ba20ef0fd
+  p0/T007 baseline diff report R1
+  M .claude/handoffs/T007-baseline-report/report.md
+  M backend/src/mktkb/evaluation/report.py
+  M backend/tests/evaluation/test_report.py
+  M docs/reports/OBS-EVAL/P0/evidence/T007/01-baseline-identity.txt
+  A docs/reports/OBS-EVAL/P0/evidence/T007/05-r1-min-sample.txt
+  -> exactly the 5 paths allowed by rework-R1 §2.
+
+$ git diff 7e9ee34 08536ed -- backend/src/mktkb/evaluation/baseline.py
+  -> empty (0 lines)
+$ git diff 7e9ee34 08536ed -- backend/src/mktkb/evaluation/report.py
+  -> hunks only at module docstring, MetricDelta/_delta_status, _report_data min_sample (690),
+     p95 note (752), render_markdown (917), render_html (1101).
+  -> diff_runs (459-545) and require_release_baseline byte-identical between 7e9ee34 and
+     08536ed (sha256 prefixes 0cf83d32a9d1bc92 / c1003678c5a392c7); MEDIUM-2 not touched.
+$ git rev-parse 7e9ee34:docs/evaluation/gate_v0_1.json
+  cfbbe0a0b55a1c782f55b23f3ec9cde35a39a645
+$ git rev-parse 08536ed:docs/evaluation/gate_v0_1.json
+  cfbbe0a0b55a1c782f55b23f3ec9cde35a39a645
+  -> unchanged (also status=unapproved; no threshold edits)
+$ git diff 7e9ee34 08536ed --name-only
+  -> no other modules / tests / dependencies.
+
+[5. LOW-1]
+docs/reports/OBS-EVAL/P0/evidence/T007/01-baseline-identity.txt:50 now:
+  "all green in 42 passed (see 04-tests.txt; R1 更正：原文误写 41，按 04-tests.txt 的 42 项改正)."
+04-tests.txt:8 still records the first-round combined 42 items; R1's new counts are in 05.
+No misleading "41" remains.
+
+[6. working tree]
+$ git status --porcelain
+  (clean before adding this review + R1-*.txt; no _index.md / other-package / evidence/T007 writes)
+
+[7. not run / residual]
+- no live model / OCR / embedding / rerank; no .env read; no T008 CLI; HTML not opened in a browser.
+- MEDIUM-2 (diff_runs release_allowed without gate) intentionally not changed; T008a must pass gate=.
+- R1 full-suite wall time 771.86s vs delivered 713.90s (environment variance; no failures).

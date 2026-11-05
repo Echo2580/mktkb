@@ -1,0 +1,14 @@
+05c64c0 p0/T003c rag spans
+ backend/src/mktkb/observability/trace_attrs.py     |  84 +++
+ backend/src/mktkb/rag/answer.py                    | 141 +++-
+ backend/src/mktkb/rag/retrieval.py                 | 159 +++--
+ backend/tests/observability/test_middleware.py     |   4 +-
+ backend/tests/observability/test_rag_spans.py      | 719 +++++++++++++++++++++
+ .../OBS-EVAL/P0/evidence/T003c/00-baseline.txt     |  44 ++
+ .../OBS-EVAL/P0/evidence/T003c/01-tdd-red.txt      |  23 +
+ .../OBS-EVAL/P0/evidence/T003c/02-rag-spans.txt    |   9 +
+ .../P0/evidence/T003c/03-rag-observability.txt     |  16 +
+ .../OBS-EVAL/P0/evidence/T003c/04-full-suite.txt   |  25 +
+ .../evidence/T003c/07-pm-authorized-test-diff.txt  |  27 +
+ 11 files changed, 1176 insertions(+), 75 deletions(-)
+exit_code=0

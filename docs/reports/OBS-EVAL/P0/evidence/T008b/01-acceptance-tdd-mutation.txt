@@ -1,0 +1,118 @@
+T008b 七条验收：TDD 红/绿、变异抽查、golden 重采稳定性
+============================================================
+HEAD=5152298；分支=p0/obs-eval
+命令统一：.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p0_acceptance.py -q -p no:cacheprovider
+golden=backend\tests\evaluation\golden\chat_response.json；测试=backend\tests\evaluation\test_p0_acceptance.py
+golden sha256(开始)=b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52
+
+A. TDD 红（#1 在 golden 缺失时必然失败）
+pytest
+$ D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest D:\GPT项目\市场部AI知识库\backend\tests\evaluation\test_p0_acceptance.py -q -p no:cacheprovider --basetemp D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-red -k 01
+-> exit=1
+   F                                                                        [100%]
+   ================================== FAILURES ===================================
+   _______________ test_acceptance_01_business_behavior_unchanged ________________
+   trace_chat_app = <fastapi.applications.FastAPI object at 0x00000203F6574830>
+       def test_acceptance_01_business_behavior_unchanged(trace_chat_app) -> None:
+   >       assert GOLDEN.is_file(), f"golden 缺失: {GOLDEN}"
+   E       AssertionError: golden 缺失: D:\GPT项目\市场部AI知识库\backend\tests\evaluation\golden\chat_response.json
+   E       assert False
+   E        +  where False = is_file()
+   E        +    where is_file = WindowsPath('D:/GPT项目/市场部AI知识库/backend/tests/evaluation/golden/chat_response.json').is_file
+   backend\tests\evaluation\test_p0_acceptance.py:182: AssertionError
+   ============================== warnings summary ===============================
+   .venv\Lib\site-packages\fastapi\testclient.py:1
+     D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+       from starlette.testclient import TestClient as TestClient  # noqa
+   -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+   =========================== short test summary info ===========================
+   FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_01_business_behavior_unchanged
+   1 failed, 6 deselected, 1 warning in 0.92s
+
+golden 已还原：sha256=b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52
+
+B. 七条全绿
+pytest
+$ D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest D:\GPT项目\市场部AI知识库\backend\tests\evaluation\test_p0_acceptance.py -q -p no:cacheprovider --basetemp D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-green
+-> exit=0
+   ============================== warnings summary ===============================
+   .venv\Lib\site-packages\fastapi\testclient.py:1
+     D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+       from starlette.testclient import TestClient as TestClient  # noqa
+   -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+   7 passed, 1 warning in 7.21s
+
+
+C. 变异抽查 M1：main.py 去掉 X-Trace-ID 响应头 → #1/#2 必须变红
+变异后 main.py sha256=7ab3e97dbc668420026c1821e739253fdbfb465a052d791d95f5b3d8d537f28d（原 a0473f7c734f282bd7b9b4ea9cedfd639db3975f99e31d60495474e680e77800）
+pytest
+$ D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest D:\GPT项目\市场部AI知识库\backend\tests\evaluation\test_p0_acceptance.py -q -p no:cacheprovider --basetemp D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-mut1 -k 01 or 02
+-> exit=1
+           Return a single header value.
+           If there are multiple headers with the same key, then we concatenate
+           them with commas. See: https://tools.ietf.org/html/rfc7230#section-3.2.2
+           """
+           normalized_key = key.lower().encode(self.encoding)
+           items = [
+               header_value.decode(self.encoding)
+               for _, header_key, header_value in self._list
+               if header_key == normalized_key
+           ]
+           if items:
+               return ", ".join(items)
+   >       raise KeyError(key)
+   E       KeyError: 'X-Trace-ID'
+   .venv\Lib\site-packages\httpx\_models.py:302: KeyError
+   ============================== warnings summary ===============================
+   .venv\Lib\site-packages\fastapi\testclient.py:1
+     D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+       from starlette.testclient import TestClient as TestClient  # noqa
+   -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+   =========================== short test summary info ===========================
+   FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_01_business_behavior_unchanged
+   FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_02_trace_id_is_queryable_end_to_end
+   2 failed, 5 deselected, 1 warning in 2.10s
+
+还原后 main.py sha256=a0473f7c734f282bd7b9b4ea9cedfd639db3975f99e31d60495474e680e77800；git diff 该文件行数=0
+
+D. 变异抽查 M2：gate.py 让 security_leak 不再上报 forbidden_source_citation → #6 必须变红
+变异后 gate.py sha256=1009f26d3b6dbf583e2538312785330dc0581dc63654daceb856a7a979a7fc1d（原 c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5）
+pytest
+$ D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest D:\GPT项目\市场部AI知识库\backend\tests\evaluation\test_p0_acceptance.py -q -p no:cacheprovider --basetemp D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-mut2 -k 06
+-> exit=1
+   tmp_path = WindowsPath('D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/t008b-mut2/test_acceptance_06_hard_gate_f0')
+       def test_acceptance_06_hard_gate_failure_returns_nonzero_exit(tmp_path: Path) -> None:
+           dataset = _b0_with_forbidden_source(tmp_path)
+           run_dir = tmp_path / "run"
+           assert cli.main(
+               ["run", "--suite", "b0", "--dataset", str(dataset), "--out", str(run_dir)]
+           ) == 0
+   >       assert cli.main(["gate", "--run", str(run_dir)]) == 1
+   E       AssertionError: assert 3 == 1
+   E        +  where 3 = <function main at 0x0000020D47097EC0>(['gate', '--run', 'D:\\GPT项目\\市场部AI知识库\\backend\\.pytest-tmp\\t008b-mut2\\test_acceptance_06_hard_gate_f0\\run'])
+   E        +    where <function main at 0x0000020D47097EC0> = cli.main
+   backend\tests\evaluation\test_p0_acceptance.py:504: AssertionError
+   ---------------------------- Captured stdout call -----------------------------
+   run_id=b0-local-20261105T094734063942Z-6549ea4d suite=b0 mode=local cases=40 out=D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-mut2\test_acceptance_06_hard_gate_f0\run
+   gate exit_code=3 run_id=b0-local-20261105T094734063942Z-6549ea4d suite=b0 mode=local scored=32/32 hard_failures=[] quality=unknown config_status=unapproved
+   wrote D:\GPT项目\市场部AI知识库\backend\.pytest-tmp\t008b-mut2\test_acceptance_06_hard_gate_f0\run\gate.json
+   ============================== warnings summary ===============================
+   .venv\Lib\site-packages\fastapi\testclient.py:1
+     D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+       from starlette.testclient import TestClient as TestClient  # noqa
+   -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+   =========================== short test summary info ===========================
+   FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_06_hard_gate_failure_returns_nonzero_exit
+   1 failed, 6 deselected, 1 warning in 1.65s
+
+还原后 gate.py sha256=c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5；git diff 该文件行数=0
+
+E. golden 重采稳定性：仓库外采集脚本连续两次独立运行，文件字节必须一致
+  采集 #1: exit=0 golden sha256=b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52
+  采集 #2: exit=0 golden sha256=b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52
+两次一致=True；normalised_body 体量=1306 字符
+
+工作树（证据生成后）git status --short：
+   M backend/tests/evaluation/conftest.py
+   ?? backend/tests/evaluation/golden/
+   ?? backend/tests/evaluation/test_p0_acceptance.py

@@ -1,0 +1,54 @@
+== T007 baseline identity + approval rejection (real b0 local run, offline provider) ==
+date: 2026-11-05 (Asia/Shanghai)
+python: 3.12.7; repo root: D:\GPT项目\市场部AI知识库
+run root (temp, not committed): C:\Users\dell1712\AppData\Local\Temp\t007-baseline-report
+command: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T007\t007_real_chain.py
+chain log: %TEMP%\t007-baseline-report\chain-log.txt (full); this file = identity/rejection excerpt
+
+[identity formula, written in baseline.py docstring]
+baseline_id = sha256(dataset_version + pipeline_version + mode + scope + gate_version + corpus_sha256)[:12]
+- six fields are concatenated in that order, no separator; UTF-8; first 12 lowercase hex.
+- six fields are validated independently (non-empty + mode in {local, replay}); the gate's
+  max_regression_pp identity check (pipeline/suite/dataset only) is NOT reused (T006b constraint 1).
+
+[real run identity]
+run-baseline: b0-local-20261105T073758307717Z-56200423  rows=40
+run-current : b0-local-20261105T073759317432Z-6177f4c2  rows=40 (same b0 dataset; second independent run)
+identity={"corpus_sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+          "dataset_version": "b0:b0-2026-11-04:bd4f0f7ccc6e",
+          "gate_version": "mktkb.gate.v0.1",
+          "mode": "local",
+          "scope": "end_to_end",
+          "pipeline_version": "735da1397044"}
+baseline_id(run-baseline)=c0ce2856938f
+baseline_id(run-current )=c0ce2856938f
+same identity across two independent runs: True
+recompute twice stable: True
+
+[per-field sensitivity: one field changed, all others fixed]
+dataset_version    -> 05667cb3145a  changed=True
+pipeline_version   -> 75b435b02b58  changed=True
+mode               -> ca2c6bb2c80b  changed=True
+scope              -> 3edc8c9b9d0a  changed=True
+gate_version       -> 05570148184a  changed=True
+corpus_sha256      -> f27b417b5f89  changed=True
+
+[default config (docs/evaluation/gate_v0_1.json, status=unapproved) on the clean real run]
+evaluate_gate(run, quality=True): exit_code=3 quality=unknown hard_failures=[] unknowns=42
+unknown check_ids=['thresholds_unapproved']; gate config status=unapproved
+approve_baseline(run, gate, root, approver="T007 dev", reason="should be rejected"):
+  BaselineApprovalError: 门禁未通过（exit_code=3：不可判定：数据/配置/gold 不可用、样本不足、
+  阈值未审批（T009 人工门）或跨版本 baseline），不得建立/审批 baseline
+approval rejected=True; baseline root created=False  (no partial baseline.json / approval.json)
+
+[unit coverage of the same hard constraints]
+pytest backend/tests/evaluation/test_baseline.py::test_approval_rejects_nonzero_gate (1/2/3/4)
+pytest backend/tests/evaluation/test_baseline.py::test_approval_rejects_unapproved_thresholds_exit_three
+pytest backend/tests/evaluation/test_baseline.py::test_approval_rejects_exit_zero_without_quality_layer
+pytest backend/tests/evaluation/test_baseline.py::test_approval_rejects_unapproved_config_status
+pytest backend/tests/evaluation/test_baseline.py::test_approval_requires_approver_and_reason
+all green in 42 passed (see 04-tests.txt; R1 更正：原文误写 41，按 04-tests.txt 的 42 项改正).
+
+[scope note] The real P0 release baseline is NOT generated in T007: gate_v0_1.json is still
+`unapproved`; the T009 human gate must approve thresholds first. This file only proves identity
+binding and the rejection path on a clean real run.

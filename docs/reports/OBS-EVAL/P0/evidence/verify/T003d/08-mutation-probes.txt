@@ -1,0 +1,404 @@
+T003d independent verification - mutation probes (delivered tests must catch each mutation)
+copy: %TEMP%\t003d-0915e17e\mut (separate from the pristine isolated copy)
+mutator: 11-mutate.py; each mutation is applied to a pristine file copy, then the selected delivered tests run.
+
+=== MUTATION m1_validate_ignores_reason ===
+APPLIED m1_validate_ignores_reason to contracts.py
+.............................F.....................F.................    [100%]
+================================== FAILURES ===================================
+____________ test_validate_required_spans_reads_reason_from_record ____________
+
+    def test_validate_required_spans_reads_reason_from_record():
+        """``validate_required_spans`` �� ``record.reason`` Ӧ�� reason-aware ���⡣"""
+        early = TraceRecord(path="rag", outcome_kind="no_answer", reason="DOCUMENT_NOT_FOUND")
+>       assert validate_required_spans(early, ["parse", "commit"]) == []
+E       AssertionError: assert ['fuse', 'recall'] == []
+E         
+E         Left contains 2 more items, first extra item: 'fuse'
+E         Use -v to get more diff
+
+backend\tests\observability\test_contracts.py:210: AssertionError
+________ test_validate_required_spans_reads_legacy_reason_from_record _________
+
+    def test_validate_required_spans_reads_legacy_reason_from_record():
+        """``validate_required_spans`` �� legacy ��¼�� ``reason`` Ӧ�� ��5.11 ���⡣"""
+        early = TraceRecord(path="legacy", outcome_kind="not_found", reason="UNRECORDED_FIELD")
+>       assert validate_required_spans(early, ["intent_parse", "commit"]) == []
+E       AssertionError: assert ['retrieve'] == []
+E         
+E         Left contains one more item: 'retrieve'
+E         Use -v to get more diff
+
+backend\tests\observability\test_contracts.py:277: AssertionError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_contracts.py::test_validate_required_spans_reads_reason_from_record
+FAILED backend\tests\observability\test_contracts.py::test_validate_required_spans_reads_legacy_reason_from_record
+2 failed, 67 passed, 1 warning in 0.61s
+
+EXIT=1
+
+=== MUTATION m2_drop_early_reason ===
+APPLIED m2_drop_early_reason to service.py
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f] _
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001CA0150B7A0>
+question = '������ĸ�������˭��'
+
+    @pytest.mark.parametrize("question", EARLY_NOT_FOUND_QUESTIONS)
+    def test_legacy_parse_early_not_found_is_reason_aware(trace_chat_app, question):
+        """�������⣺ֻ��������δ��¼�ġ������ˡ���������ֱ�� not_found��δִ�� retrieve��
+    
+        ��5.11 �� reason-aware ��Լ�ñ��輯�˻�Ϊ ``intent_parse`` + ``commit``����Ʒ��Ӧ���䡣
+        """
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, question)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "not_found", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.path == TracePath.LEGACY.value
+        assert trace.outcome_kind == OutcomeKind.NOT_FOUND.value
+>       assert trace.reason == "UNRECORDED_FIELD"
+E       AssertionError: assert None == 'UNRECORDED_FIELD'
+E        +  where None = TraceRecord(trace_id='8e6e3229cba7415c8932f55e779a3225', request_id='80c6b109-fbf8-4c62-a815-3d84b2741e3f', http_reque...sion=None, degraded_json=None, latency_ms=48, status='ok', error_code=None, created_at='2026-11-05T01:12:45.855+00:00').reason
+
+backend\tests\observability\test_paths_e2e.py:465: AssertionError
+_ test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f] _
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001CA01C14FE0>
+question = '���������������ĸ�������˭��'
+
+    @pytest.mark.parametrize("question", EARLY_NOT_FOUND_QUESTIONS)
+    def test_legacy_parse_early_not_found_is_reason_aware(trace_chat_app, question):
+        """�������⣺ֻ��������δ��¼�ġ������ˡ���������ֱ�� not_found��δִ�� retrieve��
+    
+        ��5.11 �� reason-aware ��Լ�ñ��輯�˻�Ϊ ``intent_parse`` + ``commit``����Ʒ��Ӧ���䡣
+        """
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, question)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "not_found", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.path == TracePath.LEGACY.value
+        assert trace.outcome_kind == OutcomeKind.NOT_FOUND.value
+>       assert trace.reason == "UNRECORDED_FIELD"
+E       AssertionError: assert None == 'UNRECORDED_FIELD'
+E        +  where None = TraceRecord(trace_id='8ef88995cf334adaab11bf554c65ce71', request_id='f6fec904-9c71-4b7e-91dd-97c00728b571', http_reque...sion=None, degraded_json=None, latency_ms=48, status='ok', error_code=None, created_at='2026-11-05T01:12:47.355+00:00').reason
+
+backend\tests\observability\test_paths_e2e.py:465: AssertionError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f]
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f]
+2 failed, 14 deselected, 1 warning in 3.46s
+
+EXIT=1
+
+=== MUTATION m3_drop_supplement_rows ===
+APPLIED m3_drop_supplement_rows to contracts.py
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_______ test_legacy_conflict_matches_supplement_row_without_value_error _______
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001B0709CBC80>
+
+    def test_legacy_conflict_matches_supplement_row_without_value_error(trace_chat_app):
+        """legacy ��ͻ��T001 ������ϣ���5.11 ��ʵ��ִ�в��У�validate ������ ValueError��"""
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        second = _xlsx(
+            Path(trace_chat_app.state.settings.data_dir) / "t003d-legacy-conflict.xlsx",
+            [["������", "��������", 40, "QF001", "D���ݴ��"]],
+        )
+        record = _upload_and_worker(trace_chat_app, admin, second)
+        _publish(trace_chat_app, admin, record)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, LEGACY_RECORD_QUESTION)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "conflict", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.path == TracePath.LEGACY_WITH_RAG_CANDIDATES.value
+        assert trace.outcome_kind == OutcomeKind.CONFLICT.value
+        assert trace.reason == "CONFLICTING_VALUES"
+        names = _names(spans)
+        assert LEGACY_SUPPLEMENT <= names
+>       assert required_spans(TracePath.LEGACY_WITH_RAG_CANDIDATES, OutcomeKind.CONFLICT) <= names
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_paths_e2e.py:497: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = <TracePath.LEGACY_WITH_RAG_CANDIDATES: 'legacy_with_rag_candidates'>
+outcome = <OutcomeKind.CONFLICT: 'conflict'>, reason = None
+
+    def required_spans(
+        path: TracePathLike, outcome: OutcomeKindLike, *, reason: str | None = None
+    ) -> frozenset[str]:
+        """���� ``path + outcome`` �Ļ������� Span ���ϣ���� ��6.4����
+    
+        - ����ö�ٻ��ֵ�ַ������ɣ�
+        - ``legacy_with_rag_candidates`` �� ``legacy`` ���� legacy ����
+        - ``reason`` �� T003d ׷�ӵ�**������**��ѡ������``rag + no_answer`` ��
+          ``reason`` �� {DOCUMENT_NOT_FOUND, UNKNOWN_STORE, RECORD_ONLY} ʱ���輯�˻�Ϊ
+          ``{parse, commit}``������ǰ�ܴ�δִ�� recall/fuse����legacy ·��
+          ``not_found`` �� ``reason`` �� {UNKNOWN_IDENTIFIER, IDENTIFIER_NOT_RETRIEVABLE,
+          NO_INTENT, UNRECORDED_FIELD} ʱ�˻�Ϊ ``{intent_parse, commit}``�����������ˣ�
+          δִ�� retrieve������������ None ������ reason ʱ�붳�����ȫһ�£�
+        - ��Ʊ�δ���������� ``ValueError``��fail closed������Ĭ���ؿռ�����
+        """
+        resolved_path = TracePath(path)
+        resolved_outcome = OutcomeKind(outcome)
+        if (
+            resolved_path is TracePath.RAG
+            and resolved_outcome is OutcomeKind.NO_ANSWER
+            and reason in _RAG_PRE_RETRIEVAL_NO_ANSWER_REASONS
+        ):
+            return _RAG_PRE_RETRIEVAL_NO_ANSWER_SPANS
+        if (
+            resolved_path is not TracePath.RAG
+            and resolved_outcome is OutcomeKind.NOT_FOUND
+            and reason in _LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS
+        ):
+            return _LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS
+        table = _RAG_REQUIRED_SPANS if resolved_path is TracePath.RAG else _LEGACY_REQUIRED_SPANS
+        try:
+            return table[resolved_outcome]
+        except KeyError:
+>           raise ValueError(
+                "��� ��6.4 δ���� path="
+                f"{resolved_path.value!r} + outcome={resolved_outcome.value!r} �ı��� Span ��Լ"
+            ) from None
+E           ValueError: ��� ��6.4 δ���� path='legacy_with_rag_candidates' + outcome='conflict' �ı��� Span ��Լ
+
+backend\src\mktkb\observability\contracts.py:143: ValueError
+____________ test_legacy_knowledge_changed_matches_supplement_row _____________
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001B0712E2FC0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001B0746C9B20>
+
+    def test_legacy_knowledge_changed_matches_supplement_row(trace_chat_app, monkeypatch):
+        """legacy knowledge_changed�������׶� revision �仯��Ҳ��������У�顣"""
+        from mktkb.conversations import service as conversations_service
+        from mktkb.retrieval.types import KnowledgeRevisionChanged
+    
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        def _boom(*args, **kwargs):
+            raise KnowledgeRevisionChanged("T003D ע�룺�����׶� revision �仯")
+    
+        monkeypatch.setattr(conversations_service, "_retrieve", _boom)
+        response = _ask(employee, conversation_id, LEGACY_RECORD_QUESTION)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "knowledge_changed", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.outcome_kind == OutcomeKind.KNOWLEDGE_CHANGED.value
+        assert trace.reason == "KNOWLEDGE_CHANGED"
+        names = _names(spans)
+        # ������ʵִ�й����쳣Ҳ���� retrieve Span������˲��ᱻ��ȱʧ��
+        assert "retrieve" in names
+        assert LEGACY_SUPPLEMENT <= names
+>       assert validate_required_spans(trace, names) == []
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\observability\test_paths_e2e.py:527: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\src\mktkb\observability\contracts.py:269: in validate_required_spans
+    required = set(required_spans(path, outcome, reason=record.reason))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+path = 'legacy_with_rag_candidates', outcome = 'knowledge_changed'
+reason = 'KNOWLEDGE_CHANGED'
+
+    def required_spans(
+        path: TracePathLike, outcome: OutcomeKindLike, *, reason: str | None = None
+    ) -> frozenset[str]:
+        """���� ``path + outcome`` �Ļ������� Span ���ϣ���� ��6.4����
+    
+        - ����ö�ٻ��ֵ�ַ������ɣ�
+        - ``legacy_with_rag_candidates`` �� ``legacy`` ���� legacy ����
+        - ``reason`` �� T003d ׷�ӵ�**������**��ѡ������``rag + no_answer`` ��
+          ``reason`` �� {DOCUMENT_NOT_FOUND, UNKNOWN_STORE, RECORD_ONLY} ʱ���輯�˻�Ϊ
+          ``{parse, commit}``������ǰ�ܴ�δִ�� recall/fuse����legacy ·��
+          ``not_found`` �� ``reason`` �� {UNKNOWN_IDENTIFIER, IDENTIFIER_NOT_RETRIEVABLE,
+          NO_INTENT, UNRECORDED_FIELD} ʱ�˻�Ϊ ``{intent_parse, commit}``�����������ˣ�
+          δִ�� retrieve������������ None ������ reason ʱ�붳�����ȫһ�£�
+        - ��Ʊ�δ���������� ``ValueError``��fail closed������Ĭ���ؿռ�����
+        """
+        resolved_path = TracePath(path)
+        resolved_outcome = OutcomeKind(outcome)
+        if (
+            resolved_path is TracePath.RAG
+            and resolved_outcome is OutcomeKind.NO_ANSWER
+            and reason in _RAG_PRE_RETRIEVAL_NO_ANSWER_REASONS
+        ):
+            return _RAG_PRE_RETRIEVAL_NO_ANSWER_SPANS
+        if (
+            resolved_path is not TracePath.RAG
+            and resolved_outcome is OutcomeKind.NOT_FOUND
+            and reason in _LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS
+        ):
+            return _LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS
+        table = _RAG_REQUIRED_SPANS if resolved_path is TracePath.RAG else _LEGACY_REQUIRED_SPANS
+        try:
+            return table[resolved_outcome]
+        except KeyError:
+>           raise ValueError(
+                "��� ��6.4 δ���� path="
+                f"{resolved_path.value!r} + outcome={resolved_outcome.value!r} �ı��� Span ��Լ"
+            ) from None
+E           ValueError: ��� ��6.4 δ���� path='legacy_with_rag_candidates' + outcome='knowledge_changed' �ı��� Span ��Լ
+
+backend\src\mktkb\observability\contracts.py:143: ValueError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_conflict_matches_supplement_row_without_value_error
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_knowledge_changed_matches_supplement_row
+2 failed, 14 deselected, 1 warning in 3.65s
+
+EXIT=1
+
+=== MUTATION m4_no_index_sync ===
+APPLIED m4_no_index_sync to service.py
+F                                                                        [100%]
+================================== FAILURES ===================================
+____________ test_index_sync_span_only_when_sync_actually_executes ____________
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x0000026B565533E0>
+
+    def test_index_sync_span_only_when_sync_actually_executes(trace_chat_app):
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        path = _xlsx(Path(trace_chat_app.state.settings.data_dir) / "t003d-sync.xlsx", T003D_ROWS)
+        record = _upload_and_worker(trace_chat_app, admin, path)
+        _publish_bypassing_hook(trace_chat_app, record)
+        # �������ӱ��ƹ����������Ǿ� revision���״��ʴ������ʵͬ����
+        assert trace_chat_app.state.qa.status()["product_revision"] == 0
+    
+        conversation_id = _conversation(employee)
+        first = _ask(employee, conversation_id, LEGACY_RECORD_QUESTION)
+        assert first.status_code == 200, first.text
+        trace, spans = _trace_of(trace_chat_app, first)
+>       assert "index_sync" in _names(spans)
+E       assert 'index_sync' in {'answer_validate', 'commit', 'embedding_query', 'exact_recall', 'fuse', 'hard_filter', ...}
+E        +  where {'answer_validate', 'commit', 'embedding_query', 'exact_recall', 'fuse', 'hard_filter', ...} = _names([SpanRecord(span_id='33ae6dc31d9b4b3fb28e24d097e6db0b', trace_id='27ceb0ecd1934daab874bf1caf844f53', parent_span_id=No...attributes_json='{"dimensions":1024,"model":"text-embedding-v4","provider":"mock","vectors":1}', error_code=None), ...])
+
+backend\tests\observability\test_paths_e2e.py:545: AssertionError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_paths_e2e.py::test_index_sync_span_only_when_sync_actually_executes
+1 failed, 15 deselected, 1 warning in 2.68s
+
+EXIT=1
+
+=== MUTATION m5_outcome_writer_drops_reason ===
+APPLIED m5_outcome_writer_drops_reason to service.py
+FF                                                                       [100%]
+================================== FAILURES ===================================
+_ test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f] _
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001C27F9BBA70>
+question = '������ĸ�������˭��'
+
+    @pytest.mark.parametrize("question", EARLY_NOT_FOUND_QUESTIONS)
+    def test_legacy_parse_early_not_found_is_reason_aware(trace_chat_app, question):
+        """�������⣺ֻ��������δ��¼�ġ������ˡ���������ֱ�� not_found��δִ�� retrieve��
+    
+        ��5.11 �� reason-aware ��Լ�ñ��輯�˻�Ϊ ``intent_parse`` + ``commit``����Ʒ��Ӧ���䡣
+        """
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, question)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "not_found", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.path == TracePath.LEGACY.value
+        assert trace.outcome_kind == OutcomeKind.NOT_FOUND.value
+>       assert trace.reason == "UNRECORDED_FIELD"
+E       AssertionError: assert None == 'UNRECORDED_FIELD'
+E        +  where None = TraceRecord(trace_id='41df9512c7284013a33873c0b6f7fbcd', request_id='d5bb9bbd-7eb7-4a6d-b096-364cbb99bcdd', http_reque...sion=None, degraded_json=None, latency_ms=49, status='ok', error_code=None, created_at='2026-11-05T01:13:06.457+00:00').reason
+
+backend\tests\observability\test_paths_e2e.py:465: AssertionError
+_ test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f] _
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000001C2110EEAB0>
+question = '���������������ĸ�������˭��'
+
+    @pytest.mark.parametrize("question", EARLY_NOT_FOUND_QUESTIONS)
+    def test_legacy_parse_early_not_found_is_reason_aware(trace_chat_app, question):
+        """�������⣺ֻ��������δ��¼�ġ������ˡ���������ֱ�� not_found��δִ�� retrieve��
+    
+        ��5.11 �� reason-aware ��Լ�ñ��輯�˻�Ϊ ``intent_parse`` + ``commit``����Ʒ��Ӧ���䡣
+        """
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, question)
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "not_found", body
+        trace, spans = _trace_of(trace_chat_app, response)
+    
+        assert trace.path == TracePath.LEGACY.value
+        assert trace.outcome_kind == OutcomeKind.NOT_FOUND.value
+>       assert trace.reason == "UNRECORDED_FIELD"
+E       AssertionError: assert None == 'UNRECORDED_FIELD'
+E        +  where None = TraceRecord(trace_id='d5469a35249343999587437a9763d43a', request_id='bb907ed6-f4d1-4ec1-88ef-31a351914d6f', http_reque...sion=None, degraded_json=None, latency_ms=41, status='ok', error_code=None, created_at='2026-11-05T01:13:07.905+00:00').reason
+
+backend\tests\observability\test_paths_e2e.py:465: AssertionError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f]
+FAILED backend\tests\observability\test_paths_e2e.py::test_legacy_parse_early_not_found_is_reason_aware[\u6ee8\u6c5f\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u8d1f\u8d23\u4eba\u662f\u8c01\uff1f]
+2 failed, 14 deselected, 1 warning in 3.43s
+
+EXIT=1
+
