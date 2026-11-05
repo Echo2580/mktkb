@@ -1,7 +1,7 @@
 # 协调区索引（_index.md）
 
 > 唯一事实源；状态一律用门编号（G0–G6）。「待审」列有且最多一个「是」。
-> 当前阶段：**P0 已暂停**（主人 2026-11-05 指令：T004 完成即停、余下先不验收，改为主人用其他 AI 验证）。已完成 T001–T004b：T001/T002/T003a/T003b/T003d（R1 定向复验）已独立验收通过，T003c 有条件通过，T004a/T004b 仅开发完成未验收；T005 起未开工。暂停交接见 `2026-11-05-p0-pause-handoff.md`。
+> 当前阶段：**P0 G5 待主人审核**（T009 总验收 = 有保留 PASS，`docs/reports/OBS-EVAL/P0/review.md`；38 commit / 398 路径全合规；全量 1593 passed；NOT-RUN 与 3 项保留见 review §5）。主人四选一决策前冻结派单。
 > 基线：`main` @ `8e44158`，tag `v0.1-local-20261104`；分支 `p0/obs-eval` 自 `8e44158` 建。
 > 已确认参数（主人 2026-11-04）：一包一个新开发助手 + 一包一个新验收助手；全部完成后开 1 个 PR；允许继续拆分（见下表 T003a–T008b）；分支基线 `8e44158`；`fixtures/` 既有只读、允许新增 `fixtures/evaluation/**`。
 > 人工门：主人已接管验收节奏（2026-11-05 起）；P0 T009 收口门保留待主人决策。
@@ -22,7 +22,7 @@
 | T007 | Baseline + Diff + 报告 | **G4 通过**（R1 定向复验 PASS：`review-R1.md`；dev commits `6447b85`+`08536ed`；全量 1551 passed） | 1 | 否 | T006b ✅ |
 | T008a | CLI 与 P0 全流程 run | **G4 通过**（独立验收 PASS：`review.md`；exit 4 端到端 NOT-RUN 记为 GAP；dev commit `f2c0209`；全量 1586 passed） | 0 | 否 | T007 ✅ |
 | T008b | P0 七条验收测试 + p0-report | **G4 通过**（独立验收 PASS：`review.md`；5 LOW 非阻断；dev commit `2f7b174`；全量 1593 passed） | 0 | 否 | T008a ✅ |
-| T009 | 独立验收与 P0 收口 | G3 验收中（总验收者已派；对象 = P0 全部提交，最新 `2f7b174`） | 0 | 否 | T008b ✅ |
+| T009 | 独立验收与 P0 收口 | **G5 待人工审核**（总验收「有保留 PASS」：`docs/reports/OBS-EVAL/P0/{review.md,anchors.json}`；全量 1593 passed；3 项保留见 review §5） | 0 | **是** | T008b ✅ |
 
 ## 遗留项（非阻塞，T009 时逐条复核是否仍存在）
 
@@ -83,6 +83,12 @@
     - LOW：`GateConfig.to_dict` 仍输出旧 `min_sample` 键（loader 只认 `hard_gate_min_sample`）；`GateResult.to_dict` 只暴露 `scored_count`（与 `evaluated_count` 同值）；`05-r1-*` 证据头 base 提交标签过期（数字已独立复现）。
     - 口径定稿：硬门禁分母 `evaluated_count` = b0 32 / badcase 13；质量检索分母 = badcase 10；两者不得混用（已写入 T006b handoff）。
 34. **T006b 执行中断与接续（2026-11-05 14:1x–14:3x）**：开发会话在全量测试收尾阶段被外部暂停（非代码失败），工作树保留完整成果（`gate.py` 质量层 + 29 个测试 + 3 份证据）；按 §S 由全新上下文接续者接管收尾（核实→补跑→写报告→单 commit），未丢工作、不产生第二个同义 commit。
+35. **T009 总验收保留项（2026-11-05，「有保留 PASS」，主人 G5 决策输入）**：
+    - 设计 §7.2 的 `locator` 范围型正式口径**尚未回写设计文档**（T004a 验收 MEDIUM-1 的 PM 追认只记录在 `_index` 与本条；实现与测试已按该口径）。
+    - `refusal_recall` 零样本时 `status=pass` 的展示有误导性（b0 无拒答题；分母 0、observed=None）；不得读作"拒答召回通过"。
+    - T006b `calibrate_gate` 的 per-stratum 建议不能直接写入单值 `MetricSpec`，审批时需人工按最小非零 stratum 取值。
+    - NOT-RUN（review §5）：`mode=live→4` 端到端、真实 baseline/阈值审批（主人人工门）、真实 OCR/embedding/rerank/模型、P1/P2 质量、HTML 渲染、`cross_entity`/`stale_bypass` 真实 case 类、`pagination` 真实期望值。
+36. **P0 收口与 PR（2026-11-05）**：分支 `p0/obs-eval` 38 个 commit（含 8 个簿记/返工提交），基座 `main` @ `8e44158`；`git status` 干净；PR 见 `prompts/p0-pr.md` 或 GitHub PR 列表。**合并前主人人工门项**：阈值审批（`gate_v0_1.json status`）与真实 baseline 建立、设计 §7.2 口径回写。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）

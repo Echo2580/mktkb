@@ -1,0 +1,53 @@
+# T009 复跑证据 04 — 哈希锚与 NOT-RUN
+# 环境：Windows PowerShell；p0/obs-eval @ a1a40cc；UTF-8 无 BOM；T009 未改任何交付文件。
+
+[1] 关键文件 SHA-256（实测）
+8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209  docs/evaluation/gate_v0_1.json (5716 B)
+9e128ffe373bdb4862529733e4de7b2b3dc7ddb34b294ad3c0b55d9f83fb9971  docs/evaluation/trace_schema_v0_1.md (17394 B)
+109ba64eea8df9f7f3e4c4cb7a90d78e2b58c37ca4e3bde615b00f355c0a598e  docs/reports/OBS-EVAL/P0/p0-report.md (14093 B)
+8bee3c47e1db102c9fe123c525dd0ef478a8adc9a521f9e07fdd5aae38b3be31  tools/rag_eval.py (724 B)
+c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5  backend/src/mktkb/evaluation/gate.py (135576 B)
+c807cac625ebf345cb59f50aba0d231b0c53b545e9e9f3ad15f5d009a6eb5d11  backend/src/mktkb/evaluation/runner.py (51900 B)
+7aa4e114d7c18d416db7a8957723f9ac5b0d2b567b32012a50d2006279f18eb3  backend/src/mktkb/evaluation/cli.py (20440 B)
+ea7fd45940b3db514cbaf41371d93460855aeb01dfcbdb8b976be7efbb6df966  backend/src/mktkb/observability/contracts.py (14271 B)
+632f09bbbbce7f75422d795d05c49b64c454b37ba08539e40269694056b86c59  backend/tests/evaluation/test_p0_acceptance.py (26708 B)
+27f432d1ffd3316fa882c9f15fb1a8f5bee82fd39c99e79ddeed756d35630010  backend/tests/evaluation/conftest.py (9081 B)
+b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52  backend/tests/evaluation/golden/chat_response.json (4244 B)
+bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f  fixtures/evaluation/b0.jsonl (28903 B)
+e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a  fixtures/evaluation/badcase.jsonl (9385 B)
+6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6  fixtures/acceptance/manifest.json (20072 B)
+5f41b1b811a5fecb0c0beab1b5070540e3c622a175a59939e293cc9b17ec3218  corpus/enterprise-20261101/manifest.json (46976 B)
+2154b8b55087418fc0174756e468dc9c8689b577bf7cd10d782c3c6cd2cdae7a  evidence/verify/T003b/07-openapi-{baseline,target}.json (47962 B each, identical)
+
+[2] 版本锚
+dataset_version：b0=b0:b0-2026-11-04:bd4f0f7ccc6e；badcase=badcase:badcase-2026-11-04:e5f0662af3f2
+index_revision：b0=6；badcase=4
+pipeline_version=735da1397044
+gate_version=mktkb.gate.v0.1；gate config schema=mktkb.gate.config.v0.1
+hard_gate_min_sample：b0=32；badcase=13
+质量检索分母：b0=32；badcase=10
+质量答案分母：b0=32；badcase=13
+8 个硬门禁 ID（gate.py:169-176）：
+  security_leak, cross_entity, stale_bypass, conflict_not_rejected,
+  exact_value_contract, pagination_contract, citation_required, trace_integrity
+
+[3] T001–T008b 开发 commit（含 R1）
+T001 7b02f40 / T002 2ac976f / T003a dea4d5d / T003b d41d19f / T003c 776497f
+T003d b811f9f + R1 71756f5 / T004a 574e288 / T004b f126598 / T005 80fd092
+T006a f6bb3c4 + R1 90d7133 / T006b 5a4c054 / T007 6447b85 + R1 08536ed
+T008a f2c0209 / T008b 2f7b174
+HEAD a1a40cc（纯簿记）；基线 main 8e44158；P0 共 38 个 commit。
+
+[4] NOT-RUN / 未覆盖（不得写成通过）
+- mode=live → exit 4 端到端：NOT-RUN（仅 3 个单测；CLI live=exit 2；手改 manifest=exit 3）。
+- 真实 baseline 与阈值审批：NOT-RUN（主人人工门；仓库无 approval.json/baseline；gate 仍 unapproved）。
+- 真实 OCR / embedding / rerank / 聊天模型：NOT-RUN（P0 零真实调用；spy/socket=0）。
+- P1/P2 真实回答质量：NOT-RUN（无真实检索/生成数据；p0-report §0 免责句）。
+- HTML 渲染效果：仅生成/字节断言，未开浏览器。
+- cross_entity / stale_bypass 的真实 case 类：v0.1 数据集无该类 → not_applicable；仅合成注入。
+- pagination_contract 真实 fixtures 期望：expected_pagination 全 null；仅合成/契约验证。
+- #7 业务问答阶段 socket guard 已释放（T008b LOW-4）；业务阶段仅 provider/Settings/.env/模型替身守卫。
+- golden 采集脚本未入库，无法独立重放“两次独立采集字节相同”（T008b LOW-2）。
+- T006b proposal 的 %TEMP% run 未持久化到仓库（T006b MEDIUM-3）。
+- 设计 §7.2 locator 范围型正式口径尚未回写（T004a MEDIUM-1）。
+- refusal_recall 零样本 status=pass 的显示口径未改（T007-R1 残余）。

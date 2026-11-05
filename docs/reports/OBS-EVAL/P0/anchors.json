@@ -1,0 +1,386 @@
+{
+  "schema": "mktkb.t009.anchors.v1",
+  "generated_at": "2026-11-05T18:38:27+08:00",
+  "branch": "p0/obs-eval",
+  "base": {
+    "branch": "main",
+    "commit": "8e44158033b295066a7b6fd2f8b0fba019ac1270"
+  },
+  "head": {
+    "commit": "a1a40cc48454379dd45bcc58e1cdd493c3c8ceaf",
+    "short": "a1a40cc",
+    "note": "pure bookkeeping; latest delivery commit is 2f7b174 (T008b)"
+  },
+  "latest_delivery_commit": "2f7b174",
+  "p0_commit_count": 38,
+  "commits": {
+    "T001": [
+      "7b02f40"
+    ],
+    "T002": [
+      "2ac976f"
+    ],
+    "T003a": [
+      "dea4d5d"
+    ],
+    "T003b": [
+      "d41d19f"
+    ],
+    "T003c": [
+      "776497f"
+    ],
+    "T003d": [
+      "b811f9f",
+      "71756f5"
+    ],
+    "T004a": [
+      "574e288"
+    ],
+    "T004b": [
+      "f126598"
+    ],
+    "T005": [
+      "80fd092"
+    ],
+    "T006a": [
+      "f6bb3c4",
+      "90d7133"
+    ],
+    "T006b": [
+      "5a4c054"
+    ],
+    "T007": [
+      "6447b85",
+      "08536ed"
+    ],
+    "T008a": [
+      "f2c0209"
+    ],
+    "T008b": [
+      "2f7b174"
+    ]
+  },
+  "versions": {
+    "dataset_version": {
+      "b0": "b0:b0-2026-11-04:bd4f0f7ccc6e",
+      "badcase": "badcase:badcase-2026-11-04:e5f0662af3f2"
+    },
+    "dataset_sha256": {
+      "b0": "bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f",
+      "badcase": "e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a"
+    },
+    "corpus_manifest_sha256": {
+      "b0": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+      "badcase": "5f41b1b811a5fecb0c0beab1b5070540e3c622a175a59939e293cc9b17ec3218"
+    },
+    "index_revision": {
+      "b0": 6,
+      "badcase": 4
+    },
+    "pipeline_version": "735da1397044",
+    "gate_version": "mktkb.gate.v0.1",
+    "gate_config_schema_version": "mktkb.gate.config.v0.1",
+    "gate_config_status": "unapproved",
+    "gate_config_sha256": "8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209",
+    "trace_schema": "mktkb.trace.v0.1"
+  },
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "denominators": {
+    "hard_gate_min_sample": {
+      "b0": 32,
+      "badcase": 13
+    },
+    "quality_retrieval": {
+      "b0": 32,
+      "badcase": 10
+    },
+    "quality_answer": {
+      "b0": 32,
+      "badcase": 13
+    }
+  },
+  "tests": {
+    "full": {
+      "passed": 1593,
+      "failed": 0,
+      "errors": 0,
+      "seconds": 428.69,
+      "t008a_baseline": 1586,
+      "expected_current": 1593
+    },
+    "evaluation": {
+      "passed": 320,
+      "seconds": 17.03
+    },
+    "integration": {
+      "passed": 345,
+      "seconds": 262.14
+    },
+    "p0_acceptance": {
+      "passed": 7,
+      "seconds": 7.18
+    },
+    "hard_gate_matrix_plus_live_unit": {
+      "passed": 11,
+      "seconds": 0.42
+    },
+    "baseline_math": "T008a full 1586 + T008b new 7 = 1593"
+  },
+  "gate_matrix_cli": {
+    "all_eight_exit_1": true,
+    "gates": {
+      "security_leak": {
+        "exit": 1,
+        "check_id": "forbidden_value"
+      },
+      "cross_entity": {
+        "exit": 1,
+        "check_id": "retrieved_hard_filter_violation"
+      },
+      "stale_bypass": {
+        "exit": 1,
+        "check_id": "retrieved_hard_filter_violation"
+      },
+      "conflict_not_rejected": {
+        "exit": 1,
+        "check_id": "conflict_not_rejected"
+      },
+      "exact_value_contract": {
+        "exit": 1,
+        "check_id": "exact_value_miss"
+      },
+      "pagination_contract": {
+        "exit": 1,
+        "check_id": "pagination_contract_violation"
+      },
+      "citation_required": {
+        "exit": 1,
+        "check_id": "citation_missing"
+      },
+      "trace_integrity": {
+        "exit": 1,
+        "check_id": "trace_missing"
+      }
+    }
+  },
+  "live_exit4": {
+    "unit_tests_passed": 3,
+    "end_to_end": "NOT-RUN",
+    "cli_run_live_exit": 2,
+    "tampered_manifest_gate_exit": 3
+  },
+  "zero_real_calls": {
+    "provider_calls": 0,
+    "socket_connects": 0,
+    "env_reads": 0,
+    "pytest_env_file": null,
+    "probe_env_file_declared": ".env",
+    "note": "pytest conftest sets env_file=None; independent probe guards Settings.__init__ and observed 0 .env reads"
+  },
+  "baseline_diff_demo": {
+    "is_real_approval": false,
+    "config": "%TEMP%/t009/gate-approved.json",
+    "baseline_id": "c0ce2856938f",
+    "diff_exit": 0,
+    "release_allowed": true,
+    "diff_json_bytes": 16855,
+    "report_md_bytes": 7888,
+    "report_html_bytes": 13451,
+    "real_baseline_present": false,
+    "default_gate_exit": 3,
+    "default_diff_exit": 3
+  },
+  "trace_samples": {
+    "business_http": {
+      "source": "%TEMP%/t009/p0-acc/test_acceptance_02_trace_id_is0/observability/qa-traces.sqlite3",
+      "trace_id": "b597f890855a4dea915d5e440516799f",
+      "request_id": "dd91e7d9-0492-4a57-9870-569f52652c27",
+      "span_count": 12,
+      "path": "rag",
+      "outcome_kind": "answer"
+    },
+    "b0_local": {
+      "trace_id": "e9040699bd1a41efaa5438d5e770c140",
+      "span_count": 12,
+      "dataset_version": "b0:b0-2026-11-04:bd4f0f7ccc6e",
+      "index_revision": "6",
+      "pipeline_version": "735da1397044"
+    },
+    "badcase_local": {
+      "trace_id": "07d7c1012d7f4175a29cfb17900a3e8a",
+      "span_count": 12,
+      "dataset_version": "badcase:badcase-2026-11-04:e5f0662af3f2",
+      "index_revision": "4",
+      "pipeline_version": "735da1397044"
+    }
+  },
+  "artifacts": {
+    "gate_config": {
+      "path": "docs/evaluation/gate_v0_1.json",
+      "bytes": 5716,
+      "sha256": "8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209"
+    },
+    "trace_schema": {
+      "path": "docs/evaluation/trace_schema_v0_1.md",
+      "bytes": 17394,
+      "sha256": "9e128ffe373bdb4862529733e4de7b2b3dc7ddb34b294ad3c0b55d9f83fb9971"
+    },
+    "p0_report": {
+      "path": "docs/reports/OBS-EVAL/P0/p0-report.md",
+      "bytes": 14093,
+      "sha256": "109ba64eea8df9f7f3e4c4cb7a90d78e2b58c37ca4e3bde615b00f355c0a598e"
+    },
+    "tools_rag_eval": {
+      "path": "tools/rag_eval.py",
+      "bytes": 724,
+      "sha256": "8bee3c47e1db102c9fe123c525dd0ef478a8adc9a521f9e07fdd5aae38b3be31"
+    },
+    "gate_py": {
+      "path": "backend/src/mktkb/evaluation/gate.py",
+      "bytes": 135576,
+      "sha256": "c8f1c9d4bae73d1598493ffccadf2487d580127073a173673b0480a864c21ff5"
+    },
+    "runner_py": {
+      "path": "backend/src/mktkb/evaluation/runner.py",
+      "bytes": 51900,
+      "sha256": "c807cac625ebf345cb59f50aba0d231b0c53b545e9e9f3ad15f5d009a6eb5d11"
+    },
+    "cli_py": {
+      "path": "backend/src/mktkb/evaluation/cli.py",
+      "bytes": 20440,
+      "sha256": "7aa4e114d7c18d416db7a8957723f9ac5b0d2b567b32012a50d2006279f18eb3"
+    },
+    "contracts_py": {
+      "path": "backend/src/mktkb/observability/contracts.py",
+      "bytes": 14271,
+      "sha256": "ea7fd45940b3db514cbaf41371d93460855aeb01dfcbdb8b976be7efbb6df966"
+    },
+    "test_p0_acceptance": {
+      "path": "backend/tests/evaluation/test_p0_acceptance.py",
+      "bytes": 26708,
+      "sha256": "632f09bbbbce7f75422d795d05c49b64c454b37ba08539e40269694056b86c59"
+    },
+    "evaluation_conftest": {
+      "path": "backend/tests/evaluation/conftest.py",
+      "bytes": 9081,
+      "sha256": "27f432d1ffd3316fa882c9f15fb1a8f5bee82fd39c99e79ddeed756d35630010"
+    },
+    "golden_chat_response": {
+      "path": "backend/tests/evaluation/golden/chat_response.json",
+      "bytes": 4244,
+      "sha256": "b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52"
+    },
+    "b0_dataset": {
+      "path": "fixtures/evaluation/b0.jsonl",
+      "bytes": 28903,
+      "sha256": "bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f"
+    },
+    "badcase_dataset": {
+      "path": "fixtures/evaluation/badcase.jsonl",
+      "bytes": 9385,
+      "sha256": "e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a"
+    },
+    "b0_corpus_manifest": {
+      "path": "fixtures/acceptance/manifest.json",
+      "bytes": 20072,
+      "sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6"
+    },
+    "badcase_corpus_manifest": {
+      "path": "corpus/enterprise-20261101/manifest.json",
+      "bytes": 46976,
+      "sha256": "5f41b1b811a5fecb0c0beab1b5070540e3c622a175a59939e293cc9b17ec3218"
+    },
+    "openapi_t003b_baseline": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/verify/T003b/07-openapi-baseline.json",
+      "bytes": 47962,
+      "sha256": "2154b8b55087418fc0174756e468dc9c8689b577bf7cd10d782c3c6cd2cdae7a"
+    },
+    "openapi_t003b_target": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/verify/T003b/07-openapi-target.json",
+      "bytes": 47962,
+      "sha256": "2154b8b55087418fc0174756e468dc9c8689b577bf7cd10d782c3c6cd2cdae7a"
+    }
+  },
+  "openapi": {
+    "baseline_equals_target_bytes": true,
+    "current_json_equals_baseline_json": true,
+    "paths": 18,
+    "schemas": 31,
+    "current_generated_with": "create_app(test Settings, model_gateway=object())"
+  },
+  "out_of_bounds_audit": {
+    "p0_commits": 38,
+    "unique_paths": 398,
+    "outside_allowed_prefixes_or_wiring": 0,
+    "wiring_files_authorized": {
+      "backend/src/mktkb/main.py": "T003b d41d19f",
+      "backend/src/mktkb/config.py": "T003b d41d19f",
+      "backend/src/mktkb/rag/answer.py": "T003c 776497f",
+      "backend/src/mktkb/rag/retrieval.py": "T003c 776497f",
+      "backend/src/mktkb/qa/service.py": "T003d b811f9f",
+      "backend/src/mktkb/conversations/service.py": "T003d b811f9f+71756f5"
+    },
+    "dependency_or_migration_or_schema_changes": 0,
+    "var_or_docs_evidence_changes": 0
+  },
+  "not_run": [
+    "mode=live -> exit 4 end-to-end (unit only)",
+    "real baseline and threshold approval (human gate)",
+    "real OCR/embedding/rerank/chat model calls",
+    "P1/P2 real answer quality",
+    "HTML rendering (bytes only)",
+    "cross_entity/stale_bypass real case classes (not_applicable in v0.1)",
+    "pagination_contract real fixture expectations (all null)",
+    "business-stage socket guard released in #7",
+    "golden double-capture script not in repo",
+    "T006b proposal provenance run not persisted",
+    "design §7.2 locator wording not reconciled",
+    "refusal_recall zero-sample status=pass display"
+  ],
+  "residual_leftovers": {
+    "design_7_2_locator": "design.md:260 still says 0-or-more -> GoldUnresolved; gold.py implements range semantics",
+    "record_code_gold": "gold.py:200-201 expands to whole doc; gate fails closed with unknown",
+    "gateconfig_to_dict_old_key": "gate.py:310-316 emits min_sample; loader only reads hard_gate_min_sample",
+    "gateresult_only_scored_count": "gate.py:568; evaluated_count is property alias at :548",
+    "refusal_recall_zero_sample": "b0 all: denominator=0, observed=None, status=pass (T007-R1 residual)",
+    "t006b_per_stratum_proposal": "per-stratum thresholds cannot be copied into single-value MetricSpec",
+    "t006b_proposal_provenance": "run dirs in %TEMP% not persisted in repo",
+    "t003d_evidence_encoding": "T003d/01-tdd-red.txt UTF-16; T003d/10 missing 06 sha"
+  },
+  "evidence": {
+    "01-seven-criteria.txt": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/T009/01-seven-criteria.txt",
+      "bytes": 7166,
+      "sha256": "ca48ad389c3d6c56487c2da11bdb934c9e148b4ab495b9cab95c078027d4ee16"
+    },
+    "02-full-regression.txt": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/T009/02-full-regression.txt",
+      "bytes": 2413,
+      "sha256": "f8a7f8e3a820d14bc1cf90fe3c21fb8eda588c6aeea9c62db4f834799fe437c9"
+    },
+    "03-boundary-contract.txt": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/T009/03-boundary-contract.txt",
+      "bytes": 6581,
+      "sha256": "08da9262d2c7e7f93a294ac12e99148c43a527ea8a8ab9b72ec469dc73383630"
+    },
+    "04-hashes-notrun.txt": {
+      "path": "docs/reports/OBS-EVAL/P0/evidence/T009/04-hashes-notrun.txt",
+      "bytes": 4210,
+      "sha256": "05cb3b7079aff0e23ce90e8e70231d0d66faf3d9242df6a7ccbeaba7efe301a5"
+    }
+  },
+  "review": {
+    "path": "docs/reports/OBS-EVAL/P0/review.md",
+    "bytes": 10125,
+    "sha256": "fe1ca6f3bbde45b587f3794f7f023fe67804d3d79defb1455eec34bbbb359352"
+  }
+}
