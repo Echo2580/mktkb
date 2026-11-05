@@ -1,0 +1,112 @@
+{
+  "_meta": {
+    "purpose": "P0 验收 #1 业务行为 golden：归一化后逐字段比对（易变字段见 normalised_fields）",
+    "captured_from_commit": "5152298",
+    "business_baseline_commit": "f2c0209",
+    "capture_command": ".\\.venv\\Scripts\\python.exe -B %TEMP%\\t008b_capture_golden.py（仓库外一次性脚本；通过 test_p0_acceptance 的同一场景驱动与归一化函数采集）",
+    "scenario": {
+      "documents": "t003d-dataset.xlsx（1 标题 + 表头 + 3 行：滨江店/城东店/公司愿景）",
+      "flow": "管理员 HTTP 上传 → worker 解析 → 发布（revision=1）→ 员工新建会话 → 提问",
+      "question": "把城东店和滨江店的宣传海报记录都列出来",
+      "answer_path": "rag（纯 RAG 枚举作答；确定性模型替身 0 次调用）",
+      "normaliser": "backend/tests/evaluation/test_p0_acceptance.py::normalise_chat_payload"
+    },
+    "normalised_fields": [
+      "body.request_id: 每次请求生成的 UUID → <uuid>",
+      "body.message_id: 每次作答生成的 UUID → <uuid>",
+      "body.text 中的『（记录 [0-9a-f]{8}）』: 由本轮上传的随机 version UUID 派生 → 『（记录 <record-ref>）』",
+      "body.sources[].source_id: 本轮索引内的 UUID → <uuid>",
+      "body.sources[].published_at: 发布时间戳 → <timestamp>",
+      "body.conflicts[].entries[].source_id: UUID → <uuid>"
+    ],
+    "asserted_not_recorded": [
+      "X-Trace-ID: 必须存在且为 32 位小写十六进制（值随机，不写入 golden）",
+      "X-Request-ID: 必须存在（值随机，不写入 golden）"
+    ],
+    "notes": "T008b 不改业务代码，golden 为改动前业务行为的等价快照；测试只读取本文件、从不回写，重跑稳定由 #1 的第二次相同提问覆盖。"
+  },
+  "http_status": 200,
+  "normalised_body": {
+    "request_id": "<uuid>",
+    "message_id": "<uuid>",
+    "kind": "answer",
+    "text": "共 1 条，当前第 1 页显示 1 条。\n- t003d-dataset.xlsx / 台账 第 7 行（记录 <record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n未在资料中找到：城东店（该实体没有匹配记录）。",
+    "revision": 1,
+    "sources": [
+      {
+        "source_id": "<uuid>",
+        "document_name": "t003d-dataset.xlsx",
+        "version_number": 1,
+        "status": "active",
+        "locator": {
+          "sheet": "台账",
+          "row": 7,
+          "header_row": 6,
+          "cells": [
+            {
+              "column": "A",
+              "column_index": 1,
+              "raw_type": "s",
+              "number_format": "General",
+              "display": "滨江店",
+              "header": "门店"
+            },
+            {
+              "column": "B",
+              "column_index": 2,
+              "raw_type": "s",
+              "number_format": "General",
+              "display": "宣传海报",
+              "header": "物品"
+            },
+            {
+              "column": "C",
+              "column_index": 3,
+              "raw_type": "n",
+              "number_format": "General",
+              "display": "40",
+              "header": "数量"
+            },
+            {
+              "column": "D",
+              "column_index": 4,
+              "raw_type": "s",
+              "number_format": "General",
+              "display": "QF001",
+              "header": "标识"
+            },
+            {
+              "column": "E",
+              "column_index": 5,
+              "raw_type": "s",
+              "number_format": "General",
+              "display": "B区1号货架第二层",
+              "header": "位置"
+            }
+          ],
+          "cell_types": {
+            "门店": "s",
+            "物品": "s",
+            "数量": "n",
+            "标识": "s",
+            "位置": "s"
+          }
+        },
+        "published_at": "<timestamp>"
+      }
+    ],
+    "candidates": [],
+    "conflicts": [],
+    "missing_fields": [],
+    "pagination": {
+      "page": 1,
+      "page_size": 10,
+      "total": 1,
+      "returned": 1,
+      "has_more": false,
+      "next_page": null
+    },
+    "error_code": null,
+    "retryable": false
+  }
+}

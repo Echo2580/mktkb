@@ -232,3 +232,17 @@ def duplicate_key_index(tmp_path: Path) -> RagIndex:
         yield index
     finally:
         index.close()
+
+
+# --------------------------------------------------------------------------- #
+# T008b：七条验收复用可观测性装配（只追加，不复制一套 app）
+# --------------------------------------------------------------------------- #
+# ``trace_chat_app`` 需要 ``trace_settings`` / ``trace_db_path``；三者都定义在
+# ``backend/tests/observability/conftest.py``。pytest 的 fixture 可见性按目录分段，
+# 这里**原样重新注册**那三个 fixture（同一函数对象，不是复制装配），让 evaluation
+# 目录的验收测试可以复用既有 trace 应用；本文件此前的 fixture 与断言完全不变。
+from observability.conftest import (  # noqa: E402,F401  pylint: disable=wrong-import-position
+    trace_chat_app,
+    trace_db_path,
+    trace_settings,
+)

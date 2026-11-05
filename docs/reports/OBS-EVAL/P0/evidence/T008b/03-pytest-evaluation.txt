@@ -1,0 +1,22 @@
+T008b 证据：03-pytest-evaluation.txt
+============================================================
+时间：2026-11-05T17:49:17+0800
+HEAD：5152298（分支 p0/obs-eval）
+会话预算：MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+命令：
+$ D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp backend\.pytest-tmp\eval-all
+耗时：20.64s
+exit=0
+------------------------------------------------------------
+........................................................................ [ 22%]
+........................................................................ [ 45%]
+........................................................................ [ 67%]
+........................................................................ [ 90%]
+................................                                         [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+320 passed, 1 warning in 18.52s
