@@ -1,0 +1,60 @@
+== T007 approval capability on an explicit %TEMP% fixture (NOT the real P0 baseline) ==
+date: 2026-11-05 (Asia/Shanghai)
+source: C:\Users\dell1712\AppData\Local\Temp\t007-baseline-report\chain-log.txt
+command: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T007\t007_real_chain.py
+base config: docs/evaluation/gate_v0_1.json (read-only) -> fixture: %TEMP%\t007-baseline-report\gate-fixture-approved.json
+
+[why a fixture is required]
+- The clean real b0 run with the repo config is exit 3 (thresholds_unapproved), so approval MUST
+  be rejected (see 01-baseline-identity.txt).
+- This fixture is a capability proof only: it is written under %TEMP%, never back to
+  docs/evaluation/gate_v0_1.json, and is not a T009 approval or a real P0 baseline.
+- Construction (documented, deterministic):
+  * top-level status="approved";
+  * keep only metrics that have observed values and denominator>0 on all non-OCR strata
+    (all/exact/text); zero-sample metrics stay unknown and are NOT invented:
+      drop refusal_recall / refusal_precision / cost_per_case_cny;
+  * higher_is_better -> absolute_min = min observed across strata;
+  * lower_is_better  -> absolute_max = max observed across strata;
+  * min_sample = min denominator across strata (single-value config constraint: the minimum
+    stratum denominator, never a per-stratum 1:1 mapping; the report only displays this hint);
+  * max_regression_pp = null (first baseline; absolute thresholds only).
+  kept 12 metrics: Recall@10, MRR@10, nDCG@10, hard_filter_violation_rate, empty_recall_rate,
+  value_hit, source_hit, kind_correct, citation_precision, citation_recall, false_refusal_rate,
+  p95_latency_ms. min_sample=8 for all kept metrics (text stratum denominator).
+
+[fixture gate on the clean real b0 run]
+fixture: status=approved metrics=12
+evaluate_gate(run, config=fixture, quality=True):
+  exit_code=0 quality=pass hard_failures=[] unknowns=0 quality_failures=0
+
+[save + approve]
+save_baseline(run, root): baseline_id=c0ce2856938f run_id=b0-local-20261105T073758307717Z-56200423
+approve_baseline(run, gate, root, approver="T007 dev fixture",
+                 reason="capability proof on %TEMP% approved fixture; real P0 baseline awaits T009")
+approval.json: %TEMP%\t007-baseline-report\baselines\c0ce2856938f\approval.json
+  run_id=b0-local-20261105T073758307717Z-56200423
+  gate_result_sha256=147d94a97ce181e8229b5d0d2f519392d118e7bc34780bbb136c956acb70bcd2
+  dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e
+  pipeline_version=735da1397044
+  corpus_sha256=6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6
+  approver=T007 dev fixture
+  reason=capability proof on %TEMP% approved fixture; real P0 baseline awaits T009
+  approved_at=2026-11-05T07:37:59.971+00:00
+  gate_exit_code=0 quality_status=pass
+  gate_result_sha256 matches gate_result_digest(gate)=True
+  schema_version=mktkb.baseline.approval.v0.1; mode=local; scope=end_to_end;
+  gate_version=mktkb.gate.v0.1
+
+[approval guards covered by tests (see 04-tests.txt)]
+- approver / reason missing or blank -> BaselineApprovalError, nothing written;
+- exit 1 / 2 / 3 / 4 -> rejected with exit_code + reason (3 names 阈值未审批);
+- exit 0 with quality=None -> rejected ("质量层未评估 ... 不代表质量达标", T006b constraint 4);
+- exit 0 with quality.config_status != approved -> rejected (T006b constraint 2);
+- gate.run_id / suite / gate_version mismatch -> rejected;
+- approval is write-once: identical re-approval returns the stored record, different approver /
+  reason is refused (no overwrite, no copy/rename).
+
+[scope note] The only things created under %TEMP% are fixture artifacts; nothing in the repo
+contains an approved threshold or a real baseline.json. `git status` shows only the T007 source,
+tests, evidence and report.

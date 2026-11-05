@@ -1,0 +1,102 @@
+== T007 diff + markdown/html report (real b0 local runs; one case result flipped) ==
+date: 2026-11-05 (Asia/Shanghai)
+source: %TEMP%\t007-baseline-report\chain-log.txt and default-report-log.txt
+commands:
+  $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"
+  .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T007\t007_real_chain.py
+  .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T007\t007_default_report.py
+baseline: c0ce2856938f (approved on the %TEMP% fixture; see 02-approval-fixture.txt)
+
+[flip one case result in the second independent real run]
+flipped case_id=Q27 stratum=text pass->fail, value_hit=0.0 source_hit=0.0
+modified run artifacts (sha256, full):
+  run_manifest.json 9c088bdaef35f30b1212647eeb31b751516fb871ccdc2f7a4e21c76a3b8a3cb6
+  cases.jsonl       fc35ca754444ed50f66baf626bf36c12303bbfd378c7fbcacb44d8bb58a9edd1
+  summary.json      d34530eed49132ccd812f069ef333cbcf65ad819883599fb61aef7fdd3c8c78a
+  (summary.json is re-aggregated with the runner's own _build_summary so all-level metrics
+   stay consistent with cases.jsonl; this is a synthetic artifact edit for diff evidence only.)
+
+[fixture gate on the modified run]
+exit_code=2 quality=fail hard_failures=[]
+quality failures: quality:p95_latency_ms/absolute_max (all: 19 > 16; exact: 19 > 16),
+                  quality:value_hit/absolute_min (text: 0.5 < 0.625),
+                  quality:source_hit/absolute_min (text: 0.625 < 0.75)
+=> gate transition 0 -> 2 (explicit fields in diff; not inferred from a whole-number "score")
+
+[diff_runs(baseline, modified, gate=gate_modified)]
+comparison=release_baseline  release_allowed=False  reason=current_gate_exit_2
+  (same pipeline_version + approved baseline, but the current run's gate is 2; release blocked)
+new_failures=['Q27']  fixed_failures=[]  still_failing=['Q25', 'Q26', 'Q31']
+new_errors=[] resolved_errors=[] persistent_errors=[]
+status_changes=[{'case_id': 'Q27', 'baseline_status': 'pass', 'current_status': 'fail'}]
+gate transition=0->2 changed=True
+  delta value_hit          all   0.90625 -> 0.875    delta=-0.03125 status=regressed denominator=32/32
+  delta value_hit          exact 1.0     -> 1.0      delta=0.0      status=unchanged denominator=24/24
+  delta value_hit          text  0.625   -> 0.5      delta=-0.125   status=regressed denominator=8/8
+  delta Recall@10          all   0.96875 -> 0.96875  delta=0.0      status=unchanged denominator=32/32
+  delta cost_per_case_cny  all   unknown -> unknown  delta=unknown    status=unknown reason=baseline_zero_sample+current_zero_sample denominator=0/0
+  delta cost_per_case_cny  exact unknown -> unknown  delta=unknown    status=unknown reason=baseline_zero_sample+current_zero_sample denominator=0/0
+  delta cost_per_case_cny  text  unknown -> unknown  delta=unknown    status=unknown reason=baseline_zero_sample+current_zero_sample denominator=0/0
+  delta p95_latency_ms     all   16.0 -> 19.0 delta=+3.0 status=regressed denominator=32/32
+  delta p95_latency_ms     exact 16   -> 19   delta=+3.0 status=regressed denominator=24/24
+  delta p95_latency_ms     text  14   -> 13   delta=-1.0 status=improved  denominator=8/8
+diff empty=False
+  (identical runs are covered by test_diff_identical_runs_is_empty_not_error: new/fixed/status_changes
+   are empty lists, empty=True, no exception.)
+
+[cross-version guard: explicit compare_with is analysis-only]
+without compare_with -> CrossVersionBaselineError:
+  跨 pipeline_version 的 baseline 默认拒绝：'735da1397044' != 'pipeline-demo9999'；
+  必须显式 compare_with=<baseline_id>（仅分析，不可放行，设计 §8.3）
+with compare_with=<baseline_id>: comparison=explicit_cross_version release_allowed=False
+  reason=explicit_cross_version_analysis_only
+require_release_baseline(diff) -> CrossVersionBaselineError:
+  comparison='explicit_cross_version' 不能作为发布放行依据
+load_baseline(..., expected=p2) -> CrossVersionBaselineError (same default rejection)
+  (dataset/corpus/gate equality is also verified via _ensure_comparable; a changed dataset is
+   BaselineComparabilityError even with compare_with; unit tests cover both.)
+
+[reports, fixture-approved gate]
+report.md:   %TEMP%\t007-baseline-report\report.md   rendered bytes=9680 (LF), 138 lines
+report.html: %TEMP%\t007-baseline-report\report.html rendered bytes=16355 (LF);
+             on-disk CRLF size=16392; <script count=0; external http(s)/src=/href= count=0;
+             <link count=0; starts with <!DOCTYPE html>; inline <style> present
+gate source contains 'report'=False  (report.html is not read by gate; design §8.5)
+renderers are pure: rendering leaves the run directory file list unchanged (covered by test)
+
+[report.md first 20 lines]
+# MKTKB 评测报告（P0 · T007）
+
+## 1. 硬门禁（置顶）
+
+- exit_code: 2（质量回退）
+- 门禁状态: security_leak=not_applicable、cross_entity=not_applicable、stale_bypass=not_applicable、conflict_not_rejected=not_applicable、exact_value_contract=pass、pagination_contract=not_applicable、citation_required=pass、trace_integrity=pass
+- 硬门禁失败: 无
+- unknown: 0 项；not_applicable: 5 项
+- 说明: 报告只展示门禁结果，不参与门禁判定；report.html 是 P0 非门禁展示层，不被 gate 读取（设计 §8.5）
+
+## 2. 报告对象
+
+- 当前 run: b0-local-20261105T073759317432Z-6177f4c2
+- baseline: c0ce2856938f
+- baseline run: b0-local-20261105T073758307717Z-56200423
+- suite / mode / scope: b0 / local / end_to_end
+- pipeline_version: 735da1397044 → 735da1397044
+- comparison: release_baseline
+
+[default config (unapproved) report on the same modified real run — real P0 state, no baseline]
+exit_code=3 quality=unknown hard_failures=[] unknowns=42; unknown check_ids=["thresholds_unapproved"]
+report-default.md bytes=15563 (LF), 190 lines; report-default.html bytes=22744 (LF)
+md contains 阈值未审批=True; md contains 质量通过=False
+- min_sample 提示: 最小 stratum 分母 = 8（Recall@10/text）；单值配置的 min_sample 不得超过该值，
+  报告只提示、不自动改写配置
+- unknown 口径: cost_per_case_cny 零样本分组：cost_per_case_cny/all、cost_per_case_cny/exact、
+  cost_per_case_cny/text；零样本一律 unknown，不补 0
+- unknown 口径: p95_latency_ms 无 SLA（配置无已审批阈值）：只展示观测值与差值，状态 unknown，
+  不判定通过
+- 质量层状态 unknown（thresholds_unapproved），报告不写成通过；exit_code=3 不是质量通过。
+
+[html self-check summary]
+hard_gate_first=True (hard-gate section is the first section in both markdown and html)
+script_tags=0 external_refs=0 link_tags=0
+contains baseline_id=True run_id=True
