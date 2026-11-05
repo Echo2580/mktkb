@@ -88,7 +88,7 @@
     - `refusal_recall` 零样本时 `status=pass` 的展示有误导性（b0 无拒答题；分母 0、observed=None）；不得读作"拒答召回通过"。
     - T006b `calibrate_gate` 的 per-stratum 建议不能直接写入单值 `MetricSpec`，审批时需人工按最小非零 stratum 取值。
     - NOT-RUN（review §5）：`mode=live→4` 端到端、真实 baseline/阈值审批（主人人工门）、真实 OCR/embedding/rerank/模型、P1/P2 质量、HTML 渲染、`cross_entity`/`stale_bypass` 真实 case 类、`pagination` 真实期望值。
-36. **P0 收口与 PR（2026-11-05）**：分支 `p0/obs-eval` 38 个 commit（含 8 个簿记/返工提交），基座 `main` @ `8e44158`；`git status` 干净；PR 见 `prompts/p0-pr.md` 或 GitHub PR 列表。**合并前主人人工门项**：阈值审批（`gate_v0_1.json status`）与真实 baseline 建立、设计 §7.2 口径回写。
+36. **P0 收口与 PR（2026-11-05）**：分支 `p0/obs-eval` 已 push，**PR #1**：https://github.com/Echo2580/mktkb/pull/1 （base `main` @ `8e44158`；38 个 commit；工作树干净）。**合并前主人人工门项**：阈值审批（`gate_v0_1.json status`）与真实 baseline 建立、设计 §7.2 口径回写；PR 描述含 NOT-RUN 清单与建议阈值。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
