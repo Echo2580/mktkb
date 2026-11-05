@@ -14,9 +14,9 @@
 | T003b | 配置 + 中间件接线（X-Trace-ID） | G4 通过（review PASS；dev commit `d41d19f`） | 0 | 否 | T003a ✅ |
 | T003c | RAG 路径埋点（index/retrieval/answer） | G4 有条件通过（review 仅 §5.4 FAIL：检索前拒答核对契约缺口；代码不返工，移交 T003d；dev commit `776497f`） | 0 | 否 | T003b ✅ |
 | T003d | QA/legacy 路径埋点 + 契约修订 | G4 通过（R1 定向复验 PASS：`review-R1.md`；dev commits `b811f9f`+`71756f5`；全量 1307 passed） | 1 | 否 | T003c 有条件通过 ✅ |
-| T004a | 评测数据集 + gold 解析 + fixtures | G2 完成（按主人指令不跑独立验收；dev commit `574e288`，23 文件，全量 1300 passed；b0 40/13 行） | 0 | 否 | T003d R1 ✅ |
-| T004b | scorer（值/来源/kind/分页/拒答/检索） | G2 完成（不跑独立验收；dev commit `f126598`，7 文件，全量 1377 passed） | 0 | 否 | T004a ✅ |
-| T005 | Replay / Local Runner + 运行清单 | G0 待主人指令（P0 已暂停） | 0 | 否 | T004b ✅ |
+| T004a | 评测数据集 + gold 解析 + fixtures | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/2 LOW 非阻断；dev commit `574e288`；验收方全量 1377 passed） | 0 | 否 | T003d R1 ✅ |
+| T004b | scorer（值/来源/kind/分页/拒答/检索） | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `f126598`；验收方全量 1377 passed） | 0 | 否 | T004a ✅ |
+| T005 | Replay / Local Runner + 运行清单 | G1 待派单（handoff + prompt 已落盘；PM 已并入 T004a/T004b 遗留硬要求） | 0 | 否 | T004b ✅ |
 | T006a | 门禁硬层（8 项）+ 退出码 | G0 待派 | 0 | 否 | T005 |
 | T006b | 门禁质量层 + 校准 + 豁免 | G0 待派 | 0 | 否 | T006a |
 | T007 | Baseline + Diff + 报告 | G0 待派 | 0 | 否 | T006b |
@@ -54,6 +54,23 @@
 26. **T003d 验收 FAIL（2026-11-05，R1 待返工）**：§5.11 唯一 MEDIUM——legacy 解析级早退后在 **commit 阶段** revision 复核升级为 `knowledge_changed`（未执行 retrieve）时 Span 实际为 `{intent_parse, commit}`，但 contracts 该行要求含 `retrieve`，validate 返回 `['retrieve']`。修法（窄、不改业务代码）：把 `legacy+knowledge_changed` 做成 reason-aware（如 reason=KNOWLEDGE_CHANGED 且未执行 retrieve → `{intent_parse, commit}`）或该行整体降为 `{intent_parse, commit}`，同步 `trace_schema_v0_1.md` §6.1.2 与回归测试。其余 §5.1–5.10、边界、非空转、全量 1266 passed 均 PASS。
 27. T003d 验收 LOW/INFO：证据 `10` 的 sha256 清单漏列 `06`（其余 19/19 一致）；`09` 为 amend 前 stat、`01` 为 UTF-16（已知口径）；重放用 `annotate(replayed=True)` 写启动字段（行为正确、与 §4 字面冲突），**T006a 必须跳过 replayed 的完整性校验**；commit 阶段异常（RequestCancelled 等）仍 outcome=None，未做注入验证。
 28. **P0 暂停交接（2026-11-05 10:20）**：HEAD `f126598`，分支 `p0/obs-eval` 共 9 个 commit，全量 1377 passed；T004a/T004b 未验收，T005 起未开工；验收证据 `evidence/verify/**` 与 PM 交接/提示词/review 仍未入库（工作树未跟踪）；交接说明见 `2026-11-05-p0-pause-handoff.md`。主人 2026-11-05 采纳的提速策略已写入 project-manager 技能 §11。
+29. **簿记入库（2026-11-05 11:0x，主人授权）**：一次 bookkeeping commit `9d52b7c`（`chore(p0): bookkeeping`），只含 `.claude/handoffs/**`（54 文件）与 `docs/reports/OBS-EVAL/P0/evidence/verify/**`（114 文件），零代码改动；此后 `.claude/handoffs/**` 与验收证据随包入库，不再积压。
+30. **T004a 验收 PASS 遗留（2026-11-05，验收方 `review.md` §2，非阻断）**：
+    - MEDIUM-1：`locator` 范围型与设计 §7.2 字面（"0 个或多个 unit → GoldUnresolved"）不一致；**PM 追认**为"`unit_key` 身份型严格唯一 / `locator` 范围型返回 unit 集合"，但设计文档 §7.2 需在 T009 前补一句正式口径；范围命中目前无上限。
+    - MEDIUM-2：`record_code` 只校验不解析——`{"doc_code":"D01","record_code":"P01"}` 解析为 D01 全部 9 unit（`gold.py:200-208`）。fixtures 未用；**T005 必须防御式 fail closed**（已写入 T005 handoff §7）。
+    - MEDIUM-3：badcase N06 也依赖 N04/N05 上下文，但 `turns=[]` 且 notes 未说明（报告只记了 N11）。T005 单轮执行须显式声明，不得当多轮验证。
+    - LOW-1：N05 `expected_min_total=1` 只在 notes，`expected_pagination=null`；T005/T006 不得声称 badcase 覆盖分页语义。
+    - LOW-2：T004a 报告引 `__init__.py:1-38`，实际 28 行（文档引用瑕疵）。
+31. **T004b 验收 PASS 遗留（2026-11-05，验收方 `review.md`，非阻断）**：
+    - MEDIUM-1：`value_no_fabricated` 过严且覆盖不全（合法答案里的"第 2 层""共 3 张""D09""v2.1"都被判编造；`1,000` 连带 `value_hit` 失败；`-12` 对 `12` 符号盲）。**PM 裁决：T006a 只作软指标/诊断，不得映射为 `exact_value_contract` 或 `security_leak` 硬门禁。**
+    - MEDIUM-2：`refusal_metrics` 把 `error`/`service_error` 计为 TN（稀释 false_refusal_rate），`knowledge_changed` 未定义归属。**T006a 必须把三者移出拒答 2×2（记 unknown/排除）。**
+    - MEDIUM-3：缺 `unit_ids` 时 fail closed 为 0 而非 unknown（`citation_precision=0`、Recall/MRR/nDCG=0，但 `source_hit` 仍可过）。**T005 必须由 chunk 真实归属填充并持久化；缺 unit_ids 的 gold case 显式 `unknown/error`。**
+    - LOW-1：`record_code`-only 期望来源被当整篇命中 → T005 防御式 fail closed（已写入 T005 handoff §7）；T006a 不得接受 record_code-only。
+    - LOW-2：`CaseResult` 未带设计 §7.3 版本字段 → T005 的 `cases.jsonl`/manifest 补齐。
+    - LOW-3：`expected_pagination=null` 但实际有分页时只验契约、不要求"无分页" → T006a 写清口径。
+    - LOW-4：单检索项含多 unit_ids 时按相邻名次展开，nDCG 可能高估 → T006a 明确"同 chunk 同排名"。
+    - LOW-5：`value_no_fabricated` 符号盲、千分位不归一。
+    - 四处口径判定（验收方）：`EvalOutcome.retrieved` 可接受偏离（仅本地 dataclass，未改业务类型）；拒答集合以 `OutcomeKind` + `should_refuse` 为 canonical（`refusal` 只是兼容别名，非枚举成员）；`docs/evaluation/` 尚无 `gate_v0_1`，T006a 定义冲突时先改文档再改实现。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）

@@ -1,0 +1,138 @@
+# T004a independent verification - independent probe + build idempotence
+captured_at: 2026-11-05T11:05:00+08:00
+probe: probe_t004a.py (this directory; run with the repo venv, writes only %TEMP%)
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
+
+## independent gold / fail-closed / validation probe
+temp: C:\Users\dell1712\AppData\Local\Temp\t004a-probe-01k2u3pp
+b0 lines: 40 badcase lines: 13
+PASS b0 40 rows
+PASS badcase 13 rows
+PASS 21 CASE_FIELDS on every row
+PASS b0 field order == CASE_FIELDS
+PASS b0 no CR bytes
+PASS badcase field order == CASE_FIELDS
+PASS badcase no CR bytes
+b0 strata: {'exact': 24, 'text': 8, 'ocr': 8}
+PASS b0 strata exact/text/ocr = 24/8/8
+badcase groups: {'poster': 2, 'policy': 1, 'price': 4, 'notice': 2, 'clarify': 2, 'safety': 2}
+PASS badcase source groups 2/1/4/2/2/2
+PASS suite values
+PASS split=dev
+PASS business_date=2026-10-28
+PASS expected_pagination null on every row
+PASS validate rejects chunk_id key
+PASS validate rejects unit_id key
+PASS validate rejects unit_key UUID
+PASS validate rejects unit_key 32hex
+PASS validate rejects locator unknown key
+PASS validate rejects missing doc_code
+PASS validate rejects refuse no reason
+PASS validate rejects question+turns empty
+PASS validate rejects invalid expected_kind
+PASS validate rejects bad pagination key
+PASS 8 OCR cases require_ocr=true
+PASS OCR sources only page locator, no unit_key
+PASS OCR skipped without index access
+b0 index parsed doc ids: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06']
+PASS b0 index visible docs D01-D06 only: ['D01', 'D02', 'D03', 'D04', 'D05', 'D06']
+PASS b0 index never parsed D07-D10 (no OCR path)
+Q01 resolved doc=D01 units=1 keys=sheet:物品位置:row:8
+Q02 resolved doc=D01 units=1 keys=sheet:物品位置:row:9
+Q03 resolved doc=D01 units=1 keys=sheet:物品位置:row:10
+Q04 resolved doc=D01 units=1 keys=sheet:物品位置:row:11
+Q05 resolved doc=D01 units=1 keys=sheet:物品位置:row:12
+Q06 resolved doc=D01 units=1 keys=sheet:物品位置:row:13
+Q07 resolved doc=D01 units=1 keys=sheet:物品位置:row:14
+Q08 resolved doc=D01 units=1 keys=sheet:物品位置:row:15
+Q09 resolved doc=D02 units=1 keys=sheet:店家信息:row:5
+Q10 resolved doc=D02 units=1 keys=sheet:店家信息:row:6
+Q11 resolved doc=D02 units=1 keys=sheet:店家信息:row:7
+Q12 resolved doc=D02 units=1 keys=sheet:店家信息:row:8
+Q13 resolved doc=D02 units=1 keys=sheet:店家信息:row:5
+Q14 resolved doc=D02 units=1 keys=sheet:店家信息:row:6
+Q15 resolved doc=D02 units=1 keys=sheet:店家信息:row:7
+Q16 resolved doc=D02 units=1 keys=sheet:店家信息:row:8
+Q17 resolved doc=D02 units=1 keys=sheet:店家信息:row:5
+Q18 resolved doc=D02 units=1 keys=sheet:店家信息:row:6
+Q19 resolved doc=D02 units=1 keys=sheet:店家信息:row:7
+Q20 resolved doc=D02 units=1 keys=sheet:店家信息:row:8
+Q21 resolved doc=D02 units=1 keys=sheet:店家信息:row:5
+Q22 resolved doc=D02 units=1 keys=sheet:店家信息:row:6
+Q23 resolved doc=D02 units=1 keys=sheet:店家信息:row:7
+Q24 resolved doc=D02 units=1 keys=sheet:店家信息:row:8
+Q25 resolved doc=D03 units=1 keys=paragraph:5
+Q26 resolved doc=D03 units=1 keys=paragraph:6
+Q27 resolved doc=D04 units=1 keys=paragraph:4
+Q28 resolved doc=D04 units=1 keys=paragraph:5
+Q29 resolved doc=D05 units=1 keys=paragraph:p1:l6
+Q30 resolved doc=D05 units=1 keys=paragraph:p1:l8
+Q31 resolved doc=D06 units=1 keys=paragraph:p1:l4
+Q32 resolved doc=D06 units=1 keys=paragraph:p1:l6
+Q33 ocr skipped=True
+Q34 ocr skipped=True
+Q35 ocr skipped=True
+Q36 ocr skipped=True
+Q37 ocr skipped=True
+Q38 ocr skipped=True
+Q39 ocr skipped=True
+Q40 ocr skipped=True
+PASS b0 all 40 resolve, unresolved=[]
+PASS b0 32 non-OCR cases each resolve with >=1 unit
+PASS b0 32 non-OCR not skipped
+PASS OCR flag off -> D07 absent: GoldUnresolved reason=document_not_found (expected document_not_found)
+badcase index docs: ['E03', 'E11', 'P03', 'W01'] skipped_count: 65
+N01 resolved sources=1 units=1 keys=sheet:物品位置:row:7
+N02 resolved sources=1 units=1 keys=sheet:物品位置:row:7
+N03 resolved sources=1 units=1 keys=paragraph:13
+N04 resolved sources=1 units=1 keys=sheet:NKA卖场:row:10
+N05 resolved sources=1 units=11 keys=sheet:NKA卖场:row:7,sheet:NKA卖场:row:8,sheet:NKA卖场:row:9,sheet:NKA卖场:row:10,sheet:NKA卖场:row:11,sheet:NKA卖场:row:12,sheet:NKA卖场:row:13,sheet:NKA卖场:row:14,sheet:NKA卖场:row:15,sheet:NKA卖场:row:16,sheet:NKA卖场:row:18
+N06 resolved sources=1 units=1 keys=sheet:NKA卖场:row:10
+N07 resolved sources=1 units=1 keys=paragraph:13
+N08 resolved sources=1 units=1 keys=sheet:物品位置:row:7
+N09 resolved sources=1 units=17 keys=paragraph:p1:l1,paragraph:p1:l2,paragraph:p1:l3,paragraph:p1:l4,paragraph:p1:l5,paragraph:p1:l6,paragraph:p1:l7,paragraph:p1:l8,paragraph:p1:l9,paragraph:p1:l10,paragraph:p1:l11,paragraph:p1:l12,paragraph:p1:l13,paragraph:p1:l14,paragraph:p1:l15,paragraph:p1:l16,paragraph:p1:l17
+N10 resolved sources=0 units=0 keys=
+N11 resolved sources=1 units=1 keys=sheet:物品位置:row:7
+N12 resolved sources=0 units=0 keys=
+N13 resolved sources=0 units=0 keys=
+PASS badcase all 13 resolve, unresolved=[]
+PASS N10/N12/N13 empty gold preserved
+PASS N05 whole-sheet locator returns multiple units (11)
+PASS N09 whole-document returns 17 units (17)
+PASS 0 match document: GoldUnresolved reason=document_not_found (expected document_not_found)
+PASS 0 match unit_key: GoldUnresolved reason=unit_key_not_found (expected unit_key_not_found)
+PASS 0 match locator: GoldUnresolved reason=locator_not_found (expected locator_not_found)
+PASS unsupported locator key: GoldUnresolved reason=unsupported_locator_key (expected unsupported_locator_key)
+OBSERVE record_code-only source -> 9 units (record_code is validated but not a resolution key; doc-level fallback)
+PASS duplicate unit_key: GoldUnresolved reason=duplicate_unit_key (expected duplicate_unit_key)
+PASS locator ambiguous duplicate keys: GoldUnresolved reason=ambiguous_units (expected ambiguous_units)
+split fixture chunk count: 7 record_unit_ids: {'D90-long'}
+PASS multiple chunks of one unit collapse to 1 gold unit
+b0 version=b0:b0-2026-11-04:bd4f0f7ccc6e file_sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f
+PASS b0 dataset_version matches file sha256[:12]
+PASS b0 dataset_version stable on recompute
+badcase version=badcase:badcase-2026-11-04:e5f0662af3f2 file_sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a
+PASS badcase dataset_version matches file sha256[:12]
+PASS badcase dataset_version stable on recompute
+FAILS: []
+RESULT: PASS
+
+
+## build run 1 (output to fresh %TEMP% directory)
+command: .\.venv\Scripts\python.exe -B tools\build_eval_dataset.py --b0 fixtures\acceptance\questions.json --badcase docs\evidence\LOCAL-R1-20261101\S1-DEV\questions.json --out %TEMP%\t004a-build-1
+b0: cases=40 resolved=32 no_gold=0 skipped_requires_ocr=8 units=32 sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e
+badcase: cases=13 resolved=10 no_gold=3 skipped_requires_ocr=0 units=36 sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2
+wrote C:\Users\dell1712\AppData\Local\Temp\t004a-build-1\b0.jsonl and C:\Users\dell1712\AppData\Local\Temp\t004a-build-1\badcase.jsonl
+
+
+## build run 2 (output to a second fresh %TEMP% directory)
+command: .\.venv\Scripts\python.exe -B tools\build_eval_dataset.py --b0 fixtures\acceptance\questions.json --badcase docs\evidence\LOCAL-R1-20261101\S1-DEV\questions.json --out %TEMP%\t004a-build-2
+b0: cases=40 resolved=32 no_gold=0 skipped_requires_ocr=8 units=32 sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e
+badcase: cases=13 resolved=10 no_gold=3 skipped_requires_ocr=0 units=36 sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2
+wrote C:\Users\dell1712\AppData\Local\Temp\t004a-build-2\b0.jsonl and C:\Users\dell1712\AppData\Local\Temp\t004a-build-2\badcase.jsonl
+
+
+## byte comparison (independent of the build script)
+b0.jsonl      run1==run2: True  run1==repo: True  sha256: bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f
+badcase.jsonl  run1==run2: True  run1==repo: True  sha256: e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a
+dataset_version: b0:b0-2026-11-04:bd4f0f7ccc6e / badcase:badcase-2026-11-04:e5f0662af3f2

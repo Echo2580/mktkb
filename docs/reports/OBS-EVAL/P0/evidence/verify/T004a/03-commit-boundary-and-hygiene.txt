@@ -1,0 +1,273 @@
+# T004a independent verification - commit boundary and hygiene
+captured_at: 2026-11-05T11:05:00+08:00
+repo: D:\GPT项目\市场部AI知识库
+branch: p0/obs-eval
+
+## command: git rev-parse --short HEAD
+9d52b7c
+
+## command: git log --oneline -5
+9d52b7c chore(p0): bookkeeping - handoffs + verify evidence (no code)
+f126598 p0/T004b scorer
+71756f5 p0/T003d R1 knowledge_changed contract
+574e288 p0/T004a eval dataset
+b811f9f p0/T003d qa legacy spans
+
+## command: git show --name-status --format= 574e288
+A	.claude/handoffs/T004a-dataset/report.md
+A	backend/src/mktkb/evaluation/__init__.py
+A	backend/src/mktkb/evaluation/dataset.py
+A	backend/src/mktkb/evaluation/gold.py
+A	backend/tests/evaluation/__init__.py
+A	backend/tests/evaluation/conftest.py
+A	backend/tests/evaluation/test_dataset.py
+A	backend/tests/evaluation/test_gold.py
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/00-git-rev-parse.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/00b-baseline-full-suite.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/01-tdd-red.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/02-pytest-evaluation.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/03-fixture-samples.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/04-build-run-1.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/05-build-run-2.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/06-gold-resolution.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/07-full-suite.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/08-static-hygiene.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/09-final-commit-stat.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T004a/10-deliverables-sha256.txt
+A	fixtures/evaluation/b0.jsonl
+A	fixtures/evaluation/badcase.jsonl
+A	tools/build_eval_dataset.py
+
+## T004a commit scope check
+commit_files: 23
+outside_handoff_section2_allowlist: NONE
+frozen_paths_touched_by_574e288: NONE
+dependency_manifest_touched_by_574e288: NONE
+
+## command: git diff --stat 574e288 HEAD -- backend/src/mktkb/evaluation fixtures tools backend/tests/evaluation
+ backend/src/mktkb/evaluation/scorers.py  | 1176 ++++++++++++++++++++++++++++++
+ backend/tests/evaluation/test_scorers.py |  956 ++++++++++++++++++++++++
+ 2 files changed, 2132 insertions(+)
+
+## command: git show --stat --oneline HEAD (bookkeeping commit)
+9d52b7c chore(p0): bookkeeping - handoffs + verify evidence (no code)
+ .claude/handoffs/2026-11-04-p1-design.md           |  151 ++
+ .claude/handoffs/2026-11-04-p1-task-breakdown.md   |  142 ++
+ .claude/handoffs/2026-11-05-p0-pause-handoff.md    |   59 +
+ .claude/handoffs/T001-obs-contracts/handoff.md     |   80 +
+ .claude/handoffs/T001-obs-contracts/review.md      |  201 ++
+ .claude/handoffs/T002-trace-store/handoff.md       |   75 +
+ .claude/handoffs/T002-trace-store/review.md        |  184 ++
+ .claude/handoffs/T003a-tracer/handoff.md           |   69 +
+ .claude/handoffs/T003a-tracer/review.md            |  235 ++
+ .claude/handoffs/T003b-wiring/handoff.md           |   77 +
+ .claude/handoffs/T003b-wiring/review.md            |  304 +++
+ .claude/handoffs/T003c-rag-spans/handoff.md        |   83 +
+ .claude/handoffs/T003c-rag-spans/review.md         |  326 +++
+ .claude/handoffs/T003d-paths/handoff.md            |   85 +
+ .claude/handoffs/T003d-paths/review-R1.md          |  114 +
+ .claude/handoffs/T003d-paths/review.md             |  261 +++
+ .claude/handoffs/T003d-paths/rework-R1.md          |   32 +
+ .claude/handoffs/T004a-dataset/handoff.md          |   79 +
+ .claude/handoffs/T004b-scorer/handoff.md           |   73 +
+ .claude/handoffs/_index.md                         |   68 +-
+ .claude/handoffs/prompts/T001-dev-done.md          |    6 +
+ .claude/handoffs/prompts/T001-dev.md               |    9 +
+ .claude/handoffs/prompts/T001-verify-done.md       |    5 +
+ .claude/handoffs/prompts/T001-verify.md            |   11 +
+ .claude/handoffs/prompts/T002-dev-done.md          |    6 +
+ .claude/handoffs/prompts/T002-dev.md               |   11 +
+ .claude/handoffs/prompts/T002-verify-done.md       |    5 +
+ .claude/handoffs/prompts/T002-verify.md            |   17 +
+ .claude/handoffs/prompts/T003a-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T003a-dev.md              |   11 +
+ .claude/handoffs/prompts/T003a-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T003a-verify.md           |   21 +
+ .claude/handoffs/prompts/T003b-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T003b-dev.md              |   11 +
+ .claude/handoffs/prompts/T003b-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T003b-verify.md           |   22 +
+ .claude/handoffs/prompts/T003c-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T003c-dev.md              |   13 +
+ .claude/handoffs/prompts/T003c-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T003c-verify.md           |   21 +
+ .claude/handoffs/prompts/T003d-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T003d-dev.md              |   13 +
+ .claude/handoffs/prompts/T003d-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T003d-verify.md           |   20 +
+ .claude/handoffs/prompts/T004a-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T004a-dev.md              |   13 +
+ .claude/handoffs/prompts/T004a-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T004a-verify.md           |   25 +
+ .claude/handoffs/prompts/T004b-dev-done.md         |    6 +
+ .claude/handoffs/prompts/T004b-dev.md              |   13 +
+ .claude/handoffs/prompts/T004b-verify-done.md      |    5 +
+ .claude/handoffs/prompts/T004b-verify.md           |   27 +
+ .claude/handoffs/prompts/p1-holdout-author.md      |  111 +
+ .claude/handoffs/prompts/pm-resume-20261105.md     |   31 +
+ .../verify/T001/01-pytest-observability.txt        |    8 +
+ .../P0/evidence/verify/T001/02-collect-only.txt    |   76 +
+ .../evidence/verify/T001/02b-collect-per-file.txt  |    6 +
+ .../P0/evidence/verify/T001/03-pytest-full.txt     |   23 +
+ .../P0/evidence/verify/T001/04-git-rev-parse.txt   |    2 +
+ .../P0/evidence/verify/T001/05-git-show-stat.txt   |   18 +
+ .../P0/evidence/verify/T001/06-sha256-recheck.txt  |    8 +
+ .../evidence/verify/T001/07-independent-probe.txt  |   14 +
+ .../T001/08-independent-probe-digests-docs.txt     |   13 +
+ .../verify/T001/09-independent-probe-mutation.txt  |   13 +
+ .../verify/T001/10-consolidated-summary.txt        |   52 +
+ .../P0/evidence/verify/T001/11-collect-full.txt    | 1094 +++++++++
+ .../P0/evidence/verify/T001/probe_digests_docs.py  |  258 +++
+ .../P0/evidence/verify/T001/probe_independent.py   |  338 +++
+ .../P0/evidence/verify/T001/probe_mutation.py      |  168 ++
+ .../P0/evidence/verify/T002/00-env-and-commit.txt  |   10 +
+ .../P0/evidence/verify/T002/01-pytest-store.txt    |   11 +
+ .../verify/T002/02-pytest-observability.txt        |   12 +
+ .../P0/evidence/verify/T002/03-pytest-full.txt     |   26 +
+ .../P0/evidence/verify/T002/04-commit-boundary.txt |   66 +
+ .../P0/evidence/verify/T002/05-manual-probes.txt   |   24 +
+ .../P0/evidence/verify/T002/06-mutation-probes.txt |  127 ++
+ .../verify/T002/07-evidence-and-tree-audit.txt     |   56 +
+ .../P0/evidence/verify/T002/08-collect-counts.txt  |   13 +
+ .../verify/T002/09-report-citation-check.txt       |   76 +
+ .../verify/T002/10-branch-and-commit-topology.txt  |   32 +
+ .../P0/evidence/verify/T003a/00-context.txt        |   34 +
+ .../P0/evidence/verify/T003a/01-pytest-tracer.txt  |   11 +
+ .../verify/T003a/02-pytest-observability.txt       |   13 +
+ .../P0/evidence/verify/T003a/03-pytest-full.txt    |   27 +
+ .../evidence/verify/T003a/04-commit-boundary.txt   |   62 +
+ .../verify/T003a/05-contracts-init-diff.txt        |  100 +
+ .../verify/T003a/06-sha256-and-evidence-audit.txt  |   43 +
+ .../evidence/verify/T003a/07-independent-probe.txt |   25 +
+ .../evidence/verify/T003a/08-mutation-probes.txt   |   34 +
+ .../P0/evidence/verify/T003a/09-static-checks.txt  |   62 +
+ .../evidence/verify/T003a/10-edge-observations.txt |   56 +
+ .../verify/T003a/11-baseline-2ac976f-full.txt      |   77 +
+ .../verify/T003a/11b-baseline-flake-run.txt        |   77 +
+ .../verify/T003a/11c-baseline-pass-run-utf8.txt    |   29 +
+ .../P0/evidence/verify/T003a/12-worktree-audit.txt |  106 +
+ .../T003a/13-baseline-flaky-test-isolated.txt      |   11 +
+ .../OBS-EVAL/P0/evidence/verify/T003a/capture.py   |   19 +
+ .../P0/evidence/verify/T003a/edge_observations.py  |  114 +
+ .../P0/evidence/verify/T003a/final_audit.py        |  196 ++
+ .../P0/evidence/verify/T003a/mutate_verify.py      |  163 ++
+ .../P0/evidence/verify/T003a/probe_tracer.py       |  808 +++++++
+ .../P0/evidence/verify/T003a/static_checks.py      |  239 ++
+ .../P0/evidence/verify/T003b/00-context.txt        |   13 +
+ .../evidence/verify/T003b/01-pytest-middleware.txt |    9 +
+ .../P0/evidence/verify/T003b/02-pytest-scope.txt   |   12 +
+ .../P0/evidence/verify/T003b/03-pytest-full.txt    |   76 +
+ .../verify/T003b/03b-pytest-full-rerun.txt         |   26 +
+ .../evidence/verify/T003b/04-commit-boundary.txt   |   59 +
+ .../P0/evidence/verify/T003b/04a-commit-files.txt  |   12 +
+ .../evidence/verify/T003b/05-probe-independent.txt |  330 +++
+ .../evidence/verify/T003b/06-mutation-probes.txt   |  117 +
+ .../evidence/verify/T003b/07-openapi-baseline.err  |    2 +
+ .../evidence/verify/T003b/07-openapi-baseline.json | 2338 ++++++++++++++++++++
+ .../verify/T003b/07-openapi-compare-result.txt     |  Bin 0 -> 933 bytes
+ .../evidence/verify/T003b/07-openapi-compare.txt   |    2 +
+ .../P0/evidence/verify/T003b/07-openapi-target.err |    2 +
+ .../evidence/verify/T003b/07-openapi-target.json   | 2338 ++++++++++++++++++++
+ .../verify/T003b/08-flaky-test-isolated.txt        |   31 +
+ .../evidence/verify/T003b/09-baseline-collect.txt  | 1185 ++++++++++
+ .../evidence/verify/T003b/10-hard-constraints.txt  |   43 +
+ .../P0/evidence/verify/T003b/11-worktree-audit.txt |   85 +
+ .../evidence/verify/T003b/12-report-accuracy.txt   |   57 +
+ .../evidence/verify/T003b/13-baseline-headers.json |   39 +
+ .../P0/evidence/verify/T003b/13b-edge-422.txt      |   60 +
+ .../T003b/13c-disabled-with-explicit-path.txt      |   33 +
+ .../verify/T003b/14-consolidated-summary.txt       |   46 +
+ .../P0/evidence/verify/T003b/16-sha256-recheck.txt |    4 +
+ .../P0/evidence/verify/T003b/probe_independent.py  |  829 +++++++
+ .../P0/evidence/verify/T003b/probe_mutation.py     |  272 +++
+ .../P0/evidence/verify/T003b/probe_openapi.py      |   52 +
+ .../P0/evidence/verify/T003c/00-context-env.txt    |   16 +
+ .../evidence/verify/T003c/01-pytest-rag-spans.txt  |    9 +
+ .../verify/T003c/02-pytest-rag-observability.txt   |   16 +
+ .../evidence/verify/T003c/03-plain-old-vs-new.txt  |    6 +
+ .../evidence/verify/T003c/04-independent-probe.txt |   22 +
+ .../evidence/verify/T003c/05-mutation-probes.txt   |    6 +
+ .../verify/T003c/06-middleware-stability.txt       |   77 +
+ .../P0/evidence/verify/T003c/07-pytest-full.txt    |   25 +
+ .../verify/T003c/08-baseline-collect-1196.txt      | 1205 ++++++++++
+ .../P0/evidence/verify/T003c/09-static-hygiene.txt |   68 +
+ .../evidence/verify/T003c/10-commit-boundary.txt   |   61 +
+ .../verify/T003c/11-worktree-evidence-audit.txt    |   93 +
+ .../evidence/verify/T003c/12-secret-free-scan.txt  |   23 +
+ .../evidence/verify/T003c/13-middleware-probe.txt  |   26 +
+ .../P0/evidence/verify/T003c/compare_plain.py      |   87 +
+ .../P0/evidence/verify/T003c/mutate_verify.py      |  230 ++
+ .../P0/evidence/verify/T003c/plain-new.json        |  459 ++++
+ .../P0/evidence/verify/T003c/plain-old.json        |  459 ++++
+ .../P0/evidence/verify/T003c/probe-middleware.json |  199 ++
+ .../P0/evidence/verify/T003c/probe-report.json     |  554 +++++
+ .../P0/evidence/verify/T003c/probe_middleware.py   |  154 ++
+ .../P0/evidence/verify/T003c/probe_plain.py        |  121 +
+ .../P0/evidence/verify/T003c/probe_traced.py       |  887 ++++++++
+ .../P0/evidence/verify/T003d/01-isolated-copy.txt  |   52 +
+ .../P0/evidence/verify/T003d/02-targeted-tests.txt |   13 +
+ .../verify/T003d/03-full-suite-initial.txt         | 1016 +++++++++
+ .../T003d/04-environment-restored-subset.txt       |   12 +
+ .../verify/T003d/05-full-suite-restored.txt        |   31 +
+ .../evidence/verify/T003d/06-independent-probe.txt |   73 +
+ .../evidence/verify/T003d/07-contract-matrix.txt   |   25 +
+ .../evidence/verify/T003d/08-mutation-probes.txt   |  404 ++++
+ .../verify/T003d/09-submission-hygiene.txt         |   75 +
+ .../P0/evidence/verify/T003d/10-reviewer-probe.py  |  408 ++++
+ .../OBS-EVAL/P0/evidence/verify/T003d/11-mutate.py |   67 +
+ .../verify/T003d/12-contract-matrix-compare.py     |   97 +
+ .../P0/evidence/verify/T003d/R1-full-suite.txt     |   33 +
+ .../OBS-EVAL/P0/evidence/verify/T003d/R1-probe.txt |   29 +
+ .../P0/evidence/verify/T003d/R1-targeted.txt       |    8 +
+ 168 files changed, 23241 insertions(+), 13 deletions(-)
+
+## command: git status --short (during review; T005 files are external, T004a/ is this reviewer output)
+?? .claude/handoffs/T005-runner/
+?? .claude/handoffs/prompts/T005-dev.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/T004a/
+NOTE: the two T005 paths above appeared during this verification; the reviewer did not create or modify them.
+
+## command: git diff --stat (tracked worktree changes)
+NONE
+
+## frozen/read-only paths status (must be empty)
+NONE
+
+## forbidden pattern scan in T004a source files
+hits=0
+NONE
+
+## fixture rows vs source questions.json (byte-level values, not report claims)
+b0_rows=40 source_mismatches=0 []
+badcase_rows=13 source_mismatches=0 []
+
+## developer deliverable SHA-256 recheck (from evidence/T004a/10-deliverables-sha256.txt)
+checked=10 mismatches=0 []
+
+## independent artifact hashes
+b0.jsonl      bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f
+badcase.jsonl e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a
+
+## design / handoff clauses used for the two PM judgment calls
+docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md:236 expected_pagination in Case
+docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md:260 resolve 0 or multiple units -> GoldUnresolved
+.claude/handoffs/T004a-dataset/handoff.md:45 fail closed: 0 match and two units same key
+.claude/handoffs/T004a-dataset/handoff.md:46 dataset_version and two-build byte identity
+
+## Final worktree audit (after external concurrent edits; reviewer did not touch _index.md)
+## command: git status --short
+ M .claude/handoffs/_index.md
+?? .claude/handoffs/T004a-dataset/review.md
+?? .claude/handoffs/T005-runner/
+?? .claude/handoffs/prompts/T005-dev.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/T004a/
+
+## command: git diff --stat
+ .claude/handoffs/_index.md | 11 +++++++++--
+ 1 file changed, 9 insertions(+), 2 deletions(-)
+
+## external _index.md change summary
+The external diff only updates the handoff index rows for T004a/T004b and appends notes 29-30
+that reference this review; it is PM bookkeeping, not a code or T004a deliverable change.
+
+NOTE: the `_index.md` modification and the T005 paths are external concurrent changes (the index diff is PM bookkeeping that references this review); they are not T004a deliverables and were not made by this reviewer. The reviewer only added `.claude/handoffs/T004a-dataset/review.md` and `docs/reports/OBS-EVAL/P0/evidence/verify/T004a/`.
