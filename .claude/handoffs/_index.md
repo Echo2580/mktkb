@@ -25,6 +25,7 @@
 | T009 | 独立验收与 P0 收口 | **G6 已收口**（主人 2026-11-05 决策「通过」；总验收「有保留 PASS」`docs/reports/OBS-EVAL/P0/review.md`；全量 1593 passed） | 0 | 否 | T008b ✅ |
 | T100 | P1 前置：基线测试耦合修复（硬编码旧真实配置） | **G6 已收口**（dev commit `b35ae72`；独立验收 PASS `review.md`；全量 1593 passed；主人 2026-11-05 批准新增） | 0 | 否 | PRE-2 ✅ |
 | T107 | regression suite 与数据集契约扩展 | **G6 已收口**（dev commit `36fe095`；独立验收 PASS `review.md`；regression 7/7 RED；全量 run2 `1603 passed`，run1 为既有 flake `test_lifecycle[v05]`、隔离 3/3 过） | 0 | 否 | T100 ✅ |
+| T101 | ERR-03 词表语境与法规优先 | G1 已派单（开发中） | 0 | 否 | T107 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
