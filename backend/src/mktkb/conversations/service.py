@@ -57,6 +57,9 @@ from ..errors import (
     ServiceOverloaded,
     SourceNotFound,
 )
+from ..observability import trace_attrs
+from ..observability.contracts import OutcomeKind, TracePath
+from ..observability.tracer import current_trace
 from ..qa import QaNotReady
 from ..rag.chunking import role_label as rag_role_label
 from ..rag.errors import KnowledgeChanged as RagKnowledgeChanged
@@ -1453,6 +1456,10 @@ class _Result:
     pagination: PaginationView | None = None
     error_code: str | None = None
     retryable: bool = False
+    #: T003d：只在内部传递的稳定 reason（写入 Trace 供 required_spans 判定）；
+    #: 不进响应体、不参与业务分支。解析级早退的取值见 contracts 的
+    #: ``_LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS``。
+    reason: str | None = None
 
 
 def _reference_ids(result: _Result) -> list[str]:
@@ -1710,6 +1717,48 @@ _RAG_KIND_MAP = {
     "error": "service_error",
 }
 
+#: T003d：legacy 路径的产品结果 → Trace outcome（rag 路径由 ``QaEngine.answer``
+#: 从 ``RagAnswer.kind`` 设置；这里只处理产品自己判定的最终结局）。
+_LEGACY_OUTCOME_BY_KIND = {
+    "answer": OutcomeKind.ANSWER,
+    "not_found": OutcomeKind.NOT_FOUND,
+    "clarification": OutcomeKind.CLARIFICATION,
+    "conflict": OutcomeKind.CONFLICT,
+    "service_error": OutcomeKind.SERVICE_ERROR,
+    "knowledge_changed": OutcomeKind.KNOWLEDGE_CHANGED,
+}
+
+
+def _trace_is_legacy(trace) -> bool:
+    """当前 Trace 是否为 legacy 路径（commit Span 只在 legacy 路径补，RAG 由内核产生）。"""
+    path = getattr(trace, "_path", None)
+    return getattr(path, "value", path) in {
+        TracePath.LEGACY.value,
+        TracePath.LEGACY_WITH_RAG_CANDIDATES.value,
+    }
+
+
+def _record_legacy_outcome(trace, result: _Result, ask_result: AskResult) -> None:
+    """把 legacy 路径的最终产品结果写成 Trace outcome / reason / error_code。
+
+    只写稳定代码，不写问题/答案原文；``reason`` 供 ``required_spans`` 的
+    reason-aware 判定使用（§5.9 的 RAG 检索前拒答、§5.11 的 legacy 解析级早退）。
+    提交事务内可能把任意结果升级为 ``knowledge_changed``，此时以最终结局为准。
+    """
+    outcome = _LEGACY_OUTCOME_BY_KIND.get(ask_result.kind)
+    if outcome is None:
+        return
+    if ask_result.kind == "knowledge_changed":
+        reason = "KNOWLEDGE_CHANGED"
+    elif ask_result.kind == result.kind:
+        # 未升级：解析级早退等结果自带稳定 reason；service_error 回落 error_code。
+        reason = result.reason or ask_result.error_code
+    else:
+        reason = ask_result.error_code
+    trace.set_outcome(outcome, reason)
+    if ask_result.error_code:
+        trace.annotate(error_code=ask_result.error_code)
+
 
 def _clarification_followup(label: str, field_role: str) -> str:
     """澄清候选的追问：候选标签本身已含能收敛的门店/物品约束，再带上所问字段。
@@ -1804,6 +1853,8 @@ async def _answer(
     qa=None,
 ) -> _Result:
     revision = claim.initial_revision
+    # T003d：埋点全部以 current_trace() 为 None 时 no-op；不新建 Trace、不改控制流。
+    trace = current_trace()
     rag_candidates: set[str] | None = None
     rag_plan: QueryPlan | None = None
     if qa is not None:
@@ -1824,9 +1875,13 @@ async def _answer(
                 revision,
             )
         if _rag_owns_turn(rag_previous, rag_plan):
+            if trace is not None:
+                trace.set_path(TracePath.RAG)
             try:
                 rag_answer = qa.answer(question, str(user.id), str(claim.conversation_id))
             except RagKnowledgeChanged:
+                if trace is not None:
+                    trace.set_outcome(OutcomeKind.KNOWLEDGE_CHANGED, "KNOWLEDGE_CHANGED")
                 return _Result(
                     kind="knowledge_changed",
                     text=KNOWLEDGE_CHANGED_TEXT,
@@ -1836,6 +1891,7 @@ async def _answer(
                 return _service_error(
                     "INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision
                 )
+            # outcome 由 QaEngine.answer 按 RagAnswer.kind 设置（reason 一并写入）。
             return _rag_turn_result(rag_answer, revision)
         # 非 rag 直接作答的轮次也推进查询状态：澄清槽/话题切换/实体继承由 rag 状态机维护。
         try:
@@ -1843,20 +1899,30 @@ async def _answer(
         except Exception:  # noqa: BLE001 - 状态写失败不应改变既有问答结果
             pass
 
-    with _read_session(db_factory) as db:
-        lexicon = intent_module.load_lexicon(db)
-        plan = intent_module.parse_question(
-            question,
-            lexicon=lexicon,
-            context_entities=claim.context_entities,
-            context_questions=claim.context_questions,
-        )
+    if trace is not None:
+        trace.set_path(TracePath.LEGACY)
 
+    with trace_attrs.span("intent_parse") as intent_span:
+        with _read_session(db_factory) as db:
+            lexicon = intent_module.load_lexicon(db)
+            plan = intent_module.parse_question(
+                question,
+                lexicon=lexicon,
+                context_entities=claim.context_entities,
+                context_questions=claim.context_questions,
+            )
+        intent_span.annotate(
+            mode=plan.mode,
+            has_intent=plan.intent is not None,
+            clarification=bool(plan.clarification),
+            requested_fields=len(plan.requested_fields),
+        )
     if plan.unknown_identifier:
         return _Result(
             kind="not_found",
             text=f"资料中未找到标识“{plan.unknown_identifier}”的记录。",
             revision=revision,
+            reason="UNKNOWN_IDENTIFIER",
         )
     if plan.identifier:
         # D-IA-1：标识只能由 rag 内核的 identifier 过滤定位（产品检索层没有标识筛选键，
@@ -1866,6 +1932,7 @@ async def _answer(
             kind="not_found",
             text=f"资料中未找到标识“{plan.identifier}”对应的记录。",
             revision=revision,
+            reason="IDENTIFIER_NOT_RETRIEVABLE",
         )
     if plan.clarification:
         return _Result(
@@ -1876,13 +1943,19 @@ async def _answer(
             missing_fields=list(plan.missing_fields),
         )
     if plan.intent is None:
-        return _Result(kind="not_found", text="资料中未找到与问题相符的内容。", revision=revision)
+        return _Result(
+            kind="not_found",
+            text="资料中未找到与问题相符的内容。",
+            revision=revision,
+            reason="NO_INTENT",
+        )
     if not plan.requested_fields and plan.missing_fields:
         return _Result(
             kind="not_found",
             text="资料中未记录：" + "、".join(plan.missing_fields) + "。",
             revision=revision,
             missing_fields=list(plan.missing_fields),
+            reason="UNRECORDED_FIELD",
         )
 
     # 记录型问题的证据候选由 rag 索引提供（与 product revision 对齐后才给候选）；
@@ -1894,13 +1967,17 @@ async def _answer(
                 terms=plan.intent.terms,
                 entity_filters=plan.intent.entity_filters,
             )
+            if trace is not None and rag_candidates:
+                # 实际拿到 rag 候选后才记 legacy_with_rag_candidates；空候选仍是纯 legacy。
+                trace.set_path(TracePath.LEGACY_WITH_RAG_CANDIDATES)
         except QaNotReady:
             return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
         except Exception:  # noqa: BLE001 - 稳定错误，不暴露内部细节
             return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
 
     def _evidence(intent: QueryIntent, limit: int = 20) -> EvidenceSet:
-        return _retrieve(db_factory, intent, revision, limit=limit, candidate_ids=rag_candidates)
+        with trace_attrs.span("retrieve", limit=limit):
+            return _retrieve(db_factory, intent, revision, limit=limit, candidate_ids=rag_candidates)
 
     evidence: EvidenceSet | None = None
     extra_terms: tuple[str, ...] = ()
@@ -1922,11 +1999,15 @@ async def _answer(
         return _service_error("INVALID_QUERY", "无法理解该查询条件，请换个说法。", False, revision)
 
     if evidence.kind == "none" and plan.intent.terms and model is not None:
+        # 只有真正触发扩展调用时才置条件属性并创建 query_expansion Span（不伪造）。
+        trace_attrs.annotate_trace(expansion_triggered=True)
         try:
-            output = await _call_model(
-                model, _model_input("query_expansion", question, claim, plan), deadline
-            )
-            terms = _validate_terms(output)
+            with trace_attrs.span("query_expansion") as expansion_span:
+                output = await _call_model(
+                    model, _model_input("query_expansion", question, claim, plan), deadline
+                )
+                terms = _validate_terms(output)
+                expansion_span.annotate(terms=len(terms))
         except ModelOutputInvalid:
             return _service_error(
                 "MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision
@@ -1987,6 +2068,7 @@ async def _answer(
             text=f"资料中对{fields_text}记录了多个有效值，请以下列来源为准核对。",
             revision=revision,
             conflicts=conflicts,
+            reason="CONFLICTING_VALUES",
         )
 
     if plan.mode == "record":
@@ -2010,45 +2092,50 @@ async def _answer(
 
     allowed = {str(unit.id) for unit in units}
     try:
-        output = await _call_model(model, _model_input("answer", question, claim, plan, units), deadline)
-        if plan.mode == "record":
-            text, source_ids = _validate_answer(output, allowed, facts)
-        else:
-            # CD-F1：非记录型（正文/清单）回答同样要求数据型 token 由本次实际引用的来源背书，
-            # 并且明确单门店问题不得混入其它已知门店的事实（门店作用域只在锁定单店时生效）。
-            # 记录型仍走下面更严的 _record_facts 路径，既不共用本分支也不放宽。
-            text, source_ids = _validate_answer(
-                output,
-                allowed,
-                facts,
-                evidence=units,
-                # CD-F1-R1：门店豁免集延后到 ids 校验后按实际引用计算，不再按全部候选。
-                store_scope=(plan, lexicon),
+        with trace_attrs.span("model_answer"):
+            output = await _call_model(
+                model, _model_input("answer", question, claim, plan, units), deadline
             )
-        missing_rows: list[str] = []
-        if plan.mode == "record":
-            # 记录型事实准入：模型文本必须是可逐句验证的"对象=本问对象、字段=原值"陈述，
-            # 否则按 MODEL_OUTPUT_INVALID 处理；通过后再用代码按这些已验证字段构造展示文本，
-            # 使保存的回答不再含未经校验的自由文本。
-            record_rows = _record_units(units, plan, facts, cited=source_ids)
-            validated = _record_facts(
-                text, record_rows, facts, object_label=_object_label(plan), missing=missing
-            )
-            if not validated:
-                # 不给原始模型文本加调试输出；仅在进程内提示可定位的拒绝原因。
-                raise ModelOutputInvalid("记录型回答不是可验证的字段事实陈述")
-            cited = {row_id for _label, _value, row_id in validated}
-            # 引用收口：为字段原值背书的行必须都在模型实际引用的来源里；否则等于"引用一行、
-            # 用未引用行的值"作答，按不可验证处理。
-            if not cited.issubset(set(source_ids)):
-                raise ModelOutputInvalid("回答字段原值未由被引用来源背书")
-            # 对象绑定：被校验字段所在行的门店/物品原值必须就是本问对象（不做静默改写）。
-            subject = _validated_subject(validated, record_rows)
-            if subject and not _subject_matches_plan(plan, subject):
-                raise ModelOutputInvalid("回答字段原值属于其它对象")
-            missing_rows = [label for label in missing if label not in {item[0] for item in validated}]
-            text = _record_answer_text(validated, missing_rows, record_rows, subject_label=subject)
-            source_ids = [item for item in source_ids if item in cited]
+        with trace_attrs.span("answer_validate") as validate_span:
+            if plan.mode == "record":
+                text, source_ids = _validate_answer(output, allowed, facts)
+            else:
+                # CD-F1：非记录型（正文/清单）回答同样要求数据型 token 由本次实际引用的来源背书，
+                # 并且明确单门店问题不得混入其它已知门店的事实（门店作用域只在锁定单店时生效）。
+                # 记录型仍走下面更严的 _record_facts 路径，既不共用本分支也不放宽。
+                text, source_ids = _validate_answer(
+                    output,
+                    allowed,
+                    facts,
+                    evidence=units,
+                    # CD-F1-R1：门店豁免集延后到 ids 校验后按实际引用计算，不再按全部候选。
+                    store_scope=(plan, lexicon),
+                )
+            missing_rows: list[str] = []
+            if plan.mode == "record":
+                # 记录型事实准入：模型文本必须是可逐句验证的"对象=本问对象、字段=原值"陈述，
+                # 否则按 MODEL_OUTPUT_INVALID 处理；通过后再用代码按这些已验证字段构造展示文本，
+                # 使保存的回答不再含未经校验的自由文本。
+                record_rows = _record_units(units, plan, facts, cited=source_ids)
+                validated = _record_facts(
+                    text, record_rows, facts, object_label=_object_label(plan), missing=missing
+                )
+                if not validated:
+                    # 不给原始模型文本加调试输出；仅在进程内提示可定位的拒绝原因。
+                    raise ModelOutputInvalid("记录型回答不是可验证的字段事实陈述")
+                cited = {row_id for _label, _value, row_id in validated}
+                # 引用收口：为字段原值背书的行必须都在模型实际引用的来源里；否则等于"引用一行、
+                # 用未引用行的值"作答，按不可验证处理。
+                if not cited.issubset(set(source_ids)):
+                    raise ModelOutputInvalid("回答字段原值未由被引用来源背书")
+                # 对象绑定：被校验字段所在行的门店/物品原值必须就是本问对象（不做静默改写）。
+                subject = _validated_subject(validated, record_rows)
+                if subject and not _subject_matches_plan(plan, subject):
+                    raise ModelOutputInvalid("回答字段原值属于其它对象")
+                missing_rows = [label for label in missing if label not in {item[0] for item in validated}]
+                text = _record_answer_text(validated, missing_rows, record_rows, subject_label=subject)
+                source_ids = [item for item in source_ids if item in cited]
+            validate_span.annotate(mode=plan.mode, cited=len(source_ids), missing=len(missing_rows))
     except ModelOutputInvalid:
         return _service_error("MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision)
     except ModelError as exc:
@@ -2084,8 +2171,27 @@ async def ask(
         payload_digest(request.question),
         deadline_at,
     )
+    # T003d：request_id 是产品请求 ID（ConversationRequest.id）；question 只进内存，
+    # finish 时按 content_mode 转摘要/长度。当前无 Trace 时全部 no-op。
+    trace = current_trace()
+    if trace is not None:
+        trace.set_request_id(str(claim.request_id))
+        trace.set_question(request.question)
     if claim.replay is not None:
+        if trace is not None:
+            # 幂等重放没有真实执行：status=replayed、Span 为空，不覆盖历史（设计 §6.1）。
+            trace.annotate(replayed=True)
         return claim.replay
     result = await _answer(db_factory, user, claim, request.question, model, deadline, qa=qa)
-    return _commit_result(db_factory, user, claim, result, deadline=deadline)
+    if trace is not None and _trace_is_legacy(trace):
+        # legacy 路径的产品提交阶段（RAG 路径的 commit 由 rag 内核产生）。
+        with trace.span("commit"):
+            ask_result = _commit_result(db_factory, user, claim, result, deadline=deadline)
+        _record_legacy_outcome(trace, result, ask_result)
+        return ask_result
+    ask_result = _commit_result(db_factory, user, claim, result, deadline=deadline)
+    if trace is not None and ask_result.kind == "knowledge_changed":
+        # 提交事务内的 revision 复核可能把任意结果升级为 knowledge_changed；以最终结局为准。
+        trace.set_outcome(OutcomeKind.KNOWLEDGE_CHANGED, "KNOWLEDGE_CHANGED")
+    return ask_result
 

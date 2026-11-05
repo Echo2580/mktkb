@@ -21,6 +21,7 @@ from mktkb.observability.contracts import (
     TraceRecord,
     conditional_required_spans,
     required_spans,
+    validate_required_spans,
 )
 
 RAG_FULL = frozenset({"parse", "recall", "fuse", "answer", "commit"})
@@ -162,6 +163,127 @@ def test_required_spans_rejects_undefined_combination():
 
 def test_required_spans_returns_frozenset():
     assert isinstance(required_spans(TracePath.RAG, OutcomeKind.ANSWER), frozenset)
+
+
+# ---- T003d §5.9：rag+no_answer 的 reason-aware 例外（向后兼容的可选参数） ----
+
+#: 检索前拒答的三种稳定 reason：parse+commit 后立即返回，没有 recall/fuse。
+RAG_PRE_RETRIEVAL_REASONS = ("DOCUMENT_NOT_FOUND", "UNKNOWN_STORE", "RECORD_ONLY")
+
+
+@pytest.mark.parametrize("reason", RAG_PRE_RETRIEVAL_REASONS)
+def test_required_spans_rag_no_answer_pre_retrieval_reasons_need_only_parse_and_commit(reason):
+    assert required_spans(TracePath.RAG, OutcomeKind.NO_ANSWER, reason=reason) == RAG_EARLY
+    assert required_spans("rag", "no_answer", reason=reason) == RAG_EARLY
+
+
+@pytest.mark.parametrize(
+    "reason", [None, "NO_EVIDENCE", "FIELD_NOT_RECORDED", "NO_RECORD_FOR_ENTITY", "document_not_found"]
+)
+def test_required_spans_rag_no_answer_other_reasons_still_require_recall_and_fuse(reason):
+    """检索后拒答（以及未知/大小写不符的 reason）仍按设计 §6.4 原表要求 recall/fuse。"""
+    assert required_spans(TracePath.RAG, OutcomeKind.NO_ANSWER, reason=reason) == RAG_RECALL
+
+
+def test_required_spans_reason_is_only_applied_to_rag_no_answer():
+    """reason 例外只对 rag+no_answer 生效，其它 path/outcome 组合保持原表。"""
+    assert required_spans(TracePath.RAG, OutcomeKind.ANSWER, reason="DOCUMENT_NOT_FOUND") == RAG_FULL
+    assert (
+        required_spans(TracePath.RAG, OutcomeKind.CLARIFICATION, reason="DOCUMENT_NOT_FOUND")
+        == RAG_EARLY
+    )
+    assert (
+        required_spans(TracePath.LEGACY, OutcomeKind.NOT_FOUND, reason="DOCUMENT_NOT_FOUND")
+        == LEGACY_NOT_FOUND
+    )
+
+
+def test_required_spans_two_argument_calls_are_unchanged():
+    """向后兼容：不传 reason 的旧调用行为与 §6.4 原表一致。"""
+    assert required_spans(TracePath.RAG, OutcomeKind.NO_ANSWER) == RAG_RECALL
+    assert required_spans(TracePath.RAG, OutcomeKind.ANSWER) == RAG_FULL
+
+
+def test_validate_required_spans_reads_reason_from_record():
+    """``validate_required_spans`` 按 ``record.reason`` 应用 reason-aware 例外。"""
+    early = TraceRecord(path="rag", outcome_kind="no_answer", reason="DOCUMENT_NOT_FOUND")
+    assert validate_required_spans(early, ["parse", "commit"]) == []
+    assert validate_required_spans(early, ["commit"]) == ["parse"]
+
+    late = TraceRecord(path="rag", outcome_kind="no_answer", reason="NO_EVIDENCE")
+    assert validate_required_spans(late, ["parse", "commit"]) == ["fuse", "recall"]
+    assert validate_required_spans(late, ["parse", "recall", "fuse", "commit"]) == []
+
+    no_reason = TraceRecord(path="rag", outcome_kind="no_answer")
+    assert validate_required_spans(no_reason, ["parse", "commit"]) == ["fuse", "recall"]
+
+
+# ---- T003d §5.11：legacy 解析级早退 reason-aware + 补充 outcome 行 ----
+
+#: `_answer` 在 retrieve 之前返回 not_found 的四个稳定 reason（内部枚举）。
+LEGACY_PRE_RETRIEVAL_REASONS = (
+    "UNKNOWN_IDENTIFIER",
+    "IDENTIFIER_NOT_RETRIEVABLE",
+    "NO_INTENT",
+    "UNRECORDED_FIELD",
+)
+LEGACY_PATHS = (TracePath.LEGACY, TracePath.LEGACY_WITH_RAG_CANDIDATES)
+
+
+@pytest.mark.parametrize("path", LEGACY_PATHS)
+@pytest.mark.parametrize("reason", LEGACY_PRE_RETRIEVAL_REASONS)
+def test_required_spans_legacy_not_found_pre_retrieval_reasons_need_only_intent_parse_and_commit(
+    path, reason
+):
+    """解析级早退（未执行 retrieve）只需 intent_parse + commit，两条 legacy 路径同规则。"""
+    assert required_spans(path, OutcomeKind.NOT_FOUND, reason=reason) == LEGACY_EARLY
+    assert required_spans(path.value, "not_found", reason=reason) == LEGACY_EARLY
+
+
+@pytest.mark.parametrize("path", LEGACY_PATHS)
+@pytest.mark.parametrize(
+    "reason",
+    [None, "NO_EVIDENCE", "UNKNOWN_STORE", "unrecorded_field", "DOCUMENT_NOT_FOUND"],
+)
+def test_required_spans_legacy_not_found_other_reasons_still_require_retrieve(path, reason):
+    """检索后 not_found（及未知/大小写不符的 reason）仍要求 retrieve（fail safe）。"""
+    assert required_spans(path, OutcomeKind.NOT_FOUND, reason=reason) == LEGACY_NOT_FOUND
+
+
+def test_required_spans_legacy_supplement_rows_for_reachable_outcomes():
+    """§5.11 补充行：legacy conflict / knowledge_changed 都在 retrieve 之后发生。"""
+    supplement = frozenset({"intent_parse", "retrieve", "commit"})
+    for path in LEGACY_PATHS:
+        assert required_spans(path, OutcomeKind.CONFLICT) == supplement
+        assert required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED) == supplement
+
+
+def test_required_spans_legacy_unreachable_outcomes_stay_fail_closed():
+    """legacy 产品路径不产生 no_answer / ambiguous / error：仍按契约缺口抛 ValueError。"""
+    for outcome in (OutcomeKind.NO_ANSWER, OutcomeKind.AMBIGUOUS, OutcomeKind.ERROR):
+        with pytest.raises(ValueError):
+            required_spans(TracePath.LEGACY, outcome)
+
+
+def test_required_spans_reason_does_not_cross_paths():
+    """RAG 的 reason 集合不作用于 legacy，legacy 的 reason 集合也不作用于 RAG。"""
+    assert required_spans(TracePath.LEGACY, OutcomeKind.NOT_FOUND, reason="DOCUMENT_NOT_FOUND") == LEGACY_NOT_FOUND
+    assert required_spans(TracePath.RAG, OutcomeKind.NO_ANSWER, reason="UNRECORDED_FIELD") == RAG_RECALL
+
+
+def test_validate_required_spans_reads_legacy_reason_from_record():
+    """``validate_required_spans`` 按 legacy 记录的 ``reason`` 应用 §5.11 例外。"""
+    early = TraceRecord(path="legacy", outcome_kind="not_found", reason="UNRECORDED_FIELD")
+    assert validate_required_spans(early, ["intent_parse", "commit"]) == []
+    assert validate_required_spans(early, ["commit"]) == ["intent_parse"]
+
+    no_reason = TraceRecord(path="legacy", outcome_kind="not_found")
+    assert validate_required_spans(no_reason, ["intent_parse", "commit"]) == ["retrieve"]
+    assert validate_required_spans(no_reason, ["intent_parse", "retrieve", "commit"]) == []
+
+    conflict = TraceRecord(path="legacy_with_rag_candidates", outcome_kind="conflict")
+    assert validate_required_spans(conflict, ["intent_parse", "retrieve", "commit"]) == []
+    assert validate_required_spans(conflict, ["intent_parse", "commit"]) == ["retrieve"]
 
 
 # ---- §5.3 条件必需 Span：只认四个键 ----

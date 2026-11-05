@@ -1,0 +1,30 @@
+T003d 最终提交 stat（提交后采集；由 amend 并入同一 commit）
+captured_at: 2026-11-05T08:33:52.8924042+08:00
+baseline: 776497f (p0/T003c rag spans)
+command: git show --stat --oneline HEAD
+--- output ---
+bf8d7b7 p0/T003d qa legacy spans
+ .claude/handoffs/T003d-paths/report.md             | 188 +++++++
+ backend/src/mktkb/conversations/service.py         | 212 +++++--
+ backend/src/mktkb/observability/contracts.py       |  52 +-
+ backend/src/mktkb/qa/service.py                    |  27 +-
+ backend/tests/observability/conftest.py            |  32 ++
+ backend/tests/observability/test_contracts.py      | 122 ++++
+ backend/tests/observability/test_middleware.py     |  21 +-
+ backend/tests/observability/test_paths_e2e.py      | 611 +++++++++++++++++++++
+ backend/tests/observability/test_rag_spans.py      |  32 +-
+ docs/evaluation/trace_schema_v0_1.md               |  64 ++-
+ .../OBS-EVAL/P0/evidence/T003d/00-baseline.txt     |  31 ++
+ .../OBS-EVAL/P0/evidence/T003d/01-tdd-red.txt      | Bin 0 -> 59022 bytes
+ .../OBS-EVAL/P0/evidence/T003d/02-paths-e2e.txt    |   8 +
+ .../T003d/03-observability-integration.txt         |  16 +
+ .../OBS-EVAL/P0/evidence/T003d/04-full-suite.txt   |  25 +
+ .../P0/evidence/T003d/05-legacy-boundary-probe.txt |  35 ++
+ .../P0/evidence/T003d/06-test-middleware.diff      |  46 ++
+ .../P0/evidence/T003d/07-static-hygiene.txt        |  29 +
+ .../evidence/T003d/08-legacy-contract-matrix.txt   | 112 ++++
+ 19 files changed, 1590 insertions(+), 73 deletions(-)
+--- note ---
+本文件与 10-deliverables-sha256.txt 在首次提交后采集，并以 `git commit --amend --no-edit` 并入同一提交；
+因此本 stat 不含 09/10 两个文件本身（代码/测试/文档/证据 00-08 的内容不变）。
+最终 HEAD 短 sha 见回复与 `git log -1 --format=%h`。

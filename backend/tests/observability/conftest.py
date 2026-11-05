@@ -149,3 +149,35 @@ def trace_employee(trace_app) -> SimpleNamespace:
 def trace_admin(trace_app) -> SimpleNamespace:
     """开启 Trace 应用里的管理员会话（可上传资料）。"""
     return open_session(trace_app, "admin", "AdminPass-1")
+
+
+# ---- T003d：带可控模型 + 可发布资料的全链路应用（legacy 作答路径需要） ----
+
+#: T003d 固定问答资料：记录行（RAG 枚举/标识）与正文行（legacy document 面）在同一份 xlsx。
+T003D_ROWS = [
+    ["滨江店", "宣传海报", 40, "QF001", "B区1号货架第二层"],
+    ["城东店", "展架", 2, "ZF001", "A区前台"],
+    ["公司愿景", "成为市场部最可信的知识库", None, None, None],
+]
+T003D_HEADERS = ["门店", "物品", "数量", "标识", "位置"]
+
+
+@pytest.fixture
+def trace_chat_app(trace_settings: Settings, chat_model):
+    """开启 Trace 且注入 ``chat_model`` 的应用（T003c 的 ``Trace`` 装配 + 可编程模型）。
+
+    只追加本 fixture：既有 ``trace_app`` / ``trace_employee`` 等 fixture 不变。
+    测试结束按 ``trace_app`` 的口径关闭 Trace 仓储 / rag 内核 / 业务库连接。
+    """
+    application = create_app(trace_settings, model_gateway=chat_model)
+    try:
+        yield application
+    finally:
+        state = application.state
+        repo = getattr(state, "trace_repo", None)
+        if repo is not None:
+            repo.close()
+        qa = getattr(state, "qa", None)
+        if qa is not None:
+            qa.close()
+        state.db.dispose()

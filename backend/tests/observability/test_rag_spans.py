@@ -422,6 +422,32 @@ def test_rerank_span_only_when_rerank_actually_executes(tmp_path: Path) -> None:
     assert validate_required_spans(record, names) == []
 
 
+def test_rerank_failure_marks_rerank_span_error_without_new_exception(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """重排失败：既有语义是回退 RRF 继续作答，不改变控制流；Span 只记录 error。"""
+
+    def _boom(*args, **kwargs):
+        raise RuntimeError("TRACE-TEST-RERANK-BOOM")
+
+    with _rag_index(tmp_path) as index:
+        _add_records(index, [RECORD_ROW])
+        monkeypatch.setattr(index.reranker, "rerank", _boom)
+        answer, record, spans = _ask_traced(index, RECORD_QUESTION)
+
+    # 既有降级语义：重排失败不抛给调用方，记录仍由 RRF 顺序作答。
+    assert answer.kind == "answer"
+    rerank = _one(spans, "rerank")
+    assert rerank.status == "error"
+    assert rerank.error_code == "RuntimeError"
+    # 重排真实执行过（只是失败），条件必需 Span 仍在，validate 不因失败而误判缺失。
+    decisions = _canonical(record.filter_decisions_json)
+    assert decisions["rerank_enabled"] is True
+    assert conditional_required_spans(decisions) == {"vector_recall", "rerank"}
+    assert validate_required_spans(record, set(_names(spans))) == []
+    assert record.status == "ok"
+
+
 # ---- §5.4 早退路径不伪造 Span ----
 
 
@@ -441,7 +467,9 @@ def test_clarification_early_exit_has_only_parse_and_commit(tmp_path: Path) -> N
 def test_pre_retrieval_no_answer_does_not_fabricate_retrieval_spans(tmp_path: Path) -> None:
     """DOCUMENT_NOT_FOUND 在检索前返回：不得为凑 no_answer 必需集伪造 recall/fuse/answer。
 
-    设计 §6.4 的 ``rag+no_answer`` 表按“检索后拒答”定义；本用例只锁定“未执行不伪造”。
+    设计 §6.4 的 ``rag+no_answer`` 表按“检索后拒答”定义；T003d §5.9 的 reason-aware
+    契约修订让检索前拒答（DOCUMENT_NOT_FOUND / UNKNOWN_STORE / RECORD_ONLY）只需
+    ``parse`` + ``commit``，因此本用例必须能通过 ``validate_required_spans``。
     """
     with _rag_index(tmp_path) as index:  # 空词表 → 点名资料必然未收录
         answer, record, spans = _ask_traced(index, MISSING_DOCUMENT_QUESTION)
@@ -451,6 +479,8 @@ def test_pre_retrieval_no_answer_does_not_fabricate_retrieval_spans(tmp_path: Pa
     assert set(_names(spans)) == {"parse", "commit"}
     assert not {"recall", "fuse", "answer", "fact_validate"} & set(_names(spans))
     assert record.outcome_kind == "no_answer"
+    assert record.reason == "DOCUMENT_NOT_FOUND"
+    assert validate_required_spans(record, set(_names(spans))) == []
 
 
 def test_retrieval_no_answer_passes_integrity(tmp_path: Path) -> None:

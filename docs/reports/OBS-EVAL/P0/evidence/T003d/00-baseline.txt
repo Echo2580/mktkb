@@ -1,0 +1,31 @@
+﻿T003d baseline snapshot (captured before commit; worktree at T003c HEAD)
+captured_at: 2026-11-05T03:41:59.9358637+08:00
+--- git branch --show-current ---
+p0/obs-eval
+--- git rev-parse --short HEAD ---
+776497f
+--- git log --oneline -3 ---
+776497f p0/T003c rag spans
+d41d19f p0/T003b config & middleware
+dea4d5d p0/T003a tracer core
+--- python ---
+3.12.7 (tags/v3.12.7:0b05ead, Oct  1 2024, 03:06:41) [MSC v.1941 64 bit (AMD64)]
+pytest 9.1.1
+--- worktree status (T003d files) ---
+
+ M backend/src/mktkb/conversations/service.py
+ M backend/src/mktkb/observability/contracts.py
+ M backend/src/mktkb/qa/service.py
+ M backend/tests/observability/conftest.py
+ M backend/tests/observability/test_contracts.py
+ M backend/tests/observability/test_middleware.py
+ M backend/tests/observability/test_rag_spans.py
+ M docs/evaluation/trace_schema_v0_1.md
+?? backend/tests/observability/test_paths_e2e.py
+
+
+--- T003c leftover temp files (expected: none) ---
+02-package.txt exists=False
+03-observability-rag.txt exists=False
+04-full.txt exists=False
+07-test-middleware.diff exists=False

@@ -69,7 +69,31 @@ _LEGACY_REQUIRED_SPANS: dict[OutcomeKind, frozenset[str]] = {
     OutcomeKind.NOT_FOUND: frozenset({"intent_parse", "retrieve", "commit"}),
     OutcomeKind.CLARIFICATION: frozenset({"intent_parse", "commit"}),
     OutcomeKind.SERVICE_ERROR: frozenset({"intent_parse", "commit"}),
+    # T003d §5.11（PM 2026-11-05 预授权，与 §5.9 同构）：下面两个 legacy 组合在
+    # T001 冻结表中未定义，但产品路径实际可达（证据 `T003d/08-legacy-contract-matrix.txt`）。
+    # 二者都发生在 retrieve 之后：conflict 来自证据集冲突，knowledge_changed 来自
+    # 检索/提交阶段的 revision 变化（检索阶段异常也会留下 retrieve Span）。
+    OutcomeKind.CONFLICT: frozenset({"intent_parse", "retrieve", "commit"}),
+    OutcomeKind.KNOWLEDGE_CHANGED: frozenset({"intent_parse", "retrieve", "commit"}),
 }
+
+# T003d（T003c 验收移交，PM 2026-11-05 裁决）：``rag + no_answer`` 原表按
+# “检索后拒答”定义；RAG 内核还有三种**检索前**拒答（parse 后立刻 commit，未执行
+# recall/fuse）。这些稳定 reason 的必需集退化为 ``{parse, commit}``，其余
+# ``rag + no_answer``（含 reason 缺省/未知）仍按原表要求 recall/fuse。
+_RAG_PRE_RETRIEVAL_NO_ANSWER_REASONS: frozenset[str] = frozenset(
+    {"DOCUMENT_NOT_FOUND", "UNKNOWN_STORE", "RECORD_ONLY"}
+)
+_RAG_PRE_RETRIEVAL_NO_ANSWER_SPANS: frozenset[str] = frozenset({"parse", "commit"})
+
+# T003d §5.11（PM 2026-11-05 预授权）：legacy 的解析级早退 not_found 与 RAG 检索前
+# 拒答同构——``intent_parse`` 之后直接返回（未执行 retrieve）。这些 reason 对应
+# ``conversations/service.py::_answer`` 解析后的四个提前返回点；执行过 retrieve 的
+# not_found（reason 缺省/其它）仍按原表要求 retrieve。
+_LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS: frozenset[str] = frozenset(
+    {"UNKNOWN_IDENTIFIER", "IDENTIFIER_NOT_RETRIEVABLE", "NO_INTENT", "UNRECORDED_FIELD"}
+)
+_LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS: frozenset[str] = frozenset({"intent_parse", "commit"})
 
 # 设计 §6.4「条件必需 Span」：只认这四个属性键；值为真时才要求对应 Span。
 _CONDITIONAL_SPANS: tuple[tuple[str, str], ...] = (
@@ -85,15 +109,35 @@ TracePathLike = TracePath | str
 OutcomeKindLike = OutcomeKind | str
 
 
-def required_spans(path: TracePathLike, outcome: OutcomeKindLike) -> frozenset[str]:
+def required_spans(
+    path: TracePathLike, outcome: OutcomeKindLike, *, reason: str | None = None
+) -> frozenset[str]:
     """返回 ``path + outcome`` 的基础必需 Span 集合（设计 §6.4）。
 
     - 传入枚举或等值字符串均可；
     - ``legacy_with_rag_candidates`` 与 ``legacy`` 共用 legacy 规则；
+    - ``reason`` 是 T003d 追加的**向后兼容**可选参数：``rag + no_answer`` 且
+      ``reason`` ∈ {DOCUMENT_NOT_FOUND, UNKNOWN_STORE, RECORD_ONLY} 时必需集退化为
+      ``{parse, commit}``（检索前拒答，未执行 recall/fuse）；legacy 路径
+      ``not_found`` 且 ``reason`` ∈ {UNKNOWN_IDENTIFIER, IDENTIFIER_NOT_RETRIEVABLE,
+      NO_INTENT, UNRECORDED_FIELD} 时退化为 ``{intent_parse, commit}``（解析级早退，
+      未执行 retrieve）；不传、传 None 或其它 reason 时与冻结表完全一致；
     - 设计表未定义的组合抛 ``ValueError``（fail closed，不静默返回空集）。
     """
     resolved_path = TracePath(path)
     resolved_outcome = OutcomeKind(outcome)
+    if (
+        resolved_path is TracePath.RAG
+        and resolved_outcome is OutcomeKind.NO_ANSWER
+        and reason in _RAG_PRE_RETRIEVAL_NO_ANSWER_REASONS
+    ):
+        return _RAG_PRE_RETRIEVAL_NO_ANSWER_SPANS
+    if (
+        resolved_path is not TracePath.RAG
+        and resolved_outcome is OutcomeKind.NOT_FOUND
+        and reason in _LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS
+    ):
+        return _LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS
     table = _RAG_REQUIRED_SPANS if resolved_path is TracePath.RAG else _LEGACY_REQUIRED_SPANS
     try:
         return table[resolved_outcome]
@@ -201,7 +245,9 @@ def validate_required_spans(record: TraceRecord, span_names: Any) -> list[str]:
 
     T003a 在文件末尾追加的纯函数（不改动本文件既有常量 / 类 / 函数）：
 
-    - 基础必需 Span：``required_spans(record.path, record.outcome_kind)``；
+    - 基础必需 Span：``required_spans(record.path, record.outcome_kind, reason=record.reason)``
+      （T003d §5.9：RAG 检索前拒答按 ``reason`` 退化为 ``parse`` + ``commit``；
+      §5.11：legacy 解析级早退 not_found 退化为 ``intent_parse`` + ``commit``）；
     - 条件必需 Span：执行属性从记录的任意 ``*_json`` 字段载荷中读取，只取该 JSON
       object 的**顶层键**，认 ``vector_enabled`` / ``rerank_enabled`` /
       ``expansion_triggered`` / ``index_sync_performed`` 四个键（T003a 的 tracer 会把
@@ -222,7 +268,7 @@ def validate_required_spans(record: TraceRecord, span_names: Any) -> list[str]:
         raise ValueError(
             "TraceRecord 缺少 path 或 outcome_kind，无法判定必需 Span（fail closed）"
         )
-    required = set(required_spans(path, outcome))
+    required = set(required_spans(path, outcome, reason=record.reason))
 
     from dataclasses import fields as _fields
     import json as _json

@@ -4,6 +4,10 @@
 > 来源：`docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md` §6.3 / §6.4 / §6.5 / §7.3。
 > 实现：`backend/src/mktkb/observability/contracts.py`、`backend/src/mktkb/observability/versioning.py`。
 > 本契约只描述数据形状与摘要口径，不涉及 SQLite 表结构（Task 2 落地）与业务埋点（Task 3 落地）。
+> 修订（T003d，2026-11-05）：`required_spans` 增加向后兼容的可选 `reason` 参数，
+> `rag + no_answer` 对检索前拒答（`DOCUMENT_NOT_FOUND` / `UNKNOWN_STORE` / `RECORD_ONLY`）
+> 的必需 Span 改为 `parse` + `commit`，见 §6.1.1；同一机制下 legacy 解析级早退
+> `not_found` 与两条 `legacy + conflict` / `knowledge_changed` 补充行见 §6.1.2。
 
 ## 1. 三套 Schema 版本
 
@@ -121,7 +125,8 @@ Trace 不把 `chunk_id` UUID 当业务身份，只存 `chunk_id_hash` 供调试�
 
 ### 6.1 基础必需 Span
 
-`required_spans(path, outcome)` 按设计 §6.4 表实现，共 8 行：
+`required_spans(path, outcome)` 按设计 §6.4 表实现，共 10 行（T001 冻结 8 行 +
+T003d §5.11 依探针补的 2 行 legacy 补充行）：
 
 | path + outcome | 必需 Span |
 | --- | --- |
@@ -133,12 +138,61 @@ Trace 不把 `chunk_id` UUID 当业务身份，只存 `chunk_id_hash` 供调试�
 | `legacy` + `not_found` | `intent_parse`、`retrieve`、`commit` |
 | `legacy` + `clarification` | `intent_parse`、`commit` |
 | `legacy` + `service_error` | `intent_parse`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `conflict` | `intent_parse`、`retrieve`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `knowledge_changed` | `intent_parse`、`retrieve`、`commit` |
 
-- `legacy_with_rag_candidates` 与 `legacy` 共用 legacy 规则（8 行之外不另立规则）。
-- 设计表未定义的组合（如 `rag + not_found`、`legacy + error`）**fail closed**：抛 `ValueError`，
-  不静默返回空集。
+- `legacy_with_rag_candidates` 与 `legacy` 共用 legacy 规则（上表之外不另立规则）。
+- 设计表未定义的组合（如 `rag + not_found`、`legacy + error` / `no_answer` / `ambiguous`）
+  **fail closed**：抛 `ValueError`，不静默返回空集。`legacy` 产品路径不产生
+  `no_answer` / `ambiguous` / `error` 三个 outcome（`_RAG_KIND_MAP` 只把它们映射到
+  rag 结果，legacy 的 `_answer` 没有这些 `kind` 返回点）；探针证据见 §6.1.2。
 - 两个易错点：`rag + clarification` 不含 `answer`；`legacy + not_found` 不含
   `query_expansion` / `answer`（/ `model_answer`）。
+
+#### 6.1.1 `rag + no_answer` 的检索前拒答例外（T003d 追加，向后兼容）
+
+`required_spans(path, outcome)` 新增**仅关键字、可选**的 `reason` 参数；不传时行为与上表
+完全一致（旧调用无需改动）。`validate_required_spans(record, span_names)` 把
+`record.reason` 传给该参数。
+
+| path + outcome | `reason` | 必需 Span |
+| --- | --- | --- |
+| `rag` + `no_answer` | `DOCUMENT_NOT_FOUND` / `UNKNOWN_STORE` / `RECORD_ONLY` | `parse`、`commit` |
+| `rag` + `no_answer` | 缺省、空或其它任意值（如 `NO_EVIDENCE`、`FIELD_NOT_RECORDED`） | `parse`、`recall`、`fuse`、`commit` |
+
+- 依据：RAG 内核 `answer_question` 在 parse 后、检索前就会对这三类原因返回拒答并
+  `commit` 查询状态，**没有执行** recall/fuse；按设计“未执行的通道不创建 Span”，
+  原表把它们当成“检索后拒答”会误判缺失。
+- `reason` 区分大小写；未知 reason 一律回落到原表（fail safe，不放宽完整性）。
+- 该例外只作用于 `rag + no_answer`；`rag + answer` / `conflict` / `clarification` /
+  `error` / `knowledge_changed` 与全部 legacy 规则不变。
+
+#### 6.1.2 legacy 解析级早退与补充 outcome 行（T003d §5.11，PM 预授权）
+
+legacy 的 `not_found` 有两个来源：`intent_parse` 后、`retrieve` 前的解析级早退
+（未检索），以及真正检索后的“无证据/未记录”。`required_spans` 用同一个可选
+`reason` 参数区分两者；解析级早退的 reason 由 `conversations/service.py::_answer`
+在返回前写入 Trace（只改 trace 字段，不改产品响应）：
+
+| path + outcome | `reason` | 必需 Span |
+| --- | --- | --- |
+| `legacy` / `legacy_with_rag_candidates` + `not_found` | `UNKNOWN_IDENTIFIER` / `IDENTIFIER_NOT_RETRIEVABLE` / `NO_INTENT` / `UNRECORDED_FIELD` | `intent_parse`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `not_found` | 缺省、空或其它任意值 | `intent_parse`、`retrieve`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `conflict` | 任意（产品写 `CONFLICTING_VALUES`） | `intent_parse`、`retrieve`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `knowledge_changed` | 任意（产品写 `KNOWLEDGE_CHANGED`） | `intent_parse`、`retrieve`、`commit` |
+
+- 解析级早退的四个 reason 对应 `_answer` 中 `retrieve` 之前的四个 not_found 返回点：
+  未收录标识、有标识但产品检索层无法按标识定位、解析不出意图、只问了资料未记录的字段。
+  复现问题 `滨江店的负责人是谁？`、`滨江店宣传海报的负责人是谁？` 命中最后一种
+  （`requested_fields=[]` 且 `missing_fields=['负责人']`），Span 严格为
+  `intent_parse` + `commit`，validate 通过。
+- `conflict` 与 `knowledge_changed` 都发生在 `retrieve` 之后（前者来自证据集冲突，后者
+  来自检索或提交阶段的 revision 变化；检索阶段抛错也会留下 `retrieve` Span），
+  因此必需集含 `retrieve`；真实 Span 通常还包含 RAG 候选的 recall/fuse 等，属超集。
+- **不可达组合保持 fail closed**：legacy 产品路径不产生 `no_answer` / `ambiguous` /
+  `error`，这三种 `legacy + outcome` 仍抛 `ValueError`，不按“可能执行过”补行。
+- 探针证据：`docs/reports/OBS-EVAL/P0/evidence/T003d/08-legacy-contract-matrix.txt`
+  （两条复现问题、conflict、knowledge_changed、不可达 outcome 的实测矩阵）。
 
 ### 6.2 条件必需 Span
 

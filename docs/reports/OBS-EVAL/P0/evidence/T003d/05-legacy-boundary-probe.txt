@@ -1,0 +1,35 @@
+T003d legacy 边界探针（T003c 冻结表 vs 解析级早退/冲突；仅记录，不伪造 Span）
+captured_at: 2026-11-05T03:43:08.7614101+08:00
+=== legacy early not_found（parse 后未 retrieve）===
+
+Q='滨江店的负责人是谁？' kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'commit'] validate
+=['retrieve']
+Q='滨江店宣传海报的负责人是谁？' kind='not_found' path='legacy' outcome='not_found' reason=None spans=['intent_parse', 'commit'] vali
+date=['retrieve']
+Q='P9999在哪里？' kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit'] v
+alidate=[]
+Q='。' kind='clarification' path='legacy' outcome='clarification' reason=None spans=['intent_parse', 'commit'] validate=
+[]
+
+
+=== legacy conflict（表未定义 path+outcome）===
+
+kind='conflict' path='legacy_with_rag_candidates' outcome='conflict' status='ok'
+spans=['intent_parse', 'recall', 'exact_recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_fi
+lter', 'rerank', 'recall', 'lexical_recall', 'vector_recall', 'embedding_query', 'fuse', 'hard_filter', 'rerank', 'retr
+ieve', 'commit']
+validate raises ValueError: 设计 §6.4 未定义 path='legacy_with_rag_candidates' + outcome='conflict' 的必需 Span 契约
+
+
+=== T003d 收尾更新（2026-11-05，§5.11 契约修订后）===
+handoff §5.11（PM 2026-11-05 预授权）已按与 §5.9 同构的 reason-aware 规则补齐，上面两个缺口均关闭：
+- 解析级早退 not_found：两条复现问题 reason=UNRECORDED_FIELD、Span={intent_parse, commit}、
+  validate=[]；执行过 retrieve 的 not_found（reason 缺省/其它）仍要求 retrieve。
+- legacy conflict / knowledge_changed：补 {intent_parse, retrieve, commit} 行，validate=[]；
+  实测 Span 是补充行的超集（含 RAG 候选 recall/fuse 等），未伪造任何阶段。
+- legacy 不可达的 no_answer / ambiguous / error 保持 fail-closed（仍抛 ValueError）。
+- conflict 的 reason 写 CONFLICTING_VALUES、knowledge_changed 写 KNOWLEDGE_CHANGED（只补 Trace 字段）。
+复跑矩阵与契约前后对照见 `08-legacy-contract-matrix.txt`；契约表见 `trace_schema_v0_1.md` §6.1.2，
+代码见 `observability/contracts.py:76-77,93-96,136-140` 与 `conversations/service.py:1741,1925-1958,2071`。
+
+

@@ -8,8 +8,10 @@
 - handoff §5 八条验收：默认关闭零副作用 / 开启后落 trace / 范围只限 QA POST /
   写入失败不影响产品 / 行为不变 / mode 硬约束 / 配置安全 / 测试与回归。
 
-本包**不埋业务 Span**（T003c/d 才做），因此开启后 trace 的 ``spans`` 为空是预期；
-``request_id``（产品请求 ID）也由 T003c/d 在 conversations 埋点里设置，这里断言为 None。
+T003b 只做「观测开关 + 中间件」接线；T003d 起业务层会补 legacy/RAG Span 与
+``request_id`` / ``path`` / ``outcome``。本文件对固定问答的断言只锁定中间件职责
+（响应头、mode/scope/content_mode、一次 POST 一条 trace、无原文），业务埋点细节由
+``test_paths_e2e.py`` 覆盖。
 
 零真实模型 / OCR / embedding / rerank 调用；测试只写 ``tmp_path``，不读 ``.env``，
 不打印凭据、不访问外网。
@@ -190,7 +192,7 @@ def test_enabled_app_creates_repo_at_configured_path(trace_settings, trace_app, 
 
 
 def test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace(trace_employee, trace_repo, trace_db_path):
-    """QA POST 响应头 X-Trace-ID 指向已写入的一条 trace（spans 为空是预期）。"""
+    """QA POST 响应头 X-Trace-ID 指向已写入的一条 trace（T003d 接线后带业务 Span）。"""
     conversation_id = create_conversation(trace_employee)
     response = ask_question(trace_employee, conversation_id)
     assert response.status_code == 200, response.text
@@ -209,12 +211,13 @@ def test_enabled_qa_post_returns_uuid_trace_header_and_persists_trace(trace_empl
     assert trace.content_mode == "hash"
     assert trace.replayed is False
     assert trace.attempt == 1
-    # T003b 只做接线：业务字段由 T003c/d 埋点设置；本包不解析/伪造请求体。
-    assert trace.request_id is None
-    assert trace.outcome_kind is None
-    # 未埋业务 Span + 未设置 outcome → incomplete 是预期（不是缺陷）。
-    assert trace.status == "incomplete"
-    assert trace.question_hash is None
+    # T003d 接线：request_id 绑定本次产品请求；固定问答（空库）走 legacy 路径并稳定 not_found。
+    assert trace.request_id == response.json()["request_id"]
+    assert trace.path == "legacy"
+    assert trace.outcome_kind == "not_found"
+    assert trace.status == "ok"
+    assert trace.question_hash is not None and len(trace.question_hash) == 64
+    assert trace.question_chars == len(FIXED_QUESTION)
     assert spans and {"recall", "fuse", "hard_filter"} <= {span.name for span in spans}
     # 一条 QA POST 恰好写一行 trace。
     assert len(trace_rows(trace_db_path)) == 1
