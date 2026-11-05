@@ -17,7 +17,7 @@ from ..retrieval.tokenize import cut, normalize
 from .chunking import first_value, role_label
 from .errors import FactRejected, RagError
 from .facts import FactValidator
-from .query import Lexicon, build_lexicon, parse_query
+from .query import Lexicon, build_lexicon, is_regulation_question, parse_query
 from .types import Citation, EvidenceItem, Fact, QueryPlan, QueryState, RagAnswer, RetrievalResult
 
 _EXTRACT_SPLIT = re.compile(r"[\n\r]+|(?<=[。！？；!?])\s*")
@@ -614,6 +614,12 @@ def _document_fallback(
     sentence = _best_sentence(plan.question, evidence)
     if not sentence:
         return _no_answer(plan, "找到的资料与问题没有足够重合，不能据此作答。", "NO_SUPPORTING_SENTENCE", diagnostics)
+    if is_regulation_question(plan.question):
+        # T101/ERR-03：法规题常把“施行/废止”分写在同一条的两句里，单句会丢一半；
+        # 只在 offline 抽取路径（本函数）对法规题整段引用，默认路径逐字节不变。
+        paragraph = _best_paragraph(plan.question, evidence)
+        if paragraph:
+            sentence = paragraph
     text = f"根据资料，{sentence}"
     try:
         with _fact_gate(len(evidence)):
@@ -754,6 +760,28 @@ def _best_sentence(question: str, evidence: Iterable[EvidenceItem]) -> str | Non
         return None
     scored.sort(key=lambda item: (-item[0], item[1], -len(item[2])))
     return scored[0][2]
+
+
+def _best_paragraph(question: str, evidence: Iterable[EvidenceItem]) -> str | None:
+    """法规题的整段抽取（T101/ERR-03）：按问题词覆盖度选命中段落，整段逐字引用。
+
+    只被 ``_document_fallback`` 的法规题分支调用：条文常把“自 X 日起施行”和
+    “同时废止《…》《…》”写在同一段的两句里，单句抽取任选一句都会丢另一半。
+    """
+    terms = {token for token in cut(question) if len(token) >= 2}
+    best: tuple[int, int, str] | None = None  # (覆盖分, -证据序, 段落)
+    for index, item in enumerate(evidence):
+        for paragraph in item.text.split("\n"):
+            cleaned = paragraph.strip()
+            if len(cleaned) < 8:
+                continue
+            score = sum(len(token) for token in terms if token in cleaned)
+            if score <= 0:
+                continue
+            key = (score, -index)
+            if best is None or key > best[:2]:
+                best = (score, -index, cleaned)
+    return None if best is None else best[2]
 
 
 def _entity_label(chunk: Any) -> str:

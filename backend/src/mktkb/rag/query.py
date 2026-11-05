@@ -47,6 +47,28 @@ FIELD_WORDS: dict[str, tuple[str, ...]] = {
     "clause": ("条款", "第几条", "第几条规定"),
     "price_type": ("价格类型", "价格类别"),
 }
+#: T101/ERR-03：法规/制度类问题的判别线索（问的是条文本身，不是某条记录的字段值）。
+#: 只认法规名词、条款引用与以法规名词结尾的书名号标题；《…通知》这类记录题不算，
+#: 避免把“按《…通知》调整后的位置”误判成法规题。
+REGULATION_NOUNS: tuple[str, ...] = (
+    "规定",
+    "条例",
+    "办法",
+    "细则",
+    "制度",
+    "条款",
+    "法规",
+    "法律",
+)
+CLAUSE_REF_PATTERN = re.compile(r"第[一二三四五六七八九十百零〇两0-9]+条")
+_REGULATION_TITLE = re.compile(r"《[^》]*(?:规定|条例|办法|细则|法)》")
+#: T101/ERR-03：同样会出现在法规/制度题干里的泛化字段词，单一来源供查询规划与产品意图层共用。
+#: ``FIELD_WORDS["price"]`` 里的「价格」在条文里是术语（价格欺诈），不能当成“在问字段值”；
+#: 产品层把「销售」当“销售额缺失”，条文里的“有奖销售”同理不得触发。
+GENERIC_FIELD_WORDS: dict[str, tuple[str, ...]] = {
+    "price": ("价格",),
+    "sales": ("销售",),
+}
 ENUMERATE_WORDS = (
     "全部",
     "所有",
@@ -212,6 +234,44 @@ def _norm(value: str) -> str:
 def _compact(value: str) -> str:
     """去空白/常见分隔符，用于“NKA 卖场”与“NKA卖场”等价匹配。"""
     return re.sub(r"[\s\-_/|｜、，,;；:：()（）\[\]【】]+", "", _norm(value))
+
+
+def is_regulation_question(question: str) -> bool:
+    """问题是否指向法规/制度条文（T101/ERR-03）。
+
+    这类问题优先按正文检索：题干里的「价格」「销售」是条文术语，不是“在问某条记录的字段值”。
+    判别只看法规名词、条款引用和以法规名词结尾的书名号标题；《…通知》这类记录题不受影响。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if CLAUSE_REF_PATTERN.search(text) or _REGULATION_TITLE.search(text):
+        return True
+    return any(noun in text for noun in REGULATION_NOUNS)
+
+
+def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
+    """查询规划用的字段识别（T101/ERR-03）：法规题与无实体语境的泛化词不判记录字段。
+
+    - 法规/制度题里的「价格」由“价格欺诈”这类术语带出，按 record 规划会向用户索要商品规格，
+      从而把“何时施行/废止了哪两个规定”挡在检索之前；这里让法规题优先走正文检索。
+    - 没有商品/物品/门店/渠道/标识等实体的「价格」同理：没有所指对象就不该按 price 取值，
+      更不能向用户索要商品名称（E118 这类条文题）。
+    """
+    if is_regulation_question(question):
+        return ()
+    roles = _match_fields(question)
+    if not roles or has_entity:
+        return roles
+    normalized = _norm(question)
+    kept: list[str] = []
+    for role in roles:
+        words = FIELD_WORDS.get(role, ())
+        generic = GENERIC_FIELD_WORDS.get(role, ())
+        if generic and not any(_norm(word) in normalized for word in words if word not in generic):
+            continue
+        kept.append(role)
+    return tuple(kept)
 
 
 def _match_labels(question: str, labels: tuple[str, ...]) -> list[str]:
@@ -776,7 +836,12 @@ def parse_query(
         "doc_id": document.doc_id if document else None,
         "doc_title": document.title if document else None,
     }
-    field_roles = _match_fields(question)
+    field_roles = field_roles_for_question(
+        question,
+        has_entity=bool(
+            store or item_hits or product or product_candidates or channel_hits or identifier
+        ),
+    )
     field_role = field_roles[0] if field_roles else None
     page_request = _page_request(question, previous)
     enumerate_flag = any(word in question for word in ENUMERATE_WORDS)
