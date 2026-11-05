@@ -1,0 +1,887 @@
+{
+  "approval_owner": "T009 human gate",
+  "baseline": null,
+  "dataset_version": "b0:b0-2026-11-04:bd4f0f7ccc6e",
+  "diagnostics": {
+    "value_no_fabricated": {
+      "checked_cases": 32,
+      "fail_cases": [
+        "Q26"
+      ],
+      "note": "value_no_fabricated 是诊断字段（T004b MEDIUM-1）：不进入质量判定、不改变退出码，也不得与质量指标混算",
+      "participates_in_gate": false,
+      "status": "diagnostic_only"
+    }
+  },
+  "gate_config_hash": "eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293",
+  "gate_version": "mktkb.gate.v0.1",
+  "metrics": [
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "Recall@10",
+      "observed": 0.96875,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.9487,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "MRR@10",
+      "observed": 0.8697916666666666,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.8498,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "nDCG@10",
+      "observed": 0.8954577739955403,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.8755,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "hard_filter_violation_rate",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": 0.02,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "empty_recall_rate",
+      "observed": 0.03125,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": 0.0513,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "value_hit",
+      "observed": 0.90625,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.8862,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "source_hit",
+      "observed": 0.9375,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.9175,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "kind_correct",
+      "observed": 0.96875,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.9487,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_precision",
+      "observed": 0.8424731182795699,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.8225,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_recall",
+      "observed": 0.967741935483871,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.9477,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 0,
+      "denominator": 0,
+      "denominator_basis": "should_refuse_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_recall",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "answerable_cases",
+      "direction": "lower_is_better",
+      "group": "refusal",
+      "metric": "false_refusal_rate",
+      "observed": 0.03125,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": 0.0513,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 1,
+      "denominator_basis": "refused_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_precision",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.0,
+        "max_regression_pp": 2.0,
+        "min_sample": 1
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 32,
+      "denominator_basis": "latency_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "p95_latency_ms",
+      "observed": 19.0,
+      "rationale": "非 0–1 比率指标：绝对阈值与 pp 回退需人工按 SLA / 成本预算审批",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": 32
+      }
+    },
+    {
+      "dataset_sample": 32,
+      "denominator": 0,
+      "denominator_basis": "cost_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "cost_per_case_cny",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "summary.json",
+      "status": "unapproved",
+      "stratum": "all",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "Recall@10",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "MRR@10",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "nDCG@10",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "hard_filter_violation_rate",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": 0.02,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "empty_recall_rate",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": 0.02,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "value_hit",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "source_hit",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "kind_correct",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_precision",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_recall",
+      "observed": 1.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.98,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 0,
+      "denominator": 0,
+      "denominator_basis": "should_refuse_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_recall",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "answerable_cases",
+      "direction": "lower_is_better",
+      "group": "refusal",
+      "metric": "false_refusal_rate",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": 0.02,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 0,
+      "denominator_basis": "refused_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_precision",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 24,
+      "denominator_basis": "latency_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "p95_latency_ms",
+      "observed": 19,
+      "rationale": "非 0–1 比率指标：绝对阈值与 pp 回退需人工按 SLA / 成本预算审批",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": 24
+      }
+    },
+    {
+      "dataset_sample": 24,
+      "denominator": 0,
+      "denominator_basis": "cost_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "cost_per_case_cny",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "exact",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "Recall@10",
+      "observed": 0.875,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.855,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "MRR@10",
+      "observed": 0.4791666666666667,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.4592,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "retrieval",
+      "metric": "nDCG@10",
+      "observed": 0.581831095982161,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.5618,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "hard_filter_violation_rate",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": 0.02,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "gold_cases_non_ocr",
+      "direction": "lower_is_better",
+      "group": "retrieval",
+      "metric": "empty_recall_rate",
+      "observed": 0.125,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": 0.145,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "value_hit",
+      "observed": 0.625,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.605,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "source_hit",
+      "observed": 0.75,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.73,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "kind_correct",
+      "observed": 0.875,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.855,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_precision",
+      "observed": 0.30238095238095236,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.2824,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "scored_cases_non_ocr",
+      "direction": "higher_is_better",
+      "group": "answer",
+      "metric": "citation_recall",
+      "observed": 0.8571428571428571,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.8371,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 0,
+      "denominator": 0,
+      "denominator_basis": "should_refuse_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_recall",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "answerable_cases",
+      "direction": "lower_is_better",
+      "group": "refusal",
+      "metric": "false_refusal_rate",
+      "observed": 0.125,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": 0.145,
+        "absolute_min": null,
+        "max_regression_pp": 2.0,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 1,
+      "denominator_basis": "refused_cases",
+      "direction": "higher_is_better",
+      "group": "refusal",
+      "metric": "refusal_precision",
+      "observed": 0.0,
+      "rationale": "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+      "source": "cases.jsonl(refusal_eligible)",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": 0.0,
+        "max_regression_pp": 2.0,
+        "min_sample": 1
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 8,
+      "denominator_basis": "latency_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "p95_latency_ms",
+      "observed": 16,
+      "rationale": "非 0–1 比率指标：绝对阈值与 pp 回退需人工按 SLA / 成本预算审批",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": 8
+      }
+    },
+    {
+      "dataset_sample": 8,
+      "denominator": 0,
+      "denominator_basis": "cost_samples",
+      "direction": "lower_is_better",
+      "group": "runtime",
+      "metric": "cost_per_case_cny",
+      "observed": null,
+      "rationale": "无观测值：先补齐可评分样本，再由人工决定阈值",
+      "source": "cases.jsonl",
+      "status": "unapproved",
+      "stratum": "text",
+      "suggested": {
+        "absolute_max": null,
+        "absolute_min": null,
+        "max_regression_pp": null,
+        "min_sample": null
+      }
+    }
+  ],
+  "mode": "local",
+  "notes": "校准提案（T006b）：观测值 + 建议阈值 + gate_config_hash + run_id；status 恒为 unapproved，阈值必须由主人在 T009 人工门审批后才能写入 gate 配置。绝对阈值建议规则：0–1 比率类指标留 0.02（2pp）余量，回退容忍 2.0pp（仅同 pipeline_version 生效）；运行类（延迟 / 成本）不给自动建议。建议值不是审批结果，也不得被当作通过依据。",
+  "pipeline_version": "735da1397044",
+  "run_id": "b0-local-20261105T035721820024Z-9462c0d1",
+  "schema_version": "mktkb.gate.proposal.v0.1",
+  "status": "unapproved",
+  "strata": [
+    "all",
+    "exact",
+    "text"
+  ],
+  "suite": "b0"
+}

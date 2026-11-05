@@ -1,0 +1,128 @@
+work_dir (temp, not committed): C:\Users\dell1712\AppData\Local\Temp\t006b-fixtures-pxhnvv0y
+== T006b quality chain ==
+repo: D:\GPT项目\市场部AI知识库
+default gate config: D:\GPT项目\市场部AI知识库\docs\evaluation\gate_v0_1.json status=unapproved
+[b0-local] run_id=b0-local-20261105T035721820024Z-9462c0d1 suite=b0 mode=local pipeline_version=735da1397044 dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e cases=40
+[badcase-local] run_id=badcase-local-20261105T035723357224Z-b712d96d suite=badcase mode=local pipeline_version=735da1397044 dataset_version=badcase:badcase-2026-11-04:e5f0662af3f2 cases=13
+
+[proposal] wrote docs\reports\OBS-EVAL\P0\evidence\T006b\gate-proposal.json / docs\reports\OBS-EVAL\P0\evidence\T006b\badcase-proposal.json
+[proposal] config unchanged sha256=8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209
+[proposal:b0] run_id=b0-local-20261105T035721820024Z-9462c0d1 gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293 status=unapproved
+  Recall@10                  all    observed=0.96875 denominator=32 basis=gold_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.9487, 'absolute_max': None, 'max_regression_pp': 2.0}
+  MRR@10                     all    observed=0.8697916666666666 denominator=32 basis=gold_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.8498, 'absolute_max': None, 'max_regression_pp': 2.0}
+  nDCG@10                    all    observed=0.8954577739955403 denominator=32 basis=gold_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.8755, 'absolute_max': None, 'max_regression_pp': 2.0}
+  hard_filter_violation_rate all    observed=0.0 denominator=32 basis=gold_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  empty_recall_rate          all    observed=0.03125 denominator=32 basis=gold_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': None, 'absolute_max': 0.0513, 'max_regression_pp': 2.0}
+  value_hit                  all    observed=0.90625 denominator=32 basis=scored_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.8862, 'absolute_max': None, 'max_regression_pp': 2.0}
+  source_hit                 all    observed=0.9375 denominator=32 basis=scored_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.9175, 'absolute_max': None, 'max_regression_pp': 2.0}
+  kind_correct               all    observed=0.96875 denominator=32 basis=scored_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.9487, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         all    observed=0.8424731182795699 denominator=32 basis=scored_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.8225, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_recall            all    observed=0.967741935483871 denominator=32 basis=scored_cases_non_ocr suggested={'min_sample': 32, 'absolute_min': 0.9477, 'absolute_max': None, 'max_regression_pp': 2.0}
+  refusal_recall             all    observed=None denominator=0 basis=should_refuse_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  false_refusal_rate         all    observed=0.03125 denominator=32 basis=answerable_cases suggested={'min_sample': 32, 'absolute_min': None, 'absolute_max': 0.0513, 'max_regression_pp': 2.0}
+  refusal_precision          all    observed=0.0 denominator=1 basis=refused_cases suggested={'min_sample': 1, 'absolute_min': 0.0, 'absolute_max': None, 'max_regression_pp': 2.0}
+  p95_latency_ms             all    observed=19.0 denominator=32 basis=latency_samples suggested={'min_sample': 32, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          all    observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  Recall@10                  exact  observed=1.0 denominator=24 basis=gold_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  MRR@10                     exact  observed=1.0 denominator=24 basis=gold_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  nDCG@10                    exact  observed=1.0 denominator=24 basis=gold_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  hard_filter_violation_rate exact  observed=0.0 denominator=24 basis=gold_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  empty_recall_rate          exact  observed=0.0 denominator=24 basis=gold_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  value_hit                  exact  observed=1.0 denominator=24 basis=scored_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  source_hit                 exact  observed=1.0 denominator=24 basis=scored_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  kind_correct               exact  observed=1.0 denominator=24 basis=scored_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         exact  observed=1.0 denominator=24 basis=scored_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_recall            exact  observed=1.0 denominator=24 basis=scored_cases_non_ocr suggested={'min_sample': 24, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  refusal_recall             exact  observed=None denominator=0 basis=should_refuse_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  false_refusal_rate         exact  observed=0.0 denominator=24 basis=answerable_cases suggested={'min_sample': 24, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  refusal_precision          exact  observed=None denominator=0 basis=refused_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  p95_latency_ms             exact  observed=19 denominator=24 basis=latency_samples suggested={'min_sample': 24, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          exact  observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  Recall@10                  text   observed=0.875 denominator=8 basis=gold_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.855, 'absolute_max': None, 'max_regression_pp': 2.0}
+  MRR@10                     text   observed=0.4791666666666667 denominator=8 basis=gold_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.4592, 'absolute_max': None, 'max_regression_pp': 2.0}
+  nDCG@10                    text   observed=0.581831095982161 denominator=8 basis=gold_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.5618, 'absolute_max': None, 'max_regression_pp': 2.0}
+  hard_filter_violation_rate text   observed=0.0 denominator=8 basis=gold_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  empty_recall_rate          text   observed=0.125 denominator=8 basis=gold_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': None, 'absolute_max': 0.145, 'max_regression_pp': 2.0}
+  value_hit                  text   observed=0.625 denominator=8 basis=scored_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.605, 'absolute_max': None, 'max_regression_pp': 2.0}
+  source_hit                 text   observed=0.75 denominator=8 basis=scored_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.73, 'absolute_max': None, 'max_regression_pp': 2.0}
+  kind_correct               text   observed=0.875 denominator=8 basis=scored_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.855, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         text   observed=0.30238095238095236 denominator=8 basis=scored_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.2824, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_recall            text   observed=0.8571428571428571 denominator=8 basis=scored_cases_non_ocr suggested={'min_sample': 8, 'absolute_min': 0.8371, 'absolute_max': None, 'max_regression_pp': 2.0}
+  refusal_recall             text   observed=None denominator=0 basis=should_refuse_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  false_refusal_rate         text   observed=0.125 denominator=8 basis=answerable_cases suggested={'min_sample': 8, 'absolute_min': None, 'absolute_max': 0.145, 'max_regression_pp': 2.0}
+  refusal_precision          text   observed=0.0 denominator=1 basis=refused_cases suggested={'min_sample': 1, 'absolute_min': 0.0, 'absolute_max': None, 'max_regression_pp': 2.0}
+  p95_latency_ms             text   observed=16 denominator=8 basis=latency_samples suggested={'min_sample': 8, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          text   observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+[proposal:badcase] run_id=badcase-local-20261105T035723357224Z-b712d96d gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293 status=unapproved
+  Recall@10                  all    observed=0.7679144385026737 denominator=10 basis=gold_cases_non_ocr suggested={'min_sample': 10, 'absolute_min': 0.7479, 'absolute_max': None, 'max_regression_pp': 2.0}
+  MRR@10                     all    observed=0.7166666666666667 denominator=10 basis=gold_cases_non_ocr suggested={'min_sample': 10, 'absolute_min': 0.6967, 'absolute_max': None, 'max_regression_pp': 2.0}
+  nDCG@10                    all    observed=0.6851021519869538 denominator=10 basis=gold_cases_non_ocr suggested={'min_sample': 10, 'absolute_min': 0.6651, 'absolute_max': None, 'max_regression_pp': 2.0}
+  hard_filter_violation_rate all    observed=0.0 denominator=10 basis=gold_cases_non_ocr suggested={'min_sample': 10, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  empty_recall_rate          all    observed=0.1 denominator=10 basis=gold_cases_non_ocr suggested={'min_sample': 10, 'absolute_min': None, 'absolute_max': 0.12, 'max_regression_pp': 2.0}
+  value_hit                  all    observed=0.8 denominator=13 basis=scored_cases_non_ocr suggested={'min_sample': 13, 'absolute_min': 0.78, 'absolute_max': None, 'max_regression_pp': 2.0}
+  source_hit                 all    observed=0.9 denominator=13 basis=scored_cases_non_ocr suggested={'min_sample': 13, 'absolute_min': 0.88, 'absolute_max': None, 'max_regression_pp': 2.0}
+  kind_correct               all    observed=0.9230769230769231 denominator=13 basis=scored_cases_non_ocr suggested={'min_sample': 13, 'absolute_min': 0.9031, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         all    observed=0.6599999999999999 denominator=13 basis=scored_cases_non_ocr suggested={'min_sample': 13, 'absolute_min': 0.64, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_recall            all    observed=0.7267379679144386 denominator=13 basis=scored_cases_non_ocr suggested={'min_sample': 13, 'absolute_min': 0.7067, 'absolute_max': None, 'max_regression_pp': 2.0}
+  refusal_recall             all    observed=1.0 denominator=2 basis=should_refuse_cases suggested={'min_sample': 2, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  false_refusal_rate         all    observed=0.0 denominator=11 basis=answerable_cases suggested={'min_sample': 11, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  refusal_precision          all    observed=1.0 denominator=2 basis=refused_cases suggested={'min_sample': 2, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  p95_latency_ms             all    observed=36.0 denominator=13 basis=latency_samples suggested={'min_sample': 13, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          all    observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  Recall@10                  price  observed=0.5227272727272727 denominator=4 basis=gold_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.5027, 'absolute_max': None, 'max_regression_pp': 2.0}
+  MRR@10                     price  observed=0.5833333333333334 denominator=4 basis=gold_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.5633, 'absolute_max': None, 'max_regression_pp': 2.0}
+  nDCG@10                    price  observed=0.43002294157452003 denominator=4 basis=gold_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.41, 'absolute_max': None, 'max_regression_pp': 2.0}
+  hard_filter_violation_rate price  observed=0.0 denominator=4 basis=gold_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  empty_recall_rate          price  observed=0.25 denominator=4 basis=gold_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': None, 'absolute_max': 0.27, 'max_regression_pp': 2.0}
+  value_hit                  price  observed=0.75 denominator=4 basis=scored_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.73, 'absolute_max': None, 'max_regression_pp': 2.0}
+  source_hit                 price  observed=0.75 denominator=4 basis=scored_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.73, 'absolute_max': None, 'max_regression_pp': 2.0}
+  kind_correct               price  observed=0.75 denominator=4 basis=scored_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.73, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         price  observed=0.55 denominator=4 basis=scored_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.53, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_recall            price  observed=0.5227272727272727 denominator=4 basis=scored_cases_non_ocr suggested={'min_sample': 4, 'absolute_min': 0.5027, 'absolute_max': None, 'max_regression_pp': 2.0}
+  refusal_recall             price  observed=None denominator=0 basis=should_refuse_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  false_refusal_rate         price  observed=0.0 denominator=4 basis=answerable_cases suggested={'min_sample': 4, 'absolute_min': None, 'absolute_max': 0.02, 'max_regression_pp': 2.0}
+  refusal_precision          price  observed=None denominator=0 basis=refused_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  p95_latency_ms             price  observed=36 denominator=4 basis=latency_samples suggested={'min_sample': 4, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          price  observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  Recall@10                  safety observed=None denominator=0 basis=gold_cases_non_ocr suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  MRR@10                     safety observed=None denominator=0 basis=gold_cases_non_ocr suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  nDCG@10                    safety observed=None denominator=0 basis=gold_cases_non_ocr suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  hard_filter_violation_rate safety observed=None denominator=0 basis=gold_cases_non_ocr suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  empty_recall_rate          safety observed=None denominator=0 basis=gold_cases_non_ocr suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  value_hit                  safety observed=None denominator=2 basis=scored_cases_non_ocr suggested={'min_sample': 2, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  source_hit                 safety observed=None denominator=2 basis=scored_cases_non_ocr suggested={'min_sample': 2, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  kind_correct               safety observed=1.0 denominator=2 basis=scored_cases_non_ocr suggested={'min_sample': 2, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  citation_precision         safety observed=None denominator=2 basis=scored_cases_non_ocr suggested={'min_sample': 2, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  citation_recall            safety observed=None denominator=2 basis=scored_cases_non_ocr suggested={'min_sample': 2, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  refusal_recall             safety observed=1.0 denominator=2 basis=should_refuse_cases suggested={'min_sample': 2, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  false_refusal_rate         safety observed=None denominator=0 basis=answerable_cases suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  refusal_precision          safety observed=1.0 denominator=2 basis=refused_cases suggested={'min_sample': 2, 'absolute_min': 0.98, 'absolute_max': None, 'max_regression_pp': 2.0}
+  p95_latency_ms             safety observed=12 denominator=2 basis=latency_samples suggested={'min_sample': 2, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+  cost_per_case_cny          safety observed=None denominator=0 basis=cost_samples suggested={'min_sample': None, 'absolute_min': None, 'absolute_max': None, 'max_regression_pp': None}
+[proposal] write to gate_v0_1.json must fail: ValueError(不得用校准提案覆盖 gate_v0_1.json：阈值必须经 T009 人工门审批后手写)
+
+[unapproved b0] exit=3 hard=[] quality_status=unknown quality_unknowns=42 quality_failures=0 waived=0
+  quality unknowns sample: [('quality:Recall@10', 'thresholds_unapproved'), ('quality:MRR@10', 'thresholds_unapproved'), ('quality:nDCG@10', 'thresholds_unapproved'), ('quality:hard_filter_violation_rate', 'thresholds_unapproved')]
+
+[approved fixture] status=approved metrics=[{"name": "Recall@10", "group": "retrieval", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.855, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "MRR@10", "group": "retrieval", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.4592, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "nDCG@10", "group": "retrieval", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.5618, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "value_hit", "group": "answer", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.605, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "source_hit", "group": "answer", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.73, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "kind_correct", "group": "answer", "direction": "higher_is_better", "min_sample": 8, "absolute_min": 0.855, "absolute_max": null, "max_regression_pp": 2.0}, {"name": "p95_latency_ms", "group": "runtime", "direction": "lower_is_better", "min_sample": 8, "absolute_min": null, "absolute_max": 24.0, "max_regression_pp": null}]
+
+[approved fixture b0] exit=0 hard=[] quality_status=pass quality_unknowns=0 quality_failures=0 waived=0
+  metrics evaluated=21 strata=('all', 'exact', 'text')
+  stratum_status={'all': 'pass', 'exact': 'pass', 'text': 'pass'}
+
+[strict fixture] Recall@10 absolute_min=0.999
+[strict fixture b0] exit=2 hard=[] quality_status=fail quality_unknowns=0 quality_failures=2 waived=0
+  failures sample: [('quality:Recall@10', 'absolute_min', 'all'), ('quality:Recall@10', 'absolute_min', 'text')]
+
+[regression fixture] synthetic baseline = b0-local with summary Recall@10=0.99; config Recall@10 absolute_min=0.5 max_regression_pp=1.0
+[regression fixture b0 vs synthetic baseline] exit=2 hard=[] quality_status=fail quality_unknowns=0 quality_failures=1 waived=0
+  regression failures: [('max_regression_pp', 'all', 2.124999999999999)]
+
+[cross-version baseline b0] exit=3 hard=[] quality_status=unknown quality_unknowns=3 quality_failures=0 waived=0
+  cross unknowns: [('quality:Recall@10', 'cross_pipeline_version'), ('quality:Recall@10', 'cross_pipeline_version'), ('quality:Recall@10', 'cross_pipeline_version')]
+
+[waiver fixture b0] exit=0 hard=[] quality_status=pass_with_waivers quality_unknowns=0 quality_failures=0 waived=2
+  wording: ['质量 waiver：metric=Recall@10 stratum=all check=absolute_min reason=标注口径变更（fixture） approver=master', '质量 waiver：metric=Recall@10 stratum=text check=absolute_min reason=标注口径变更（fixture） approver=master']
+  hard-gate waiver rejected: ValueError(硬门禁不可豁免：'trace_integrity' 属第一层硬门禁，waiver 只允许质量指标)
+
+ALL CHAIN ASSERTIONS PASSED

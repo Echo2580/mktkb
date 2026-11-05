@@ -1,20 +1,52 @@
-"""T006a：Release Gate 硬门禁层 + 退出码（设计 §8.1 / §8.4；P0 计划 Task 5 Step 1/3/5）。
+"""Release Gate：硬门禁层（T006a）+ 质量层 / 校准 / 质量 waiver（T006b）。
 
-本模块只做**硬门禁层 + 退出码 + 配置骨架**，不实现质量层：
+设计 §8.1 / §8.2 / §8.3 / §8.4；P0 计划 Task 5 Step 1/3/4/5。
 
-- 8 项硬门禁（顺序同设计 §8.1 表）：任一失败 → ``exit_code=1``；
-- 数据 / 配置 / gold 不可用或样本不足 → ``exit_code=3``；
-- ``mode=live`` 未授权 → ``exit_code=4``（P0 恒未授权，不依赖内核拒绝 live）；
-- 全部通过 → ``exit_code=0``；
-- ``exit_code=2`` **保留给 T006b 的质量回退**，本包没有任何触发路径
-  （:data:`EXIT_QUALITY_REGRESSION` 只是常量）。
+两层门禁：
 
-判定口径（PM 裁决 2026-11-05，handoff §5.4 / §5.5 / §7）：
+- **硬门禁（T006a，语义未变）**：8 项按设计 §8.1 顺序判定；任一失败 → ``exit_code=1``，
+  不可豁免（没有 waiver API，也不接受硬门禁 waiver）；
+- **质量层（T006b）**：按 ``stratum`` + ``all`` 报告设计 §8.2 的检索 / 答案 / 拒答 /
+  运行四组指标，不设综合分；``evaluate_gate(..., quality=True)`` 才评估
+  （``quality=False`` 是 T006a 兼容模式，``exit_code=0`` 只代表硬门禁通过）。
+
+退出码（设计 §8.4）：``0`` 通过；``1`` 硬门禁失败（最高优先级）；``3`` 数据 / 配置 /
+gold 不可用、样本不足、阈值未审批、跨版本 baseline；``2`` 质量失败（绝对阈值未达或
+``max_regression_pp`` 回退超限，且未被质量 waiver）；``4`` ``mode=live`` 未授权。
+``3`` 优先于 ``2``：不可判定的状态不会被当成"已知回退"放行或误报。
+
+质量层口径：
+
+- **阈值审批是人工门（T009）**：配置 ``status`` 不是 ``"approved"`` 时所有适用指标
+  ``unknown``（→ exit 3），绝不返回 0 冒充通过；``calibrate_gate`` 只产出
+  :class:`GateProposal`（观测值 + 建议阈值 + ``gate_config_hash`` + ``run_id``），
+  ``write_gate_proposal`` 拒绝写回 ``gate_v0_1.json``；
+- **分母按指标各自口径，不复用硬门禁 ``hard_gate_min_sample``**：检索 = 有 gold 且
+  非 OCR 的 case；答案 = scored 且非 OCR、非 error；拒答 = 适用样本（``should_refuse`` /
+  可答 / 实际拒答），并排除 ``error`` / ``service_error`` / ``knowledge_changed``；
+  运行 = 有延迟 / 成本数据的行；OCR 与 error 行一律排除；
+- **``all`` 级观测**读 ``summary.json`` 的 ``metrics``（缺失指标显式 unknown，不默认 0），
+  逐 ``stratum`` 观测按 ``cases.jsonl`` + 数据集重算（summary 没有按 stratum 的拆分）；
+  拒答指标按排除口径重算，``value_no_fabricated`` 只作诊断字段；
+- **``max_regression_pp`` 只在同 ``pipeline_version`` 生效**：baseline 可以是
+  ``RunResult`` 或 run 目录路径；跨版本 / suite / dataset 不一致一律拒绝回退判定并标
+  ``unknown``（设计 §8.3：跨版本只分析、不放行）；没有 baseline 时回退检查显式
+  ``skipped``（首次建立 baseline 只用绝对阈值）；
+- **质量 waiver**：必须 ``reason`` + ``approver``（构造时校验，缺一 ``ValueError``）；
+  只作用于已发生的质量失败，记入 ``GateResult.warnings`` 与
+  ``GateResult.to_dict()["quality"]["waived"]``；不改变硬失败，也不能把 unknown 变通过。
+
+输入只读：``RunResult``（``run_manifest.json`` 身份字段、``cases.jsonl`` 行、``summary.json``
+指标）、run 目录下的 ``traces.sqlite3``（只读打开）与数据集文件（重新解析 gold /
+forbidden，不信任 run 自报的 gold）。本模块不写任何产物、不调用 provider、不建索引。
+
+硬门禁判定口径（PM 裁决 2026-11-05，handoff §5.4 / §5.5 / §7）：
 
 - 硬门禁**按 case 条件适用**：数据集里没有该类 case → ``not_applicable``（记
   INFO/warnings，不影响退出码）；有该类 case 但字段缺失 / 无法判定 → ``unknown``
   → ``exit_code=3``；
-- 硬门禁不可豁免：没有 waiver API，也不接受 waiver 参数；
+- 硬门禁不可豁免：没有 ``waive`` / ``waive_hard_gate`` API，``evaluate_gate`` 不接受
+  硬门禁 waiver；``QualityWaiver(metric=<硬门禁 ID>)`` 在构造时直接 ``ValueError``；
 - ``value_no_fabricated`` **不是**硬门禁输入（T004b MEDIUM-1；Q26 即因它 fail），
   只作诊断字段；
 - ``citation_required`` 只认 **unit 级** citations，且必须落在本轮 ``retrieved``
@@ -49,19 +81,16 @@ trace 是**不可信输入**（T003a 遗留）：gate 不因 trace 自称 ``stat
 ``*_json`` 非法 JSON fail closed；``TRACE_SCHEMA_VERSION`` 不一致 fail；trace store 的
 ``schema_meta.trace_schema_version`` 与契约不一致同样 fail（trace_schema_v0_1.md
 §8），``schema_meta`` 缺失 / 不可读 → unknown（exit 3）。
-
-输入只读：``RunResult``（``run_manifest.json`` 身份字段、``cases.jsonl`` 行）、
-run 目录下的 ``traces.sqlite3``（只读打开）与数据集文件（重新解析 gold / forbidden，
-不信任 run 自报的 gold）。本模块不写任何产物、不调用 provider、不建索引。
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 import sqlite3
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields, replace
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
@@ -73,7 +102,7 @@ from ..observability.contracts import (
     required_spans,
 )
 from .dataset import CaseSpec, load_cases
-from .runner import RunResult
+from .runner import RunManifest, RunResult
 from .scorers import EvalOutcome, _pagination_checks, check_value
 
 __all__ = [
@@ -87,12 +116,31 @@ __all__ = [
     "GateConfig",
     "GateFailure",
     "GateNote",
+    "GateProposal",
     "GateResult",
     "GateUnknown",
     "HARD_GATE_IDS",
     "MetricSpec",
+    "PROPOSAL_SCHEMA_VERSION",
+    "QUALITY_ALL_STRATUM",
+    "QUALITY_METRIC_GROUPS",
+    "QUALITY_STATUS_FAIL",
+    "QUALITY_STATUS_NOT_APPLICABLE",
+    "QUALITY_STATUS_NOT_EVALUATED",
+    "QUALITY_STATUS_PASS",
+    "QUALITY_STATUS_PASS_WITH_WAIVERS",
+    "QUALITY_STATUS_UNKNOWN",
+    "QUALITY_STATUS_WAIVED",
+    "QualityCheck",
+    "QualityMetricResult",
+    "QualityPolicy",
+    "QualityResult",
+    "QualityWaiver",
+    "calibrate_gate",
     "evaluate_gate",
     "load_gate_config",
+    "load_run_result",
+    "write_gate_proposal",
 ]
 
 # --------------------------------------------------------------------------- #
@@ -146,6 +194,32 @@ SCORED_ROW_STATUSES = frozenset({"pass", "fail"})
 OCR_ROW_STATUS = "skipped_requires_ocr"
 
 DIRECTIONS = frozenset({"higher_is_better", "lower_is_better"})
+
+# --------------------------------------------------------------------------- #
+# 质量层（T006b）常量
+# --------------------------------------------------------------------------- #
+
+QUALITY_STATUS_PASS = "pass"
+QUALITY_STATUS_PASS_WITH_WAIVERS = "pass_with_waivers"
+QUALITY_STATUS_FAIL = "fail"
+QUALITY_STATUS_UNKNOWN = "unknown"
+QUALITY_STATUS_NOT_APPLICABLE = "not_applicable"
+QUALITY_STATUS_WAIVED = "waived"
+QUALITY_STATUS_NOT_EVALUATED = "not_evaluated"
+
+#: 设计 §8.2 的四组质量指标；按 stratum + ``all`` 分别报告，不设综合分。
+QUALITY_METRIC_GROUPS = frozenset({"retrieval", "answer", "refusal", "runtime"})
+QUALITY_ALL_STRATUM = "all"
+#: 阈值审批是人工门（T009）：只有配置显式 ``status="approved"`` 才参与判定。
+QUALITY_APPROVED_STATUS = "approved"
+#: 拒答类质量指标排除的结局（T004b MEDIUM-2）；同时排除 runner error 行。
+REFUSAL_EXCLUDED_KINDS = frozenset({"error", "service_error", "knowledge_changed"})
+
+#: 校准提案（``--calibrate`` 等价物）：只给建议值，绝不写回 gate 配置。
+PROPOSAL_SCHEMA_VERSION = "mktkb.gate.proposal.v0.1"
+#: 比率类指标的审批余量（2 个百分点）与回退容忍（2 pp）。
+PROPOSAL_ABSOLUTE_SLACK = 0.02
+PROPOSAL_MAX_REGRESSION_PP = 2.0
 
 #: 这些 trace ``*_json`` 字段必须是合法 JSON 文本（不可解析 → fail closed）。
 _JSON_FIELD_NAMES: tuple[str, ...] = tuple(
@@ -450,6 +524,9 @@ class GateResult:
     ``scored_count`` 的数值就是硬门禁的 ``evaluated_count``（``status`` 为
     ``pass`` / ``fail`` 且非 OCR、非 error 的行）；字段名保留以兼容既有产物读取方，
     :attr:`evaluated_count` 是同一数值的显式别名。
+
+    ``quality`` 为 ``None`` 表示本调用**没有**评估质量层（``quality=False``，T006a
+    兼容模式）；此时 ``exit_code=0`` 只代表硬门禁通过，不代表质量达标。
     """
 
     exit_code: int
@@ -465,11 +542,21 @@ class GateResult:
     gate_version: str
     scored_count: int
     min_sample: int | None
+    quality: "QualityResult | None" = None
 
     @property
     def evaluated_count(self) -> int:
         """硬门禁 ``min_sample`` 的分母（与 ``scored_count`` 同值）。"""
         return self.scored_count
+
+    @property
+    def quality_status(self) -> str:
+        """质量层状态；未评估时显式 ``not_evaluated``（不等于质量通过）。"""
+        return QUALITY_STATUS_NOT_EVALUATED if self.quality is None else self.quality.status
+
+    @property
+    def quality_failures(self) -> tuple[GateFailure, ...]:
+        return () if self.quality is None else self.quality.failures
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -486,6 +573,7 @@ class GateResult:
             "unknowns": [item.to_dict() for item in self.unknowns],
             "not_applicable": [item.to_dict() for item in self.not_applicable],
             "warnings": list(self.warnings),
+            "quality": None if self.quality is None else self.quality.to_dict(),
         }
 
 
@@ -526,6 +614,222 @@ def _outcome(
         applicable=applicable,
         detail=detail,
     )
+
+
+# --------------------------------------------------------------------------- #
+# 质量层结果类型（T006b）
+# --------------------------------------------------------------------------- #
+
+
+@dataclass(frozen=True)
+class QualityCheck:
+    """单条质量检查（样本 / 绝对阈值 / 同版本回退）；``unknown`` 不是通过。"""
+
+    kind: str
+    status: str
+    observed: float | None = None
+    threshold: float | None = None
+    denominator: int | None = None
+    detail: Mapping[str, Any] = field(default_factory=dict)
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "kind": self.kind,
+            "status": self.status,
+            "observed": self.observed,
+            "threshold": self.threshold,
+            "denominator": self.denominator,
+            "detail": dict(self.detail),
+        }
+
+
+@dataclass(frozen=True)
+class QualityMetricResult:
+    """一个指标在一个 stratum（或 ``all``）上的观测与判定。"""
+
+    metric: str
+    group: str
+    stratum: str
+    direction: str
+    observed: float | None
+    denominator: int
+    dataset_sample: int
+    denominator_basis: str
+    source: str
+    status: str
+    checks: tuple[QualityCheck, ...]
+    notes: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "metric": self.metric,
+            "group": self.group,
+            "stratum": self.stratum,
+            "direction": self.direction,
+            "observed": self.observed,
+            "denominator": self.denominator,
+            "dataset_sample": self.dataset_sample,
+            "denominator_basis": self.denominator_basis,
+            "source": self.source,
+            "status": self.status,
+            "checks": [item.to_dict() for item in self.checks],
+            "notes": list(self.notes),
+        }
+
+
+@dataclass(frozen=True)
+class QualityWaiver:
+    """质量门禁豁免；``reason`` 与 ``approver`` 缺一不可，硬门禁 ID 直接拒绝。
+
+    - ``metric=None`` 表示豁免全部质量指标；``stratum=None`` 表示全部 stratum；
+    - 只作用于**已发生的质量失败**，不会把 unknown（未审批 / 样本不足）变成通过。
+    """
+
+    reason: str
+    approver: str
+    metric: str | None = None
+    stratum: str | None = None
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.reason, str) or not self.reason.strip():
+            raise ValueError("质量 waiver 必须提供非空 reason")
+        if not isinstance(self.approver, str) or not self.approver.strip():
+            raise ValueError("质量 waiver 必须提供非空 approver")
+        if self.metric is not None and self.metric in HARD_GATE_IDS:
+            raise ValueError(
+                f"硬门禁不可豁免：{self.metric!r} 属第一层硬门禁，waiver 只允许质量指标"
+            )
+        if self.stratum is not None and (
+            not isinstance(self.stratum, str) or not self.stratum.strip()
+        ):
+            raise ValueError("质量 waiver 的 stratum 必须是非空字符串或 None")
+
+    def matches(self, metric: str, stratum: str) -> bool:
+        return (
+            (self.metric is None or self.metric == metric)
+            and (self.stratum is None or self.stratum == stratum)
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "metric": self.metric,
+            "stratum": self.stratum,
+            "reason": self.reason,
+            "approver": self.approver,
+        }
+
+
+@dataclass(frozen=True)
+class QualityPolicy:
+    """质量层开关 + 豁免清单；通过 ``evaluate_gate(..., quality=...)`` 传入。
+
+    ``quality=False``（默认）只跑 T006a 硬门禁；``quality=True`` 评估质量层；
+    ``quality=QualityPolicy(waivers=(...))`` 评估质量层并应用豁免。
+    """
+
+    waivers: tuple[QualityWaiver, ...] = ()
+
+    def __post_init__(self) -> None:
+        object.__setattr__(self, "waivers", tuple(self.waivers))
+
+
+@dataclass(frozen=True)
+class QualityResult:
+    """一次质量层评估；按 stratum + ``all`` 报告，不设综合分。"""
+
+    status: str
+    metrics: tuple[QualityMetricResult, ...]
+    strata: tuple[str, ...]
+    stratum_status: Mapping[str, str]
+    failures: tuple[GateFailure, ...]
+    unknowns: tuple[GateUnknown, ...]
+    waived: tuple[Mapping[str, Any], ...]
+    diagnostics: Mapping[str, Any]
+    warnings: tuple[str, ...]
+    config_status: str
+    gate_config_hash: str
+    baseline_run_id: str | None
+    baseline_pipeline_version: str | None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "status": self.status,
+            "config_status": self.config_status,
+            "gate_config_hash": self.gate_config_hash,
+            "strata": list(self.strata),
+            "stratum_status": dict(self.stratum_status),
+            "baseline_run_id": self.baseline_run_id,
+            "baseline_pipeline_version": self.baseline_pipeline_version,
+            "metrics": [item.to_dict() for item in self.metrics],
+            "failures": [item.to_dict() for item in self.failures],
+            "unknowns": [item.to_dict() for item in self.unknowns],
+            "waived": [dict(item) for item in self.waived],
+            "diagnostics": dict(self.diagnostics),
+            "warnings": list(self.warnings),
+        }
+
+
+@dataclass(frozen=True)
+class GateProposal:
+    """校准提案：观测值 + 建议阈值 + 配置 hash + run_id；**不是**审批结果。"""
+
+    run_id: str
+    suite: str
+    mode: str
+    pipeline_version: str
+    dataset_version: str
+    gate_version: str
+    gate_config_hash: str
+    status: str
+    strata: tuple[str, ...]
+    metrics: tuple[Mapping[str, Any], ...]
+    diagnostics: Mapping[str, Any]
+    baseline: Mapping[str, Any] | None = None
+    notes: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "schema_version": PROPOSAL_SCHEMA_VERSION,
+            "status": self.status,
+            "approval_owner": "T009 human gate",
+            "run_id": self.run_id,
+            "suite": self.suite,
+            "mode": self.mode,
+            "pipeline_version": self.pipeline_version,
+            "dataset_version": self.dataset_version,
+            "gate_version": self.gate_version,
+            "gate_config_hash": self.gate_config_hash,
+            "strata": list(self.strata),
+            "metrics": [dict(item) for item in self.metrics],
+            "diagnostics": dict(self.diagnostics),
+            "baseline": None if self.baseline is None else dict(self.baseline),
+            "notes": self.notes,
+        }
+
+
+@dataclass(frozen=True)
+class _Observation:
+    """内部：一个指标在一个 stratum 上的观测（不含阈值判定）。"""
+
+    observed: float | None
+    denominator: int
+    dataset_sample: int
+    basis: str
+    source: str
+    present: bool = True
+    problem: str | None = None
+    notes: tuple[str, ...] = ()
+
+
+@dataclass(frozen=True)
+class _BaselineContext:
+    run: RunResult | None
+    error: str | None
+    observations: Mapping[tuple[str, str], _Observation]
+    run_id: str | None
+    pipeline_version: str | None
+    suite: str | None
+    dataset_version: str | None
 
 
 # --------------------------------------------------------------------------- #
@@ -1644,6 +1948,1136 @@ def _gold_reference_unknowns(cases: Sequence[CaseSpec]) -> tuple[list[GateUnknow
 
 
 # --------------------------------------------------------------------------- #
+# 质量层：观测（分母按指标各自口径）
+# --------------------------------------------------------------------------- #
+
+_RETRIEVAL_METRIC_KEYS = frozenset(
+    {"Recall@10", "MRR@10", "nDCG@10", "hard_filter_violation_rate", "empty_recall_rate"}
+)
+_ANSWER_METRIC_KEYS = frozenset(
+    {"value_hit", "source_hit", "kind_correct", "citation_precision", "citation_recall"}
+)
+_REFUSAL_METRIC_KEYS = frozenset(
+    {"refusal_recall", "false_refusal_rate", "refusal_precision"}
+)
+_RUNTIME_METRIC_KEYS = frozenset({"p95_latency_ms", "cost_per_case_cny"})
+
+
+def _is_number(value: Any) -> bool:
+    return isinstance(value, (int, float)) and not isinstance(value, bool)
+
+
+def _row_metric(row: Mapping[str, Any], key: str) -> float | None:
+    metrics = row.get("metrics")
+    if not isinstance(metrics, Mapping):
+        return None
+    value = metrics.get(key)
+    return float(value) if _is_number(value) else None
+
+
+def _mean_numbers(values: Iterable[float | None]) -> float | None:
+    numbers = [float(value) for value in values if value is not None]
+    return sum(numbers) / len(numbers) if numbers else None
+
+
+def _percentile_value(values: Sequence[int], fraction: float) -> int | None:
+    ordered = sorted(values)
+    if not ordered:
+        return None
+    rank = max(1, math.ceil(fraction * len(ordered)))
+    return ordered[rank - 1]
+
+
+def _has_gold(case: CaseSpec) -> bool:
+    return bool(case.expected_sources or case.relevant_units)
+
+
+def _outcome_kind(row: Mapping[str, Any]) -> str:
+    outcome = _row_outcome(row)
+    return "" if outcome is None else str(outcome.get("kind") or "")
+
+
+def _is_quality_row(row: Mapping[str, Any]) -> bool:
+    """质量分母：pass/fail、非 OCR、非 error（与硬门禁 evaluated_count 同基础口径）。"""
+    return (
+        _row_status(row) in SCORED_ROW_STATUSES
+        and not _is_ocr_row(row)
+        and not _is_error_row(row)
+    )
+
+
+def _is_refusal_row(row: Mapping[str, Any]) -> bool:
+    """拒答指标：在质量行基础上排除 error / service_error / knowledge_changed。"""
+    return _is_quality_row(row) and _outcome_kind(row) not in REFUSAL_EXCLUDED_KINDS
+
+
+def _is_ocr_case(case: CaseSpec) -> bool:
+    return bool(case.requires_ocr) or case.stratum == "ocr"
+
+
+def _quality_strata(cases: Sequence[CaseSpec]) -> tuple[str, ...]:
+    strata = sorted({case.stratum for case in cases if not _is_ocr_case(case)})
+    return (QUALITY_ALL_STRATUM, *strata)
+
+
+def _level_pairs(
+    cases: Sequence[CaseSpec], rows: Sequence[Mapping[str, Any]], level: str
+) -> list[tuple[CaseSpec, Mapping[str, Any]]]:
+    return [
+        (case, row)
+        for case, row in zip(cases, rows)
+        if not _is_ocr_case(case)
+        and (level == QUALITY_ALL_STRATUM or case.stratum == level)
+    ]
+
+
+def _observe_metric(
+    spec: MetricSpec,
+    cases: Sequence[CaseSpec],
+    rows: Sequence[Mapping[str, Any]],
+    level: str,
+) -> _Observation:
+    pairs = _level_pairs(cases, rows, level)
+    name = spec.name
+    group = spec.group
+
+    if group == "retrieval":
+        dataset_sample = sum(1 for case, _ in pairs if _has_gold(case))
+        eligible = [
+            (case, row) for case, row in pairs if _has_gold(case) and _is_quality_row(row)
+        ]
+        denominator = len(eligible)
+        if name not in _RETRIEVAL_METRIC_KEYS:
+            return _Observation(None, 0, dataset_sample, "gold_cases_non_ocr", "cases.jsonl",
+                                problem="unknown_metric")
+        if name == "hard_filter_violation_rate":
+            retrieved = sum(int(_row_metric(row, "retrieved_units") or 0) for _, row in eligible)
+            violations = sum(
+                int(_row_metric(row, "hard_filter_violations") or 0) for _, row in eligible
+            )
+            observed = (violations / retrieved) if retrieved else None
+        else:
+            key = "empty_recall" if name == "empty_recall_rate" else name
+            observed = _mean_numbers(_row_metric(row, key) for _, row in eligible)
+        return _Observation(observed, denominator, dataset_sample, "gold_cases_non_ocr", "cases.jsonl")
+
+    if group == "answer":
+        dataset_sample = len(pairs)
+        eligible = [row for _, row in pairs if _is_quality_row(row)]
+        if name not in _ANSWER_METRIC_KEYS:
+            return _Observation(None, 0, dataset_sample, "scored_cases_non_ocr", "cases.jsonl",
+                                problem="unknown_metric")
+        observed = _mean_numbers(_row_metric(row, name) for row in eligible)
+        return _Observation(observed, len(eligible), dataset_sample, "scored_cases_non_ocr",
+                            "cases.jsonl")
+
+    if group == "refusal":
+        eligible = [
+            (case, row) for case, row in pairs if _is_refusal_row(row)
+        ]
+        should = [(case, row) for case, row in eligible if case.should_refuse]
+        answerable = [(case, row) for case, row in eligible if not case.should_refuse]
+        refused = [(case, row) for case, row in eligible if bool(row.get("refused"))]
+        if name == "refusal_recall":
+            dataset_sample = sum(1 for case, _ in pairs if case.should_refuse)
+            hits = sum(1 for _, row in should if bool(row.get("refused")))
+            missed = len(should) - hits
+            observed = (hits / (hits + missed)) if (hits + missed) else None
+            return _Observation(observed, len(should), dataset_sample, "should_refuse_cases",
+                                "cases.jsonl(refusal_eligible)")
+        if name == "false_refusal_rate":
+            dataset_sample = sum(1 for case, _ in pairs if not case.should_refuse)
+            false_positives = sum(1 for _, row in answerable if bool(row.get("refused")))
+            true_negatives = len(answerable) - false_positives
+            observed = (
+                false_positives / (false_positives + true_negatives)
+                if (false_positives + true_negatives)
+                else None
+            )
+            return _Observation(observed, len(answerable), dataset_sample, "answerable_cases",
+                                "cases.jsonl(refusal_eligible)")
+        if name == "refusal_precision":
+            true_positives = sum(1 for case, _ in refused if case.should_refuse)
+            observed = (true_positives / len(refused)) if refused else None
+            return _Observation(observed, len(refused), len(pairs), "refused_cases",
+                                "cases.jsonl(refusal_eligible)")
+        return _Observation(None, 0, len(pairs), "unknown_refusal_metric", "cases.jsonl",
+                            problem="unknown_metric")
+
+    if group == "runtime":
+        dataset_sample = len(pairs)
+        eligible = [row for _, row in pairs if _is_quality_row(row)]
+        if name == "p95_latency_ms":
+            values = [
+                int(row["latency_ms"])
+                for row in eligible
+                if _is_number(row.get("latency_ms"))
+            ]
+            return _Observation(
+                _percentile_value(values, 0.95), len(values), dataset_sample, "latency_samples",
+                "cases.jsonl",
+            )
+        if name == "cost_per_case_cny":
+            costs = [float(row["cost_cny"]) for row in eligible if _is_number(row.get("cost_cny"))]
+            observed = (sum(costs) / len(costs)) if costs else None
+            return _Observation(observed, len(costs), dataset_sample, "cost_samples", "cases.jsonl")
+        return _Observation(None, 0, dataset_sample, "unknown_runtime_metric", "cases.jsonl",
+                            problem="unknown_metric")
+
+    return _Observation(None, 0, len(pairs), "unknown_metric_group", "cases.jsonl",
+                        problem="unknown_metric_group")
+
+
+def _summary_payload(run: RunResult) -> tuple[dict[str, Any], bool]:
+    """读 run 的 summary（``RunResult.summary``，缺失时回退 ``summary.json``）。
+
+    只给质量层用；硬门禁仍只读 ``cases.jsonl`` / 数据集 / trace（T006a 约束）。
+    """
+    summary = dict(run.summary) if isinstance(run.summary, Mapping) else {}
+    metrics = summary.get("metrics")
+    if isinstance(metrics, Mapping):
+        return summary, True
+    out_dir = getattr(run, "out_dir", None)
+    path = Path(out_dir) / "summary.json" if out_dir is not None else None
+    if path is not None and path.is_file():
+        try:
+            loaded = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, ValueError):
+            loaded = None
+        if isinstance(loaded, Mapping):
+            summary = dict(loaded)
+            if isinstance(summary.get("metrics"), Mapping):
+                return summary, True
+    return summary, False
+
+
+def _with_summary(
+    spec: MetricSpec,
+    level: str,
+    observation: _Observation,
+    summary_payload: Mapping[str, Any],
+    has_summary_metrics: bool,
+    warnings: list[str],
+) -> _Observation:
+    if level != QUALITY_ALL_STRATUM or not has_summary_metrics:
+        return observation
+    metrics = summary_payload.get("metrics")
+    if not isinstance(metrics, Mapping):  # pragma: no cover - 调用方已校验
+        return observation
+    if spec.group == "refusal":
+        # 拒答口径必须排除 service_error / knowledge_changed；summary 由 runner 聚合时
+        # 不做该排除，因此 all 级也按 cases.jsonl 重算（T004b MEDIUM-2）。
+        summary_value = metrics.get(spec.name)
+        if (
+            _is_number(summary_value)
+            and observation.observed is not None
+            and abs(float(summary_value) - observation.observed) > 1e-9
+        ):
+            warnings.append(
+                f"summary.json 的拒答指标 {spec.name} 未按 service_error/knowledge_changed "
+                "排除口径聚合，已按 cases.jsonl 重算"
+            )
+        return observation
+    if spec.name not in metrics:
+        return replace(
+            observation,
+            observed=None,
+            source="summary.json",
+            present=False,
+            notes=(*observation.notes, "summary.json 缺少该指标"),
+        )
+    value = metrics.get(spec.name)
+    if value is None:
+        return replace(observation, observed=None, source="summary.json", present=True)
+    if not _is_number(value):
+        return replace(
+            observation,
+            observed=None,
+            source="summary.json",
+            present=False,
+            problem="invalid_summary_metric",
+        )
+    if (
+        observation.observed is not None
+        and abs(float(value) - observation.observed) > 1e-9
+    ):
+        warnings.append(
+            f"summary.json 的 {spec.name} 与 cases.jsonl 重算不一致"
+            f"（{value} != {observation.observed}），all 级以 summary.json 为准"
+        )
+    return replace(observation, observed=float(value), source="summary.json")
+
+
+def _quality_observations(
+    config: GateConfig,
+    cases: Sequence[CaseSpec],
+    rows: Sequence[Mapping[str, Any]],
+    summary_payload: Mapping[str, Any],
+    has_summary_metrics: bool,
+    warnings: list[str],
+) -> dict[tuple[str, str], _Observation]:
+    observations: dict[tuple[str, str], _Observation] = {}
+    for level in _quality_strata(cases):
+        for spec in config.metrics:
+            observation = _observe_metric(spec, cases, rows, level)
+            observations[(spec.name, level)] = _with_summary(
+                spec, level, observation, summary_payload, has_summary_metrics, warnings
+            )
+    return observations
+
+
+def _value_no_fabricated_diagnostics(
+    rows: Sequence[Mapping[str, Any]],
+) -> dict[str, Any]:
+    """``value_no_fabricated`` 只作诊断字段，不参与质量判定与退出码（T004b MEDIUM-1）。"""
+    checked = 0
+    failing: list[str] = []
+    for row in rows:
+        for item in _as_list(row.get("checks")):
+            if not isinstance(item, Mapping) or item.get("check_id") != "value_no_fabricated":
+                continue
+            checked += 1
+            if str(item.get("status") or "") == "fail":
+                failing.append(str(row.get("case_id") or ""))
+    return {
+        "status": "diagnostic_only",
+        "participates_in_gate": False,
+        "checked_cases": checked,
+        "fail_cases": failing,
+        "note": (
+            "value_no_fabricated 是诊断字段（T004b MEDIUM-1）：不进入质量判定、"
+            "不改变退出码，也不得与质量指标混算"
+        ),
+    }
+
+
+# --------------------------------------------------------------------------- #
+# 质量层：判定
+# --------------------------------------------------------------------------- #
+
+
+def _status_from_checks(
+    checks: Sequence[QualityCheck], waived_kinds: Iterable[str] = ()
+) -> str:
+    waived = set(waived_kinds)
+    has_fail = False
+    has_unknown = False
+    has_waived_fail = False
+    for check in checks:
+        if check.status == "fail":
+            if check.kind in waived:
+                has_waived_fail = True
+            else:
+                has_fail = True
+        elif check.status == "unknown":
+            has_unknown = True
+    if has_fail:
+        return QUALITY_STATUS_FAIL
+    if has_unknown:
+        return QUALITY_STATUS_UNKNOWN
+    if has_waived_fail:
+        return QUALITY_STATUS_WAIVED
+    return QUALITY_STATUS_PASS
+
+
+def _failure_from_check(
+    spec: MetricSpec, level: str, check: QualityCheck, observation: _Observation
+) -> GateFailure:
+    evidence = {
+        "metric": spec.name,
+        "group": spec.group,
+        "stratum": level,
+        "observed": check.observed,
+        "threshold": check.threshold,
+        "denominator": check.denominator,
+        "basis": observation.basis,
+        **dict(check.detail),
+    }
+    return GateFailure(
+        gate_id=f"quality:{spec.name}",
+        case_id=None,
+        check_id=check.kind,
+        evidence=evidence,
+    )
+
+
+def _regression_check(
+    spec: MetricSpec,
+    level: str,
+    observation: _Observation,
+    context: _BaselineContext | None,
+    identity: Mapping[str, Any],
+) -> QualityCheck:
+    threshold = spec.max_regression_pp
+    if context is None:
+        return QualityCheck(
+            "max_regression_pp",
+            "skipped",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={"reason": "no_baseline", "policy": "首次建立 baseline 只用绝对阈值"},
+        )
+    if context.error:
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={"reason": "baseline_unusable", "error": context.error},
+        )
+    if context.pipeline_version != str(identity.get("pipeline_version") or ""):
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={
+                "reason": "cross_pipeline_version",
+                "baseline_pipeline_version": context.pipeline_version,
+                "pipeline_version": identity.get("pipeline_version"),
+                "note": "设计 §8.3：跨版本只分析、不放行；max_regression_pp 不生效",
+            },
+        )
+    if context.suite != str(identity.get("suite") or ""):
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={
+                "reason": "baseline_suite_mismatch",
+                "baseline_suite": context.suite,
+                "suite": identity.get("suite"),
+            },
+        )
+    if context.dataset_version != str(identity.get("dataset_version") or ""):
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={
+                "reason": "baseline_dataset_mismatch",
+                "baseline_dataset_version": context.dataset_version,
+                "dataset_version": identity.get("dataset_version"),
+            },
+        )
+    baseline_observation = context.observations.get((spec.name, level))
+    if baseline_observation is None or baseline_observation.observed is None:
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=observation.observed,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={"reason": "baseline_metric_missing", "stratum": level},
+        )
+    if observation.observed is None:
+        return QualityCheck(
+            "max_regression_pp",
+            "unknown",
+            observed=None,
+            threshold=threshold,
+            denominator=observation.denominator,
+            detail={"reason": "observed_missing", "stratum": level},
+        )
+    baseline_value = baseline_observation.observed
+    current_value = observation.observed
+    if spec.direction == "higher_is_better":
+        delta_pp = (baseline_value - current_value) * 100
+    else:
+        delta_pp = (current_value - baseline_value) * 100
+    status = "fail" if delta_pp > threshold else "pass"
+    return QualityCheck(
+        "max_regression_pp",
+        status,
+        observed=current_value,
+        threshold=threshold,
+        denominator=observation.denominator,
+        detail={
+            "reason": "max_regression_pp_exceeded" if status == "fail" else "within_tolerance",
+            "baseline_observed": baseline_value,
+            "delta_pp": delta_pp,
+            "baseline_run_id": context.run_id,
+            "direction": spec.direction,
+        },
+    )
+
+
+def _metric_result(
+    spec: MetricSpec,
+    level: str,
+    observation: _Observation,
+    config: GateConfig,
+    context: _BaselineContext | None,
+    identity: Mapping[str, Any],
+) -> tuple[QualityMetricResult, list[GateFailure]]:
+    def build(status: str, checks: Sequence[QualityCheck]) -> tuple[QualityMetricResult, list[GateFailure]]:
+        failures = [
+            _failure_from_check(spec, level, check, observation)
+            for check in checks
+            if check.status == "fail"
+        ]
+        return (
+            QualityMetricResult(
+                metric=spec.name,
+                group=spec.group,
+                stratum=level,
+                direction=spec.direction,
+                observed=observation.observed,
+                denominator=observation.denominator,
+                dataset_sample=observation.dataset_sample,
+                denominator_basis=observation.basis,
+                source=observation.source,
+                status=status,
+                checks=tuple(checks),
+                notes=observation.notes,
+            ),
+            failures,
+        )
+
+    if observation.dataset_sample == 0:
+        check = QualityCheck(
+            "applicability",
+            "not_applicable",
+            denominator=0,
+            detail={
+                "reason": "no_applicable_dataset_case",
+                "dataset_sample": 0,
+                "basis": observation.basis,
+            },
+        )
+        return build(QUALITY_STATUS_NOT_APPLICABLE, [check])
+
+    if str(config.status) != QUALITY_APPROVED_STATUS:
+        check = QualityCheck(
+            "approval",
+            "unknown",
+            observed=observation.observed,
+            denominator=observation.denominator,
+            detail={
+                "reason": "thresholds_unapproved",
+                "config_status": config.status,
+                "approval_owner": "T009 human gate",
+            },
+        )
+        return build(QUALITY_STATUS_UNKNOWN, [check])
+
+    if observation.problem is not None:
+        check = QualityCheck(
+            observation.problem,
+            "unknown",
+            detail={
+                "reason": observation.problem,
+                "metric": spec.name,
+                "group": spec.group,
+            },
+        )
+        return build(QUALITY_STATUS_UNKNOWN, [check])
+
+    checks: list[QualityCheck] = []
+    if not observation.present:
+        checks.append(
+            QualityCheck(
+                "metric_missing",
+                "unknown",
+                observed=observation.observed,
+                denominator=observation.denominator,
+                detail={"reason": "summary_metric_missing", "source": observation.source},
+            )
+        )
+        return build(QUALITY_STATUS_UNKNOWN, checks)
+
+    if spec.min_sample is None:
+        checks.append(
+            QualityCheck(
+                "min_sample",
+                "unknown",
+                denominator=observation.denominator,
+                detail={"reason": "min_sample_missing", "basis": observation.basis},
+            )
+        )
+    elif observation.denominator == 0:
+        checks.append(
+            QualityCheck(
+                "min_sample",
+                "unknown",
+                denominator=0,
+                detail={
+                    "reason": "no_eligible_sample",
+                    "basis": observation.basis,
+                    "dataset_sample": observation.dataset_sample,
+                },
+            )
+        )
+    elif observation.denominator < spec.min_sample:
+        checks.append(
+            QualityCheck(
+                "min_sample",
+                "unknown",
+                threshold=float(spec.min_sample),
+                denominator=observation.denominator,
+                detail={
+                    "reason": "min_sample_not_met",
+                    "basis": observation.basis,
+                    "metric_min_sample": spec.min_sample,
+                    "note": "质量层分母按指标各自口径，不复用 hard_gate_min_sample",
+                },
+            )
+        )
+    else:
+        checks.append(
+            QualityCheck(
+                "min_sample",
+                "pass",
+                threshold=float(spec.min_sample),
+                denominator=observation.denominator,
+                detail={"basis": observation.basis},
+            )
+        )
+
+    has_threshold = any(
+        value is not None
+        for value in (spec.absolute_min, spec.absolute_max, spec.max_regression_pp)
+    )
+    if not has_threshold:
+        checks.append(
+            QualityCheck(
+                "threshold",
+                "unknown",
+                denominator=observation.denominator,
+                detail={"reason": "no_threshold_configured", "metric": spec.name},
+            )
+        )
+    elif observation.observed is None:
+        checks.append(
+            QualityCheck(
+                "observed",
+                "unknown",
+                denominator=observation.denominator,
+                detail={"reason": "observed_missing", "basis": observation.basis},
+            )
+        )
+    else:
+        if spec.absolute_min is not None:
+            status = "fail" if observation.observed < spec.absolute_min else "pass"
+            checks.append(
+                QualityCheck(
+                    "absolute_min",
+                    status,
+                    observed=observation.observed,
+                    threshold=spec.absolute_min,
+                    denominator=observation.denominator,
+                    detail={"direction": spec.direction, "basis": observation.basis},
+                )
+            )
+        if spec.absolute_max is not None:
+            status = "fail" if observation.observed > spec.absolute_max else "pass"
+            checks.append(
+                QualityCheck(
+                    "absolute_max",
+                    status,
+                    observed=observation.observed,
+                    threshold=spec.absolute_max,
+                    denominator=observation.denominator,
+                    detail={"direction": spec.direction, "basis": observation.basis},
+                )
+            )
+        if spec.max_regression_pp is not None:
+            checks.append(
+                _regression_check(spec, level, observation, context, identity)
+            )
+    return build(_status_from_checks(checks), checks)
+
+
+def _coerce_quality_policy(quality: Any) -> QualityPolicy | None:
+    if quality is None or quality is False:
+        return None
+    if quality is True:
+        return QualityPolicy()
+    if isinstance(quality, QualityPolicy):
+        for item in quality.waivers:
+            if not isinstance(item, QualityWaiver):
+                raise ValueError("QualityPolicy.waivers 必须是 QualityWaiver 实例")
+        return quality
+    raise TypeError("quality 只接受 bool 或 QualityPolicy")
+
+
+def _load_baseline_run(baseline: Any) -> tuple[RunResult | None, str | None]:
+    if isinstance(baseline, RunResult):
+        return baseline, None
+    if isinstance(baseline, (str, Path)):
+        try:
+            return load_run_result(baseline), None
+        except (OSError, ValueError) as exc:
+            return None, f"baseline run 目录不可读: {exc}"
+    return None, "baseline 必须是 RunResult 或 run 目录路径"
+
+
+def _build_baseline_context(
+    baseline: Any,
+    config: GateConfig,
+    warnings: list[str],
+) -> _BaselineContext | None:
+    if baseline is None:
+        return None
+    run, error = _load_baseline_run(baseline)
+    if run is None:
+        warnings.append(f"baseline 不可用：{error}")
+        return _BaselineContext(None, error or "baseline_unusable", {}, None, None, None, None)
+    manifest = _manifest_payload(run)
+    rows = tuple(row for row in (run.cases or ()) if isinstance(row, Mapping))
+    target, note = _dataset_path(manifest, None)
+    if target is None:
+        reason = note or "baseline 数据集不可用"
+        warnings.append(f"baseline 不可用：{reason}")
+        return _BaselineContext(
+            run, reason, {}, str(manifest.get("run_id") or ""),
+            str(manifest.get("pipeline_version") or ""),
+            str(manifest.get("suite") or ""),
+            str(manifest.get("dataset_version") or ""),
+        )
+    try:
+        cases = tuple(load_cases(target))
+    except (OSError, ValueError) as exc:
+        reason = f"baseline 数据集无法解析: {exc}"
+        warnings.append(f"baseline 不可用：{reason}")
+        return _BaselineContext(
+            run, reason, {}, str(manifest.get("run_id") or ""),
+            str(manifest.get("pipeline_version") or ""),
+            str(manifest.get("suite") or ""),
+            str(manifest.get("dataset_version") or ""),
+        )
+    if [case.case_id for case in cases] != [str(row.get("case_id") or "") for row in rows]:
+        reason = "baseline 数据集 case 与 cases.jsonl 行不一致"
+        warnings.append(f"baseline 不可用：{reason}")
+        return _BaselineContext(
+            run, reason, {}, str(manifest.get("run_id") or ""),
+            str(manifest.get("pipeline_version") or ""),
+            str(manifest.get("suite") or ""),
+            str(manifest.get("dataset_version") or ""),
+        )
+    summary_payload, has_metrics = _summary_payload(run)
+    baseline_warnings: list[str] = []
+    observations = _quality_observations(
+        config, cases, rows, summary_payload, has_metrics, baseline_warnings
+    )
+    for message in baseline_warnings:
+        warnings.append(f"baseline: {message}")
+    return _BaselineContext(
+        run,
+        None,
+        observations,
+        str(manifest.get("run_id") or ""),
+        str(manifest.get("pipeline_version") or ""),
+        str(manifest.get("suite") or ""),
+        str(manifest.get("dataset_version") or ""),
+    )
+
+
+def _evaluate_quality(
+    run: RunResult,
+    manifest: Mapping[str, Any],
+    cases: Sequence[CaseSpec],
+    rows: Sequence[Mapping[str, Any]],
+    config: GateConfig,
+    policy: QualityPolicy,
+    baseline: Any,
+) -> QualityResult:
+    warnings: list[str] = []
+    summary_payload, has_summary_metrics = _summary_payload(run)
+    if not has_summary_metrics:
+        warnings.append(
+            "summary.json 缺少 metrics：质量观测按 cases.jsonl 重算（缺失指标仍显式 unknown）"
+        )
+    observations = _quality_observations(
+        config, cases, rows, summary_payload, has_summary_metrics, warnings
+    )
+    context = _build_baseline_context(baseline, config, warnings)
+    strata = _quality_strata(cases)
+    identity = {
+        "pipeline_version": manifest.get("pipeline_version"),
+        "suite": manifest.get("suite"),
+        "dataset_version": manifest.get("dataset_version"),
+    }
+
+    results: list[QualityMetricResult] = []
+    failures: list[GateFailure] = []
+    for level in strata:
+        for spec in config.metrics:
+            result, level_failures = _metric_result(
+                spec,
+                level,
+                observations[(spec.name, level)],
+                config,
+                context,
+                identity,
+            )
+            results.append(result)
+            failures.extend(level_failures)
+
+    waived_entries: list[dict[str, Any]] = []
+    waived_keys: set[tuple[str, str, str]] = set()
+    unwaived: list[GateFailure] = []
+    used_waivers: set[int] = set()
+    for failure in failures:
+        metric = failure.gate_id.split(":", 1)[1] if ":" in failure.gate_id else failure.gate_id
+        stratum = str(failure.evidence.get("stratum") or "")
+        match_index = None
+        for index, waiver in enumerate(policy.waivers):
+            if waiver.matches(metric, stratum):
+                match_index = index
+                break
+        if match_index is None:
+            unwaived.append(failure)
+            continue
+        waiver = policy.waivers[match_index]
+        used_waivers.add(match_index)
+        waived_keys.add((metric, stratum, failure.check_id))
+        waived_entries.append(
+            {
+                "metric": metric,
+                "stratum": stratum,
+                "check_id": failure.check_id,
+                "reason": waiver.reason,
+                "approver": waiver.approver,
+                "threshold": failure.evidence.get("threshold"),
+                "observed": failure.evidence.get("observed"),
+            }
+        )
+        warnings.append(
+            f"质量 waiver：metric={metric} stratum={stratum} check={failure.check_id} "
+            f"reason={waiver.reason} approver={waiver.approver}"
+        )
+    for index, waiver in enumerate(policy.waivers):
+        if index not in used_waivers:
+            warnings.append(
+                "质量 waiver 未命中任何失败："
+                f"metric={waiver.metric or '*'} stratum={waiver.stratum or '*'} "
+                f"reason={waiver.reason} approver={waiver.approver}"
+            )
+
+    updated: list[QualityMetricResult] = []
+    for result in results:
+        kinds = {kind for metric, stratum, kind in waived_keys
+                 if metric == result.metric and stratum == result.stratum}
+        updated.append(replace(result, status=_status_from_checks(result.checks, kinds)))
+
+    unknowns: list[GateUnknown] = []
+    for result in updated:
+        for check in result.checks:
+            if check.status != "unknown":
+                continue
+            reason = str(check.detail.get("reason") or check.kind)
+            unknowns.append(
+                GateUnknown(
+                    gate_id=f"quality:{result.metric}",
+                    case_id=None,
+                    check_id=reason,
+                    reason=reason,
+                    evidence={
+                        "metric": result.metric,
+                        "group": result.group,
+                        "stratum": result.stratum,
+                        "check_kind": check.kind,
+                        "observed": check.observed,
+                        "denominator": check.denominator,
+                        "basis": result.denominator_basis,
+                        "threshold": check.threshold,
+                        **dict(check.detail),
+                    },
+                )
+            )
+
+    if not config.metrics:
+        unknowns.append(
+            GateUnknown(
+                gate_id="quality",
+                case_id=None,
+                check_id="no_metrics_configured",
+                reason="gate 配置没有质量指标：无法声称质量达标",
+                evidence={"gc": config.gate_version, "status": config.status},
+            )
+        )
+
+    statuses = [item.status for item in updated]
+    if unwaived:
+        status = QUALITY_STATUS_FAIL
+    elif QUALITY_STATUS_UNKNOWN in statuses or not config.metrics:
+        status = QUALITY_STATUS_UNKNOWN
+    elif all(item == QUALITY_STATUS_NOT_APPLICABLE for item in statuses):
+        status = QUALITY_STATUS_UNKNOWN
+        unknowns.append(
+            GateUnknown(
+                gate_id="quality",
+                case_id=None,
+                check_id="no_applicable_metric",
+                reason="所有质量指标在本数据集上都没有适用样本：不得当作质量通过",
+                evidence={"strata": list(strata), "metrics": [item.metric for item in updated]},
+            )
+        )
+    elif QUALITY_STATUS_WAIVED in statuses:
+        status = QUALITY_STATUS_PASS_WITH_WAIVERS
+    else:
+        status = QUALITY_STATUS_PASS
+
+    stratum_status: dict[str, str] = {}
+    for level in strata:
+        level_statuses = [item.status for item in updated if item.stratum == level]
+        if not level_statuses:
+            stratum_status[level] = QUALITY_STATUS_NOT_APPLICABLE
+        elif QUALITY_STATUS_FAIL in level_statuses:
+            stratum_status[level] = QUALITY_STATUS_FAIL
+        elif QUALITY_STATUS_UNKNOWN in level_statuses:
+            stratum_status[level] = QUALITY_STATUS_UNKNOWN
+        elif all(item == QUALITY_STATUS_NOT_APPLICABLE for item in level_statuses):
+            stratum_status[level] = QUALITY_STATUS_NOT_APPLICABLE
+        elif QUALITY_STATUS_WAIVED in level_statuses:
+            stratum_status[level] = QUALITY_STATUS_PASS_WITH_WAIVERS
+        else:
+            stratum_status[level] = QUALITY_STATUS_PASS
+
+    return QualityResult(
+        status=status,
+        metrics=tuple(updated),
+        strata=strata,
+        stratum_status=stratum_status,
+        failures=tuple(unwaived),
+        unknowns=tuple(unknowns),
+        waived=tuple(waived_entries),
+        diagnostics={"value_no_fabricated": _value_no_fabricated_diagnostics(rows)},
+        warnings=tuple(warnings),
+        config_status=str(config.status),
+        gate_config_hash=config.config_hash,
+        baseline_run_id=None if context is None else context.run_id,
+        baseline_pipeline_version=None if context is None else context.pipeline_version,
+    )
+
+
+# --------------------------------------------------------------------------- #
+# 校准提案（calibrate_gate）与 run 产物读取
+# --------------------------------------------------------------------------- #
+
+
+def _read_json_file(path: Path, label: str) -> Any:
+    try:
+        raw = path.read_bytes()
+    except OSError as exc:
+        raise ValueError(f"{label} 不可读 {path}: {exc}") from exc
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise ValueError(f"{label} 不是合法 UTF-8 JSON {path}: {exc}") from exc
+
+
+def load_run_result(run_dir: Path | str) -> RunResult:
+    """从 run 目录读取三件套（只读）；失败抛 ``ValueError``（fail closed）。"""
+    target = Path(run_dir)
+    manifest_payload = _read_json_file(target / "run_manifest.json", "run_manifest.json")
+    if not isinstance(manifest_payload, Mapping):
+        raise ValueError("run_manifest.json 必须是 JSON 对象")
+    manifest = RunManifest.from_dict(manifest_payload)
+    try:
+        text = (target / "cases.jsonl").read_text(encoding="utf-8")
+    except OSError as exc:
+        raise ValueError(f"cases.jsonl 不可读: {exc}") from exc
+    rows: list[dict[str, Any]] = []
+    for line_number, line in enumerate(text.split("\n"), start=1):
+        if not line.strip():
+            continue
+        try:
+            item = json.loads(line)
+        except json.JSONDecodeError as exc:
+            raise ValueError(f"cases.jsonl 第 {line_number} 行 JSON 非法: {exc.msg}") from exc
+        if not isinstance(item, Mapping):
+            raise ValueError(f"cases.jsonl 第 {line_number} 行必须是对象")
+        rows.append(dict(item))
+    summary = _read_json_file(target / "summary.json", "summary.json")
+    if not isinstance(summary, Mapping):
+        raise ValueError("summary.json 必须是 JSON 对象")
+    return RunResult(
+        manifest=manifest,
+        out_dir=target,
+        cases=tuple(rows),
+        summary=dict(summary),
+    )
+
+
+def _suggest_thresholds(
+    spec: MetricSpec, observation: _Observation
+) -> tuple[dict[str, Any], str]:
+    """校准建议值（只建议，不审批）：0–1 比率类留 2pp 余量 + 2pp 回退容忍。"""
+    min_sample = observation.denominator if observation.denominator > 0 else None
+    if observation.observed is None:
+        return (
+            {
+                "min_sample": min_sample,
+                "absolute_min": None,
+                "absolute_max": None,
+                "max_regression_pp": None,
+            },
+            "无观测值：先补齐可评分样本，再由人工决定阈值",
+        )
+    value = float(observation.observed)
+    if spec.group == "runtime" or not (0.0 <= value <= 1.0):
+        return (
+            {
+                "min_sample": min_sample,
+                "absolute_min": None,
+                "absolute_max": None,
+                "max_regression_pp": None,
+            },
+            "非 0–1 比率指标：绝对阈值与 pp 回退需人工按 SLA / 成本预算审批",
+        )
+    if spec.direction == "higher_is_better":
+        absolute_min: float | None = round(max(0.0, value - PROPOSAL_ABSOLUTE_SLACK), 4)
+        absolute_max: float | None = None
+    else:
+        absolute_min = None
+        absolute_max = round(min(1.0, value + PROPOSAL_ABSOLUTE_SLACK), 4)
+    return (
+        {
+            "min_sample": min_sample,
+            "absolute_min": absolute_min,
+            "absolute_max": absolute_max,
+            "max_regression_pp": PROPOSAL_MAX_REGRESSION_PP,
+        },
+        "按实测值留 2 个百分点审批余量；回退容忍 2pp（仅同 pipeline_version 生效）",
+    )
+
+
+def calibrate_gate(
+    run: RunResult,
+    config: GateConfig | None = None,
+    *,
+    baseline: Any | None = None,
+) -> GateProposal:
+    """从一次真实 run 生成 :class:`GateProposal`；**只读**，绝不改写 gate 配置。
+
+    - 观测值按 stratum + ``all`` 记录（分母按指标各自口径）；
+    - 建议阈值由 :func:`_suggest_thresholds` 的显式规则给出，``status`` 恒为
+      ``unapproved``（审批属 T009 人工门）；
+    - ``gate_config_hash`` 绑定生成提案时使用的配置字节。
+    """
+    if not isinstance(run, RunResult):
+        raise TypeError("calibrate_gate 需要 RunResult")
+    manifest = _manifest_payload(run)
+    rows = tuple(row for row in (run.cases or ()) if isinstance(row, Mapping))
+    resolved = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
+    if not isinstance(resolved, GateConfig):
+        raise TypeError("calibrate_gate 的 config 必须是 GateConfig")
+    target, note = _dataset_path(manifest, None)
+    if target is None:
+        raise ValueError(f"校准需要可解析的数据集: {note or 'dataset_unavailable'}")
+    cases = tuple(load_cases(target))
+    if [case.case_id for case in cases] != [str(row.get("case_id") or "") for row in rows]:
+        raise ValueError("数据集 case 与 cases.jsonl 行不一致，不能作为校准输入")
+
+    summary_payload, has_summary_metrics = _summary_payload(run)
+    warnings: list[str] = []
+    if not has_summary_metrics:
+        warnings.append("summary.json 缺少 metrics：观测按 cases.jsonl 重算")
+    observations = _quality_observations(
+        resolved, cases, rows, summary_payload, has_summary_metrics, warnings
+    )
+    strata = _quality_strata(cases)
+    metric_rows: list[dict[str, Any]] = []
+    for level in strata:
+        for spec in resolved.metrics:
+            observation = observations[(spec.name, level)]
+            suggested, rationale = _suggest_thresholds(spec, observation)
+            metric_rows.append(
+                {
+                    "metric": spec.name,
+                    "group": spec.group,
+                    "direction": spec.direction,
+                    "stratum": level,
+                    "observed": observation.observed,
+                    "denominator": observation.denominator,
+                    "dataset_sample": observation.dataset_sample,
+                    "denominator_basis": observation.basis,
+                    "source": observation.source,
+                    "status": "unapproved",
+                    "suggested": suggested,
+                    "rationale": rationale,
+                }
+            )
+
+    baseline_block: dict[str, Any] | None = None
+    if baseline is not None:
+        context = _build_baseline_context(baseline, resolved, warnings)
+        if context is None or context.error or context.run is None:
+            baseline_block = {
+                "usable": False,
+                "reason": None if context is None else (context.error or "baseline_unusable"),
+            }
+        else:
+            baseline_block = {
+                "usable": True,
+                "run_id": context.run_id,
+                "pipeline_version": context.pipeline_version,
+                "suite": context.suite,
+                "dataset_version": context.dataset_version,
+                "same_pipeline_version": context.pipeline_version
+                == str(manifest.get("pipeline_version") or ""),
+            }
+
+    notes = (
+        "校准提案（T006b）：观测值 + 建议阈值 + gate_config_hash + run_id；"
+        "status 恒为 unapproved，阈值必须由主人在 T009 人工门审批后才能写入 gate 配置。"
+        f"绝对阈值建议规则：0–1 比率类指标留 {PROPOSAL_ABSOLUTE_SLACK:.2f}（2pp）余量，"
+        f"回退容忍 {PROPOSAL_MAX_REGRESSION_PP:.1f}pp（仅同 pipeline_version 生效）；"
+        "运行类（延迟 / 成本）不给自动建议。建议值不是审批结果，也不得被当作通过依据。"
+    )
+    if warnings:
+        notes = notes + " 观测提示：" + "；".join(warnings)
+    return GateProposal(
+        run_id=str(manifest.get("run_id") or ""),
+        suite=str(manifest.get("suite") or ""),
+        mode=str(manifest.get("mode") or ""),
+        pipeline_version=str(manifest.get("pipeline_version") or ""),
+        dataset_version=str(manifest.get("dataset_version") or ""),
+        gate_version=str(manifest.get("gate_version") or ""),
+        gate_config_hash=resolved.config_hash,
+        status="unapproved",
+        strata=strata,
+        metrics=tuple(metric_rows),
+        diagnostics={"value_no_fabricated": _value_no_fabricated_diagnostics(rows)},
+        baseline=baseline_block,
+        notes=notes,
+    )
+
+
+def write_gate_proposal(
+    proposal: GateProposal,
+    path: Path | str,
+    *,
+    overwrite: bool = False,
+) -> Path:
+    """把提案写成 UTF-8（无 BOM）JSON；拒绝写回 ``gate_v0_1.json``。"""
+    if not isinstance(proposal, GateProposal):
+        raise TypeError("write_gate_proposal 需要 GateProposal")
+    target = Path(path)
+    if target.resolve() == DEFAULT_GATE_CONFIG_PATH.resolve():
+        raise ValueError(
+            "不得用校准提案覆盖 gate_v0_1.json：阈值必须经 T009 人工门审批后手写"
+        )
+    if target.exists() and not overwrite:
+        raise FileExistsError(f"提案文件已存在（需 overwrite=True）：{target}")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    payload = (
+        json.dumps(proposal.to_dict(), ensure_ascii=False, sort_keys=True, indent=2) + "\n"
+    )
+    target.write_bytes(payload.encode("utf-8"))
+    return target
+
+
+# --------------------------------------------------------------------------- #
 # 公共入口
 # --------------------------------------------------------------------------- #
 
@@ -1655,20 +3089,26 @@ def evaluate_gate(
     *,
     require_trace: bool = True,
     dataset_path: Path | str | None = None,
+    quality: bool | QualityPolicy = False,
 ) -> GateResult:
-    """评估一轮 run 的 8 项硬门禁并映射退出码（0 / 1 / 3 / 4；2 属 T006b）。
+    """评估一轮 run：8 项硬门禁 +（可选）质量层，并映射退出码 0 / 1 / 2 / 3 / 4。
 
     - ``run``：``run_suite`` 的返回值（读 manifest 身份字段、``cases.jsonl`` 行与
       run 目录下的 trace 仓储）；
-    - ``baseline``：P0 硬门禁层不使用；给了只记 warning（回退检测属 T006b）；
+    - ``baseline``：质量层的同版本 baseline（``RunResult`` 或 run 目录路径）；只在
+      ``quality`` 启用时参与 ``max_regression_pp``，否则只记 warning（T006a 语义）；
     - ``config``：``load_gate_config`` 的结果；``None`` 时读
       :data:`DEFAULT_GATE_CONFIG_PATH`；
     - ``require_trace``：``False`` 时显式跳过 ``trace_integrity``（记 not_applicable）；
     - ``dataset_path``：覆盖数据集路径（默认 ``manifest.dataset_path``，再回退冻结
-      数据集）；gold / forbidden 一律从数据集重新解析，不信任 run 自报的值。
+      数据集）；gold / forbidden 一律从数据集重新解析，不信任 run 自报的值；
+    - ``quality``：``False``（默认）只跑硬门禁 = T006a 兼容；``True`` 评估质量层；
+      ``QualityPolicy(waivers=(...))`` 评估质量层并应用质量豁免（硬门禁不可豁免）。
 
     优先级：``mode=live`` → 4；配置 / 数据不可用（含非法 mode）→ 3；任一硬门禁失败 → 1；
-    存在 unknown → 3；否则 0。硬门禁失败优先于 unknown（handoff §5.4）。
+    存在 unknown（含质量层未审批 / 样本不足 / 跨版本 baseline）→ 3；质量失败（绝对阈值
+    未达或回退超限，且未被 waiver）→ 2；否则 0。``quality=False`` 时 ``exit_code=0``
+    只代表硬门禁通过，**不代表**质量达标（``GateResult.quality is None``）。
 
     ``min_sample`` 的判定分母是 ``evaluated_count``：``cases.jsonl`` 中 ``status`` 为
     ``pass`` / ``fail`` 且非 ``skipped_requires_ocr``、非 runner ``error`` 的行。空 gold
@@ -1703,8 +3143,11 @@ def evaluate_gate(
         )
 
     warnings: list[str] = []
-    if baseline is not None:
-        warnings.append("baseline 被忽略：质量层 / 回退检测属 T006b，本包不做质量判定")
+    policy = _coerce_quality_policy(quality)
+    if baseline is not None and policy is None:
+        warnings.append(
+            "baseline 被忽略：quality=False（只跑硬门禁层），质量回退检测未启用"
+        )
 
     resolved_config = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
     if bad_rows:
@@ -1934,10 +3377,30 @@ def evaluate_gate(
         f"{note.gate_id}: not_applicable（{note.detail}）" for note in not_applicable
     )
 
+    quality_result: QualityResult | None = None
+    quality_failures: tuple[GateFailure, ...] = ()
+    if policy is not None:
+        quality_result = _evaluate_quality(
+            run,
+            manifest,
+            cases,
+            rows,
+            resolved_config,
+            policy,
+            baseline,
+        )
+        unknowns.extend(quality_result.unknowns)
+        quality_failures = quality_result.failures
+        warnings.extend(quality_result.warnings)
+
+    # 退出码优先级（handoff §5.4）：硬失败 1 最高；任何 unknown（含质量未审批 /
+    # 样本不足 / 跨版本 baseline）→ 3；质量失败（未被 waiver）→ 2；否则 0。
     if hard_failures:
         exit_code = EXIT_HARD_FAILURE
     elif unknowns:
         exit_code = EXIT_UNKNOWN
+    elif quality_failures:
+        exit_code = EXIT_QUALITY_REGRESSION
     else:
         exit_code = EXIT_PASS
 
@@ -1958,6 +3421,7 @@ def evaluate_gate(
         gate_version=resolved_config.gate_version,
         scored_count=evaluated_count,
         min_sample=min_sample,
+        quality=quality_result,
     )
 
 
