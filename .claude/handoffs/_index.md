@@ -21,8 +21,8 @@
 | T006b | 门禁质量层 + 校准 + 豁免 | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.6 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `5a4c054`；验收方全量 1506 passed） | 0 | 否 | T006a ✅ |
 | T007 | Baseline + Diff + 报告 | **G4 通过**（R1 定向复验 PASS：`review-R1.md`；dev commits `6447b85`+`08536ed`；全量 1551 passed） | 1 | 否 | T006b ✅ |
 | T008a | CLI 与 P0 全流程 run | **G4 通过**（独立验收 PASS：`review.md`；exit 4 端到端 NOT-RUN 记为 GAP；dev commit `f2c0209`；全量 1586 passed） | 0 | 否 | T007 ✅ |
-| T008b | P0 七条验收测试 + p0-report | G1 待派单（handoff 已并入 T008a 约束） | 0 | 否 | T008a ✅ |
-| T009 | 独立验收与 P0 收口 | G0 待派 | 0 | 否 | T001–T008b |
+| T008b | P0 七条验收测试 + p0-report | G3 验收中（dev commit `2f7b174`，9 文件；7 新验收用例；全量 1593 passed；独立验收者已派） | 0 | 否 | T008a ✅ |
+| T009 | 独立验收与 P0 收口 | G1 待派单（handoff 已落盘；待 T008b 通过） | 0 | 否 | T008b |
 
 ## 遗留项（非阻塞，T009 时逐条复核是否仍存在）
 
