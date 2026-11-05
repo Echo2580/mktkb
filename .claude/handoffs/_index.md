@@ -28,7 +28,7 @@
 | T101 | ERR-03 词表语境与法规优先 | **G6 已收口**（dev commit `a7282b3`；独立验收 PASS；RG001 RED→PASS；b0/badcase hard `[]` 与 case 级不变；全量 1614 passed；PM 裁定 A 两处窄改已核） | 0 | 否 | T107 ✅ |
 | T102 | 组 A 状态继承（ERR-01/02/D5） | **G6 已收口**（dev commit `85d9ffc`；独立验收 PASS `review.md`；ERR-01/02 多轮实测修复、b0/badcase 逐例零变化、全量 1634 passed；残余 R1–R3 记 #44） | 0 | 否 | T101 ✅ |
 | T103 | D4 记录路回落语义检索（ERR-04） | **G6 已收口**（dev commit `43b7976`；独立验收 PASS：回落真实非换皮、八题 answer/8 来源、零真实 provider、RG004 非口径伪装；全量 1640 passed；残余记 #45） | 0 | 否 | T102 ✅ |
-| T104 | D1 异常原因透传（ERR-07 产品侧） | G1 已派单（开发中） | 0 | 否 | T103 ✅ |
+| T104 | D1 异常原因透传（ERR-07 产品侧） | **G6 已收口**（dev commit `e7ee804`；独立验收 PASS 7/7；七类码/retryable 可区分、领域异常未被吞、响应 12 字段未变；全量 1678 passed；残余记 #46） | 0 | 否 | T103 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
@@ -121,6 +121,7 @@
 43. **T101 第二次 PM 裁定 + 验收非阻断（2026-11-06 00:2x）**：① 允许补全 RG001 `reference_answer`（发布日 2000-10-31/2001-11-07、施行日 2022-07-01），不改 `expected_values/sources/forbidden/kind`、不动 RG002–RG007——属"数据补全非放宽"（scorer 数值白名单派生自 reference，缺日期会把逐字原文误判编造）；② T101 验收 PASS（`review.md` 37 行；旧源码 `git archive a7282b3^` 独立复跑证明 RG001 RED→PASS 且门禁未放宽；answer.py 仅 +29/−1，探针证非法规题仍单句、53 题法规判定 0 误报）；③ 非阻断瑕疵：单测夹具 `test_p1_t101_document_answer.py:26` 把真实「第15号」写成「第9号」，不影响分支逻辑，记录不修。
 44. **T102 验收 PASS + 残余风险 R1–R3（2026-11-06 01:5x，非阻塞，PM 接受并记录）**：R1 区域词启发式会把「物料区/陈列区/收银区/展示区」等 2 字店内位置误澄清（155 题语料、b0/badcase/regression 均未出现，留 P2 或后续专项）；R2 无字段词 follow-up（「那款呢/保质期是多少/还有呢」）由继承改为 reset（现行语料未覆盖该玩法，P2 前不动）；R3 RAG 直答层词表外 `*店` 仍继承上轮门店（产品 HTTP 为 not_found，与 base 相同；开发证据 04 的 live 成本锁定理由未能只读复现）。以上不阻塞 T102 收口，若 P2 语料出现同类问法需回头补回归。T102 全量 1634 passed、b0/badcase 逐例 diff=0、两条多轮 HTTP 产品路径实测修复。
 45. **T103 验收 PASS + 残余风险/观察（2026-11-06 02:5x，非阻塞，PM 接受并记录）**：T103 独立验收 PASS（`review.md` 66 行；验收方自建探针证明 document/record 回落真实、trace 标记存在、`validate_required_spans==[]`、八题 answer/8 来源含 D03/D05/D07/D08/D09、`non_loopback_network_attempts=[]` 零真实 provider、RG004 非口径伪装）。残余观察：① document 回落后答案可能偏泛化（E01 等正文进入证据，不保证排序最优）；② 逐词并集仍 100 截断，换语料不保证；③ record overshoot 生产可达性未证明（合成用例，qa 关闭）；④ RG004 `forbidden_values` 未含旧错文「符合条件的记录过多」，靠 `expected_kind=no_answer` 兜底；⑤ 开发集成 `_force_truncated` 每次返回 target，只证明分支进入（验收方探针已补齐）。以上非阻塞，P2 语料/真实 OCR 链路再验。
+46. **T104 验收 PASS + P2/残余（2026-11-06 03:5x，非阻塞，PM 记录不返工）**：T104 独立验收 PASS（7/7；验收方自写 147 条探针确认七类码/retryable 可区分、非 provider 不报 `MODEL_UNAVAILABLE`、`KnowledgeRevisionChanged/IndexNotReady/QueryRejected/QaNotReady` 终态未变、响应恰 12 字段、trace `reason==error_code`、文案三要素成立；全量 1678 passed）。P2：未注册码且 `retryable=False`（供应商自定义/基类 `MODEL_ERROR`）走 `_MODEL_ERROR_FALLBACK`，文案固定"可稍后重新提问"与 retryable 不自洽——当前生产无该码路径，不返工，T900 最终报告披露。残余：ERR-07「营收未短路」——`intent.py` 词表不含「营收」，RG005 本地仍 `kind=answer`（`kind_correct,refusal_expected` fail）；属意图词表治理，P1 不收口，留 P2/主人另派。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
