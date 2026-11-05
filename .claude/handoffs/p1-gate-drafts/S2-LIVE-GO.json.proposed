@@ -1,0 +1,56 @@
+{
+  "document": "S2-LIVE-GO",
+  "stage": "P1-RETRIEVAL",
+  "authorization": "主人 2026-11-05 授权的 P1 检索级真实调用：仅 mode=live + scope=retrieval_only，服务仅 rag（embedding + rerank），不调用 chat/生成；在固定共享账本/预算与本 GO 绑定范围内执行；零自动重试、串行、首个失败即停；累计请求上限与阶段额度见 scope（累计口径，已含先前占用）；不得清账、不得超 20 元、不得换供应商或型号。",
+  "issued_by": "主人（签发依据：2026-11-05 主人指示；记录见 .claude/handoffs/2026-11-05-p1-kickoff-gate.md）",
+  "nonce": "12d04cf138ab7853cc50f0572fe7fb66",
+  "issued_utc": "2026-11-05T21:39:22.890216+08:00",
+  "expires_utc": "2026-11-30T23:59:59+08:00",
+  "budget_ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+  "scope": {
+    "services": [
+      "rag"
+    ],
+    "stage_limits_cny": {
+      "P1-RETRIEVAL": 3.0
+    },
+    "max_requests": 1000,
+    "max_request_cny": 0.05,
+    "bindings": {
+      "rag": {
+        "plan_version": "s2j2-controlled-plan-v1",
+        "settlement_version": "usage-conservative-v1",
+        "request_plan_sha256": "11b0218d23d4f0d8b51387ad387d485aaaecab13853423c408a7c40cee5ae52a",
+        "serial": true,
+        "embedding_requests": 7,
+        "rerank_requests": 4,
+        "ocr_text_requests": 1,
+        "ocr_table_requests": 1,
+        "ocr_max_calls": 2,
+        "ocr_max_tiles_per_page": 1,
+        "ocr_max_attempts": 1,
+        "embedding_total_tokens_cap": 4096,
+        "rerank_total_tokens_cap": 6000,
+        "ocr_text_price_cny": 0.5,
+        "ocr_table_price_cny": 0.15,
+        "ocr_provider": "tencent",
+        "ocr_host": "ocr.tencentcloudapi.com",
+        "ocr_region": "ap-guangzhou",
+        "ocr_text_model": "GeneralAccurateOCR",
+        "ocr_table_model": "RecognizeTableAccurateOCR",
+        "ocr_pricing_source": "official-list-price/tencent-ocr-postpaid-highest-v1",
+        "embedding_provider": "bailian",
+        "embedding_model": "text-embedding-v4",
+        "embedding_host": "dashscope.aliyuncs.com",
+        "embedding_region": "cn-beijing",
+        "rerank_provider": "bailian",
+        "rerank_model": "gte-rerank-v2",
+        "rerank_host": "dashscope.aliyuncs.com",
+        "rerank_region": "cn-beijing",
+        "base_url_host": "dashscope.aliyuncs.com",
+        "embedding_dimensions": 1024,
+        "region": "beijing"
+      }
+    }
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "limit_cny": 20.0,
+  "historical_conservative_accounted_cny": 0.03,
+  "remaining_conservative_cny_at_start": 19.97,
+  "historical_success_estimated_list_price_cny": 3.52e-05,
+  "provider_billed_cny": null,
+  "stages": {
+    "S1-DEV": 0.0,
+    "S1-IA": 0.0,
+    "S2-DEV": 15.4,
+    "P1-RETRIEVAL": 3.0,
+    "later_shared_reserve": 1.57
+  },
+  "historical_sources": [
+    "docs/evidence/RAG-R1-20261101/preflight/live-ledger.jsonl",
+    "docs/evidence/RAG-R1-20261101/preflight-net02/live-ledger.jsonl"
+  ],
+  "ledger": "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl",
+  "note": "Historical import only once. Conservative accounting is not provider billing. Reconcile ledger before every live stage.",
+  "stage_revision": {
+    "revision": 8,
+    "revised_at": "2026-11-05T21:39:22.890216+08:00",
+    "revised_by": "主人（签发依据：2026-11-05 主人指示；清单见 .claude/handoffs/2026-11-05-p1-kickoff-gate.md）",
+    "previous_stages": {
+      "S1-DEV": 0.0,
+      "S1-IA": 0.0,
+      "S2-DEV": 18.4,
+      "later_shared_reserve": 1.57
+    },
+    "change": "新增 P1-RETRIEVAL 3.0：自 S2-DEV 18.4→15.4 划转；总分配仍 19.97（+历史 0.03=20），总上限不动。",
+    "arithmetic": "0 + 0 + 15.4 + 3.0 + 1.57 = 19.97；19.97 + 0.03(历史) = 20.00",
+    "retained": "历史 0.03 与全部已发生占用（实测 15.0266296）保留，未清账、未重置。"
+  }
+}
