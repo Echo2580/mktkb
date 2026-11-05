@@ -1,0 +1,69 @@
+T008a 独立验收：敏感注入、baseline 纪律、diff 与 export
+========================================================
+隔离：敏感注入与未审批 baseline 全部在 %TEMP%\t008a-verify 的 run 副本中构造；仓库 fixtures/var 未改。
+真实 baseline：未建立（gate_v0_1.json 仍 unapproved；T009 人工门后才可建立）。
+未在 %TEMP% 生成 approval.json（避免伪造 baseline 审批），approve 成功路径不在本次实跑范围。
+
+一、敏感注入 -> exit 1
+----------------------
+构造：复制 p0-b0 run -> sensitive-run；复制 b0.jsonl -> sensitive-dataset\b0.jsonl；
+      把 Q01 的 outcome.text（27 字）写入该 case 的 forbidden_values；run_manifest.dataset_path
+      指向临时数据集（dataset_sha256 同步；fixtures 未改）。
+[V18] gate --run %TEMP%\t008a-verify\sensitive-run --config docs\evaluation\gate_v0_1.json
+      -> exit=1；scored=32/32；hard_failures=['security_leak']；quality=unknown
+      -> failures=[{"gate_id":"security_leak","case_id":"Q01","check_id":"forbidden_value",
+                    "evidence":{"checked":1,"leaked_values":[...]}}]
+      -> 满足 §5.4；未修改 fixtures/evaluation/b0.jsonl。
+      gate.json sha256=b9665f123980c39dd68bf14139e1f260d39b5644daba923d2a6e8ca9f372f7d9。
+
+二、baseline approve 参数与现场重算
+-----------------------------------
+[V19] 缺 --gate      -> exit=2；required: --gate
+[V20] 缺 --approver  -> exit=2；required: --approver
+[V21] 缺 --reason    -> exit=2；required: --reason
+[V22] 用一份 exit_code=0 的 gate JSON（claimed-gate-exit0.json，sha256=07e45ba3...）申请：
+      现场重算 exit_code=3（打印“--gate 声明 exit_code=0；仅审计，不作为审批依据”）
+      -> 拒绝：门禁未通过（exit_code=3：...阈值未审批（T009 人工门）...）
+      -> exit=3；baselines 目录未创建；approval.json 计数=0
+      -> 证明 CLI 不以用户给的 gate JSON 作为审批依据。
+[V23] baseline list --root %TEMP%\t008a-verify\baselines（含 1 条未审批 baseline）
+      -> exit=0；baseline_id=c0ce2856938f；approved=no
+      说明：该 baseline 是验收用未审批快照（临时目录），不是仓库 baseline，也不是审批。
+
+三、diff：baseline 缺失 fail closed；未审批 baseline 阻断放行
+-------------------------------------------------------------
+[V24] diff --run ...\p0-b0 --root %TEMP%\t008a-verify\missing-baselines
+      -> exit=3；stderr: ERROR: baseline 未建立，待 T009（c0ce2856938f）：baseline 不存在...
+      -> missing-baselines 与 --out 目录均未创建；未自动 save_baseline、未复制/伪造。
+[V25] 以未审批 baseline + 仓库默认配置 diff：
+      diff --run ...\p0-b0 --baseline c0ce2856938f --root %TEMP%\t008a-verify\baselines
+           --config docs\evaluation\gate_v0_1.json --out ...\diff-default
+      -> exit=3；release_allowed=False；blocked=current_gate_exit_3；gate_exit=3
+      -> stderr “放行阻断: ... current_gate_exit_3 ...” 证明 require_release_baseline 被调用。
+[V26] 以同一未审批 baseline + %TEMP% 已审批演示配置（gate=0）diff：
+      -> exit=0；release_allowed=False；blocked=baseline_unapproved；gate_exit=0
+      -> stderr “放行阻断: ... baseline_unapproved ...”
+      说明：exit=0 只表示 gate 通过；发布层必须读 release_allowed/blocked，不能只看退出码。
+      diff.json sha256=6856a7abcf89cea2fe352148138de2a33a6a3c441bc63f13031f3fe6dc686bf1。
+
+四、export 报告自检
+-------------------
+[V27] export --run ...\p0-b0 --baseline c0ce2856938f --root %TEMP%\t008a-verify\baselines
+            --config docs\evaluation\gate_v0_1.json --out ...\export-default
+      -> exit=0；只写 report.md/report.html，未写 diff.json；尽管 gate=3 报告仍可导出（报告层不放行）。
+[V28] 字节自检（export-default）：
+      report.md   16099 B  sha256=8549fcb22534e5cdb263c0814f0c199511388d520c125a91129802fba87ad1d8
+      report.html 23288 B  sha256=a8c5910f1fa15f06de50ec0205ade4913dc24be3a46096da0255ee7c4a14a7c9
+      UTF-8 无 BOM（EF BB BF=False）；无 CRLF；与 diff-default 的 report.md/html 逐字节相同。
+      html 单文件：无 <script、无 http(s)://、无 src=、无 <link。
+      文本无“质量通过”；含 exit_code: 3（不可判定）、thresholds_unapproved、config_status=unapproved；
+      cost_per_case_cny 观测为 unknown/分母 0；p95_latency_ms 有观测但质量状态 unknown（阈值未审批）。
+      -> 满足 §5.3/§5.5 的报告诚实性要求；未补零、未改写成通过。
+[V29] export 在 baseline 缺失时：
+      -> exit=3；同 [V24] 的“baseline 未建立，待 T009”，且不写报告目录。
+[V30] diff 的 exit 1 透传（敏感注入 run + 同一未审批 baseline + 默认配置）：
+      diff --run ...\sensitive-run --baseline c0ce2856938f --root ...\baselines
+           --config docs\evaluation\gate_v0_1.json --out ...\diff-sensitive
+      -> exit=1；release_allowed=False；blocked=current_gate_exit_1；gate_exit=1
+      -> stderr “放行阻断: ... current_gate_exit_1 ...”；报告仍写出（报告层不吞门禁）。
+      至此 diff 的 0/1/3 均有真实透传覆盖；exit 4 见 01 [V17]（NOT-RUN）。

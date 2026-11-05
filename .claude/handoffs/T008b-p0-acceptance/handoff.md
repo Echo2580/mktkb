@@ -67,6 +67,11 @@ git show --stat --oneline HEAD
 
 ## 7. 已知边界（必须遵守）
 
+- **T008a 验收约束（2026-11-05，`T008a-cli/review.md`）**：
+  1. CLI 命令可直接用于 `p0-report`（`tools/rag_eval.py`）。
+  2. 默认配置 `gate` = **exit 3 / `thresholds_unapproved`**；真实 baseline 待 T009；报告**不得**写"质量通过"。
+  3. **不得声称 `mode=live` → exit 4 已端到端**：真实 live 在 `run --mode live` 被 argparse 拒（2）、手改 manifest 在 `RunManifest.from_dict` 失败（3），`evaluate_gate` 的 live→4 只有单测覆盖。p0-report 必须把它写成 NOT-RUN/GAP。
+  4. 发布放行看 `release_allowed`/`blocked` 字段，不能只看 `diff`/`export` 的退出码。
 - 质量阈值未审批、真实 baseline 未建立（T009 人工门）：七条验收中的 (5) 用 `%TEMP%` 内的审批配置演示，p0-report 必须写明"真实 baseline 待主人审批"。
 - golden 必须是"改动前业务行为"的等价快照；P0 未改业务代码，可用现行行为采集，但必须在报告写清采集命令与归一化清单，不得循环自证。
 - 七条中的 (6) 只证明"硬门禁失败非零退出"，不证明所有硬门禁在真实业务里都被触发。

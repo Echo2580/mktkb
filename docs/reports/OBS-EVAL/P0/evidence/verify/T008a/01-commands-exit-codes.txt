@@ -1,0 +1,71 @@
+T008a 独立验收：命令面、退出码与全流程（f2c0209）
+==================================================
+环境：Windows PowerShell；cwd=D:\GPT项目\市场部AI知识库；分支 p0/obs-eval；HEAD f2c0209（父 9abe92a）
+Python：.\.venv\Scripts\python.exe -B；$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"
+隔离：所有 run/gate/proposal/报告产物写入 %TEMP%\t008a-verify；未复用开发会话的测试作为主证据。
+说明：stderr 中的 PowerShell NativeCommandError 包装是重定向产生的宿主噪声；下方只摘录进程真实错误行，
+      所有非 0 场景均无 Python Traceback。
+
+一、子命令与参数面
+------------------
+[V01] rag_eval.py --help
+      -> exit=0；列出 dataset/run/gate/baseline/diff/export；无 --allow-holdout-details
+[V02] rag_eval.py nope
+      -> exit=2；argparse: invalid choice: 'nope'；无 Traceback
+[V03] rag_eval.py run --suite b0 --mode local --bogus
+      -> exit=2；argparse: unrecognized arguments: --bogus；无 Traceback
+[V04] rag_eval.py run --suite b0 --mode local --allow-holdout-details
+      -> exit=2；argparse: unrecognized arguments: --allow-holdout-details；无 Traceback
+[V05] dataset validate --suite b0 --path fixtures\evaluation\b0.jsonl
+      -> exit=0；cases=40；dataset_version=b0:b0-2026-11-04:bd4f0f7ccc6e；
+         sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f；strata=exact:24,ocr:8,text:8
+[V06] dataset validate --suite badcase --path fixtures\evaluation\b0.jsonl
+      -> exit=3；ERROR: 数据集 suite 不匹配：--suite='badcase'，文件内=['b0']
+[V07] dataset build --b0 fixtures\acceptance\questions.json
+      --badcase docs\evidence\LOCAL-R1-20261101\S1-DEV\questions.json --out %TEMP%\t008a-verify\dataset-build
+      -> exit=0；b0: cases=40（sha256 bd4f0f7c...）；badcase: cases=13（sha256 e5f0662a...）；
+         只写 %TEMP%；仓库 fixtures 未改
+[V08] baseline list --root %TEMP%\t008a-verify\baselines（空目录）
+      -> exit=0；baseline 目录不存在（0 条）；未创建目录
+
+二、全流程 run 与默认门禁
+--------------------------
+run 输出均在 %TEMP%\t008a-verify\runs：
+[V09] run --suite b0 --mode local --out ...\p0-b0
+      -> exit=0；run_id=b0-local-20261105T091824903003Z-fde526ca；cases=40
+[V10] run --suite badcase --mode local --out ...\p0-badcase
+      -> exit=0；run_id=badcase-local-20261105T091827977037Z-af7f2437；cases=13
+[V11] run --suite b0 --mode replay --from-run ...\p0-b0 --out ...\p0-b0-replay
+      -> exit=0；run_id=b0-replay-20261105T091831119831Z-2f5d6487；cases=40
+      三件套均含 run_manifest.json + cases.jsonl + summary.json（另有 traces.sqlite3）。
+[V12] gate --run ...\p0-b0 --config docs\evaluation\gate_v0_1.json --calibrate
+      -> exit=3；scored=32/32；hard_failures=[]；quality=unknown；config_status=unapproved
+         wrote ...\p0-b0\gate.json；proposal=...\gate_proposal.json status=unapproved
+[V13] gate --run ...\p0-badcase --config docs\evaluation\gate_v0_1.json
+      -> exit=3；scored=13/13；hard_failures=[]；quality=unknown；config_status=unapproved
+[V14] gate --run ...\p0-b0-replay --config docs\evaluation\gate_v0_1.json
+      -> exit=3；scored=32/32；hard_failures=[]；quality=unknown；config_status=unapproved
+[V15] 演示用已审批配置（仅 %TEMP%，宽阈值，非 T009 审批、不写仓库）：
+      gate --run ...\p0-b0 --config %TEMP%\t008a-verify\gate-approved-demo.json
+      -> exit=0；hard_failures=[]；quality=pass；config_status=approved
+      随即用仓库默认配置重跑 -> exit=3（gate.json 恢复默认结果）。
+      说明：宽阈值仅用于验证 exit 0 分支；真实质量阈值审批仍待 T009。
+
+三、提案与配置不可变
+--------------------
+proposal：status=unapproved；approval_owner="T009 human gate"；45 条 metric 行；实际 887 行文本；
+          gate_config_hash=eeb70a6c2d3b7c32fd6153194a8b93beb28464f9752ccd851192a7b0e0aac293；
+          sha256=6f3465751c36719fb438675f18801cc280521cf306569c07b422d196baef1fba。
+gate_v0_1.json：worktree blob cfbbe0a0b55a1c782f55b23f3ec9cde35a39a645
+               = parent blob = f2c0209 blob；status=unapproved；15 metrics 的阈值字段全 null。
+               sha256=8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209。
+-> 配置未被 --calibrate 改写；git diff f2c0209^ f2c0209 -- docs/evaluation/gate_v0_1.json 为空。
+
+四、mode=live / exit 4（NOT-RUN）
+---------------------------------
+[V16] run --mode live ... -> argparse exit=2（P0 只允许 local/replay；CLI 无 live 入口）。
+[V17] 复制 run 为 live-run 并把 run_manifest.mode 改为 "live"：
+      gate --run ...\live-run -> exit=3；ERROR: ValueError: run_manifest.mode 非法: 'live'
+      （RunManifest.from_dict 在 load_run_result 阶段拒绝，evaluate_gate 的 mode=live→4 未触达）。
+结论：退出码 4 的真实 CLI 路径 NOT-RUN；交付仅以参数化单测模拟 4，未端到端覆盖。
+      0/1/3 均已真实覆盖；2 由基线审批缺参实测覆盖（见 02）。
