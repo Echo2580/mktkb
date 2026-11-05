@@ -49,6 +49,7 @@ from ..observability.versioning import (
     pipeline_version as _pipeline_version,
 )
 from .corpus import (
+    SUITES,
     Corpus,
     build_suite_index,
     default_corpus_dir,
@@ -173,8 +174,10 @@ class RunManifest:
             value = payload.get(name)
             if not isinstance(value, str) or not value:
                 raise ValueError(f"run_manifest.{name} 必须是非空字符串，收到 {value!r}")
-        if payload["suite"] not in {"b0", "badcase"}:
-            raise ValueError(f"run_manifest.suite 非法: {payload['suite']!r}")
+        if payload["suite"] not in SUITES:
+            raise ValueError(
+                f"run_manifest.suite 非法: {payload['suite']!r}（允许 {sorted(SUITES)}）"
+            )
         mode = str(payload["mode"])
         if mode not in MODES:
             raise ValueError(f"run_manifest.mode 非法: {mode!r}（允许 {MODES}）")
@@ -238,8 +241,8 @@ def run_suite(
     参数与 handoff §5.1 一致；``dataset_path`` 仅供测试/复现覆盖默认
     ``fixtures/evaluation/<suite>.jsonl``。
     """
-    if suite not in {"b0", "badcase"}:
-        raise ValueError(f"未知 suite {suite!r}；只允许 ['b0', 'badcase']")
+    if suite not in SUITES:
+        raise ValueError(f"未知 suite {suite!r}；只允许 {sorted(SUITES)}")
     if mode not in MODES:
         raise ValueError(f"未知 mode {mode!r}；只允许 {list(MODES)}")
     if not isinstance(scope, str) or not scope.strip():
@@ -290,7 +293,12 @@ def _run_local(
     ds_version = dataset_version(cases, label_version)
     ds_sha = _sha256_file(dataset_path)
 
-    corpus = load_suite_corpus(suite, corpus_dir, business_date=business_date)
+    corpus = load_suite_corpus(
+        suite,
+        corpus_dir,
+        business_date=business_date,
+        required_codes=_required_doc_codes(cases),
+    )
     if corpus.business_date is not None and corpus.business_date != business_date:
         raise ValueError(
             "语料 manifest 业务日期与数据集不一致："
@@ -1310,6 +1318,21 @@ def _sha256_file(path: Path) -> str:
     except OSError as exc:
         raise ValueError(f"无法读取文件 {path}: {exc}") from exc
     return hashlib.sha256(payload).hexdigest()
+
+
+def _required_doc_codes(cases: Sequence[CaseSpec]) -> tuple[str, ...]:
+    """数据集 gold 引用到的 ``doc_code``（去重、确定性排序）。
+
+    ``regression`` 语料层用它 fail closed：引用的资料必须全部解析成功，
+    不让 gold 悄悄退化成 ``GoldUnresolved``。
+    """
+    codes = {
+        str(ref["doc_code"])
+        for case in cases
+        for ref in (*case.expected_sources, *case.relevant_units)
+        if ref.get("doc_code")
+    }
+    return tuple(sorted(codes))
 
 
 def _single_business_date(cases: Sequence[CaseSpec]) -> str:

@@ -60,7 +60,7 @@ PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_BASELINE_ROOT = PROJECT_ROOT / "var" / "eval" / "baselines"
 EXIT_DATA = 3
 EXIT_USAGE = 2
-SUITES = ("b0", "badcase")
+SUITES = ("b0", "badcase", "regression")
 MODES = ("local", "replay")
 
 
@@ -127,7 +127,8 @@ def _cmd_dataset_build(args: argparse.Namespace) -> int:
         stats = builder.build_dataset(PROJECT_ROOT, b0_path, badcase_path, out_dir)
     except Exception as exc:  # 构建器把 gold 不可定位等统一抛 BuildError
         raise CliError(f"dataset build 失败: {type(exc).__name__}: {exc}") from exc
-    for suite in SUITES:
+    # ``dataset build`` 只构建 b0/badcase；regression 是手工维护的种子集。
+    for suite in ("b0", "badcase"):
         payload = stats.get(suite, {}) if isinstance(stats, Mapping) else {}
         print(
             f"{suite}: cases={payload.get('cases')} sha256={payload.get('sha256')} "

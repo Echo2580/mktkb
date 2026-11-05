@@ -32,6 +32,7 @@ __all__ = [
     "CASE_SCHEMA_VERSION",
     "CaseSpec",
     "LOCATOR_KEYS",
+    "OPTIONAL_CASE_FIELDS",
     "cases_to_jsonl",
     "dataset_version",
     "load_cases",
@@ -69,6 +70,11 @@ CASE_FIELDS: tuple[str, ...] = (
     "label_version",
     "notes",
 )
+
+#: 可选扩展字段（P1 T107）：只在显式给出时写入规范 JSONL；缺省**不输出**，
+#: 因此 b0/badcase 的规范字节与 ``dataset_version`` 保持不变。
+#: ``regression`` 套件必须提供 ``source_err_id``（错误台账编号，如 ERR-20261104-03）。
+OPTIONAL_CASE_FIELDS: tuple[str, ...] = ("source_err_id",)
 
 _DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
 _CODE_RE = re.compile(r"^[A-Za-z0-9_.-]+$")
@@ -213,9 +219,15 @@ class CaseSpec:
     labeler: str = "lead"
     label_version: str = ""
     notes: str = ""
+    #: 缺陷台账编号（可选；``regression`` 必填）。缺省时不出现在规范 JSONL 中。
+    source_err_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
-        """按 ``CASE_FIELDS`` 顺序返回可 JSON 序列化的普通对象。"""
+        """按 ``CASE_FIELDS`` 顺序返回可 JSON 序列化的普通对象。
+
+        ``source_err_id`` 只在非 ``None`` 时追加到末尾，保证既有 b0/badcase
+        的规范字节与 ``dataset_version`` 不变。
+        """
         payload: dict[str, Any] = {
             "case_id": self.case_id,
             "suite": self.suite,
@@ -239,20 +251,30 @@ class CaseSpec:
             "label_version": self.label_version,
             "notes": self.notes,
         }
-        if set(payload) != set(CASE_FIELDS):  # pragma: no cover - 字段表与序列化漂移时立即失败
-            raise AssertionError("CaseSpec.to_dict 与 CASE_FIELDS 不一致")
+        if self.source_err_id is not None:
+            payload["source_err_id"] = self.source_err_id
+        unknown = set(payload) - set(CASE_FIELDS) - set(OPTIONAL_CASE_FIELDS)
+        missing = set(CASE_FIELDS) - set(payload)
+        if unknown or missing:  # pragma: no cover - 字段表与序列化漂移时立即失败
+            raise AssertionError(
+                f"CaseSpec.to_dict 与 CASE_FIELDS/OPTIONAL_CASE_FIELDS 不一致: "
+                f"unknown={sorted(unknown)} missing={sorted(missing)}"
+            )
         return payload
 
     @classmethod
     def from_dict(cls, payload: Mapping[str, Any]) -> "CaseSpec":
         if not isinstance(payload, Mapping):
             raise ValueError("case 行必须是 JSON 对象")
-        unknown = set(payload) - set(CASE_FIELDS)
+        unknown = set(payload) - set(CASE_FIELDS) - set(OPTIONAL_CASE_FIELDS)
         if unknown:
             raise ValueError(f"case 含未知字段: {sorted(str(key) for key in unknown)}")
         missing = [name for name in CASE_FIELDS if name not in payload]
         if missing:
             raise ValueError(f"case 缺少字段: {missing}")
+        source_err_id = payload.get("source_err_id")
+        if source_err_id is not None:
+            source_err_id = _require_text(source_err_id, "source_err_id")
 
         def as_tuple_of_mappings(value: object, name: str) -> tuple[Mapping[str, Any], ...]:
             items = []
@@ -291,6 +313,7 @@ class CaseSpec:
             labeler=_require_text(payload["labeler"], "labeler"),
             label_version=_require_text(payload["label_version"], "label_version"),
             notes=_require_text(payload["notes"], "notes", allow_empty=True),
+            source_err_id=source_err_id,
         )
         return case
 
@@ -336,6 +359,12 @@ def validate_case(case: CaseSpec) -> None:
     _require_text(case.label_version, "label_version")
     if not isinstance(case.notes, str):
         raise ValueError("notes 必须是字符串")
+    if case.suite == "regression":
+        if case.source_err_id is None:
+            raise ValueError("regression 套件必须提供 source_err_id（错误台账编号）")
+        _require_text(case.source_err_id, "source_err_id")
+    elif case.source_err_id is not None:
+        _require_text(case.source_err_id, "source_err_id")
 
 
 def load_cases(path: Path | str) -> list[CaseSpec]:
@@ -408,6 +437,6 @@ def dataset_version(cases: Sequence[CaseSpec], label_version: str) -> str:
     return f"{suite}:{label_version}:{digest}"
 
 
-# 供测试/构建脚本核对字段表；dataclass 字段必须与 CASE_FIELDS 完全一致。
-if tuple(item.name for item in fields(CaseSpec)) != CASE_FIELDS:  # pragma: no cover
-    raise AssertionError("CASE_FIELDS 与 CaseSpec 字段不一致")
+# 供测试/构建脚本核对字段表；dataclass 字段必须与 CASE_FIELDS + 可选字段完全一致。
+if tuple(item.name for item in fields(CaseSpec)) != CASE_FIELDS + OPTIONAL_CASE_FIELDS:  # pragma: no cover
+    raise AssertionError("CASE_FIELDS/OPTIONAL_CASE_FIELDS 与 CaseSpec 字段不一致")

@@ -303,6 +303,8 @@ class GateConfig:
 
         分母固定为 ``evaluated_count``（见 :func:`evaluate_gate`），不是
         ``case_count`` / ``metrics_scope.cases_in_denominator``，也不用于质量指标。
+        P1 T107：``regression`` 未在 ``gate_v0_1.json`` 配置 ``hard_gate_min_sample``
+        时返回 ``None`` → ``min_sample_missing`` unknown / 退出码 3，不得静默通过。
         """
         value = self.min_sample.get(str(suite))
         return None if value is None else int(value)
