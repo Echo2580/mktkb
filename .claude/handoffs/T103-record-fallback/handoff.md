@@ -50,3 +50,10 @@
 
 ## 8. 报告格式（五段，≤80 行）
 1) 完成内容；2) 验收标准自证（每条 ≤2 行，带命令/`文件:行`）；3) 实际运行结果（本包/目录/全量 + b0/badcase/regression 前后对照 + 前端 typecheck/build + commit sha + stat）；4) 偏离或未做（含 RG004 口径理由、前端改动范围、OCR 题处理）；5) 风险（一句话）。
+
+## 9. PM 裁定记录（2026-11-06 02:4x，T103 完成后）
+
+**裁定：接受 RG004 口径收口（有条件）**。
+- 事实：本地评测语料 `corpus/enterprise-20261101` 未收录 D09；local RAG 实测输出诚实 `no_answer`（修复前为"记录过多"无解澄清）。`expected_kind` clarification→no_answer、`should_refuse=true` 并补 `refusal_reason`，`forbidden_values` 原样保留。属"本地可达性口径"，非放宽断言。
+- 条件（验收必须逐条证明）：① local 文本诚实，不得出现"该历史消息未保存/符合条件的记录过多请缩小"等错误归因；② 产品 legacy 回落必须由强制 truncated 用例证明（document 与 record 两分支 + `filter_decisions_json` 降级标记 + 必需 span 不破）；③ RG001–RG003 仍 PASS、RG005–RG007 状态/失败集不变；④ gate 不得出现新的 hard failure 名称；⑤ 若发现"本应 answer 却被收口为 refuse"属口径伪装 → 退回返工。
+- 前端 5 行最小改动（仅 live 零候选分叉）接受；全量文案统一仍归 T106。
