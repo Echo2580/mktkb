@@ -1,0 +1,59 @@
+T008a 报告导出、字节自检与测试回归
+====================================
+一、报告链路（真实 run + %TEMP% 未审批 baseline）
+-----------------------------------------------
+真实 baseline 未建立；为验证 report 导出，只在 %TEMP% 用 save_baseline 为真实 p0-b0 建立
+**未审批** baseline（不是审批、不写仓库、不复制旧 baseline）：
+  baseline_id = c0ce2856938f ; run_id = b0-local-20261105T090359232489Z-6e3eb84c ; approved=False
+  %TEMP%\t008a\baselines\c0ce2856938f\baseline.json sha256
+  17debe4d4523c5c1479f40a4314677dac74712807261be4b0b3d49d261a87931（1024 B）
+
+diff（仓库默认配置 -> 当前门禁 exit 3）：
+  ... diff --run var\eval\runs\p0-b0 --baseline c0ce2856938f \
+      --root %TEMP%\t008a\baselines --config docs\evaluation\gate_v0_1.json --out %TEMP%\t008a\report-diff
+  -> exit=3 ; release_allowed=False ; blocked=current_gate_exit_3 ; gate_exit=3
+  -> 调用 require_release_baseline 后打印"放行阻断: ... current_gate_exit_3 ..."（不静默放行）
+  -> diff.json   sha256 e3171759d269c5ff82e21a70334a30fe6dc0f020051149ddd4066d06e85f9247（24944 B）
+     report.md   sha256 07091904182dfe68a456bdbc0704c2e6e05d00591454fcadb052d0551677eb66（16106 B）
+     report.html sha256 0341a79be1847df654ee094bb4ee9c753cb8fb317ed8b8b174632f95213a0204（23292 B）
+
+export（只写报告）：
+  ... export --run ... --baseline c0ce2856938f --root %TEMP%\t008a\baselines \
+      --config docs\evaluation\gate_v0_1.json --out %TEMP%\t008a\report-export
+  -> exit=0
+  -> report.md / report.html 与 diff 产物逐字节相等（Base64 比较 True/True），
+     均以 UTF-8 无 BOM 开头（EF BB BF 检查 False/False），未生成 diff.json。
+
+二、报告诚实性自检（report.md 原文）
+------------------------------------
+  L5  - exit_code: 3（不可判定）
+  L64 - 状态: unknown
+  L65 - 配置状态: unapproved
+  L66 - 说明: 阈值未审批（thresholds_unapproved，config_status=unapproved，T009 人工门）：unknown 不是通过，报告不据此放行
+  L84 | p95_latency_ms | runtime | all | 15.0000 | 32 | unknown | thresholds_unapproved |
+  L85 | cost_per_case_cny | runtime | all | unknown | 0 | unknown | thresholds_unapproved |
+  L120 - 放行资格: 否（current_gate_exit_3）
+  L147 | cost_per_case_cny | all | unknown | unknown | unknown | n/a（runtime） | 0/0 | unknown（baseline_zero_sample+current_zero_sample）|
+  L186 - unknown 口径: cost_per_case_cny 零样本分组...零样本一律 unknown，不补 0
+  L187 - unknown 口径: p95_latency_ms 无 SLA...只展示观测值与差值，质量/门禁状态 unknown，不判定通过
+  -> 未见"质量通过"；exit 3 / thresholds_unapproved / cost·p95 unknown 均为 render_* 原样输出。
+
+三、CLI 实现与测试
+------------------
+新增：
+  backend/src/mktkb/evaluation/cli.py（515 行；argparse 子命令 + 退出码透传 + fail closed）
+  tools/rag_eval.py（24 行；薄包装）
+  backend/tests/evaluation/test_cli.py（812 行；35 项）
+关键位置：
+  cli.py:201 gate 现场 evaluate_gate(quality=True) + gate.json
+  cli.py:244 baseline approve 现场重算，--gate 只审计
+  cli.py:311 diff 上下文；cli.py:352 diff 必传 gate + require_release_baseline
+  cli.py:374 export 只写 render_* 返回值
+  cli.py:491 main 捕获 argparse/域错误，不抛栈
+
+测试：
+  pytest backend/tests/evaluation/test_cli.py -> 35 passed, 1 warning in 0.38s
+  pytest backend/tests/evaluation            -> 313 passed, 1 warning in 9.70s
+  pytest backend/tests                       -> 1586 passed, 1 warning in 341.83s (0:05:41)
+  0 failed / 0 error；T007 基线 1551 + 35 = 1586；无新增依赖、未读 .env、零真实模型/OCR/
+  embedding/rerank 调用。

@@ -1,0 +1,59 @@
+T008a 敏感注入 exit 1 与 baseline 审批/缺失 baseline 纪律
+=========================================================
+一、敏感注入（%TEMP% run 副本；不改 fixtures）
+--------------------------------------------
+构造（%TEMP%\t008a\make-sensitive-run.py）：
+  - 复制 var/eval/runs/p0-b0 -> %TEMP%\t008a\sensitive-run（含 cases.jsonl / run_manifest.json /
+    summary.json / traces.sqlite3）；
+  - 复制 fixtures/evaluation/b0.jsonl -> %TEMP%\t008a\sensitive-dataset\b0.jsonl；
+  - 取 run 首行 outcome.text（Q01 回答全文）写入该 case 的 forbidden_values，并同步
+    run_manifest.dataset_path 指向临时数据集；
+  - temp dataset sha256 76a61b366bc09996f24a0a3f226cd64b06f98efb4cda807a67958f32815f4ca8（29022 B）。
+命令：
+  .\.venv\Scripts\python.exe -B tools\rag_eval.py gate --run %TEMP%\t008a\sensitive-run \
+      --config docs\evaluation\gate_v0_1.json
+结果：
+  gate exit_code=1 scored=32/32 hard_failures=['security_leak'] quality=unknown ; exit=1
+  failures=[{'gate_id':'security_leak','case_id':'Q01','check_id':'forbidden_value'}]
+  gate.json sha256 d86007a1a0b8a6f81d9492935f7154901673aa2cac1ed26dfca22b14d8c0ddac
+  -> 满足 §5.4：exit 1 且 hard_failures 含 security_leak；未改 fixtures。
+
+二、baseline approve 缺参数 / 未审批阈值必须拒绝
+-----------------------------------------------
+1) 缺 --gate：
+   ... baseline approve --run var\eval\runs\p0-b0 --approver lead --reason T008a --root %TEMP%\t008a\baselines
+   -> argparse: the following arguments are required: --gate ; exit=2
+2) 缺 --approver：
+   -> the following arguments are required: --approver ; exit=2
+3) 缺 --reason：
+   -> the following arguments are required: --reason ; exit=2
+4) 用"声明 exit_code=0"的 gate JSON 申请审批（现场重算仍 exit=3）：
+   claimed=%TEMP%\t008a\claimed-gate-exit0.json（sha256 14b5c02f36033008814944a132d5b4bb3d223a13e72cf27dde625153819b96d3，
+   该文件是上一轮 %TEMP% 已审批演示配置生成的 gate.json 副本，exit_code=0）
+   ... baseline approve --run var\eval\runs\p0-b0 --gate %TEMP%\...\claimed-gate-exit0.json \
+       --approver lead --reason "T008a 演示" --root %TEMP%\t008a\baselines
+   -> 现场重算 gate exit_code=3（--gate 声明 exit_code=0；仅审计，不作为审批依据）
+   -> baseline approve 拒绝: 门禁未通过（exit_code=3：不可判定：... 阈值未审批（T009 人工门）...）
+   -> exit=3
+   -> Get-ChildItem %TEMP%\t008a\baselines -Recurse -Filter approval.json | Measure-Object -> Count=0
+5) baseline list：
+   ... baseline list --root %TEMP%\t008a\baselines -> "baseline 目录不存在（0 条）" ; exit=0
+
+三、真实 baseline 缺失：diff fail closed，不自动建/不复制
+--------------------------------------------------------
+1) 无 baseline id（按当前 run 身份推导 c0ce2856938f）：
+   ... diff --run var\eval\runs\p0-b0 --config docs\evaluation\gate_v0_1.json
+   -> exit=3 ; stderr: ERROR: baseline 未建立，待 T009（c0ce2856938f）：baseline 不存在: ...\var\eval\baselines\c0ce2856938f\baseline.json
+   -> Test-Path var\eval\baselines -> False（CLI 未创建目录/未 save_baseline）
+2) 显式 --baseline：
+   ... diff --run ... --baseline c0ce2856938f --root var\eval\baselines
+   -> 同上 exit=3；未调用 diff_runs（测试断言 diff_calls 为空）。
+3) CLI 模块不导入 save_baseline：
+   test_cli.py::test_diff_missing_baseline_fails_closed_without_creating_one
+   断言 not hasattr(mktkb.evaluation.cli, "save_baseline")，通过。
+   -> 无自动建立、无复制/伪造、无 baseline copy/rename 命令。
+
+四、真实审批仍待 T009
+--------------------
+仓库 docs/evaluation/gate_v0_1.json status=unapproved；T008a 全流程只证明"可拒绝"，
+未建立真实 baseline；T009 人工门审批阈值后才可用同一 approve_baseline 路径建立。
