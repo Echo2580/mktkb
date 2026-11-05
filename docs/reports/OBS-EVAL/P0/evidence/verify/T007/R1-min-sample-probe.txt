@@ -1,0 +1,50 @@
+== T007 R1 independent re-verification: min_sample / zero-sample / p95 direction ==
+date: 2026-11-05 (Asia/Shanghai)
+target: p0/obs-eval @ 08536ed ("p0/T007 baseline diff report R1"; parent 7e9ee34; first object 6447b85)
+env: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; .\.venv\Scripts\python.exe -B (3.12.7)
+zero real calls: the real-chain artifacts are reloaded read-only from
+%TEMP%\t007-baseline-report (provider_mode=offline); no model / OCR / embedding / rerank;
+no .env read; probe outputs only under %TEMP%\t007-verify-r1; no repo writes except review/evidence.
+
+[A. default config re-render on the real chain (independent re-run)]
+command: .\.venv\Scripts\python.exe -B %TEMP%\t007-verify-r1\probe_r1.py
+- exit=3 quality=unknown hard_failures=[] unknowns=42 (thresholds_unapproved)
+- min_sample hint:
+  最小非零 stratum 分母（按分组）：retrieval=8（Recall@10/text）、answer=8（value_hit/text）、
+  refusal=1（refusal_precision/all）、runtime=8（p95_latency_ms/text）；
+  零样本指标（分母 0）不参与 min_sample 提示：cost_per_case_cny、refusal_recall；
+  单值配置的 min_sample 不得超过对应分组的最小非零分母，报告只提示、不自动改写配置
+- no 0 is used as a min_sample value (regex "= 0（" absent; old "最小 stratum 分母 = 0" absent)
+- zero-sample rows carry no fabricated value:
+  cost_per_case_cny all/exact/text -> denominator=0, observed=None, status=unknown
+  refusal_recall    all/exact/text -> denominator=0, observed=None, status=pass
+  (refusal_recall status=pass is pre-existing gate.py behavior, unchanged since 6447b85;
+   the hint itself lists it as zero-sample / excluded)
+- md LF bytes=16111 lines=191; html LF bytes=23303
+- byte-identical to the delivered re-render (%TEMP%\t007-baseline-report\report-default.md/.html):
+  md   sha256 B4C69686B3BE88A1C51CE4EB1A376B18C87A6BA4D050F8B73432D95129B5D0D8
+  html sha256 D162D6307B55D41E8374B6A75DBFF0A61A71AD42A88FC04CAF9EB2A64FFE5750
+- p95 note: "质量/门禁状态 unknown ... Diff 表该行的 regressed/improved 只是数值方向"
+- probe result: 15/15 PASS (0 failed)
+
+[B. synthetic independent cases (not the delivered tests)]
+B1 one all-zero metric + one metric with multiple strata:
+   retrieval: all=30, text=6, exact=0  -> retrieval=6（Recall@10/text）
+   answer:    all=2,  text=5          -> answer=2（value_hit/all）
+   refusal_recall all/text=0; p95_latency_ms/all=0 -> only in the zero-sample exclusion note
+B2 only-zero metrics -> "全部指标为零样本（分母 0）：不给 min_sample 数值提示，零样本一律 unknown、不当 0"
+B3 group minimum across metrics in the same group -> retrieval=4（MRR@10/all），not 9
+No branch emits a 0 as a suggested min_sample value.
+
+[C. fixture report re-render (same real artifacts, approved fixture config)]
+command: load_gate_config(%TEMP%\t007-baseline-report\gate-fixture-approved.json); evaluate_gate(mod, quality=True)
+- exit=2 quality=fail; md LF bytes=10141 lines=139
+- hint: retrieval=8、answer=8、refusal=8（false_refusal_rate/text）、runtime=8
+- byte-identical to delivered report-r1-fixture.md
+  sha256 6FBD419769978A838E2DC5BA5DBA3A12AE3A7C739B4D4CCFABE71C470B800C1A
+
+[D. wording note]
+The hint still contains the literal phrase "（分母 0）" as the rationale for excluding
+zero-sample metrics. It is not a suggested min_sample value: the numeric minima are 8/8/1/8.
+If "不含 0" is interpreted as a literal character ban, this wording would need changing;
+functionally the zero-sample metrics are excluded and never produce a 0 hint.
