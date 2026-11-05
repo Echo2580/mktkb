@@ -24,7 +24,7 @@
 | T008b | P0 七条验收测试 + p0-report | **G4 通过**（独立验收 PASS：`review.md`；5 LOW 非阻断；dev commit `2f7b174`；全量 1593 passed） | 0 | 否 | T008a ✅ |
 | T009 | 独立验收与 P0 收口 | **G6 已收口**（主人 2026-11-05 决策「通过」；总验收「有保留 PASS」`docs/reports/OBS-EVAL/P0/review.md`；全量 1593 passed） | 0 | 否 | T008b ✅ |
 | T100 | P1 前置：基线测试耦合修复（硬编码旧真实配置） | **G6 已收口**（dev commit `b35ae72`；独立验收 PASS `review.md`；全量 1593 passed；主人 2026-11-05 批准新增） | 0 | 否 | PRE-2 ✅ |
-| T107 | regression suite 与数据集契约扩展 | G1 已派单（开发中） | 0 | 否 | T100 ✅ |
+| T107 | regression suite 与数据集契约扩展 | **G6 已收口**（dev commit `36fe095`；独立验收 PASS `review.md`；regression 7/7 RED；全量 run2 `1603 passed`，run1 为既有 flake `test_lifecycle[v05]`、隔离 3/3 过） | 0 | 否 | T100 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
@@ -39,7 +39,7 @@
 
 > 节奏（主人 2026-11-05 定）：**T111 pilot（10 题）跑完停一次**给主人过目再放全量；**零 live 包不提前开**；**PRE-2 落盘后先等主人发令开工**。`_scratch` 已按主人授权清理。
 > 子智能体模型（主人 2026-11-05 定）：开发/验收均 `wb / cn:deepseek-v4.1-flash`，**推理档统一 `max`**（开发/验收/T111/T900）；详见 kickoff §12；与项目 20 元账本无关。
-> P1 执行（2026-11-05 开工）：分支 `p1/fix-retrieval`（自 `main@083eaef`）；T100 已收口；T107 开发中；串行 `T107→T101→T102→T103→T104→T105→T106→T108→T109→T110→T111→T112→T113→T114→T900`；T111 pilot 后停一次给主人过目。
+> P1 执行（2026-11-05 开工）：分支 `p1/fix-retrieval`（自 `main@083eaef`）；T100、T107 已收口；T101 开发中；串行 `T107→T101→T102→T103→T104→T105→T106→T108→T109→T110→T111→T112→T113→T114→T900`；T111 pilot 后停一次给主人过目。
 
 > PM 只读核对（2026-11-05 21:0x）：账本累计 **15.0566296 / 20**（S2-DEV 已占 15.0266296 / 18.4，381 预留/381 结果，剩余 4.9433704）；holdout 完好；P1 脚手架未创建；P0 三项可选项仍未执行。**PRE-2/PRE-4 签署且分支基线确定前不派单。**
 
@@ -111,6 +111,8 @@
 37. **主人 G5 决策（2026-11-05 晚）：P0 通过**。T009 记为 G6 收口；`_index` 待审列已清空。主人用网页实测（离线+trace 启动）通过第 1 步问答（D01 来源正确、回答为离线抽取式），并确认同一套启动方式可用。**未执行（主人未下指令）**：阈值审批、真实 baseline 建立、设计 §7.2 回写、PR #1 合并——三项均为可选收尾，PR 保持 OPEN 等主人决定。
 38. **P1 开工前置（新窗口执行）**：`P1-PRE-2` 预算划转与 GO 改版（`P1-RETRIEVAL` 3.0 元，自 S2-DEV 划转，总上限仍 20；主人签 `budget.json` + `S2-LIVE-GO.json`）、`P1-PRE-3` P0 遗留复核（PM）、`P1-PRE-4` D-3 兼容授权（主人书面确认，T104/T106 需要）。PRE-2 未签前 T111 及任何 live 调用一律不得开工。（**2026-11-05 进展**：PRE-3 完成、PRE-4 已确认、参数全部确认、成品草稿就绪；仅剩两个文件落盘）
 39. **P1 开工门完成 + 新增 T100（2026-11-05 21:5x）**：PR #1 已合并 `083eaef`；PRE-2 经主人授权由 PM 写入并只读验签通过（budget sha `084ba9ac…`、GO sha `39070de5…`，旧 GO 备份 `S2-LIVE-GO-20261104.json`，GO 有效至 2026-11-30，账本零写入）；`_scratch` 已清理；主人定 T111 pilot 后停一次、零 live 包不提前开、落盘后先等发令开工。**新增待办**：`backend/tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan` 硬编码旧真实配置（S2-DEV 18.4），签名后 1 failed（定向实测：1 failed / 21 passed），建议新增前置小包 **T100** 修复（1 文件，保留测试意图）；全量 pytest 因空闲内存 1.01GB 暂未跑（§11D）。详见 kickoff §10/§11。
+40. **P1 新 flake（2026-11-05，T107 验收发现）**：全量 `backend/tests` run1 出现 `integration/test_lifecycle.py::test_concurrent_publish_and_global_revision_cas[v05]`（`:759`）失败；该文件自 `366046d`（v0.1 冻结）未改、不导入 `mktkb.evaluation`；隔离复跑 3 次均 `2 passed` → 既有并发时序 flake，非 P1 引入。P1 全量遇到按 §11A 隔离复跑 1 次并记录，不重跑整套、不据此返工。
+41. **T107 验收非阻断观察（2026-11-05）**：① RG003「给出所有内容」同时触发 `pagination_contract` 硬失败（report §4 未单列，证据 01 有说明）；② `corpus.py` badcase 装配校验由"集合相等"放宽为只查 missing（`only_codes` 固定，实际行为未变；后续包不得依赖该放宽）；③ T107 全量执行 2 次（超出 §11A 的 1 次，因 flake 复跑，已在证据披露）。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
