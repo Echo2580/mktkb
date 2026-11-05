@@ -1,0 +1,39 @@
+# T006a gate demo：T005 产物 -> evaluate_gate（只读；run 目录在 %TEMP%）
+command: $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"; .\.venv\Scripts\python.exe -B .claude\handoffs\_scratch\T006a\gate_demo.py <out>
+python: 3.12.7
+repo_root: D:\GPT项目\市场部AI知识库
+work_dir: C:\Users\dell1712\AppData\Local\Temp\t006a-gate-demo-r7e_7qc2
+gate_config: {"path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\gate_v0_1.json", "gate_version": "mktkb.gate.v0.1", "status": "unapproved", "min_sample": {"b0": 32, "badcase": 10}, "config_hash": "e51c8dab41c61471a23bfb1f32c6645bba4ef3e22cccb0288f69f0553d8fc7e2", "metrics": 15, "sensitive_patterns": 0}
+
+b0 local exit=0 rows=40 scored=32 min_sample=32 status_counts={"fail": 3, "pass": 29, "skipped_requires_ocr": 8}
+  gate_status={"security_leak": "not_applicable", "cross_entity": "not_applicable", "stale_bypass": "not_applicable", "conflict_not_rejected": "not_applicable", "exact_value_contract": "pass", "pagination_contract": "not_applicable", "citation_required": "pass", "trace_integrity": "pass"}
+  hard_failures=[] unknowns=[] not_applicable=[{"gate_id": "security_leak", "applicable_cases": 0}, {"gate_id": "cross_entity", "applicable_cases": 0}, {"gate_id": "stale_bypass", "applicable_cases": 0}, {"gate_id": "conflict_not_rejected", "applicable_cases": 0}, {"gate_id": "pagination_contract", "applicable_cases": 0}]
+  failures=[]
+  warnings=["security_leak: not_applicable（数据集没有 forbidden_sources/forbidden_values 的 case；跨用户来源与敏感模式无 case 级字段，未覆盖）", "cross_entity: not_applicable（v0.1 数据集没有 entity key / 请求 filters 字段，没有可判定的 cross_entity case；只把上游 hard_filter_violation=cross_entity 当违规证据）", "stale_bypass: not_applicable（v0.1 数据集没有 include_future / as_of / effective_from / effective_to 字段，没有可判定的 stale_bypass case；只把上游 hard_filter_violation=stale 当违规证据）", "conflict_not_rejected: not_applicable（数据集没有 expected_kind=conflict 的 case）", "pagination_contract: not_applicable（数据集 expected_pagination 全为 null 且无分页输出）"]
+
+b0 replay exit=0 rows=40 scored=32 min_sample=32 status_counts={"fail": 3, "pass": 29, "skipped_requires_ocr": 8}
+  gate_status={"security_leak": "not_applicable", "cross_entity": "not_applicable", "stale_bypass": "not_applicable", "conflict_not_rejected": "not_applicable", "exact_value_contract": "pass", "pagination_contract": "not_applicable", "citation_required": "pass", "trace_integrity": "pass"}
+  hard_failures=[] unknowns=[] not_applicable=[{"gate_id": "security_leak", "applicable_cases": 0}, {"gate_id": "cross_entity", "applicable_cases": 0}, {"gate_id": "stale_bypass", "applicable_cases": 0}, {"gate_id": "conflict_not_rejected", "applicable_cases": 0}, {"gate_id": "pagination_contract", "applicable_cases": 0}]
+  failures=[]
+  warnings=["security_leak: not_applicable（数据集没有 forbidden_sources/forbidden_values 的 case；跨用户来源与敏感模式无 case 级字段，未覆盖）", "cross_entity: not_applicable（v0.1 数据集没有 entity key / 请求 filters 字段，没有可判定的 cross_entity case；只把上游 hard_filter_violation=cross_entity 当违规证据）", "stale_bypass: not_applicable（v0.1 数据集没有 include_future / as_of / effective_from / effective_to 字段，没有可判定的 stale_bypass case；只把上游 hard_filter_violation=stale 当违规证据）", "conflict_not_rejected: not_applicable（数据集没有 expected_kind=conflict 的 case）", "pagination_contract: not_applicable（数据集 expected_pagination 全为 null 且无分页输出）"]
+
+badcase local exit=0 rows=13 scored=13 min_sample=10 status_counts={"fail": 4, "pass": 9}
+  gate_status={"security_leak": "not_applicable", "cross_entity": "not_applicable", "stale_bypass": "not_applicable", "conflict_not_rejected": "not_applicable", "exact_value_contract": "not_applicable", "pagination_contract": "pass", "citation_required": "pass", "trace_integrity": "pass"}
+  hard_failures=[] unknowns=[] not_applicable=[{"gate_id": "security_leak", "applicable_cases": 0}, {"gate_id": "cross_entity", "applicable_cases": 0}, {"gate_id": "stale_bypass", "applicable_cases": 0}, {"gate_id": "conflict_not_rejected", "applicable_cases": 0}, {"gate_id": "exact_value_contract", "applicable_cases": 0}]
+  failures=[]
+  warnings=["数据集存在整篇级 gold（doc_code-only，范围型引用）：['N09']；不静默扩写，按范围集合口径记录", "分页：['N05'] 只校验 total/returned/has_more/next_page 契约自洽；expected_pagination 为 null 或与输出不对齐，不覆盖期望值口径", "security_leak: not_applicable（数据集没有 forbidden_sources/forbidden_values 的 case；跨用户来源与敏感模式无 case 级字段，未覆盖）", "cross_entity: not_applicable（v0.1 数据集没有 entity key / 请求 filters 字段，没有可判定的 cross_entity case；只把上游 hard_filter_violation=cross_entity 当违规证据）", "stale_bypass: not_applicable（v0.1 数据集没有 include_future / as_of / effective_from / effective_to 字段，没有可判定的 stale_bypass case；只把上游 hard_filter_violation=stale 当违规证据）", "conflict_not_rejected: not_applicable（数据集没有 expected_kind=conflict 的 case）", "exact_value_contract: not_applicable（数据集没有 stratum=exact 且带 expected_values 的 case）"]
+
+badcase replay exit=0 rows=13 scored=13 min_sample=10 status_counts={"fail": 4, "pass": 9}
+  gate_status={"security_leak": "not_applicable", "cross_entity": "not_applicable", "stale_bypass": "not_applicable", "conflict_not_rejected": "not_applicable", "exact_value_contract": "not_applicable", "pagination_contract": "pass", "citation_required": "pass", "trace_integrity": "pass"}
+  hard_failures=[] unknowns=[] not_applicable=[{"gate_id": "security_leak", "applicable_cases": 0}, {"gate_id": "cross_entity", "applicable_cases": 0}, {"gate_id": "stale_bypass", "applicable_cases": 0}, {"gate_id": "conflict_not_rejected", "applicable_cases": 0}, {"gate_id": "exact_value_contract", "applicable_cases": 0}]
+  failures=[]
+  warnings=["数据集存在整篇级 gold（doc_code-only，范围型引用）：['N09']；不静默扩写，按范围集合口径记录", "分页：['N05'] 只校验 total/returned/has_more/next_page 契约自洽；expected_pagination 为 null 或与输出不对齐，不覆盖期望值口径", "security_leak: not_applicable（数据集没有 forbidden_sources/forbidden_values 的 case；跨用户来源与敏感模式无 case 级字段，未覆盖）", "cross_entity: not_applicable（v0.1 数据集没有 entity key / 请求 filters 字段，没有可判定的 cross_entity case；只把上游 hard_filter_violation=cross_entity 当违规证据）", "stale_bypass: not_applicable（v0.1 数据集没有 include_future / as_of / effective_from / effective_to 字段，没有可判定的 stale_bypass case；只把上游 hard_filter_violation=stale 当违规证据）", "conflict_not_rejected: not_applicable（数据集没有 expected_kind=conflict 的 case）", "exact_value_contract: not_applicable（数据集没有 stratum=exact 且带 expected_values 的 case）"]
+
+== exit code matrix ==
+b0       local  exit=0 scored=32/32 hard=[] unknowns=0 na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'pagination_contract']
+b0       replay exit=0 scored=32/32 hard=[] unknowns=0 na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'pagination_contract']
+badcase  local  exit=0 scored=13/10 hard=[] unknowns=0 na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'exact_value_contract']
+badcase  replay exit=0 scored=13/10 hard=[] unknowns=0 na=['security_leak', 'cross_entity', 'stale_bypass', 'conflict_not_rejected', 'exact_value_contract']
+
+说明：4 个 run 均 exit 0（干净集）；not_applicable 是 PM 裁决口径
+（数据集没有该类 case），不是默认通过。

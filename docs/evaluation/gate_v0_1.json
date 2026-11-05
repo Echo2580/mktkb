@@ -1,0 +1,158 @@
+{
+  "schema_version": "mktkb.gate.config.v0.1",
+  "gate_version": "mktkb.gate.v0.1",
+  "status": "unapproved",
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "min_sample": {
+    "b0": 32,
+    "badcase": 10
+  },
+  "sensitive_patterns": [],
+  "metrics": [
+    {
+      "name": "Recall@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "MRR@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "nDCG@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "hard_filter_violation_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "empty_recall_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "value_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "source_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "kind_correct",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_precision",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_recall",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_recall",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "false_refusal_rate",
+      "group": "refusal",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_precision",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "p95_latency_ms",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "cost_per_case_cny",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    }
+  ],
+  "notes": "T006a 初版：只含 8 项硬门禁 ID、min_sample（分母为 scored_count，排除 OCR 与 error 行）、指标方向与空阈值占位。绝对阈值 / max_regression_pp / 校准提案 / 质量 waiver 属 T006b，审批由主人在人工门完成；本文件不含任何绝对阈值，质量结果不得据此冒充通过。"
+}
