@@ -24,6 +24,7 @@
 
 ## 4. 交付物（只准写这些路径）
 1. `backend/src/mktkb/conversations/intent.py`（主改）；仅在确有必要时改 `backend/src/mktkb/rag/query.py` 的词表一致性（**不得改取数/检索逻辑**）。
+   - **PM 裁定（2026-11-05 23:1x，开发现场提出，允许 A）**：允许在 `backend/src/mktkb/rag/answer.py` 的 `_document_fallback` 增加**极窄**分支——仅当 `is_regulation_question(...)` 且 offline 抽取路径命中时，返回命中子句所在的**完整段落**（而非单句）；非法规题/默认路径**零改动**。理由：RG001/E120 的三值（2022-07-01 + 两项废止规定）在单句抽取下无法同时命中，改弱断言或降级 RG001 均违反"不放宽"纪律。附加要求：① 新分支有单元测试（法规题段落返回 + 非法规题仍单句，逐字节不变）；② report §4 单列该偏离（文件/函数/diff 行数）；③ 附 b0/badcase 修复前后 local run 的 hard_failures 与 case 级 pass/fail 对照，证明零新增硬失败。
 2. `backend/tests/` 下新增/最小修改本包测试（建议 `backend/tests/integration/test_p1_t101_vocab_context.py` 或就近）——用集成夹具覆盖 ERR-03 影响面 8 题与"采购价格仍 not_found"。
 3. `fixtures/evaluation/regression.jsonl`：按需**追加** T101 相关种子（如 E118/E087/E095 各 1 条，`source_err_id=ERR-20261104-03`、`suite=regression`、`split=dev`、`label_version=regression-p1-2026-11-05`；RG001 保持不动或按需把 `expected_kind` 对齐实现口径，必须在 report 说明）。
 4. `docs/reports/OBS-EVAL/P1/evidence/T101/`（≤4 份证据）
