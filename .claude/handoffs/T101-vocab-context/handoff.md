@@ -26,7 +26,7 @@
 1. `backend/src/mktkb/conversations/intent.py`（主改）；仅在确有必要时改 `backend/src/mktkb/rag/query.py` 的词表一致性（**不得改取数/检索逻辑**）。
    - **PM 裁定（2026-11-05 23:1x，开发现场提出，允许 A）**：允许在 `backend/src/mktkb/rag/answer.py` 的 `_document_fallback` 增加**极窄**分支——仅当 `is_regulation_question(...)` 且 offline 抽取路径命中时，返回命中子句所在的**完整段落**（而非单句）；非法规题/默认路径**零改动**。理由：RG001/E120 的三值（2022-07-01 + 两项废止规定）在单句抽取下无法同时命中，改弱断言或降级 RG001 均违反"不放宽"纪律。附加要求：① 新分支有单元测试（法规题段落返回 + 非法规题仍单句，逐字节不变）；② report §4 单列该偏离（文件/函数/diff 行数）；③ 附 b0/badcase 修复前后 local run 的 hard_failures 与 case 级 pass/fail 对照，证明零新增硬失败。
 2. `backend/tests/` 下新增/最小修改本包测试（建议 `backend/tests/integration/test_p1_t101_vocab_context.py` 或就近）——用集成夹具覆盖 ERR-03 影响面 8 题与"采购价格仍 not_found"。
-3. `fixtures/evaluation/regression.jsonl`：按需**追加** T101 相关种子（如 E118/E087/E095 各 1 条，`source_err_id=ERR-20261104-03`、`suite=regression`、`split=dev`、`label_version=regression-p1-2026-11-05`；RG001 保持不动或按需把 `expected_kind` 对齐实现口径，必须在 report 说明）。
+3. `fixtures/evaluation/regression.jsonl`：按需**追加** T101 相关种子（如 E118/E087/E095 各 1 条，`source_err_id=ERR-20261104-03`、`suite=regression`、`split=dev`、`label_version=regression-p1-2026-11-05`）。**RG001 必须由 RED 转 PASS**：PM 裁定允许把 RG001 的 `reference_answer` 补全为含发布日 2000-10-31 / 2001-11-07 / 施行日 2022-07-01 的完整人工参考答案（**禁止**改 `expected_values`/`expected_sources`/`forbidden_*`/`expected_kind`）；RG002–RG007 一律不动。详见 §9。
 4. `docs/reports/OBS-EVAL/P1/evidence/T101/`（≤4 份证据）
 5. `.claude/handoffs/T101-vocab-context/report.md`（五段，≤80 行）
 6. 1 个 commit（见 §7）
@@ -51,3 +51,15 @@
 
 ## 8. 报告格式（五段，≤80 行）
 1) 完成内容；2) 验收标准自证（每条 ≤2 行，带命令/`文件:行`）；3) 实际运行结果（本包 / integration 目录 / 全量 + b0/badcase/regression 修复前后对照 + commit sha + stat）；4) 偏离或未做；5) 风险（一句话）。
+
+## 9. PM 裁定记录（2026-11-05 23:2x，开发方第二次现场提出）
+
+**裁定：A（授权两处最小改动）**。背景：只改 intent/query 时 RG001 在 local 下不可达——① RG001 `reference_answer` 漏了原文发布日（2000-10-31 / 2001-11-07），scorer 数值白名单由 reference/expected/question 派生，逐字引用原文会多出 31/11 被判"编造"；② offline `_document_fallback` 单句抽取无法同时命中 3 个 `expected_values`。
+
+授权范围与条件：
+1. `rag/answer.py` `_document_fallback`：沿用 §4 第一次裁定的窄分支（仅 `is_regulation_question` + offline 命中时返回命中子句所在完整段落；非法规题/默认路径逐字节不变；需单测）。
+2. `fixtures/evaluation/regression.jsonl` RG001：允许把 `reference_answer` **补全**为含发布日 2000-10-31 / 2001-11-07、施行日 2022-07-01 与两项废止规定的完整人工参考答案；**禁止**改 `expected_values`/`expected_sources`/`forbidden_*`/`expected_kind`，**禁止**动 RG002–RG007。报告 §4 单列"数据补全（非放宽）"并写依据（P0 设计：`reference_answer` 是人工参考答案；scorer 数值白名单派生自它）。
+3. 证明链：① RG001 local **PASS**（value_hit + source_hit 全中）；② b0/badcase 修复前后 `hard_failures` 集合与 case 级 pass/fail 一致（零新增硬失败，否则回滚 answer.py）；③ 证据给出"逐字引用 p39 完整两句 → `value_no_fabricated` 通过"的实测；④ regression 其余 6 条仍 RED。
+4. 收口：本包只允许改 `conversations/intent.py`、必要的 `rag/query.py` 词表、`rag/answer.py` 窄分支、本包测试、`fixtures/evaluation/regression.jsonl`（仅 RG001 `reference_answer` + 可选 T101 追加种子）；1 个 commit（未 push 可 amend，不得制造第二个同义 commit）。
+
+**拒绝**：B（RG001 记"不可达"）与 C（改 `expected_values`）——前者使验收标准 3 落空，后者属放宽断言。
