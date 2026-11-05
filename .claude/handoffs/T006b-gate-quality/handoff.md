@@ -37,7 +37,7 @@
 ## 5. 验收标准（逐条可判定）
 
 1. **质量指标按 stratum + 总体**：读 `summary.json` 的指标，按 `stratum` 与 `all` 各自评估；不产生综合分；指标清单至少覆盖设计 §8.2 的检索/答案/拒答/运行四组（缺失指标显式 `unknown`，不默认 0）。
-2. **阈值语义完整**：`absolute_min`/`absolute_max` 按 `direction` 判定；有同版本 baseline 时同时检查 `max_regression_pp`（只在 `pipeline_version` 相同时启用；跨版本必须拒绝回退判定并标 unknown）；`min_sample` 用 `scored_count`（b0=32、badcase=10），样本不足 → `unknown` → exit 3。
+2. **阈值语义完整**：`absolute_min`/`absolute_max` 按 `direction` 判定；有同版本 baseline 时同时检查 `max_regression_pp`（只在 `pipeline_version` 相同时启用；跨版本必须拒绝回退判定并标 unknown）；**质量层的 `min_sample` 按指标各自分母**——检索类用「有 gold 的 case」（badcase=10、b0=32 中非 OCR 且非空 gold），拒答类用「适用样本」，答案类用「scored 且非 error」；b0 一律排除 8 道 OCR。**不得**复用 T006a 的 `hard_gate_min_sample`（那是 `evaluated_count`：b0=32、badcase=13，口径不同）。
 3. **校准提案**：`calibrate_gate(run, config)` 产出 `GateProposal`（每个指标/stratum 的观测值、建议阈值、`gate_config_hash`、`run_id`），写成 `gate_proposal.json`；**不得自动改写** `gate_v0_1.json`；未审批时质量评估返回 `unknown`（不得返回 0 冒充通过），有测试证明"未审批 → unknown → exit 3"。
 4. **退出码 2 只由质量回退触发**：硬门禁失败仍是 1（优先级高于 2）；样本不足/未审批仍是 3；质量未达绝对阈值或回退超限 → 2；测试证明 1 不被 2 覆盖。
 5. **waiver 规则**：质量门禁可豁免，必须带 `reason` + `approver`，豁免记录进入 `GateResult.warnings` 与报告；缺任一字段 → 拒绝（报错或保持失败）；**对硬门禁申请豁免必须被拒绝**（有测试）；豁免不改变已发生的硬失败。
@@ -59,7 +59,8 @@ git show --stat --oneline HEAD
 ## 7. 已知边界（必须遵守）
 
 - **阈值审批是人工门**（T009）：本包只产出提案，不替主人拍板；`gate_v0_1.json` 的 `status` 保持 `unapproved`。
-- 质量指标分母只算 `scored_count`（排除 OCR 与 error 行）；`value_no_fabricated` 仅可作诊断字段，**不得**参与质量判定或退出码（T004b MEDIUM-1）。
+- 质量指标分母只算可评分样本（排除 OCR 与 error 行），且**按指标用各自分母**（检索=有 gold；拒答=适用样本）；`value_no_fabricated` 仅可作诊断字段，**不得**参与质量判定或退出码（T004b MEDIUM-1）。
+- **不得把 T006a 的 `exit=0` 或 `not_applicable` 当质量通过**（T006a 验收 FAIL→R1 已修，但语义上硬门禁通过 ≠ 质量达标）；T006a 的 `baseline` 参数只记 warning、`max_regression_pp` 全 null，T006b 必须自建 baseline 读取/比较，不复用硬门禁 exit 0。
 - 拒答相关质量指标排除 `error`/`service_error`/`knowledge_changed`（T004b MEDIUM-2）。
 - 跨版本 baseline 只能分析、不可放行（设计 §8.3）；`max_regression_pp` 不得跨 `pipeline_version` 生效。
 - 既有 flake `test_g08_short_budget_cancels_inflight_model_call` 与本包无关；命中则隔离复跑并记录。
