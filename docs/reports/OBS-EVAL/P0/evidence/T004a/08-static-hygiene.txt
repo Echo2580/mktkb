@@ -1,0 +1,38 @@
+## git status --porcelain (deliverable paths)
+?? backend/src/mktkb/evaluation/__init__.py
+?? backend/src/mktkb/evaluation/dataset.py
+?? backend/src/mktkb/evaluation/gold.py
+?? backend/tests/evaluation/__init__.py
+?? backend/tests/evaluation/conftest.py
+?? backend/tests/evaluation/test_dataset.py
+?? backend/tests/evaluation/test_gold.py
+?? fixtures/evaluation/
+?? tools/build_eval_dataset.py
+
+## git status --porcelain (frozen / read-only paths; must be empty)
+(empty)
+
+## git diff --stat (tracked modifications; must be empty for this package)
+(empty)
+
+## forbidden pattern scan in new sources (must find nothing)
+hits=0
+
+## compile() every new python file
+ok backend/src/mktkb/evaluation/__init__.py
+ok backend/src/mktkb/evaluation/dataset.py
+ok backend/src/mktkb/evaluation/gold.py
+ok tools/build_eval_dataset.py
+ok backend/tests/evaluation/__init__.py
+ok backend/tests/evaluation/conftest.py
+ok backend/tests/evaluation/test_dataset.py
+ok backend/tests/evaluation/test_gold.py
+
+## fixtures
+b0: bytes=28903 lines=40 sha256=bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f crlf=False uuid=False
+b0: fields=['case_id', 'suite', 'split', 'stratum', 'business_date', 'question', 'turns', 'expected_kind', 'expected_values', 'expected_sources', 'relevant_units', 'reference_answer', 'should_refuse', 'refusal_reason', 'forbidden_values', 'forbidden_sources', 'expected_pagination', 'requires_ocr', 'labeler', 'label_version', 'notes']
+badcase: bytes=9385 lines=13 sha256=e5f0662af3f2bf51ac9354cf467ab55be9bd3b97444ae2ba7d359d3d907b371a crlf=False uuid=False
+badcase: fields=['case_id', 'suite', 'split', 'stratum', 'business_date', 'question', 'turns', 'expected_kind', 'expected_values', 'expected_sources', 'relevant_units', 'reference_answer', 'should_refuse', 'refusal_reason', 'forbidden_values', 'forbidden_sources', 'expected_pagination', 'requires_ocr', 'labeler', 'label_version', 'notes']
+
+## no real provider credentials/config referenced
+new modules import only: stdlib + mktkb.observability.contracts + sqlalchemy + mktkb.rag models
