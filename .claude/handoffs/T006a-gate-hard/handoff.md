@@ -40,6 +40,8 @@
 2. **trace_integrity 按 T003d 契约实现**：`require_trace=True` 时缺 Trace → fail；必需 Span 用 **`required_spans(path, outcome, reason=trace.reason)`**（含 §6.1.1/§6.1.2 的 reason-aware 行）；`status=replayed` 的记录**跳过** path/outcome 与 Span 完整性校验（只校验版本绑定与 JSON 结构）；`*_json` 字段非法 JSON → fail closed（不得抛异常崩溃、不得 fail-open）；`TRACE_SCHEMA_VERSION` 不一致 → fail。
 3. **不依赖内核拒绝 `mode=live`**：gate 自己检查 run manifest 的 `mode`；`mode=live` 且无显式授权（P0 恒为未授权）→ `exit_code=4`，且不因内核 `_coerce_mode` 接受 live 而放行。
 4. **退出码映射完整且互斥**：0 通过；1 任一硬门禁失败（优先于 3/4 之外的其它）；3 数据/配置/gold 解析失败/样本不足（`min_sample` 未达）；4 live 未授权或跳过；**2 在本包保留不使用**（有测试断言"质量未达标不会返回 2"或该码无触发路径）；豁免不存在——对硬门禁尝试豁免必须被拒绝（无 API 或显式报错）。
+   - **PM 裁决（2026-11-05，T005 验收后）**：硬门禁按 case 条件适用。**"数据集里没有该类 case" = `not_applicable`**（记 INFO/warnings，不影响退出码）；**"有该类 case 但字段缺失/无法判定" = `unknown` → 退出码 3**。不得把"本数据集没有 conflict 样本"直接判 3（否则 P0 永远无法 exit 0），也不得把"缺字段"当通过。
+   - `min_sample` 的分母必须用 **`scored_count`（排除 OCR 与 error 行）**：T005 实测 b0 `cases_in_denominator=40` 含 8 道 OCR，真实可评分为 **32**；badcase 为 **10**（另 3 条空 gold）。`gate_v0_1.json` 的 `min_sample` 取值必须让 b0/badcase 的正常 run 能通过（不得因 OCR 行被误判样本不足）。
 5. **PM 裁决的硬门禁口径（T004b 验收遗留）**：`value_no_fabricated` **不得**作为硬门禁输入（不得映射到 `exact_value_contract`/`security_leak`，可留作诊断字段但不参与判定）；`citation_required` **不得**仅凭 `source_hit` 通过（需 unit 级引用，或显式 `unknown`）；`record_code`-only gold 不得被当整篇命中（fail closed 或 unknown）；**`security_leak` 的 `forbidden_sources` 匹配必须在 unit 级可解析**——引用只带 `unit_ids` 而 forbidden 用 `unit_key` 时是"漏报"（T004b MEDIUM-4，`scorers.py:588-600`），gate 必须以解析后的 unit 映射比对，无法解析即 `unknown`（走退出码 3），不得默认通过。
 6. **测试与回归（提速策略 A）**：`pytest backend/tests/evaluation -q` 全绿；全量 `backend/tests` **只在提交前跑 1 次**，目标 = T005 基线（1377 + T005 新增）+ 本包新增、0 failed/0 error；不新增依赖；`gate_v0_1.json` 可被 `load_gate_config` 解析且不含绝对阈值。
 
@@ -61,6 +63,10 @@ git show --stat --oneline HEAD
 - **trace 是不可信输入**：gate 只读 trace 字段，不因 trace 自称 `status=ok` 就放行；必需 Span 按 path+outcome+reason 重新计算。
 - `status=replayed` 的跳过是硬要求（T003a/T003d 遗留）：重放记录用 `annotate(replayed=True)` 写启动字段，不能按产品路径 Span 校验。
 - 8 项硬门禁的"敏感模式/跨用户来源/stale"判定所需字段若 T005 产物未提供，必须显式 `unknown`（走 3）而不是默认通过；在报告写明缺哪些字段。
+- **T005 验收方给出的可依赖/必须 unknown 清单（2026-11-05，`T005-runner/review.md`）**：
+  - 可依赖：`run_manifest.json` 身份字段；`cases.jsonl` 每行 `status/checks/metrics/outcome/gold/error`；citation/retrieved 的 `doc_code/unit_key/unit_ids/locator`；local 非 OCR 行的 trace 必需 Span；replay 行的 `replayed=True` + `previous_trace_id`。
+  - 必须处理为 unknown 或按 §5.4 裁决降级：`cross_entity`、`stale_bypass`（T005 产物无 entity key / effective 日期字段 → 若无对应 case 则 `not_applicable`，若有 case 却缺字段则 3）；`pagination_contract`（`expected_pagination` 全 `null`，只能校验契约自洽，不得声称覆盖期望值口径；无分页输出且无期望 → `not_applicable`）；`security_leak`（`forbidden_sources` 不在 cases 行内，需按 `case_id` 从 `fixtures/evaluation/*.jsonl` 读取后再比对）；`value_no_fabricated` 不得进硬门禁；OCR/error 行不计入任何分母；replay 行的 `outcome.trace_id` 指向源 local run，哈希类字段非确定性。
+- `record_code`+空 `locator` 仍会被解析为整篇（T005 验收 MEDIUM-2，实测 9 unit）：gate 对 `expected_sources`/`relevant_units` 只允许 `doc_code + unit_key` 或 `doc_code + locator`，`record_code`-only 或 `record_code`+空 locator 一律 fail closed（记 `unknown` → 3），不得静默按整篇命中。
 - 既有 flake `test_g08_short_budget_cancels_inflight_model_call` 与本包无关；命中则隔离复跑并记录。
 - 所有 JSON 用 UTF-8、`ensure_ascii=False`；数字口径 0–1。
 

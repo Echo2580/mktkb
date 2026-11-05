@@ -1,0 +1,118 @@
+T005 independent verification: probe.py
+object commit: 80fd092 (p0/T005 runner); HEAD at session start 80fd092
+probe: docs/reports/OBS-EVAL/P0/evidence/verify/T005/probe.py
+command: .\.venv\Scripts\python.exe -B docs\reports\OBS-EVAL\P0\evidence\verify\T005\probe.py
+note: all run artifacts are written under %TEMP%; probe.py only reads the repo.
+exit: 0
+
+probe_root D:\GPT\u9879\u76ee\u5e02\u573a\u90e8AI\u77e5\u8bc6\u5e93
+temp_root C:\Users\dell1712\AppData\Local\Temp\t005-verify-mr9vzibn
+NOTE record_code_empty_locator status=pass gold_units=9 (defense is key-presence based)
+PASS replay_requires_replay_from
+PASS b0_files
+PASS b0_rows_40
+PASS b0_status_counts
+PASS b0_fail_ids_are_q25_q26_q31
+PASS b0_row_shape
+PASS b0_ocr_rows
+PASS b0_manifest_fields
+PASS b0_manifest_mode
+PASS b0_manifest_suite
+PASS b0_manifest_scope
+PASS b0_manifest_case_count
+PASS b0_dataset_sha
+PASS b0_corpus_sha
+PASS b0_business_date
+PASS b0_index_revision
+PASS b0_gate_version
+PASS b0_pipeline_version_len
+PASS b0_trace_store
+PASS b0_two_local_identity_stable
+PASS b0_two_local_run_id_diff
+PASS b0_two_local_created_at
+PASS b0_summary_case_count
+PASS b0_summary_scored_count
+PASS b0_summary_skipped_count
+PASS b0_summary_error_count
+NOTE b0_denominators case_count=40 scored_count=32 skipped_ocr=8 metrics_scope_cases_in_denominator=40
+METRIC b0 Recall@10 = 0.96875
+PASS b0_summary_Recall@10_mean
+METRIC b0 MRR@10 = 0.8697916666666666
+PASS b0_summary_MRR@10_mean
+METRIC b0 nDCG@10 = 0.8954577739955403
+PASS b0_summary_nDCG@10_mean
+PASS b0_report_recall
+PASS b0_report_mrr
+PASS b0_report_ndcg
+PASS b0_local_traces
+PASS b0_real_unit_attribution
+DIRECT Q25 status=fail answer_kind=answer
+DIRECT Q25 fails=['value_hit:fail', 'source_hit:fail']
+DIRECT Q25 expected_values_missing=['\u586b\u5199\u767b\u8bb0\u8868', '\u8d1f\u8d23\u4eba\u786e\u8ba4', '\u9886\u53d6\u65f6\u767b\u8bb0\u6570\u91cf']
+PASS direct_status_Q25
+PASS direct_fail_checks_Q25
+DIRECT Q26 status=fail answer_kind=answer
+DIRECT Q26 fails=['value_hit:fail', 'value_no_fabricated:fail']
+DIRECT Q26 expected_values_missing=['\u5f52\u8fd8\u65e5\u671f']
+PASS direct_status_Q26
+PASS direct_fail_checks_Q26
+DIRECT Q31 status=fail answer_kind=no_answer
+DIRECT Q31 fails=['value_hit:fail', 'source_hit:fail', 'kind_correct:fail', 'refusal_unexpected:fail']
+DIRECT Q31 expected_values_missing=['\u5f53\u65e5', '\u8d44\u6599\u7ba1\u7406\u5458']
+PASS direct_status_Q31
+PASS direct_fail_checks_Q31
+PASS badcase_files
+PASS badcase_rows_13
+PASS badcase_status_counts
+PASS badcase_no_error
+PASS badcase_empty_gold_rows
+PASS badcase_n05_range_11
+PASS badcase_n09_range_17
+PASS badcase_manifest_mode
+PASS badcase_manifest_suite
+PASS badcase_dataset_sha
+PASS badcase_corpus_sha
+PASS badcase_index_revision
+PASS badcase_case_count
+METRIC badcase Recall@10 = 0.7679144385026737
+METRIC badcase MRR@10 = 0.7166666666666667
+METRIC badcase nDCG@10 = 0.6851021519869538
+PASS badcase_report_recall
+PASS badcase_report_mrr
+PASS badcase_report_ndcg
+PASS badcase_declarations_single_turn
+PASS badcase_declarations_pagination
+PASS badcase_declarations_range_gold
+PASS badcase_rows_single_turn_flags
+PASS badcase_local_traces
+PASS badcase_real_unit_attribution
+PASS b0_replay_rows
+PASS b0_replay_rows_equal
+PASS b0_replay_summary_metrics
+PASS b0_replay_files
+PASS b0_replay_manifest_mode
+PASS b0_replay_source_run
+PASS b0_replay_identity
+PASS b0_replay_traces
+PASS badcase_replay_rows
+PASS badcase_replay_rows_equal
+PASS badcase_replay_summary_metrics
+PASS badcase_replay_files
+PASS badcase_replay_manifest_mode
+PASS badcase_replay_source_run
+PASS badcase_replay_identity
+PASS badcase_replay_traces
+NOTE replay_outcome_trace_id_equals_source_local True (row.trace_id is the replay provenance trace)
+PASS record_code_rows_40
+PASS record_code_status_error
+PASS record_code_error_code
+PASS record_code_no_gold_outcome
+PASS record_code_summary_error_count
+PASS record_code_replay_error
+PASS zero_provider_calls
+PASS zero_socket_calls
+PASS zero_settings_init
+PASS zero_env_open
+PASS zero_replay_index_build
+GUARDS provider=0 socket=0 settings=0 env_open=0 build_index=0
+SUMMARY failures=0

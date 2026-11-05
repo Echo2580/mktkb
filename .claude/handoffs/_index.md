@@ -16,8 +16,8 @@
 | T003d | QA/legacy 路径埋点 + 契约修订 | G4 通过（R1 定向复验 PASS：`review-R1.md`；dev commits `b811f9f`+`71756f5`；全量 1307 passed） | 1 | 否 | T003c 有条件通过 ✅ |
 | T004a | 评测数据集 + gold 解析 + fixtures | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/2 LOW 非阻断；dev commit `574e288`；验收方全量 1377 passed） | 0 | 否 | T003d R1 ✅ |
 | T004b | scorer（值/来源/kind/分页/拒答/检索） | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `f126598`；验收方全量 1377 passed） | 0 | 否 | T004a ✅ |
-| T005 | Replay / Local Runner + 运行清单 | G3 验收中（dev commit `80fd092`，8 文件；20 新用例；全量 1397 passed；独立验收者已派） | 0 | 否 | T004b ✅ |
-| T006a | 门禁硬层（8 项）+ 退出码 | G1 待派单（handoff + prompt 已落盘；含 T004b 四处口径裁决） | 0 | 否 | T005 |
+| T005 | Replay / Local Runner + 运行清单 | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.6 全 PASS；2 MEDIUM/3 LOW 非阻断；dev commit `80fd092`；验收方全量 1397 passed） | 0 | 否 | T004b ✅ |
+| T006a | 门禁硬层（8 项）+ 退出码 | G1 待派单（handoff + prompt 已落盘；已并入 T005 验收的输入约束与 not_applicable/unknown 裁决） | 0 | 否 | T005 ✅ |
 | T006b | 门禁质量层 + 校准 + 豁免 | G0 待派 | 0 | 否 | T006a |
 | T007 | Baseline + Diff + 报告 | G0 待派 | 0 | 否 | T006b |
 | T008a | CLI 与 P0 全流程 run | G0 待派 | 0 | 否 | T007 |
@@ -72,6 +72,12 @@
     - LOW-4：单检索项含多 unit_ids 时按相邻名次展开，nDCG 可能高估 → T006a 明确"同 chunk 同排名"。
     - LOW-5：`value_no_fabricated` 符号盲、千分位不归一。
     - 四处口径判定（验收方）：`EvalOutcome.retrieved` 可接受偏离（仅本地 dataclass，未改业务类型）；拒答集合以 `OutcomeKind` + `should_refuse` 为 canonical（`refusal` 只是兼容别名，非枚举成员）；`docs/evaluation/` 尚无 `gate_v0_1`，T006a 定义冲突时先改文档再改实现。
+32. **T005 验收 PASS 遗留（2026-11-05，验收方 `review.md`：2 MEDIUM / 3 LOW，非阻断）**：
+    - MEDIUM-1：`summary.metrics_scope.cases_in_denominator` b0=40 含 8 道 OCR，真实可评分 32；badcase=10。**T006a 的 `min_sample` 必须用 `scored_count`（32/10），否则正常 run 会被误判样本不足。**
+    - MEDIUM-2：`record_code` + 空 `locator` 仍静默扩为整篇（实测 9 unit）；规范 `record_code`-only 已正确 error。**T006a 对 gold 引用 fail closed（unknown→3）。**
+    - LOW：replay 的 `outcome.trace_id` 指向源 local run；b0 `range_gold_case_ids` 含 OCR Q33–Q40；replay 只校验持久化 gold/checks 自洽；`cases.jsonl`/manifest 的字节与 hash 因 duration/trace_id/run_id 非确定性。
+    - 验收实测指标（T006b 校准基线）：b0 Recall@10/MRR@10/nDCG@10 = 0.96875 / 0.869792 / 0.895458；badcase = 0.767914 / 0.716667 / 0.685102；b0 local 3 fail（Q25/Q26/Q31，经直调 `RagIndex.ask` 复核非 runner 引起）；badcase local 4 fail（N05/N06/N09/N11）。
+    - **PM 裁决（T006a 口径）**：硬门禁"数据集无该类 case" = `not_applicable`（不影响退出码）；"有 case 但缺字段无法判" = `unknown` → exit 3。避免 P0 永远无法 exit 0。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
