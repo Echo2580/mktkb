@@ -313,7 +313,29 @@ def main() -> int:
     raw = json.loads(DEFAULT_CONFIG.read_text(encoding="utf-8"))
     check("config.hard_gates", tuple(config.hard_gates) == HARD_GATE_IDS, config.hard_gates)
     check("config.status", config.status == "unapproved", config.status)
-    check("config.min_sample", dict(config.min_sample) == {"b0": 32, "badcase": 10}, dict(config.min_sample))
+    # R1 PM ruling: field renamed hard_gate_min_sample; hard-gate denominator
+    # is evaluated_count with b0=32 / badcase=13 (the retrieval denominator 10
+    # belongs to T006b and must not be mixed in).
+    check(
+        "config.hard_gate_min_sample",
+        dict(config.hard_gate_min_sample) == {"b0": 32, "badcase": 13},
+        dict(config.hard_gate_min_sample),
+    )
+    check(
+        "config.legacy_min_sample_key_absent",
+        "hard_gate_min_sample" in raw and "min_sample" not in raw,
+        sorted(raw),
+    )
+    with tempfile.TemporaryDirectory(prefix="t006a-legacy-config-") as td:
+        legacy = dict(raw)
+        legacy["min_sample"] = legacy.pop("hard_gate_min_sample")
+        legacy_path = Path(td) / "legacy.json"
+        legacy_path.write_text(json.dumps(legacy), encoding="utf-8")
+        try:
+            load_gate_config(legacy_path)
+            check("config.legacy_min_sample_rejected", False, "old key was accepted")
+        except ValueError as exc:
+            check("config.legacy_min_sample_rejected", "hard_gate_min_sample" in str(exc), str(exc))
     thresholds = [(m.name, m.absolute_min, m.absolute_max, m.max_regression_pp) for m in config.metrics]
     check("config.thresholds_empty", all(a is None and b is None and c is None for _, a, b, c in thresholds), thresholds)
     check("config.metrics_count", len(config.metrics) == 15, len(config.metrics))
@@ -326,45 +348,54 @@ def main() -> int:
     check("config.raw_status", raw.get("status") == "unapproved", raw.get("status"))
 
     # 8 gates: each has an independent sample.
+    matrix_codes: set[int] = set()
     c = case("S01", stratum="text", expected_values=(), expected_sources=(), forbidden_values=("SECRET",))
     r = row(c, kind="answer", text="SECRET")
     res = trigger("security_leak", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.security_leak", res.exit_code == EXIT_HARD_FAILURE and "security_leak" in res.hard_failures and failure_shape(res, "security_leak"), brief(res))
     check("gate.security_leak.only", set(res.hard_failures) == {"security_leak"}, res.hard_failures)
 
     c = case("X01")
     r = row(c, retrieved_items=[retrieved(hard_filter_violation="cross_entity")])
     res = trigger("cross_entity", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.cross_entity", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"cross_entity"} and failure_shape(res, "cross_entity"), brief(res))
 
     c = case("T01")
     r = row(c, retrieved_items=[retrieved(hard_filter_violation="stale")])
     res = trigger("stale_bypass", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.stale_bypass", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"stale_bypass"} and failure_shape(res, "stale_bypass"), brief(res))
 
     c = case("F01", expected_kind="conflict", stratum="text", expected_values=(), expected_sources=())
     r = row(c, kind="answer", text="safe")
     res = trigger("conflict_not_rejected", c, r, {"path": "rag", "outcome": "answer"})
+    matrix_codes.add(res.exit_code)
     check("gate.conflict_not_rejected", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"conflict_not_rejected"} and failure_shape(res, "conflict_not_rejected"), brief(res))
 
     c = case("E01")
     r = row(c, text="other")
     res = trigger("exact_value_contract", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.exact_value_contract", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"exact_value_contract"} and failure_shape(res, "exact_value_contract"), brief(res))
 
     c = case("G01", stratum="text", expected_values=(), expected_sources=(), expected_pagination={"total": 2})
     r = row(c, pagination={"total": 1, "returned": 1, "has_more": False, "next_page": None})
     res = trigger("pagination_contract", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.pagination_contract", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"pagination_contract"} and failure_shape(res, "pagination_contract"), brief(res))
 
     c = case("C01")
     r = row(c, citations=[])
     res = trigger("citation_required", c, r, {})
+    matrix_codes.add(res.exit_code)
     check("gate.citation_required", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"citation_required"} and failure_shape(res, "citation_required"), brief(res))
 
     c = case("Q01")
     r = row(c)
     res = trigger("trace_integrity", c, r, None)
+    matrix_codes.add(res.exit_code)
     check("gate.trace_integrity", res.exit_code == EXIT_HARD_FAILURE and set(res.hard_failures) == {"trace_integrity"} and failure_shape(res, "trace_integrity"), brief(res))
 
     with tempfile.TemporaryDirectory(prefix="t006a-exit0-") as td:
@@ -522,21 +553,151 @@ def main() -> int:
         con.execute("UPDATE schema_meta SET value='mktkb.trace.v9.9' WHERE key='trace_schema_version'")
         con.commit(); con.close()
         res = evaluate_gate(run, config=cfg({"b0": 1}))
-        check("trace.store_schema_meta_mismatch", res.exit_code == EXIT_HARD_FAILURE and "trace_integrity" in res.hard_failures, brief(res))
+        store_failures = [
+            item
+            for item in failures(res, "trace_integrity")
+            if item.check_id == "store_schema_version_mismatch"
+        ]
+        check(
+            "trace.store_schema_meta_mismatch",
+            res.exit_code == EXIT_HARD_FAILURE
+            and set(res.hard_failures) == {"trace_integrity"}
+            and len(store_failures) == 1
+            and store_failures[0].case_id is None
+            and store_failures[0].evidence.get("actual") == "mktkb.trace.v9.9",
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-schema-meta-ok-") as td:
+        c = case("V00")
+        run = build_run(Path(td), [c], [row(c)], trace_specs={"V00": {}})
+        res = evaluate_gate(run, config=cfg({"b0": 1}))
+        check(
+            "trace.store_schema_meta_normal_exit0",
+            res.exit_code == EXIT_PASS and res.gate_status["trace_integrity"] == "pass",
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-schema-meta-table-") as td:
+        c = case("V03")
+        run = build_run(Path(td), [c], [row(c)], trace_specs={"V03": {}})
+        con = sqlite3.connect(run.out_dir / "traces.sqlite3")
+        con.execute("DROP TABLE schema_meta")
+        con.commit(); con.close()
+        res = evaluate_gate(run, config=cfg({"b0": 1}))
+        check(
+            "trace.store_schema_meta_table_missing_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and res.gate_status["trace_integrity"] == "unknown"
+            and any(
+                u.gate_id == "trace_integrity" and u.check_id == "trace_store_unreadable"
+                for u in res.unknowns
+            ),
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-schema-meta-key-") as td:
+        c = case("V04")
+        run = build_run(Path(td), [c], [row(c)], trace_specs={"V04": {}})
+        con = sqlite3.connect(run.out_dir / "traces.sqlite3")
+        con.execute("DELETE FROM schema_meta WHERE key='trace_schema_version'")
+        con.commit(); con.close()
+        res = evaluate_gate(run, config=cfg({"b0": 1}))
+        check(
+            "trace.store_schema_meta_key_missing_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and any(
+                u.gate_id == "trace_integrity" and u.check_id == "trace_store_unreadable"
+                for u in res.unknowns
+            ),
+            brief(res),
+        )
 
     with tempfile.TemporaryDirectory(prefix="t006a-citation-kind-") as td:
         c = case("K02")
         r = row(c, kind=None, text="P01", citations=[])
         run = build_run(Path(td), [c], [r], trace_specs={"K02": {}})
         res = evaluate_gate(run, config=cfg({"b0": 1}))
-        check("pm.missing_kind_citation_unknown_or_fail", res.exit_code in {EXIT_HARD_FAILURE, EXIT_UNKNOWN} and res.gate_status["citation_required"] != "not_applicable", brief(res))
+        check(
+            "pm.missing_kind_citation_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and res.gate_status["citation_required"] == "unknown"
+            and any(
+                u.gate_id == "citation_required" and u.check_id == "outcome_kind_missing"
+                for u in res.unknowns
+            )
+            and not res.failures,
+            brief(res),
+        )
 
     with tempfile.TemporaryDirectory(prefix="t006a-security-missing-") as td:
         c = case("S02", stratum="text", expected_kind="no_answer", expected_values=(), expected_sources=(), should_refuse=True, refusal_reason="x", forbidden_values=("SECRET",))
         r = row(c, outcome_missing=True)
         run = build_run(Path(td), [c], [r], trace_specs={"S02": {"path": "rag", "outcome": "no_answer", "reason": "DOCUMENT_NOT_FOUND", "spans": ("parse", "commit")}})
         res = evaluate_gate(run, config=cfg({"badcase": 1, "b0": 1}))
-        check("pm.security_missing_outcome_unknown", res.exit_code == EXIT_UNKNOWN and any(u.gate_id == "security_leak" for u in res.unknowns), brief(res))
+        check(
+            "pm.security_missing_outcome_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and res.gate_status["security_leak"] == "unknown"
+            and any(
+                u.gate_id == "security_leak" and u.check_id == "outcome_missing"
+                for u in res.unknowns
+            )
+            and not res.failures,
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-security-missing-src-") as td:
+        c = case(
+            "S03",
+            stratum="text",
+            expected_values=(),
+            expected_sources=(),
+            forbidden_sources=({"doc_code": "D01", "unit_key": "K1"},),
+        )
+        r = row(c, outcome_missing=True)
+        run = build_run(Path(td), [c], [r], trace_specs={"S03": {}})
+        res = evaluate_gate(run, config=cfg({"b0": 1}))
+        check(
+            "pm.security_missing_outcome_forbidden_source_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and any(
+                u.gate_id == "security_leak" and u.check_id == "outcome_missing"
+                for u in res.unknowns
+            ),
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-security-missing-pattern-") as td:
+        c = case(
+            "S04",
+            stratum="text",
+            expected_kind="no_answer",
+            expected_values=(),
+            expected_sources=(),
+            should_refuse=True,
+            refusal_reason="x",
+        )
+        r = row(c, outcome_missing=True)
+        run = build_run(
+            Path(td),
+            [c],
+            [r],
+            trace_specs={"S04": {"path": "rag", "outcome": "no_answer", "reason": "DOCUMENT_NOT_FOUND", "spans": ("parse", "commit")}},
+        )
+        pattern_config = dataclasses.replace(
+            load_gate_config(DEFAULT_CONFIG), sensitive_patterns=("SECRET",)
+        )
+        res = evaluate_gate(run, config=pattern_config)
+        check(
+            "pm.security_missing_outcome_with_patterns_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and any(
+                u.gate_id == "security_leak" and u.check_id == "outcome_missing"
+                for u in res.unknowns
+            ),
+            brief(res),
+        )
 
     with tempfile.TemporaryDirectory(prefix="t006a-pagination-bad-") as td:
         c = case("P02", stratum="text", expected_values=(), expected_sources=(), expected_pagination={"total": 2})
@@ -544,19 +705,47 @@ def main() -> int:
         run = build_run(Path(td), [c], [r], trace_specs={"P02": {}})
         try:
             res = evaluate_gate(run, config=cfg({"b0": 1}))
-            check("pm.pagination_malformed_fail_closed", res.exit_code == EXIT_UNKNOWN, brief(res))
+            check(
+                "pm.pagination_malformed_fail_closed",
+                res.exit_code == EXIT_UNKNOWN
+                and res.gate_status["pagination_contract"] == "unknown"
+                and any(
+                    u.gate_id == "pagination_contract" and u.check_id == "pagination_invalid"
+                    for u in res.unknowns
+                ),
+                brief(res),
+            )
         except Exception as exc:  # noqa: BLE001 - probe must report crash as failure
             check("pm.pagination_malformed_fail_closed", False, f"raised {type(exc).__name__}: {exc}")
 
-    # T005's badcase denominator is 10: 3 empty-gold rows must not make 8
-    # scorable cases look like 11.
+    with tempfile.TemporaryDirectory(prefix="t006a-pagination-list-") as td:
+        c = case("P03", stratum="text", expected_values=(), expected_sources=(), expected_pagination={"total": 2})
+        r = row(c, pagination=[1, 2])
+        run = build_run(Path(td), [c], [r], trace_specs={"P03": {}})
+        try:
+            res = evaluate_gate(run, config=cfg({"b0": 1}))
+            check(
+                "pm.pagination_list_fail_closed",
+                res.exit_code == EXIT_UNKNOWN
+                and any(
+                    u.gate_id == "pagination_contract" and u.check_id == "pagination_invalid"
+                    for u in res.unknowns
+                ),
+                brief(res),
+            )
+        except Exception as exc:  # noqa: BLE001
+            check("pm.pagination_list_fail_closed", False, f"raised {type(exc).__name__}: {exc}")
+
+    # R1 PM ruling (MEDIUM-1): hard-gate denominator is evaluated_count
+    # (status in {pass,fail}, non-OCR, non-error). badcase=13 includes the
+    # N10/N12/N13 empty-gold rows; the retrieval denominator (10) is T006b's.
     with tempfile.TemporaryDirectory(prefix="t006a-badcase-den-") as td:
         cs: list[CaseSpec] = []
         rs: list[dict[str, Any]] = []
         specs: dict[str, dict[str, Any]] = {}
-        for index in range(11):
+        for index in range(13):
             cid = f"B{index:02d}"
-            if index < 8:
+            if index < 10:
                 c = case(cid, suite="badcase", stratum="price")
                 r = row(c)
             else:
@@ -566,8 +755,77 @@ def main() -> int:
             rs.append(r)
             specs[cid] = {}
         run = build_run(Path(td), cs, rs, trace_specs=specs, suite="badcase")
-        res = evaluate_gate(run, config=cfg({"badcase": 10, "b0": 1}))
-        check("pm.badcase_denominator_10_not_13", res.exit_code == EXIT_UNKNOWN, brief(res))
+        res = evaluate_gate(run, config=load_gate_config(DEFAULT_CONFIG))
+        retrieval_denominator = sum(1 for item in rs if item["gold"]["sources"])
+        check(
+            "pm.badcase_evaluated_count_13_includes_empty_gold",
+            res.exit_code == EXIT_PASS
+            and res.evaluated_count == 13
+            and res.min_sample == 13
+            and not res.unknowns,
+            f"{brief(res)} retrieval_denominator={retrieval_denominator}",
+        )
+        check(
+            "pm.badcase_retrieval_denominator_10_not_mixed",
+            retrieval_denominator == 10 and res.evaluated_count == 13,
+            f"retrieval={retrieval_denominator} hard={res.evaluated_count}",
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-badcase-short-") as td:
+        cs = [case(f"B{index:02d}", suite="badcase", stratum="price") for index in range(12)]
+        rs = [row(c) for c in cs]
+        run = build_run(
+            Path(td), cs, rs, trace_specs={c.case_id: {} for c in cs}, suite="badcase"
+        )
+        res = evaluate_gate(run, config=load_gate_config(DEFAULT_CONFIG))
+        min_unknowns = [
+            u for u in res.unknowns if u.gate_id == "min_sample"
+        ]
+        check(
+            "pm.badcase_12_below_13_unknown",
+            res.exit_code == EXIT_UNKNOWN
+            and len(min_unknowns) == 1
+            and min_unknowns[0].check_id == "min_sample_not_met"
+            and min_unknowns[0].evidence.get("evaluated_count") == 12
+            and min_unknowns[0].evidence.get("basis") == "evaluated_count",
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-badcase-ocr-") as td:
+        cs = [case(f"B{index:02d}", suite="badcase", stratum="price") for index in range(13)]
+        rs = [row(c) for c in cs]
+        for index in range(2):
+            oc = case(f"O{index:02d}", suite="badcase", stratum="price", requires_ocr=True)
+            cs.append(oc)
+            rs.append(row(oc, status="skipped_requires_ocr", outcome_missing=True))
+        run = build_run(
+            Path(td), cs, rs, trace_specs={c.case_id: {} for c in cs[:13]}, suite="badcase"
+        )
+        res = evaluate_gate(run, config=load_gate_config(DEFAULT_CONFIG))
+        check(
+            "pm.badcase_ocr_rows_not_counted",
+            res.exit_code == EXIT_PASS and res.evaluated_count == 13 and not res.unknowns,
+            brief(res),
+        )
+
+    with tempfile.TemporaryDirectory(prefix="t006a-badcase-error-") as td:
+        cs = [case(f"B{index:02d}", suite="badcase", stratum="price") for index in range(14)]
+        rs = [row(c) for c in cs]
+        rs[13] = row(
+            cs[13], status="error", outcome_missing=True, error={"code": "runner_error"}
+        )
+        run = build_run(
+            Path(td), cs, rs, trace_specs={c.case_id: {} for c in cs[:13]}, suite="badcase"
+        )
+        res = evaluate_gate(run, config=load_gate_config(DEFAULT_CONFIG))
+        check(
+            "pm.badcase_error_row_excluded_but_exit3",
+            res.exit_code == EXIT_UNKNOWN
+            and res.evaluated_count == 13
+            and any(u.gate_id == "run" and u.check_id == "case_error" for u in res.unknowns)
+            and not any(u.gate_id == "min_sample" for u in res.unknowns),
+            brief(res),
+        )
 
     # Exit 2 is never returned by any hard-failure matrix sample.
     seen = set()
@@ -580,6 +838,11 @@ def main() -> int:
         res = trigger(kind, c, r, spec)
         seen.add(res.exit_code)
     check("exit.2_never_hard", 2 not in seen, sorted(seen))
+    check(
+        "regression.matrix_8_exit1_no_exit2",
+        matrix_codes == {EXIT_HARD_FAILURE},
+        sorted(matrix_codes),
+    )
 
     # Baseline is explicitly ignored, trace can be opted out.
     with tempfile.TemporaryDirectory(prefix="t006a-baseline-") as td:

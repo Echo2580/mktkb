@@ -17,8 +17,8 @@
 | T004a | 评测数据集 + gold 解析 + fixtures | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/2 LOW 非阻断；dev commit `574e288`；验收方全量 1377 passed） | 0 | 否 | T003d R1 ✅ |
 | T004b | scorer（值/来源/kind/分页/拒答/检索） | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `f126598`；验收方全量 1377 passed） | 0 | 否 | T004a ✅ |
 | T005 | Replay / Local Runner + 运行清单 | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.6 全 PASS；2 MEDIUM/3 LOW 非阻断；dev commit `80fd092`；验收方全量 1397 passed） | 0 | 否 | T004b ✅ |
-| T006a | 门禁硬层（8 项）+ 退出码 | G4 R1 复验中（R1 commit `90d7133`：5 项修复 + 8 新用例；全量 1477 passed；首轮 FAIL 见 `review.md`） | 1 | 否 | T005 ✅ |
-| T006b | 门禁质量层 + 校准 + 豁免 | G1 待派单（handoff 已落盘） | 0 | 否 | T006a |
+| T006a | 门禁硬层（8 项）+ 退出码 | **G4 通过**（R1 定向复验 PASS：`review-R1.md`；dev commits `f6bb3c4`+`90d7133`；全量 1477 passed） | 1 | 否 | T005 ✅ |
+| T006b | 门禁质量层 + 校准 + 豁免 | G1 待派单（handoff + dev prompt 已落盘；含分母分离裁决） | 0 | 否 | T006a ✅ |
 | T007 | Baseline + Diff + 报告 | G0 待派 | 0 | 否 | T006b |
 | T008a | CLI 与 P0 全流程 run | G0 待派 | 0 | 否 | T007 |
 | T008b | P0 七条验收测试 + p0-report | G0 待派 | 0 | 否 | T008a |
@@ -78,6 +78,10 @@
     - LOW：replay 的 `outcome.trace_id` 指向源 local run；b0 `range_gold_case_ids` 含 OCR Q33–Q40；replay 只校验持久化 gold/checks 自洽；`cases.jsonl`/manifest 的字节与 hash 因 duration/trace_id/run_id 非确定性。
     - 验收实测指标（T006b 校准基线）：b0 Recall@10/MRR@10/nDCG@10 = 0.96875 / 0.869792 / 0.895458；badcase = 0.767914 / 0.716667 / 0.685102；b0 local 3 fail（Q25/Q26/Q31，经直调 `RagIndex.ask` 复核非 runner 引起）；badcase local 4 fail（N05/N06/N09/N11）。
     - **PM 裁决（T006a 口径）**：硬门禁"数据集无该类 case" = `not_applicable`（不影响退出码）；"有 case 但缺字段无法判" = `unknown` → exit 3。避免 P0 永远无法 exit 0。
+33. **T006a 验收 PASS 遗留（2026-11-05，R1 复验 `review-R1.md`，非阻断）**：
+    - 首轮 3 HIGH fail-open（`security_leak` 缺 outcome、`citation_required` 缺 kind、`trace_integrity` 不读 `schema_meta`）+ 2 MEDIUM 已由 R1 `90d7133` 修复并定向复验 PASS。
+    - LOW：`GateConfig.to_dict` 仍输出旧 `min_sample` 键（loader 只认 `hard_gate_min_sample`）；`GateResult.to_dict` 只暴露 `scored_count`（与 `evaluated_count` 同值）；`05-r1-*` 证据头 base 提交标签过期（数字已独立复现）。
+    - 口径定稿：硬门禁分母 `evaluated_count` = b0 32 / badcase 13；质量检索分母 = badcase 10；两者不得混用（已写入 T006b handoff）。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）

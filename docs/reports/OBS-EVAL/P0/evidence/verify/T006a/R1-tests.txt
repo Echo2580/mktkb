@@ -1,0 +1,35 @@
+﻿# T006a R1 - tests (serial, no cacheprovider, basetemp under %TEMP%) + commit boundary
+# object commit: 90d7133; code tree identical at a8a04c0 (docs-only bookkeeping)
+# NOTE: attempt 1 of test_gate.py aborted in fixture setup because %TEMP%\t006a-r1-tests did not exist
+#       (78 setup errors, no test assertion failed). Parent created, then the valid runs below.
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate.py -q -p no:cacheprovider --basetemp %TEMP%\t006a-r1-tests\gate
+80 passed, 1 warning in 2.07s
+elapsed: 2.07s (reviewer wall clock ~4s)
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t006a-r1-tests\evaluation
+204 passed, 1 warning in 9.55s
+elapsed: 9.55s (reviewer wall clock ~11.65s)
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t006a-r1-tests\full
+1477 passed, 1 warning in 408.01s (0:06:48)
+elapsed: 408.01s (0:06:48; reviewer wall clock 411.9s)
+
+# baseline 1469 (f6bb3c4) + 8 new R1 tests = 1477; 0 failed / 0 error.
+
+# commit boundary: git show --name-status 90d7133
+commit 90d713324bf4eb6e6350739d321f33ae2099f468
+Author: Echo2580 <zhaot2580@gmail.com>
+Date:   Thu Nov 5 13:30:38 2026 +0800
+
+    p0/T006a gate hard layer R1
+
+M	.claude/handoffs/T006a-gate-hard/report.md
+M	backend/src/mktkb/evaluation/gate.py
+M	backend/tests/evaluation/test_gate.py
+M	docs/evaluation/gate_v0_1.json
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/05-r1-probe-rerun.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/05-r1-targeted-tests.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T006a/05-r1-tests.txt
+
+# all paths are within rework-R1 section 2 allowed set (gate.py / gate_v0_1.json / test_gate.py / report.md / evidence/T006a 05-r1-*).
