@@ -16,8 +16,8 @@
 | T003d | QA/legacy 路径埋点 + 契约修订 | G4 通过（R1 定向复验 PASS：`review-R1.md`；dev commits `b811f9f`+`71756f5`；全量 1307 passed） | 1 | 否 | T003c 有条件通过 ✅ |
 | T004a | 评测数据集 + gold 解析 + fixtures | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/2 LOW 非阻断；dev commit `574e288`；验收方全量 1377 passed） | 0 | 否 | T003d R1 ✅ |
 | T004b | scorer（值/来源/kind/分页/拒答/检索） | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `f126598`；验收方全量 1377 passed） | 0 | 否 | T004a ✅ |
-| T005 | Replay / Local Runner + 运行清单 | G1 待派单（handoff + prompt 已落盘；PM 已并入 T004a/T004b 遗留硬要求） | 0 | 否 | T004b ✅ |
-| T006a | 门禁硬层（8 项）+ 退出码 | G0 待派 | 0 | 否 | T005 |
+| T005 | Replay / Local Runner + 运行清单 | G3 验收中（dev commit `80fd092`，8 文件；20 新用例；全量 1397 passed；独立验收者已派） | 0 | 否 | T004b ✅ |
+| T006a | 门禁硬层（8 项）+ 退出码 | G1 待派单（handoff + prompt 已落盘；含 T004b 四处口径裁决） | 0 | 否 | T005 |
 | T006b | 门禁质量层 + 校准 + 豁免 | G0 待派 | 0 | 否 | T006a |
 | T007 | Baseline + Diff + 报告 | G0 待派 | 0 | 否 | T006b |
 | T008a | CLI 与 P0 全流程 run | G0 待派 | 0 | 否 | T007 |
