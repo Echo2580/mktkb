@@ -76,7 +76,6 @@ from ..providers.types import (
     ModelNotConfigured,
     ModelOutputInvalid,
     ModelTimeout,
-    ModelUnavailable,
 )
 from ..retrieval.index import HEADER_ROLES, resolve_requested_role
 from ..retrieval.service import retrieve
@@ -1413,6 +1412,46 @@ def _record_answer_text(
     return text
 
 
+# ---------------------------------------------------------------- T104 异常原因分类
+
+
+class ModelCallFailed(ModelError):
+    """T104：模型调用抛出无法归类的异常（既不是网关稳定错误，也不是超时）。
+
+    与 ``ModelUnavailable`` 分开：真实原因无法归因（本地网关、依赖或上游都可能），
+    不能冒充“供应商不可用”；按“未知”透传并允许用户稍后重试。
+    """
+
+    code = "MODEL_CALL_FAILED"
+    retryable = True
+
+
+#: T104：已知稳定错误码 → 产品口径的可重试性。输出校验在此按“可重试”覆盖网关里的
+#: 默认 False；未登记的码值（含供应商自定义码，如 ``MODEL_POST_SEND_AUTH_DENIED``）
+#: 保留网关自带的 code / retryable，不改变既有契约。
+_MODEL_RETRYABLE_BY_CODE: dict[str, bool] = {
+    "MODEL_NOT_CONFIGURED": False,
+    "MODEL_BUDGET_REFUSED": False,
+    "MODEL_TIMEOUT": True,
+    "MODEL_OUTPUT_INVALID": True,
+    "MODEL_UNAVAILABLE": True,
+    "MODEL_CALL_FAILED": True,
+}
+
+#: T104：产品自身（非模型层）非预期异常的稳定码。与 HTTP 500 信封的 ``INTERNAL_ERROR``
+#: 分名，避免把“问答编排内部错误”与“未处理路由异常”混成同一遥测口径。
+QA_INTERNAL_ERROR = "QA_INTERNAL_ERROR"
+
+
+def _classify_model_error(exc: ModelError) -> tuple[str, bool]:
+    """按真实原因归类模型异常；未登记的码值保留网关自带码值（网关联约）。"""
+    code = str(getattr(exc, "code", "") or "")
+    retryable = _MODEL_RETRYABLE_BY_CODE.get(code)
+    if retryable is not None:
+        return code, retryable
+    return code, bool(getattr(exc, "retryable", False))
+
+
 async def _call_model(
     model: ModelGateway | None,
     payload: CompletionInput,
@@ -1435,7 +1474,8 @@ async def _call_model(
     except asyncio.TimeoutError as exc:  # pragma: no cover - 由可控网关触发
         raise ModelTimeout() from exc
     except Exception as exc:  # noqa: BLE001 - 外部调用统一映射，不透传原始异常
-        raise ModelUnavailable(f"{type(exc).__name__}") from exc
+        # T104：无法归类的调用期异常按“未知”透传；不再一律冒充 provider 不可用。
+        raise ModelCallFailed(f"{type(exc).__name__}") from exc
     if monotonic() > deadline:
         raise ModelTimeout("总预算已用尽")
     return output
@@ -1711,15 +1751,47 @@ def _service_error(code: str, text: str, retryable: bool, revision: int) -> _Res
     return _Result(kind="service_error", text=text, revision=revision, error_code=code, retryable=retryable)
 
 
+def _model_failure_result(exc: ModelError, revision: int) -> _Result:
+    """T104：按异常真实原因返回稳定码 / 可重试性 / ERR-07 模板文案。"""
+    code, retryable = _classify_model_error(exc)
+    return _service_error(code, _model_error_text(code), retryable, revision)
+
+
+def _internal_failure_result(revision: int) -> _Result:
+    """T104：本地校验/编排抛出的非预期异常；不冒充 provider，也不回显异常文本。"""
+    return _service_error(QA_INTERNAL_ERROR, _model_error_text(QA_INTERNAL_ERROR), False, revision)
+
+
+#: T104：每类原因 →（原因句, 重试建议）。文案统一套用 ERR-07 正面模板：说明“是服务调用
+#: 失败、不是资料中没有答案” + 可否重试 + 不会因重试重复落库（D-3 允许取值变化）。
+_MODEL_ERROR_REASONS: dict[str, tuple[str, str]] = {
+    "MODEL_NOT_CONFIGURED": ("问答模型尚未配置，请联系管理员", "重试不会自行恢复，需管理员完成配置"),
+    "MODEL_BUDGET_REFUSED": (
+        "当前预算或授权额度不足，本次未发送请求，请联系管理员处理",
+        "重试不会自行恢复，需管理员补足额度或重新授权",
+    ),
+    "MODEL_TIMEOUT": ("模型服务响应超时，本次回答未完成", "可稍后重新提问"),
+    "MODEL_UNAVAILABLE": ("模型服务暂不可用，本次回答未完成", "可稍后重新提问"),
+    "MODEL_OUTPUT_INVALID": ("模型输出未通过来源与字段校验，已拒绝本次回答", "可稍后重新提问"),
+    "MODEL_CALL_FAILED": ("模型调用失败且原因未能归类，本次回答未完成", "可稍后重新提问"),
+    # 网关既有码值：预留后、真实 POST 前的授权/预算复核拒绝，请求未发出。
+    "MODEL_POST_SEND_AUTH_DENIED": (
+        "预算或授权复核未通过，本次请求未发出，请联系管理员处理",
+        "可稍后重新提问，但需先由管理员恢复授权",
+    ),
+    QA_INTERNAL_ERROR: ("问答服务内部处理异常，本次回答未完成", "重试不会自行恢复，请联系管理员排查"),
+}
+
+#: 未登记码值的兜底原因：仍按同一模板披露，不冒充任何已知类别。
+_MODEL_ERROR_FALLBACK = ("模型服务调用失败且原因未能归类，本次回答未完成", "可稍后重新提问")
+
+
 def _model_error_text(code: str) -> str:
-    return {
-        "MODEL_NOT_CONFIGURED": "问答模型尚未配置，请联系管理员。",
-        "MODEL_TIMEOUT": "模型服务响应超时，本次回答未完成，请稍后重试。",
-        "MODEL_UNAVAILABLE": "模型服务暂不可用，本次回答未完成，请稍后重试。",
-        # 预算/授权阶段拒绝：请求未发出（不是供应商故障），重试无用，需补额度或重签 GO。
-        "MODEL_BUDGET_REFUSED": "当前预算或授权额度不足，本次未发送请求，请联系管理员处理。",
-        "MODEL_OUTPUT_INVALID": "模型输出未通过来源与字段校验，已拒绝本次回答。",
-    }.get(code, "模型服务调用失败，本次回答未完成。")
+    reason, retry_hint = _MODEL_ERROR_REASONS.get(code, _MODEL_ERROR_FALLBACK)
+    return (
+        f"{reason}。这是服务调用失败，不是资料中没有答案；"
+        f"{retry_hint}。服务端不会因重试而重复保存同一条回答。"
+    )
 
 
 def _merge_missing(primary: Iterable[str], secondary: Iterable[str]) -> list[str]:
@@ -2105,12 +2177,10 @@ async def _answer(
                 )
                 terms = _validate_terms(output)
                 expansion_span.annotate(terms=len(terms))
-        except ModelOutputInvalid:
-            return _service_error(
-                "MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision
-            )
         except ModelError as exc:
-            return _service_error(exc.code, _model_error_text(exc.code), exc.retryable, revision)
+            return _model_failure_result(exc, revision)
+        except Exception:  # noqa: BLE001 - T104：本地校验/编排异常按“内部”透传
+            return _internal_failure_result(revision)
         if terms:
             extra_terms = terms
             expanded = QueryIntent(
@@ -2242,10 +2312,10 @@ async def _answer(
                 text = _record_answer_text(validated, missing_rows, record_rows, subject_label=subject)
                 source_ids = [item for item in source_ids if item in cited]
             validate_span.annotate(mode=plan.mode, cited=len(source_ids), missing=len(missing_rows))
-    except ModelOutputInvalid:
-        return _service_error("MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision)
     except ModelError as exc:
-        return _service_error(exc.code, _model_error_text(exc.code), exc.retryable, revision)
+        return _model_failure_result(exc, revision)
+    except Exception:  # noqa: BLE001 - T104：本地校验/编排异常按“内部”透传
+        return _internal_failure_result(revision)
 
     return _Result(
         kind="answer",
