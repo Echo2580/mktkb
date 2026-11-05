@@ -56,3 +56,12 @@ $ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider -
 - 真实 P0 baseline 必须等 T009 审批阈值后，用同一 `approve_baseline` 路径生成；当前默认配置必然 exit 3 且被拒。
 - 跨版本只能 `compare_with=` 分析；`require_release_baseline` 与 `release_allowed` 对跨版本、未审批 baseline、当前门禁失败均拒绝。
 - 报告 HTML 非门禁展示层；gate 不读取，不改变退出码。
+
+## R1 修订（2026-11-05，返工单 R1；新 commit，不 amend）
+
+- **MEDIUM-1（`min_sample` 提示取 0）**：`report.py:693-723` 改为只取 `denominator > 0` 的指标，按指标分组各取最小非零 stratum 分母；零样本指标（所有 stratum 分母 0）不参与提示、不写 0。真实默认配置重渲染：检索/答案 = 8、拒答 = 1、运行 = 8；`cost_per_case_cny`、`refusal_recall` 被显式排除。新增 2 条测试（零样本不出 0；分组最小非零 2/1）。
+- **LOW-1**：`evidence/T007/01-baseline-identity.txt:50` 41→42（原地更正并注明）。
+- **LOW-2**：报告 diff 说明 + `MetricDelta`/`_delta_status` docstring 澄清 p95 等行的 `regressed/improved` 只是数值方向，不是质量/门禁状态（后者仍 unknown）。
+- **证据**：新增 `evidence/T007/05-r1-min-sample.txt`（before/after、fixture 重渲染、测试计数）；03 旧证据不删，05 取代其中 03:91 的默认配置 `min_sample` 陈述。
+- 验证：`test_report.py` 20 passed；`backend/tests/evaluation` 278 passed；全量 1551 passed / 0 failed / 0 error（713.90s，1548+3）。
+- 未改 `baseline.py`、`diff_runs` gate 参数行为、gate/runner/scorer/dataset/观测/业务代码/既有断言；无新依赖、零真实调用、未 push。

@@ -192,12 +192,12 @@ def current_run(tmp_path: Path, **overrides) -> RunResult:
 
 
 def make_quality_metric(
-    *, metric: str = "value_hit", stratum: str = "all", status: str = "unknown",
-    observed: float | None = 0.9, denominator: int = 32,
+    *, metric: str = "value_hit", group: str = "answer", stratum: str = "all",
+    status: str = "unknown", observed: float | None = 0.9, denominator: int = 32,
 ) -> QualityMetricResult:
     return QualityMetricResult(
         metric=metric,
-        group="answer",
+        group=group,
         stratum=stratum,
         direction="higher_is_better",
         observed=observed,
@@ -510,6 +510,76 @@ def test_markdown_puts_hard_gate_first_and_states_exit_semantics(tmp_path: Path)
     assert "阈值未审批" in markdown
     assert "min_sample 提示" in markdown
     assert "报告只展示门禁结果" in markdown
+
+
+def test_min_sample_hint_excludes_zero_sample_metric(tmp_path: Path):
+    """R1-MEDIUM-1：零样本指标（分母 0）不得成为 min_sample 提示的“最小值”。"""
+    baseline = baseline_run(tmp_path)
+    saved = save_baseline(baseline, tmp_path / "baselines")
+    current = current_run(tmp_path)
+    diff = diff_runs(saved, current)
+    gate = make_gate(
+        3,
+        metrics=(
+            make_quality_metric(metric="Recall@10", group="retrieval", stratum="all", denominator=32),
+            make_quality_metric(metric="Recall@10", group="retrieval", stratum="text", denominator=8),
+            make_quality_metric(metric="value_hit", group="answer", stratum="all", denominator=32),
+            make_quality_metric(
+                metric="cost_per_case_cny", group="runtime", stratum="all",
+                denominator=0, observed=None,
+            ),
+        ),
+    )
+    markdown = render_markdown(diff, gate, summary=current.summary)
+    hint = next(line for line in markdown.splitlines() if "min_sample 提示" in line)
+    assert "retrieval=8（Recall@10/text）" in hint
+    assert "answer=32（value_hit/all）" in hint
+    assert "零样本指标（分母 0）" in hint and "cost_per_case_cny" in hint
+    assert "= 0（" not in hint
+    assert "cost_per_case_cny" not in hint.split("；零样本指标")[0]
+    assert "retrieval=8（Recall@10/text）" in render_html(current.summary, diff, gate)
+
+
+def test_min_sample_hint_uses_smallest_nonzero_denominator_per_group(tmp_path: Path):
+    """R1-MEDIUM-1：按分组取最小非零 stratum 分母（badcase 形态：检索 2、答案 1）。"""
+    baseline = baseline_run(tmp_path)
+    saved = save_baseline(baseline, tmp_path / "baselines")
+    current = current_run(tmp_path)
+    diff = diff_runs(saved, current)
+    gate = make_gate(
+        3,
+        metrics=(
+            make_quality_metric(metric="Recall@10", group="retrieval", stratum="all", denominator=10),
+            make_quality_metric(metric="Recall@10", group="retrieval", stratum="text", denominator=2),
+            make_quality_metric(
+                metric="Recall@10", group="retrieval", stratum="exact", denominator=0, observed=None
+            ),
+            make_quality_metric(metric="value_hit", group="answer", stratum="all", denominator=4),
+            make_quality_metric(metric="value_hit", group="answer", stratum="text", denominator=1),
+            make_quality_metric(
+                metric="p95_latency_ms", group="runtime", stratum="all", denominator=0, observed=None
+            ),
+        ),
+    )
+    markdown = render_markdown(diff, gate, summary=current.summary)
+    hint = next(line for line in markdown.splitlines() if "min_sample 提示" in line)
+    assert "retrieval=2（Recall@10/text）" in hint
+    assert "answer=1（value_hit/text）" in hint
+    assert "runtime=" not in hint  # 该分组只有零样本指标 → 不给提示
+    assert "= 0（" not in hint
+
+
+def test_diff_status_column_is_direction_not_gate_state(tmp_path: Path):
+    """R1-LOW-2：Diff 表 regressed/improved 只是数值方向，不是质量/门禁状态。"""
+    baseline = baseline_run(tmp_path)
+    saved = save_baseline(baseline, tmp_path / "baselines")
+    current = current_run(tmp_path)
+    diff = diff_runs(saved, current)
+    markdown = render_markdown(diff, _gate_with_hard_failure(), summary=current.summary)
+    assert "regressed/improved 只是数值方向" in markdown
+    assert "regressed/improved 只是数值方向" in render_html(
+        current.summary, diff, _gate_with_hard_failure()
+    )
 
 
 def test_html_is_single_file_inline_css_no_script_no_external(tmp_path: Path):

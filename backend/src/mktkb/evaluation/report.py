@@ -19,6 +19,8 @@
 - HTML **单文件**：内联 CSS、无 ``<script>``、无 http(s) / ``src=`` / ``href=`` 外部资源，
   无服务依赖；
 - 两个渲染器都是纯函数：不写文件、不参与门禁判定，``report.html`` 不被 gate 读取；
+- Diff 表的 ``regressed`` / ``improved`` 只是**数值方向**（按 ``direction``），不是质量/
+  门禁状态；阈值判定看质量层，缺已审批阈值时仍是 ``unknown``；
 - 阈值未审批（T009 人工门）、``quality=False`` 的 exit 0、``cost_per_case_cny`` 零样本、
   ``p95_latency_ms`` 无 SLA 都在报告里显式标 unknown / 未评估，绝不写成通过或 0。
 """
@@ -93,7 +95,11 @@ _DENOMINATOR_RULES: tuple[str, ...] = (
 
 @dataclass(frozen=True)
 class MetricDelta:
-    """一个指标在一个 stratum 上的 baseline/current 观测差（不参与门禁判定）。"""
+    """一个指标在一个 stratum 上的 baseline/current 观测差（不参与门禁判定）。
+
+    ``status`` 只是**数值方向**：``regressed`` / ``improved`` 表示数值按 ``direction``
+    变差/变好，不是质量或门禁状态；阈值判定属于质量层（无已审批阈值时仍是 ``unknown``）。
+    """
 
     metric: str
     group: str
@@ -289,6 +295,7 @@ def _unknown_reason(left: Any, right: Any) -> str:
 
 
 def _delta_status(spec: Any, left: Any, right: Any) -> tuple[float | None, str, str | None]:
+    """返回 (差值, 方向状态, unknown 原因)；方向状态不是质量/门禁判定。"""
     if left is None or right is None or left.observed is None or right.observed is None:
         return None, "unknown", _unknown_reason(left, right)
     delta = float(right.observed) - float(left.observed)
@@ -683,12 +690,36 @@ def _report_data(
                 for item in gate.quality.failures
             ],
         }
-        eligible = [item for item in gate.quality.metrics if item.dataset_sample > 0]
-        if eligible:
-            smallest = min(eligible, key=lambda item: item.denominator)
+        # min_sample 提示只取**非零分母**：零样本指标（如 cost_per_case_cny）的 0 不是样本量，
+        # 绝不能作为最小值；按指标分组各取最小非零 stratum 分母（R1-MEDIUM-1）。
+        positive = [item for item in gate.quality.metrics if item.denominator > 0]
+        zero_sample_metrics = sorted(
+            {item.metric for item in gate.quality.metrics}
+            - {item.metric for item in positive}
+        )
+        if positive:
+            group_min: dict[str, Any] = {}
+            for item in positive:
+                current = group_min.get(item.group)
+                if current is None or item.denominator < current.denominator:
+                    group_min[item.group] = item
+            hint = "最小非零 stratum 分母（按分组）：" + "、".join(
+                f"{group}={item.denominator}（{item.metric}/{item.stratum}）"
+                for group, item in group_min.items()
+            )
+            if zero_sample_metrics:
+                hint += (
+                    "；零样本指标（分母 0）不参与 min_sample 提示："
+                    + _join(zero_sample_metrics)
+                )
+            hint += (
+                "；单值配置的 min_sample 不得超过对应分组的最小非零分母，"
+                "报告只提示、不自动改写配置"
+            )
+            quality["min_sample_hint"] = hint
+        elif zero_sample_metrics:
             quality["min_sample_hint"] = (
-                f"最小 stratum 分母 = {smallest.denominator}（{smallest.metric}/{smallest.stratum}）；"
-                "单值配置的 min_sample 不得超过该值，报告只提示、不自动改写配置"
+                "全部指标为零样本（分母 0）：不给 min_sample 数值提示，零样本一律 unknown、不当 0"
             )
 
     delta_rows = [
@@ -721,7 +752,8 @@ def _report_data(
     )
     p95_items = [item for item in diff.metric_deltas if item.metric == "p95_latency_ms"]
     p95_note = (
-        "p95_latency_ms 无 SLA（配置无已审批阈值）：只展示观测值与差值，状态 unknown，不判定通过"
+        "p95_latency_ms 无 SLA（配置无已审批阈值）：只展示观测值与差值，质量/门禁状态 unknown，"
+        "不判定通过；Diff 表该行的 regressed/improved 只是数值方向，不是质量或门禁状态"
         if p95_items and all(not item.threshold_configured for item in p95_items)
         else "p95_latency_ms 阈值由本次配置提供（有值）；SLA / 阈值审批口径以配置与审批记录为准"
     )
@@ -885,6 +917,8 @@ def render_markdown(
         "- 说明: 空 diff（无变化）为全空列表，不是异常；new/fixed/still 按 case_id 排序",
         "- 说明: 放行资格只表示 baseline/对比方式可用于发布比较；当前 run 门禁必须同时为 "
         "exit_code 0（见首段）",
+        "- 说明: Diff 表『状态』列的 regressed/improved 只是数值方向（按指标 direction），"
+        "不是质量/门禁状态；阈值判定见质量层，缺已审批阈值时仍为 unknown",
         "",
     ]
     if diff_data["delta_rows"]:
@@ -1067,6 +1101,8 @@ def render_html(
         "<li class='note'>空 diff（无变化）为全空列表，不是异常；new/fixed/still 按 case_id 排序</li>",
         "<li class='note'>放行资格只表示 baseline/对比方式可用于发布比较；当前 run 门禁必须同时为 "
         "exit_code 0（见首段）</li>",
+        "<li class='note'>Diff 表『状态』列的 regressed/improved 只是数值方向（按指标 direction），"
+        "不是质量/门禁状态；阈值判定见质量层，缺已审批阈值时仍为 unknown</li>",
         "</ul>",
     ]
     if diff_data["delta_rows"]:
