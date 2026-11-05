@@ -1,0 +1,28 @@
+# T006a verify - mutation probes (outside the repo)
+
+Method: copy `backend/src/mktkb` to a fresh %TEMP% package, apply exactly one source mutation to the copy, run a minimal independent fixture through the copied gate, compare with the unmutated package. No repo file was modified.
+
+[0] unmutated baseline (per scenario)
+missing_recall exit=1; replayed exit=0; clean exit=0; live exit=4
+
+[1] remove `required_spans` enforcement
+mutation: `required = set(required_spans(...))` -> `required = set()`
+scenario: rag+answer trace lacking `recall`
+observed: original_exit=1, mutated_exit=0 -> PASS (probe turns red)
+
+[2] do not skip replayed records
+mutation: `if bool(record.replayed) or status == "replayed":` -> `if False:`
+scenario: replayed trace with path=None/outcome_kind=None/no spans
+observed: original_exit=0, mutated_exit=1 -> PASS (probe turns red)
+
+[3] hardcode min_sample to 40
+mutation: `elif scored_count < min_sample:` -> `elif scored_count < 40:`
+scenario: one clean scored b0 case, config min_sample=1
+observed: original_exit=0, mutated_exit=3 -> PASS (probe turns red)
+
+[4] let live through
+mutation: `if mode.lower() == "live":` -> `if False:` and `if mode not in {"local","replay"}:` -> `if False:`
+scenario: direct RunManifest(mode="live") with clean row + trace
+observed: original_exit=4, mutated_exit=0 -> PASS (probe turns red)
+
+Command: .\.venv\Scripts\python.exe -B %TEMP%\t006a_mutation_probe.py

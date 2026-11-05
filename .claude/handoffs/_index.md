@@ -17,7 +17,7 @@
 | T004a | 评测数据集 + gold 解析 + fixtures | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/2 LOW 非阻断；dev commit `574e288`；验收方全量 1377 passed） | 0 | 否 | T003d R1 ✅ |
 | T004b | scorer（值/来源/kind/分页/拒答/检索） | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.8 全 PASS；3 MEDIUM/5 LOW 非阻断；dev commit `f126598`；验收方全量 1377 passed） | 0 | 否 | T004a ✅ |
 | T005 | Replay / Local Runner + 运行清单 | **G4 通过**（独立验收 PASS：`review.md`，§5.1–5.6 全 PASS；2 MEDIUM/3 LOW 非阻断；dev commit `80fd092`；验收方全量 1397 passed） | 0 | 否 | T004b ✅ |
-| T006a | 门禁硬层（8 项）+ 退出码 | G3 验收中（dev commit `f6bb3c4`，8 文件；72 新用例；全量 1469 passed；独立验收者已派） | 0 | 否 | T005 ✅ |
+| T006a | 门禁硬层（8 项）+ 退出码 | G2 R1 返工中（首轮 `f6bb3c4` 验收 FAIL：3 HIGH fail-open + 2 MEDIUM；返工单 `rework-R1.md`；独立验收 `review.md`） | 1 | 否 | T005 ✅ |
 | T006b | 门禁质量层 + 校准 + 豁免 | G1 待派单（handoff 已落盘） | 0 | 否 | T006a |
 | T007 | Baseline + Diff + 报告 | G0 待派 | 0 | 否 | T006b |
 | T008a | CLI 与 P0 全流程 run | G0 待派 | 0 | 否 | T007 |
