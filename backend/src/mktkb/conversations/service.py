@@ -1462,6 +1462,78 @@ class _Result:
     reason: str | None = None
 
 
+def _annotate_overshoot_fallback(*, total: int, strategy: str, term_queries: int = 0) -> None:
+    """T103：把 overshoot 回落的降级事实写入既有 trace 数据字段。
+
+    只写 ``filter_decisions_json`` 的顶层数据键（tracer 在 finish 时会保留既有键并并入
+    条件 Span 属性），不新增 TraceRecord 字段、不改必需 Span 表或 outcome 枚举。
+    """
+    trace_attrs.annotate_trace(
+        filter_decisions_json={
+            "record_overshoot_fallback": True,
+            "record_overshoot_total": int(total),
+            "record_overshoot_strategy": strategy,
+            "record_overshoot_term_queries": int(term_queries),
+        }
+    )
+
+
+def _record_overshoot_result(
+    evidence: EvidenceSet, revision: int, plan: intent_module.IntentPlan
+) -> _Result:
+    """记录型 overshoot：给出真实命中量 + 可点击候选/缩小方式，不再返回零候选死路。"""
+    total = int(evidence.total_candidates)
+    candidates = _candidate_view(plan, evidence)
+    shown = f"已列出前 {len(candidates)} 条候选，" if candidates else ""
+    if total > 100:
+        reason = f"匹配到 {total} 条候选记录，超过单次检索上限 100 条"
+    else:
+        reason = f"匹配到 {total} 条候选记录，但涉及记录行超过单次检索上限 100 行"
+    return _Result(
+        kind="clarification",
+        text=f"{reason}；{shown}请补充门店、物品或标识等条件缩小范围。",
+        revision=revision,
+        candidates=candidates,
+    )
+
+
+def _document_overshoot_evidence(
+    db_factory,
+    evidence: EvidenceSet,
+    intent: QueryIntent,
+    revision: int,
+) -> EvidenceSet:
+    """正文型 overshoot：按单检索词复用 ``_retrieve`` 扩大证据面，再交既有排序取正文。
+
+    正文检索结果按文档/序号截断；宽泛词面命中超过 100 条时，前 100 条可能压掉真正
+    命中的小文档。逐词再取一次（仍走同一检索入口与同一 limit 上限）只扩大候选集合，
+    不改变检索/排序语义。返回值仍标记 ``truncated``，由后续既有正文排序选取证据。
+    """
+    terms = tuple(intent.terms)
+    _annotate_overshoot_fallback(
+        total=evidence.total_candidates,
+        strategy="document_term_union",
+        term_queries=len(terms),
+    )
+    units = list(evidence.units)
+    seen = {unit.id for unit in units}
+    for term in terms:
+        narrowed = QueryIntent(mode="document", terms=(term,), entity_filters=intent.entity_filters)
+        extra = _retrieve(db_factory, narrowed, revision, limit=100)
+        for unit in extra.units:
+            if unit.id not in seen:
+                seen.add(unit.id)
+                units.append(unit)
+    return EvidenceSet(
+        units=units,
+        kind=evidence.kind,
+        total_candidates=evidence.total_candidates,
+        revision=evidence.revision,
+        candidates=list(evidence.candidates),
+        truncated=True,
+    )
+
+
 def _reference_ids(result: _Result) -> list[str]:
     """本次结果需要持久化/校验的来源：普通答案的引用 + 冲突条目的各自来源。"""
     ids = list(result.source_ids)
@@ -2010,11 +2082,12 @@ async def _answer(
         if evidence.truncated:
             evidence = _evidence(plan.intent, 100)
             if evidence.truncated:
-                return _Result(
-                    kind="clarification",
-                    text="符合条件的记录过多，请缩小查询条件后重试。",
-                    revision=revision,
-                )
+                if plan.intent.mode == "record":
+                    _annotate_overshoot_fallback(
+                        total=evidence.total_candidates, strategy="record_candidates"
+                    )
+                    return _record_overshoot_result(evidence, revision, plan)
+                evidence = _document_overshoot_evidence(db_factory, evidence, plan.intent, revision)
     except KnowledgeRevisionChanged:
         return _Result(kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory))
     except IndexNotReady:
@@ -2049,6 +2122,15 @@ async def _answer(
                 evidence = _evidence(expanded, 20)
                 if evidence.truncated:
                     evidence = _evidence(expanded, 100)
+                    if evidence.truncated:
+                        if expanded.mode == "record":
+                            _annotate_overshoot_fallback(
+                                total=evidence.total_candidates, strategy="record_candidates"
+                            )
+                            return _record_overshoot_result(evidence, revision, plan)
+                        evidence = _document_overshoot_evidence(
+                            db_factory, evidence, expanded, revision
+                        )
             except KnowledgeRevisionChanged:
                 return _Result(
                     kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory)

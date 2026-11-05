@@ -132,6 +132,11 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
                     </button>
                   ))}
                 </div>
+              ) : live ? (
+                <p className="state-note">
+                  <Icon name="info" size={12} />
+                  本次回答没有返回可选项；请按上方提示补充门店、物品或更具体的条件后重新提问。
+                </p>
               ) : (
                 <p className="state-note">
                   <Icon name="info" size={12} />
