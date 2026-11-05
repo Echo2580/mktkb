@@ -1,0 +1,58 @@
+T008b 独立验收 · p0-report 一致性与边界
+=======================================
+日期：2026-11-05；对象 2f7b174；HEAD a9b474a。
+
+一、交付物与证据 SHA-256（独立 Get-FileHash 实测）
+  test_p0_acceptance.py        632f09bbbbce7f75422d795d05c49b64c454b37ba08539e40269694056b86c59
+  golden/chat_response.json    b86484dcf1fc45387a361358a4d8f123a32d12d3900f4ebda080088a2bfd8e52
+  evaluation/conftest.py       27f432d1ffd3316fa882c9f15fb1a8f5bee82fd39c99e79ddeed756d35630010
+  evidence 01                  667a7362914518a248891192730440d918dddbb8aae2686882ab22ffd7d7a645
+  evidence 02                  b255b9947a75ed6599b375fe6bbf45b80fdc88883428cc55df031f33889bb9fd
+  evidence 03                  9a24aa50c61c36a0054a40fd2d46caac17dd5a2a7966f7d0a5d01cb75e26ebb0
+  evidence 04                  0e368500750476f4211c854379e4c14ae5281d89cbc921b5ab09cedc28f7b635
+  docs/evaluation/gate_v0_1.json 8b37182472087b878340626a33e4ab5b206026126240bc441e7350dbbccad209
+均与 p0-report §6 锚一致；gate_v0_1.json 未改写（p0-report §2 末尾）。
+
+二、口径（独立重跑 b0 / badcase 的 summary.json + cases.jsonl）
+  b0：case 40；scored 32；skipped_ocr 8；status pass 29 / fail 3（Q25/Q26/Q31）；
+       dataset_version b0:b0-2026-11-04:bd4f0f7ccc6e；dataset_sha256 bd4f0f7c...；
+       index_revision 6；pipeline_version 735da1397044；error 0。
+  badcase：case 13；scored 13；skipped_ocr 0；status pass 9 / fail 4（N05/N06/N09/N11）；
+       dataset_version badcase:badcase-2026-11-04:e5f0662af3f2；index_revision 4；error 0。
+  badcase 无 gold：N10/N12/N13 -> 检索分母 10/13；答案分母 13（与 p0-report §3 一致）。
+  p0-report §3 的 40/32/8、29/3、13/13、9/4、6/4、735da1397044、1593/320 均可对上。
+
+三、#5 测试内审批配置的产物（独立运行 test_p0_acceptance.py 的 tmp 目录）
+  baseline_id = c0ce2856938f（与 p0-report 一致）
+  gate.json：exit 0，quality.status=pass，config_status=approved（仅测试内配置）
+  diff.json：release_allowed=True，release_blocked_reason=None，empty=True，
+             metric_deltas=30，new_failures=[]，new_errors=[]，16855 B
+  report.md 7888 B；report.html 13451 B（与 p0-report §1 第 5 条字节数逐字一致）
+  默认配置路径另测：gate/diff/export/approve 均 exit 3，baseline list 0；
+  live exit 2；--allow-holdout-details exit 2（见 02 文件）。
+  p0-report 明确标注这是测试内审批、不是 T009，且不声明质量达标。
+
+四、p0-report 文本约束
+  默认 exit 3 / thresholds_unapproved：§0、§1、§5 均有；真实 baseline 待 T009：§0、§4、§5；
+  live->4：§4 明确 NOT-RUN/GAP（只承认单测覆盖），未声称端到端；
+  放行看 release_allowed/release_blocked_reason：§5 明确；无“质量通过”字样；
+  免责句原文：§0 两段（含“P0 只证明离线回归与确定性门禁工作正常...”）。
+  文件实际 171 行；开发 report.md 第 15 行写“p0-report.md（104 行）”，与实际不符（LOW，
+  不影响 p0-report 内容完整性）。
+
+五、提交边界
+  git show --name-status 2f7b174：9 文件（A 8 / M 1），全部在 handoff §2 允许路径；
+  parent 5152298 为 7 个 docs/簿记文件的纯簿记提交。
+  git diff --numstat 5152298 2f7b174：conftest.py 14 行新增 / 0 删除；其余文件均新增，
+  无删除行；无 backend/src、tools、docs/evaluation、docs/evidence、var、依赖文件改动；
+  无 .env、_index.md 或其他包产物；工作树验收后 git status 为空。
+  HEAD 当前为 a9b474a（T008b verify prompt + index 簿记），不属于本包交付。
+
+六、LOW 观察（非阻断）
+  L1 p0-report 171 行 vs 开发 report.md 写 104 行。
+  L2 golden 的“两次独立采集字节相同”只有开发证据 01 §E 转录；采集脚本仅在 %TEMP%，
+     未入库，无法独立重放；#1 在同一应用内二次提问稳定，golden 哈希已锚定。
+  L3 #1 只断言 _meta.captured_from_commit / capture_command 非空，未断言 commit==5152298。
+  L4 #7 的业务问答阶段已还原 socket guard（报告已说明）；socket=0 只覆盖评测全流程。
+  L5 p0-report 的 CLI 精确产物 SHA（gate/diff/report）来自证据 02，未按同一 run_id 重放；
+     本次独立复现了 diff/report 字节数与 release_allowed 机制，未复现同一 run 的哈希。

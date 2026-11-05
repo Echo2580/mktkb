@@ -1,0 +1,26 @@
+T008b 独立验收 · 测试执行
+=========================
+日期：2026-11-05
+对象：commit 2f7b174（p0/T008b p0 acceptance；当前 HEAD a9b474a 仅为 verify prompt + index 簿记）
+环境：Windows PowerShell；MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0；.\.venv\Scripts\python.exe -B
+策略：串行执行；basetemp 全部在 %TEMP%，不写仓库；每条后 git status --porcelain 为空。
+
+[1] 七条验收文件（1 次）
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p0_acceptance.py -q -p no:cacheprovider --basetemp %TEMP%\t008b-verify-acc-<id>
+-> 7 passed, 1 warning in 7.19s（exit 0；wall 7.19s）
+   测试函数：test_acceptance_01..07（test_p0_acceptance.py:181,213,259,299,379,497,524）
+   warning 仅为 fastapi.testclient 的 httpx deprecation，非失败。
+
+[2] evaluation 目录（1 次）
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp %TEMP%\t008b-verify-eval-<id>
+-> 320 passed, 1 warning in 18.67s（exit 0；wall 21.02s）
+
+[3] 全量 backend/tests（1 次）
+$ .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp %TEMP%\t008b-verify-full-<id>
+-> 1593 passed, 1 warning in 399.10s (0:06:39)（exit 0；wall 403.66s；0 failed / 0 error）
+
+对照：开发报告为 7.21s / 320 passed 18.52s / 1593 passed 381.02s；pass 数一致，
+全量时长差 18s（环境负载），不构成口径差异。既有 flake
+test_g08_short_budget_cancels_inflight_model_call 本轮未命中。
+
+仓库：三次运行后 git status --porcelain 均为空；未生成 var/ 或 docs/evidence/** 变更。
