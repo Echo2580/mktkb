@@ -1,0 +1,73 @@
+T003d independent verification - reviewer-authored probe (not a delivered test)
+command: python -B -m pytest backend/tests/observability/zz_verify_probe.py -q -s -p no:cacheprovider (probe copied temporarily into the isolated copy only)
+probe source: 10-reviewer-probe.py
+result: 10 passed, 1 failed - the single failure is the finding in review.md section 3.1
+
+.....OBSERVED commit-upgrade trace: path= legacy outcome= knowledge_changed reason= KNOWLEDGE_CHANGED status= ok spans= ['commit', 'intent_parse'] missing= ['retrieve']
+FOBSERVED replay trace: status= replayed path= rag outcome= None spans= []
+.....
+================================== FAILURES ===================================
+_______ test_probe_s511_commit_time_knowledge_changed_after_early_exit ________
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x00000219BCD25580>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000219B966D310>
+
+    def test_probe_s511_commit_time_knowledge_changed_after_early_exit(trace_chat_app, monkeypatch):
+        """Reachable race: a publish between claim and commit upgrades an early not_found
+        to knowledge_changed *without* ever executing retrieve.
+    
+        ��5.11 asks for rows '��ʵ��ִ�С���α��'. The implemented legacy+knowledge_changed
+        row always requires retrieve, so this real execution shape fails integrity.
+        """
+        admin, employee = open_session(trace_chat_app, "admin", "AdminPass-1"), open_session(
+            trace_chat_app, "employee", "EmployeePass-1"
+        )
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+        real_commit = conv_service._commit_result
+    
+        def _bump_revision_then_commit(*args, **kwargs):
+            db = trace_chat_app.state.db.session()
+            try:
+                state = db.get(KnowledgeState, 1)
+                state.revision = int(state.revision) + 1  # simulate concurrent publish
+                db.commit()
+            finally:
+                db.close()
+            return real_commit(*args, **kwargs)
+    
+        monkeypatch.setattr(conv_service, "_commit_result", _bump_revision_then_commit)
+        response = _ask(employee, conversation_id, EARLY_QUESTIONS[0])
+        assert response.status_code == 200, response.text
+        body = response.json()
+        assert body["kind"] == "knowledge_changed", body
+        trace, spans = _trace_of(trace_chat_app, response)
+        names = _names(spans)
+        print(
+            "OBSERVED commit-upgrade trace:",
+            "path=", trace.path,
+            "outcome=", trace.outcome_kind,
+            "reason=", trace.reason,
+            "status=", trace.status,
+            "spans=", sorted(names),
+            "missing=", validate_required_spans(trace, names),
+        )
+        assert trace.path == "legacy"
+        assert trace.outcome_kind == "knowledge_changed"
+        assert names == {"intent_parse", "commit"}, names
+>       assert validate_required_spans(trace, names) == []
+E       AssertionError: assert ['retrieve'] == []
+E         
+E         Left contains one more item: 'retrieve'
+E         Use -v to get more diff
+
+backend\tests\observability\zz_verify_probe.py:274: AssertionError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\observability\zz_verify_probe.py::test_probe_s511_commit_time_knowledge_changed_after_early_exit
+1 failed, 10 passed, 1 warning in 11.61s

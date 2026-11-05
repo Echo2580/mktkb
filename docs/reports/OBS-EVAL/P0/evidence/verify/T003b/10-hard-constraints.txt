@@ -1,0 +1,43 @@
+﻿=== T003b hard constraints audit ===
+
+--- [1] no new dependencies: dependency files not in commit/diff ---
+dependency_files_changed=NONE (empty above)
+
+--- [2] imports added by production diff ---
++import re
++from .observability import TraceMode, start_trace
++from .observability.store import TraceRepository
+assessment: 're'=stdlib; '.observability'/'observability.store'=in-repo existing package (T001/T002/T003a accepted); no third-party new imports
+
+--- [3] zero .env read in ADDED code (grep added lines) ---
+env_read_hits=NONE
+(Settings 仍用既有 pydantic-settings env_file='.env' 设计；新增代码无直接读取/解析 .env)
+
+--- [4] no credential / HMAC key logging or printing in added code ---
+logging_or_print_hits_in_added_prod_lines=NONE
+added hmac-related prod lines:
+
++    # 真实业务问题的 HMAC 密钥（设计 §6.5）：只用于 question_hash，记录里只存 key 指纹；
++    trace_hmac_key: SecretStr | None = None
++    @field_validator("trace_hmac_key", mode="before")
++    def _normalize_trace_hmac_key(cls, value: object) -> object:
++    def trace_hmac_key_bytes(self) -> bytes | None:
++        """HMAC key 的字节形式；未配置时 ``None``（tracer 退化为 sha256，设计 §6.5）。
++        只供 ``start_trace(hmac_key=...)`` 在内存中使用：不打印、不落库、不进异常。
++        if self.trace_hmac_key is None:
++        raw = self.trace_hmac_key.get_secret_value().encode("utf-8")
++                hmac_key=settings.trace_hmac_key_bytes,
+
+--- [5] response body / API field structure: only new response header ---
++                response.headers["X-Trace-ID"] = trace.trace_id
++                response.headers["X-Request-ID"] = request.state.request_id
+
+--- [6] flaky test source unchanged between baseline and target ---
+test_chat.py diff lines: 
+test_answer_commit.py diff lines: 
+
+--- [7] write scope: working tree tracked changes (should be only pre-existing PM _index.md) ---
+ M .claude/handoffs/_index.md
+porcelain backend/src changes:
+
+

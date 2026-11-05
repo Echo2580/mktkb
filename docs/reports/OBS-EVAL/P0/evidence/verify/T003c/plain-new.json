@@ -1,0 +1,459 @@
+{
+  "first": {
+    "answer_source": "structured",
+    "citations": [
+      {
+        "display": "测试资料（工作表 物品位置 第 7 行，版本 当前，修订 1）",
+        "doc_id": "D01",
+        "locator": {
+          "chunk_count": 1,
+          "chunk_index": 0,
+          "header_row": 6,
+          "record_ref": "9e0186b1",
+          "row": 7,
+          "sheet": "物品位置",
+          "unit_key": "sheet:物品位置:row:7"
+        },
+        "revision": 1,
+        "source_id": "ff52a3cbcfc9bdb5644576f23cdcd049",
+        "source_path": "D01.xlsx",
+        "title": "测试资料",
+        "version_id": "D01-v1",
+        "version_label": "当前"
+      }
+    ],
+    "diagnostics": {
+      "citations": [
+        "测试资料（工作表 物品位置 第 7 行，版本 当前，修订 1）"
+      ],
+      "degraded": [],
+      "error": null,
+      "evidence_ids": [
+        "ff52a3cbcfc9bdb5644576f23cdcd049"
+      ],
+      "has_more": false,
+      "lexical_expression": "((\"滨江\") OR (\"滨江\")) OR ((\"宣传海报\") OR (\"宣传\" \"传海\" \"海报\")) OR ((\"放在\") OR (\"放在\")) OR ((\"哪里\") OR (\"哪里\")) OR ((\"滨江\" \"店\") OR (\"滨江\" \"江店\"))",
+      "mock": true,
+      "next_page": null,
+      "plan": {
+        "as_of": "2026-10-28",
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报",
+          "store": "滨江店"
+        },
+        "include_future": false,
+        "mode": "record",
+        "page": 1,
+        "page_size": 10,
+        "reason": null,
+        "terms": [
+          "滨江",
+          "宣传海报",
+          "放在",
+          "哪里",
+          "滨江店"
+        ]
+      },
+      "provider_mode": "offline",
+      "query_embedding_estimated_cny": 0.0,
+      "recall": {
+        "exact": 1,
+        "fused": 1,
+        "lexical": 1,
+        "returned": 1,
+        "vector": 1
+      },
+      "rerank": {
+        "candidates": 1,
+        "estimated_list_price_cny": 0.0,
+        "model": "lexical-overlap-v1",
+        "provider": "offline-lexical",
+        "usage": {}
+      },
+      "returned": 1,
+      "revision": 1,
+      "total": 1,
+      "vector_candidates": 1,
+      "vector_error": null,
+      "vector_scored": 1
+    },
+    "facts": [
+      {
+        "doc_id": "D01",
+        "entity_key": "item|滨江店|宣传海报",
+        "entity_label": "滨江店的宣传海报",
+        "field_label": "位置",
+        "field_role": "location",
+        "revision": 1,
+        "source_chunk_id": "ff52a3cbcfc9bdb5644576f23cdcd049",
+        "source_unit_id": "D01-fixed-0",
+        "value": "店内外侧",
+        "version_id": "D01-v1"
+      }
+    ],
+    "kind": "answer",
+    "question": "滨江店的宣传海报放在哪里？",
+    "reason": null,
+    "state": {
+      "as_of": "2026-10-28",
+      "candidates": [],
+      "channel": null,
+      "conversation_id": "c-fixed",
+      "doc_id": null,
+      "doc_title": null,
+      "enumerate": false,
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "identifier": null,
+      "item": "宣传海报",
+      "last_kind": "answer",
+      "last_question": "滨江店的宣传海报放在哪里？",
+      "page": 1,
+      "page_size": 10,
+      "pending_slot": null,
+      "price_type": null,
+      "product": null,
+      "store": "滨江店",
+      "stores": [
+        "滨江店"
+      ],
+      "turn": 1,
+      "user_id": "u"
+    },
+    "text": "根据资料，滨江店的宣传海报的位置：店内外侧。"
+  },
+  "info": {
+    "mktkb_file": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003c-verify\\new\\backend\\src\\mktkb\\__init__.py"
+  },
+  "scenarios": {
+    "clarification": {
+      "answer_source": "clarification",
+      "citations": [],
+      "diagnostics": {
+        "error": null,
+        "mock": true,
+        "plan": {
+          "as_of": "2026-10-28",
+          "clarification": "请说明要查询的物品、门店或流程名称。",
+          "enumerate": false,
+          "field_role": null,
+          "filters": {},
+          "include_future": false,
+          "mode": "document",
+          "page": 1,
+          "page_size": 10,
+          "reason": "EMPTY_QUERY",
+          "terms": []
+        },
+        "provider_mode": "offline"
+      },
+      "facts": [],
+      "kind": "clarification",
+      "question": "？",
+      "reason": "EMPTY_QUERY",
+      "state": {
+        "as_of": "2026-10-28",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "c-clarification",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": null,
+        "field_roles": [],
+        "identifier": null,
+        "item": null,
+        "last_kind": null,
+        "last_question": "？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 1,
+        "user_id": "u"
+      },
+      "text": "请说明要查询的物品、门店或流程名称。 可选：滨江店"
+    },
+    "document_no_answer": {
+      "answer_source": "refusal",
+      "citations": [],
+      "diagnostics": {
+        "citations": [
+          "测试资料（工作表 物品位置 第 7 行，版本 当前，修订 1）"
+        ],
+        "degraded": [],
+        "error": null,
+        "evidence_ids": [
+          "ff52a3cbcfc9bdb5644576f23cdcd049"
+        ],
+        "has_more": false,
+        "lexical_expression": "((\"公司\") OR (\"公司\")) OR ((\"年度\") OR (\"年度\")) OR ((\"愿景\") OR (\"愿景\"))",
+        "mock": true,
+        "next_page": null,
+        "plan": {
+          "as_of": "2026-10-28",
+          "clarification": null,
+          "enumerate": false,
+          "field_role": null,
+          "filters": {},
+          "include_future": false,
+          "mode": "document",
+          "page": 1,
+          "page_size": 10,
+          "reason": null,
+          "terms": [
+            "公司",
+            "年度",
+            "愿景"
+          ]
+        },
+        "provider_mode": "offline",
+        "query_embedding_estimated_cny": 0.0,
+        "recall": {
+          "exact": 0,
+          "fused": 1,
+          "lexical": 0,
+          "returned": 1,
+          "vector": 1
+        },
+        "rerank": {
+          "candidates": 1,
+          "estimated_list_price_cny": 0.0,
+          "model": "lexical-overlap-v1",
+          "provider": "offline-lexical",
+          "usage": {}
+        },
+        "returned": 1,
+        "revision": 1,
+        "total": 1,
+        "vector_candidates": 1,
+        "vector_error": null,
+        "vector_scored": 1
+      },
+      "facts": [],
+      "kind": "no_answer",
+      "question": "公司的年度愿景是什么？",
+      "reason": "NO_SUPPORTING_SENTENCE",
+      "state": {
+        "as_of": "2026-10-28",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "c-document_no_answer",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": null,
+        "field_roles": [],
+        "identifier": null,
+        "item": null,
+        "last_kind": "no_answer",
+        "last_question": "公司的年度愿景是什么？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 1,
+        "user_id": "u"
+      },
+      "text": "找到的资料与问题没有足够重合，不能据此作答。"
+    },
+    "document_not_found": {
+      "answer_source": "refusal",
+      "citations": [],
+      "diagnostics": {
+        "error": null,
+        "mock": true,
+        "plan": {
+          "as_of": "2026-10-28",
+          "clarification": "资料“促销活动台账”未收录，未使用其它资料替代。",
+          "enumerate": false,
+          "field_role": "location",
+          "filters": {},
+          "include_future": false,
+          "mode": "document",
+          "page": 1,
+          "page_size": 10,
+          "reason": "DOCUMENT_NOT_FOUND",
+          "terms": [
+            "促销",
+            "活动",
+            "台账",
+            "哪里"
+          ]
+        },
+        "provider_mode": "offline"
+      },
+      "facts": [],
+      "kind": "no_answer",
+      "question": "促销活动台账在哪里？",
+      "reason": "DOCUMENT_NOT_FOUND",
+      "state": {
+        "as_of": "2026-10-28",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "c-document_not_found",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": "location",
+        "field_roles": [
+          "location"
+        ],
+        "identifier": null,
+        "item": null,
+        "last_kind": null,
+        "last_question": "促销活动台账在哪里？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 1,
+        "user_id": "u"
+      },
+      "text": "资料“促销活动台账”未收录，未使用其它资料替代。"
+    }
+  },
+  "second": {
+    "answer_source": "structured",
+    "citations": [
+      {
+        "display": "测试资料（工作表 物品位置 第 7 行，版本 当前，修订 1）",
+        "doc_id": "D01",
+        "locator": {
+          "chunk_count": 1,
+          "chunk_index": 0,
+          "header_row": 6,
+          "record_ref": "9e0186b1",
+          "row": 7,
+          "sheet": "物品位置",
+          "unit_key": "sheet:物品位置:row:7"
+        },
+        "revision": 1,
+        "source_id": "ff52a3cbcfc9bdb5644576f23cdcd049",
+        "source_path": "D01.xlsx",
+        "title": "测试资料",
+        "version_id": "D01-v1",
+        "version_label": "当前"
+      }
+    ],
+    "diagnostics": {
+      "citations": [
+        "测试资料（工作表 物品位置 第 7 行，版本 当前，修订 1）"
+      ],
+      "degraded": [],
+      "error": null,
+      "evidence_ids": [
+        "ff52a3cbcfc9bdb5644576f23cdcd049"
+      ],
+      "has_more": false,
+      "lexical_expression": "((\"滨江\") OR (\"滨江\")) OR ((\"宣传海报\") OR (\"宣传\" \"传海\" \"海报\")) OR ((\"放在\") OR (\"放在\")) OR ((\"哪里\") OR (\"哪里\")) OR ((\"滨江\" \"店\") OR (\"滨江\" \"江店\"))",
+      "mock": true,
+      "next_page": null,
+      "plan": {
+        "as_of": "2026-10-28",
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报",
+          "store": "滨江店"
+        },
+        "include_future": false,
+        "mode": "record",
+        "page": 1,
+        "page_size": 10,
+        "reason": null,
+        "terms": [
+          "滨江",
+          "宣传海报",
+          "放在",
+          "哪里",
+          "滨江店"
+        ]
+      },
+      "provider_mode": "offline",
+      "query_embedding_estimated_cny": 0.0,
+      "recall": {
+        "exact": 1,
+        "fused": 1,
+        "lexical": 1,
+        "returned": 1,
+        "vector": 1
+      },
+      "rerank": {
+        "candidates": 1,
+        "estimated_list_price_cny": 0.0,
+        "model": "lexical-overlap-v1",
+        "provider": "offline-lexical",
+        "usage": {}
+      },
+      "returned": 1,
+      "revision": 1,
+      "total": 1,
+      "vector_candidates": 1,
+      "vector_error": null,
+      "vector_scored": 1
+    },
+    "facts": [
+      {
+        "doc_id": "D01",
+        "entity_key": "item|滨江店|宣传海报",
+        "entity_label": "滨江店的宣传海报",
+        "field_label": "位置",
+        "field_role": "location",
+        "revision": 1,
+        "source_chunk_id": "ff52a3cbcfc9bdb5644576f23cdcd049",
+        "source_unit_id": "D01-fixed-0",
+        "value": "店内外侧",
+        "version_id": "D01-v1"
+      }
+    ],
+    "kind": "answer",
+    "question": "滨江店的宣传海报放在哪里？",
+    "reason": null,
+    "state": {
+      "as_of": "2026-10-28",
+      "candidates": [],
+      "channel": null,
+      "conversation_id": "c-fixed",
+      "doc_id": null,
+      "doc_title": null,
+      "enumerate": false,
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "identifier": null,
+      "item": "宣传海报",
+      "last_kind": "answer",
+      "last_question": "滨江店的宣传海报放在哪里？",
+      "page": 1,
+      "page_size": 10,
+      "pending_slot": null,
+      "price_type": null,
+      "product": null,
+      "store": "滨江店",
+      "stores": [
+        "滨江店"
+      ],
+      "turn": 2,
+      "user_id": "u"
+    },
+    "text": "根据资料，滨江店的宣传海报的位置：店内外侧。"
+  },
+  "work_root": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003c-verify\\run-new"
+}

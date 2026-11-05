@@ -1,0 +1,554 @@
+{
+  "checks": [
+    {
+      "check": "5.1a no trace: current_trace None, no observability files, answer intact",
+      "detail": {
+        "answer_kind": "answer",
+        "current_trace": null,
+        "files": [
+          "rag-39b813a1680748a99b00002fc9e2181d.sqlite3",
+          "rag-39b813a1680748a99b00002fc9e2181d.sqlite3-shm",
+          "rag-39b813a1680748a99b00002fc9e2181d.sqlite3-wal",
+          "rag-acb4b42899a04add904127fdbbfd38de.sqlite3",
+          "rag-d82da8d480b44a37992bdcad48fad5be.sqlite3"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.2 answer path span set/hierarchy/status",
+      "detail": {
+        "record": {
+          "answer_source": null,
+          "attempt": 1,
+          "case_id": null,
+          "citation_refs_json": "[{\"doc_id\":\"D01\",\"locator\":{\"chunk_count\":1,\"chunk_index\":0,\"header_row\":6,\"record_ref\":\"9e0186b1\",\"row\":7,\"sheet\":\"物品位置\",\"unit_key\":\"sheet:物品位置:row:7\"},\"unit_id_hash\":\"150e4e21f8f9e914\"}]",
+          "config_hash": null,
+          "content_mode": "hash",
+          "conversation_id_hash": null,
+          "cost_json": null,
+          "created_at": "2026-11-04T19:12:54.392+00:00",
+          "dataset_version": null,
+          "degraded_json": "[]",
+          "error_code": null,
+          "fact_gate_json": "{\"checked\":true,\"code\":null,\"passed\":true,\"units\":1}",
+          "filter_decisions_json": "{\"applied_filters\":[\"item\",\"store\"],\"enumerate\":false,\"mode\":\"record\",\"rerank_enabled\":true,\"vector_enabled\":true}",
+          "go_decision": null,
+          "hash_algo": "sha256",
+          "hmac_key_id": null,
+          "http_request_id": "probe-23726b257ed9454784c925ef2fbf7511",
+          "index_revision": "1",
+          "latency_ms": 19,
+          "manifest_sha256": null,
+          "mode": "local",
+          "outcome_kind": "answer",
+          "pagination_json": "{\"enumerate\":false,\"has_more\":false,\"next_page\":null,\"page\":1,\"page_size\":10,\"returned\":1,\"revision\":1,\"total\":1}",
+          "path": "rag",
+          "pipeline_version": null,
+          "previous_trace_id": null,
+          "query_kind": null,
+          "question_chars": 13,
+          "question_hash": "e0d75a955bbf66652e6f228dbe1a06e56b8b8b8ebfc8d47ab4ee1d3f64e13bc1",
+          "reason": null,
+          "replayed": false,
+          "request_id": null,
+          "retrieval_counts_json": "{\"exact\":1,\"fused\":1,\"lexical\":1,\"returned\":1,\"vector\":1}",
+          "run_id": null,
+          "scope": "end_to_end",
+          "status": "ok",
+          "token_usage_json": null,
+          "trace_id": "b9c7627cc3eb4f52bba655315a176d7b",
+          "trace_schema_version": "mktkb.trace.v0.1",
+          "user_id_hash": null
+        },
+        "spans": [
+          {
+            "attributes": {
+              "clarification": false,
+              "enumerate": false,
+              "filter_keys": [
+                "item",
+                "store"
+              ],
+              "mode": "record",
+              "page": 1,
+              "page_size": 10,
+              "reason": null,
+              "term_count": 5,
+              "unknown_store": false
+            },
+            "duration_ms": 0,
+            "error_code": null,
+            "name": "parse",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "exact": 1,
+              "hints": 0,
+              "lexical": 1,
+              "vector": 1,
+              "vector_enabled": true
+            },
+            "duration_ms": 7,
+            "error_code": null,
+            "name": "recall",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 1
+            },
+            "duration_ms": 2,
+            "error_code": null,
+            "name": "exact_recall",
+            "parent": "ef11c30b97ff4c2b98677b47ff44662e",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 1,
+              "expression_present": true
+            },
+            "duration_ms": 2,
+            "error_code": null,
+            "name": "lexical_recall",
+            "parent": "ef11c30b97ff4c2b98677b47ff44662e",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 1,
+              "degraded": false,
+              "degraded_reason": null
+            },
+            "duration_ms": 2,
+            "error_code": null,
+            "name": "vector_recall",
+            "parent": "ef11c30b97ff4c2b98677b47ff44662e",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "dimensions": 1024,
+              "model": "text-embedding-v4",
+              "provider": "mock",
+              "vectors": 1
+            },
+            "duration_ms": 0,
+            "error_code": null,
+            "name": "embedding_query",
+            "parent": "a21ced99b5a44f40b76c7441bdba700d",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 1,
+              "rerank_enabled": true
+            },
+            "duration_ms": 0,
+            "error_code": null,
+            "name": "fuse",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 3,
+              "dropped": 0,
+              "passed": 3
+            },
+            "duration_ms": 0,
+            "error_code": null,
+            "name": "hard_filter",
+            "parent": "5f8d0129eaf54761b712cd3decc5a638",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "candidates": 1,
+              "model": "lexical-overlap-v1",
+              "provider": "offline-lexical",
+              "scored": 1
+            },
+            "duration_ms": 0,
+            "error_code": null,
+            "name": "rerank",
+            "parent": "5f8d0129eaf54761b712cd3decc5a638",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "answer_source": "structured",
+              "citation_count": 1,
+              "fact_count": 1,
+              "kind": "answer",
+              "reason": null
+            },
+            "duration_ms": 4,
+            "error_code": null,
+            "name": "answer",
+            "parent": null,
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "passed": true,
+              "units": 1
+            },
+            "duration_ms": 4,
+            "error_code": null,
+            "name": "fact_validate",
+            "parent": "a0eb82c1bc1e43a8a2a6525b8292e8df",
+            "status": "ok"
+          },
+          {
+            "attributes": {
+              "last_kind": "answer",
+              "turn": 1
+            },
+            "duration_ms": 2,
+            "error_code": null,
+            "name": "commit",
+            "parent": null,
+            "status": "ok"
+          }
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.2b document-mode answer path: required spans present, no exact_recall",
+      "detail": {
+        "requirement": [
+          "answer",
+          "commit",
+          "embedding_query",
+          "fact_validate",
+          "fuse",
+          "hard_filter",
+          "lexical_recall",
+          "parse",
+          "recall",
+          "rerank",
+          "vector_recall"
+        ],
+        "span_names": [
+          "parse",
+          "recall",
+          "lexical_recall",
+          "vector_recall",
+          "embedding_query",
+          "fuse",
+          "hard_filter",
+          "rerank",
+          "answer",
+          "fact_validate",
+          "commit"
+        ],
+        "text": "根据资料，公司年度愿景是成为行业领先的智能知识库服务商。"
+      },
+      "ok": true
+    },
+    {
+      "check": "5.3a conditional attrs canonical and agree with spans",
+      "detail": {
+        "conditional": [
+          "rerank",
+          "vector_recall"
+        ],
+        "filter_decisions": {
+          "applied_filters": [
+            "item",
+            "store"
+          ],
+          "enumerate": false,
+          "mode": "record",
+          "rerank_enabled": true,
+          "vector_enabled": true
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "5.3b vector span absent when query embedding disabled; no embed call",
+      "detail": {
+        "embedding_calls": 0,
+        "filter_decisions": {
+          "applied_filters": [
+            "item",
+            "store"
+          ],
+          "enumerate": false,
+          "mode": "record",
+          "rerank_enabled": true,
+          "vector_enabled": false
+        },
+        "span_names": [
+          "answer",
+          "commit",
+          "exact_recall",
+          "fact_validate",
+          "fuse",
+          "hard_filter",
+          "lexical_recall",
+          "parse",
+          "recall",
+          "rerank"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.3c rerank span absent when fusion empty; flag false",
+      "detail": {
+        "filter_decisions": {
+          "applied_filters": [],
+          "enumerate": false,
+          "mode": "document",
+          "rerank_enabled": false,
+          "vector_enabled": true
+        },
+        "span_names": [
+          "answer",
+          "commit",
+          "embedding_query",
+          "fuse",
+          "hard_filter",
+          "lexical_recall",
+          "parse",
+          "recall",
+          "vector_recall"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.4a clarification: only parse+commit, validate ok",
+      "detail": {
+        "kind": "clarification",
+        "reason": "EMPTY_QUERY",
+        "span_names": [
+          "parse",
+          "commit"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.4b DOCUMENT_NOT_FOUND: only parse+commit, no fabricated retrieval/answer",
+      "error": "AssertionError: validate_required_spans 缺失=['fuse', 'recall']",
+      "ok": false,
+      "traceback": "Traceback (most recent call last):\n  File \"D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P0\\evidence\\verify\\T003c\\probe_traced.py\", line 56, in wrapper\n    detail = fn(*args, **kwargs)\n             ^^^^^^^^^^^^^^^^^^^\n  File \"D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P0\\evidence\\verify\\T003c\\probe_traced.py\", line 480, in check_document_not_found\n    assert missing == [], f\"validate_required_spans 缺失={missing}\"\n           ^^^^^^^^^^^^^\nAssertionError: validate_required_spans 缺失=['fuse', 'recall']\n"
+    },
+    {
+      "check": "5.4c retrieval no_answer: required set ok, no fabricated fact_validate",
+      "detail": {
+        "answer_span_present": true,
+        "note": "answer span 存在，但 answer 阶段真实执行（_answer_document 判定 NO_EVIDENCE）",
+        "span_names": [
+          "parse",
+          "recall",
+          "lexical_recall",
+          "vector_recall",
+          "embedding_query",
+          "fuse",
+          "hard_filter",
+          "answer",
+          "commit"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.4d conflict: required answer/fact_validate, validate ok",
+      "detail": {
+        "kind": "conflict",
+        "reason": "CONFLICTING_VALUES",
+        "span_names": [
+          "parse",
+          "recall",
+          "exact_recall",
+          "lexical_recall",
+          "vector_recall",
+          "embedding_query",
+          "fuse",
+          "hard_filter",
+          "rerank",
+          "answer",
+          "fact_validate",
+          "commit"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.4e knowledge_changed: only parse+commit, validate ok",
+      "detail": {
+        "reason": "KNOWLEDGE_CHANGED",
+        "span_names": [
+          "parse",
+          "commit"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.5a canonical JSON + no question/answer/evidence/chunk-id text in trace",
+      "detail": {
+        "leaked": [],
+        "question_hash_len": 64,
+        "record_json_fields": [
+          "citation_refs_json",
+          "degraded_json",
+          "fact_gate_json",
+          "filter_decisions_json",
+          "pagination_json",
+          "retrieval_counts_json"
+        ],
+        "string_leaves": [
+          "150e4e21f8f9e914",
+          "9e0186b1",
+          "D01",
+          "answer",
+          "item",
+          "lexical-overlap-v1",
+          "mock",
+          "offline-lexical",
+          "record",
+          "sheet:物品位置:row:7",
+          "store",
+          "structured",
+          "text-embedding-v4",
+          "物品位置"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "5.5b trace DB at rest contains no question/answer text",
+      "detail": {
+        "db_bytes": 49152,
+        "db_files": [
+          "qa-traces.sqlite3"
+        ],
+        "leaked": []
+      },
+      "ok": true
+    },
+    {
+      "check": "5.6a internal exception: span status=error, exception type/message unchanged",
+      "detail": {
+        "exception": "RuntimeError('PROBE-T003C-BOOM')",
+        "fuse": {
+          "error_code": "RuntimeError",
+          "status": "error"
+        },
+        "trace": {
+          "error_code": "RuntimeError",
+          "status": "error"
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "5.6b embedding failure: embedding span error, degradation unchanged, no new exception",
+      "detail": {
+        "degraded": [
+          "vector"
+        ],
+        "kind": "answer",
+        "span": {
+          "error_code": "EmbeddingUnavailable",
+          "status": "error"
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "5.6c fact rejection: fact_validate error, refusal answer unchanged",
+      "detail": {
+        "fact_gate": {
+          "checked": true,
+          "code": "FORGED_VALUE",
+          "passed": false,
+          "units": 1
+        },
+        "kind": "no_answer",
+        "reason": "FORGED_VALUE",
+        "span": {
+          "error_code": "ForgedValue",
+          "status": "error"
+        }
+      },
+      "ok": true
+    },
+    {
+      "check": "5.6d rerank failure: fallback semantics kept, rerank span error",
+      "detail": {
+        "kind": "answer",
+        "rerank": {
+          "error_code": "RuntimeError",
+          "status": "error"
+        },
+        "trace_status": "ok"
+      },
+      "ok": true
+    },
+    {
+      "check": "hard constraint: public result structures unchanged",
+      "detail": {
+        "RagAnswer": [
+          "kind",
+          "question",
+          "text",
+          "state",
+          "citations",
+          "facts",
+          "reason",
+          "answer_source",
+          "diagnostics"
+        ],
+        "RetrievalResult": [
+          "plan",
+          "revision",
+          "exact",
+          "lexical",
+          "vector",
+          "fused",
+          "evidence",
+          "total",
+          "returned",
+          "has_more",
+          "next_page",
+          "recall_counts",
+          "diagnostics",
+          "degraded",
+          "effective_hints"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "check": "hard constraint: zero network calls during offline ask",
+      "detail": {
+        "kind": "answer",
+        "network_calls": []
+      },
+      "ok": true
+    },
+    {
+      "check": "trace_attrs helpers: canonical JSON / stable short hash",
+      "detail": {
+        "canonical": "{\"a\":\"中文\",\"b\":1}",
+        "hash": "d1b608530bb248d3"
+      },
+      "ok": true
+    }
+  ],
+  "failed": 1,
+  "mktkb_file": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003c-verify\\new\\backend\\src\\mktkb\\__init__.py",
+  "passed": 19
+}

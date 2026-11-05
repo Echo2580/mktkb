@@ -1,0 +1,76 @@
+===== report.md 对源码的 file:line 引用核对（Python 精确 UTF-8 行号）=====
+STATUS   target                 expect-contains                                         actual-line
+--------------------------------------------------------------------------------------------------------------------------------------------
+OK       store.py:189           def write(                                              def write(self, trace: TraceRecord, spans: Sequence[SpanRecord]) -> None:
+OK       store.py:203           def write_best_effort(                                  def write_best_effort(self, trace: TraceRecord, spans: Sequence[SpanRecord]) -> None:
+OK       store.py:215           def get(                                                def get(self, trace_id: str) -> tuple[TraceRecord, list[SpanRecord]]:
+OK       store.py:234           def list_by_request(                                    def list_by_request(self, request_id: str) -> list[TraceRecord]:
+OK       store.py:249           def export_jsonl(                                       def export_jsonl(self, out: Path, *, since: datetime | None = None) -> int:
+OK       store.py:289           ensure_ascii=False                                      handle.write(json.dumps(payload, ensure_ascii=False, sort_keys=True))
+OK       store.py:296           def purge(                                              def purge(self, *, older_than_days: int | None = None, keep_last: int | None = None) -> in
+OK       store.py:348           def _open_connection(                                   def _open_connection(self) -> sqlite3.Connection:
+OK       store.py:355           PRAGMA journal_mode = WAL                               conn.execute("PRAGMA journal_mode = WAL")
+OK       store.py:364           def _ensure_schema(                                     def _ensure_schema(self, conn: sqlite3.Connection) -> None:
+OK       store.py:417           def _trace_values(                                      def _trace_values(trace: TraceRecord) -> tuple[Any, ...]:
+OK       store.py:445           def _select_purge_ids(                                  def _select_purge_ids(
+OK       test_store.py:121      def test_write_and_read_roundtrip(                      def test_write_and_read_roundtrip(tmp_path: Path) -> None:
+OK       test_store.py:137      def test_roundtrip_bare_trace_with_defaults(            def test_roundtrip_bare_trace_with_defaults(tmp_path: Path) -> None:
+OK       test_store.py:152      def test_roundtrip_span_without_ids_is_normalized(      def test_roundtrip_span_without_ids_is_normalized(tmp_path: Path) -> None:
+OK       test_store.py:172      def test_write_best_effort_swallows_error(              def test_write_best_effort_swallows_error(tmp_path: Path, caplog: pytest.LogCaptureFixture
+OK       test_store.py:185      def test_write_best_effort_when_parent_is_regular_file( def test_write_best_effort_when_parent_is_regular_file(
+OK       test_store.py:202      def test_operations_after_close_raise_trace_write_error def test_operations_after_close_raise_trace_write_error(tmp_path: Path) -> None:
+OK       test_store.py:219      def test_schema_is_idempotent(                          def test_schema_is_idempotent(tmp_path: Path) -> None:
+OK       test_store.py:233      def test_journal_mode_is_wal(                           def test_journal_mode_is_wal(tmp_path: Path) -> None:
+OK       test_store.py:244      def test_schema_columns_match_contract_dataclasses(     def test_schema_columns_match_contract_dataclasses(tmp_path: Path) -> None:
+OK       test_store.py:260      def test_existing_incompatible_schema_version_fails_clo def test_existing_incompatible_schema_version_fails_closed(tmp_path: Path) -> None:
+OK       test_store.py:280      def test_list_by_request_returns_multiple_attempts(     def test_list_by_request_returns_multiple_attempts(tmp_path: Path) -> None:
+OK       test_store.py:301      def test_export_jsonl_matches_db(                       def test_export_jsonl_matches_db(tmp_path: Path) -> None:
+OK       test_store.py:328      by_id["t-old"]["spans"]                                 assert [span["name"] for span in by_id["t-old"]["spans"]] == ["parse", "answer"]
+OK       test_store.py:333      ensure_ascii=False                                      # ensure_ascii=False：中文原文直接落盘，不被 \uXXXX 转义
+OK       test_store.py:349      def test_purge_by_age_and_count(                        def test_purge_by_age_and_count(tmp_path: Path) -> None:
+OK       test_store.py:401      def test_purge_both_criteria_union_and_clear_spans(     def test_purge_both_criteria_union_and_clear_spans(tmp_path: Path) -> None:
+OK       test_store.py:433      def test_purge_rejects_negative_arguments(              def test_purge_rejects_negative_arguments(tmp_path: Path) -> None:
+OK       test_store.py:448      def test_sql_is_parameterized_against_injection(        def test_sql_is_parameterized_against_injection(tmp_path: Path) -> None:
+OK       test_store.py:474      def test_store_source_does_not_interpolate_sql_values(  def test_store_source_does_not_interpolate_sql_values() -> None:
+OK       test_store.py:491      def test_store_module_imports_only_stdlib_and_contracts def test_store_module_imports_only_stdlib_and_contracts() -> None:
+OK       test_store.py:520      def test_repeated_open_same_file_keeps_schema_and_reads def test_repeated_open_same_file_keeps_schema_and_reads(tmp_path: Path) -> None:
+OK       test_store.py:543      def test_concurrent_threads_write_without_corruption(   def test_concurrent_threads_write_without_corruption(tmp_path: Path) -> None:
+
+===== report.md 区间引用核对 =====
+OK       store.py:41-48 contains '_TRACE_COLUMNS': True
+OK       store.py:43-48 contains 'format(': True
+OK       store.py:51-121 contains 'CREATE TABLE IF NOT EXISTS': True
+OK       store.py:167-179 contains 'except (sqlite3.Error, OSError)': True
+OK       store.py:203-213 contains 'trace_write_error': True
+OK       store.py:296-333 contains 'older_than_days': True
+OK       store.py:445-464 contains 'keep_last': True
+
+===== 测试计数 / 跳过标记 =====
+def test_ count = 24
+pytest.skip/xfail count = 0
+
+===== store.py:41-48（INSERT 列名/占位符由 dataclass 字段常量生成，无外部值拼接）=====
+  41: _TRACE_COLUMNS: tuple[str, ...] = tuple(field.name for field in fields(TraceRecord))
+  42: _SPAN_COLUMNS: tuple[str, ...] = tuple(field.name for field in fields(SpanRecord))
+  43: _INSERT_TRACE_SQL = "INSERT INTO traces ({}) VALUES ({})".format(
+  44:     ", ".join(_TRACE_COLUMNS), ", ".join("?" for _ in _TRACE_COLUMNS)
+  45: )
+  46: _INSERT_SPAN_SQL = "INSERT INTO spans ({}) VALUES ({})".format(
+  47:     ", ".join(_SPAN_COLUMNS), ", ".join("?" for _ in _SPAN_COLUMNS)
+  48: )
+
+
+===== report.md §2.1 引用精度：报告称 test_store.py:327-330 断言中文原文落盘且无 \uXXXX =====
+ 327:         by_id = {payload["trace_id"]: payload for payload in payloads}
+ 328:         assert [span["name"] for span in by_id["t-old"]["spans"]] == ["parse", "answer"]
+ 329:         assert by_id["t-recent"]["spans"] == []
+ 330:         # 每行是完整 TraceRecord 字段 + 嵌套 spans（JSONL 只做导出，不是第二写入源）
+ 331:         assert set(by_id["t-old"]) == {field.name for field in fields(TraceRecord)} | {"spans"}
+ 332:         assert by_id["t-old"]["request_id"] == "r-export"
+ 333:         # ensure_ascii=False：中文原文直接落盘，不被 \uXXXX 转义
+ 334:         assert "引用完整" in raw
+ 335:         assert "\\u5f15\\u7528" not in raw
+实际含 '引用完整' 的行号: [68, 334]
+实际含 'u5f15' 的行号: [335]
+判定: 报告引用行号区间 327-330 不含上述断言（实际在 334-335）；该自证内容本身成立，仅行号区间偏移。
+RESULT: ALL CITATIONS OK

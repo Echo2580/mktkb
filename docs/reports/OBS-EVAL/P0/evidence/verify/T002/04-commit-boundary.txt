@@ -1,0 +1,66 @@
+===== git rev-parse HEAD =====
+2ac976fef54035f52e133e3ca0691166ec1e996e
+===== git log -1 --format =====
+2ac976fef54035f52e133e3ca0691166ec1e996e
+Echo2580
+Wed Nov 4 23:13:58 2026 +0800
+p0/T002 sqlite trace repository
+===== git show --name-only 2ac976f =====
+commit 2ac976fef54035f52e133e3ca0691166ec1e996e
+Subject: p0/T002 sqlite trace repository
+
+.claude/handoffs/T002-trace-store/report.md
+backend/src/mktkb/observability/store.py
+backend/tests/observability/test_store.py
+docs/reports/OBS-EVAL/P0/evidence/T002/00-git-rev-parse.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/01-pytest-red.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/02-pytest-store.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/03-pytest-observability.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/04-pytest-full.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/05-git-show-stat.txt
+docs/reports/OBS-EVAL/P0/evidence/T002/06-deliverable-sha256.txt
+===== git show --stat --oneline 2ac976f =====
+2ac976f p0/T002 sqlite trace repository
+ .claude/handoffs/T002-trace-store/report.md        | 132 +++++
+ backend/src/mktkb/observability/store.py           | 464 +++++++++++++++
+ backend/tests/observability/test_store.py          | 630 +++++++++++++++++++++
+ .../OBS-EVAL/P0/evidence/T002/00-git-rev-parse.txt |   1 +
+ .../OBS-EVAL/P0/evidence/T002/01-pytest-red.txt    |  22 +
+ .../OBS-EVAL/P0/evidence/T002/02-pytest-store.txt  |   8 +
+ .../P0/evidence/T002/03-pytest-observability.txt   |   9 +
+ .../OBS-EVAL/P0/evidence/T002/04-pytest-full.txt   |  23 +
+ .../OBS-EVAL/P0/evidence/T002/05-git-show-stat.txt |  10 +
+ .../P0/evidence/T002/06-deliverable-sha256.txt     |   8 +
+ 10 files changed, 1307 insertions(+)
+===== git diff --name-status 7b02f40 2ac976f (baseline -> T002) =====
+A	.claude/handoffs/T002-trace-store/report.md
+A	backend/src/mktkb/observability/store.py
+A	backend/tests/observability/test_store.py
+A	docs/reports/OBS-EVAL/P0/evidence/T002/00-git-rev-parse.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/01-pytest-red.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/02-pytest-store.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/03-pytest-observability.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/04-pytest-full.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/05-git-show-stat.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T002/06-deliverable-sha256.txt
+===== commits in 7b02f40..2ac976f =====
+2ac976f p0/T002 sqlite trace repository
+===== forbidden paths diff 7b02f40..2ac976f (must be empty) =====
+===== git status --porcelain=v1 (worktree) =====
+ M .claude/handoffs/_index.md
+?? .claude/handoffs/2026-11-04-p1-design.md
+?? .claude/handoffs/2026-11-04-p1-task-breakdown.md
+?? .claude/handoffs/T001-obs-contracts/handoff.md
+?? .claude/handoffs/T001-obs-contracts/review.md
+?? .claude/handoffs/T002-trace-store/handoff.md
+?? .claude/handoffs/prompts/T001-dev-done.md
+?? .claude/handoffs/prompts/T001-dev.md
+?? .claude/handoffs/prompts/T001-verify-done.md
+?? .claude/handoffs/prompts/T001-verify.md
+?? .claude/handoffs/prompts/T002-dev-done.md
+?? .claude/handoffs/prompts/T002-dev.md
+?? .claude/handoffs/prompts/T002-verify-done.md
+?? .claude/handoffs/prompts/T002-verify.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/
+===== working tree vs HEAD for deliverables (must be empty) =====
+===== untracked changes under backend/src, backend/tests, backend/pyproject (must be empty) =====

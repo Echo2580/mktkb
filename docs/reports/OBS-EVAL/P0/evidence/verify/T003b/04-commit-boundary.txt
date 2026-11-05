@@ -1,0 +1,59 @@
+﻿=== T003b commit boundary audit (independent verifier) ===
+date=2026-11-05 01:45:02 +08:00
+branch=p0/obs-eval
+head=d41d19fde15684b67c7c2034cb7b8ddda634f0e9
+head_short=d41d19f
+T003b_commit_expected=d41d19f  actual=d41d19f
+parent=dea4d5d  (expected dea4d5d)
+commits_since_T003a_baseline=1
+subject=p0/T003b config & middleware
+
+--- git show --name-only --format='' d41d19f ---
+.claude/handoffs/T003b-wiring/report.md
+backend/src/mktkb/config.py
+backend/src/mktkb/main.py
+backend/tests/observability/conftest.py
+backend/tests/observability/test_middleware.py
+docs/reports/OBS-EVAL/P0/evidence/T003b/00-git-rev-parse.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/01-pytest-red.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/02-pytest-middleware.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/03-pytest-scope.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/04-pytest-full.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/05-git-show-stat.txt
+docs/reports/OBS-EVAL/P0/evidence/T003b/06-deliverable-sha256.txt
+
+
+files_outside_handoff_allowed_list: NONE
+files_hitting_forbidden_patterns: NONE
+
+--- git diff --name-status dea4d5d d41d19f ---
+A	.claude/handoffs/T003b-wiring/report.md
+M	backend/src/mktkb/config.py
+M	backend/src/mktkb/main.py
+A	backend/tests/observability/conftest.py
+A	backend/tests/observability/test_middleware.py
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/00-git-rev-parse.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/01-pytest-red.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/02-pytest-middleware.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/03-pytest-scope.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/04-pytest-full.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/05-git-show-stat.txt
+A	docs/reports/OBS-EVAL/P0/evidence/T003b/06-deliverable-sha256.txt
+
+--- numstat (deletions must be 0) ---
+211	0	.claude/handoffs/T003b-wiring/report.md
+76	0	backend/src/mktkb/config.py
+42	0	backend/src/mktkb/main.py
+151	0	backend/tests/observability/conftest.py
+565	0	backend/tests/observability/test_middleware.py
+3	0	docs/reports/OBS-EVAL/P0/evidence/T003b/00-git-rev-parse.txt
+719	0	docs/reports/OBS-EVAL/P0/evidence/T003b/01-pytest-red.txt
+9	0	docs/reports/OBS-EVAL/P0/evidence/T003b/02-pytest-middleware.txt
+12	0	docs/reports/OBS-EVAL/P0/evidence/T003b/03-pytest-scope.txt
+25	0	docs/reports/OBS-EVAL/P0/evidence/T003b/04-pytest-full.txt
+15	0	docs/reports/OBS-EVAL/P0/evidence/T003b/05-git-show-stat.txt
+10	0	docs/reports/OBS-EVAL/P0/evidence/T003b/06-deliverable-sha256.txt
+
+--- dependency / pyproject / docs/evidence / var / fixtures touched by commit? ---
+dependency_file_changes=NONE
+.env_changes=NONE

@@ -1,0 +1,34 @@
+# T003a 独立验收复跑证据（验收者本人复跑，不采信 dev report 结论）
+# 采集时间：2026-11-05T00:39:36+08:00
+# HEAD=dea4d5d7e94b1b20c409d9d35a20bd2567c976fe（p0/obs-eval）；handoff 待验 commit=dea4d5d；父提交=2ac976f；main=8e44158
+# Python=3.12.7；pytest=pytest 9.1.1；OS=win32
+# 环境变量：MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0；解释器=.venv\Scripts\python.exe -B；
+#          每条 pytest 均带 -q -p no:cacheprovider --basetemp backend\.pytest-tmp\verify-*
+# 证据编码：全部 UTF-8 无 BOM（由 capture.py 以 UTF-8 解码/编码保存原生输出）。
+#
+# 文件清单（本目录）：
+# 00-context.txt                    本文件（环境/提交/命令上下文）
+# 01-pytest-tracer.txt              handoff §6：test_tracer.py 66 passed
+# 02-pytest-observability.txt       handoff §6：observability 目录 158 passed
+# 03-pytest-full.txt                handoff §6：backend/tests 全量（预期 1176 passed）
+# 04-commit-boundary.txt            git show/name-status/numstat/受保护路径/删除检查
+# 05-contracts-init-diff.txt        contracts.py 仅末尾追加 + __init__.py 追加导出
+# 06-sha256-and-evidence-audit.txt  交付物 SHA-256 与 dev 证据 00-06 哈希核对
+# 07-independent-probe.txt          仓库外独立探针（1212 条断言，§5.1-§5.7）
+# 08-mutation-probes.txt            仓库外变异探针（12/12 被捕获，证明探针非空转）
+# 09-static-checks.txt              静态/结构检查（依赖/导入/测试只写 tmp_path/边界）
+# 10-edge-observations.txt          边界行为观察（replayed 优先级、live、非法 JSON 等）
+# 11-baseline-2ac976f-full.txt      基线等价复跑（第 2 次）命中既有 test_chat.py::test_g08 时序 flake
+# 11b-baseline-flake-run.txt         基线等价复跑（第 1 次）同样命中该时序 flake
+# 11c-baseline-pass-run-utf8.txt     基线等价复跑完整通过：1110 passed / 0 failed / 0 error
+# 12-worktree-audit.txt              工作树/未越界审计（本任务运行前后无仓库文件改动）
+# 13-baseline-flaky-test-isolated.txt flake 用例单独复跑：1 passed（确认时序 flake）
+# probe_tracer.py / mutate_verify.py / static_checks.py / edge_observations.py / capture.py / final_audit.py
+#                                  上述探针/审计脚本原文（仓库外工具，随证据保存）
+
+# handoff §6 必跑命令（验收者复跑）：
+# $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
+# .\.venv\Scripts\python.exe -B -m pytest backend/tests/observability/test_tracer.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\obs-tracer
+# .\.venv\Scripts\python.exe -B -m pytest backend/tests/observability -q -p no:cacheprovider --basetemp backend\.pytest-tmp\obs-all
+# .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t003a-full
+# git show --stat --oneline HEAD

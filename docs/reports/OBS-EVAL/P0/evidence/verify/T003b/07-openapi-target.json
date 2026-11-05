@@ -1,0 +1,2338 @@
+{
+ "components": {
+  "schemas": {
+   "AskRequest": {
+    "properties": {
+     "client_request_id": {
+      "format": "uuid",
+      "title": "Client Request Id",
+      "type": "string"
+     },
+     "question": {
+      "maxLength": 2000,
+      "title": "Question",
+      "type": "string"
+     }
+    },
+    "required": [
+     "client_request_id",
+     "question"
+    ],
+    "title": "AskRequest",
+    "type": "object"
+   },
+   "AskResult": {
+    "properties": {
+     "candidates": {
+      "items": {
+       "$ref": "#/components/schemas/CandidateView"
+      },
+      "title": "Candidates",
+      "type": "array"
+     },
+     "conflicts": {
+      "items": {
+       "$ref": "#/components/schemas/ConflictView"
+      },
+      "title": "Conflicts",
+      "type": "array"
+     },
+     "error_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error Code"
+     },
+     "kind": {
+      "enum": [
+       "answer",
+       "clarification",
+       "not_found",
+       "conflict",
+       "service_error",
+       "knowledge_changed"
+      ],
+      "title": "Kind",
+      "type": "string"
+     },
+     "message_id": {
+      "format": "uuid",
+      "title": "Message Id",
+      "type": "string"
+     },
+     "missing_fields": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Missing Fields",
+      "type": "array"
+     },
+     "pagination": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PaginationView"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "request_id": {
+      "format": "uuid",
+      "title": "Request Id",
+      "type": "string"
+     },
+     "retryable": {
+      "default": false,
+      "title": "Retryable",
+      "type": "boolean"
+     },
+     "revision": {
+      "title": "Revision",
+      "type": "integer"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceSummary"
+      },
+      "title": "Sources",
+      "type": "array"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "request_id",
+     "message_id",
+     "kind",
+     "text",
+     "revision"
+    ],
+    "title": "AskResult",
+    "type": "object"
+   },
+   "Body_create_document_api_v1_documents_post": {
+    "properties": {
+     "allow_same_name": {
+      "default": false,
+      "title": "Allow Same Name",
+      "type": "boolean"
+     },
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_create_document_api_v1_documents_post",
+    "type": "object"
+   },
+   "Body_create_version_api_v1_documents__document_id__versions_post": {
+    "properties": {
+     "expected_active_version_id": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expected Active Version Id"
+     },
+     "file": {
+      "contentMediaType": "application/octet-stream",
+      "title": "File",
+      "type": "string"
+     }
+    },
+    "required": [
+     "file"
+    ],
+    "title": "Body_create_version_api_v1_documents__document_id__versions_post",
+    "type": "object"
+   },
+   "CandidateView": {
+    "properties": {
+     "followup_question": {
+      "title": "Followup Question",
+      "type": "string"
+     },
+     "label": {
+      "title": "Label",
+      "type": "string"
+     }
+    },
+    "required": [
+     "label",
+     "followup_question"
+    ],
+    "title": "CandidateView",
+    "type": "object"
+   },
+   "ConflictEntry": {
+    "properties": {
+     "source_id": {
+      "format": "uuid",
+      "title": "Source Id",
+      "type": "string"
+     },
+     "value": {
+      "title": "Value",
+      "type": "string"
+     }
+    },
+    "required": [
+     "value",
+     "source_id"
+    ],
+    "title": "ConflictEntry",
+    "type": "object"
+   },
+   "ConflictView": {
+    "properties": {
+     "entries": {
+      "items": {
+       "$ref": "#/components/schemas/ConflictEntry"
+      },
+      "title": "Entries",
+      "type": "array"
+     },
+     "field": {
+      "title": "Field",
+      "type": "string"
+     }
+    },
+    "required": [
+     "field",
+     "entries"
+    ],
+    "title": "ConflictView",
+    "type": "object"
+   },
+   "ConversationCreate": {
+    "properties": {
+     "title": {
+      "anyOf": [
+       {
+        "maxLength": 200,
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Title"
+     }
+    },
+    "title": "ConversationCreate",
+    "type": "object"
+   },
+   "ConversationList": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/ConversationSummary"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "limit": {
+      "title": "Limit",
+      "type": "integer"
+     },
+     "offset": {
+      "title": "Offset",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "offset",
+     "limit"
+    ],
+    "title": "ConversationList",
+    "type": "object"
+   },
+   "ConversationSummary": {
+    "properties": {
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "title": {
+      "title": "Title",
+      "type": "string"
+     },
+     "updated_at": {
+      "format": "date-time",
+      "title": "Updated At",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "title",
+     "created_at",
+     "updated_at"
+    ],
+    "title": "ConversationSummary",
+    "type": "object"
+   },
+   "Deletion": {
+    "properties": {
+     "deleted": {
+      "default": true,
+      "title": "Deleted",
+      "type": "boolean"
+     },
+     "document_id": {
+      "format": "uuid",
+      "title": "Document Id",
+      "type": "string"
+     },
+     "revision": {
+      "title": "Revision",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "document_id",
+     "revision"
+    ],
+    "title": "Deletion",
+    "type": "object"
+   },
+   "DocumentDetail": {
+    "properties": {
+     "document": {
+      "$ref": "#/components/schemas/DocumentSummary"
+     },
+     "jobs": {
+      "items": {
+       "$ref": "#/components/schemas/JobStatus"
+      },
+      "title": "Jobs",
+      "type": "array"
+     },
+     "revision": {
+      "default": 0,
+      "title": "Revision",
+      "type": "integer"
+     },
+     "versions": {
+      "items": {
+       "$ref": "#/components/schemas/VersionSummary"
+      },
+      "title": "Versions",
+      "type": "array"
+     }
+    },
+    "required": [
+     "document",
+     "versions"
+    ],
+    "title": "DocumentDetail",
+    "type": "object"
+   },
+   "DocumentList": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/DocumentSummary"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "limit": {
+      "title": "Limit",
+      "type": "integer"
+     },
+     "offset": {
+      "title": "Offset",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "offset",
+     "limit"
+    ],
+    "title": "DocumentList",
+    "type": "object"
+   },
+   "DocumentSummary": {
+    "properties": {
+     "active_version": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VersionSummary"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "deleted": {
+      "title": "Deleted",
+      "type": "boolean"
+     },
+     "file_type": {
+      "enum": [
+       "xlsx",
+       "docx",
+       "pdf",
+       "png",
+       "jpg",
+       "jpeg"
+      ],
+      "title": "File Type",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "last_published_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Last Published At"
+     },
+     "latest_version": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/VersionSummary"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "name": {
+      "title": "Name",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "name",
+     "file_type",
+     "deleted",
+     "created_at"
+    ],
+    "title": "DocumentSummary",
+    "type": "object"
+   },
+   "HTTPValidationError": {
+    "properties": {
+     "detail": {
+      "items": {
+       "$ref": "#/components/schemas/ValidationError"
+      },
+      "title": "Detail",
+      "type": "array"
+     }
+    },
+    "title": "HTTPValidationError",
+    "type": "object"
+   },
+   "JobStatus": {
+    "properties": {
+     "completed_pages": {
+      "title": "Completed Pages",
+      "type": "integer"
+     },
+     "error_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error Code"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "message": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Message"
+     },
+     "retryable": {
+      "title": "Retryable",
+      "type": "boolean"
+     },
+     "stage": {
+      "title": "Stage",
+      "type": "string"
+     },
+     "state": {
+      "enum": [
+       "queued",
+       "running",
+       "succeeded",
+       "failed",
+       "blocked",
+       "cancelled"
+      ],
+      "title": "State",
+      "type": "string"
+     },
+     "total_pages": {
+      "title": "Total Pages",
+      "type": "integer"
+     },
+     "version_id": {
+      "format": "uuid",
+      "title": "Version Id",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "version_id",
+     "state",
+     "stage",
+     "completed_pages",
+     "total_pages",
+     "retryable"
+    ],
+    "title": "JobStatus",
+    "type": "object"
+   },
+   "LoginRequest": {
+    "properties": {
+     "password": {
+      "maxLength": 72,
+      "minLength": 1,
+      "title": "Password",
+      "type": "string"
+     },
+     "username": {
+      "maxLength": 64,
+      "minLength": 1,
+      "title": "Username",
+      "type": "string"
+     }
+    },
+    "required": [
+     "username",
+     "password"
+    ],
+    "title": "LoginRequest",
+    "type": "object"
+   },
+   "MessageList": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/MessageView"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "limit": {
+      "title": "Limit",
+      "type": "integer"
+     },
+     "offset": {
+      "title": "Offset",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "offset",
+     "limit"
+    ],
+    "title": "MessageList",
+    "type": "object"
+   },
+   "MessageView": {
+    "properties": {
+     "candidates": {
+      "items": {
+       "$ref": "#/components/schemas/CandidateView"
+      },
+      "title": "Candidates",
+      "type": "array"
+     },
+     "conflicts": {
+      "items": {
+       "$ref": "#/components/schemas/ConflictView"
+      },
+      "title": "Conflicts",
+      "type": "array"
+     },
+     "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+     },
+     "error_code": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Error Code"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "kind": {
+      "anyOf": [
+       {
+        "enum": [
+         "answer",
+         "clarification",
+         "not_found",
+         "conflict",
+         "service_error",
+         "knowledge_changed"
+        ],
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Kind"
+     },
+     "missing_fields": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Missing Fields",
+      "type": "array"
+     },
+     "pagination": {
+      "anyOf": [
+       {
+        "$ref": "#/components/schemas/PaginationView"
+       },
+       {
+        "type": "null"
+       }
+      ]
+     },
+     "revision": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Revision"
+     },
+     "role": {
+      "enum": [
+       "user",
+       "assistant"
+      ],
+      "title": "Role",
+      "type": "string"
+     },
+     "sources": {
+      "items": {
+       "$ref": "#/components/schemas/SourceSummary"
+      },
+      "title": "Sources",
+      "type": "array"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "role",
+     "text",
+     "created_at"
+    ],
+    "title": "MessageView",
+    "type": "object"
+   },
+   "PaginationView": {
+    "description": "S2：枚举分页（向后兼容扩展；旧客户端忽略该字段）。",
+    "properties": {
+     "has_more": {
+      "title": "Has More",
+      "type": "boolean"
+     },
+     "next_page": {
+      "anyOf": [
+       {
+        "type": "integer"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Next Page"
+     },
+     "page": {
+      "title": "Page",
+      "type": "integer"
+     },
+     "page_size": {
+      "title": "Page Size",
+      "type": "integer"
+     },
+     "returned": {
+      "title": "Returned",
+      "type": "integer"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "page",
+     "page_size",
+     "total",
+     "returned",
+     "has_more"
+    ],
+    "title": "PaginationView",
+    "type": "object"
+   },
+   "PreviewResponse": {
+    "properties": {
+     "items": {
+      "items": {
+       "$ref": "#/components/schemas/SourceUnitPublic"
+      },
+      "title": "Items",
+      "type": "array"
+     },
+     "limit": {
+      "title": "Limit",
+      "type": "integer"
+     },
+     "offset": {
+      "title": "Offset",
+      "type": "integer"
+     },
+     "report": {
+      "additionalProperties": true,
+      "title": "Report",
+      "type": "object"
+     },
+     "total": {
+      "title": "Total",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "items",
+     "total",
+     "offset",
+     "limit",
+     "report"
+    ],
+    "title": "PreviewResponse",
+    "type": "object"
+   },
+   "Publication": {
+    "properties": {
+     "active_version_id": {
+      "format": "uuid",
+      "title": "Active Version Id",
+      "type": "string"
+     },
+     "document_id": {
+      "format": "uuid",
+      "title": "Document Id",
+      "type": "string"
+     },
+     "published_at": {
+      "format": "date-time",
+      "title": "Published At",
+      "type": "string"
+     },
+     "revision": {
+      "title": "Revision",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "document_id",
+     "active_version_id",
+     "revision",
+     "published_at"
+    ],
+    "title": "Publication",
+    "type": "object"
+   },
+   "PublishRequest": {
+    "description": "发布前置条件：两个键均必填；revision 严格非负整数，bool/浮点/负值不接受。",
+    "properties": {
+     "expected_active_version_id": {
+      "anyOf": [
+       {
+        "format": "uuid",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Expected Active Version Id"
+     },
+     "expected_revision": {
+      "minimum": 0.0,
+      "title": "Expected Revision",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "expected_active_version_id",
+     "expected_revision"
+    ],
+    "title": "PublishRequest",
+    "type": "object"
+   },
+   "SessionResponse": {
+    "properties": {
+     "csrf_token": {
+      "title": "Csrf Token",
+      "type": "string"
+     },
+     "user": {
+      "$ref": "#/components/schemas/UserPublic"
+     }
+    },
+    "required": [
+     "user",
+     "csrf_token"
+    ],
+    "title": "SessionResponse",
+    "type": "object"
+   },
+   "SourceSummary": {
+    "properties": {
+     "document_name": {
+      "title": "Document Name",
+      "type": "string"
+     },
+     "locator": {
+      "additionalProperties": true,
+      "title": "Locator",
+      "type": "object"
+     },
+     "published_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Published At"
+     },
+     "source_id": {
+      "format": "uuid",
+      "title": "Source Id",
+      "type": "string"
+     },
+     "status": {
+      "enum": [
+       "active",
+       "superseded",
+       "deleted"
+      ],
+      "title": "Status",
+      "type": "string"
+     },
+     "version_number": {
+      "title": "Version Number",
+      "type": "integer"
+     }
+    },
+    "required": [
+     "source_id",
+     "document_name",
+     "version_number",
+     "status",
+     "locator"
+    ],
+    "title": "SourceSummary",
+    "type": "object"
+   },
+   "SourceUnitPublic": {
+    "properties": {
+     "document_id": {
+      "format": "uuid",
+      "title": "Document Id",
+      "type": "string"
+     },
+     "fields": {
+      "additionalProperties": true,
+      "title": "Fields",
+      "type": "object"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "kind": {
+      "title": "Kind",
+      "type": "string"
+     },
+     "locator": {
+      "additionalProperties": true,
+      "title": "Locator",
+      "type": "object"
+     },
+     "text": {
+      "title": "Text",
+      "type": "string"
+     },
+     "version_id": {
+      "format": "uuid",
+      "title": "Version Id",
+      "type": "string"
+     },
+     "warnings": {
+      "default": [],
+      "items": {
+       "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+     }
+    },
+    "required": [
+     "id",
+     "document_id",
+     "version_id",
+     "kind",
+     "locator",
+     "text",
+     "fields"
+    ],
+    "title": "SourceUnitPublic",
+    "type": "object"
+   },
+   "SourceView": {
+    "properties": {
+     "document_name": {
+      "title": "Document Name",
+      "type": "string"
+     },
+     "fields": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Fields"
+     },
+     "file_url": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "File Url"
+     },
+     "locator": {
+      "additionalProperties": true,
+      "title": "Locator",
+      "type": "object"
+     },
+     "published_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Published At"
+     },
+     "source_id": {
+      "format": "uuid",
+      "title": "Source Id",
+      "type": "string"
+     },
+     "status": {
+      "enum": [
+       "active",
+       "superseded",
+       "deleted"
+      ],
+      "title": "Status",
+      "type": "string"
+     },
+     "text": {
+      "anyOf": [
+       {
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Text"
+     },
+     "version_number": {
+      "title": "Version Number",
+      "type": "integer"
+     },
+     "warnings": {
+      "items": {
+       "type": "string"
+      },
+      "title": "Warnings",
+      "type": "array"
+     }
+    },
+    "required": [
+     "source_id",
+     "status",
+     "document_name",
+     "version_number",
+     "locator"
+    ],
+    "title": "SourceView",
+    "type": "object"
+   },
+   "UploadResponse": {
+    "properties": {
+     "document": {
+      "$ref": "#/components/schemas/DocumentSummary"
+     },
+     "job": {
+      "$ref": "#/components/schemas/JobStatus"
+     },
+     "version": {
+      "$ref": "#/components/schemas/VersionSummary"
+     }
+    },
+    "required": [
+     "document",
+     "version",
+     "job"
+    ],
+    "title": "UploadResponse",
+    "type": "object"
+   },
+   "UserPublic": {
+    "properties": {
+     "display_name": {
+      "title": "Display Name",
+      "type": "string"
+     },
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "role": {
+      "enum": [
+       "admin",
+       "employee"
+      ],
+      "title": "Role",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "display_name",
+     "role"
+    ],
+    "title": "UserPublic",
+    "type": "object"
+   },
+   "ValidationError": {
+    "properties": {
+     "ctx": {
+      "title": "Context",
+      "type": "object"
+     },
+     "input": {
+      "title": "Input"
+     },
+     "loc": {
+      "items": {
+       "anyOf": [
+        {
+         "type": "string"
+        },
+        {
+         "type": "integer"
+        }
+       ]
+      },
+      "title": "Location",
+      "type": "array"
+     },
+     "msg": {
+      "title": "Message",
+      "type": "string"
+     },
+     "type": {
+      "title": "Error Type",
+      "type": "string"
+     }
+    },
+    "required": [
+     "loc",
+     "msg",
+     "type"
+    ],
+    "title": "ValidationError",
+    "type": "object"
+   },
+   "VersionSummary": {
+    "properties": {
+     "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+     },
+     "number": {
+      "title": "Number",
+      "type": "integer"
+     },
+     "processing_report": {
+      "anyOf": [
+       {
+        "additionalProperties": true,
+        "type": "object"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Processing Report"
+     },
+     "published_at": {
+      "anyOf": [
+       {
+        "format": "date-time",
+        "type": "string"
+       },
+       {
+        "type": "null"
+       }
+      ],
+      "title": "Published At"
+     },
+     "sha256": {
+      "title": "Sha256",
+      "type": "string"
+     },
+     "state": {
+      "enum": [
+       "queued",
+       "processing",
+       "review_required",
+       "failed",
+       "published",
+       "superseded",
+       "cancelled",
+       "deleted"
+      ],
+      "title": "State",
+      "type": "string"
+     },
+     "uploaded_at": {
+      "format": "date-time",
+      "title": "Uploaded At",
+      "type": "string"
+     }
+    },
+    "required": [
+     "id",
+     "number",
+     "state",
+     "sha256",
+     "uploaded_at"
+    ],
+    "title": "VersionSummary",
+    "type": "object"
+   }
+  }
+ },
+ "info": {
+  "title": "市场部 AI 知识库",
+  "version": "0.1.0"
+ },
+ "openapi": "3.1.0",
+ "paths": {
+  "/api/v1/auth/login": {
+   "post": {
+    "operationId": "login_endpoint_api_v1_auth_login_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/LoginRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SessionResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "Login Endpoint",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/logout": {
+   "post": {
+    "description": "校验 Origin 与会话对应 CSRF 后撤销当前会话；重复退出保持 204。",
+    "operationId": "logout_endpoint_api_v1_auth_logout_post",
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Logout Endpoint",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/auth/me": {
+   "get": {
+    "operationId": "me_endpoint_api_v1_auth_me_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SessionResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "Me Endpoint",
+    "tags": [
+     "auth"
+    ]
+   }
+  },
+  "/api/v1/conversations": {
+   "get": {
+    "operationId": "list_conversations_api_v1_conversations_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ConversationList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "列出本人会话",
+    "tags": [
+     "conversations"
+    ]
+   },
+   "post": {
+    "operationId": "create_conversation_api_v1_conversations_post",
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/ConversationCreate"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "201": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/ConversationSummary"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "新建本人会话",
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/api/v1/conversations/{conversation_id}": {
+   "delete": {
+    "operationId": "delete_conversation_api_v1_conversations__conversation_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "conversation_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Conversation Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "删除本人会话",
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/api/v1/conversations/{conversation_id}/messages": {
+   "get": {
+    "operationId": "list_messages_api_v1_conversations__conversation_id__messages_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "conversation_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Conversation Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/MessageList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "列出本人会话消息",
+    "tags": [
+     "conversations"
+    ]
+   },
+   "post": {
+    "operationId": "ask_question_api_v1_conversations__conversation_id__messages_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "conversation_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Conversation Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/AskRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/AskResult"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "提问（六类 AskResult）",
+    "tags": [
+     "conversations"
+    ]
+   }
+  },
+  "/api/v1/documents": {
+   "get": {
+    "operationId": "list_documents_api_v1_documents_get",
+    "parameters": [
+     {
+      "in": "query",
+      "name": "q",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 200,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Q"
+      }
+     },
+     {
+      "in": "query",
+      "name": "file_type",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(xlsx|docx|pdf|png|jpg|jpeg)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "File Type"
+      }
+     },
+     {
+      "in": "query",
+      "name": "state",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "pattern": "^(queued|processing|review_required|failed|published|superseded|cancelled|deleted)$",
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "State"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DocumentList"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "资料列表（分页）",
+    "tags": [
+     "documents"
+    ]
+   },
+   "post": {
+    "operationId": "create_document_api_v1_documents_post",
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_create_document_api_v1_documents_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UploadResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "上传资料",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}": {
+   "delete": {
+    "operationId": "delete_document_endpoint_api_v1_documents__document_id__delete",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "expected_revision",
+      "required": true,
+      "schema": {
+       "minimum": 0,
+       "title": "Expected Revision",
+       "type": "integer"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Deletion"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "逻辑删除资料（撤销内容访问，取消未完成任务）",
+    "tags": [
+     "documents"
+    ]
+   },
+   "get": {
+    "operationId": "document_detail_api_v1_documents__document_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/DocumentDetail"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "资料元信息与版本摘要",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}/versions": {
+   "post": {
+    "operationId": "create_version_api_v1_documents__document_id__versions_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "multipart/form-data": {
+       "schema": {
+        "$ref": "#/components/schemas/Body_create_version_api_v1_documents__document_id__versions_post"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/UploadResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "上传资料新版（不切换有效版本）",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}/versions/{version_id}/cancel": {
+   "post": {
+    "operationId": "cancel_version_endpoint_api_v1_documents__document_id__versions__version_id__cancel_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Version Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "204": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "取消未生效版本及其任务（保留旧有效版本）",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}/versions/{version_id}/file": {
+   "get": {
+    "operationId": "version_file_api_v1_documents__document_id__versions__version_id__file_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Version Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "管理员受保护原件",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}/versions/{version_id}/preview": {
+   "get": {
+    "operationId": "preview_version_api_v1_documents__document_id__versions__version_id__preview_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Version Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "query",
+      "name": "offset",
+      "required": false,
+      "schema": {
+       "default": 0,
+       "minimum": 0,
+       "title": "Offset",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "limit",
+      "required": false,
+      "schema": {
+       "default": 20,
+       "maximum": 100,
+       "minimum": 1,
+       "title": "Limit",
+       "type": "integer"
+      }
+     },
+     {
+      "in": "query",
+      "name": "sheet",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "maxLength": 128,
+         "type": "string"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Sheet"
+      }
+     },
+     {
+      "in": "query",
+      "name": "page",
+      "required": false,
+      "schema": {
+       "anyOf": [
+        {
+         "minimum": 1,
+         "type": "integer"
+        },
+        {
+         "type": "null"
+        }
+       ],
+       "title": "Page"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/PreviewResponse"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "分页查看来源单元与处理摘要",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/documents/{document_id}/versions/{version_id}/publish": {
+   "post": {
+    "operationId": "publish_version_endpoint_api_v1_documents__document_id__versions__version_id__publish_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "document_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Document Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "version_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Version Id",
+       "type": "string"
+      }
+     }
+    ],
+    "requestBody": {
+     "content": {
+      "application/json": {
+       "schema": {
+        "$ref": "#/components/schemas/PublishRequest"
+       }
+      }
+     },
+     "required": true
+    },
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/Publication"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "发布待确认版本（原子切换有效版本并递增 revision）",
+    "tags": [
+     "documents"
+    ]
+   }
+  },
+  "/api/v1/healthz": {
+   "get": {
+    "operationId": "healthz_api_v1_healthz_get",
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "additionalProperties": {
+          "type": "string"
+         },
+         "title": "Response Healthz Api V1 Healthz Get",
+         "type": "object"
+        }
+       }
+      },
+      "description": "Successful Response"
+     }
+    },
+    "summary": "最小健康检查",
+    "tags": [
+     "health"
+    ]
+   }
+  },
+  "/api/v1/jobs/{job_id}": {
+   "get": {
+    "operationId": "get_job_status_api_v1_jobs__job_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobStatus"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "查询处理任务状态",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/api/v1/jobs/{job_id}/retry": {
+   "post": {
+    "operationId": "retry_job_endpoint_api_v1_jobs__job_id__retry_post",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "job_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Job Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "202": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/JobStatus"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "重试失败任务（复用同字节与已保存检查点）",
+    "tags": [
+     "jobs"
+    ]
+   }
+  },
+  "/api/v1/messages/{message_id}/sources/{source_id}": {
+   "get": {
+    "operationId": "get_message_source_api_v1_messages__message_id__sources__source_id__get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "message_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Message Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "source_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Source Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/SourceView"
+        }
+       }
+      },
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "本人消息引用来源详情",
+    "tags": [
+     "sources"
+    ]
+   }
+  },
+  "/api/v1/messages/{message_id}/sources/{source_id}/file": {
+   "get": {
+    "operationId": "get_message_source_file_api_v1_messages__message_id__sources__source_id__file_get",
+    "parameters": [
+     {
+      "in": "path",
+      "name": "message_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Message Id",
+       "type": "string"
+      }
+     },
+     {
+      "in": "path",
+      "name": "source_id",
+      "required": true,
+      "schema": {
+       "format": "uuid",
+       "title": "Source Id",
+       "type": "string"
+      }
+     }
+    ],
+    "responses": {
+     "200": {
+      "description": "Successful Response"
+     },
+     "422": {
+      "content": {
+       "application/json": {
+        "schema": {
+         "$ref": "#/components/schemas/HTTPValidationError"
+        }
+       }
+      },
+      "description": "Validation Error"
+     }
+    },
+    "summary": "本人消息引用的受保护原件",
+    "tags": [
+     "sources"
+    ]
+   }
+  }
+ }
+}

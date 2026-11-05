@@ -1,0 +1,61 @@
+﻿branch: p0/obs-eval
+HEAD: 776497faa6081d7dafb888a773d7c09ea95d481c
+base main: 8e44158
+parent: d41d19f p0/T003b config & middleware
+=== git show --stat --oneline HEAD ===
+776497f p0/T003c rag spans
+ .claude/handoffs/T003c-rag-spans/report.md         | 191 ++++++
+ backend/src/mktkb/observability/trace_attrs.py     |  84 +++
+ backend/src/mktkb/rag/answer.py                    | 141 +++-
+ backend/src/mktkb/rag/retrieval.py                 | 159 +++--
+ backend/tests/observability/test_middleware.py     |   4 +-
+ backend/tests/observability/test_rag_spans.py      | 719 +++++++++++++++++++++
+ .../OBS-EVAL/P0/evidence/T003c/00-baseline.txt     |  44 ++
+ .../OBS-EVAL/P0/evidence/T003c/01-tdd-red.txt      |  23 +
+ .../OBS-EVAL/P0/evidence/T003c/02-rag-spans.txt    |   9 +
+ .../P0/evidence/T003c/03-rag-observability.txt     |  16 +
+ .../OBS-EVAL/P0/evidence/T003c/04-full-suite.txt   |  25 +
+ .../OBS-EVAL/P0/evidence/T003c/05-commit-stat.txt  |  14 +
+ .../P0/evidence/T003c/06-deliverable-sha256.txt    |   6 +
+ .../evidence/T003c/07-pm-authorized-test-diff.txt  |  27 +
+ .../P0/evidence/T003c/08-commit-boundary.txt       |  60 ++
+ 15 files changed, 1447 insertions(+), 75 deletions(-)
+=== git show --name-only --format= HEAD ===
+.claude/handoffs/T003c-rag-spans/report.md
+backend/src/mktkb/observability/trace_attrs.py
+backend/src/mktkb/rag/answer.py
+backend/src/mktkb/rag/retrieval.py
+backend/tests/observability/test_middleware.py
+backend/tests/observability/test_rag_spans.py
+docs/reports/OBS-EVAL/P0/evidence/T003c/00-baseline.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/01-tdd-red.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/02-rag-spans.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/03-rag-observability.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/04-full-suite.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/05-commit-stat.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/06-deliverable-sha256.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/07-pm-authorized-test-diff.txt
+docs/reports/OBS-EVAL/P0/evidence/T003c/08-commit-boundary.txt
+=== diff --numstat vs parent ===
+191	0	.claude/handoffs/T003c-rag-spans/report.md
+84	0	backend/src/mktkb/observability/trace_attrs.py
+110	31	backend/src/mktkb/rag/answer.py
+117	42	backend/src/mktkb/rag/retrieval.py
+2	2	backend/tests/observability/test_middleware.py
+719	0	backend/tests/observability/test_rag_spans.py
+44	0	docs/reports/OBS-EVAL/P0/evidence/T003c/00-baseline.txt
+23	0	docs/reports/OBS-EVAL/P0/evidence/T003c/01-tdd-red.txt
+9	0	docs/reports/OBS-EVAL/P0/evidence/T003c/02-rag-spans.txt
+16	0	docs/reports/OBS-EVAL/P0/evidence/T003c/03-rag-observability.txt
+25	0	docs/reports/OBS-EVAL/P0/evidence/T003c/04-full-suite.txt
+14	0	docs/reports/OBS-EVAL/P0/evidence/T003c/05-commit-stat.txt
+6	0	docs/reports/OBS-EVAL/P0/evidence/T003c/06-deliverable-sha256.txt
+27	0	docs/reports/OBS-EVAL/P0/evidence/T003c/07-pm-authorized-test-diff.txt
+60	0	docs/reports/OBS-EVAL/P0/evidence/T003c/08-commit-boundary.txt
+=== forbidden path scan (should be empty) ===
+
+=== all tests changed vs parent ===
+backend/tests/observability/test_middleware.py
+backend/tests/observability/test_rag_spans.py
+=== test_middleware numstat ===
+2	2	backend/tests/observability/test_middleware.py

@@ -1,0 +1,26 @@
+D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:mktkb:rag_index_ready revision=0
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/auth/me "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations "HTTP/1.1 201 Created"
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/conversations/3b230810-ee53-4d9e-a1e8-0721ef4e5a46/messages "HTTP/1.1 200 OK"
+{"core_spans_present": true, "not_empty": true, "request_id_none": true, "outcome_none": true, "status_incomplete": true, "content_mode_hash": true, "question_hash_none": true, "one_trace_row": true, "no_question_text_in_trace_db": true, "response_body_shape": true}
+RESULT PASS
+exit_code=0 

@@ -1,0 +1,14 @@
+﻿python=3.12.7 root=D:\GPT项目\市场部AI知识库
+PASS 5.1 schema version constants :: 3 constants exact
+PASS 5.2 required_spans: all 8 design rows (12 combos) :: 12 path+outcome combos from 8 design rows match; pitfalls ok
+PASS 5.3 conditional_required_spans :: four keys only; {} / None / unknown ignored; union ok
+PASS 5.4a pipeline_version determinism/sensitivity :: deterministic; prompt/top_k change digest; key order ignored
+PASS 5.4b default components lazy (call-time) :: 4/4 default components resolved at call time
+PASS 5.4c top-level imports stdlib-only :: AST: both modules' top-level imports are stdlib only
+PASS 5.4d fresh-process import / no circular import :: fresh process imports cleanly (no circular import); parent mktkb/__init__ still loads main (pre-existing, disclosed)
+PASS 5.5 hash_question :: ValueError raised for empty key + unknown algo; 64-hex; no plaintext; sha256 empty key ok
+PASS 5.6 config_hash :: 16-field whitelist == doc; secret-like names raise ValueError; whitelist changes digest
+PASS 5.7 TraceRecord/SpanRecord :: traces=41 / spans=9 exact; frozen; instantiate+asdict+json.dumps ok
+PASS 5.x enums :: TraceMode/TracePath/OutcomeKind values match design 6.3
+
+RESULT: ALL INDEPENDENT PROBES PASSED

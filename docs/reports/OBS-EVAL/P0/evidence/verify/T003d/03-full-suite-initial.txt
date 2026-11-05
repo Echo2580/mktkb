@@ -1,0 +1,1016 @@
+T003d independent verification - full suite, FIRST run in the isolated copy
+commit b811f9f; isolated copy WITHOUT gitignored docs/evidence assets.
+command: .venv python -B -m pytest backend/tests -q -p no:cacheprovider --basetemp <copy>\.pytest-tmp\t003d-full
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0; PYTHONPATH=<copy>\backend\src
+result: 16 failed, 1235 passed, 15 skipped in 644.57s
+All 16 failures are missing gitignored assets (docs/evidence/...), not T003d code:
+  - test_boundary_rebuild_entry_keeps_files: missing docs/evidence/T01/C1-R1/derived-fonts
+  - test_g10_upgrade_real_0004...: missing docs/evidence/T06/before/0004-snapshot
+  - test_r10_upgrade_from_0003...: missing docs/evidence/T05/before/t04-snapshot
+  - test_go_gate..., test_s4_*, test_s2h_*: missing docs/evidence/LOCAL-R1-20261101/{budget,GO,PM}
+  - 15 skips: missing docs/evidence/.../S2-DEV/H/vendor tokenizer artifact
+Control: after restoring a 37.8 MB subset of those assets, the same selection passes
+(04-environment-restored-subset.txt: 37 passed); final full run: 05-full-suite-restored.txt.
+No MemoryError / resource failure occurred.
+..........................F............................................. [  5%]
+........................................................................ [ 11%]
+...............................F........................................ [ 17%]
+........................................................................ [ 22%]
+........................................................................ [ 28%]
+.................F...................................................... [ 34%]
+........................................................................ [ 39%]
+........................................................................ [ 45%]
+........................................................................ [ 51%]
+........................................................................ [ 56%]
+........................................................................ [ 62%]
+........................................................................ [ 68%]
+................F....................................................... [ 73%]
+..................................F..................................... [ 79%]
+........................................................................ [ 85%]
+........................................................................ [ 90%]
+....................................FFFFFF.FFFFF..ss..ssssssssssss.s.... [ 96%]
+..........................................                               [100%]
+================================== FAILURES ===================================
+___________________ test_boundary_rebuild_entry_keeps_files ___________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_boundary_rebuild_entry_ke0')
+
+    def test_boundary_rebuild_entry_keeps_files(tmp_path):
+        import build_demo_corpus as builder
+    
+        target = tmp_path / "boundary-out"
+>       entries = builder.build_boundary_files(target)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\acceptance\test_corpus.py:478: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+tools\build_demo_corpus.py:831: in build_boundary_files
+    register_fonts(font_dir)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+font_dir = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/T01/C1-R1/derived-fonts')
+
+    def register_fonts(font_dir: Path) -> dict[int, str]:
+        from reportlab import rl_config
+        from reportlab.pdfbase import pdfmetrics
+        from reportlab.pdfbase.ttfonts import TTFont
+    
+        rl_config.invariant = 1  # �̶� PDF ʱ������ĵ� ID
+        names = {}
+        for weight, (filename, expected) in FONT_FILES.items():
+            path = font_dir / filename
+            if not path.is_file():
+>               raise SystemExit(f"static font missing: {path}")
+E               SystemExit: static font missing: C:\Users\dell1712\AppData\Local\Temp\t003d-0915e17e\t003d\docs\evidence\T01\C1-R1\derived-fonts\NotoSansSCStatic-Regular.ttf
+
+tools\build_demo_corpus.py:99: SystemExit
+_____________ test_g10_upgrade_real_0004_snapshot_preserves_data ______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_g10_upgrade_real_0004_sna0')
+
+    def test_g10_upgrade_real_0004_snapshot_preserves_data(tmp_path):
+>       facts = json.loads((SNAPSHOT / "facts.json").read_text(encoding="utf-8"))
+                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\integration\test_conversation_recovery.py:324: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/T06/before/0004-snapshot/facts.json')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\T06\\before\\0004-snapshot\\facts.json'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________________ test_r10_upgrade_from_0003_and_backfill ___________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_r10_upgrade_from_0003_and0')
+
+    def test_r10_upgrade_from_0003_and_backfill(tmp_path):
+>       assert (SNAPSHOT / "facts.json").is_file(), "T05 ʵ��ǰ�� T04 ���ձ������"
+E       AssertionError: T05 ʵ��ǰ�� T04 ���ձ������
+E       assert False
+E        +  where False = is_file()
+E        +    where is_file = (WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/T05/before/t04-snapshot') / 'facts.json').is_file
+
+backend\tests\integration\test_visible_index.py:700: AssertionError
+______ test_go_gate_rejects_existing_documents_and_structured_weak_files ______
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_go_gate_rejects_existing_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F163A114C0>
+
+    def test_go_gate_rejects_existing_documents_and_structured_weak_files(tmp_path, monkeypatch) -> None:
+        module = _tools()
+        for relative in (
+            "docs/evidence/LOCAL-R1-20261101/S1-DEV/delivery.md",
+            "docs/evidence/LOCAL-R1-20261101/S1-DEV/interfaces.md",
+            "docs/evidence/LOCAL-R1-20261101/PM/S1-DEV-task.md",
+        ):
+            with pytest.raises(SystemExit):
+                module._check_go_file(module.ROOT / relative)
+    
+        weak = tmp_path / "weak-go.md"
+        weak.write_text("S1-LIVE-GO\nS1-DEV\n", encoding="utf-8")
+        monkeypatch.setattr(module, "GO_PATH", weak)
+        with pytest.raises(SystemExit):
+            module._check_go_file(weak)
+    
+        ledger = module.ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "budget" / "live-ledger.jsonl"
+        payload = {
+            "document": "S1-LIVE-GO",
+            "stage": "S1-DEV",
+            "authorization": "REAL-STAGE",
+            "issued_by": "test-manager",
+            "nonce": "0123456789abcdef0123456789abcdef",
+            "issued_utc": "2026-11-02T00:00:00+08:00",
+            "expires_utc": "2099-01-01T00:00:00+08:00",
+>           "budget_ledger_sha256": hashlib.sha256(ledger.read_bytes()).hexdigest(),
+                                                   ^^^^^^^^^^^^^^^^^^^
+            "scope": {
+                "max_documents": 2,
+                "max_requests": 2,
+                "max_questions": 1,
+                "stage_limit_cny": 3.0,
+            },
+        }
+
+backend\tests\rag\test_r1_regressions.py:56: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_______ test_current_go_and_budget_are_consistent_and_above_three_yuan ________
+
+    def test_current_go_and_budget_are_consistent_and_above_three_yuan():
+        """��ǰ��ʵ GO/budget��ֻ��������һ�£��Ҷ��Զ���ھɵ� 3.00 ԪӲ�ޡ�"""
+        tools = _tools()
+>       go = json.loads((ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json").read_text(encoding="utf-8"))
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\rag\test_s4_stage_limit.py:186: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\PM\\S2-LIVE-GO.json'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[6144-2.0-8.0-800] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F167523DD0>
+ceiling = 6144, input_price = 2.0, output_price = 8.0, max_output = 800
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and0/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[10000-2.0-8.0-800] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F167522C00>
+ceiling = 10000, input_price = 2.0, output_price = 8.0, max_output = 800
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and1/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[20000-2.0-8.0-800] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and2')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F167521FD0>
+ceiling = 20000, input_price = 2.0, output_price = 8.0, max_output = 800
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and2/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-0.5-8.0-800] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and3')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F166FAEBD0>
+ceiling = 1048576, input_price = 0.5, output_price = 8.0, max_output = 800
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and3/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-2.0-7.5-800] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and4')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F1675236B0>
+ceiling = 1048576, input_price = 2.0, output_price = 7.5, max_output = 800
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and4/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-2.0-8.0-900] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and5')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755DC70>
+ceiling = 1048576, input_price = 2.0, output_price = 8.0, max_output = 900
+
+    @pytest.mark.parametrize(
+        ("ceiling", "input_price", "output_price", "max_output"),
+        [
+            (6144, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (10000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (20000, OFFICIAL_INPUT, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, 0.5, OFFICIAL_OUTPUT, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, 7.5, OFFICIAL_MAX_OUTPUT),
+            (OFFICIAL_CEILING, OFFICIAL_INPUT, OFFICIAL_OUTPUT, 900),
+        ],
+    )
+    def test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries(
+        tmp_path, monkeypatch, ceiling, input_price, output_price, max_output
+    ) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(
+                ceiling=ceiling,
+                input_price=input_price,
+                output_price=output_price,
+                max_output=max_output,
+            ),
+            ceiling=ceiling,
+            input_price=input_price,
+            output_price=output_price,
+            max_output=max_output,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:210: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_and_go_both_small_and5/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_unknown_model_or_host_rejected_even_if_env_and_go_equal[deepseek-chat-api.deepseek.com] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_unknown_model_or_host_rej0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755DDF0>
+model = 'deepseek-chat', host = 'api.deepseek.com'
+
+    @pytest.mark.parametrize(
+        ("model", "host"),
+        [
+            ("deepseek-chat", "api.deepseek.com"),
+            ("deepseek-flash", "mock.deepseek.invalid"),
+        ],
+    )
+    def test_unknown_model_or_host_rejected_even_if_env_and_go_equal(tmp_path, monkeypatch, model, host) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(model=model, host=host),
+            model=model,
+            host=host,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_unknown_model_or_host_rej0/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_ test_unknown_model_or_host_rejected_even_if_env_and_go_equal[deepseek-flash-mock.deepseek.invalid] _
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_unknown_model_or_host_rej1')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755F2F0>
+model = 'deepseek-flash', host = 'mock.deepseek.invalid'
+
+    @pytest.mark.parametrize(
+        ("model", "host"),
+        [
+            ("deepseek-chat", "api.deepseek.com"),
+            ("deepseek-flash", "mock.deepseek.invalid"),
+        ],
+    )
+    def test_unknown_model_or_host_rejected_even_if_env_and_go_equal(tmp_path, monkeypatch, model, host) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(model=model, host=host),
+            model=model,
+            host=host,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:259: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_unknown_model_or_host_rej1/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+__________ test_meter_off_and_go_profile_omitted_do_not_lift_policy ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_meter_off_and_go_profile_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755E090>
+
+    def test_meter_off_and_go_profile_omitted_do_not_lift_policy(tmp_path, monkeypatch) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(ceiling=6144, include_profile=False),
+            ceiling=6144,
+            meter="0",
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:272: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_meter_off_and_go_profile_0/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+_____________ test_env_go_mismatch_still_rejected_by_both_entries _____________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_go_mismatch_still_rej0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755F140>
+
+    def test_env_go_mismatch_still_rejected_by_both_entries(tmp_path, monkeypatch) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(ceiling=10000),
+            ceiling=OFFICIAL_CEILING,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:285: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_env_go_mismatch_still_rej0/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+__ test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 ___
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_official_profile_accepted0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001F16755CC50>
+
+    def test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552(tmp_path, monkeypatch) -> None:
+>       env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(),
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:297: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\unit\test_s2h_r3_official_profile.py:121: in _fixture_env
+    shutil.copyfile(REAL_LEDGER, ledger)
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+src = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl')
+dst = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/t003d-0915e17e/t003d/.pytest-tmp/t003d-full/test_official_profile_accepted0/live-ledger.jsonl')
+follow_symlinks = True
+
+    def copyfile(src, dst, *, follow_symlinks=True):
+        """Copy data from src to dst in the most efficient way possible.
+    
+        If follow_symlinks is not set and src is a symbolic link, a new
+        symlink will be created instead of copying the file it points to.
+    
+        """
+        sys.audit("shutil.copyfile", src, dst)
+    
+        if _samefile(src, dst):
+            raise SameFileError("{!r} and {!r} are the same file".format(src, dst))
+    
+        file_size = 0
+        for i, fn in enumerate([src, dst]):
+            try:
+                st = _stat(fn)
+            except OSError:
+                # File most likely does not exist
+                pass
+            else:
+                # XXX What about other special files? (sockets, devices...)
+                if stat.S_ISFIFO(st.st_mode):
+                    fn = fn.path if isinstance(fn, os.DirEntry) else fn
+                    raise SpecialFileError("`%s` is a named pipe" % fn)
+                if _WINDOWS and i == 0:
+                    file_size = st.st_size
+    
+        if not follow_symlinks and _islink(src):
+            os.symlink(os.readlink(src), dst)
+        else:
+>           with open(src, 'rb') as fsrc:
+                 ^^^^^^^^^^^^^^^
+E           FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\t003d-0915e17e\\t003d\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl'
+
+..\..\..\..\..\.workbuddy\binaries\python\versions\3.12.7\Lib\shutil.py:260: FileNotFoundError
+============================== warnings summary ===============================
+D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\acceptance\test_corpus.py::test_boundary_rebuild_entry_keeps_files
+FAILED backend\tests\integration\test_conversation_recovery.py::test_g10_upgrade_real_0004_snapshot_preserves_data
+FAILED backend\tests\integration\test_visible_index.py::test_r10_upgrade_from_0003_and_backfill
+FAILED backend\tests\rag\test_r1_regressions.py::test_go_gate_rejects_existing_documents_and_structured_weak_files
+FAILED backend\tests\rag\test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[6144-2.0-8.0-800]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[10000-2.0-8.0-800]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[20000-2.0-8.0-800]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-0.5-8.0-800]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-2.0-7.5-800]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_and_go_both_small_and_equal_are_rejected_by_both_product_entries[1048576-2.0-8.0-900]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_unknown_model_or_host_rejected_even_if_env_and_go_equal[deepseek-chat-api.deepseek.com]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_unknown_model_or_host_rejected_even_if_env_and_go_equal[deepseek-flash-mock.deepseek.invalid]
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_meter_off_and_go_profile_omitted_do_not_lift_policy
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_env_go_mismatch_still_rejected_by_both_entries
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552
+16 failed, 1235 passed, 15 skipped, 1 warning in 644.57s (0:10:44)
+塅呉ㄽ਍

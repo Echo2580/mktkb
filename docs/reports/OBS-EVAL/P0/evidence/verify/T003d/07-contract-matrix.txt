@@ -1,0 +1,25 @@
+T003d independent verification: T001/T003c frozen table vs b811f9f (reviewer probe)
+command: python contract_matrix_compare.py <isolated>/backend/src/mktkb/observability/contracts.py
+old = git show 776497f:backend/src/mktkb/observability/contracts.py
+
+== 1) default required_spans matrix (path x outcome) ==
+  rows=27 unexpected_mismatches=0
+  intentional new legacy rows: ['legacy+conflict', 'legacy+knowledge_changed', 'legacy_with_rag_candidates+conflict', 'legacy_with_rag_candidates+knowledge_changed']
+== 2) validate_required_spans without reason: old vs new ==
+  unexpected_mismatches=0
+== 3) reason-aware exceptions (documented T003d deltas) ==
+  rag+no_answer reason=DOCUMENT_NOT_FOUND: ['commit', 'parse']
+  rag+no_answer reason=UNKNOWN_STORE: ['commit', 'parse']
+  rag+no_answer reason=RECORD_ONLY: ['commit', 'parse']
+  legacy+not_found reason=UNKNOWN_IDENTIFIER: ['commit', 'intent_parse']
+  legacy_with_rag_candidates+not_found reason=UNKNOWN_IDENTIFIER: ['commit', 'intent_parse']
+  legacy+not_found reason=IDENTIFIER_NOT_RETRIEVABLE: ['commit', 'intent_parse']
+  legacy_with_rag_candidates+not_found reason=IDENTIFIER_NOT_RETRIEVABLE: ['commit', 'intent_parse']
+  legacy+not_found reason=NO_INTENT: ['commit', 'intent_parse']
+  legacy_with_rag_candidates+not_found reason=NO_INTENT: ['commit', 'intent_parse']
+  legacy+not_found reason=UNRECORDED_FIELD: ['commit', 'intent_parse']
+  legacy_with_rag_candidates+not_found reason=UNRECORDED_FIELD: ['commit', 'intent_parse']
+  rag+no_answer reason=NO_EVIDENCE: ['commit', 'fuse', 'parse', 'recall']
+  default rag+no_answer: ['commit', 'fuse', 'parse', 'recall']
+  default legacy+not_found: ['commit', 'intent_parse', 'retrieve']
+RESULT: PASS

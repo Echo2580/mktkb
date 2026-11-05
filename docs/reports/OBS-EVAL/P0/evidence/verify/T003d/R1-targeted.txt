@@ -1,0 +1,8 @@
+# T003d R1 targeted re-run (contracts + paths_e2e + rag_spans)
+git_head: 71756f5f10290c3c59ea0ab82f8035943bcabe16
+command: pytest backend/tests/observability/test_contracts.py backend/tests/observability/test_paths_e2e.py backend/tests/observability/test_rag_spans.py -q -p no:cacheprovider --disable-warnings
+exit_code: 0
+----- output -----
+........................................................................ [ 63%]
+.........................................                                [100%]
+113 passed, 1 warning in 11.71s

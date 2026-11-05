@@ -1,0 +1,75 @@
+T003d independent verification - submission boundary & evidence hygiene
+reviewer: independent verifier (no T003d session history)
+date: 2026-11-05
+target: b811f9f01fe266af38855b3f1ed92373b1dae6ee (parent 776497f, baseline main 8e44158, branch p0/obs-eval)
+
+--- 1. commit file list (git show --name-only --format=%H b811f9f) ---
+.claude/handoffs/T003d-paths/report.md
+backend/src/mktkb/conversations/service.py
+backend/src/mktkb/observability/contracts.py
+backend/src/mktkb/qa/service.py
+backend/tests/observability/conftest.py
+backend/tests/observability/test_contracts.py
+backend/tests/observability/test_middleware.py
+backend/tests/observability/test_paths_e2e.py
+backend/tests/observability/test_rag_spans.py
+docs/evaluation/trace_schema_v0_1.md
+docs/reports/OBS-EVAL/P0/evidence/T003d/00-baseline.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/01-tdd-red.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/02-paths-e2e.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/03-observability-integration.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/04-full-suite.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/05-legacy-boundary-probe.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/06-test-middleware.diff
+docs/reports/OBS-EVAL/P0/evidence/T003d/07-static-hygiene.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/08-legacy-contract-matrix.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/09-final-commit-stat.txt
+docs/reports/OBS-EVAL/P0/evidence/T003d/10-deliverables-sha256.txt
+
+RESULT: 21 files, exactly the handoff §2/§8 allowed set. PASS.
+
+--- 2. forbidden-path scan over git diff --name-only 776497f b811f9f ---
+pattern: ^(backend/src/mktkb/(main|config)\.py|backend/src/mktkb/rag/|backend/src/mktkb/observability/(tracer|store|versioning)\.py|.../store\.py|backend/pyproject.toml|docs/evidence/|var/|fixtures/)
+result: none
+RESULT: PASS (no main.py / config.py / rag/** / store.py / tracer.py / versioning.py / pyproject / docs/evidence / var / fixtures).
+
+--- 3. numstat (git diff --numstat 776497f b811f9f) ---
+159  53  backend/src/mktkb/conversations/service.py
+ 49   3  backend/src/mktkb/observability/contracts.py
+ 25   2  backend/src/mktkb/qa/service.py
+ 32   0  backend/tests/observability/conftest.py          <- append only
+122   0  backend/tests/observability/test_contracts.py    <- append only
+ 12   9  backend/tests/observability/test_middleware.py   <- PM-authorized minimal update
+611   0  backend/tests/observability/test_paths_e2e.py    <- new file
+ 31   1  backend/tests/observability/test_rag_spans.py
+ 59   5  docs/evaluation/trace_schema_v0_1.md
+
+test_middleware removed lines (9): 2 obsolete docstring lines, 4 T003b boundary
+assertions that wiring invalidates (request_id/outcome_kind/status/question_hash),
+2 comment lines, 1 docstring line. Header / one-trace-per-POST / mode / scope /
+content_mode / no-raw-content / zero-side-effect assertions are unchanged or
+strengthened (trace.request_id == body.request_id, path=legacy, outcome=not_found,
+status=ok, hash length). No security or privacy assertion was weakened.
+RESULT: PASS (authorized minimality).
+
+--- 4. evidence hygiene ---
+All 00-10 committed. Encodings (bytes inspected):
+  00-baseline.txt                     UTF-8 with BOM
+  01-tdd-red.txt                      UTF-16-LE with BOM (expected per handoff; binary diff "Bin")
+  02..05, 07..10                      UTF-8 without BOM
+  06-test-middleware.diff             UTF-8 with BOM
+09-final-commit-stat.txt: captured at bf8d7b7, i.e. before the amend that folded
+09/10 into the final commit (expected/documented in report §3; the stat is short by
+the two evidence files themselves). Not treated as a defect.
+10-deliverables-sha256.txt: listed 19 files; recomputed SHA-256 in the isolated
+working tree for b811f9f -> 19/19 match, 0 mismatch. NOTE: 06-test-middleware.diff
+is absent from the 10 list (the list covers 00-05,07-10 + code/tests/doc/report);
+minor completeness gap, content itself verified against the real diff.
+06 content: diff body matches `git diff 776497f b811f9f -- test_middleware.py`
+(only the 4 git header lines are omitted in the evidence file).
+
+--- 5. isolation method ---
+git archive --format=tar b811f9f -> %TEMP%\t003d-<random>\t003d.tar
+extracted with Python 3.12 tarfile (Windows bsdtar rejected non-ASCII member names
+with "Invalid empty pathname"; 574 entries / 486 files / 53.1 MB extracted OK).
+Isolated tree is entirely outside the repository; main worktree .git untouched.

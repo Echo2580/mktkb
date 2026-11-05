@@ -1,0 +1,22 @@
+PASS 5.1a no trace: current_trace None, no observability files, answer intact
+PASS 5.2 answer path span set/hierarchy/status
+PASS 5.2b document-mode answer path: required spans present, no exact_recall
+PASS 5.3a conditional attrs canonical and agree with spans
+PASS 5.3b vector span absent when query embedding disabled; no embed call
+PASS 5.3c rerank span absent when fusion empty; flag false
+PASS 5.4a clarification: only parse+commit, validate ok
+FAIL 5.4b DOCUMENT_NOT_FOUND: only parse+commit, no fabricated retrieval/answer: AssertionError: validate_required_spans 缺失=['fuse', 'recall']
+PASS 5.4c retrieval no_answer: required set ok, no fabricated fact_validate
+PASS 5.4d conflict: required answer/fact_validate, validate ok
+PASS 5.4e knowledge_changed: only parse+commit, validate ok
+PASS 5.5a canonical JSON + no question/answer/evidence/chunk-id text in trace
+PASS 5.5b trace DB at rest contains no question/answer text
+PASS 5.6a internal exception: span status=error, exception type/message unchanged
+PASS 5.6b embedding failure: embedding span error, degradation unchanged, no new exception
+PASS 5.6c fact rejection: fact_validate error, refusal answer unchanged
+PASS 5.6d rerank failure: fallback semantics kept, rerank span error
+PASS hard constraint: public result structures unchanged
+PASS hard constraint: zero network calls during offline ask
+PASS trace_attrs helpers: canonical JSON / stable short hash
+SUMMARY passed=19 failed=1 -> docs\reports\OBS-EVAL\P0\evidence\verify\T003c\probe-report.json
+exit_code=0 

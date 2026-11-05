@@ -1,0 +1,25 @@
+# CMD: D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B C:\Users\dell1712\AppData\Local\Temp\t003a-verify\probe_tracer.py
+probe python=3.12.7 mktkb=D:\GPT项目\市场部AI知识库\backend\src\mktkb\__init__.py
+[section] import-boundaries
+[section] contextvars
+[section] lifecycle
+[section] spans
+[section] setters
+[section] write-semantics
+[section] content-modes
+[section] validate
+PROBE-PASS::1212 checks in 8 sections
+
+[stderr]
+trace_write_error: trace_id='fddbf689db7c4ddc9652060be6060dbc' request_id=None
+Traceback (most recent call last):
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 206, in write_best_effort
+    self.write(trace, spans)
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 193, in write
+    conn = self._connection()
+           ^^^^^^^^^^^^^^^^^^
+  File "D:\GPT项目\市场部AI知识库\backend\src\mktkb\observability\store.py", line 384, in _connection
+    raise TraceWriteError("TraceRepository 已关闭，不能访问 trace 数据库")
+mktkb.observability.store.TraceWriteError: TraceRepository 已关闭，不能访问 trace 数据库
+
+EXIT_CODE=0

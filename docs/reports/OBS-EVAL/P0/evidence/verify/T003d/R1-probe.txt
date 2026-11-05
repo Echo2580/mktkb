@@ -1,0 +1,29 @@
+# T003d R1 independent reviewer probe (not a delivered test)
+probe_sha256: 0e9e330a2baf805f7039ccd675d0be9d8cb8f2ada9d7b08219b23be61313111b
+git_head: 71756f5f10290c3c59ea0ab82f8035943bcabe16
+command: pytest backend/tests/observability/test_zz_r1_probe.py -q -s -p no:cacheprovider --disable-warnings
+exit_code: 0
+----- output -----
+OBSERVED commit-upgrade: path=legacy outcome=knowledge_changed reason=KNOWLEDGE_CHANGED_AT_COMMIT status=ok spans=['commit', 'intent_parse'] missing=[]
+.OBSERVED retrieval-stage: path=legacy_with_rag_candidates reason=KNOWLEDGE_CHANGED spans=['commit', 'embedding_query', 'exact_recall', 'fuse', 'hard_filter', 'intent_parse', 'lexical_recall', 'recall', 'rerank', 'retrieve', 'vector_recall'] missing=[]
+.OBSERVED commit-upgrade-after-retrieve: path=legacy_with_rag_candidates reason=KNOWLEDGE_CHANGED spans=['answer_validate', 'commit', 'embedding_query', 'exact_recall', 'fuse', 'hard_filter', 'intent_parse', 'lexical_recall', 'model_answer', 'recall', 'rerank', 'retrieve', 'vector_recall'] missing=[]
+..OBSERVED off/on: kind=knowledge_changed equal_body=True reason=KNOWLEDGE_CHANGED_AT_COMMIT spans=['commit', 'intent_parse']
+.
+5 passed, 1 warning in 3.12s
+
+# Mutation probes (non-vacuity, isolated temp copies of 71756f5; repo untouched)
+copy: %TEMP%\t003d-r1\mut and \mut2 (git archive 71756f5 + Expand-Archive)
+selection: 3 tests = e2e commit-upgrade + 2 new contract tests; baseline in clean copy: 4 passed
+command: python -B -m pytest <3 ids> -q -p no:cacheprovider --disable-warnings
+
+m1: service._record_legacy_outcome always writes reason KNOWLEDGE_CHANGED
+result: 1 failed, 3 passed
+FAILED test_legacy_commit_time_knowledge_changed_after_early_exit
+AssertionError: 'KNOWLEDGE_CHANGED' == 'KNOWLEDGE_CHANGED_AT_COMMIT'
+
+m2: contracts.required_spans AT_COMMIT branch removed (always default row)
+result: 4 failed
+FAILED test_legacy_commit_time_knowledge_changed_after_early_exit
+FAILED test_required_spans_legacy_knowledge_changed_at_commit_needs_only_intent_parse_and_commit[legacy]
+FAILED test_required_spans_legacy_knowledge_changed_at_commit_needs_only_intent_parse_and_commit[legacy_with_rag_candidates]
+FAILED test_validate_required_spans_reads_commit_time_knowledge_changed_reason

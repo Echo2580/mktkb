@@ -1,0 +1,52 @@
+﻿T001 INDEPENDENT VERIFICATION - CONSOLIDATED SUMMARY
+generated: 2026-11-04T22:59:36.5896089+08:00
+cwd: D:\GPT项目\市场部AI知识库
+branch: p0/obs-eval
+head_full: 7b02f4038c23098ae35c9e84f10203a656064fe7
+head_short: 7b02f40
+head_parent: 8e44158033b295066a7b6fd2f8b0fba019ac1270
+baseline_main: 8e44158 (8e44158033b295066a7b6fd2f8b0fba019ac1270)
+commits_on_branch_vs_main:
+7b02f40 p0/T001 contracts & versioning
+commit_files:
+.claude/handoffs/T001-obs-contracts/report.md
+backend/src/mktkb/observability/__init__.py
+backend/src/mktkb/observability/contracts.py
+backend/src/mktkb/observability/versioning.py
+backend/tests/observability/__init__.py
+backend/tests/observability/test_contracts.py
+backend/tests/observability/test_versioning.py
+docs/evaluation/eval_data_v0_1.md
+docs/evaluation/trace_schema_v0_1.md
+docs/reports/OBS-EVAL/P0/evidence/T001/00-baseline-pytest.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/01-pytest-red.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/02-pytest-observability.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/03-pytest-full.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/04-git-rev-parse.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/05-git-show-stat.txt
+docs/reports/OBS-EVAL/P0/evidence/T001/06-deliverable-sha256.txt
+working_tree_status:
+ M .claude/handoffs/_index.md
+?? .claude/handoffs/T001-obs-contracts/handoff.md
+?? .claude/handoffs/prompts/T001-dev-done.md
+?? .claude/handoffs/prompts/T001-dev.md
+?? .claude/handoffs/prompts/T001-verify-done.md
+?? .claude/handoffs/prompts/T001-verify.md
+?? docs/reports/OBS-EVAL/P0/evidence/verify/
+dependency_files_changed_vs_baseline:
+(none)
+
+RERUN RESULT 1: observability package tests
+68 passed, 1 warning in 1.60s
+RERUN RESULT 2: full backend suite
+1086 passed, 1 warning in 372.66s (0:06:12)
+collect-only per file:
+36 tests collected in 0.03s | 32 tests collected in 0.03s
+DELTA: 1086 - 68 = 1018 (matches dev-reported baseline count)
+existing tests modified in commit? -> NO (all backend/test changes are new files under backend/tests/observability/):
+A	backend/tests/observability/__init__.py
+A	backend/tests/observability/test_contracts.py
+A	backend/tests/observability/test_versioning.py
+
+SHA256 recheck of 8 committed deliverables vs evidence 06: MATCH (see 06-sha256-recheck.txt)
+Independent probes: 07 ALL PASSED; 08 ALL PASSED; 09 mutation 10/10 CAUGHT

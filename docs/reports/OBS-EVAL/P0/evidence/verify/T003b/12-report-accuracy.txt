@@ -1,0 +1,57 @@
+﻿=== T003b report accuracy / claim audit (report is clue only, not PASS evidence) ===
+
+--- [A] report §3 claims C1=20f0105, 9 files, 1602 insertions ---
+20f0105 p0/T003b config & middleware
+ backend/src/mktkb/config.py                        |  76 +++
+ backend/src/mktkb/main.py                          |  42 ++
+
+--- [B] final HEAD stat (12 files, 1838 insertions per verifier) ---
+d41d19f p0/T003b config & middleware
+ .claude/handoffs/T003b-wiring/report.md            | 211 ++++++
+...
+12
+
+--- [C] evidence 05 vs final HEAD: differences ---
+
+InputObject                          SideIndicator
+-----------                          -------------
+5ce6999 p0/T003b config & middleware =>           
+exit_code=0                          =>           
+d41d19f p0/T003b config & middleware <=           
+                                     <=           
+
+
+
+assessment: only self-referential sha line (5ce6999 vs d41d19f) + trailing exit_code line differ; stat body identical
+
+--- [D] reflog amend chain for p0/obs-eval (T003a..HEAD) ---
+d41d19f p0/obs-eval@{0}: commit (amend): p0/T003b config & middleware
+5ce6999 p0/obs-eval@{1}: commit (amend): p0/T003b config & middleware
+0616492 p0/obs-eval@{2}: commit (amend): p0/T003b config & middleware
+20f0105 p0/obs-eval@{3}: commit: p0/T003b config & middleware
+dea4d5d p0/obs-eval@{4}: commit (amend): p0/T003a tracer core
+fee679e p0/obs-eval@{5}: commit (amend): p0/T003a tracer core
+
+--- [E] report claims vs independent reruns ---
+report §2.8/§3: middleware suite 20 passed -> verifier 01-pytest-middleware.txt: 20 passed, 1 warning in 8.19s
+report §2.8/§3: scope suite 239 passed -> verifier 02-pytest-scope.txt: 239 passed, 1 warning in 90.60s (0:01:30)
+report §2.8/§3: full 1196 passed -> verifier 03b-pytest-full-rerun.txt: 1196 passed, 1 warning in 559.90s (0:09:19)
+verifier first full run (03-pytest-full.txt): 1 failed, 1195 passed, 1 warning in 559.21s (0:09:19)
+report §2.8: baseline 1176 -> verifier 09-baseline-collect.txt: 1176 tests collected in 3.85s
+
+--- [F] reported deviations independently re-observed ---
+§4.1 request_id None: see 05-probe-independent.txt P2.trace fields (request_id: null)
+§4.2 path default rag + status incomplete: P2.trace fields path=rag status=incomplete
+§4.3 auth-failed QA POST also traces: P3.未登录 QA POST 仍返回 X-Trace-ID / 端点内失败写 1 条 incomplete trace
+
+--- [G] report format: required five sections + handoff summary present? ---
+## 1. 完成内容 -> PRESENT
+## 2. 验收标准自证 -> PRESENT
+## 3. 实际运行的命令与结果 -> PRESENT
+## 4. 偏离与未做 -> PRESENT
+## 5. 风险与遗留 -> PRESENT
+## 交接摘要 -> PRESENT
+
+--- [H] first full-run flake: unchanged timing-sensitive test (source diff empty), failure mode calls=0 ---
+0
+see 03-pytest-full.txt (1 failed / 1195 passed) vs 03b (1196 passed) vs 08 (isolated 3/3 passed)

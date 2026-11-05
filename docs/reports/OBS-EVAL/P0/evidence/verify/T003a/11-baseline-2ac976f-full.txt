@@ -1,0 +1,77 @@
+# CMD: D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider -o pythonpath= --ignore=backend/tests/observability/test_tracer.py --basetemp backend\.pytest-tmp\verify-baseline-final2
+........................................................................ [  6%]
+........................................................F............... [ 12%]
+........................................................................ [ 19%]
+........................................................................ [ 25%]
+........................................................................ [ 32%]
+........................................................................ [ 38%]
+........................................................................ [ 45%]
+........................................................................ [ 51%]
+........................................................................ [ 58%]
+........................................................................ [ 64%]
+........................................................................ [ 71%]
+........................................................................ [ 77%]
+........................................................................ [ 84%]
+........................................................................ [ 90%]
+........................................................................ [ 97%]
+..............................                                           [100%]
+================================== FAILURES ===================================
+______________ test_g08_short_budget_cancels_inflight_model_call ______________
+
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x0000018BFC405EB0>, csrf='6cc23b39e4b46c1a01a05a4f08188f1...4f08188f1312c1108c3a6bc9af79acaf4b9adba25e'}, upload=<function _write_session.<locals>.<lambda> at 0x0000018BFC768AE0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000018BF8C3F8F0>, csrf='addfe7e3dcfb32174925baa4d73ef66...a4d73ef6661923863aede2aba218835a43f9da6a84'}, upload=<function _write_session.<locals>.<lambda> at 0x0000018BFC12AA20>)
+chat_app = <fastapi.applications.FastAPI object at 0x0000018BFB48E000>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000018BF8C3C170>
+
+    def test_g08_short_budget_cancels_inflight_model_call(chat_admin, chat_employee, chat_app, monkeypatch):
+        """PM06-02：缩短总预算时由自身 MODEL_TIMEOUT 及时结束，且只调用一次模型。"""
+        _publish_ready(chat_admin, chat_app, path=D02, revision=0)
+        conversation = _create(chat_employee)
+        gateway = chat_app.state.model_gateway
+    
+        async def slow_complete(request, *, timeout_seconds):
+            gateway.calls.append(
+                {
+                    "purpose": request.purpose,
+                    "question": request.question,
+                    "timeout_seconds": timeout_seconds,
+                    "evidence": [item.source_id for item in request.evidence],
+                }
+            )
+            await asyncio.sleep(2)
+            return CompletionOutput(
+                text="城东店的联系电话是010-00000001。",
+                source_ids=tuple(item.source_id for item in request.evidence),
+            )
+    
+        monkeypatch.setattr(gateway, "complete", slow_complete)
+        monkeypatch.setattr(service, "BUDGET_SECONDS", 0.2)
+        started = time.monotonic()
+        response = _ask(chat_employee, conversation, "城东店的联系电话是什么？")
+        elapsed = time.monotonic() - started
+        facts = _r1_facts(chat_employee, conversation, gateway.calls, response, elapsed)
+        _dump_r1("r1-budget-cancel.json", facts)
+        payload = facts["response"]
+        assert facts["status"] == 200
+        assert payload["kind"] == "service_error", payload
+        assert payload["error_code"] == "MODEL_TIMEOUT"
+        assert payload["retryable"] is True
+        assert payload["sources"] == []
+        assert elapsed < 1.0, f"总预算 0.2s 却耗时 {elapsed:.3f}s"
+>       assert len(facts["calls"]) == 1, "取消后不得重复调用模型"
+E       AssertionError: 取消后不得重复调用模型
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+backend\tests\integration\test_chat.py:1047: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\integration\test_chat.py::test_g08_short_budget_cancels_inflight_model_call
+1 failed, 1109 passed, 1 warning in 429.34s (0:07:09)
+
+EXIT_CODE=1

@@ -1,0 +1,127 @@
+$ cd /d C:\Users\dell1712\AppData\Local\Temp\t002-verify && D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe -B mutation_probes.py
+mut work dir: C:\Users\dell1712\AppData\Local\Temp\t002-mut-r0eb5nko
+HEAD store.py    sha256=386aa43da7d484bb6c55c40a53d0277bd0b54fd2d4f68185be3c3903f0b3a2b3 bytes=19431
+HEAD test_store.py sha256=6a24e5df75f38cef3ffd271b74f575ff452ef800c3c9d559a918c4a731e7e985 bytes=22877
+HEAD contracts.py  sha256=1e51b934bcd230b9d11e50ccac87d097efa7f066c4e360193ee26b441ab1f417
+--------------------------------------------------------------------------------------------------------------
+[baseline] exit=0 summary='24 passed in 0.37s' verdict=PASS
+[m1-purge-age-noop] exit=1 summary='1 failed, 23 passed in 0.46s'
+    failed_tests=['test_purge_by_age_and_count']
+    expected-keyword-match=['test_purge_by_age_and_count'] verdict=PASS
+[m2-purge-keep-last-off-by-one] exit=1 summary='2 failed, 22 passed in 0.47s'
+    failed_tests=['test_purge_both_criteria_union_and_clear_spans', 'test_purge_by_age_and_count']
+    expected-keyword-match=['test_purge_both_criteria_union_and_clear_spans', 'test_purge_by_age_and_count'] verdict=PASS
+[m3-write-best-effort-raises] exit=1 summary='2 failed, 22 passed in 0.46s'
+    failed_tests=['test_write_best_effort_swallows_error', 'test_write_best_effort_when_parent_is_regular_file']
+    expected-keyword-match=['test_write_best_effort_swallows_error', 'test_write_best_effort_when_parent_is_regular_file'] verdict=PASS
+[m4-wal-to-delete-journal] exit=1 summary='1 failed, 23 passed in 0.66s'
+    failed_tests=['test_journal_mode_is_wal']
+    expected-keyword-match=['test_journal_mode_is_wal'] verdict=PASS
+[m5-export-ensure-ascii-true] exit=1 summary='1 failed, 23 passed in 0.47s'
+    failed_tests=['test_export_jsonl_matches_db']
+    expected-keyword-match=['test_export_jsonl_matches_db'] verdict=PASS
+[m6-list-request-only-attempt-1] exit=1 summary='6 failed, 18 passed in 0.47s'
+    failed_tests=['test_concurrent_threads_write_without_corruption', 'test_list_by_request_returns_multiple_attempts', 'test_purge_both_criteria_union_and_clear_spans', 'test_purge_by_age_and_count', 'test_repeated_open_same_file_keeps_schema_and_reads', 'test_sql_is_parameterized_against_injection']
+    expected-keyword-match=['test_list_by_request_returns_multiple_attempts'] verdict=PASS
+[m7-schema-version-check-disabled] exit=1 summary='1 failed, 23 passed in 0.47s'
+    failed_tests=['test_existing_incompatible_schema_version_fails_closed']
+    expected-keyword-match=['test_existing_incompatible_schema_version_fails_closed'] verdict=PASS
+--------------------------------------------------------------------------------------------------------------
+SUMMARY: 8/8 变异被测试捕获
+[
+  {
+    "case": "baseline-unmutated",
+    "mutation": "(none)",
+    "exit_code": 0,
+    "summary": "24 passed in 0.37s",
+    "failed_tests": [],
+    "expected": "24 passed",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m1-purge-age-noop",
+    "mutation": "'if created is not None and created < cutoff:' -> 'if False:  # MUTATION: 禁用按年龄清理'",
+    "exit_code": 1,
+    "summary": "1 failed, 23 passed in 0.46s",
+    "failed_tests": [
+      "test_purge_by_age_and_count"
+    ],
+    "expected": "测试应失败且失败用例含 ['purge']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m2-purge-keep-last-off-by-one",
+    "mutation": "'for row in ordered[: len(ordered) - keep_last]:' -> 'for row in ordered[: max(len(ordered) - keep_last - 1, 0)]:  # MUTATION: 少删一条'",
+    "exit_code": 1,
+    "summary": "2 failed, 22 passed in 0.47s",
+    "failed_tests": [
+      "test_purge_both_criteria_union_and_clear_spans",
+      "test_purge_by_age_and_count"
+    ],
+    "expected": "测试应失败且失败用例含 ['purge']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m3-write-best-effort-raises",
+    "mutation": "'        except Exception:  # noqa: BLE001 - best-effort 不得影响产品响应（设计 §6.6）\\n            LOGGER.warning(' -> '        except Exception:  # noqa: BLE001 - best-effort 不得影响产品响应（设计 §6.6）\\n            raise  # MUTATION: best-effort 向上抛\\n            LOGGER.warning('",
+    "exit_code": 1,
+    "summary": "2 failed, 22 passed in 0.46s",
+    "failed_tests": [
+      "test_write_best_effort_swallows_error",
+      "test_write_best_effort_when_parent_is_regular_file"
+    ],
+    "expected": "测试应失败且失败用例含 ['best_effort']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m4-wal-to-delete-journal",
+    "mutation": "'conn.execute(\"PRAGMA journal_mode = WAL\")' -> 'conn.execute(\"PRAGMA journal_mode = DELETE\")  # MUTATION: 非 WAL'",
+    "exit_code": 1,
+    "summary": "1 failed, 23 passed in 0.66s",
+    "failed_tests": [
+      "test_journal_mode_is_wal"
+    ],
+    "expected": "测试应失败且失败用例含 ['journal']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m5-export-ensure-ascii-true",
+    "mutation": "'json.dumps(payload, ensure_ascii=False, sort_keys=True)' -> 'json.dumps(payload, ensure_ascii=True, sort_keys=True)'",
+    "exit_code": 1,
+    "summary": "1 failed, 23 passed in 0.47s",
+    "failed_tests": [
+      "test_export_jsonl_matches_db"
+    ],
+    "expected": "测试应失败且失败用例含 ['export']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m6-list-request-only-attempt-1",
+    "mutation": "'\"SELECT * FROM traces WHERE request_id = ? ORDER BY attempt ASC, rowid ASC\",' -> '\"SELECT * FROM traces WHERE request_id = ? AND attempt = 1 ORDER BY attempt ASC, rowid ASC\",  # MUTATION: 丢多 attempt'",
+    "exit_code": 1,
+    "summary": "6 failed, 18 passed in 0.47s",
+    "failed_tests": [
+      "test_concurrent_threads_write_without_corruption",
+      "test_list_by_request_returns_multiple_attempts",
+      "test_purge_both_criteria_union_and_clear_spans",
+      "test_purge_by_age_and_count",
+      "test_repeated_open_same_file_keeps_schema_and_reads",
+      "test_sql_is_parameterized_against_injection"
+    ],
+    "expected": "测试应失败且失败用例含 ['list_by_request']",
+    "verdict": "PASS"
+  },
+  {
+    "case": "m7-schema-version-check-disabled",
+    "mutation": "'if stored != TRACE_SCHEMA_VERSION:' -> 'if False and stored != TRACE_SCHEMA_VERSION:  # MUTATION: 不校验版本'",
+    "exit_code": 1,
+    "summary": "1 failed, 23 passed in 0.47s",
+    "failed_tests": [
+      "test_existing_incompatible_schema_version_fails_closed"
+    ],
+    "expected": "测试应失败且失败用例含 ['incompatible']",
+    "verdict": "PASS"
+  }
+]
+
+[exit code: 0]
