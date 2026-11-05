@@ -1,0 +1,13 @@
+﻿# T006a R1 - package / directory / full regression (serial, no cacheprovider)
+# base commit: f6bb3c4 (T006a) + R1 working tree on 40b2fd1
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\gate-r1
+80 passed, 1 warning in 1.76s
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation -q -p no:cacheprovider --basetemp backend\.pytest-tmp\eval-r1
+204 passed, 1 warning in 9.08s
+
+# command: .\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t006a-r1-full
+1477 passed, 1 warning in 389.61s (0:06:29)
+
+# note: 1469 (f6bb3c4 baseline) + 8 new R1 tests = 1477; 0 failed / 0 error.

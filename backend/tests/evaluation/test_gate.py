@@ -7,7 +7,7 @@
    ``*_json`` 非法 JSON fail closed、schema 版本不一致 fail）；
 3. 不依赖内核对 ``mode=live`` 的拒绝（gate 自己判 → ``exit_code=4``）；
 4. 退出码 0/1/3/4 互斥；2 保留不用；硬门禁不可豁免；
-5. PM 裁决口径（``not_applicable`` vs ``unknown``；``min_sample`` 用 scored_count；
+5. PM 裁决口径（``not_applicable`` vs ``unknown``；``min_sample`` 用 evaluated_count；
    ``value_no_fabricated`` 不进硬门禁；``citation_required`` 不靠 ``source_hit``；
    ``security_leak`` 按解析后 unit 映射比对；``record_code``-only gold fail closed）；
 6. 配置骨架可解析且不含绝对阈值。
@@ -342,7 +342,7 @@ def config_payload(**overrides) -> dict:
         "gate_version": GATE_SCHEMA_VERSION,
         "status": "unapproved",
         "hard_gates": list(HARD_GATE_IDS),
-        "min_sample": {"b0": 1, "badcase": 1},
+        "hard_gate_min_sample": {"b0": 1, "badcase": 1},
         "sensitive_patterns": [],
         "metrics": [
             {
@@ -458,8 +458,8 @@ def test_default_gate_config_is_hard_skeleton_only() -> None:
     config = load_gate_config(DEFAULT_CONFIG_PATH)
     assert config.gate_version == GATE_SCHEMA_VERSION
     assert tuple(config.hard_gates) == HARD_GATE_IDS
-    assert config.min_sample["b0"] == 32
-    assert config.min_sample["badcase"] == 10
+    assert dict(config.hard_gate_min_sample) == {"b0": 32, "badcase": 13}
+    assert config.min_sample is config.hard_gate_min_sample
     assert config.status == "unapproved"
     assert config.metrics, "指标骨架（名称 + 方向）必须存在"
     for metric in config.metrics:
@@ -498,8 +498,18 @@ def test_load_gate_config_rejects_bad_metric_direction(tmp_path: Path) -> None:
 
 def test_load_gate_config_rejects_bad_min_sample(tmp_path: Path) -> None:
     path = tmp_path / "bad.json"
-    _write_json(path, config_payload(min_sample={"b0": 0}))
-    with pytest.raises(ValueError, match="min_sample"):
+    _write_json(path, config_payload(hard_gate_min_sample={"b0": 0}))
+    with pytest.raises(ValueError, match="hard_gate_min_sample"):
+        load_gate_config(path)
+
+
+def test_load_gate_config_rejects_legacy_min_sample_key(tmp_path: Path) -> None:
+    """JSON 字段必须是 ``hard_gate_min_sample``；旧 ``min_sample`` 不再被静默接受。"""
+    payload = config_payload()
+    payload["min_sample"] = payload.pop("hard_gate_min_sample")
+    path = tmp_path / "legacy.json"
+    _write_json(path, payload)
+    with pytest.raises(ValueError, match="hard_gate_min_sample"):
         load_gate_config(path)
 
 
@@ -685,6 +695,30 @@ def test_security_leak_not_applicable_without_forbidden_refs(tmp_path: Path) -> 
     assert "forbidden" in note.detail
 
 
+def test_security_leak_missing_outcome_with_forbidden_values_is_unknown(
+    tmp_path: Path,
+) -> None:
+    """R1-HIGH-1：有 forbidden 约束但 outcome 缺失 → unknown(3)，不得把缺失当空文本。"""
+    case = make_case(
+        stratum="text",
+        expected_values=(),
+        expected_sources=(),
+        expected_kind="no_answer",
+        should_refuse=True,
+        refusal_reason="no_data",
+        forbidden_values=("SECRET",),
+    )
+    row = make_row(case, outcome=None)
+    run = build_run(tmp_path, cases=[case], rows=[row])
+    result = evaluate(run, make_config(tmp_path))
+    assert result.exit_code == EXIT_UNKNOWN, result.to_dict()
+    assert result.gate_status["security_leak"] == "unknown"
+    unknown = next(item for item in result.unknowns if item.gate_id == "security_leak")
+    assert unknown.check_id == "outcome_missing"
+    assert unknown.case_id == "Q01"
+    assert result.failures == ()
+
+
 # --------------------------------------------------------------------------- #
 # cross_entity / stale_bypass
 # --------------------------------------------------------------------------- #
@@ -795,6 +829,19 @@ def test_pagination_not_applicable_without_expected_or_output(tmp_path: Path) ->
     assert result.gate_status["pagination_contract"] == "not_applicable"
 
 
+def test_pagination_malformed_output_is_unknown(tmp_path: Path) -> None:
+    """R1-MEDIUM-2：outcome.pagination 非 mapping → unknown(3)，不得抛未捕获异常。"""
+    case = make_case(expected_pagination={"total": 2}, expected_values=())
+    row = make_row(case, pagination="not-a-mapping")
+    run = build_run(tmp_path, cases=[case], rows=[row])
+    result = evaluate(run, make_config(tmp_path))
+    assert result.exit_code == EXIT_UNKNOWN, result.to_dict()
+    assert result.gate_status["pagination_contract"] == "unknown"
+    unknown = next(item for item in result.unknowns if item.gate_id == "pagination_contract")
+    assert unknown.check_id == "pagination_invalid"
+    assert unknown.case_id == "Q01"
+
+
 # --------------------------------------------------------------------------- #
 # citation_required
 # --------------------------------------------------------------------------- #
@@ -865,6 +912,20 @@ def test_citation_required_non_answer_outcome_not_applicable(tmp_path: Path) -> 
     result = evaluate(run, make_config(tmp_path))
     assert result.exit_code == EXIT_PASS, result.to_dict()
     assert result.gate_status["citation_required"] == "not_applicable"
+
+
+def test_citation_required_missing_kind_for_answer_is_unknown(tmp_path: Path) -> None:
+    """R1-HIGH-2：期望作答但缺 outcome.kind → unknown(3)，不得按非作答跳过。"""
+    case = make_case()
+    row = make_row(case, outcome={"kind": None, "citations": []})
+    run = build_run(tmp_path, cases=[case], rows=[row])
+    result = evaluate(run, make_config(tmp_path))
+    assert result.exit_code == EXIT_UNKNOWN, result.to_dict()
+    assert result.gate_status["citation_required"] == "unknown"
+    unknown = next(item for item in result.unknowns if item.gate_id == "citation_required")
+    assert unknown.check_id == "outcome_kind_missing"
+    assert unknown.case_id == "Q01"
+    assert result.failures == ()
 
 
 # --------------------------------------------------------------------------- #
@@ -1042,6 +1103,51 @@ def test_trace_integrity_schema_version_mismatch_fails(tmp_path: Path) -> None:
     assert failure.evidence["expected"] == TRACE_SCHEMA_VERSION
 
 
+def test_trace_integrity_store_schema_meta_mismatch_fails(tmp_path: Path) -> None:
+    """R1-HIGH-3：schema_meta.trace_schema_version 漂移 → exit 1（TraceRecord 仍是 v0.1）。"""
+    case = make_case()
+    run = build_run(tmp_path, cases=[case], rows=[make_row(case)])
+    database = run.out_dir / "traces.sqlite3"
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute(
+            "UPDATE schema_meta SET value = ? WHERE key = ?",
+            ("mktkb.trace.v9.9", "trace_schema_version"),
+        )
+        connection.commit()
+    finally:
+        connection.close()
+
+    result = evaluate(run, make_config(tmp_path))
+    assert result.exit_code == EXIT_HARD_FAILURE, result.to_dict()
+    assert result.hard_failures == ("trace_integrity",)
+    failure = next(item for item in result.failures if item.gate_id == "trace_integrity")
+    assert failure.check_id == "store_schema_version_mismatch"
+    assert failure.case_id is None
+    assert failure.evidence["expected"] == TRACE_SCHEMA_VERSION
+    assert failure.evidence["actual"] == "mktkb.trace.v9.9"
+    assert failure.evidence["source"] == "schema_meta.trace_schema_version"
+
+
+def test_trace_integrity_missing_schema_meta_is_unknown(tmp_path: Path) -> None:
+    """R1-HIGH-3：schema_meta 表缺失/不可读 → unknown(3)，不得默认通过。"""
+    case = make_case()
+    run = build_run(tmp_path, cases=[case], rows=[make_row(case)])
+    database = run.out_dir / "traces.sqlite3"
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute("DROP TABLE schema_meta")
+        connection.commit()
+    finally:
+        connection.close()
+
+    result = evaluate(run, make_config(tmp_path))
+    assert result.exit_code == EXIT_UNKNOWN, result.to_dict()
+    assert result.gate_status["trace_integrity"] == "unknown"
+    unknown = next(item for item in result.unknowns if item.gate_id == "trace_integrity")
+    assert unknown.check_id == "trace_store_unreadable"
+
+
 def test_trace_integrity_conditional_span_required(tmp_path: Path) -> None:
     case = make_case()
     row = make_row(case)
@@ -1217,14 +1323,15 @@ def test_doc_code_only_range_gold_is_allowed_with_warning(tmp_path: Path) -> Non
 def test_min_sample_insufficient_is_unknown(tmp_path: Path) -> None:
     cases = [make_case("Q01")]
     run = build_run(tmp_path, cases=cases, rows=[make_row(cases[0])])
-    result = evaluate(run, make_config(tmp_path, min_sample={"b0": 4}))
+    result = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"b0": 4}))
     assert result.exit_code == EXIT_UNKNOWN
     unknown = next(item for item in result.unknowns if item.gate_id == "min_sample")
-    assert unknown.evidence["scored_count"] == 1
+    assert unknown.evidence["evaluated_count"] == 1
     assert unknown.evidence["min_sample"] == 4
+    assert unknown.evidence["basis"] == "evaluated_count"
 
 
-def test_min_sample_uses_scored_count_not_case_count(tmp_path: Path) -> None:
+def test_min_sample_uses_evaluated_count_not_case_count(tmp_path: Path) -> None:
     """OCR 行不进分母：2 条可评分 + 2 条 OCR，min_sample=2 必须通过。"""
     cases = [
         make_case("Q01"),
@@ -1239,18 +1346,71 @@ def test_min_sample_uses_scored_count_not_case_count(tmp_path: Path) -> None:
         make_row(cases[3], status="skipped_requires_ocr", checks=[], outcome=None),
     ]
     run = build_run(tmp_path, cases=cases, rows=rows, trace_specs={"Q01": {}, "Q02": {}})
-    passing = evaluate(run, make_config(tmp_path, min_sample={"b0": 2}))
+    passing = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"b0": 2}))
     assert passing.exit_code == EXIT_PASS, passing.to_dict()
     assert passing.scored_count == 2
+    assert passing.evaluated_count == 2
 
-    failing = evaluate(run, make_config(tmp_path, min_sample={"b0": 3}))
+    failing = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"b0": 3}))
     assert failing.exit_code == EXIT_UNKNOWN
+
+
+def test_evaluated_count_excludes_error_and_ocr_rows(tmp_path: Path) -> None:
+    """evaluated_count = pass/fail 且非 OCR、非 error；error 行本身另走 exit 3。"""
+    cases = [make_case("Q01"), make_case("Q02"), make_case("Q33", requires_ocr=True)]
+    rows = [
+        make_row(cases[0]),
+        make_row(cases[1], status="error", outcome=None, checks=[], error={"code": "x"}),
+        make_row(cases[2], status="skipped_requires_ocr", outcome=None, checks=[]),
+    ]
+    run = build_run(
+        tmp_path, cases=cases, rows=rows, trace_specs={"Q01": {}}
+    )
+    result = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"b0": 1}))
+    assert result.evaluated_count == 1
+    assert result.scored_count == 1
+    # error 行仍会使本轮不完整 → exit 3（不是因为它没进分母）
+    assert result.exit_code == EXIT_UNKNOWN
+    assert any(item.gate_id == "run" for item in result.unknowns)
+
+
+def test_badcase_evaluated_count_13_includes_empty_gold_rows(tmp_path: Path) -> None:
+    """badcase 硬门禁分母 13 含 N10/N12/N13 空 gold 行；检索分母（10）属 T006b。"""
+    cases = [make_case(f"B{index:02d}", suite="badcase", stratum="price") for index in range(13)]
+    rows = [make_row(case) for case in cases]
+    # 10 条有 gold、3 条空 gold（N10/N12/N13 形态），但都参与硬门禁评估
+    for case in cases[10:]:
+        row = make_row(case)
+        row["gold"] = {
+            "case_id": case.case_id,
+            "requires_ocr": False,
+            "skipped": False,
+            "sources": [],
+            "unit_ids": [],
+            "relevant_unit_ids": [],
+        }
+        rows[cases.index(case)] = row
+    run = build_run(
+        tmp_path,
+        cases=cases,
+        rows=rows,
+        trace_specs={case.case_id: {} for case in cases},
+    )
+    result = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"badcase": 13}))
+    assert result.exit_code == EXIT_PASS, result.to_dict()
+    assert result.evaluated_count == 13
+    # 质量层检索分母只算有 gold 的 10 条，不得复用硬门禁 13
+    retrieval_denominator = sum(1 for row in rows if row["gold"]["sources"])
+    assert retrieval_denominator == 10
+
+    short = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"badcase": 14}))
+    assert short.exit_code == EXIT_UNKNOWN
 
 
 def test_min_sample_missing_suite_is_unknown(tmp_path: Path) -> None:
     cases = [make_case("Q01")]
     run = build_run(tmp_path, cases=cases, rows=[make_row(cases[0])])
-    result = evaluate(run, make_config(tmp_path, min_sample={"badcase": 1}))
+    result = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"badcase": 1}))
     assert result.exit_code == EXIT_UNKNOWN
     unknown = next(item for item in result.unknowns if item.gate_id == "min_sample")
     assert unknown.check_id == "min_sample_missing"
@@ -1376,7 +1536,7 @@ def test_hard_failure_priority_over_unknown(tmp_path: Path) -> None:
     case = make_case()
     row = make_row(case, outcome={"citations": []})
     run = build_run(tmp_path, cases=[case], rows=[row])
-    result = evaluate(run, make_config(tmp_path, min_sample={"b0": 4}))
+    result = evaluate(run, make_config(tmp_path, hard_gate_min_sample={"b0": 4}))
     assert result.exit_code == EXIT_HARD_FAILURE
     assert result.hard_failures == ("citation_required",)
 

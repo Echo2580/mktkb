@@ -1,0 +1,18 @@
+# T006a R1 - re-run of the independent probe (reviewer-owned, unmodified)
+# base commit: f6bb3c4 (T006a) + R1 working tree on 40b2fd1
+# command: .\.venv\Scripts\python.exe -B docs\reports\OBS-EVAL\P0\evidence\verify\T006a\probe.py
+# NOTE: the two remaining FAILs are stale R1 expectations, not implementation failures:
+#  - config.min_sample still asserts badcase=10; PM R1 ruling sets hard_gate_min_sample.badcase=13.
+#  - pm.badcase_denominator_10_not_13 overrides badcase=10 and expects 11 evaluated rows to fail;
+#    under the R1 ruling (evaluated_count, badcase=13) 11 < 13 fails only with the real config.
+# The HIGH-1/2/3 and MEDIUM-2 checks below all PASS. MEDIUM-1 is covered by
+# 05-r1-targeted-tests.txt (badcase=13 with 13/14 rows), because this probe hard-codes the
+# superseded badcase=10 threshold in pm.badcase_denominator_10_not_13.
+
+FAIL config.min_sample :: {'b0': 32, 'badcase': 13}
+PASS trace.store_schema_meta_mismatch :: exit=1 hard=['trace_integrity'] unknown=[] failing=[('trace_integrity', None, 'store_schema_version_mismatch')] status={'security_leak': 'not_applicable', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'pass', 'pagination_contract': 'not_applicable', 'citation_required': 'pass', 'trace_integrity': 'fail'}
+PASS pm.missing_kind_citation_unknown_or_fail :: exit=3 hard=[] unknown=[('citation_required', 'outcome_kind_missing')] failing=[] status={'security_leak': 'not_applicable', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'pass', 'pagination_contract': 'not_applicable', 'citation_required': 'unknown', 'trace_integrity': 'pass'}
+PASS pm.security_missing_outcome_unknown :: exit=3 hard=[] unknown=[('security_leak', 'outcome_missing')] failing=[] status={'security_leak': 'unknown', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'not_applicable', 'pagination_contract': 'not_applicable', 'citation_required': 'not_applicable', 'trace_integrity': 'pass'}
+PASS pm.pagination_malformed_fail_closed :: exit=3 hard=[] unknown=[('pagination_contract', 'pagination_invalid')] failing=[] status={'security_leak': 'not_applicable', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'not_applicable', 'pagination_contract': 'unknown', 'citation_required': 'pass', 'trace_integrity': 'pass'}
+FAIL pm.badcase_denominator_10_not_13 :: exit=0 hard=[] unknown=[] failing=[] status={'security_leak': 'not_applicable', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'not_applicable', 'pagination_contract': 'not_applicable', 'citation_required': 'pass', 'trace_integrity': 'pass'}
+SUMMARY checks=49 failed=2

@@ -26,8 +26,10 @@
   ``include_future`` / ``as_of`` / ``effective_from|to`` 字段 → **没有该类 case** →
   ``not_applicable``；上游归一化给出的 ``hard_filter_violation``
   （``cross_entity`` / ``stale`` / ``forbidden_source``）是显式违规证据 → fail；
-- ``min_sample`` 的分母是 ``scored_count``（``status`` 为 pass/fail 的行数，排除 OCR
-  与 error 行），不用 ``case_count`` / ``metrics_scope.cases_in_denominator``；
+- 硬门禁 ``min_sample`` 的分母是 **``evaluated_count``**：``cases.jsonl`` 中 ``status``
+  为 ``pass`` / ``fail`` 且非 ``skipped_requires_ocr``、非 runner ``error`` 的行数；
+  不用 ``case_count`` / ``metrics_scope.cases_in_denominator``。质量层（T006b）的指标
+  分母各自独立（如 badcase 检索只算有 gold 的 10 条），不得与本口径混用；
 - ``exact_value_contract`` 只作用于 ``stratum=exact`` 的 case：数据集把 24 道精确值题
   标为 ``exact``、8 道标为 ``text``（``eval_data_v0_1.md``），text stratum 的
   ``value_hit`` 未命中属质量层（T006b），不是硬门禁；
@@ -44,7 +46,9 @@
 trace 是**不可信输入**（T003a 遗留）：gate 不因 trace 自称 ``status=ok`` 就放行，
 必需 Span 按 ``required_spans(path, outcome, reason=trace.reason)`` + 条件 Span
 重新计算；``status=replayed`` 的记录只校版本绑定与 JSON 结构（T003a/T003d 遗留）；
-``*_json`` 非法 JSON fail closed；``TRACE_SCHEMA_VERSION`` 不一致 fail。
+``*_json`` 非法 JSON fail closed；``TRACE_SCHEMA_VERSION`` 不一致 fail；trace store 的
+``schema_meta.trace_schema_version`` 与契约不一致同样 fail（trace_schema_v0_1.md
+§8），``schema_meta`` 缺失 / 不可读 → unknown（exit 3）。
 
 输入只读：``RunResult``（``run_manifest.json`` 身份字段、``cases.jsonl`` 行）、
 run 目录下的 ``traces.sqlite3``（只读打开）与数据集文件（重新解析 gold / forbidden，
@@ -198,7 +202,12 @@ class MetricSpec:
 
 @dataclass(frozen=True)
 class GateConfig:
-    """Release Gate 配置 v0.1（只含硬门禁骨架；阈值留给 T006b 审批后填入）。"""
+    """Release Gate 配置 v0.1（只含硬门禁骨架；阈值留给 T006b 审批后填入）。
+
+    ``min_sample`` 是**硬门禁最小样本数**（JSON 字段 ``hard_gate_min_sample``），分母
+    固定为 ``evaluated_count``（见 :func:`evaluate_gate`）；它不用于质量指标，T006b 的
+    检索 / 拒答指标各自另算分母，不得与硬门禁口径混用。
+    """
 
     gate_version: str
     schema_version: str
@@ -210,8 +219,17 @@ class GateConfig:
     source_path: str | None = None
     config_hash: str = ""
 
+    @property
+    def hard_gate_min_sample(self) -> Mapping[str, int]:
+        """硬门禁最小样本数（语义名；``min_sample`` 保留为数据字段名）。"""
+        return self.min_sample
+
     def min_sample_for(self, suite: str) -> int | None:
-        """返回 suite 的最小样本数；未配置返回 ``None``（调用方必须 fail closed）。"""
+        """返回 suite 的硬门禁最小样本数；未配置返回 ``None``（调用方必须 fail closed）。
+
+        分母固定为 ``evaluated_count``（见 :func:`evaluate_gate`），不是
+        ``case_count`` / ``metrics_scope.cases_in_denominator``，也不用于质量指标。
+        """
         value = self.min_sample.get(str(suite))
         return None if value is None else int(value)
 
@@ -296,14 +314,18 @@ def load_gate_config(path: Path | str) -> GateConfig:
             f"未知 {unknown_gates}，缺少 {missing_gates}"
         )
 
-    raw_min_sample = _require_mapping(payload.get("min_sample"), "min_sample")
+    raw_min_sample = _require_mapping(
+        payload.get("hard_gate_min_sample"), "hard_gate_min_sample"
+    )
     min_sample: dict[str, int] = {}
     for suite, value in raw_min_sample.items():
         if isinstance(value, bool) or not isinstance(value, int) or value < 1:
-            raise ValueError(f"min_sample[{suite!r}] 必须是正整数，收到 {value!r}")
+            raise ValueError(
+                f"hard_gate_min_sample[{suite!r}] 必须是正整数，收到 {value!r}"
+            )
         min_sample[str(suite)] = value
     if not min_sample:
-        raise ValueError("min_sample 不能为空")
+        raise ValueError("hard_gate_min_sample 不能为空")
 
     raw_metrics = payload.get("metrics", [])
     if isinstance(raw_metrics, (str, bytes)) or not isinstance(raw_metrics, Sequence):
@@ -423,7 +445,12 @@ class GateNote:
 
 @dataclass(frozen=True)
 class GateResult:
-    """一次门禁评估结果；``hard_failures`` 是失败的硬门禁 ID（可直接 ``in`` 判断）。"""
+    """一次门禁评估结果；``hard_failures`` 是失败的硬门禁 ID（可直接 ``in`` 判断）。
+
+    ``scored_count`` 的数值就是硬门禁的 ``evaluated_count``（``status`` 为
+    ``pass`` / ``fail`` 且非 OCR、非 error 的行）；字段名保留以兼容既有产物读取方，
+    :attr:`evaluated_count` 是同一数值的显式别名。
+    """
 
     exit_code: int
     gate_status: Mapping[str, str]
@@ -438,6 +465,11 @@ class GateResult:
     gate_version: str
     scored_count: int
     min_sample: int | None
+
+    @property
+    def evaluated_count(self) -> int:
+        """硬门禁 ``min_sample`` 的分母（与 ``scored_count`` 同值）。"""
+        return self.scored_count
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -554,6 +586,30 @@ class _TraceReader:
             return f"trace store 的 traces 表缺列（schema 不兼容）: {missing_columns[:5]}"
         return None
 
+    def schema_meta_version(self) -> tuple[str, str | None]:
+        """读 ``schema_meta.trace_schema_version``（trace_schema_v0_1.md §8）。
+
+        返回 ``("ok", version)`` / ``("mismatch", actual)`` /
+        ``("unavailable", reason)``；表/键缺失或查询失败都是 unavailable（→ unknown），
+        版本不一致是 mismatch（→ 硬失败），不得把缺失当空值放行。
+        """
+        conn = self._connection()
+        if conn is None:
+            return "unavailable", f"trace store 无法打开（只读）: {self._path.name}"
+        try:
+            row = conn.execute(
+                "SELECT value FROM schema_meta WHERE key = ?",
+                ("trace_schema_version",),
+            ).fetchone()
+        except sqlite3.Error as exc:
+            return "unavailable", f"trace store 的 schema_meta 不可读: {exc}"
+        if row is None or row[0] is None:
+            return "unavailable", "trace store 的 schema_meta 缺少 trace_schema_version"
+        stored = str(row[0])
+        if stored != TRACE_SCHEMA_VERSION:
+            return "mismatch", stored
+        return "ok", stored
+
     def get(self, trace_id: str) -> tuple[TraceRecord, tuple[str, ...]] | None:
         """读一条 trace + 其 Span 名称；不存在返回 ``None``，仓储不可读抛异常。"""
         conn = self._connection()
@@ -618,6 +674,15 @@ def _is_ocr_row(row: Mapping[str, Any]) -> bool:
 
 def _is_error_row(row: Mapping[str, Any]) -> bool:
     return _row_status(row) == "error" or bool(row.get("error"))
+
+
+def _is_evaluated_row(row: Mapping[str, Any]) -> bool:
+    """硬门禁 ``min_sample`` 的分母：pass/fail 且非 OCR、非 error。"""
+    return (
+        _row_status(row) in SCORED_ROW_STATUSES
+        and not _is_ocr_row(row)
+        and not _is_error_row(row)
+    )
 
 
 def _row_outcome(row: Mapping[str, Any]) -> Mapping[str, Any] | None:
@@ -804,7 +869,29 @@ def _gate_security_leak(view: _View) -> _GateOutcome:
         forbidden_sources = tuple(case.forbidden_sources)
         forbidden_values = tuple(case.forbidden_values)
         outcome = _row_outcome(row)
-        text = str(outcome.get("text") or "") if outcome is not None else ""
+        if outcome is None:
+            # 有 forbidden 约束 / 敏感模式却拿不到回答与引用：不能把"缺失"当"空文本"，
+            # 也无法证明没有泄漏 → unknown（exit 3），不得判 pass（R1-HIGH-1）。
+            if forbidden_sources or forbidden_values or patterns:
+                applicable += 1
+                unknowns.append(
+                    GateUnknown(
+                        gate_id=gate_id,
+                        case_id=case.case_id,
+                        check_id="outcome_missing",
+                        reason=(
+                            "case 有 forbidden 约束 / 敏感模式，但缺少 outcome"
+                            "（无法取得回答与引用内容），不得按空文本放行"
+                        ),
+                        evidence={
+                            "forbidden_sources": len(forbidden_sources),
+                            "forbidden_values": len(forbidden_values),
+                            "sensitive_patterns": len(patterns),
+                        },
+                    )
+                )
+            continue
+        text = str(outcome.get("text") or "")
         if not forbidden_sources and not forbidden_values and not (patterns and text):
             continue
         applicable += 1
@@ -1052,7 +1139,37 @@ def _gate_pagination_contract(view: _View) -> _GateOutcome:
         if row is None or _is_ocr_row(row) or _is_error_row(row):
             continue
         outcome = _row_outcome(row)
-        actual = dict(outcome.get("pagination") or {}) if outcome is not None else {}
+        if outcome is None:
+            actual: dict[str, Any] = {}
+            pagination_invalid = False
+        else:
+            raw_pagination = outcome.get("pagination")
+            if raw_pagination is None:
+                actual = {}
+                pagination_invalid = False
+            elif isinstance(raw_pagination, Mapping):
+                actual = dict(raw_pagination)
+                pagination_invalid = False
+            else:
+                # 非 mapping（字符串 / 数组等）→ unknown，不得让 dict(...) 抛未捕获异常
+                # 或静默当空分页放行（R1-MEDIUM-2）。
+                actual = {}
+                pagination_invalid = True
+        if pagination_invalid:
+            unknowns.append(
+                GateUnknown(
+                    gate_id=gate_id,
+                    case_id=case.case_id,
+                    check_id="pagination_invalid",
+                    reason="outcome.pagination 不是 JSON 对象（mapping），无法判定分页契约",
+                    evidence={
+                        "actual_type": type(raw_pagination).__name__,
+                        "actual": raw_pagination,
+                        "expected_pagination": expected,
+                    },
+                )
+            )
+            continue
         if not expected and not actual:
             continue
         if outcome is None:
@@ -1137,7 +1254,25 @@ def _gate_citation_required(view: _View) -> _GateOutcome:
                     )
                 )
             continue
-        if str(outcome.get("kind") or "") != "answer":
+        kind = outcome.get("kind")
+        if not kind:
+            # 期望作答却拿不到 kind：无法证明"answer 无引用"，不得当非作答跳过
+            # （R1-HIGH-2）。非作答期望的 case 不要求引用，维持 not_applicable。
+            if case.expected_kind == "answer" and not case.should_refuse:
+                unknowns.append(
+                    GateUnknown(
+                        gate_id=gate_id,
+                        case_id=case.case_id,
+                        check_id="outcome_kind_missing",
+                        reason=(
+                            "期望作答的 case 缺少 outcome.kind，无法判定是否需要引用，"
+                            "不得按非作答结局跳过"
+                        ),
+                        evidence={"expected_kind": case.expected_kind},
+                    )
+                )
+            continue
+        if str(kind) != "answer":
             continue  # 非作答结局不要求引用；kind 正确性由质量层负责
         applicable += 1
         citations = [
@@ -1218,6 +1353,43 @@ def _gate_trace_integrity(view: _View, require_trace: bool) -> _GateOutcome:
                     evidence={"trace_store": str(view.manifest.get("trace_store") or "")},
                 )
             ],
+        )
+
+    # trace_schema_v0_1.md §8：schema_meta.trace_schema_version 必须等于
+    # TRACE_SCHEMA_VERSION，不一致时门禁 fail closed；表/键缺失或不可读 → unknown。
+    meta_state, meta_detail = view.traces.schema_meta_version()
+    if meta_state == "unavailable":
+        return _outcome(
+            gate_id,
+            unknowns=[
+                GateUnknown(
+                    gate_id=gate_id,
+                    case_id=None,
+                    check_id="trace_store_unreadable",
+                    reason=meta_detail or "trace store 的 schema_meta 不可读",
+                    evidence={
+                        "schema_meta_key": "trace_schema_version",
+                        "trace_store": str(view.manifest.get("trace_store") or ""),
+                    },
+                )
+            ],
+        )
+    if meta_state == "mismatch":
+        return _outcome(
+            gate_id,
+            failures=[
+                GateFailure(
+                    gate_id=gate_id,
+                    case_id=None,
+                    check_id="store_schema_version_mismatch",
+                    evidence={
+                        "expected": TRACE_SCHEMA_VERSION,
+                        "actual": meta_detail,
+                        "source": "schema_meta.trace_schema_version",
+                    },
+                )
+            ],
+            detail="trace store 的 schema_meta 版本与契约不一致（fail closed）",
         )
 
     failures: list[GateFailure] = []
@@ -1497,12 +1669,17 @@ def evaluate_gate(
 
     优先级：``mode=live`` → 4；配置 / 数据不可用（含非法 mode）→ 3；任一硬门禁失败 → 1；
     存在 unknown → 3；否则 0。硬门禁失败优先于 unknown（handoff §5.4）。
+
+    ``min_sample`` 的判定分母是 ``evaluated_count``：``cases.jsonl`` 中 ``status`` 为
+    ``pass`` / ``fail`` 且非 ``skipped_requires_ocr``、非 runner ``error`` 的行。空 gold
+    行（如 badcase 的 N10/N12/N13）仍参与 kind / 拒答 / 引用等硬门禁校验，因此计入
+    硬门禁分母；质量指标（T006b）的检索 / 拒答分母另算，不得与本口径混用。
     """
     manifest = _manifest_payload(run)
     rows = tuple(run.cases or ())
     bad_rows = [index for index, row in enumerate(rows) if not isinstance(row, Mapping)]
     rows = tuple(row for row in rows if isinstance(row, Mapping))
-    scored_count = sum(1 for row in rows if _row_status(row) in SCORED_ROW_STATUSES)
+    evaluated_count = sum(1 for row in rows if _is_evaluated_row(row))
     mode = str(manifest.get("mode") or "").strip()
 
     if mode.lower() == "live":
@@ -1521,7 +1698,7 @@ def evaluate_gate(
             suite=str(manifest.get("suite") or ""),
             mode=mode,
             gate_version=str(manifest.get("gate_version") or ""),
-            scored_count=scored_count,
+            scored_count=evaluated_count,
             min_sample=None,
         )
 
@@ -1533,7 +1710,7 @@ def evaluate_gate(
     if bad_rows:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1549,7 +1726,7 @@ def evaluate_gate(
     if mode not in {"local", "replay"}:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1565,7 +1742,7 @@ def evaluate_gate(
     if str(manifest.get("gate_version") or "") != resolved_config.gate_version:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1588,7 +1765,7 @@ def evaluate_gate(
     if target is None:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1606,7 +1783,7 @@ def evaluate_gate(
     except (ValueError, OSError) as exc:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1625,7 +1802,7 @@ def evaluate_gate(
     if dataset_ids != row_ids:
         return _config_data_failure(
             manifest,
-            scored_count,
+            evaluated_count,
             resolved_config,
             unknowns=[
                 GateUnknown(
@@ -1717,18 +1894,20 @@ def evaluate_gate(
                 evidence={"suite": manifest.get("suite")},
             )
         )
-    elif scored_count < min_sample:
+    elif evaluated_count < min_sample:
         unknowns.append(
             GateUnknown(
                 gate_id="min_sample",
                 case_id=None,
                 check_id="min_sample_not_met",
                 reason=(
-                    "可评分样本（scored_count，排除 OCR 与 error 行）不足 min_sample"
+                    "evaluated_count（status ∈ {pass,fail} 且排除 OCR 与 error 行）"
+                    "不足硬门禁 hard_gate_min_sample"
                 ),
                 evidence={
-                    "scored_count": scored_count,
+                    "evaluated_count": evaluated_count,
                     "min_sample": min_sample,
+                    "basis": "evaluated_count",
                     "suite": manifest.get("suite"),
                 },
             )
@@ -1777,7 +1956,7 @@ def evaluate_gate(
         suite=str(manifest.get("suite") or ""),
         mode=mode,
         gate_version=resolved_config.gate_version,
-        scored_count=scored_count,
+        scored_count=evaluated_count,
         min_sample=min_sample,
     )
 
@@ -1795,7 +1974,7 @@ def _manifest_payload(run: RunResult) -> dict[str, Any]:
 
 def _config_data_failure(
     manifest: Mapping[str, Any],
-    scored_count: int,
+    evaluated_count: int,
     config: GateConfig,
     *,
     unknowns: Sequence[GateUnknown],
@@ -1814,6 +1993,6 @@ def _config_data_failure(
         suite=str(manifest.get("suite") or ""),
         mode=str(manifest.get("mode") or ""),
         gate_version=config.gate_version,
-        scored_count=scored_count,
+        scored_count=evaluated_count,
         min_sample=None,
     )
