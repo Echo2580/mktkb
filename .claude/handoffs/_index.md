@@ -82,6 +82,7 @@
     - 首轮 3 HIGH fail-open（`security_leak` 缺 outcome、`citation_required` 缺 kind、`trace_integrity` 不读 `schema_meta`）+ 2 MEDIUM 已由 R1 `90d7133` 修复并定向复验 PASS。
     - LOW：`GateConfig.to_dict` 仍输出旧 `min_sample` 键（loader 只认 `hard_gate_min_sample`）；`GateResult.to_dict` 只暴露 `scored_count`（与 `evaluated_count` 同值）；`05-r1-*` 证据头 base 提交标签过期（数字已独立复现）。
     - 口径定稿：硬门禁分母 `evaluated_count` = b0 32 / badcase 13；质量检索分母 = badcase 10；两者不得混用（已写入 T006b handoff）。
+34. **T006b 执行中断与接续（2026-11-05 14:1x–14:3x）**：开发会话在全量测试收尾阶段被外部暂停（非代码失败），工作树保留完整成果（`gate.py` 质量层 + 29 个测试 + 3 份证据）；按 §S 由全新上下文接续者接管收尾（核实→补跑→写报告→单 commit），未丢工作、不产生第二个同义 commit。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
