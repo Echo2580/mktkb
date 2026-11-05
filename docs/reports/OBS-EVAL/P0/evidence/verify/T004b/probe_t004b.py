@@ -310,6 +310,23 @@ conflict_ids = S.score_case(
 print("CONFLICT_IDS source_hit=" + status(conflict_ids, "source_hit") + " precision=" + repr(conflict_ids.metrics["citation_precision"]))
 check("conflicting unit_ids + matching key: source_hit passes while citation metric fails closed", status(conflict_ids, "source_hit") == "pass" and conflict_ids.metrics["citation_precision"] == 0.0)
 
+# Forbidden source security check: unit_ids alone cannot match a unit_key-only ref.
+forbidden_unit_case = mk_case("F1", forbidden_sources=({"doc_code": "D08", "unit_key": "k8"},))
+forbidden_unit_resolved = mk_resolved("F1")
+forbidden_ids_only = S.score_case(
+    forbidden_unit_case, forbidden_unit_resolved,
+    mk_outcome(citations=(S.EvalCitation(doc_code="D08", unit_ids=("u8",)),)),
+)
+forbidden_with_key = S.score_case(
+    forbidden_unit_case, forbidden_unit_resolved,
+    mk_outcome(citations=(S.EvalCitation(doc_code="D08", unit_key="k8", unit_ids=("u8",)),)),
+)
+check(
+    "forbidden unit-level source: unit_ids-only passes, unit_key present fails (fail-open gap)",
+    status(forbidden_ids_only, "source_forbidden") == "pass" and status(forbidden_with_key, "source_forbidden") == "fail",
+    f"ids_only={status(forbidden_ids_only, 'source_forbidden')} with_key={status(forbidden_with_key, 'source_forbidden')}",
+)
+
 # ---------------------------------------------------------------------------
 section("E. Retrieval metrics: unit dedup, top-10, no-gold, hard filter, empty")
 # ---------------------------------------------------------------------------
@@ -331,6 +348,52 @@ no_dedup_dcg = 1.0 + 1 / math.log2(3) + 1 / math.log2(4)  # u1 at 1, duplicate u
 ideal = 1 + 1 / math.log2(3)
 print("NO_DEDUP_NDCG " + repr(no_dedup_dcg / ideal) + " (>1 would be invalid)")
 check("unit dedup is necessary: counterfactual no-dedup nDCG > 1", no_dedup_dcg / ideal > 1.0)
+# Mutation: replace retrieval metrics with a no-dedup implementation; nDCG must exceed 1.
+orig_retrieval_metrics = S._retrieval_case_metrics
+
+
+def _no_dedup_retrieval_metrics(case, outcome, resolved):
+    ordered: list[tuple[str, str]] = []
+    violating: set[tuple[str, str]] = set()
+    for item in outcome.retrieved:
+        identities = S._retrieved_identities(item)
+        ordered.extend(identities)  # deliberately no dedup
+        if S._retrieved_violation(case, item) is not None:
+            violating.update(identities)
+    relevant = {("unit", str(item)) for item in resolved.relevant_unit_ids}
+    metrics = {
+        "gold_units": len(relevant), "retrieved_units": len(ordered),
+        "hard_filter_violations": len(violating),
+        "Recall@10": None, "MRR@10": None, "nDCG@10": None, "empty_recall": None,
+    }
+    if not relevant or resolved.skipped:
+        return metrics
+    top = ordered[:10]
+    hits = [index for index, identity in enumerate(top) if identity in relevant]
+    metrics["Recall@10"] = len(hits) / len(relevant)
+    metrics["MRR@10"] = 1.0 / (hits[0] + 1) if hits else 0.0
+    dcg = sum(1.0 / math.log2(index + 2) for index in hits)
+    ideal_local = sum(1.0 / math.log2(rank + 1) for rank in range(1, min(len(relevant), 10) + 1))
+    metrics["nDCG@10"] = dcg / ideal_local if ideal_local else 0.0
+    metrics["empty_recall"] = 1.0 if len(ordered) == 0 else 0.0
+    return metrics
+
+
+try:
+    S._retrieval_case_metrics = _no_dedup_retrieval_metrics  # type: ignore[assignment]
+    mutated_ret = S.score_case(
+        mk_case("G02"),
+        mk_resolved("G02", unit_ids=("u1", "u2"), relevant_unit_ids=("u1", "u2")),
+        mk_outcome(retrieved=(
+            S.EvalRetrieved(doc_code="D01", unit_ids=("u1",), chunk_id="a"),
+            S.EvalRetrieved(doc_code="D01", unit_ids=("u1",), chunk_id="b"),
+            S.EvalRetrieved(doc_code="D01", unit_ids=("u2",), chunk_id="c"),
+        )),
+    )
+    mutated_ndcg = mutated_ret.metrics["nDCG@10"]
+finally:
+    S._retrieval_case_metrics = orig_retrieval_metrics  # type: ignore[assignment]
+check("retrieval unit-dedup mutation makes nDCG > 1", mutated_ndcg > 1.0, repr(mutated_ndcg))
 same_unit_ranks = S.score_case(
     mk_case("G02"), mk_resolved("G02", unit_ids=("u1", "u2"), relevant_unit_ids=("u1", "u2")),
     mk_outcome(retrieved=(

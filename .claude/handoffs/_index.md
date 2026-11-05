@@ -61,10 +61,11 @@
     - MEDIUM-3：badcase N06 也依赖 N04/N05 上下文，但 `turns=[]` 且 notes 未说明（报告只记了 N11）。T005 单轮执行须显式声明，不得当多轮验证。
     - LOW-1：N05 `expected_min_total=1` 只在 notes，`expected_pagination=null`；T005/T006 不得声称 badcase 覆盖分页语义。
     - LOW-2：T004a 报告引 `__init__.py:1-38`，实际 28 行（文档引用瑕疵）。
-31. **T004b 验收 PASS 遗留（2026-11-05，验收方 `review.md`，非阻断）**：
+31. **T004b 验收 PASS 遗留（2026-11-05，验收方 `review.md`：4 MEDIUM / 5 LOW，非阻断）**：
     - MEDIUM-1：`value_no_fabricated` 过严且覆盖不全（合法答案里的"第 2 层""共 3 张""D09""v2.1"都被判编造；`1,000` 连带 `value_hit` 失败；`-12` 对 `12` 符号盲）。**PM 裁决：T006a 只作软指标/诊断，不得映射为 `exact_value_contract` 或 `security_leak` 硬门禁。**
     - MEDIUM-2：`refusal_metrics` 把 `error`/`service_error` 计为 TN（稀释 false_refusal_rate），`knowledge_changed` 未定义归属。**T006a 必须把三者移出拒答 2×2（记 unknown/排除）。**
     - MEDIUM-3：缺 `unit_ids` 时 fail closed 为 0 而非 unknown（`citation_precision=0`、Recall/MRR/nDCG=0，但 `source_hit` 仍可过）。**T005 必须由 chunk 真实归属填充并持久化；缺 unit_ids 的 gold case 显式 `unknown/error`。**
+    - MEDIUM-4：`source_forbidden` 在引用只有 `unit_ids`、forbidden ref 用 `unit_key` 时漏报（`scorers.py:588-600`）。**T005 交付记录同时写 `doc_code`+`unit_key`/`locator`（T005 handoff §7.5）；T006a 的 `security_leak` 必须按解析后 unit 映射比对，无法解析即 unknown（退出码 3）。**
     - LOW-1：`record_code`-only 期望来源被当整篇命中 → T005 防御式 fail closed（已写入 T005 handoff §7）；T006a 不得接受 record_code-only。
     - LOW-2：`CaseResult` 未带设计 §7.3 版本字段 → T005 的 `cases.jsonl`/manifest 补齐。
     - LOW-3：`expected_pagination=null` 但实际有分页时只验契约、不要求"无分页" → T006a 写清口径。

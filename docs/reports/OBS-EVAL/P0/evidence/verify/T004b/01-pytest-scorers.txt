@@ -3,6 +3,7 @@ captured_at: 2026-11-05 (Asia/Shanghai)
 branch/HEAD: p0/obs-eval @ 9d52b7c; review target f126598
 env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0
 command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_scorers.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\scorers
+exit=0
 ......................................................................   [100%]
 ============================== warnings summary ===============================
 .venv\Lib\site-packages\fastapi\testclient.py:1
@@ -14,8 +15,9 @@ command: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_s
 
 ## Independent probe (outside repo)
 script: probe_t004b.py
-probe_output_sha256_run1=7093ea8d85a82a5e6ee955013ada95b703fce08c0f06a0170e44f7b4074aa76d
-probe_output_sha256_run2=7093ea8d85a82a5e6ee955013ada95b703fce08c0f06a0170e44f7b4074aa76d
+probe_command: .\.venv\Scripts\python.exe -B docs\reports\OBS-EVAL\P0\evidence\verify\T004b\probe_t004b.py
+probe_output_sha256_run1=c0e3a39eb3a1048920330ba6144569839f6dae14f053fa7677c215d64b6a49e5
+probe_output_sha256_run2=c0e3a39eb3a1048920330ba6144569839f6dae14f053fa7677c215d64b6a49e5
 run1_exit=0 run2_exit=0 output_diff=0_bytes
 selected output (all PASS; full run is reproducible by executing probe_t004b.py):
 PASS CHECK_IDS is exactly 12 and ordered | ('value_hit', 'value_forbidden', 'value_no_fabricated', 'source_hit', 'source_forbidden', 'kind_correct', 'refusal_expected', 'refusal_unexpected', 'pagination_total', 'pagination_returned', 'pagination_has_more', 'pagination_next_page')
@@ -42,9 +44,11 @@ PASS citation dedup precision == 0.5 | {'value_hit': None, 'source_hit': 1.0, 'k
 PASS counterfactual no-dedup precision would be 2/3, so dedup changes the metric | 0.6666666666666666
 PASS citation unit-dedup mutation flips precision 0.5 -> 2/3 | 0.6666666666666666
 PASS missing citation unit_ids: citation precision/recall fail closed to 0.0 | {'value_hit': None, 'source_hit': 1.0, 'kind_correct': 1.0, 'citation_precision': 0.0, 'citation_recall': 0.0, 'gold_units': 2, 'retrieved_units': 0, 'hard_filter_violations': 0, 'Recall@10': 0.0, 'MRR@10': 0.0, 'nDCG@10': 0.0, 'empty_recall': 1.0}
+PASS forbidden unit-level source: unit_ids-only passes, unit_key present fails (fail-open gap) | ids_only=pass with_key=fail
 PASS dedup nDCG@10 hand value | 0.6934264036172708 vs 0.6934264036172708
 NO_DEDUP_NDCG 1.3065735963827294 (>1 would be invalid)
 PASS unit dedup is necessary: counterfactual no-dedup nDCG > 1
+PASS retrieval unit-dedup mutation makes nDCG > 1 | 1.3065735963827294
 PASS missing retrieved unit_ids: fail closed to 0, not crash | {'value_hit': None, 'source_hit': None, 'kind_correct': 1.0, 'citation_precision': 0.0, 'citation_recall': 0.0, 'gold_units': 1, 'retrieved_units': 1, 'hard_filter_violations': 0, 'Recall@10': 0.0, 'MRR@10': 0.0, 'nDCG@10': 0.0, 'empty_recall': 0.0}
 PASS pagination contract mutation flips has_more fail->pass | baseline=fail mutated=pass
 == G. Refusal 2x2 hand computation and independence ==

@@ -66,6 +66,7 @@ git show --stat --oneline HEAD
   2. `locator` 是**范围型**（N05 整表 11 unit、N09 整篇 17 unit 属正常语义）：gold 是 unit 集合，不得当"精确单 unit 命中"用于 citation_precision；范围 case 的检索指标按集合计。
   3. N06/N11 属会话跟进题但 `turns=[]`（数据集刻意不发明 turn 结构）：runner 单轮执行即可，但**必须在 `cases.jsonl`/`summary.json` 或报告里显式声明"P0 为单轮执行，N06/N11 不证明多轮能力"**，不得把它们的通过写成多轮验证。
   4. N05 的 `expected_min_total=1` 只在 `notes`，`expected_pagination` 为 `null`：本包**不得**声称 badcase 覆盖分页契约语义。
+  5. **（PM 追加，2026-11-05，T004b 验收 MEDIUM-4）** 引用/检索记录在写 `unit_ids` 的同时，**应一并保留 `doc_code` + `unit_key`/`locator`**（能从 chunk 归属直接取到就写）：`security_leak` 的 `forbidden_sources` 用的是 `unit_key`，只有 `unit_ids` 时下游 `source_forbidden` 会漏报（`scorers.py:588-600`）。若某字段确实取不到，写 `null` 并在报告说明，不要猜。
 - `replay` 场景的 trace 写入只做 `replayed=True` 标记，不得伪造 span（复用 T003d 已验收的 `annotate(replayed=True)` 口径）。
 - 所有 JSON/JSONL 用 UTF-8、`ensure_ascii=False`、`pathlib`；数字口径统一 0–1。
 
