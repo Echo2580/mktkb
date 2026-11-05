@@ -25,7 +25,7 @@
 | T009 | 独立验收与 P0 收口 | **G6 已收口**（主人 2026-11-05 决策「通过」；总验收「有保留 PASS」`docs/reports/OBS-EVAL/P0/review.md`；全量 1593 passed） | 0 | 否 | T008b ✅ |
 | T100 | P1 前置：基线测试耦合修复（硬编码旧真实配置） | **G6 已收口**（dev commit `b35ae72`；独立验收 PASS `review.md`；全量 1593 passed；主人 2026-11-05 批准新增） | 0 | 否 | PRE-2 ✅ |
 | T107 | regression suite 与数据集契约扩展 | **G6 已收口**（dev commit `36fe095`；独立验收 PASS `review.md`；regression 7/7 RED；全量 run2 `1603 passed`，run1 为既有 flake `test_lifecycle[v05]`、隔离 3/3 过） | 0 | 否 | T100 ✅ |
-| T101 | ERR-03 词表语境与法规优先 | G1 已派单（开发中） | 0 | 否 | T107 ✅ |
+| T101 | ERR-03 词表语境与法规优先 | **G6 已收口**（dev commit `a7282b3`；独立验收 PASS；RG001 RED→PASS；b0/badcase hard `[]` 与 case 级不变；全量 1614 passed；PM 裁定 A 两处窄改已核） | 0 | 否 | T107 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
@@ -115,6 +115,7 @@
 40. **P1 新 flake（2026-11-05，T107 验收发现）**：全量 `backend/tests` run1 出现 `integration/test_lifecycle.py::test_concurrent_publish_and_global_revision_cas[v05]`（`:759`）失败；该文件自 `366046d`（v0.1 冻结）未改、不导入 `mktkb.evaluation`；隔离复跑 3 次均 `2 passed` → 既有并发时序 flake，非 P1 引入。P1 全量遇到按 §11A 隔离复跑 1 次并记录，不重跑整套、不据此返工。
 41. **T107 验收非阻断观察（2026-11-05）**：① RG003「给出所有内容」同时触发 `pagination_contract` 硬失败（report §4 未单列，证据 01 有说明）；② `corpus.py` badcase 装配校验由"集合相等"放宽为只查 missing（`only_codes` 固定，实际行为未变；后续包不得依赖该放宽）；③ T107 全量执行 2 次（超出 §11A 的 1 次，因 flake 复跑，已在证据披露）。
 42. **PM 裁定（2026-11-05 23:1x，T101 现场范围冲突）**：允许 T101 在 `rag/answer.py` 的 `_document_fallback` 增加**极窄**法规题分支（仅 `is_regulation_question` + offline 命中时返回命中子句所在完整段落；非法规题/默认路径逐字节不变），理由：RG001/E120 三值在 P0 单句抽取下无法同时命中，改弱断言/降级 RG001 违反"不放宽"纪律。硬约束：新分支需单测（法规段落 + 非法规仍单句）、report §4 单列偏离（文件/函数/净增行数）、附 b0/badcase 修复前后 hard_failures 与 case 级对照证明零新增硬失败，否则回滚该文件。裁定已写入 `T101-vocab-context/handoff.md` §4。
+43. **T101 第二次 PM 裁定 + 验收非阻断（2026-11-06 00:2x）**：① 允许补全 RG001 `reference_answer`（发布日 2000-10-31/2001-11-07、施行日 2022-07-01），不改 `expected_values/sources/forbidden/kind`、不动 RG002–RG007——属"数据补全非放宽"（scorer 数值白名单派生自 reference，缺日期会把逐字原文误判编造）；② T101 验收 PASS（`review.md` 37 行；旧源码 `git archive a7282b3^` 独立复跑证明 RG001 RED→PASS 且门禁未放宽；answer.py 仅 +29/−1，探针证非法规题仍单句、53 题法规判定 0 误报）；③ 非阻断瑕疵：单测夹具 `test_p1_t101_document_answer.py:26` 把真实「第15号」写成「第9号」，不影响分支逻辑，记录不修。
 
 - 任务拆解与验收口径：`2026-11-04-p0-task-breakdown.md`（分包粒度以本表拆分版为准）
 - PM 交接提示词：`prompts/p0-pm-handoff-20261104.md`（长版）、`prompts/p0-pm-handoff-short-20261104.md`（简版）
