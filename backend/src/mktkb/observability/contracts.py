@@ -71,8 +71,9 @@ _LEGACY_REQUIRED_SPANS: dict[OutcomeKind, frozenset[str]] = {
     OutcomeKind.SERVICE_ERROR: frozenset({"intent_parse", "commit"}),
     # T003d §5.11（PM 2026-11-05 预授权，与 §5.9 同构）：下面两个 legacy 组合在
     # T001 冻结表中未定义，但产品路径实际可达（证据 `T003d/08-legacy-contract-matrix.txt`）。
-    # 二者都发生在 retrieve 之后：conflict 来自证据集冲突，knowledge_changed 来自
-    # 检索/提交阶段的 revision 变化（检索阶段异常也会留下 retrieve Span）。
+    # conflict 来自证据集冲突（retrieve 之后）。knowledge_changed 的**默认行**对应
+    # “检索阶段/检索后”revision 变化（已执行 retrieve，异常也会留下 retrieve Span）；
+    # “解析级早退后在 commit 阶段才升级”的形态见下面的 ``KNOWLEDGE_CHANGED_AT_COMMIT``。
     OutcomeKind.CONFLICT: frozenset({"intent_parse", "retrieve", "commit"}),
     OutcomeKind.KNOWLEDGE_CHANGED: frozenset({"intent_parse", "retrieve", "commit"}),
 }
@@ -94,6 +95,22 @@ _LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS: frozenset[str] = frozenset(
     {"UNKNOWN_IDENTIFIER", "IDENTIFIER_NOT_RETRIEVABLE", "NO_INTENT", "UNRECORDED_FIELD"}
 )
 _LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS: frozenset[str] = frozenset({"intent_parse", "commit"})
+
+# T003d R1（PM 返工单 2026-11-05）：legacy ``knowledge_changed`` 有两种**真实执行形态**：
+# (a) 检索阶段 revision 变化（`KnowledgeRevisionChanged`，已执行 retrieve）或检索后在
+#     commit 事务复核时发现变化 → reason ``KNOWLEDGE_CHANGED``，沿用上面的补充行
+#     ``{intent_parse, retrieve, commit}``；
+# (b) 解析级早退（clarification / not_found 等，未执行 retrieve）后在 commit 事务
+#     revision 复核时才升级 → 稳定 reason ``KNOWLEDGE_CHANGED_AT_COMMIT``，必需集
+#     退化为 ``{intent_parse, commit}``。
+# 只有 (b) 的稳定 reason 降级；缺省 / ``KNOWLEDGE_CHANGED`` / 未知 reason 仍按补充行
+# 要求 retrieve（fail safe，不降低原约束强度）。
+_LEGACY_COMMIT_TIME_KNOWLEDGE_CHANGED_REASONS: frozenset[str] = frozenset(
+    {"KNOWLEDGE_CHANGED_AT_COMMIT"}
+)
+_LEGACY_COMMIT_TIME_KNOWLEDGE_CHANGED_SPANS: frozenset[str] = frozenset(
+    {"intent_parse", "commit"}
+)
 
 # 设计 §6.4「条件必需 Span」：只认这四个属性键；值为真时才要求对应 Span。
 _CONDITIONAL_SPANS: tuple[tuple[str, str], ...] = (
@@ -121,7 +138,10 @@ def required_spans(
       ``{parse, commit}``（检索前拒答，未执行 recall/fuse）；legacy 路径
       ``not_found`` 且 ``reason`` ∈ {UNKNOWN_IDENTIFIER, IDENTIFIER_NOT_RETRIEVABLE,
       NO_INTENT, UNRECORDED_FIELD} 时退化为 ``{intent_parse, commit}``（解析级早退，
-      未执行 retrieve）；不传、传 None 或其它 reason 时与冻结表完全一致；
+      未执行 retrieve）；legacy 路径 ``knowledge_changed`` 且 ``reason`` 为
+      ``KNOWLEDGE_CHANGED_AT_COMMIT``（解析级早退后在 commit 阶段升级，未执行
+      retrieve）时同样退化为 ``{intent_parse, commit}``；不传、传 None 或其它
+      reason 时与冻结表完全一致；
     - 设计表未定义的组合抛 ``ValueError``（fail closed，不静默返回空集）。
     """
     resolved_path = TracePath(path)
@@ -138,6 +158,12 @@ def required_spans(
         and reason in _LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS
     ):
         return _LEGACY_PRE_RETRIEVAL_NOT_FOUND_SPANS
+    if (
+        resolved_path is not TracePath.RAG
+        and resolved_outcome is OutcomeKind.KNOWLEDGE_CHANGED
+        and reason in _LEGACY_COMMIT_TIME_KNOWLEDGE_CHANGED_REASONS
+    ):
+        return _LEGACY_COMMIT_TIME_KNOWLEDGE_CHANGED_SPANS
     table = _RAG_REQUIRED_SPANS if resolved_path is TracePath.RAG else _LEGACY_REQUIRED_SPANS
     try:
         return table[resolved_outcome]

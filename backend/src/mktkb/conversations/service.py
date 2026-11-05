@@ -1738,18 +1738,42 @@ def _trace_is_legacy(trace) -> bool:
     }
 
 
+def _executed_span_names(trace) -> set[str]:
+    """当前 Trace 已创建的 Span 名称（判定某阶段是否**实际执行**，不猜业务分支）。
+
+    与 ``_trace_is_legacy`` 同口径读取 ``TraceContext`` 的只读内部状态：``tracer.py``
+    属本包禁止修改文件，不新增公开 getter；结果只用于 reason-aware 判定。
+    """
+    names: set[str] = set()
+    for handle in getattr(trace, "_spans", ()):
+        name = getattr(handle, "name", None)
+        if isinstance(name, str):
+            names.add(name)
+    return names
+
+
 def _record_legacy_outcome(trace, result: _Result, ask_result: AskResult) -> None:
     """把 legacy 路径的最终产品结果写成 Trace outcome / reason / error_code。
 
     只写稳定代码，不写问题/答案原文；``reason`` 供 ``required_spans`` 的
-    reason-aware 判定使用（§5.9 的 RAG 检索前拒答、§5.11 的 legacy 解析级早退）。
-    提交事务内可能把任意结果升级为 ``knowledge_changed``，此时以最终结局为准。
+    reason-aware 判定使用（§5.9 的 RAG 检索前拒答、§5.11 的 legacy 解析级早退、
+    T003d R1 的 commit 阶段升级）。提交事务内可能把任意结果升级为
+    ``knowledge_changed``，此时以最终结局为准。
     """
     outcome = _LEGACY_OUTCOME_BY_KIND.get(ask_result.kind)
     if outcome is None:
         return
     if ask_result.kind == "knowledge_changed":
-        reason = "KNOWLEDGE_CHANGED"
+        # T003d R1：``knowledge_changed`` 两种真实执行形态，按实际 Span 区分（不改业务分支）：
+        # - 已执行 retrieve（检索阶段异常 / 检索后提交升级）→ ``KNOWLEDGE_CHANGED``，
+        #   契约补充行仍要求 retrieve；
+        # - 解析级早退（未执行 retrieve）在 commit 事务复核时才升级 →
+        #   ``KNOWLEDGE_CHANGED_AT_COMMIT``，契约只需 intent_parse + commit。
+        reason = (
+            "KNOWLEDGE_CHANGED"
+            if "retrieve" in _executed_span_names(trace)
+            else "KNOWLEDGE_CHANGED_AT_COMMIT"
+        )
     elif ask_result.kind == result.kind:
         # 未升级：解析级早退等结果自带稳定 reason；service_error 回落 error_code。
         reason = result.reason or ask_result.error_code

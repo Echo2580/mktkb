@@ -527,6 +527,55 @@ def test_legacy_knowledge_changed_matches_supplement_row(trace_chat_app, monkeyp
     assert validate_required_spans(trace, names) == []
 
 
+def test_legacy_commit_time_knowledge_changed_after_early_exit(trace_chat_app, monkeypatch):
+    """R1：解析级早退（未执行 retrieve）后在 commit 阶段 revision 复核时升级。
+
+    以并发发布落在 ``claim → commit`` 窗口模拟（与 ``_commit_result_impl`` 的升级条件等价）：
+    ``滨江店的负责人是谁？`` 在解析级早退为 not_found，提交事务发现 revision 变化后升级为
+    ``knowledge_changed``。真实 Span 严格 ``{intent_parse, commit}``，reason 用独立稳定码
+    ``KNOWLEDGE_CHANGED_AT_COMMIT``，validate 不再要求 retrieve；产品响应不受影响。
+    """
+    from mktkb.conversations import service as conversations_service
+    from mktkb.documents.models import KnowledgeState
+
+    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+    _dataset(trace_chat_app, admin)
+    conversation_id = _conversation(employee)
+    real_commit = conversations_service._commit_result
+
+    def _bump_revision_then_commit(*args, **kwargs):
+        # 模拟并发发布发生在 claim 之后、commit 事务之前（只动 revision，不改业务分支）。
+        db = trace_chat_app.state.db.session()
+        try:
+            state = db.get(KnowledgeState, 1)
+            state.revision = int(state.revision) + 1
+            db.commit()
+        finally:
+            db.close()
+        return real_commit(*args, **kwargs)
+
+    monkeypatch.setattr(conversations_service, "_commit_result", _bump_revision_then_commit)
+
+    response = _ask(employee, conversation_id, EARLY_NOT_FOUND_QUESTIONS[0])
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["kind"] == "knowledge_changed", body
+    assert "reason" not in body
+
+    trace, spans = _trace_of(trace_chat_app, response)
+    assert trace.path == TracePath.LEGACY.value
+    assert trace.outcome_kind == OutcomeKind.KNOWLEDGE_CHANGED.value
+    assert trace.reason == "KNOWLEDGE_CHANGED_AT_COMMIT"
+    names = _names(spans)
+    # 真实执行集合：解析 + 提交。早退没有 retrieve，不得为凑必需集伪造。
+    assert names == {"intent_parse", "commit"}
+    # 默认补充行（检索形态）不降强度；只有 commit 升级 reason 才退化。
+    assert required_spans(TracePath.LEGACY, OutcomeKind.KNOWLEDGE_CHANGED) == (
+        frozenset({"intent_parse", "retrieve", "commit"})
+    )
+    assert validate_required_spans(trace, names) == []
+
+
 # ---- §5.6 index_sync：只有真同步才出现 ----
 
 

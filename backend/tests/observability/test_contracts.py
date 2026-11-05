@@ -251,11 +251,81 @@ def test_required_spans_legacy_not_found_other_reasons_still_require_retrieve(pa
 
 
 def test_required_spans_legacy_supplement_rows_for_reachable_outcomes():
-    """§5.11 补充行：legacy conflict / knowledge_changed 都在 retrieve 之后发生。"""
+    """§5.11 补充行：legacy conflict 与“检索阶段” knowledge_changed 都在 retrieve 之后发生。"""
     supplement = frozenset({"intent_parse", "retrieve", "commit"})
     for path in LEGACY_PATHS:
         assert required_spans(path, OutcomeKind.CONFLICT) == supplement
         assert required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED) == supplement
+
+
+# T003d R1：legacy knowledge_changed 的两种真实执行形态（commit 升级 / 检索阶段或检索后）。
+LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT = "KNOWLEDGE_CHANGED_AT_COMMIT"
+
+
+@pytest.mark.parametrize("path", LEGACY_PATHS)
+def test_required_spans_legacy_knowledge_changed_default_still_requires_retrieve(path):
+    """R1 不降强度：缺省 / ``KNOWLEDGE_CHANGED`` / 未知大小写仍按补充行要求 retrieve。"""
+    assert required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED) == LEGACY_NOT_FOUND
+    assert required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED, reason="KNOWLEDGE_CHANGED") == LEGACY_NOT_FOUND
+    assert (
+        required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED, reason="knowledge_changed_at_commit")
+        == LEGACY_NOT_FOUND
+    )
+
+
+@pytest.mark.parametrize("path", LEGACY_PATHS)
+def test_required_spans_legacy_knowledge_changed_at_commit_needs_only_intent_parse_and_commit(path):
+    """R1：解析级早退后在 commit 阶段升级（未执行 retrieve）→ intent_parse + commit。"""
+    assert (
+        required_spans(path, OutcomeKind.KNOWLEDGE_CHANGED, reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT)
+        == LEGACY_EARLY
+    )
+    assert (
+        required_spans(path.value, "knowledge_changed", reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT)
+        == LEGACY_EARLY
+    )
+
+
+def test_required_spans_commit_time_reason_does_not_cross_paths():
+    """R1 的 reason 只作用于 legacy knowledge_changed，不改 RAG 行与其它 legacy outcome。"""
+    assert (
+        required_spans(
+            TracePath.RAG, OutcomeKind.KNOWLEDGE_CHANGED, reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT
+        )
+        == RAG_EARLY
+    )
+    assert (
+        required_spans(TracePath.RAG, OutcomeKind.NO_ANSWER, reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT)
+        == RAG_RECALL
+    )
+    assert (
+        required_spans(TracePath.LEGACY, OutcomeKind.NOT_FOUND, reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT)
+        == LEGACY_NOT_FOUND
+    )
+
+
+def test_validate_required_spans_reads_commit_time_knowledge_changed_reason():
+    """R1：``validate_required_spans`` 按 ``record.reason`` 应用 commit 升级形态。"""
+    at_commit = TraceRecord(
+        path="legacy",
+        outcome_kind="knowledge_changed",
+        reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT,
+    )
+    assert validate_required_spans(at_commit, ["intent_parse", "commit"]) == []
+    assert validate_required_spans(at_commit, ["commit"]) == ["intent_parse"]
+
+    retrieved = TraceRecord(
+        path="legacy", outcome_kind="knowledge_changed", reason="KNOWLEDGE_CHANGED"
+    )
+    assert validate_required_spans(retrieved, ["intent_parse", "commit"]) == ["retrieve"]
+    assert validate_required_spans(retrieved, ["intent_parse", "retrieve", "commit"]) == []
+
+    with_candidates = TraceRecord(
+        path="legacy_with_rag_candidates",
+        outcome_kind="knowledge_changed",
+        reason=LEGACY_KNOWLEDGE_CHANGED_AT_COMMIT,
+    )
+    assert validate_required_spans(with_candidates, ["intent_parse", "commit"]) == []
 
 
 def test_required_spans_legacy_unreachable_outcomes_stay_fail_closed():

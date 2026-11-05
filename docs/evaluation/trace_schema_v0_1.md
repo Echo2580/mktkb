@@ -8,6 +8,9 @@
 > `rag + no_answer` 对检索前拒答（`DOCUMENT_NOT_FOUND` / `UNKNOWN_STORE` / `RECORD_ONLY`）
 > 的必需 Span 改为 `parse` + `commit`，见 §6.1.1；同一机制下 legacy 解析级早退
 > `not_found` 与两条 `legacy + conflict` / `knowledge_changed` 补充行见 §6.1.2。
+> 修订 R1（T003d 返工，2026-11-05）：legacy `knowledge_changed` 区分两种真实执行形态，
+> 仅 commit 阶段升级（`reason=KNOWLEDGE_CHANGED_AT_COMMIT`，未执行 retrieve）的必需集
+> 退化为 `intent_parse` + `commit`；其余形态仍要求 `retrieve`，见 §6.1.2。
 
 ## 1. 三套 Schema 版本
 
@@ -179,16 +182,27 @@ legacy 的 `not_found` 有两个来源：`intent_parse` 后、`retrieve` 前的�
 | `legacy` / `legacy_with_rag_candidates` + `not_found` | `UNKNOWN_IDENTIFIER` / `IDENTIFIER_NOT_RETRIEVABLE` / `NO_INTENT` / `UNRECORDED_FIELD` | `intent_parse`、`commit` |
 | `legacy` / `legacy_with_rag_candidates` + `not_found` | 缺省、空或其它任意值 | `intent_parse`、`retrieve`、`commit` |
 | `legacy` / `legacy_with_rag_candidates` + `conflict` | 任意（产品写 `CONFLICTING_VALUES`） | `intent_parse`、`retrieve`、`commit` |
-| `legacy` / `legacy_with_rag_candidates` + `knowledge_changed` | 任意（产品写 `KNOWLEDGE_CHANGED`） | `intent_parse`、`retrieve`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `knowledge_changed` | `KNOWLEDGE_CHANGED_AT_COMMIT`（解析级早退后在 commit 阶段升级，未执行 retrieve） | `intent_parse`、`commit` |
+| `legacy` / `legacy_with_rag_candidates` + `knowledge_changed` | 缺省、`KNOWLEDGE_CHANGED` 或其它任意值（检索阶段/检索后升级，已执行 retrieve） | `intent_parse`、`retrieve`、`commit` |
 
 - 解析级早退的四个 reason 对应 `_answer` 中 `retrieve` 之前的四个 not_found 返回点：
   未收录标识、有标识但产品检索层无法按标识定位、解析不出意图、只问了资料未记录的字段。
   复现问题 `滨江店的负责人是谁？`、`滨江店宣传海报的负责人是谁？` 命中最后一种
   （`requested_fields=[]` 且 `missing_fields=['负责人']`），Span 严格为
   `intent_parse` + `commit`，validate 通过。
-- `conflict` 与 `knowledge_changed` 都发生在 `retrieve` 之后（前者来自证据集冲突，后者
-  来自检索或提交阶段的 revision 变化；检索阶段抛错也会留下 `retrieve` Span），
+- `conflict` 与 `knowledge_changed` 的**默认行**都发生在 `retrieve` 之后（前者来自证据集
+  冲突，后者来自检索阶段的 revision 变化；检索阶段抛错也会留下 `retrieve` Span），
   因此必需集含 `retrieve`；真实 Span 通常还包含 RAG 候选的 recall/fuse 等，属超集。
+- **`knowledge_changed` 的两种真实执行形态（T003d R1）**：除上面的检索阶段/检索后形态外，
+  解析级早退（clarification / 未收录字段等，未执行 retrieve）也可能在 `ask()` 的 commit
+  事务里因 `_commit_result_impl` 的 revision 复核被升级为 `knowledge_changed`。此时
+  `conversations/service.py::_record_legacy_outcome` 按**实际 Span**写入稳定 reason
+  `KNOWLEDGE_CHANGED_AT_COMMIT`（有 `retrieve` Span 时仍写 `KNOWLEDGE_CHANGED`），
+  `required_spans` 只对该 reason 退化为 `intent_parse` + `commit`。该 reason 区分大小写，
+  未知值一律回落到要求 `retrieve` 的默认行（fail safe，**不降低原约束强度**）。
+  探针证据：验收方 `T003d/06-independent-probe.txt` 的 commit-upgrade 用例
+  （实测 `{intent_parse, commit}`、`missing=['retrieve']`）与返工证据
+  `T003d/11-rework-probe.txt`（R1 修复前后对照）。
 - **不可达组合保持 fail closed**：legacy 产品路径不产生 `no_answer` / `ambiguous` /
   `error`，这三种 `legacy + outcome` 仍抛 `ValueError`，不按“可能执行过”补行。
 - 探针证据：`docs/reports/OBS-EVAL/P0/evidence/T003d/08-legacy-contract-matrix.txt`

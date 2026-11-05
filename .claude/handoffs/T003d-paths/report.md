@@ -120,6 +120,7 @@ git rev-parse --short HEAD   # 776497f（开工基线）
 - **flake**：本轮全量一次通过，未复现已知 `test_g08_short_budget_cancels_inflight_model_call`。
   上一轮报告过的本包测试随机 flake（UUID 文件名撞 `quantity=40`）已修为固定文件名，本轮未复现。
 - T003c 并发残留（`T003c/{02,03,04,07}`）经检查均不存在（证据 `00-baseline.txt` 末尾）。
+- **返工 R1 的实际运行结果见 §6.3**（三文件定向 `113 passed`、全量 `1307 passed`）。
 
 ## 4. 偏离与未做
 
@@ -163,6 +164,59 @@ git rev-parse --short HEAD   # 776497f（开工基线）
    `validate_required_spans` 按集合判定，不要求唯一；gate 若统计次数需按「至少一个」语义。
 6. **已知 flake**：`test_g08_short_budget_cancels_inflight_model_call` 时序敏感（非本阶段引入），
    本轮全量未复现；若 CI 复现，按既有口径隔离复跑。
+
+## 6. 返工 R1（2026-11-05，PM 返工单 `rework-R1.md`）
+
+> 背景：独立验收 `review.md` §3.1 唯一 FAIL —— legacy 解析级早退后在 **commit 阶段**
+> revision 复核升级为 `knowledge_changed`（未执行 retrieve）时，实际 Span
+> `{intent_parse, commit}`，而契约该行要求 `retrieve`（`validate=['retrieve']`；
+> 证据 `evidence/verify/T003d/06-independent-probe.txt`）。R1 采用 reason-aware 拆分，
+> **只改 trace reason 与契约判定，不改业务分支/响应结构/异常语义**。
+
+### 6.1 改动（窄修）
+
+| 文件 | 改动 |
+| --- | --- |
+| `backend/src/mktkb/conversations/service.py` | `_record_legacy_outcome`（`:1755`）在 commit 阶段升级时按**实际 Span** 写 reason：有 `retrieve` → `KNOWLEDGE_CHANGED`（检索形态）；无 → `KNOWLEDGE_CHANGED_AT_COMMIT`（`:1766-1776`）。新增只读辅助 `_executed_span_names`（`:1741`，与既有 `_trace_is_legacy` 同口径读 `TraceContext._spans`；未改 `tracer.py`）。 |
+| `backend/src/mktkb/observability/contracts.py` | 新增 `_LEGACY_COMMIT_TIME_KNOWLEDGE_CHANGED_REASONS/SPANS`（`:108-113`）；`required_spans` 仅当 `legacy(+with_rag_candidates)` + `knowledge_changed` + `reason==KNOWLEDGE_CHANGED_AT_COMMIT` 时返回 `{intent_parse, commit}`（`:161-166`）；默认行与 `KNOWLEDGE_CHANGED`/未知 reason 仍为 `{intent_parse, retrieve, commit}`（`:78`）。`validate_required_spans` 经 `record.reason` 自动生效，函数体未改。 |
+| `backend/tests/observability/test_contracts.py` | +6 用例：默认行不降强度（`:266`）、commit 升级退化 ×2 path（`:277`）、reason 不跨 path（`:289`）、validate 读 `record.reason`（`:307`）。 |
+| `backend/tests/observability/test_paths_e2e.py` | +1 用例 `test_legacy_commit_time_knowledge_changed_after_early_exit`（`:530`）：并发发布落在 claim→commit 窗口（`滨江店的负责人是谁？`），断言 `outcome=knowledge_changed`、`reason=KNOWLEDGE_CHANGED_AT_COMMIT`、Span 严格 `{intent_parse, commit}`、validate `[]`；响应体无 `reason`。检索阶段用例 `:502` 保留并要求 `retrieve`。 |
+| `docs/evaluation/trace_schema_v0_1.md` | §6.1.2 把 `knowledge_changed` 拆为两行（commit 升级 reason / 默认检索形态）+ 形态说明与证据指向（`:185-205`）；顶部修订说明追加 R1（`:11-13`）。 |
+| 证据 `T003d/11–13` | 11 = R1 探针（同一选择器 RED→GREEN）；12 = 三文件定向套件；13 = 全量。 |
+| `T003d/10-deliverables-sha256.txt` | R1 改动后重新采集全部交付物哈希，并补列 `06-test-middleware.diff` 与 11–13。 |
+
+### 6.2 修复自证
+
+- **RED（修复前，同一选择器）**：`evidence/T003d/11-rework-probe.txt` §1 = `4 failed, 5 passed`：
+  `required_spans(...AT_COMMIT)` 仍含 `retrieve`；e2e 实际 `reason='KNOWLEDGE_CHANGED'`。
+- **GREEN（修复后，同一选择器）**：`11` §2 = `9 passed`（含 commit 升级 e2e 用例）。
+- **定向套件**：`12-rework-suite.txt` = `113 passed`（test_contracts + test_paths_e2e + test_rag_spans）。
+- **不降强度**：默认 `legacy+knowledge_changed`（reason 缺省/`KNOWLEDGE_CHANGED`/小写）仍要求
+  `{intent_parse, retrieve, commit}`；检索阶段用例继续断言 `retrieve` 存在且 validate `[]`。
+- **真实链路**：e2e 从 HTTP 入口走真实 `ask()` → `_commit_result` 注入 revision bump → 回读
+  TraceRepository：`outcome=knowledge_changed`、`reason=KNOWLEDGE_CHANGED_AT_COMMIT`、
+  Span 严格 `{intent_parse, commit}`、`validate_required_spans == []`。
+- **业务不变**：未改 `_answer`/`_commit_result*`/响应模型；`AskResult` 无 reason 字段
+  （测试断言 `"reason" not in body`）。
+
+### 6.3 实际运行结果
+
+- 定向（证据 12）：`113 passed, 1 warning in 13.81s`。
+- 全量 `backend/tests`（证据 13）：**`1307 passed, 0 failed, 0 error`**（456.67s）=
+  T004a 基线 **1300** + R1 新增 **7**；无 flake 复现。
+- 提交：在 `574e288`（T004a）之后**追加一个小 commit** `p0/T003d R1 knowledge_changed contract`；
+  T003d 现由 `b811f9f`（原验收对象）+ 本返工提交两个 commit 组成。未 amend、未 push。
+
+### 6.4 偏离 / 风险
+
+- 新增只读 `_executed_span_names` 读 `TraceContext._spans`（与既有 `_trace_is_legacy` 读 `_path`
+  同口径）；`tracer.py` 未改、未新增公开 API。
+- `KNOWLEDGE_CHANGED_AT_COMMIT` 只在“无 retrieve Span”时写入；未知 reason 一律回落到要求
+  retrieve 的默认行（fail-safe，不放宽完整性）。
+- 仅 legacy 路径拆分；RAG 路径 commit 阶段升级仍写 `KNOWLEDGE_CHANGED`（其必需集
+  `{parse, commit}` 不受影响）。
+- 未改 `rag/**`、`main.py`、`config.py`、`store.py`、`tracer.py`、`versioning.py`、其它既有测试、
+  `evaluation/**`、`fixtures/evaluation/**`、pyproject；无新依赖；未 push；未改 `_index.md`。
 
 ## 交接摘要（≤10 行）
 
