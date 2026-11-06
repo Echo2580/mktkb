@@ -52,3 +52,24 @@
 
 ## 8. 报告格式（五段，≤80 行）
 1) 完成内容；2) 验收标准自证（每条 ≤2 行，带命令/`文件:行`）；3) 实际运行结果（本包/rag/integration/全量 + b0/badcase/regression 前后对照 + commit sha + stat）；4) 偏离或未做（含 RG006 口径理由、answer.py 改动理由、多轮依赖 T109 声明）；5) 风险（一句话）。
+
+## 10. 接续须知（PM，2026-11-06 08:1x；前序开发 subagent 执行失败中断）
+
+前序 T105 开发 subagent 在 2026-11-06 04:19 前后**执行失败、无收尾消息、未 commit**。按 PM §S 接续纪律，工作树成果已保留如下：
+
+**已保留且可用（不要丢弃）**：
+- `backend/src/mktkb/rag/query.py` 未提交改动（+102 行）：anaphora 字段继承 / 无字段澄清 / 指代无源判定（探针已见：`ANAPHORA_NO_FIELD` → "请问要查询宣传海报的哪项信息？可指定位置、数量、规格、价格等。"；"滨江店海报在哪"→"那个海报呢"→只答位置）。
+- `backend/src/mktkb/rag/answer.py` 未提交改动（+14 行）：避免 `field_role=None` 全字段渲染（需核实是否最小、是否与 T102/T101 行为兼容）。
+- `backend/tests/rag/test_p1_t105_anaphora_field.py`、`backend/tests/integration/test_p1_t105_anaphora_field.py`（新增，PM 快速复跑 **13 passed**）。
+- 前序探针脚本/输出与临时测试 `test_t105_probe2.py` 已由 PM 归档到 `.claude/handoffs/_scratch/T105/`（gitignored，可参考，**不得纳入提交**）。
+
+**仍缺（本轮必须补）**：
+1. 逐段核实已有 diff 正确/完整（不得回退 T102/T101 行为；确认 answer.py 改动最小且必要）；
+2. `fixtures/evaluation/regression.jsonl` RG006 收口（§5；当前 fixtures 未改）；
+3. 证据 4 份 `docs/reports/OBS-EVAL/P1/evidence/T105/`；
+4. `report.md`（五段；**§4 必须单列"接续说明"**：前序失败、保留与修正内容、本轮补做项）；
+5. b0/badcase local run+gate 前后对照（P0 基线 b0 pass29/fail3/skipped8、badcase pass9/fail4、hard `[]`）；
+6. 全量 `backend/tests`（内存当前 0.75GB，**必须轮询等待 ≥2GB**（每 30s，最长 20 分钟）再跑；仍不足才 NOT-RUN 并说明）；
+7. 1 个 commit（消息 `p1/T105 anaphora field inheritance + no-field clarification`，**单 commit**，不得为前序另造第二个提交）。
+
+**边界补充**：临时日志/探针只放 `backend/.pytest-tmp/` 或 `_scratch/T105/`，不得落到项目根；其余边界见 §4/§5。
