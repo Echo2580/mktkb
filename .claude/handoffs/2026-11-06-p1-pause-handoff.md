@@ -69,13 +69,12 @@
 - 配置/账本（只读，勿改）：`docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json`（P1 版，备份 `S2-LIVE-GO-20261104.json`）、`.../budget/budget.json`、`.../budget/live-ledger.jsonl`
 - Holdout（开发禁用、不入库）：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`
 
-## 7. 暂停时状态（2026-11-06 12:3x 主人「暂停任务」；T105 R1 开发停手、未提交）
+## 7. 当前状态（2026-11-07 01:3x 更新；T105 R1 已收尾入库、R2 验收 FAIL、R2 返工中）
 
-- 暂停 HEAD：本次 PM 簿记 commit（`git log --oneline -1`；上一提交 `5b70411` = T105 验收 FAIL + 返工单）；交付 HEAD 仍为 `2306aaa`（R1 改动未 commit）。
-- 工作树：**非 clean（预期，禁止丢弃）**——4 个 R1 未提交改动：`backend/src/mktkb/rag/query.py`（+39）、`answer.py`（+9）、`backend/tests/rag/test_p1_t105_anaphora_field.py`（+93）、`backend/tests/integration/test_p1_t105_anaphora_field.py`（+72），`+209/−4`，无 untracked；均在 handoff §4 允许路径。备份 patch 见 §11。
-- T105 状态：**G4 验收 FAIL（2 阻断 B1/B2）→ R1 返工中（开发初修完成、未 commit、未验收）**；report R1 段/§5 更正、证据 03/04 R1 段、完成 commit 均待补。
-- 全量基线：验收方独立复跑 **1693 passed / 0 failed / 0 error**（T105 验收 R1 实测）；R1 开发自报 **1701 passed**（**未独立复验**，不得当收口口径）；最近已收口包基线 T104 `1678 passed`。
-- 续跑顺序：① PM 裁定 B2 `not_found` 口径（见 §11）→ ② R1 开发补 report/证据/单个新 commit（不 amend 历史）→ ③ PM G2 → ④ 全新上下文验收 R2 → ⑤ PASS 后簿记收口并回主人指令 A 暂停；FAIL 轮次 +1（上限 3）。
+- 当前 HEAD：最新 PM 簿记 commit（`git log --oneline -1`）；R1 交付 **`fc60c57`** 已入库（单 dev commit）；工作树 clean。
+- T105 状态：**G4 验收 FAIL（B1 已修复；B2 未收口）→ R2 返工中**（轮次 2/3；见 §12 与 `_index` #50）。
+- 全量基线：验收方独立复跑 **1701 passed / 0 failed / 0 error**（T105 R2 验收实测）；最近已收口包基线 T104 `1678 passed`。
+- 续跑顺序：① R2 开发（1 个新 commit，不 amend）→ ② PM G2 → ③ 全新上下文验收 **R3**（B2 组合定向 + 全量 1 次）→ ④ PASS 后簿记收口并回主人指令 A（暂停）；**若 R3 仍 FAIL 则达 3 轮上限，停止返工并报主人三选一**。
 
 ## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
 
@@ -111,3 +110,10 @@
 - **待 PM/主人复核口径（续跑先裁定）**：B2 的非字段新内容（打印材质/陈列要求）最终收窄为 **not_found** 而非走正文检索。需确认：①是否满足「不得整条倾倒且不抢正文」；②是否会把本可由正文回答的问题误判为查无（当前 b0/badcase/regression/T101/T102 未显示误伤，R2 验收须专门探针核验该边界）。若不可接受 → 退回 R1 开发调整（轮次仍 1，未超限）。
 
 - **2026-11-07 00:5x 续跑裁定**：PM 复核 R1 未提交实现后**接受 B2 收窄方向**（记录字段追问→单字段作答；非字段新内容→`not_found`/`reason=ANAPHORA_NEW_CONTENT`，不倾倒、未改 `conversations/`），附三条约束：report 须如实披露「不先走正文/legacy」的保守化风险并记 P2 残余；不得扩大拦截范围（政策/法规/正文/纯指代/分页行为维持上轮 PASS）；R2 若用探针证明「基线本可从正文回答的问题」被压成 `not_found`（行为回退）则 B2 未收口、R1 内再调整。裁定全文见 `T105-anaphora-field/rework-R1.md` §5。已恢复 R1 开发补完收尾。
+
+## 12. 2026-11-07 00:5x–01:3x：R1 收尾入库 + R2 验收 FAIL + R2 返工
+
+- **R1 收尾**：接续上下文补完 `report.md` §6（70 行，含 B2 收窄披露/P2 残余/接续说明）与证据 03 §D/04 §E，**commit `fc60c57`**（7 文件，代码/测试 4 文件 +209/−4；不 push/不 amend；PM 已 G2 核验：允许路径、无 skip/xfail、无越界、证据仍 4 份）。补跑本包 23 passed、验收方旧探针 70/70（注明旧探针未覆盖政策/法规组合）。
+- **R2 独立验收（`review-R2.md`）：FAIL**——B1 **PASS**（枚举后第2页 page=2/266 字，与基线一致）；B2 点名项 PASS（规格 29 字单字段；打印材质/陈列要求 not_found 35 字 0 泄露）；**但 R1 新分支对政策/法规追问排除不完整**：上文问位置/规格后「那个海报的价格欺诈规定是什么/相关规定/适用的价格欺诈规定」返回继承字段答案 27/29 字；`那个海报的档期物料…`（C3）/`审批流程`（C6）被压 not_found，而单独问可答 21 天/流程；C4/C7 文案「未找到记录」不实（P2）→ 违反 PM 裁定 §5-2「不得扩大拦截」。证据：三树对照（`17c0e63`/`2306aaa`/`fc60c57`）+ 谓词实测（`is_policy_question`/`is_regulation_question`/`is_anaphora_field_followup`）+ 代码行 `query.py:1336-1352`。其余复跑全 PASS：本包 23、rag 339、observability 255、integration 372、全量 **1701 passed/0 failed**、T101/T102 窄集 37/全集 44；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、无新 hard。
+- **PM 处置**：接受 FAIL（证据充分、非放水；R2 探针另证明`report:66`/证据 04:37 把该组合记为「观察（不阻塞）」已被证伪）；产物 `review-R2.md` + `verify/T105-R2/`（4 份）随簿记入库；出 `rework-R2.md` + `prompts/T105-dev-R2.md`：R2 返工 = 1 个新 commit（不 amend `fc60c57`），只改 `query.py`/`answer.py` + 本包测试，修政策/法规排除并补「实体+指代+政策/法规」HTTP 用例。
+- **下一步**：R2 开发完成 → PM G2 → 全新上下文验收 **R3**（B2 组合定向 + 全量 1 次；其余条款沿用前轮 PASS）→ PASS 后簿记收口并回主人指令 A（暂停）；**R3 仍 FAIL 则达 3 轮上限，停止返工并报主人三选一（改需求/换方案/接受现状）**。
