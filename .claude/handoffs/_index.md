@@ -132,3 +132,5 @@
 - 流程材料：`.claude/handoffs/T<NNN>-<slug>/`；入库验收证据：`docs/reports/OBS-EVAL/P0/`
 - **P1 方案（已按 2026-11-04 主人决策更新；未立项，开工门 = P0 T009 通过）**：`2026-11-04-p1-design.md`、`2026-11-04-p1-task-breakdown.md`
 - **P1-PRE-1 Holdout 命题（✅ 已交付并通过 PM 结构验收，2026-11-05）**：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`（questions sha256 `a8c8aa7f…6738` / labels `8f713a2a…c1bf`，30 题 10/5/5/5/5，`label_version=holdout-2026-11-04`，不入库、开发禁用）；3 个待拍板项已按设计稿 §4 口径关闭
+
+47. **T105 验收子会话静默失败（2026-11-06 11:1x，暂停前核对）**：T105 开发已交付 `2306aaa`（工作树 clean；全量 1693 passed、b0/badcase `case_diffs=0`、RG006 fail→pass、gate hard `[]`）。派出的验收子会话（2ccfc42f）无收尾消息、未产出 `review.md` 与 `verify/T105` 证据、08:55 后无 pytest 进程/活动 → 判定静默失败。**T105 仍为"G4 验收待重派"**；续跑时先重派全新上下文验收（按 `T105-anaphora-field/handoff.md` §6 + 暂停交接 §8），PASS 后簿记收口，再执行主人暂停指令 A。

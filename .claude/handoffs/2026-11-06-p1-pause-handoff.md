@@ -73,3 +73,10 @@
 - T105 收口 commit：`<待填写>`
 - 全量基线：`<待填写>`
 - 工作树：`<待填>`
+
+## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
+
+- **T105 开发已完成并提交**：`2306aaa`「p1/T105 anaphora field inheritance + no-field clarification」（父 `17c0e63`）；工作树 clean；全量 1693 passed、b0/badcase `case_diffs=0`、RG006 fail→pass、regression gate hard 变 `[]`。
+- **T105 独立验收未完成**：验收子会话（2ccfc42f）**静默失败**——无 `review.md`、无 `docs/reports/OBS-EVAL/P1/evidence/verify/T105/`、08:55 后无 pytest 活动、无 python 进程、无通知。**这是暂停前唯一未收口动作**。
+- 暂停 HEAD 记为 `2306aaa`；`_index` 中 T105 状态为"G4 验收待重派"（#47）。
+- 续跑第一步 = 按本文件/交接提示词重派 T105 验收（PASS 后 PM 簿记收口，再按主人 A 指令暂停）。
