@@ -24,7 +24,7 @@
 | T102 组 A 状态继承（ERR-01/02/D5） | ✅ G6 收口（dev `85d9ffc`；验收 PASS；残余 R1–R3 见 _index #44） |
 | T103 D4 记录路回落（ERR-04） | ✅ G6 收口（dev `43b7976`；验收 PASS；RG004 口径经 PM 裁定；残余 #45） |
 | T104 D1 异常原因透传（ERR-07 产品侧） | ✅ G6 收口（dev `e7ee804`；验收 PASS；残余 #46） |
-| T105 D6 指代/字段错配（ERR-06） | ⏸ 开发已交付 `2306aaa`（工作树 clean）；**独立验收 BLOCKED——wb 路线故障（见 #48），暂停时未收口**；wb 恢复后 PM 用 `prompts/T105-verify-R1.md` 重派验收 |
+| T105 D6 指代/字段错配（ERR-06） | ⏸ 开发已交付 `2306aaa`；独立验收 **FAIL（2 阻断：B1 分页回退 / B2 带新内容整条倾倒）**，**R1 返工中**（见 `_index` #49；`review.md` 与验收证据已入库） |
 | T106 D3 文案统一（后端+前端） | ⏸ 未开始（handoff 未写） |
 | T108 Holdout 支持与防污染 | ⏸ 未开始（handoff 未写） |
 | T109 多轮 turns runner | ⏸ 未开始（T102/T105 的 RG002/RG003/RG006 多轮复现依赖它） |
@@ -69,12 +69,12 @@
 - 配置/账本（只读，勿改）：`docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json`（P1 版，备份 `S2-LIVE-GO-20261104.json`）、`.../budget/budget.json`、`.../budget/live-ledger.jsonl`
 - Holdout（开发禁用、不入库）：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`
 
-## 7. 暂停时状态（2026-11-06 11:2x 如实回填；T105 验收被 wb 路线故障阻塞，未收口）
+## 7. 当前状态（2026-11-06 12:0x 更新；T105 验收 FAIL、R1 返工中）
 
-- 暂停 HEAD：本次 PM 簿记 commit（`git log --oneline -1`，消息 `chore(p1): record T105 verify blocked by wb route outage + pause state`）；交付 HEAD 仍为 `2306aaa`
-- T105 收口 commit：**未收口**（开发交付 `2306aaa` 保全；独立验收 BLOCKED，原因见 §9/#48；**不声称通过**）
-- 全量基线：**最近一次已独立验收的全量为 T104 收口 `1678 passed / 0 failed / 0 error`**；T105 开发自报 `1693 passed`（开发证据 03，**未经独立复跑**，不得当收口口径）
-- 工作树：clean（本次仅 `.claude/handoffs/**` 簿记改动并入库；`_scratch/T105/` 为 gitignored 探针，保留待续）
+- 当前 HEAD：最新 PM 簿记 commit（`git log --oneline -1`，T105 验收 FAIL + R1 返工簿记）；交付 HEAD 仍为 `2306aaa`（R1 返工将新增 commit）
+- T105 收口 commit：**未收口**（独立验收 FAIL，2 阻断 B1/B2，**R1 返工中**；见 §10 与 `_index` #49；**不声称通过**）
+- 全量基线：验收方独立复跑 **1693 passed / 0 failed / 0 error**（T105 验收 R1 实测，仅作全量环境参考；包因 2 阻断 FAIL）；最近已收口包基线 T104 `1678 passed`
+- 工作树：clean（PM 簿记已入库；R1 开发将改动 `query.py`/`answer.py`/测试，完成后以新 commit 交付）
 
 ## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
 
@@ -90,3 +90,10 @@
 - **主人裁决（2026-11-06 11:2x）**：**先保持暂停、不偏离 wb 模型策略**；T105 记为 **G4 验收 BLOCKED**（`_index` #48），不产出任何伪 review/证据，不声称收口。
 - **续跑第一步（wb 修复后或主人说继续）**：直接按 `prompts/T105-verify-R1.md` 重派全新上下文验收（先查内存 ≥2GB；证据/报告预算与命令口径已固化）→ PASS 后 PM 簿记收口并更新 §7；FAIL 则出返工单给原开发上下文（轮次 +1，3 轮上限）。
 - **现场**：分支 `p1/fix-retrieval`，工作树 clean，交付 `2306aaa` 与 4 份开发证据、report、2 个测试文件均保全；`_scratch/T105/`（gitignored 探针）保留。
+
+## 10. 2026-11-06 11:1x–12:0x 状态更新（wb 恢复→验收 FAIL→R1 返工）
+
+- **wb 路线恢复**（11:19 探测 OK）后，PM 重派全新上下文验收 subagent（`wb/cn:deepseek-v4.1-flash/max`，提示词 `prompts/T105-verify-R1.md`），完成全项复跑。
+- **验收结论：FAIL（2 阻断）**——**B1**「枚举后 那个海报的第2页」被 T105 指代分支劫持（clarification/无分页），相对 `17c0e63` 基线是**行为回退**；**B2** 带新内容指代追问（打印材质/陈列要求/规格型号，无标识上下文）仍 8 条×8 字段整条倾倒（基线已有，但违反「任何路径不得整条渲染」且 report §5 声明不实）。其余复跑全 PASS：本包 15、rag 335、observability 255、integration 367+1 既有 flake（隔离复跑过）、全量 1693 passed；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、其余失败集不变；T101/T102 定向 37 passed。
+- **PM 处置**：接受 FAIL（证据充分、非放水），验收产物 `review.md` + `verify/T105/`（4 份）已随簿记 commit 入库；出返工单 `T105-anaphora-field/rework-R1.md` + `prompts/T105-dev-R1.md`，R1（轮次 1/3）= 1 个新 commit，仅改 `query.py`/`answer.py`+本包测试，B1 对齐基线分页、B2 不整条倾倒且不抢正文，禁止改 `conversations/`/`intent.py`/fixtures。
+- **下一步（续跑）**：R1 开发完成后 PM G2 核验 → 全新上下文验收 **R2**（定向复验 B1/B2 + 受影响测试 + 全量 1 次，其余条款沿用上轮 PASS）→ PASS 后簿记收口并回到主人指令 A（暂停）；FAIL 则轮次 +1（上限 3）。

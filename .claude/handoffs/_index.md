@@ -30,7 +30,7 @@
 | T102 | 组 A 状态继承（ERR-01/02/D5） | **G6 已收口**（dev commit `85d9ffc`；独立验收 PASS `review.md`；ERR-01/02 多轮实测修复、b0/badcase 逐例零变化、全量 1634 passed；残余 R1–R3 记 #44） | 0 | 否 | T101 ✅ |
 | T103 | D4 记录路回落语义检索（ERR-04） | **G6 已收口**（dev commit `43b7976`；独立验收 PASS：回落真实非换皮、八题 answer/8 来源、零真实 provider、RG004 非口径伪装；全量 1640 passed；残余记 #45） | 0 | 否 | T102 ✅ |
 | T104 | D1 异常原因透传（ERR-07 产品侧） | **G6 已收口**（dev commit `e7ee804`；独立验收 PASS 7/7；七类码/retryable 可区分、领域异常未被吞、响应 12 字段未变；全量 1678 passed；残余记 #46） | 0 | 否 | T103 ✅ |
-| T105 | D6 指代/字段错配（ERR-06） | **G4 验收 BLOCKED**（开发已交付 `2306aaa`；wb 路线故障致验收子会话静默失败，待 wb 恢复后重派；不声称收口，见 #48） | 0 | 否 | 见 #48 |
+| T105 | D6 指代/字段错配（ERR-06） | **G4 验收 FAIL → R1 返工中**（dev `2306aaa`；独立验收 FAIL 2 阻断：B1 分页回退 / B2 带新内容整条倾倒；`review.md`；轮次 1/3，见 #49） | 1 | 否 | 见 #49 |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
@@ -45,7 +45,7 @@
 
 > 节奏（主人 2026-11-05 定）：**T111 pilot（10 题）跑完停一次**给主人过目再放全量；**零 live 包不提前开**；**PRE-2 落盘后先等主人发令开工**。`_scratch` 已按主人授权清理。
 > 子智能体模型（主人 2026-11-05 定）：开发/验收均 `wb / cn:deepseek-v4.1-flash`，**推理档统一 `max`**（开发/验收/T111/T900）；详见 kickoff §12；与项目 20 元账本无关。
-> P1 执行（2026-11-05 开工）：分支 `p1/fix-retrieval`（自 `main@083eaef`）；T100/T107/T101/T102/T103/T104 已收口；**T105 开发交付 `2306aaa`、独立验收 BLOCKED（wb 路线故障，见 #48），暂停时未收口**；串行 `T107→T101→T102→T103→T104→T105→T106→T108→T109→T110→T111→T112→T113→T114→T900`；T111 pilot 后停一次给主人过目。
+> P1 执行（2026-11-05 开工）：分支 `p1/fix-retrieval`（自 `main@083eaef`）；T100/T107/T101/T102/T103/T104 已收口；**T105 开发交付 `2306aaa`、独立验收 FAIL（2 阻断，R1 返工中，见 #49）**；串行 `T107→T101→T102→T103→T104→T105→T106→T108→T109→T110→T111→T112→T113→T114→T900`；T111 pilot 后停一次给主人过目。
 
 > PM 只读核对（2026-11-05 21:0x）：账本累计 **15.0566296 / 20**（S2-DEV 已占 15.0266296 / 18.4，381 预留/381 结果，剩余 4.9433704）；holdout 完好；P1 脚手架未创建；P0 三项可选项仍未执行。**PRE-2/PRE-4 签署且分支基线确定前不派单。**
 
@@ -135,4 +135,6 @@
 
 47. **T105 验收子会话静默失败（2026-11-06 11:1x，暂停前核对）**：T105 开发已交付 `2306aaa`（工作树 clean；全量 1693 passed、b0/badcase `case_diffs=0`、RG006 fail→pass、gate hard `[]`）。派出的验收子会话（2ccfc42f）无收尾消息、未产出 `review.md` 与 `verify/T105` 证据、08:55 后无 pytest 进程/活动 → 判定静默失败。**T105 仍为"G4 验收待重派"**；续跑时先重派全新上下文验收（按 `T105-anaphora-field/handoff.md` §6 + 暂停交接 §8），PASS 后簿记收口，再执行主人暂停指令 A。
 
-48. **T105 验收重派被 wb 路线故障阻塞（2026-11-06 11:1x–11:3x，PM）**：按主人指令写验收提示词 `prompts/T105-verify-R1.md` 并派全新上下文验收 subagent（`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`），子会话约 15s **静默失败**、无 `review.md`/无 `verify/T105`/无工作树改动/无 pytest 活动（第 2 次重派，前序 2ccfc42f 见 #47）。随后最小健康探测：同路线再失败 ×2、`wb / cn:glm-5.3-flash` 亦失败（均 ~15s 静默、`lastTurnCompleted=false`），而默认账号路线 `deepseek-account / deepseek-flash` 探测成功 → 判定 **wb 路线整体不可用，非任务本身问题**。**主人裁决（2026-11-06 11:2x）：先保持暂停、不偏离 wb 模型策略**；T105 记为 **G4 验收 BLOCKED**，不声称收口、不产出伪 review/证据；待 wb 修复或主人说继续后，PM 用同一提示词文件重派验收。验收命令/口径已固化在提示词文件，工作树 clean，开发交付与证据未丢失。另有环境记录：当时 `FreePhysicalMemory` 1.25–2.08GB（接近/低于 §11D 2GB 门槛），wb 恢复后重派需先轮询等待再跑全量。
+48. **T105 验收重派被 wb 路线故障阻塞（2026-11-06 11:1x–11:3x，PM）**：按主人指令写验收提示词 `prompts/T105-verify-R1.md` 并派全新上下文验收 subagent（`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`），子会话约 15s **静默失败**、无 `review.md`/无 `verify/T105`/无工作树改动/无 pytest 活动（第 2 次重派，前序 2ccfc42f 见 #47）。随后最小健康探测：同路线再失败 ×2、`wb / cn:glm-5.3-flash` 亦失败（均 ~15s 静默、`lastTurnCompleted=false`），而默认账号路线 `deepseek-account / deepseek-flash` 探测成功 → 判定 **wb 路线整体不可用，非任务本身问题**。**主人裁决（2026-11-06 11:2x）：先保持暂停、不偏离 wb 模型策略**；T105 记为 **G4 验收 BLOCKED**，不声称收口、不产出伪 review/证据；待 wb 修复或主人说继续后，PM 用同一提示词文件重派验收。验收命令/口径已固化在提示词文件，工作树 clean，开发交付与证据未丢失。另有环境记录：当时 `FreePhysicalMemory` 1.25–2.08GB（接近/低于 §11D 2GB 门槛），wb 恢复后重派需先轮询等待再跑全量。**后续（2026-11-06 11:19）wb 路线恢复**（探测 OK），已重派验收并取得 FAIL 结论，见 #49。
+
+49. **T105 独立验收 FAIL（重派 R1，2026-11-06 11:5x–12:0x）+ 返工 R1 派单**：全新上下文验收 subagent（`wb/cn:deepseek-v4.1-flash/max`）完成全项复跑并判 **FAIL（2 阻断）**：**B1**「枚举后 `那个海报的第2页`」被 T105 指代分支劫持返回 clarification/无分页，相对 `17c0e63` 基线是**行为回退**（根因 `query.py:1272-1318` 分支先于分页、`_PAGE_NUMBER` 守卫不可达、两测试文件无第N页用例）；**B2** 带新内容指代追问（打印材质/陈列要求/规格型号，无标识上下文）仍 8 条记录×8 字段整条倾倒（基线已有，但违反 §6.1「任何路径不得整条渲染」与验收口径⑤，且 report §5「不会再整条倾倒」不成立）。**全项复跑其余 PASS**：本包 15、rag 335、observability 255、integration 367+1 既有 flake（隔离复跑过）、全量 **1693 passed/0 failed**；b0/badcase 对 P0 `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、RG005/RG007 失败集不变、hard `['security_leak']→[]`；T101/T102 定向 37 passed；合规/范围/证据检查 PASS。验收产物：`review.md`（38 行）+ `docs/reports/OBS-EVAL/P1/evidence/verify/T105/`（4 份）已随 PM 簿记 commit 入库。**PM 处置（不放宽验收）**：接受 FAIL（证据充分、非放水），出返工单 `T105-anaphora-field/rework-R1.md` + `prompts/T105-dev-R1.md`；R1 = 1 个新 commit（不 amend `2306aaa`），只改 `query.py`/`answer.py`（仅必要）+ 本包测试，B1 必须对齐基线分页、B2 必须不整条倾倒且不抢正文；禁止改 `conversations//intent.py/fixtures`。完成后 PM G2 核验 → **全新上下文验收 R2**（定向复验 B1/B2 + 全量 1 次，沿用上轮其余 PASS）。
