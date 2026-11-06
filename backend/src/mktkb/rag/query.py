@@ -320,6 +320,24 @@ def is_policy_question(question: str) -> bool:
     return any(word in text for word in POLICY_WORDS)
 
 
+def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
+    """T105/ERR-06：只继承字段的指代追问，答案只答该字段。
+
+    ``parse_query`` 对这种轮次置 ``enumerate`` 真值，作为产品层
+    ``conversations.service._rag_owns_turn`` 的既有入口（否则 legacy 措辞层拿整条记录
+    的全部字段去回答）；本函数让答案层把这类计划按单字段答案渲染，而不是枚举页。
+    用户显式要求“全部/列出/下一页/第 N 页”时不算只继承字段的追问。
+    """
+    if not field_role:
+        return False
+    text = str(question or "")
+    if _PAGE_NUMBER.search(text):
+        return False
+    if any(word in text for word in ENUMERATE_WORDS) or any(word in text for word in PAGE_WORDS):
+        return False
+    return any(word in text for word in ANAPHORA_WORDS)
+
+
 def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
     """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
     不判记录字段。
@@ -751,6 +769,33 @@ def _terms(question: str, extra: tuple[str, ...] = ()) -> tuple[str, ...]:
         if token and token not in seen and len(token) >= 2:
             seen.append(token)
     return tuple(seen[:12])
+
+
+def _anaphora_residual_terms(question: str, lexicon: Lexicon) -> tuple[str, ...]:
+    """T105/ERR-06：指代追问去掉实体词后还剩哪些检索词。
+
+    为空即“那个海报呢/前面那个呢”这类纯指代追问——只有指代词与（可继承的）实体，没有
+    新的问法；此时才需要判断“问什么”。带“打印材质/陈列要求”等新内容的问题不走本分支。
+    """
+    text = _norm(question)
+    labels = [*lexicon.all_entity_labels(), *lexicon.identifiers]
+    labels.extend(str(alias) for alias in (lexicon.alias_map or {}))
+    for label in sorted({item for item in labels if item}, key=len, reverse=True):
+        key = _norm(label)
+        if len(key) >= 2 and key in text:
+            text = text.replace(key, " ")
+    # 分词后仍是完整指代词的（前面/刚才/上述/这家…）不是新内容；``_terms`` 已滤掉
+    # 这个/那个/该/其/它 等停用词，这里只补滤同属 ANAPHORA_WORDS 的非停用词。
+    return tuple(token for token in _terms(text) if token not in ANAPHORA_WORDS)
+
+
+def _anaphora_field_text(state: QueryState) -> str:
+    """T105/ERR-06：继承了实体但没有可继承字段时，问清要哪项信息（不倾倒整条记录）。"""
+    if state.store and state.item:
+        subject = f"{state.store}的{state.item}"
+    else:
+        subject = state.item or state.product or state.store or state.doc_title or "该对象"
+    return f"请问要查询{subject}的哪项信息？可指定位置、数量、规格、价格等。"
 
 
 def _as_of(question: str, previous: str | None, business_date: str | None) -> str | None:
@@ -1216,6 +1261,61 @@ def parse_query(
             include_future=include_future,
             reason="UNKNOWN_REGION",
         )
+
+    # T105/ERR-06：指代追问必须判断“问什么”。只有“那个海报呢 / 那个呢”这类只剩指代词与
+    # 实体的追问才进入本分支（带新内容的问题沿用既有流程，不抢正文检索）：
+    # - 没有可继承的对象（上文没提过）→ 澄清指的是什么；
+    # - 继承了实体但没有唯一的可继承字段 → 澄清要哪项信息；
+    # - 只继承到一个记录字段 → 只答该字段；``enumerate`` 置真值只是产品层
+    #   ``_rag_owns_turn`` 的既有入口，答案层按单字段渲染，不按枚举页渲染（未改 conversations）。
+    # 政策/制度/流程题沿用 T102 口径（不当作记录字段追问）。
+    if anaphora and field_role is None and not is_policy_question(question):
+        if not _anaphora_residual_terms(question, lexicon):
+            inherited_roles = state.field_roles or ((state.field_role,) if state.field_role else ())
+            has_entity = any(
+                (state.store, state.item, state.product, state.identifier, state.doc_id)
+            )
+            marker = state.item or state.product or state.store or "指代追问"
+            if not has_entity and not inherited_roles:
+                return QueryPlan(
+                    question=question,
+                    mode="record",
+                    query_text=question,
+                    field_role=state.field_role,
+                    field_label=state.field_role,
+                    filters={_RAG_OWNED_CLARIFICATION_FILTER: marker},
+                    terms=_terms(question),
+                    state=state,
+                    enumerate=False,
+                    page=state.page,
+                    page_size=state.page_size,
+                    clarification="请说明您指的是哪个物品、门店或哪份资料。",
+                    candidates=(),
+                    include_future=include_future,
+                    reason="ANAPHORA_NO_ENTITY",
+                )
+            if has_entity and len(inherited_roles) != 1:
+                return QueryPlan(
+                    question=question,
+                    mode="record",
+                    query_text=question,
+                    field_role=state.field_role,
+                    field_label=state.field_role,
+                    filters={_RAG_OWNED_CLARIFICATION_FILTER: marker},
+                    terms=_terms(question),
+                    state=state,
+                    enumerate=False,
+                    page=state.page,
+                    page_size=state.page_size,
+                    clarification=_anaphora_field_text(state),
+                    candidates=(),
+                    include_future=include_future,
+                    reason="ANAPHORA_NO_FIELD",
+                )
+            if has_entity and inherited_roles[0] in RECORD_FIELD_ROLES:
+                state.field_role = inherited_roles[0]
+                state.field_roles = (inherited_roles[0],)
+                state.enumerate = True
 
     filters = {
         key: str(getattr(state, key))

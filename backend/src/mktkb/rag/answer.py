@@ -10,6 +10,7 @@ import json
 import re
 import time
 from contextlib import contextmanager
+from dataclasses import replace
 from typing import Any, Iterable, Iterator, Mapping
 
 from ..observability import trace_attrs
@@ -17,7 +18,13 @@ from ..retrieval.tokenize import cut, normalize
 from .chunking import first_value, role_label
 from .errors import FactRejected, RagError
 from .facts import FactValidator
-from .query import Lexicon, build_lexicon, is_regulation_question, parse_query
+from .query import (
+    Lexicon,
+    build_lexicon,
+    is_anaphora_field_followup,
+    is_regulation_question,
+    parse_query,
+)
 from .types import Citation, EvidenceItem, Fact, QueryPlan, QueryState, RagAnswer, RetrievalResult
 
 _EXTRACT_SPLIT = re.compile(r"[\n\r]+|(?<=[。！？；!?])\s*")
@@ -220,6 +227,11 @@ def _answer_record(
     diagnostics: dict[str, Any],
     started: float,
 ) -> RagAnswer:
+    if plan.enumerate and is_anaphora_field_followup(plan.question, plan.field_role):
+        # T105/ERR-06：指代追问只继承字段时，``enumerate`` 只是产品层“交给 rag 直答”的
+        # 入口，用户没有要求枚举；这里按单字段答案渲染，避免把整条记录全字段倾倒出来。
+        plan = replace(plan, enumerate=False, state=QueryState.from_dict(plan.state.to_dict()))
+        plan.state.enumerate = False
     exact = [
         chunk
         for chunk in result.exact
