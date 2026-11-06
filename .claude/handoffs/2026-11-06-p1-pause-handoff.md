@@ -109,3 +109,5 @@
   - 运行自报：本包 23、rag 339、observability 255、integration 372、**全量 1701 passed/0 failed**、T101/T102 定向 44 passed；b0/badcase 对 P0 `case_diffs=0`、gate hard `[]`；regression 对 `17c0e63` 仅 RG006 fail→pass、RG005/RG007 失败集不变、无新增 hard 名。
 - **未完成（暂停所致）**：`report.md` R1 段与 §5 更正、证据 `03-test-runs.md`/`04-scope-and-limitations.md` R1 段、1 个完成 commit（消息 `p1/T105 R1 fix anaphora pagination regression + new-content dump`）。
 - **待 PM/主人复核口径（续跑先裁定）**：B2 的非字段新内容（打印材质/陈列要求）最终收窄为 **not_found** 而非走正文检索。需确认：①是否满足「不得整条倾倒且不抢正文」；②是否会把本可由正文回答的问题误判为查无（当前 b0/badcase/regression/T101/T102 未显示误伤，R2 验收须专门探针核验该边界）。若不可接受 → 退回 R1 开发调整（轮次仍 1，未超限）。
+
+- **2026-11-07 00:5x 续跑裁定**：PM 复核 R1 未提交实现后**接受 B2 收窄方向**（记录字段追问→单字段作答；非字段新内容→`not_found`/`reason=ANAPHORA_NEW_CONTENT`，不倾倒、未改 `conversations/`），附三条约束：report 须如实披露「不先走正文/legacy」的保守化风险并记 P2 残余；不得扩大拦截范围（政策/法规/正文/纯指代/分页行为维持上轮 PASS）；R2 若用探针证明「基线本可从正文回答的问题」被压成 `not_found`（行为回退）则 B2 未收口、R1 内再调整。裁定全文见 `T105-anaphora-field/rework-R1.md` §5。已恢复 R1 开发补完收尾。
