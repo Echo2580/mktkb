@@ -24,7 +24,7 @@
 | T102 组 A 状态继承（ERR-01/02/D5） | ✅ G6 收口（dev `85d9ffc`；验收 PASS；残余 R1–R3 见 _index #44） |
 | T103 D4 记录路回落（ERR-04） | ✅ G6 收口（dev `43b7976`；验收 PASS；RG004 口径经 PM 裁定；残余 #45） |
 | T104 D1 异常原因透传（ERR-07 产品侧） | ✅ G6 收口（dev `e7ee804`；验收 PASS；残余 #46） |
-| T105 D6 指代/字段错配（ERR-06） | ⏸ 开发已交付 `2306aaa`；独立验收 **FAIL（2 阻断：B1 分页回退 / B2 带新内容整条倾倒）**，**R1 返工中**（见 `_index` #49；`review.md` 与验收证据已入库） |
+| T105 D6 指代/字段错配（ERR-06） | ✅ **G6 已收口**（dev `2306aaa`+R1 `fc60c57`+R2 `b37ad21`；R3 独立验收 **PASS**：`review-R3.md`、探针 133/133、全量 1718 passed；P2 残余见 `_index` #51） |
 | T106 D3 文案统一（后端+前端） | ⏸ 未开始（handoff 未写） |
 | T108 Holdout 支持与防污染 | ⏸ 未开始（handoff 未写） |
 | T109 多轮 turns runner | ⏸ 未开始（T102/T105 的 RG002/RG003/RG006 多轮复现依赖它） |
@@ -69,12 +69,13 @@
 - 配置/账本（只读，勿改）：`docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json`（P1 版，备份 `S2-LIVE-GO-20261104.json`）、`.../budget/budget.json`、`.../budget/live-ledger.jsonl`
 - Holdout（开发禁用、不入库）：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`
 
-## 7. 当前状态（2026-11-07 01:3x 更新；T105 R1 已收尾入库、R2 验收 FAIL、R2 返工中）
+## 7. 暂停时状态（2026-11-07 02:4x；T105 已 G6 收口，P1 按指令 A 暂停）
 
-- 当前 HEAD：最新 PM 簿记 commit（`git log --oneline -1`）；R1 交付 **`fc60c57`** 已入库（单 dev commit）；工作树 clean。
-- T105 状态：**G4 验收 FAIL（B1 已修复；B2 未收口）→ R2 返工中**（轮次 2/3；见 §12 与 `_index` #50）。
-- 全量基线：验收方独立复跑 **1701 passed / 0 failed / 0 error**（T105 R2 验收实测）；最近已收口包基线 T104 `1678 passed`。
-- 续跑顺序：① R2 开发（1 个新 commit，不 amend）→ ② PM G2 → ③ 全新上下文验收 **R3**（B2 组合定向 + 全量 1 次）→ ④ PASS 后簿记收口并回主人指令 A（暂停）；**若 R3 仍 FAIL 则达 3 轮上限，停止返工并报主人三选一**。
+- 暂停 HEAD：本次 PM 收口簿记 commit（`git log --oneline -1`）；T105 交付 = `2306aaa`（初版）+`fc60c57`（R1）+`b37ad21`（R2）三个 dev commit，均未 push/未 amend。
+- T105 状态：**G6 已收口**（R3 独立验收 PASS：`review-R3.md`；验收证据 `docs/reports/OBS-EVAL/P1/evidence/verify/T105-R3/`；P2 残余见 `_index` #51）。
+- 全量基线：验收方独立复跑 **1718 passed / 0 failed / 0 error**（T105 R3 实测；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass）。
+- 工作树：clean（`_scratch/T105/` 为 gitignored 探针+WIP patch，按 kickoff §7 保留待主人确认后清理）。
+- P1 状态：**暂停中**——按主人 2026-11-06 指令 A，T105 收口后不再派 T106…T114/T900；续跑第一包 = **T106**（D3 文案统一，前后端），等主人指令。
 
 ## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
 
@@ -125,3 +126,10 @@
 - **开发自报（未独立验收）**：验收探针 62/62；C3 20 字含 21 天、C4 136 字含 2022-07-01+两项废止、C5 系列 58/140/156/58 字法规条文（0 继承字段）、C6 37 字、C7 22 字「未记录日期（记录存在，但缺少该字段）」；B1/B2 点名项/C1/C2/C8 不变；本包 40、rag 347、integration 381、observability 255、全量 **1718 passed/0 failed**、T101/T102 37/44；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、无新 hard。
 - **PM G2**：通过（单 dev commit、允许路径、无越界/无 skip；report 99 行 > 80 行预算 → 记非阻塞偏差，由 R3/收口披露）。已派全新上下文验收 **R3**（`prompts/T105-verify-R3.md`：定向 C3–C7 + 必须保持项 + 新启发式证伪 + 全量 1 次 + b0/badcase/regression）。
 - **若 R3 PASS**：PM 簿记收口（review-R3 + verify/T105-R3 证据 + `_index` T105→G6 + §7 回填 + 清 `_scratch/T105`）并按主人指令 A 暂停；**若 R3 FAIL**：第 3 轮返工（最后一轮），其复验仍 FAIL 则停止并报主人三选一。
+
+## 14. 2026-11-07 02:4x：T105 R3 验收 PASS → G6 收口 → P1 暂停
+
+- **R3 独立验收（全新上下文，`review-R3.md` 78 行）：PASS，无阻断**。P2 残余 3 项：①「政策词+台账字段词」组合（`标准规格/价格标准/提交数量`）576 字 8×8 倾倒（等于基线 `17c0e63`、相对 R1 回退；按「不得比基线更差」判非阻断，建议下一包 `elif` 守卫加 `bool(field_roles)`）；②`报销规则` 词面漏判 → 22 字记录式；③文档/法规答案 `sources=[]`。观察：`report.md` 99 行 > 80 行预算（返工追加所致，记非阻塞偏差）。
+- **R2 交付 `b37ad21` 通过**：C3/C4/C5 系列/C6/C7 全部按目标（C5 58/140/156/58 字条文、C3 20 字含 21 天、C4 136 字含 2022-07-01、C6 37 字、C7 22 字准确文案）；B1/B2 点名项与控制组保持；独立探针 **133/133**；全量 **1718 passed / 0 failed / 0 error**；b0/badcase `case_diffs=0`+hard `[]`；regression 仅 RG006 fail→pass。
+- **PM 已簿记收口**：`_index` T105→**G6**（P2 残余 #51）、`review-R3.md`+`verify/T105-R3/`（4 份）入库、本文件 §2/§7 回填；`_scratch/T105/` 按 kickoff §7 保留待主人确认后清理。
+- **P1 暂停**：按主人 2026-11-06 指令 A，T105 收口后**不派 T106…T114/T900**；等主人指令再续。续跑顺序 `T106→T108→T109→T110→T111（pilot 停）→T112→T113→T114→T900`；执行要求见 `prompts/p1-resume-20261106.md`。
