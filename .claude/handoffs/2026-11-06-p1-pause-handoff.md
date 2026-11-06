@@ -24,7 +24,7 @@
 | T102 组 A 状态继承（ERR-01/02/D5） | ✅ G6 收口（dev `85d9ffc`；验收 PASS；残余 R1–R3 见 _index #44） |
 | T103 D4 记录路回落（ERR-04） | ✅ G6 收口（dev `43b7976`；验收 PASS；RG004 口径经 PM 裁定；残余 #45） |
 | T104 D1 异常原因透传（ERR-07 产品侧） | ✅ G6 收口（dev `e7ee804`；验收 PASS；残余 #46） |
-| T105 D6 指代/字段错配（ERR-06） | 收口流程中：前序 dev 中断（04:19），已按 §S 恢复；接续轮完成/待验收/待簿记——**暂停前必须走完** |
+| T105 D6 指代/字段错配（ERR-06） | ⏸ 开发已交付 `2306aaa`（工作树 clean）；**独立验收 BLOCKED——wb 路线故障（见 #48），暂停时未收口**；wb 恢复后 PM 用 `prompts/T105-verify-R1.md` 重派验收 |
 | T106 D3 文案统一（后端+前端） | ⏸ 未开始（handoff 未写） |
 | T108 Holdout 支持与防污染 | ⏸ 未开始（handoff 未写） |
 | T109 多轮 turns runner | ⏸ 未开始（T102/T105 的 RG002/RG003/RG006 多轮复现依赖它） |
@@ -51,6 +51,8 @@
 3. 若验收 FAIL → 出返工单（同一开发上下文继续，轮次+1）；若中断再次发生 → 按 §S 恢复。
 4. T105 收口完成后：写/更新本文件"暂停时 HEAD 与全量基线"，**停止派单**。
 
+> **2026-11-06 11:2x 更新**：第 2 步（重派独立验收）被 **wb 路线故障**阻塞（2 次验收 subagent + 3 次探测均静默失败，默认账号路线正常）；主人裁决**先保持暂停、不偏离模型策略**。T105 记 `G4 验收 BLOCKED`、**未收口**，续跑第一步见 §9 与 `_index` #48。
+
 ## 5. 续跑步骤（新窗口，主人说继续时）
 
 1. `git status --short` / `git log --oneline -5` 核对现场；确认在 `p1/fix-retrieval`；按 §11D 看内存。
@@ -67,12 +69,12 @@
 - 配置/账本（只读，勿改）：`docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json`（P1 版，备份 `S2-LIVE-GO-20261104.json`）、`.../budget/budget.json`、`.../budget/live-ledger.jsonl`
 - Holdout（开发禁用、不入库）：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`
 
-## 7. 暂停时状态（待 T105 收口后由 PM 更新）
+## 7. 暂停时状态（2026-11-06 11:2x 如实回填；T105 验收被 wb 路线故障阻塞，未收口）
 
-- 暂停 HEAD：`<待 T105 收口后填写>`
-- T105 收口 commit：`<待填写>`
-- 全量基线：`<待填写>`
-- 工作树：`<待填>`
+- 暂停 HEAD：本次 PM 簿记 commit（`git log --oneline -1`，消息 `chore(p1): record T105 verify blocked by wb route outage + pause state`）；交付 HEAD 仍为 `2306aaa`
+- T105 收口 commit：**未收口**（开发交付 `2306aaa` 保全；独立验收 BLOCKED，原因见 §9/#48；**不声称通过**）
+- 全量基线：**最近一次已独立验收的全量为 T104 收口 `1678 passed / 0 failed / 0 error`**；T105 开发自报 `1693 passed`（开发证据 03，**未经独立复跑**，不得当收口口径）
+- 工作树：clean（本次仅 `.claude/handoffs/**` 簿记改动并入库；`_scratch/T105/` 为 gitignored 探针，保留待续）
 
 ## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
 
@@ -80,3 +82,11 @@
 - **T105 独立验收未完成**：验收子会话（2ccfc42f）**静默失败**——无 `review.md`、无 `docs/reports/OBS-EVAL/P1/evidence/verify/T105/`、08:55 后无 pytest 活动、无 python 进程、无通知。**这是暂停前唯一未收口动作**。
 - 暂停 HEAD 记为 `2306aaa`；`_index` 中 T105 状态为"G4 验收待重派"（#47）。
 - 续跑第一步 = 按本文件/交接提示词重派 T105 验收（PASS 后 PM 簿记收口，再按主人 A 指令暂停）。
+
+## 9. 2026-11-06 11:2x 状态更新（重派验收被 wb 路线故障阻塞；主人裁决保持暂停）
+
+- **T105 第 2 次验收重派失败（非任务问题）**：PM 已写 `prompts/T105-verify-R1.md`（含 §6 全部复跑项、b0/badcase/regression 口径、HTTP 产品路径探针、接续完整性核对、证据 ≤4/不改交付物/不 commit 约束）并派全新上下文验收 subagent（`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`）→ 约 15s **静默失败**，无 `review.md`、无 `verify/T105`、无 pytest 活动、工作树无改动（第 2 次；前序 `2ccfc42f` 见 #47）。
+- **路线诊断**：随后 3 次最小探测（同路线 ×2、`wb/cn:glm-5.3-flash` ×1）全部 ~15s 静默失败（`lastTurnCompleted=false`）；同一时刻默认账号路线 `deepseek-account/deepseek-flash` 探测成功 → **wb 路线整体不可用**。
+- **主人裁决（2026-11-06 11:2x）**：**先保持暂停、不偏离 wb 模型策略**；T105 记为 **G4 验收 BLOCKED**（`_index` #48），不产出任何伪 review/证据，不声称收口。
+- **续跑第一步（wb 修复后或主人说继续）**：直接按 `prompts/T105-verify-R1.md` 重派全新上下文验收（先查内存 ≥2GB；证据/报告预算与命令口径已固化）→ PASS 后 PM 簿记收口并更新 §7；FAIL 则出返工单给原开发上下文（轮次 +1，3 轮上限）。
+- **现场**：分支 `p1/fix-retrieval`，工作树 clean，交付 `2306aaa` 与 4 份开发证据、report、2 个测试文件均保全；`_scratch/T105/`（gitignored 探针）保留。
