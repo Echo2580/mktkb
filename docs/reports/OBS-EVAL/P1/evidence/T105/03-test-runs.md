@@ -5,6 +5,8 @@
 
 ## A. 测试
 
+（以下为 `2306aaa` 交付树；R1 返工树见 §D）
+
 | # | 范围 | 命令（label） | 结果 |
 | --- | --- | --- | --- |
 | 1 | 本包（9 单测 + 6 HTTP） | `python -B -m pytest backend/tests/rag/test_p1_t105_anaphora_field.py backend/tests/integration/test_p1_t105_anaphora_field.py`（`t105b`） | **15 passed**，17.97s |
@@ -43,3 +45,10 @@
 - RG006 修复后实际：`kind=clarification`，`请问要查询宣传海报的哪项信息？可指定位置、数量、规格、价格等。`，0 失败。
 - 逐例差异：regression 仅 RG006 一行变化（`fail/answer/(kind_correct,value_forbidden)` → `pass/clarification/()`）；RG001–RG005/RG007 逐项不变。
 - gate 的 hard 集合由 `['security_leak']` 收缩为 `[]`（RG006 不再输出 forbidden 值），无新增 hard failure 名称。
+
+## D. R1 返工（2026-11-07，B1/B2）
+
+- **来源说明**：rag 339 / observability 255 / integration 372 / 全量 1701 passed、T101-T102 定向 44、b0/badcase 逐例 `case_diffs=0`+gate hard `[]`、regression 对 `17c0e63` 仅 RG006 fail→pass（RG005/RG007 不变、无新 hard 名），均为**暂停前 R1 开发上下文实测**；本接续轮未重跑，不声称新结果。
+- **本轮补跑 1（本包）**：`$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"`；`.\.venv\Scripts\python.exe -B -m pytest backend/tests/rag/test_p1_t105_anaphora_field.py backend/tests/integration/test_p1_t105_anaphora_field.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t105r1wrap` → **23 passed**，7.28s（4 单测 + 4 HTTP：B1 分页、B2 单字段/不倾倒）。
+- **本轮补跑 2（独立探针）**：`python -B docs\reports\OBS-EVAL\P1\evidence\verify\T105\02-probe.py`（验收方脚本，未修改）→ **70/70 checks passed**；S7 `answer`+`{page:2,total:12,returned:2,has_more:false}` 266 字（与基线 `17c0e63` 同）、S15/S16 `not_found` 35 字 0 泄露、S15b 29 字仅规格、S7b 单独 `第2页` page=2。
+- **树状态**：代码 diff 4 文件 +209/−4；`git diff --binary` sha256=`578e0747…f3f`（15026 B），内容与暂停备份 `_scratch/T105/R1-wip-20261106-123035.patch` 逐行一致（忽略行尾；该补丁文件本身 sha256=`890eba3e…5c23`，UTF-16LE+CRLF 25712 B）。原始探针输出 `backend\.pytest-tmp\T105-verify\probe-results.json`（临时产物，不入库）。

@@ -22,6 +22,8 @@ wb / cn:deepseek-v4.1-flash / reasoning_effort=max
 
 ## 3. 实际运行结果
 
+（以下为 `2306aaa` 交付树实测；R1 返工树见 §6）
+
 - 本包：15 passed（17.97s）；rag 335（45.05s）；observability 255（37.95s）；integration 368（401.50s）；全量 1693（最终树 437.48s，运行前 `FreePhysicalMemory=5.10 GB`，无需轮询等待）。
 - 本轮无既有 flake 复现（`test_g08_short_budget_cancels_inflight_model_call` 在 integration/全量均通过）。
 - b0：`b0-local-20261105T090359232489Z-6e3eb84c` pass29/fail3/skipped8 → `b0-local-20261106T002138228442Z-e4560569` **同数同例**，gate exit 3、hard `[]`，`case_diffs=0`。
@@ -33,10 +35,36 @@ wb / cn:deepseek-v4.1-flash / reasoning_effort=max
 
 **接续说明**：前序 T105 开发 subagent 于 2026-11-06 04:19 前后失败、无收尾、未 commit；本轮保留其 query/answer 改动与 13 条测试（未重做），修正死代码 `is_anaphora_question`、纯指代词（前面/刚才/上述…）被当成新内容、以及“第 N 页”被误判为单字段追问三处问题，并新增 2 条测试；本轮补做 RG006 收口、前后对照、全量回归、证据/报告/commit。
 - **RG006 口径**：local 单轮忽略 `turns`，等价无上文；修复前实际答 W11 正文（滨江店/QF01/店内外侧/40 张），故 forbidden 加强为这 4 项而非规格/价格值；多轮完整复现依赖 T109，本包由 HTTP 多轮用例证明（证据 04 §A）。
-- **answer.py 改动理由**：`enumerate` 是 `_rag_owns_turn` 的既有路由入口；不改 conversations 的前提下，只能在答案层把它还原为单字段渲染（证据 04 §B）。
+- **answer.py 改动理由**：`enumerate` 是 `_rag_owns_turn` 的既有路由入口；不改 conversations 的前提下，只能在答案层把它还原为单字段渲染（证据 04 §B）。R1 另在 `_answer_record` 入口（`answer.py:230-238`）对 `reason=ANAPHORA_NEW_CONTENT` 提前 `_no_answer`，理由/收窄见 §6。
 - **§6.5 “RG001–RG005 仍 PASS” 的落点**：RG005 是 T104 已登记的残余失败（营收词表未收口），本包未触碰；实际口径为 RG001–RG004/RG006 pass、RG005/RG007 失败集与基线逐项相同，未新增失败。
 - 未改 `conversations/`、`intent.py`、b0/badcase、gate 配置、其他包文件；未切分支/push/amend；未读 `.env`/Holdout。
 
 ## 5. 风险
 
-- 纯指代判定仍是词面启发式：`ANAPHORA_WORDS` 之外的“上面那个呢”等说法不在覆盖内；带新内容的指代追问继续走既有正文/legacy 路径（不抢正文），个别措辞可能仍答非所问但不会再整条倾倒。
+- 纯指代判定仍是词面启发式：`ANAPHORA_WORDS` 之外的“上面那个呢”等说法不在覆盖内。
+- **（R1 修正：上轮此处“不会再整条倾倒”不成立）** `2306aaa` 树实测带新内容的指代追问仍 8 条×8 字段（576 字）。R1 已改口径：非台账字段（打印材质/陈列要求）**不再走正文/legacy**，直接 `not_found`「资料中未记录这项信息…」（`reason=ANAPHORA_NEW_CONTENT`），不再倾倒；含记录字段追问按单字段作答。代价与 P2 残余见 §6。
+
+## 6. R1 返工（B1 分页回退 / B2 新内容倾倒）
+
+**接续说明**：本节代码（4 文件 +209/−4）与 §3 其余数字由暂停前 R1 开发上下文完成；本段由接续上下文补记，**未改代码**。树状态：未提交 diff 与暂停备份 `_scratch/T105/R1-wip-20261106-123035.patch` 内容一致（忽略行尾）；`git diff --binary`（4 文件、15026 B）sha256=`578e0747…f3f`，LF 归一后 `23aa6cf1…abba`；PM 记录的 `890eba3e…5c23` 是补丁文件本身（UTF-16LE+CRLF、25712 B）的哈希，不能由 `git diff` 复算。
+
+**B1（枚举 → `那个海报的第2页`）**：修前 `clarification`「请问要查询宣传海报的哪项信息？…」、`pagination=null`（相对基线回退）；修后 `answer`、`pagination={page:2,page_size:10,total:12,returned:2,has_more:false}`、266 字（与基线 `17c0e63` 的 266 字/同分页一致）；无指代 `第2页` 仍 page=2。
+
+**B2（上文 `城西店的宣传海报在哪里？`）**：
+
+| 追问 | 修前（`2306aaa`/基线） | 修后 |
+| --- | --- | --- |
+| 那个海报的规格型号呢 | 576 字、8 条×8 字段（8 次“标识：”） | `answer` 29 字，仅 `A2 铜版纸 157g`，未问值 0 |
+| 那个海报的打印材质呢 | 576 字、8×8 | `not_found` 35 字「资料中未记录这项信息…」，记录/字段 0、未问值 0、sources=[] |
+| 那个海报的陈列要求呢 | 576 字、8×8 | 同上 |
+
+**根因与最小改动**：
+- B1：`query.py` 的 T105 指代分支先于分页，`_page_request`+`previous.enumerate` 已解析出的页码被 `ANAPHORA_NO_FIELD`（`query.py:1289-1322`）提前返回；修复=分支入口加 `not (page_request is not None and previous.enumerate)` 守卫（`:1274-1281`），分页优先。
+- B2：带新内容时 `field_roles=()` → `enumerate=False`，产品层 `_rag_owns_turn` 落到 legacy 整条渲染；修复=`query.py` 新增 `ANAPHORA_NEW_CONTENT` 判定（`:1329-1352`：显式实体+新内容+非页码/非枚举/非法规）置 `enumerate=True` 并带 `reason`（`:1433`），`answer.py:230-238` 在 `_answer_record` 入口提前 `_no_answer`。未改 `conversations/`、`intent.py`、fixtures。
+- 测试：4 单测 + 4 HTTP（B1 分页、B2 单字段/不倾倒），两文件共 23 passed。
+
+**B2 收窄披露（PM 裁定 §5-1）**：非台账字段新内容直接给“未记录”提示，**不先走正文/legacy 检索**；相对基线是“不倾倒”而非误答。**P2 非阻塞残余**：若正文语料确含该内容（打印材质等），存在保守误判为“未记录”的风险，由 R2 探针按裁定 §5-3 证伪条件核验。窄口径观察项：新增 `elif`（显式实体+记录字段+指代）未显式排除“政策题+实体+字段词+指代”措辞，现有 T101/T102 定向 44 未覆盖该组合，记观察（不阻塞）。
+
+**数字来源**：§3 的 rag 339/observability 255/integration 372/全量 1701、T101/T102 定向 44、b0/badcase `case_diffs=0`+gate hard `[]`、regression 仅 RG006 fail→pass，均为暂停前 R1 实测（本轮未重跑，不声称新结果）；本轮补跑：本包 2 文件 **23 passed**（7.28s）、验收方独立探针 `verify/T105/02-probe.py`（脚本未改）**70/70 checks**，B1/B2 修后数字即出自该次探针。
+
+**commit**：`p1/T105 R1 fix anaphora pagination regression + new-content dump`（sha 见交付回复；7 文件）。

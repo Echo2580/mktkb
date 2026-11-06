@@ -36,6 +36,23 @@ ROWS = [
 
 UNASKED_VALUES = ("店内外侧", "C区2号货架第一层", "A2 铜版纸 157g", "2.6", "40")
 
+MANY_ROWS = ROWS + [
+    {
+        "标识": f"QF{index:02d}",
+        "门店": store,
+        "物品": "宣传海报",
+        "别名": "海报",
+        "位置": f"{store}位置",
+        "数量": index,
+        "参考供价": 2.6,
+        "规格型号": "A2 铜版纸 157g",
+    }
+    for index, store in enumerate(
+        ("城东店", "城南店", "城北店", "湖滨店", "高新店", "经开店", "临港店", "中心店", "东湖店", "西湖店"),
+        start=3,
+    )
+]
+
 
 def _seed(rag_index, add_records) -> None:
     add_records(
@@ -172,3 +189,79 @@ def test_explicit_enumeration_is_not_treated_as_field_followup(rag_index, add_re
     assert listed.kind == "answer", listed.text
     assert "共 " in listed.text
     assert listed.state["enumerate"] is True
+
+
+def _seed_many(rag_index, add_records) -> None:
+    add_records(
+        MANY_ROWS,
+        doc=DocumentSpec(
+            doc_id="E11",
+            source_path="e11.xlsx",
+            title="终端物料位置表",
+            file_kind="xlsx",
+            version_id="E11-v1",
+            version_label="当前",
+            sha256="e" * 64,
+            business_date="2026-10-28",
+        ),
+    )
+
+
+def test_anaphora_page_after_enumeration_keeps_pagination(rag_index, add_records) -> None:
+    """T105 R1/B1：枚举后「那个海报的第2页」不得被指代澄清分支劫持。"""
+    _seed_many(rag_index, add_records)
+    first = _ask(rag_index, "c-page", "把宣传海报都列出来")
+    assert first.kind == "answer", first.text
+    assert first.diagnostics["page"] == 1
+    assert first.diagnostics["total"] == 12
+
+    second = _ask(rag_index, "c-page", "那个海报的第2页")
+    assert second.kind == "answer", second.text
+    assert second.state["page"] == 2
+    assert second.state["enumerate"] is True
+    assert second.diagnostics["page"] == 2
+    assert second.diagnostics["total"] == 12
+    assert second.diagnostics["returned"] == 2
+    assert "第 2 页" in second.text
+
+
+def test_bare_page_after_enumeration_keeps_pagination(rag_index, add_records) -> None:
+    """单独「第2页」（无指代）行为不变。"""
+    _seed_many(rag_index, add_records)
+    _ask(rag_index, "c-bare-page", "把宣传海报都列出来")
+
+    second = _ask(rag_index, "c-bare-page", "第2页")
+    assert second.kind == "answer", second.text
+    assert second.state["page"] == 2
+    assert second.diagnostics["page"] == 2
+
+
+def test_new_content_record_field_followup_answers_that_field_only(rag_index, add_records) -> None:
+    """T105 R1/B2：带新内容的指代追问若问到记录字段，仍只答该字段。"""
+    _seed(rag_index, add_records)
+    _ask(rag_index, "c-new-spec", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-new-spec", "那个海报的规格型号呢")
+    assert answer.kind == "answer", answer.text
+    assert "A2 铜版纸 157g" in answer.text
+    for value in ("C区2号货架第一层", "2.6", "20", "QF02"):
+        assert value not in answer.text, (value, answer.text)
+    assert answer.state["field_role"] == "spec"
+
+
+def test_new_content_non_field_followup_does_not_dump(rag_index, add_records) -> None:
+    """T105 R1/B2：打印材质/陈列要求不是台账字段，不得整条倾倒，也不得列未问值。"""
+    _seed(rag_index, add_records)
+    for conversation, question in (
+        ("c-new-material", "那个海报的打印材质呢"),
+        ("c-new-display", "那个海报的陈列要求呢"),
+    ):
+        _ask(rag_index, conversation, "城西店的宣传海报在哪里？")
+        answer = _ask(rag_index, conversation, question)
+
+        assert answer.kind == "no_answer", answer.text
+        assert answer.reason == "ANAPHORA_NEW_CONTENT", answer.text
+        assert "未记录" in answer.text
+        for value in UNASKED_VALUES:
+            assert value not in answer.text, (value, answer.text)
+        assert not answer.citations

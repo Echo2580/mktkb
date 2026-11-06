@@ -1025,6 +1025,7 @@ def parse_query(
     if page_request is not None and previous.enumerate:
         enumerate_flag = True
     page = page_request
+    plan_reason: str | None = None
     as_of = _as_of(question, previous.as_of, business_date)
     include_future = any(word in question for word in FUTURE_WORDS)
 
@@ -1057,6 +1058,7 @@ def parse_query(
         for key in ("store", "item", "product", "identifier", "doc_id")
     )
     anaphora = any(word in question for word in ANAPHORA_WORDS)
+    anaphora_residual = _anaphora_residual_terms(question, lexicon) if anaphora else ()
     # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
     # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
     # 普通字段追问（“电话呢”“数量呢”）仍保留实体，裸补槽、指代与分页也不在此重置。
@@ -1269,8 +1271,15 @@ def parse_query(
     # - 只继承到一个记录字段 → 只答该字段；``enumerate`` 置真值只是产品层
     #   ``_rag_owns_turn`` 的既有入口，答案层按单字段渲染，不按枚举页渲染（未改 conversations）。
     # 政策/制度/流程题沿用 T102 口径（不当作记录字段追问）。
-    if anaphora and field_role is None and not is_policy_question(question):
-        if not _anaphora_residual_terms(question, lexicon):
+    # 上一轮是枚举页且本轮在翻页（“那个海报的第2页/下一页”）时，分页优先于指代澄清，
+    # 否则会丢掉 ``_page_request`` 已经解析出的页码（T105 R1/B1 回退）。
+    if (
+        anaphora
+        and field_role is None
+        and not is_policy_question(question)
+        and not (page_request is not None and previous.enumerate)
+    ):
+        if not anaphora_residual:
             inherited_roles = state.field_roles or ((state.field_role,) if state.field_role else ())
             has_entity = any(
                 (state.store, state.item, state.product, state.identifier, state.doc_id)
@@ -1316,6 +1325,31 @@ def parse_query(
                 state.field_role = inherited_roles[0]
                 state.field_roles = (inherited_roles[0],)
                 state.enumerate = True
+
+    # T105 R1/B2：带新内容的指代追问（“那个海报的规格型号呢/打印材质呢/陈列要求呢”）。
+    # 明确问到台账记录字段时仍只答该字段；新内容不是台账字段（打印材质/陈列要求）时，
+    # 不能落回 legacy 的整条记录渲染。两种都把 enumerate 置真值作为产品层交给 rag 直答的
+    # 既有入口（未改 conversations）；后者由答案层按“未记录该字段”收口，不输出记录。
+    explicit_record_entity = any(
+        slots.get(key) for key in ("store", "item", "product", "identifier")
+    )
+    anaphora_new_content = (
+        anaphora
+        and not field_roles
+        and bool(anaphora_residual)
+        and explicit_record_entity
+        and page_request is None
+        and not any(word in question for word in ENUMERATE_WORDS)
+        and not is_regulation_question(question)
+    )
+    if anaphora_new_content:
+        # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
+        state.enumerate = True
+        plan_reason = "ANAPHORA_NEW_CONTENT"
+    elif explicit_record_entity and is_anaphora_field_followup(question, state.field_role):
+        # 只接管“本轮明确给出实体”的新内容字段追问；仅靠上文继承实体的短追问
+        # （如“它的电话呢”）保持原有 legacy 路径，避免改变既有模型措辞/上下文行为。
+        state.enumerate = True
 
     filters = {
         key: str(getattr(state, key))
@@ -1396,6 +1430,7 @@ def parse_query(
         include_future=include_future,
         field_roles=state.field_roles,
         missing_stores=missing_stores,
+        reason=plan_reason,
     )
 
 

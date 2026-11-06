@@ -227,6 +227,15 @@ def _answer_record(
     diagnostics: dict[str, Any],
     started: float,
 ) -> RagAnswer:
+    if plan.reason == "ANAPHORA_NEW_CONTENT":
+        # T105 R1/B2：带新内容的指代追问问的不是台账记录字段（打印材质/陈列要求），
+        # 不能回落到枚举/整条记录渲染；只说明未记录并提示可问字段，不输出任何未问字段值。
+        return _no_answer(
+            plan,
+            "资料中未记录这项信息；可指定要查询的字段，例如位置、数量、规格、价格。",
+            "ANAPHORA_NEW_CONTENT",
+            diagnostics,
+        )
     if plan.enumerate and is_anaphora_field_followup(plan.question, plan.field_role):
         # T105/ERR-06：指代追问只继承字段时，``enumerate`` 只是产品层“交给 rag 直答”的
         # 入口，用户没有要求枚举；这里按单字段答案渲染，避免把整条记录全字段倾倒出来。
