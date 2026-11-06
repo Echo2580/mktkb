@@ -9,14 +9,26 @@
 
 from __future__ import annotations
 
+import re
 import uuid
 from pathlib import Path
 
+import docx
 import openpyxl
 import pytest
 
 from mktkb.documents.lifecycle import get_revision
 from mktkb.ingestion.worker import run_one_job
+
+ROOT = Path(__file__).resolve().parents[3]
+W02 = ROOT / "corpus" / "enterprise-20261101" / "word" / "W02_广宣物料与道具管理办法.docx"
+LEGAL = (
+    ROOT
+    / "corpus"
+    / "enterprise-20261101"
+    / "legal"
+    / "明码标价和禁止价格欺诈规定（国家市场监督管理总局令第56号）.docx"
+)
 
 LEDGER_HEADERS = ["标识", "门店", "物品", "别名", "位置", "数量", "参考供价", "规格型号"]
 LEDGER_ROWS = [
@@ -77,6 +89,41 @@ def t105_ready(chat_admin, chat_app, tmp_path: Path):
 def t105_many_ready(chat_admin, chat_app, tmp_path: Path):
     _publish(chat_admin, chat_app, _xlsx(tmp_path / "t105-many.xlsx", MANY_ROWS))
     return {"app": chat_app}
+
+
+def _docx(path: Path, title: str, paragraphs: list[str]) -> Path:
+    document = docx.Document()
+    document.add_paragraph(title)
+    for text in paragraphs:
+        document.add_paragraph(text)
+    document.save(path)
+    return path
+
+
+@pytest.fixture
+def t105_policy_ready(chat_admin, chat_app, tmp_path: Path):
+    """T105 R2：台账 + 制度正文 + 法规原文 + 海报流程正文。"""
+    assert W02.is_file() and LEGAL.is_file()
+    _publish(chat_admin, chat_app, _xlsx(tmp_path / "t105-policy-ledger.xlsx"))
+    _publish(chat_admin, chat_app, W02)
+    _publish(chat_admin, chat_app, LEGAL)
+    _publish(
+        chat_admin,
+        chat_app,
+        _docx(
+            tmp_path / "t105-poster-spec.docx",
+            "宣传海报制作与陈列规范",
+            [
+                "第三条 宣传海报盘点时间为每月最后一个工作日 16:00。",
+                "第四条 宣传海报的审批流程：市场部通路行销组发起，门店店长确认。",
+            ],
+        ),
+    )
+    return {"app": chat_app}
+
+
+def _flat(text: str) -> str:
+    return re.sub(r"\s+", "", str(text or ""))
 
 
 def _conversation(client) -> str:
@@ -238,3 +285,115 @@ def test_new_content_non_field_followup_does_not_dump(t105_ready, chat_employee)
         for value in UNASKED_IN_ANSWER:
             assert value not in answer["text"], (question, value, answer["text"])
         assert answer["sources"] == [], answer
+
+
+def test_policy_anaphora_followup_answers_from_policy_document(
+    t105_policy_ready, chat_employee
+) -> None:
+    """T105 R2/C3：实体+指代+政策题从制度正文答 21 天，不得压成未记录。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(chat_employee, conversation, "那个海报的档期物料要提前多少天提报需求？")
+    assert answer["kind"] == "answer", answer
+    assert "21" in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+    assert "标识：" not in answer["text"], answer["text"]
+    assert not answer.get("pagination"), answer
+
+
+def test_process_anaphora_followup_answers_from_document(t105_policy_ready, chat_employee) -> None:
+    """T105 R2/C6：实体+指代+流程题从正文作答，不得压成未记录。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(chat_employee, conversation, "那个海报的审批流程是什么？")
+    assert answer["kind"] == "answer", answer
+    assert "审批流程" in answer["text"] or "店长确认" in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+    assert not answer.get("pagination"), answer
+
+
+@pytest.mark.parametrize(
+    "question",
+    (
+        "那个海报的价格欺诈规定是什么？",
+        "那个海报的相关规定是什么？",
+        "那个海报适用的价格欺诈规定是什么？",
+    ),
+)
+def test_regulation_anaphora_followup_answers_regulation_not_inherited_field(
+    t105_policy_ready, chat_employee, question: str
+) -> None:
+    """T105 R2/C5 系列：法规追问不得返回继承的位置字段。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(chat_employee, conversation, question)
+    assert answer["kind"] == "answer", answer
+    assert "规定" in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+    assert "标识：" not in answer["text"], answer["text"]
+    assert not answer.get("pagination"), answer
+
+
+def test_regulation_anaphora_followup_after_spec_does_not_inherit_spec(
+    t105_policy_ready, chat_employee
+) -> None:
+    """T105 R2/C5d：上文问规格后，法规追问也不得随上文返回规格字段。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报的规格型号是什么？")
+
+    answer = _ask(chat_employee, conversation, "那个海报的价格欺诈规定是什么？")
+    assert answer["kind"] == "answer", answer
+    assert "欺诈" in answer["text"], answer["text"]
+    assert "A2 铜版纸 157g" not in answer["text"], answer["text"]
+
+
+def test_regulation_anaphora_followup_answers_effective_date(t105_policy_ready, chat_employee) -> None:
+    """T105 R2/C4：带实体+指代的法规题按法规题作答（2022-07-01 + 废止规定）。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(
+        chat_employee, conversation, "那个海报的《明码标价和禁止价格欺诈规定》自何时起施行？"
+    )
+    assert answer["kind"] == "answer", answer
+    text = _flat(answer["text"])
+    assert "2022年7月1日" in text, answer["text"]
+    assert "禁止价格欺诈行为的规定" in text, answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+
+
+def test_date_anaphora_followup_without_field_does_not_claim_no_record(
+    t105_policy_ready, chat_employee
+) -> None:
+    """T105 R2/C7（P2）：记录存在、仅缺日期字段时，文案不得称“未找到记录”。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(chat_employee, conversation, "那个海报的盘点时间是什么？")
+    assert answer["kind"] == "not_found", answer
+    assert "未记录" in answer["text"], answer["text"]
+    assert "未在资料中找到" not in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+
+
+def test_bare_policy_and_regulation_questions_unchanged(t105_policy_ready, chat_employee) -> None:
+    """控制组：单独政策题/法规题（无指代）行为不变。"""
+    conversation = _conversation(chat_employee)
+    policy = _ask(chat_employee, conversation, "档期物料要提前多少天提报需求？")
+    assert policy["kind"] == "answer", policy
+    assert "21" in policy["text"], policy["text"]
+    assert "城西店" not in policy["text"], policy["text"]
+
+    conversation = _conversation(chat_employee)
+    legal = _ask(
+        chat_employee,
+        conversation,
+        "《明码标价和禁止价格欺诈规定》自何时起施行？同时废止了哪两个规定？",
+    )
+    assert legal["kind"] == "answer", legal
+    text = _flat(legal["text"])
+    assert "2022年7月1日" in text, legal["text"]
+    assert "禁止价格欺诈行为的规定" in text, legal["text"]

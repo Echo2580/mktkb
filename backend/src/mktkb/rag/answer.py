@@ -30,6 +30,33 @@ from .types import Citation, EvidenceItem, Fact, QueryPlan, QueryState, RagAnswe
 _EXTRACT_SPLIT = re.compile(r"[\n\r]+|(?<=[。！？；!?])\s*")
 
 
+def _policy_document_plan(plan: QueryPlan) -> QueryPlan:
+    """T105 R2：政策/法规指代追问改用正文计划。
+
+    产品层只在记录型 ``enumerate`` 轮次把问题交给 rag 内核（未改 conversations），所以
+    ``parse_query`` 仍以 record+enumerate 作为入口；但这类问题问的是制度/法规正文。这里
+    换回正文检索：清掉继承的记录字段与实体过滤（问题显式点名的资料保留 ``doc_id``），
+    实体只留在已提交的状态里，供后续纯指代追问继续使用。
+    """
+    state = QueryState.from_dict(plan.state.to_dict())
+    state.enumerate = False
+    state.field_role = None
+    state.field_roles = ()
+    filters = {"doc_id": plan.filters["doc_id"]} if plan.filters.get("doc_id") else {}
+    return replace(
+        plan,
+        mode="document",
+        query_text=plan.question,
+        field_role=None,
+        field_label=None,
+        filters=filters,
+        state=state,
+        enumerate=False,
+        page=1,
+        field_roles=(),
+    )
+
+
 def answer_question(
     index: Any,
     question: str,
@@ -60,6 +87,9 @@ def answer_question(
             unknown_store=bool(plan.unknown_store),
             reason=plan.reason,
         )
+    if plan.reason == "POLICY_FOLLOWUP":
+        # T105 R2：政策/法规指代追问不能按继承的记录字段/整条记录作答，换回正文计划。
+        plan = _policy_document_plan(plan)
     diagnostics: dict[str, Any] = {
         "provider_mode": index.config.provider_mode,
         "plan": {
@@ -354,6 +384,17 @@ def _answer_record(
     # 记录型问题没有结构化精确行时，不用正文相似段落替代字段值，避免错实体/错字段作答。
     if result.effective_hints:
         return _effective_no_answer(index, plan, result, diagnostics)
+    # T105 R2/C7：实体记录存在、只是缺所问字段时，不能声称“没有匹配记录”（C7 盘点时间）。
+    # ``lexical`` 在 record 计划下已按门店/物品等过滤，命中记录块即证明该实体有记录。
+    if plan.field_role and plan.filters:
+        record_hits = [chunk for chunk in result.lexical if chunk.kind == "record"]
+        if record_hits:
+            return _no_answer(
+                plan,
+                f"资料中未记录{_field_label(plan, record_hits[0])}（记录存在，但缺少该字段）。",
+                "FIELD_NOT_RECORDED",
+                diagnostics,
+            )
     return _no_answer(
         plan,
         _no_record_text(plan),
@@ -635,11 +676,17 @@ def _document_fallback(
     sentence = _best_sentence(plan.question, evidence)
     if not sentence:
         return _no_answer(plan, "找到的资料与问题没有足够重合，不能据此作答。", "NO_SUPPORTING_SENTENCE", diagnostics)
+    if plan.reason == "POLICY_FOLLOWUP":
+        # T105 R2：政策/法规追问优先给条文正文，不把制度/法规标题当答案。
+        sentence = _best_sentence(plan.question, evidence, skip_titles=True) or sentence
     if is_regulation_question(plan.question):
         # T101/ERR-03：法规题常把“施行/废止”分写在同一条的两句里，单句会丢一半；
         # 只在 offline 抽取路径（本函数）对法规题整段引用，默认路径逐字节不变。
         paragraph = _best_paragraph(plan.question, evidence)
-        if paragraph:
+        if paragraph and not (
+            plan.reason == "POLICY_FOLLOWUP"
+            and (_title_like(paragraph) or _fragment_like(paragraph))
+        ):
             sentence = paragraph
     text = f"根据资料，{sentence}"
     try:
@@ -743,7 +790,21 @@ def _live_document_answer(
     )
 
 
-def _best_sentence(question: str, evidence: Iterable[EvidenceItem]) -> str | None:
+def _title_like(text: str) -> bool:
+    """短标题句（“明码标价和禁止价格欺诈规定（…令第56号）”）不是对问题的作答。"""
+    if len(text) >= 48 or re.search(r"[。；;，,]", text):
+        return False
+    return text.endswith(("通知", "说明", "制度", "规定", "办法", "细则", "规范")) or "总局令第" in text
+
+
+def _fragment_like(text: str) -> bool:
+    """被源文件换行截断的半句（“……规定》已经”）不是完整作答。"""
+    return len(text) < 48 and not text.endswith(("。", "！", "？", "；", ";"))
+
+
+def _best_sentence(
+    question: str, evidence: Iterable[EvidenceItem], *, skip_titles: bool = False
+) -> str | None:
     from difflib import SequenceMatcher
 
     terms = {token for token in cut(question) if len(token) >= 2}
@@ -753,6 +814,9 @@ def _best_sentence(question: str, evidence: Iterable[EvidenceItem]) -> str | Non
         for sentence in _EXTRACT_SPLIT.split(item.text):
             cleaned = sentence.strip()
             if len(cleaned) < 8:
+                continue
+            if skip_titles and (_title_like(cleaned) or _fragment_like(cleaned)):
+                # T105 R2：政策/法规追问不拿“《…规定》”标题或换行截断的半句当答案。
                 continue
             score = sum(len(token) for token in terms if token in cleaned)
             if score <= 0:

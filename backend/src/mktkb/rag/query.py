@@ -320,6 +320,21 @@ def is_policy_question(question: str) -> bool:
     return any(word in text for word in POLICY_WORDS)
 
 
+def is_policy_followup(question: str) -> bool:
+    """T105 R2：指代/实体追问里的政策/法规话题判别。
+
+    与 ``is_policy_question`` 同一口径，只把「要求/规则」这类同时是台账字段名的词排除：
+    “那个海报的陈列要求呢”“扣分规则呢”是在问记录字段，不是政策题；否则 B2 点名项会被
+    改判成正文题而回退。政策/法规题不继承上一轮实体，也不按继承字段作答。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if is_regulation_question(text):
+        return True
+    return any(word in text for word in POLICY_WORDS if word not in ("要求", "规则"))
+
+
 def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
     """T105/ERR-06：只继承字段的指代追问，答案只答该字段。
 
@@ -983,6 +998,10 @@ def parse_query(
         raise ValueError("问题不能为空")
     previous = previous or QueryState()
     normalized = _norm(question)
+    # T105 R2：政策/法规题（``is_policy_question`` 已含 ``is_regulation_question`` 口径）
+    # 问的是制度/法规正文，不能当作记录字段追问；指代追问用 ``policy_followup`` 同口径
+    # 判别（排除“要求/规则”这类同时是台账字段名的词）。
+    policy_followup = is_policy_followup(question)
     stores = _match_stores(question, lexicon)
     unknown_stores = _unknown_store_tokens(question, lexicon)
     unknown_regions = _unknown_region_tokens(question, lexicon)
@@ -1340,16 +1359,35 @@ def parse_query(
         and explicit_record_entity
         and page_request is None
         and not any(word in question for word in ENUMERATE_WORDS)
-        and not is_regulation_question(question)
+        # T105 R2：政策/法规题不能落进“新内容→未记录”收口（C3/C6 的 35 字 not_found），
+        # 也不能按继承字段作答；交回既有正文检索（T101 法规优先、T102 政策题口径）。
+        and not policy_followup
     )
     if anaphora_new_content:
         # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
         state.enumerate = True
         plan_reason = "ANAPHORA_NEW_CONTENT"
-    elif explicit_record_entity and is_anaphora_field_followup(question, state.field_role):
+    elif (
+        not policy_followup
+        and explicit_record_entity
+        and is_anaphora_field_followup(question, state.field_role)
+    ):
         # 只接管“本轮明确给出实体”的新内容字段追问；仅靠上文继承实体的短追问
         # （如“它的电话呢”）保持原有 legacy 路径，避免改变既有模型措辞/上下文行为。
         state.enumerate = True
+
+    # T105 R2：政策/法规题问的是制度/法规正文（T101 法规优先、T102 政策题不继承实体），
+    # 不能沿用上一轮继承的记录字段（C5 系列“那个海报的价格欺诈规定”会因此返回继承的
+    # 位置/规格），也不能按记录字段渲染。产品层只把 ``enumerate`` 当“交给内核直答”的既有
+    # 入口（未改 conversations），这里置真值并打 ``POLICY_FOLLOWUP`` 标记；答案层据此换用
+    # 正文计划检索/作答，记录实体仍保留在状态里供后续纯指代追问使用。
+    # 仅限“实体+指代”的政策/法规追问：本轮自身识别出字段角色、或非指代地明确点名实体时
+    # 保持既有行为；无显式实体的“那个流程要提前几天提报”仍走既有正文路径（不抢）。
+    if anaphora and policy_followup and explicit_record_entity and not field_roles:
+        state.field_role = None
+        state.field_roles = ()
+        state.enumerate = True
+        plan_reason = "POLICY_FOLLOWUP"
 
     filters = {
         key: str(getattr(state, key))
@@ -1396,7 +1434,12 @@ def parse_query(
             reason="MISSING_SLOT",
         )
 
-    terms = _terms(question, tuple(filters.values()))
+    if anaphora and policy_followup and not field_roles:
+        # 政策/法规指代追问按正文检索：指代实体（“那个海报的”）只是话题引用，不是检索过滤
+        # 条件；沿用问题里的新内容词，避免台账记录挤占正文/法规证据面（C3/C6）。
+        terms = anaphora_residual
+    else:
+        terms = _terms(question, tuple(filters.values()))
     if mode == "document" and not terms and not filters:
         return QueryPlan(
             question=question,

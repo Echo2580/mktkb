@@ -9,6 +9,8 @@
 
 from __future__ import annotations
 
+import pytest
+
 from mktkb.rag import DocumentSpec
 
 ROWS = [
@@ -265,3 +267,124 @@ def test_new_content_non_field_followup_does_not_dump(rag_index, add_records) ->
         for value in UNASKED_VALUES:
             assert value not in answer.text, (value, answer.text)
         assert not answer.citations
+
+
+POLICY_TEXT = (
+    "第七条 常规物料需求每周五 17:00 前提交，市场部次周二集中下单；档期物料须提前 21 天提报。",
+    "第四条 宣传海报的审批流程：市场部通路行销组发起，门店店长确认。",
+)
+REGULATION_TEXT = (
+    "第二十七条 本规定自 2022年7月1日起施行。2000年10月31日原中华人民共和国国家发展计划委员会令第8号发布的《关于商品和服务实行明码标价的规定》、2001年11月7日原中华人民共和国国家发展计划委员会令第15号发布的《禁止价格欺诈行为的规定》同时废止。",
+    "第二条 本规定所称价格欺诈，是指经营者利用虚假的或者使人误解的价格手段，诱骗消费者或者其他经营者与其进行交易的行为。",
+)
+
+
+def _seed_policy_docs(rag_index, add_records) -> None:
+    add_records(
+        [],
+        doc=DocumentSpec(
+            doc_id="W02",
+            source_path="w02.docx",
+            title="广宣物料与道具管理办法",
+            file_kind="docx",
+            version_id="W02-v1",
+            version_label="当前",
+            sha256="a" * 64,
+            business_date="2026-10-28",
+        ),
+        text_units=[{"text": text, "kind": "paragraph"} for text in POLICY_TEXT],
+    )
+    add_records(
+        [],
+        doc=DocumentSpec(
+            doc_id="L56",
+            source_path="l56.docx",
+            title="明码标价和禁止价格欺诈规定",
+            file_kind="docx",
+            version_id="L56-v1",
+            version_label="当前",
+            sha256="b" * 64,
+            business_date="2026-10-28",
+        ),
+        text_units=[{"text": text, "kind": "paragraph"} for text in REGULATION_TEXT],
+    )
+
+
+def test_anaphora_policy_followup_answers_from_policy_text(rag_index, add_records) -> None:
+    """T105 R2/C3：实体+指代+政策题不得被压成未记录，应从制度正文答 21 天。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    _ask(rag_index, "c-r2-policy", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-r2-policy", "那个海报的档期物料要提前多少天提报需求？")
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert "21" in answer.text, answer.text
+    assert "C区2号货架第一层" not in answer.text, answer.text
+    assert "标识：" not in answer.text, answer.text
+
+
+@pytest.mark.parametrize(
+    "question",
+    ("那个海报的价格欺诈规定是什么？", "那个海报的相关规定是什么？", "那个海报适用的价格欺诈规定是什么？"),
+)
+def test_anaphora_regulation_followup_answers_regulation_not_inherited_field(
+    rag_index, add_records, question: str
+) -> None:
+    """T105 R2/C5 系列：法规追问不得返回继承的位置，应从法规正文作答。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    conversation = "c-r2-reg-" + str(abs(hash(question)))
+    _ask(rag_index, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, conversation, question)
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert "规定" in answer.text, answer.text
+    assert "C区2号货架第一层" not in answer.text, answer.text
+    assert "标识：" not in answer.text, answer.text
+
+
+def test_anaphora_regulation_followup_after_spec_does_not_inherit_spec(rag_index, add_records) -> None:
+    """T105 R2/C5d：上文问规格后，法规追问也不得随上文返回规格字段。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    _ask(rag_index, "c-r2-reg-spec", "城西店的宣传海报的规格型号是什么？")
+
+    answer = _ask(rag_index, "c-r2-reg-spec", "那个海报的价格欺诈规定是什么？")
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert "欺诈" in answer.text, answer.text
+    assert "A2 铜版纸 157g" not in answer.text, answer.text
+
+
+def test_anaphora_process_followup_answers_from_document(rag_index, add_records) -> None:
+    """T105 R2/C6：实体+指代+流程题不得被压成未记录，应从正文作答。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    _ask(rag_index, "c-r2-flow", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-r2-flow", "那个海报的审批流程是什么？")
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert "审批流程" in answer.text, answer.text
+    assert "C区2号货架第一层" not in answer.text, answer.text
+
+
+def test_anaphora_date_followup_without_field_does_not_claim_no_record(rag_index, add_records) -> None:
+    """T105 R2/C7（P2）：记录存在、仅缺日期字段时，文案不得称“未找到记录”。"""
+    _seed(rag_index, add_records)
+    _ask(rag_index, "c-r2-date", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-r2-date", "那个海报的盘点时间是什么？")
+    assert answer.kind == "no_answer", (answer.reason, answer.text)
+    assert "未记录" in answer.text, answer.text
+    assert "未在资料中找到" not in answer.text, answer.text
+
+
+def test_bare_policy_question_without_anaphora_still_answers_from_text(rag_index, add_records) -> None:
+    """控制组：不带指代的政策题行为不变（T102 口径）。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    _ask(rag_index, "c-r2-bare-policy", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-r2-bare-policy", "档期物料要提前多少天提报需求？")
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert "21" in answer.text, answer.text
+    assert "城西店" not in answer.text, answer.text

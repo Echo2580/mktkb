@@ -52,3 +52,22 @@
 - **本轮补跑 1（本包）**：`$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"`；`.\.venv\Scripts\python.exe -B -m pytest backend/tests/rag/test_p1_t105_anaphora_field.py backend/tests/integration/test_p1_t105_anaphora_field.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t105r1wrap` → **23 passed**，7.28s（4 单测 + 4 HTTP：B1 分页、B2 单字段/不倾倒）。
 - **本轮补跑 2（独立探针）**：`python -B docs\reports\OBS-EVAL\P1\evidence\verify\T105\02-probe.py`（验收方脚本，未修改）→ **70/70 checks passed**；S7 `answer`+`{page:2,total:12,returned:2,has_more:false}` 266 字（与基线 `17c0e63` 同）、S15/S16 `not_found` 35 字 0 泄露、S15b 29 字仅规格、S7b 单独 `第2页` page=2。
 - **树状态**：代码 diff 4 文件 +209/−4；`git diff --binary` sha256=`578e0747…f3f`（15026 B），内容与暂停备份 `_scratch/T105/R1-wip-20261106-123035.patch` 逐行一致（忽略行尾；该补丁文件本身 sha256=`890eba3e…5c23`，UTF-16LE+CRLF 25712 B）。原始探针输出 `backend\.pytest-tmp\T105-verify\probe-results.json`（临时产物，不入库）。
+
+## E. R2 返工（2026-11-07，政策/法规指代拦截）
+
+环境同 §A/§D：cwd=仓库根，`$env:MKTKB_PROJECT_TOTAL_LIMIT_CNY="20.0"`，`.\.venv\Scripts\python.exe -B -m pytest <路径> -q -p no:cacheprovider --basetemp backend\.pytest-tmp\T105-R2\<label>`；同一时间只跑一套 pytest。
+
+| # | 范围 | label | 结果 |
+| --- | --- | --- | --- |
+| 1 | 本包 2 文件（21 单测 + 19 HTTP） | `pkg-final` | **40 passed**，16.10s |
+| 2 | `backend/tests/rag` | `rag-fix` | **347 passed**，20.70s |
+| 3 | `backend/tests/integration` | `integration-fix` | **381 passed**，251.61s（无 flake） |
+| 4 | `backend/tests/observability` | `observability-fix` | **255 passed**，15.08s |
+| 5 | 全量 `backend/tests` | `full-fix` | **1718 passed / 0 failed / 0 error**，362.18s；跑前 `FreePhysicalMemory=3.36GB` |
+| 6 | T101/T102 窄集 | `t101-t102` | **37 passed**，12.59s |
+| 7 | T101/T102 全集（含 unit） | `t101-t102-all` | **44 passed**，12.57s |
+
+- 独立验收探针 `verify/T105-R2/02-probe.py`（验收方脚本，未修改）本轮复跑 **62/62 checks passed**；原始 JSON 写在 `backend\.pytest-tmp\T105-R2-fix\probe-fix7.json`（临时产物，不入库）。
+- b0：`b0-local-20261106T175809006546Z-a24b4ba0` pass29/fail3/skipped8，gate exit 3 hard `[]`，与 `var/eval/runs/p0-b0` 逐例 **`case_diffs=0`**（40/40）；badcase：`badcase-local-20261106T175816897525Z-a8597428` pass9/fail4，hard `[]`，**`case_diffs=0`**（13/13）。比较口径 `(case_id,status,outcome.kind,failed check ids)`。
+- regression：当前 `regression-local-20261106T175854995451Z-21fd0672` pass5/fail2（RG005/RG007），gate exit 3 hard `[]`；基线 `17c0e63` 用 detached worktree 提取（`mktkb.__file__` 已指向 baseline 副本）`regression-local-20261106T180049159181Z-f33ada3a` pass4/fail3，gate exit 1 hard `['security_leak']`。逐例**仅 RG006** `fail/answer/(kind_correct,value_forbidden)` → `pass/clarification/()`；RG001–RG004 pass 不变，RG005/RG007 失败 checks 仍为 `kind_correct,refusal_expected`，gate 无新增 hard 名。
+- 本轮 integration/全量未复现既有 `test_g08_short_budget_cancels_inflight_model_call` flake，故无隔离复跑。
