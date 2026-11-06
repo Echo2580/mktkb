@@ -69,12 +69,13 @@
 - 配置/账本（只读，勿改）：`docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json`（P1 版，备份 `S2-LIVE-GO-20261104.json`）、`.../budget/budget.json`、`.../budget/live-ledger.jsonl`
 - Holdout（开发禁用、不入库）：`docs/evidence/LOCAL-R1-20261101/P1-HOLDOUT/`
 
-## 7. 当前状态（2026-11-06 12:0x 更新；T105 验收 FAIL、R1 返工中）
+## 7. 暂停时状态（2026-11-06 12:3x 主人「暂停任务」；T105 R1 开发停手、未提交）
 
-- 当前 HEAD：最新 PM 簿记 commit（`git log --oneline -1`，T105 验收 FAIL + R1 返工簿记）；交付 HEAD 仍为 `2306aaa`（R1 返工将新增 commit）
-- T105 收口 commit：**未收口**（独立验收 FAIL，2 阻断 B1/B2，**R1 返工中**；见 §10 与 `_index` #49；**不声称通过**）
-- 全量基线：验收方独立复跑 **1693 passed / 0 failed / 0 error**（T105 验收 R1 实测，仅作全量环境参考；包因 2 阻断 FAIL）；最近已收口包基线 T104 `1678 passed`
-- 工作树：clean（PM 簿记已入库；R1 开发将改动 `query.py`/`answer.py`/测试，完成后以新 commit 交付）
+- 暂停 HEAD：本次 PM 簿记 commit（`git log --oneline -1`；上一提交 `5b70411` = T105 验收 FAIL + 返工单）；交付 HEAD 仍为 `2306aaa`（R1 改动未 commit）。
+- 工作树：**非 clean（预期，禁止丢弃）**——4 个 R1 未提交改动：`backend/src/mktkb/rag/query.py`（+39）、`answer.py`（+9）、`backend/tests/rag/test_p1_t105_anaphora_field.py`（+93）、`backend/tests/integration/test_p1_t105_anaphora_field.py`（+72），`+209/−4`，无 untracked；均在 handoff §4 允许路径。备份 patch 见 §11。
+- T105 状态：**G4 验收 FAIL（2 阻断 B1/B2）→ R1 返工中（开发初修完成、未 commit、未验收）**；report R1 段/§5 更正、证据 03/04 R1 段、完成 commit 均待补。
+- 全量基线：验收方独立复跑 **1693 passed / 0 failed / 0 error**（T105 验收 R1 实测）；R1 开发自报 **1701 passed**（**未独立复验**，不得当收口口径）；最近已收口包基线 T104 `1678 passed`。
+- 续跑顺序：① PM 裁定 B2 `not_found` 口径（见 §11）→ ② R1 开发补 report/证据/单个新 commit（不 amend 历史）→ ③ PM G2 → ④ 全新上下文验收 R2 → ⑤ PASS 后簿记收口并回主人指令 A 暂停；FAIL 轮次 +1（上限 3）。
 
 ## 8. 2026-11-06 11:1x 状态更新（暂停前最后一次核对）
 
@@ -97,3 +98,14 @@
 - **验收结论：FAIL（2 阻断）**——**B1**「枚举后 那个海报的第2页」被 T105 指代分支劫持（clarification/无分页），相对 `17c0e63` 基线是**行为回退**；**B2** 带新内容指代追问（打印材质/陈列要求/规格型号，无标识上下文）仍 8 条×8 字段整条倾倒（基线已有，但违反「任何路径不得整条渲染」且 report §5 声明不实）。其余复跑全 PASS：本包 15、rag 335、observability 255、integration 367+1 既有 flake（隔离复跑过）、全量 1693 passed；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、其余失败集不变；T101/T102 定向 37 passed。
 - **PM 处置**：接受 FAIL（证据充分、非放水），验收产物 `review.md` + `verify/T105/`（4 份）已随簿记 commit 入库；出返工单 `T105-anaphora-field/rework-R1.md` + `prompts/T105-dev-R1.md`，R1（轮次 1/3）= 1 个新 commit，仅改 `query.py`/`answer.py`+本包测试，B1 对齐基线分页、B2 不整条倾倒且不抢正文，禁止改 `conversations/`/`intent.py`/fixtures。
 - **下一步（续跑）**：R1 开发完成后 PM G2 核验 → 全新上下文验收 **R2**（定向复验 B1/B2 + 受影响测试 + 全量 1 次，其余条款沿用上轮 PASS）→ PASS 后簿记收口并回到主人指令 A（暂停）；FAIL 则轮次 +1（上限 3）。
+
+## 11. 2026-11-06 12:3x 主人「暂停任务」：R1 停手现场与续跑须知
+
+- **处置**：R1 开发 subagent 收到暂停后停手、**未 commit**；PM 未丢弃任何已完成工作（按 §S）。工作树保留 4 文件改动（`git diff --stat` = +209/−4；无 untracked；均在允许路径）。
+- **WIP 备份**：`git diff --binary` 已备份到 `.claude/handoffs/_scratch/T105/R1-wip-20261106-123035.patch`（25712 B，sha256 `890eba3e94a759a045806657ee1d1b898f95a41cbc7c7103129a18530fdf5c23`，gitignored、不入库）；如需恢复：`git apply <patch>`（当前工作树已含同内容，勿重复应用）。
+- **开发自报的 R1 初修结果（未经独立验收，不得当 PASS）**：
+  - B1：枚举后「那个海报的第2页」恢复 `page=2`（验收方探针 70/70，原 64/70）；已补 unit + HTTP「第N页」用例；单独「第2页」行为不变。
+  - B2：带记录字段追问（规格/价格/数量/位置）只答该字段（规格 29 字）；打印材质/陈列要求改为 `not_found`（`reason=ANAPHORA_NEW_CONTENT`，文案「资料中未记录这项信息…」），不再 8 条×8 字段倾倒（S15/S16 泄露 0）。
+  - 运行自报：本包 23、rag 339、observability 255、integration 372、**全量 1701 passed/0 failed**、T101/T102 定向 44 passed；b0/badcase 对 P0 `case_diffs=0`、gate hard `[]`；regression 对 `17c0e63` 仅 RG006 fail→pass、RG005/RG007 失败集不变、无新增 hard 名。
+- **未完成（暂停所致）**：`report.md` R1 段与 §5 更正、证据 `03-test-runs.md`/`04-scope-and-limitations.md` R1 段、1 个完成 commit（消息 `p1/T105 R1 fix anaphora pagination regression + new-content dump`）。
+- **待 PM/主人复核口径（续跑先裁定）**：B2 的非字段新内容（打印材质/陈列要求）最终收窄为 **not_found** 而非走正文检索。需确认：①是否满足「不得整条倾倒且不抢正文」；②是否会把本可由正文回答的问题误判为查无（当前 b0/badcase/regression/T101/T102 未显示误伤，R2 验收须专门探针核验该边界）。若不可接受 → 退回 R1 开发调整（轮次仍 1，未超限）。
