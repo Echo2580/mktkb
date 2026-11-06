@@ -116,4 +116,12 @@
 - **R1 收尾**：接续上下文补完 `report.md` §6（70 行，含 B2 收窄披露/P2 残余/接续说明）与证据 03 §D/04 §E，**commit `fc60c57`**（7 文件，代码/测试 4 文件 +209/−4；不 push/不 amend；PM 已 G2 核验：允许路径、无 skip/xfail、无越界、证据仍 4 份）。补跑本包 23 passed、验收方旧探针 70/70（注明旧探针未覆盖政策/法规组合）。
 - **R2 独立验收（`review-R2.md`）：FAIL**——B1 **PASS**（枚举后第2页 page=2/266 字，与基线一致）；B2 点名项 PASS（规格 29 字单字段；打印材质/陈列要求 not_found 35 字 0 泄露）；**但 R1 新分支对政策/法规追问排除不完整**：上文问位置/规格后「那个海报的价格欺诈规定是什么/相关规定/适用的价格欺诈规定」返回继承字段答案 27/29 字；`那个海报的档期物料…`（C3）/`审批流程`（C6）被压 not_found，而单独问可答 21 天/流程；C4/C7 文案「未找到记录」不实（P2）→ 违反 PM 裁定 §5-2「不得扩大拦截」。证据：三树对照（`17c0e63`/`2306aaa`/`fc60c57`）+ 谓词实测（`is_policy_question`/`is_regulation_question`/`is_anaphora_field_followup`）+ 代码行 `query.py:1336-1352`。其余复跑全 PASS：本包 23、rag 339、observability 255、integration 372、全量 **1701 passed/0 failed**、T101/T102 窄集 37/全集 44；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、无新 hard。
 - **PM 处置**：接受 FAIL（证据充分、非放水；R2 探针另证明`report:66`/证据 04:37 把该组合记为「观察（不阻塞）」已被证伪）；产物 `review-R2.md` + `verify/T105-R2/`（4 份）随簿记入库；出 `rework-R2.md` + `prompts/T105-dev-R2.md`：R2 返工 = 1 个新 commit（不 amend `fc60c57`），只改 `query.py`/`answer.py` + 本包测试，修政策/法规排除并补「实体+指代+政策/法规」HTTP 用例。
-- **下一步**：R2 开发完成 → PM G2 → 全新上下文验收 **R3**（B2 组合定向 + 全量 1 次；其余条款沿用前轮 PASS）→ PASS 后簿记收口并回主人指令 A（暂停）；**R3 仍 FAIL 则达 3 轮上限，停止返工并报主人三选一（改需求/换方案/接受现状）**。
+- **下一步**：R2 开发完成 → PM G2 → 全新上下文验收 **R3**（B2 组合定向 + 全量 1 次；其余条款沿用前轮 PASS）→ PASS 后簿记收口并回主人指令 A（暂停）；**轮次口径**：R3 是对第 2 次返工的复验，若 FAIL 仍可做第 3 轮返工，**仅当第 3 轮复验仍 FAIL 才达 3 轮上限**，届时停止返工并报主人三选一（改需求/换方案/接受现状）。
+
+## 13. 2026-11-07 02:0x：R2 返工完成（`b37ad21`）→ PM G2 通过 → R3 验收已派
+
+- **R2 交付**：commit `b37ad21`（父 `cbbb241`；7 文件 +452/−7：`query.py` +49、`answer.py` +68、本包 2 测试、`report.md` §7、证据 03/04 R2 段）；未改 `conversations/`、`intent.py`、fixtures/b0/badcase/gate；无 skip/xfail/删断言；工作树 clean。
+- **实现要点**：`query.py` 新增 `is_policy_followup`（排除「要求/规则」防 B2 回退）+ `POLICY_FOLLOWUP` 分支（指代+政策/法规+显式实体：清继承字段、保留实体、置 enumerate+reason）；`answer.py` 新增 `_policy_document_plan` 换回正文 document 计划、法规题不拿标题/截断半句作答、C7 按记录块判「记录存在缺字段」。
+- **开发自报（未独立验收）**：验收探针 62/62；C3 20 字含 21 天、C4 136 字含 2022-07-01+两项废止、C5 系列 58/140/156/58 字法规条文（0 继承字段）、C6 37 字、C7 22 字「未记录日期（记录存在，但缺少该字段）」；B1/B2 点名项/C1/C2/C8 不变；本包 40、rag 347、integration 381、observability 255、全量 **1718 passed/0 failed**、T101/T102 37/44；b0/badcase `case_diffs=0`、gate hard `[]`；regression 仅 RG006 fail→pass、无新 hard。
+- **PM G2**：通过（单 dev commit、允许路径、无越界/无 skip；report 99 行 > 80 行预算 → 记非阻塞偏差，由 R3/收口披露）。已派全新上下文验收 **R3**（`prompts/T105-verify-R3.md`：定向 C3–C7 + 必须保持项 + 新启发式证伪 + 全量 1 次 + b0/badcase/regression）。
+- **若 R3 PASS**：PM 簿记收口（review-R3 + verify/T105-R3 证据 + `_index` T105→G6 + §7 回填 + 清 `_scratch/T105`）并按主人指令 A 暂停；**若 R3 FAIL**：第 3 轮返工（最后一轮），其复验仍 FAIL 则停止并报主人三选一。
