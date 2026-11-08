@@ -13,6 +13,7 @@ from contextlib import contextmanager
 from dataclasses import replace
 from typing import Any, Iterable, Iterator, Mapping
 
+from .. import copy as copy_module
 from ..observability import trace_attrs
 from ..retrieval.tokenize import cut, normalize
 from .chunking import first_value, role_label
@@ -111,7 +112,8 @@ def answer_question(
         answer = RagAnswer(
             kind="no_answer",
             question=question,
-            text=plan.clarification or "该资料未收录。",
+            text=plan.clarification
+            or copy_module.text("DOCUMENT_NOT_FOUND", document="该资料"),
             state=plan.state.to_dict(),
             reason="DOCUMENT_NOT_FOUND",
             answer_source="refusal",
@@ -122,7 +124,7 @@ def answer_question(
     if plan.clarification:
         text = plan.clarification
         if plan.candidates:
-            text += " 可选：" + "、".join(plan.candidates[:8])
+            text += copy_module.clarification_candidates_text(list(plan.candidates))
         answer = RagAnswer(
             kind="clarification",
             question=question,
@@ -137,11 +139,10 @@ def answer_question(
     if plan.unknown_store:
         unknowns = tuple(getattr(plan, "unknown_stores", ()) or ()) or (plan.unknown_store,)
         names = "、".join(f"“{name}”" for name in unknowns)
-        text = f"资料中未收录门店{names}，不能据此编造答案。"
         answer = RagAnswer(
             kind="no_answer",
             question=question,
-            text=text,
+            text=copy_module.text("UNKNOWN_STORE", names=names),
             state=plan.state.to_dict(),
             reason="UNKNOWN_STORE",
             answer_source="refusal",
@@ -155,7 +156,7 @@ def answer_question(
         answer = RagAnswer(
             kind="no_answer",
             question=question,
-            text="本次运行为 record-only：正文/文档型问题不调用真实模型，未生成回答。",
+            text=copy_module.text("RECORD_ONLY"),
             state=plan.state.to_dict(),
             reason="RECORD_ONLY",
             answer_source="refusal",
@@ -167,14 +168,15 @@ def answer_question(
     try:
         result = index.search(plan, limit=limit)
     except RagError as exc:
+        code = getattr(exc, "code", "RAG_ERROR")
         answer = RagAnswer(
             kind="error",
             question=question,
-            text=f"检索未完成：{exc.message}",
+            text=copy_module.rag_error_text(code),
             state=plan.state.to_dict(),
-            reason=getattr(exc, "code", "RAG_ERROR"),
+            reason=code,
             answer_source="error",
-            diagnostics=_finish_diagnostics(index, diagnostics, started, error=getattr(exc, "code", "RAG_ERROR")),
+            diagnostics=_finish_diagnostics(index, diagnostics, started, error=code),
         )
         _commit(index, plan.state)
         return answer
@@ -262,7 +264,7 @@ def _answer_record(
         # 不能回落到枚举/整条记录渲染；只说明未记录并提示可问字段，不输出任何未问字段值。
         return _no_answer(
             plan,
-            "资料中未记录这项信息；可指定要查询的字段，例如位置、数量、规格、价格。",
+            copy_module.text("ANAPHORA_NEW_CONTENT"),
             "ANAPHORA_NEW_CONTENT",
             diagnostics,
         )
@@ -288,9 +290,13 @@ def _answer_record(
                 if stores and not result.has_more and result.returned == 0:
                     # 总数 0 且无分页：完整覆盖 ⇒ 点名无记录实体，不泛化成“资料没有可枚举记录”。
                     return _no_answer(plan, _no_record_text(plan), "NO_RECORD_FOR_ENTITY", diagnostics)
-                return _no_answer(plan, "该资料没有可枚举的记录。", "NO_ENUMERABLE_RECORD", diagnostics)
+                return _no_answer(
+                    plan, copy_module.text("NO_ENUMERABLE_RECORD"), "NO_ENUMERABLE_RECORD", diagnostics
+                )
             if result.returned == 0:
-                return _no_answer(plan, "该页没有更多记录。", "PAGE_OUT_OF_RANGE", diagnostics)
+                return _no_answer(
+                    plan, copy_module.text("PAGE_OUT_OF_RANGE"), "PAGE_OUT_OF_RANGE", diagnostics
+                )
             items = exact[-(plan.page_size) :] if exact else []
         return _enumerate_answer(index, plan, result, items, diagnostics, started)
 
@@ -309,7 +315,7 @@ def _answer_record(
         return RagAnswer(
             kind="ambiguous",
             question=plan.question,
-            text="资料中有多个符合条件的对象，请补充要查询的门店/商品/渠道。可选：" + "、".join(labels[:8]),
+            text=copy_module.multiple_entities_text(list(labels[:8])),
             state=state.to_dict(),
             reason="MULTIPLE_ENTITIES",
             answer_source="refusal",
@@ -323,7 +329,12 @@ def _answer_record(
             for value in chunk.role_values.get(plan.field_role or "", ()):
                 values.setdefault(normalize(value), []).append((chunk, value))
         if not values:
-            return _no_answer(plan, "资料中未记录该字段。", "FIELD_NOT_RECORDED", diagnostics)
+            return _no_answer(
+                plan,
+                copy_module.field_not_recorded_text("该字段"),
+                "FIELD_NOT_RECORDED",
+                diagnostics,
+            )
         if len(values) > 1:
             facts: list[Fact] = []
             lines: list[str] = []
@@ -335,10 +346,10 @@ def _answer_record(
                 citations.append(_citation(index, chunk))
             state = QueryState.from_dict(plan.state.to_dict())
             state.last_kind = "conflict"
-            text = (
-                f"资料中存在冲突：{_entity_label(members[0])}的{_field_label(plan, members[0])}有多个有效值："
-                + "；".join(lines)
-                + "。未按上传时间自动选择其一。"
+            text = copy_module.record_conflict_text(
+                _entity_label(members[0]),
+                _field_label(plan, members[0]),
+                "；".join(lines),
             )
             try:
                 with _fact_gate(len(facts)):
@@ -391,7 +402,9 @@ def _answer_record(
         if record_hits:
             return _no_answer(
                 plan,
-                f"资料中未记录{_field_label(plan, record_hits[0])}（记录存在，但缺少该字段）。",
+                copy_module.field_not_recorded_text(
+                    f"{_field_label(plan, record_hits[0])}（记录存在，但缺少该字段）"
+                ),
                 "FIELD_NOT_RECORDED",
                 diagnostics,
             )
@@ -411,12 +424,9 @@ def _no_record_text(plan: QueryPlan) -> str:
     """被请求门店有词表条目但无所问记录时，明确说该门店无记录，不用泛化拒绝。"""
     stores = _requested_stores(plan)
     if not stores:
-        return "未找到符合这些条件的有效资料记录。"
-    names = "、".join(f"“{store}”" for store in stores)
+        return copy_module.text("NO_EVIDENCE")
     item = str(plan.filters.get("item") or plan.filters.get("product") or "").strip()
-    if item:
-        return f"未在资料中找到{names}的“{item}”记录（该实体没有匹配记录），不能据此编造数值。"
-    return f"未在资料中找到{names}关于该物品的记录（该实体没有匹配记录），不能据此编造数值。"
+    return copy_module.no_record_text(stores, item or None)
 
 
 def _effective_no_answer(
@@ -433,20 +443,23 @@ def _effective_no_answer(
     end = chunk.effective_to or "资料规定日期"
     status_values = "、".join(str(value) for value in chunk.role_values.get("status", ()))
     if status == "future":
-        text = (
-            f"该资料自 {start} 起生效，当前业务基准日 {plan.as_of} 尚未生效，"
-            "不能作为当前有效答案；如需未来版本，请明确按未来生效口径查询。"
+        text = copy_module.text(
+            "NOT_YET_EFFECTIVE", start=start, as_of=plan.as_of
         )
         reason = "NOT_YET_EFFECTIVE"
     else:
         contradiction = "生效" in status_values or "有效" in status_values
-        text = (
-            f"该记录的有效期至 {end}，在当前业务基准日 {plan.as_of} 已过期，不能作为现价/现行值。"
-        )
         if contradiction:
-            text += f" 但资料状态仍写为“{status_values}”，有效期与状态存在矛盾，请核实资料。"
+            text = copy_module.text(
+                "EFFECTIVE_WINDOW_CONFLICT",
+                end=end,
+                as_of=plan.as_of,
+                status=status_values,
+            )
         else:
-            text += " 如需历史值，请给出有效期区间内的日期。"
+            text = copy_module.text(
+                "EFFECTIVE_WINDOW_EXPIRED", end=end, as_of=plan.as_of
+            )
         reason = "EFFECTIVE_WINDOW_CONFLICT" if contradiction else "EFFECTIVE_WINDOW_EXPIRED"
     citations = _dedupe_citations([_citation(index, item) for item, _ in (future or expired)[:8]])
     state = QueryState.from_dict(plan.state.to_dict())
@@ -488,11 +501,21 @@ def _multi_field_answer(
                 if value and value not in ("—", "-"):
                     entries.append((member, value))
         if not entries:
-            return _no_answer(plan, f"资料中未记录{role_label(role)}。", "FIELD_NOT_RECORDED", diagnostics)
+            return _no_answer(
+                plan,
+                copy_module.field_not_recorded_text(role_label(role)),
+                "FIELD_NOT_RECORDED",
+                diagnostics,
+            )
         # 同一记录内多字段只取首值；若同字段出现多个不同值则仍走冲突拒绝，不静默拼接。
         normalized = {normalize(value) for _member, value in entries}
         if len(normalized) > 1:
-            return _no_answer(plan, f"资料中{role_label(role)}存在多个有效值，未自动选择。", "CONFLICTING_VALUES", diagnostics)
+            return _no_answer(
+                plan,
+                copy_module.multi_field_conflict_text(role_label(role)),
+                "CONFLICTING_VALUES",
+                diagnostics,
+            )
         member, value = entries[0]
         facts.append(_fact(member, role, value, revision=index.revision()))
         parts.append(f"{role_label(role)}：{_format_value(member, role, value)}")
@@ -656,7 +679,9 @@ def _answer_document(
     started: float,
 ) -> RagAnswer:
     if not result.evidence:
-        return _no_answer(plan, "资料中没有找到能支持该问题的依据。", "NO_EVIDENCE", diagnostics)
+        return _no_answer(
+            plan, copy_module.text("NO_EVIDENCE"), "NO_EVIDENCE", diagnostics
+        )
     if index.config.live:
         return _live_document_answer(index, plan, result, validator, diagnostics, started)
     return _document_fallback(index, plan, result, validator, diagnostics, started, reason=None)
@@ -675,7 +700,12 @@ def _document_fallback(
     evidence = result.evidence[: min(8, len(result.evidence))]
     sentence = _best_sentence(plan.question, evidence)
     if not sentence:
-        return _no_answer(plan, "找到的资料与问题没有足够重合，不能据此作答。", "NO_SUPPORTING_SENTENCE", diagnostics)
+        return _no_answer(
+            plan,
+            copy_module.text("NO_SUPPORTING_SENTENCE"),
+            "NO_SUPPORTING_SENTENCE",
+            diagnostics,
+        )
     if plan.reason == "POLICY_FOLLOWUP":
         # T105 R2：政策/法规追问优先给条文正文，不把制度/法规标题当答案。
         sentence = _best_sentence(plan.question, evidence, skip_titles=True) or sentence
@@ -732,7 +762,12 @@ def _live_document_answer(
             settlement_policy=build_policy("chat", model=index.config.chat_model),
         )
     except Exception as exc:
-        return _no_answer(plan, "真实模型未配置完整，未生成本次回答。", getattr(exc, "code", "CHAT_UNAVAILABLE"), diagnostics)
+        return _no_answer(
+            plan,
+            copy_module.text("CHAT_UNAVAILABLE"),
+            getattr(exc, "code", "CHAT_UNAVAILABLE"),
+            diagnostics,
+        )
     evidence = result.evidence[:8]
     system = (
         "你是市场部知识库问答助手。只能依据 user JSON 的 evidence 回答，不得使用模型记忆或补写资料。"
@@ -768,7 +803,12 @@ def _live_document_answer(
     except FactRejected as exc:
         return _reject(plan, exc, diagnostics)
     except Exception as exc:
-        return _no_answer(plan, "真实模型调用未完成，未保存未经校验的回答。", getattr(exc, "code", "CHAT_ERROR"), diagnostics)
+        return _no_answer(
+            plan,
+            copy_module.text("CHAT_ERROR"),
+            getattr(exc, "code", "CHAT_ERROR"),
+            diagnostics,
+        )
     finally:
         close = getattr(provider, "close", None)
         if callable(close):
@@ -1005,7 +1045,7 @@ def _reject(plan: QueryPlan, exc: FactRejected, diagnostics: dict[str, Any]) -> 
     return RagAnswer(
         kind="no_answer",
         question=plan.question,
-        text=f"已拒绝未经证据支持的回答：{exc.message}。",
+        text=copy_module.reject_text(exc.message),
         state=state.to_dict(),
         reason=exc.code,
         answer_source="refusal",

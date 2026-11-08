@@ -10,6 +10,7 @@ import re
 from dataclasses import dataclass, replace
 from typing import Any, Iterable, Mapping
 
+from .. import copy as copy_module
 from ..retrieval.tokenize import cut, normalize
 from .types import QueryPlan, QueryState
 
@@ -810,7 +811,7 @@ def _anaphora_field_text(state: QueryState) -> str:
         subject = f"{state.store}的{state.item}"
     else:
         subject = state.item or state.product or state.store or state.doc_title or "该对象"
-    return f"请问要查询{subject}的哪项信息？可指定位置、数量、规格、价格等。"
+    return copy_module.text("ANAPHORA_NO_FIELD", subject=subject)
 
 
 def _as_of(question: str, previous: str | None, business_date: str | None) -> str | None:
@@ -1141,7 +1142,9 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification=f"资料“{missing_document}”未收录，未使用其它资料替代。",
+            clarification=copy_module.text(
+                "DOCUMENT_NOT_FOUND", document=missing_document
+            ),
             include_future=include_future,
             reason="DOCUMENT_NOT_FOUND",
             missing_stores=missing_stores,
@@ -1161,7 +1164,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多份资料，请指定要查询的资料。",
+            clarification=copy_module.text("DOCUMENT_AMBIGUOUS"),
             candidates=document_candidates[:8],
             include_future=include_future,
             reason="DOCUMENT_AMBIGUOUS",
@@ -1179,7 +1182,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="该商品有多个规格/版本，请选择要查询的商品。",
+            clarification=copy_module.text("PRODUCT_AMBIGUOUS"),
             candidates=product_candidates[:8],
             include_future=include_future,
             reason="PRODUCT_AMBIGUOUS",
@@ -1197,7 +1200,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个物品，请选择要查询的物品。",
+            clarification=copy_module.text("ITEM_AMBIGUOUS"),
             candidates=tuple(item_hits[:8]),
             include_future=include_future,
             reason="ITEM_AMBIGUOUS",
@@ -1215,7 +1218,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个渠道，请选择要查询的渠道。",
+            clarification=copy_module.text("CHANNEL_AMBIGUOUS"),
             candidates=tuple(channel_hits[:8]),
             include_future=include_future,
             reason="CHANNEL_AMBIGUOUS",
@@ -1233,7 +1236,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个价格类型，请选择要查询的价格类型。",
+            clarification=copy_module.text("PRICE_TYPE_AMBIGUOUS"),
             candidates=tuple(price_type_hits[:8]),
             include_future=include_future,
             reason="PRICE_TYPE_AMBIGUOUS",
@@ -1273,9 +1276,8 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification=(
-                f"资料中没有收录“{unknown_region}”这个门店/区域，"
-                "请补充准确的门店名称后再查询。"
+            clarification=copy_module.text(
+                "UNKNOWN_REGION", region=unknown_region
             ),
             candidates=(),
             unknown_stores=unknown_regions,
@@ -1317,7 +1319,7 @@ def parse_query(
                     enumerate=False,
                     page=state.page,
                     page_size=state.page_size,
-                    clarification="请说明您指的是哪个物品、门店或哪份资料。",
+                    clarification=copy_module.text("ANAPHORA_NO_ENTITY"),
                     candidates=(),
                     include_future=include_future,
                     reason="ANAPHORA_NO_ENTITY",
@@ -1453,7 +1455,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="请说明要查询的物品、门店或流程名称。",
+            clarification=copy_module.text("EMPTY_QUERY"),
             candidates=tuple(lexicon.stores[:8]),
             include_future=include_future,
             reason="EMPTY_QUERY",
@@ -1478,10 +1480,4 @@ def parse_query(
 
 
 def _clarification_text(missing: str) -> str:
-    return {
-        "product": "请补充要查询的商品名称或规格。",
-        "store": "请补充要查询的门店。",
-        "item": "请补充要查询的物品。",
-        "channel": "请补充要查询的渠道。",
-        "price_type": "请补充要查询的价格类型。",
-    }.get(missing, "请补充查询条件。")
+    return copy_module.missing_slot_text(missing)

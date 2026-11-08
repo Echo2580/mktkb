@@ -164,9 +164,27 @@ export const RESULT_KIND_LABELS: Record<string, string> = {
   clarification: '需要确认',
   not_found: '无匹配资料',
   conflict: '资料记载不一致',
-  service_error: '服务暂不可用',
+  service_error: '服务调用失败',
   knowledge_changed: '资料已更新',
 };
+
+/** 无候选的澄清不是“在等用户确认某个选项”，而是需要补充更明确的条件。 */
+export const CLARIFICATION_NEEDS_INPUT_LABEL = '需补充条件';
+
+/**
+ * 结果徽标文案：clarification 的徽标必须随真实有无候选变化。
+ * 有候选仍是“需要确认”；无候选（含未持久化候选的历史消息）用中性、
+ * 可自救的“需补充条件”，不得暗示系统已经给出可选项。
+ */
+export function resultBadgeLabel(
+  kind: string | null | undefined,
+  candidateCount = 0,
+): string {
+  if (kind === 'clarification' && candidateCount === 0) {
+    return CLARIFICATION_NEEDS_INPUT_LABEL;
+  }
+  return RESULT_KIND_LABELS[kind ?? ''] ?? kind ?? '';
+}
 
 export function resultKindTone(kind: string | null | undefined): Tone {
   switch (kind) {
