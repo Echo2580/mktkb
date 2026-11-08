@@ -172,16 +172,30 @@ export const RESULT_KIND_LABELS: Record<string, string> = {
 export const CLARIFICATION_NEEDS_INPUT_LABEL = '需补充条件';
 
 /**
+ * 服务错误里属于“查询条件问题”的稳定码：正文写“这是查询条件问题”，
+ * 徽标不能笼统说成“服务调用失败”（P2）。
+ */
+export const SERVICE_ERROR_BADGE_LABELS: Record<string, string> = {
+  INVALID_QUERY: '查询条件问题',
+};
+
+/**
  * 结果徽标文案：clarification 的徽标必须随真实有无候选变化。
  * 有候选仍是“需要确认”；无候选（含未持久化候选的历史消息）用中性、
  * 可自救的“需补充条件”，不得暗示系统已经给出可选项。
+ * service_error 可用稳定码细分（如 INVALID_QUERY 是查询条件问题，不是服务故障）。
  */
 export function resultBadgeLabel(
   kind: string | null | undefined,
   candidateCount = 0,
+  errorCode?: string | null,
 ): string {
   if (kind === 'clarification' && candidateCount === 0) {
     return CLARIFICATION_NEEDS_INPUT_LABEL;
+  }
+  if (kind === 'service_error' && errorCode) {
+    const specific = SERVICE_ERROR_BADGE_LABELS[errorCode];
+    if (specific) return specific;
   }
   return RESULT_KIND_LABELS[kind ?? ''] ?? kind ?? '';
 }

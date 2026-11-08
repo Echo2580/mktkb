@@ -89,7 +89,7 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
           {message.kind ? (
             <span className={toneBadgeClass(resultKindTone(kind))}>
               <span className="badge-dot" />
-              {resultBadgeLabel(kind, candidates.length)}
+              {resultBadgeLabel(kind, candidates.length, errorCode)}
             </span>
           ) : null}
           <span className="message-time">{formatTime(message.created_at)}</span>
@@ -258,9 +258,11 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
                   {errorCode ? `错误码：${errorCode}。` : ''}
                   {errorCode === 'MODEL_OUTPUT_INVALID'
                     ? '模型输出未通过来源校验，已拒绝展示，重新提问不会改变结果。'
-                    : retryable
-                      ? '可稍后重新提问；服务端不会因重试而重复保存同一条回答。'
-                      : '这类失败重试同一问题不会自行恢复；请按错误码联系管理员处理，或修改问题后重试。'}
+                    : errorCode === 'INVALID_QUERY'
+                      ? '这是查询条件问题，不是服务故障；请换个说法后重新提问。'
+                      : retryable
+                        ? '可稍后重新提问；服务端不会因重试而重复保存同一条回答。'
+                        : '这类失败重试同一问题不会自行恢复；请按错误码联系管理员处理，或修改问题后重试。'}
                 </span>
               </div>
               <div className="state-actions">

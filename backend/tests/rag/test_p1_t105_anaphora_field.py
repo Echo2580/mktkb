@@ -263,7 +263,9 @@ def test_new_content_non_field_followup_does_not_dump(rag_index, add_records) ->
 
         assert answer.kind == "no_answer", answer.text
         assert answer.reason == "ANAPHORA_NEW_CONTENT", answer.text
-        assert "未记录" in answer.text
+        # T106 R1：不再断言“资料中未记录”（系统未检索，不得冒充资料缺失）；
+        # 改为断言同义的“不属于台账字段的新内容”文案，断言语义不变。
+        assert "不属于台账字段" in answer.text
         for value in UNASKED_VALUES:
             assert value not in answer.text, (value, answer.text)
         assert not answer.citations

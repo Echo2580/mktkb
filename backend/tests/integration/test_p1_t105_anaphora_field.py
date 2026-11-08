@@ -281,7 +281,9 @@ def test_new_content_non_field_followup_does_not_dump(t105_ready, chat_employee)
 
         answer = _ask(chat_employee, conversation, question)
         assert answer["kind"] == "not_found", (question, answer)
-        assert "未记录" in answer["text"], answer["text"]
+        # T106 R1：ANAPHORA_NEW_CONTENT 改为“不属于台账字段的新内容、本次未作答”，
+        # 不再断言“资料中未记录”（系统未检索，不得冒充资料缺失）；断言语义不变。
+        assert "不属于台账字段" in answer["text"], answer["text"]
         for value in UNASKED_IN_ANSWER:
             assert value not in answer["text"], (question, value, answer["text"])
         assert answer["sources"] == [], answer

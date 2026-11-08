@@ -47,3 +47,44 @@
 - `NO_INTENT` 仍无法在徽标层区分系统解析失败与资料缺失（见 §C）；彻底解决需
   新增 reason 字段，受 D-3 字段结构约束，本包不做。
 - 文案为中文单语；未引入 i18n。
+
+## E. R1 返工（2026-11-08）
+
+### E.1 改动文件
+
+| 文件 | 改动 |
+| --- | --- |
+| `backend/src/mktkb/copy.py` | 三条目文案 + `material_related`（IDENTIFIER/NO_INTENT/ANAPHORA） |
+| `backend/tests/unit/test_p1_t106_copy.py` | +7 条诚实性/可达性测试（8→15） |
+| `backend/tests/{integration,rag}/test_p1_t105_anaphora_field.py` | 旧文案“未记录”断言按取值最小同步为“不属于台账字段”（各 1 行，语义不变） |
+| `frontend/src/utils/format.ts`、`MessageCard.tsx` | P2：INVALID_QUERY 徽标/历史提示按 `error_code` 对齐正文 |
+| `report.md`、本证据 03/04 | R1 段与 P3 更正 |
+
+未改：API 字段结构、`ResultKind`/`error_code` 语义、`intent.py`/词表、
+`fixtures/**`、gate 配置、`var/**`、账本/GO；无 skip/xfail/删断言/新依赖/真实调用。
+
+### E.2 诚实性口径
+
+- 本包 01 证据 §A 的三条目 `material_related` 与 §C 的旧文案描述为 R1 前状态，
+  已被本节与 report §6 取代（按返工单只追加 03/04，不重写 01）。
+- `material_related=False` 的文案不得含资料侧结论；唯一的否定形态
+  “不是资料中没有答案”在机械测试中先剥离再断言。三条目最终文案见 report §6.1。
+- `IDENTIFIER_NOT_RETRIEVABLE` 保留“未按标识检索…不能据此判断该记录不存在…也不能确认
+  该记录未找到”，明确系统未执行检索；该“未找到”仅出现在否定句内，且满足 T09 U04
+  冻结题集的可接受缺失措辞（U04 随全量通过）。
+- `NO_INTENT` 当前不可达：AST 枚举 `intent.py` 全部 `IntentPlan(intent=None)`，
+  均带 `unknown_identifier`/`identifier`/`clarification`（非空）。文案仍按系统侧
+  失败保持诚实；未来若出现裸 `intent=None`，
+  `test_no_intent_branch_is_guarded_by_current_intent_plans` 会失败。
+- `ANAPHORA_NEW_CONTENT` 仍由 `rag/answer.py:262-270` 直接使用 copy 文本；无接线改动。
+
+### E.3 P2 / P3 / 残余
+
+- P2：`SERVICE_ERROR_BADGE_LABELS={INVALID_QUERY:"查询条件问题"}`；历史提示
+  “这是查询条件问题，不是服务故障；请换个说法后重新提问。”，与正文一致。
+  其他服务码徽标不变。
+- P3：report §2-6 的 RG006 表述已更正（RG001–RG005 不变、RG006 fail→pass）。
+- 残余：`INVALID_QUERY` 徽标分支无既有 e2e 注入入口（acceptance 只注入模型错误），
+  本 R1 记为 NOT-RUN（不新增 mock e2e），由 typecheck/build + 纯函数映射覆盖。
+- 残余：历史 clarification 有候选但未持久化时仍只能显示“需补充条件”
+  （前端无 reason 字段，保持 T106 原判断）。

@@ -190,20 +190,25 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         requires_user_input=True,
     ),
     _entry(
+        # R1/B1：该路径没有执行标识检索（产品检索层不支持标识筛选、内核未接手时
+        # 失败关闭），不得把“未检索”说成“资料中未找到”，否则与 material_related=False
+        # 自相矛盾。只陈述“未检索 + 无法判断”，并给出去掉标识的自救路径。
         "IDENTIFIER_NOT_RETRIEVABLE",
-        "资料中未找到标识“{identifier}”对应的记录，但这不是资料中没有答案；"
-        "本次未按标识检索，不能据此判断该记录不存在；"
-        "请改用门店、物品名称等条件后重新查询。",
+        "本次未按标识检索（当前检索不支持按标识筛选，系统未执行标识查询），"
+        "不能据此判断该记录不存在，也不能确认该记录未找到；"
+        "这不是资料中没有答案；"
+        "请去掉标识，改用门店、物品名称等条件后重新查询，或联系管理员补充。",
         retryable=True,
         material_related=False,
         requires_user_input=True,
     ),
     _entry(
+        # R1/B2：系统未识别出查询意图，尚未检索；不得断言资料缺失。
         "NO_INTENT",
-        "资料中未找到与这个问题相符的内容；"
-        "如果确认资料中存在，请改用门店、物品或字段等更具体的问法后重试。",
+        "没有识别出这个问题的查询意图，本次未作答；这不是资料中没有答案；"
+        "请补充门店、物品或要查询的字段等更具体的问法后重试。",
         retryable=True,
-        material_related=True,
+        material_related=False,
         requires_user_input=True,
     ),
     _entry(
@@ -336,11 +341,13 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         requires_user_input=True,
     ),
     _entry(
+        # R1/B3：新内容没有进入记录检索，不能据此断言资料未记录。
         "ANAPHORA_NEW_CONTENT",
-        "资料中未记录这项信息；这次追问带入了新内容，不是资料中没有答案；"
-        "请指定要查询的字段，例如位置、数量、规格、价格，然后重新提问。",
+        "这次追问带入了不属于台账字段的新内容，本次未作答；"
+        "这不是资料中没有答案；"
+        "请指定要查询的字段（例如位置、数量、规格、价格）后重新提问。",
         retryable=True,
-        material_related=True,
+        material_related=False,
         requires_user_input=True,
     ),
     _entry(
