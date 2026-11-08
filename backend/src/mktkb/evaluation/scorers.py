@@ -10,6 +10,11 @@ provider、不访问数据库、不读环境变量、不依赖时钟/随机数�
 - 所有比率都是 **0–1**（不是 0–100）；
 - 无法计算/不适用的指标返回 ``None``，且不进入聚合分母；
 - 检索指标是 **macro average**：先逐 case 计算，再对适用 case 取均值；
+- 检索排名以 **chunk** 为单位（``EvalRetrieved`` 条目；同一 ``chunk_id`` 的多条
+  条目是同一个 chunk）：同一 chunk 内的多个 unit **共享同一排名**，不按 unit 出现
+  顺序编造 1,2,3；``Recall@10``/``MRR@10`` 的分子分母按 unit 去重，``nDCG@10`` 的
+  gain 按 chunk 位置计一次（同一 chunk 的相关 unit 共享该位置；重复出现的 unit 不
+  重复计增益）；
 - 无 gold（``ResolvedGold.relevant_unit_ids`` 为空）的 case 不进入
   ``Recall@10`` / ``MRR@10`` / ``nDCG@10`` / ``hard_filter_violation_rate`` /
   ``empty_recall_rate`` 的分母（T003c/P1 负样本口径；负样本泄漏由门禁
@@ -832,6 +837,34 @@ def _retrieved_violation(case: CaseSpec, item: EvalRetrieved) -> str | None:
     return None
 
 
+def _retrieval_chunks(outcome: EvalOutcome) -> tuple[tuple[tuple[str, str], ...], ...]:
+    """把 retrieved 条目按 **chunk** 归并，返回按排名排列的 unit 身份集合。
+
+    - ``chunk_id`` 相同的条目属于同一 chunk（用 ``doc_code + chunk_id`` 区分），
+      按首次出现的位置定位；同一 chunk 的多个 unit 因此共享同一排名；
+    - 没有 ``chunk_id`` 的条目各自算一个 chunk（``EvalRetrieved`` 条目即排名单位）；
+    - chunk 内身份去重；跨 chunk 重复的 unit 仍各占自己的排名位置
+      （``retrieved_units`` 的全局去重由调用方另行处理）。
+    """
+    chunks: list[list[tuple[str, str]]] = []
+    positions: dict[tuple[str, str], int] = {}
+    for item in outcome.retrieved:
+        identities = _retrieved_identities(item)
+        chunk_key: tuple[str, str] | None = None
+        if item.chunk_id is not None and str(item.chunk_id):
+            chunk_key = (str(item.doc_code), str(item.chunk_id))
+        if chunk_key is not None and chunk_key in positions:
+            slot = chunks[positions[chunk_key]]
+            for identity in identities:
+                if identity not in slot:
+                    slot.append(identity)
+        else:
+            if chunk_key is not None:
+                positions[chunk_key] = len(chunks)
+            chunks.append(list(dict.fromkeys(identities)))
+    return tuple(tuple(slot) for slot in chunks)
+
+
 def _retrieval_case_metrics(
     case: CaseSpec, outcome: EvalOutcome, resolved: ResolvedGold
 ) -> dict[str, Any]:
@@ -861,11 +894,24 @@ def _retrieval_case_metrics(
     if not relevant or resolved.skipped:
         return metrics
 
-    top = ordered[:10]
-    hits = [index for index, identity in enumerate(top) if identity in relevant]
-    metrics["Recall@10"] = len(hits) / len(relevant)
-    metrics["MRR@10"] = 1.0 / (hits[0] + 1) if hits else 0.0
-    dcg = sum(1.0 / math.log2(index + 2) for index in hits)
+    top_chunks = _retrieval_chunks(outcome)[:10]
+    hit_units: set[tuple[str, str]] = set()
+    first_hit_rank: int | None = None
+    dcg = 0.0
+    for rank, chunk in enumerate(top_chunks, start=1):
+        new_hits = [identity for identity in chunk if identity in relevant and identity not in hit_units]
+        if not new_hits:
+            # 同一 chunk 的相关 unit 共享一个位置：该位置只计一次增益；
+            # 只含已命中 unit 的 chunk（重复 chunk/重复 unit）不再贡献。
+            continue
+        hit_units.update(new_hits)
+        if first_hit_rank is None:
+            first_hit_rank = rank
+        dcg += 1.0 / math.log2(rank + 1)
+
+    metrics["Recall@10"] = len(hit_units) / len(relevant)
+    metrics["MRR@10"] = 1.0 / first_hit_rank if first_hit_rank is not None else 0.0
+    # ideal：min(|relevant|, 10) 个相关 unit 各自占一个 chunk 位置。
     ideal = sum(1.0 / math.log2(rank + 1) for rank in range(1, min(len(relevant), 10) + 1))
     metrics["nDCG@10"] = dcg / ideal if ideal else 0.0
     metrics["empty_recall"] = 1.0 if retrieved_units == 0 else 0.0
@@ -1074,11 +1120,15 @@ def answer_metrics(results: Sequence[CaseResult]) -> dict[str, float | None]:
 
 
 def retrieval_metrics(results: Sequence[CaseResult]) -> dict[str, float | None]:
-    """检索指标：unit 级 macro；无 gold 的 case 不进入任一指标的分母。
+    """检索指标：chunk 排名、unit 去重、macro 平均；无 gold 的 case 不进入分母。
 
-    ``hard_filter_violation_rate`` = 违规检索 unit 数 / 全部检索 unit 数，分母与
-    其它检索指标一致（有 gold 且未跳过的 case）；负样本的泄漏由门禁
-    ``security_leak`` 检查，不进入本质量指标。
+    - ``Recall@10``/``MRR@10`` 按 unit 去重后的相关 unit 计，排名取 chunk 排名；
+    - ``nDCG@10`` 的 gain 按 chunk 位置计一次（同一 chunk 的相关 unit 共享位置，
+      重复 unit 不重复计增益），ideal 用 ``min(|relevant|, 10)`` 个位置；
+    - ``hard_filter_violation_rate`` = 违规检索 unit 数 / 全部检索 unit 数，分母与
+      其它检索指标一致（有 gold 且未跳过的 case）；负样本的泄漏由门禁
+      ``security_leak`` 检查，不进入本质量指标；
+    - ``empty_recall_rate`` = 没有任何 retrieved unit 的 case 比例。
     """
     scored = _scored(results)
     gold = [item for item in scored if int(item.metrics.get("gold_units") or 0) > 0]

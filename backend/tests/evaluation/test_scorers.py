@@ -4,7 +4,8 @@
 
 - 所有比率是 **0–1**，不是 0–100；
 - 每个 case 的 ``CaseCheck`` 有稳定 ``check_id`` / ``status`` / ``evidence``；
-- 检索指标按 **unit** 去重（同一 unit 的多个 chunk 只算一次），无 gold 的 case 不进分母；
+- 检索指标按 **chunk 排名**、**unit 去重**计算（同一 unit 的多个 chunk 只计一次；
+  同一 chunk 的多个 unit 共享同一排名），无 gold 的 case 不进分母；
 - 拒答三指标由同一张 2×2 混淆矩阵派生，但三个字段各自独立、互不替代。
 
 测试全部使用合成/固定文本，不调用任何模型 / OCR / embedding / rerank。
@@ -637,7 +638,9 @@ def test_retrieval_metrics_dedupe_chunks_by_unit_and_compute_ndcg() -> None:
 
     assert result.metrics["Recall@10"] == 1.0
     assert result.metrics["MRR@10"] == pytest.approx(0.5)
-    expected_ndcg = (1 / math.log2(3) + 1 / math.log2(4)) / (1 + 1 / math.log2(3))
+    # T110：排名按 chunk 计。重复 chunk 仍占第 3 位（不贡献 gain），u2 在第 4 位。
+    assert result.metrics["retrieved_units"] == 3
+    expected_ndcg = (1 / math.log2(3) + 1 / math.log2(5)) / (1 + 1 / math.log2(3))
     assert result.metrics["nDCG@10"] == pytest.approx(expected_ndcg)
 
 

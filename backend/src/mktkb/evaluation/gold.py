@@ -9,6 +9,11 @@ fail closed 口径：
   ``unit_key`` 有重复 -> ``ambiguous_units``（同一身份无法区分）；
 - ``doc_code`` 只解析到**当前可见**（``state=active`` 且 ``is_current``）的文档；
 - 多个 chunk 命中同一 unit 时按 unit 去重（这里解析的是 unit，chunk 去重由 scorer 复用 unit 口径）；
+- ``record_code`` 不是解析键：只有 ``record_code`` 而没有 ``unit_key``/``locator`` 的引用
+  直接 ``record_code_not_a_lookup_key``，不得静默扩为整篇文档；
+- 检索金标选择（T110）：``relevant_units`` 非空时**只用它**作为 ``relevant_unit_ids``；
+  为空时回退 ``expected_sources``（P0 口径）；两者都为空则该 case 没有检索金标，
+  ``relevant_unit_ids=()``，由 scorer 剔出检索指标分母（不伪造）；
 - ``requires_ocr=true`` 的 case 在 P0 显式 ``skipped``：不解析、不触发 OCR、不算通过。
 """
 
@@ -141,7 +146,9 @@ def _match_locator(case_id: str, doc_code: str, locator: Mapping[str, Any], unit
     return True
 
 
-def _resolve_source(case_id: str, ref: Mapping[str, Any], index: Any) -> ResolvedSource:
+def _resolve_source(
+    case_id: str, ref: Mapping[str, Any], index: Any, *, field: str = "expected_sources"
+) -> ResolvedSource:
     from .dataset import _validate_source_ref  # 复用同一套字段规则（未知字段直接失败）
 
     locator = ref.get("locator") if isinstance(ref, Mapping) else None
@@ -154,10 +161,19 @@ def _resolve_source(case_id: str, ref: Mapping[str, Any], index: Any) -> Resolve
                 detail=f"locator 只允许 {sorted(LOCATOR_KEYS)}，收到 {sorted(str(key) for key in unknown)}",
             )
     try:
-        source = _validate_source_ref(ref, f"{case_id}.expected_sources")
+        source = _validate_source_ref(ref, f"{case_id}.{field}")
     except ValueError as exc:
         raise GoldUnresolved(case_id, "invalid_source_reference", detail=str(exc)) from exc
     doc_code = str(source["doc_code"])
+    if "record_code" in source and "unit_key" not in source and "locator" not in source:
+        # T004a/T005 遗留：record_code 只是标签，不是解析键；静默扩为整篇会把
+        # 一篇文档的所有 unit 都当成 gold（检索指标虚高），这里 fail closed。
+        raise GoldUnresolved(
+            case_id,
+            "record_code_not_a_lookup_key",
+            doc_code=doc_code,
+            detail="record_code 不是解析键，必须同时给出 unit_key 或 locator",
+        )
     document = _locate_document(case_id, doc_code, index)
     doc_id = str(document["doc_id"])
     units = _document_units(index, doc_id)
@@ -217,7 +233,12 @@ def _resolve_source(case_id: str, ref: Mapping[str, Any], index: Any) -> Resolve
 
 
 def resolve_case(case: CaseSpec, index: Any) -> ResolvedGold:
-    """解析单条 case；任何 unresolved 都抛 ``GoldUnresolved``。"""
+    """解析单条 case；任何 unresolved 都抛 ``GoldUnresolved``。
+
+    检索金标（T110）：``relevant_units`` 非空时**只用它**解析 ``relevant_unit_ids``；
+    为空时回退 ``expected_sources``；两者都为空时没有任何检索金标（返回空
+    ``relevant_unit_ids``，不伪造、也不报错），由 scorer 剔出检索指标分母。
+    """
     if case.requires_ocr:
         return ResolvedGold(
             case_id=case.case_id,
@@ -229,7 +250,10 @@ def resolve_case(case: CaseSpec, index: Any) -> ResolvedGold:
         )
     sources = tuple(_resolve_source(case.case_id, ref, index) for ref in case.expected_sources)
     if case.relevant_units:
-        relevant_sources = tuple(_resolve_source(case.case_id, ref, index) for ref in case.relevant_units)
+        relevant_sources = tuple(
+            _resolve_source(case.case_id, ref, index, field="relevant_units")
+            for ref in case.relevant_units
+        )
     else:
         relevant_sources = sources
     return ResolvedGold(
