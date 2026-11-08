@@ -323,7 +323,12 @@ def test_operator_falls_back_to_environment(tmp_path: Path, monkeypatch) -> None
     assert audit["operator"] == "env-operator"
 
 
-def test_multi_turn_turns_are_normalised_but_not_claimed(tmp_path: Path) -> None:
+def test_multi_turn_turns_are_normalised_and_executed(tmp_path: Path) -> None:
+    """``turns`` 规范化为 ``{"question": ...}``；T109 起 holdout 多轮题也逐轮执行。
+
+    T108 口径是「规范化但按单轮执行」（``multi_turn_claimed=False``）；T109 按设计 §4
+    落地多轮后，这里同步为「逐轮执行、逐轮 trace、末轮评分」，断言只加强不放松。
+    """
     questions, labels = _fixture(tmp_path)
     dataset = load_holdout_dataset(questions, labels, policy=_policy())
     multi = next(case for case in dataset.cases if case.case_id == "S02")
@@ -334,8 +339,19 @@ def test_multi_turn_turns_are_normalised_but_not_claimed(tmp_path: Path) -> None
 
     result = _run(tmp_path)
     execution = result.summary["declarations"]["execution"]
-    assert execution["multi_turn_verified"] is False
-    assert result.cases[1]["multi_turn_claimed"] is False
+    assert execution["multi_turn_case_count"] == 1
+    assert execution["multi_turn_turns_executed"] == 2
+    assert execution["turns_executed"] == 2
+
+    row = result.cases[1]
+    assert row["case_id"] == "S02"
+    assert row["turns_executed"] == 2
+    assert row["multi_turn_claimed"] is True
+    assert [item["turn"] for item in row["turn_traces"]] == [1, 2]
+    assert row["trace_id"] == row["turn_traces"][-1]["trace_id"]
+    assert execution["multi_turn_verified"] is (
+        all(item["status"] != "error" for item in row["turn_traces"])
+    )
 
 
 # --------------------------------------------------------------------------- #

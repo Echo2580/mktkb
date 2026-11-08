@@ -34,6 +34,20 @@ P1 T108（holdout 防污染，设计 §4）：
   且 trace 落在临时目录随运行删除；``--allow-holdout-details`` 才写逐题 + ``holdout_audit.json``；
 - CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI``）带 details 直接拒绝；
 - holdout 只支持 ``mode="local"``；replay 需要源 run 的 ``cases.jsonl``，T108 不提供。
+
+P1 T109（多轮 turns，设计 §4）：
+
+- ``turns`` 至少 2 轮的 case 走多轮路径：**同一** ``conversation_id`` / ``user_id`` 按序
+  ``index.ask``（会话状态由 ``RagQueryState`` 自然继承），每轮一条 ``mode=local`` 的 Trace，
+  轮间用 ``previous_trace_id`` 串联；
+- 判定按设计 §4：**只对末轮**用既有 scorer/gold 评分；中间轮不逐轮判分，只要求无 error
+  （答案 ``kind="error"``、执行异常或 Trace 不可读）且 Trace 完整；case 通过 = 全部轮次无
+  error + 末轮 checks 全通过。任何轮次 error → ``status="fail"`` 并保留 ``error`` 明细；
+- 行扩展：``turn_traces``（有序 ``{turn, trace_id, status}``）与 ``turns_executed``；
+  ``trace_id`` 仍为**末轮** trace（兼容既有消费方）；``turns`` 为空/单元素走单轮路径，
+  字段值与父提交一致；
+- replay：源行为多轮时**逐轮**写 replay provenance trace（每轮链到源轮 trace），末轮 outcome
+  由源产物重评分；不得静默只跑首轮。逐轮结果未持久化，replay 不伪造中间轮结果。
 """
 
 from __future__ import annotations
@@ -45,7 +59,7 @@ import tempfile
 import time
 import uuid
 from collections import Counter
-from dataclasses import MISSING, dataclass, fields
+from dataclasses import MISSING, dataclass, fields, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, ClassVar, Mapping, Sequence
@@ -179,6 +193,10 @@ class RunManifest:
     holdout_details: bool = False
     #: holdout labels 的 sha256（本地文件，永不入库）；其它 suite 为空串。
     holdout_labels_sha256: str = ""
+    #: P1 T109：本轮运行里「``turns`` ≥2」的 case 数（0 = 纯单轮运行）；不属身份字段。
+    multi_turn_case_count: int = 0
+    #: 上述多轮 case 实际执行的轮次总数（异常中断时少于计划轮次，如实记录）。
+    multi_turn_turns_executed: int = 0
 
     def to_dict(self) -> dict[str, Any]:
         """按字段表返回可 JSON 序列化的普通对象（字段顺序稳定）。"""
@@ -229,6 +247,26 @@ class RunManifest:
         holdout_labels_sha256 = payload.get("holdout_labels_sha256", "")
         if not isinstance(holdout_labels_sha256, str):
             raise ValueError("run_manifest.holdout_labels_sha256 必须是字符串")
+        multi_turn_case_count = payload.get("multi_turn_case_count", 0)
+        if (
+            isinstance(multi_turn_case_count, bool)
+            or not isinstance(multi_turn_case_count, int)
+            or multi_turn_case_count < 0
+        ):
+            raise ValueError(
+                "run_manifest.multi_turn_case_count 必须是非负整数，"
+                f"收到 {multi_turn_case_count!r}"
+            )
+        multi_turn_turns_executed = payload.get("multi_turn_turns_executed", 0)
+        if (
+            isinstance(multi_turn_turns_executed, bool)
+            or not isinstance(multi_turn_turns_executed, int)
+            or multi_turn_turns_executed < 0
+        ):
+            raise ValueError(
+                "run_manifest.multi_turn_turns_executed 必须是非负整数，"
+                f"收到 {multi_turn_turns_executed!r}"
+            )
         case_count = payload["case_count"]
         if isinstance(case_count, bool) or not isinstance(case_count, int) or case_count < 0:
             raise ValueError(f"run_manifest.case_count 必须是非负整数，收到 {case_count!r}")
@@ -248,6 +286,8 @@ class RunManifest:
             index_revision=index_revision,
             holdout_details=holdout_details,
             holdout_labels_sha256=holdout_labels_sha256,
+            multi_turn_case_count=multi_turn_case_count,
+            multi_turn_turns_executed=multi_turn_turns_executed,
         )
         return cls(**values)
 
@@ -483,9 +523,29 @@ def _run_local(
     finally:
         repo.close()
 
+    # P1 T109：run 级多轮标记（行级 turns_executed 汇总；不改身份字段）。
+    manifest = replace(manifest, **_multi_turn_manifest_fields(cases, rows))
     summary = _build_summary(manifest, cases, rows)
     _write_artifacts(target, manifest, rows, summary)
     return RunResult(manifest=manifest, out_dir=target, cases=tuple(rows), summary=summary)
+
+
+def _multi_turn_manifest_fields(
+    cases: Sequence[CaseSpec], rows: Sequence[Mapping[str, Any]]
+) -> dict[str, int]:
+    """run 级多轮标记：多轮 case 数（数据集 ``turns`` ≥2）与实际执行轮次总数。
+
+    ``turns`` 为空的 case 仍按单轮执行（``turns_executed=1``），不计入多轮标记；
+    多轮 case 若在某一轮异常中断，按 ``cases.jsonl`` 里如实记录的 ``turns_executed`` 汇总。
+    """
+    multi_ids = [case.case_id for case in cases if len(case.turns) > 1]
+    executed = {
+        str(row.get("case_id")): int(row.get("turns_executed") or 1) for row in rows
+    }
+    return {
+        "multi_turn_case_count": len(multi_ids),
+        "multi_turn_turns_executed": sum(executed.get(case_id, 0) for case_id in multi_ids),
+    }
 
 
 def _assert_holdout_out_dir_fresh(out_dir: Path | None) -> None:
@@ -615,6 +675,8 @@ def _run_local_holdout(
         finally:
             repo.close()
 
+    # P1 T109：holdout 里的多轮题（H11–H15 形态）同样按 turns 逐轮执行；这里只补 run 级标记。
+    manifest = replace(manifest, **_multi_turn_manifest_fields(cases, rows))
     summary = _build_summary(
         manifest,
         cases,
@@ -723,7 +785,18 @@ def _local_case_row(
             previous_trace_id=None,
             replayed=False,
             duration_ms=_elapsed_ms(started),
+            turn_traces=({"turn": 1, "trace_id": trace_id, "status": "ok"},),
+            turns_executed=1,
         )
+
+    try:
+        turns = _case_turn_questions(case)
+    except _CaseError as exc:
+        return _error_row(
+            case, manifest, repo, exc.code, exc.message, duration_ms=_elapsed_ms(started)
+        )
+    if turns:
+        return _local_multi_turn_row(case, index, repo, manifest, gold, turns, started)
 
     trace: TraceContext | None = None
     try:
@@ -756,6 +829,8 @@ def _local_case_row(
             previous_trace_id=None,
             replayed=False,
             duration_ms=_elapsed_ms(started),
+            turn_traces=({"turn": 1, "trace_id": trace.trace_id, "status": "ok"},),
+            turns_executed=1,
         )
     except _CaseError as exc:
         return _error_row(
@@ -777,6 +852,156 @@ def _local_case_row(
             trace_id=None if trace is None else trace.trace_id,
             duration_ms=_elapsed_ms(started),
         )
+
+
+def _case_turn_questions(case: CaseSpec) -> tuple[str, ...]:
+    """多轮题（``turns`` ≥2）按序返回问题文本；0/1 轮返回空元组。
+
+    ``turns`` 为空或只有 1 轮时走单轮路径，行为与父提交一致（P0 口径）；
+    只有 ≥2 轮才按设计 §4 逐轮执行。轮次文本兼容 ``text``（P0/P1 fixture 形态）与
+    ``question``（holdout 导出的规范化形态）；非 ``user`` 轮或空文本 fail closed，
+    不把别人写的话当用户提问。
+    """
+    if len(case.turns) < 2:
+        return ()
+    questions: list[str] = []
+    for index, turn in enumerate(case.turns, start=1):
+        if not isinstance(turn, Mapping):
+            raise _CaseError(
+                "turn_invalid", f"{case.case_id}: turns[{index}] 必须是对象，收到 {turn!r}"
+            )
+        role = turn.get("role")
+        if role not in (None, "", "user"):
+            raise _CaseError(
+                "turn_role_unsupported",
+                f"{case.case_id}: turns[{index}].role={role!r}；runner 只执行 user 轮",
+            )
+        text = turn.get("question") or turn.get("text")
+        if not isinstance(text, str) or not text.strip():
+            raise _CaseError(
+                "turn_question_missing",
+                f"{case.case_id}: turns[{index}] 缺少可执行的 question/text",
+            )
+        questions.append(text)
+    return tuple(questions)
+
+
+def _turn_failed(answer: Any, record: Any) -> bool:
+    """一轮是否算 error：答案是 error/service_error 结局，或 Trace 不可读/状态 error。
+
+    设计 §4「中间轮只要求无 error、Trace 完整」：error 结局与服务错误都算 error；
+    Trace 读不出来同样算（不拿缺失的 Trace 当完整）。
+    """
+    kind = str(getattr(answer, "kind", ""))
+    if kind in {"error", "service_error"}:
+        return True
+    if record is None:
+        return True
+    return str(getattr(record, "status", "")) == "error"
+
+
+def _local_multi_turn_row(
+    case: CaseSpec,
+    index: Any,
+    repo: TraceRepository,
+    manifest: RunManifest,
+    gold: ResolvedGold,
+    turns: Sequence[str],
+    started: float,
+) -> dict[str, Any]:
+    """多轮 local case：同一 conversation 逐轮 ask，逐轮 trace，只对末轮打分（设计 §4）。
+
+    - 同一 ``conversation_id`` / ``user_id``：会话状态由 ``RagQueryState`` 自然继承；
+    - 每轮一条 Trace，轮间 ``previous_trace_id`` 串联上一轮；
+    - 中间轮不判分，只要求无 error 且 Trace 完整；末轮按既有 scorer/gold 评分；
+    - case 通过 = 全部轮次无 error + 末轮 checks 全通过；任何轮次 error → ``status="fail"``，
+      并在 ``error`` 里写明轮次（不把失败吞成 pass，也不伪造后续轮结果）。
+    """
+    conversation_id = f"{manifest.run_id}:{case.case_id}"
+    total = len(turns)
+    turn_traces: list[dict[str, Any]] = []
+    previous_trace_id: str | None = None
+    outcome: EvalOutcome | None = None
+    result: CaseResult | None = None
+    failure: dict[str, str] | None = None
+    for number, question in enumerate(turns, start=1):
+        trace: TraceContext | None = None
+        try:
+            with start_trace(
+                http_request_id=f"{manifest.run_id}:{case.case_id}:turn{number}",
+                mode=TraceMode.LOCAL,
+                scope=manifest.scope,
+                path="rag",
+                question=question,
+                case_id=case.case_id,
+                previous_trace_id=previous_trace_id,
+                repo=repo,
+            ) as active:
+                trace = active
+                _annotate_trace_identity(trace, manifest)
+                answer = index.ask(
+                    question, user_id="eval", conversation_id=conversation_id
+                )
+                trace.set_outcome(answer.kind, reason=answer.reason)
+            record = _read_trace(repo, trace.trace_id)
+            turn_outcome = _normalise_answer(case, answer, index, trace.trace_id)
+        except Exception as exc:  # noqa: BLE001 - 单 case 失败不吞掉其他 case
+            if trace is not None:
+                turn_traces.append(
+                    {"turn": number, "trace_id": trace.trace_id, "status": "error"}
+                )
+            code = exc.code if isinstance(exc, _CaseError) else "execution_error"
+            failure = {
+                "code": str(code),
+                "message": f"turn {number}/{total}: {type(exc).__name__}: {exc}",
+            }
+            break
+        turn_traces.append(
+            {
+                "turn": number,
+                "trace_id": trace.trace_id,
+                "status": "error" if _turn_failed(answer, record) else "ok",
+            }
+        )
+        previous_trace_id = trace.trace_id
+        if number == total:
+            outcome = turn_outcome
+            result = score_case(case, gold, turn_outcome, record)
+
+    executed = len(turn_traces)
+    if failure is not None or result is None or outcome is None:
+        return _error_row(
+            case,
+            manifest,
+            repo,
+            "execution_error" if failure is None else failure["code"],
+            f"case {case.case_id}: 多轮未产出可评分的末轮结果"
+            if failure is None
+            else failure["message"],
+            trace_id=None if not turn_traces else str(turn_traces[-1]["trace_id"]),
+            duration_ms=_elapsed_ms(started),
+            status="fail",
+            turn_traces=turn_traces,
+            turns_executed=executed,
+        )
+
+    status = result.status
+    if any(item["status"] == "error" for item in turn_traces):
+        status = "fail"
+    if status != result.status:
+        result = replace(result, status=status)
+    return _row_from_result(
+        case,
+        result,
+        gold,
+        outcome=outcome,
+        trace_id=str(turn_traces[-1]["trace_id"]),
+        previous_trace_id=None,
+        replayed=False,
+        duration_ms=_elapsed_ms(started),
+        turn_traces=turn_traces,
+        turns_executed=executed,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -871,9 +1096,74 @@ def _run_replay(
     finally:
         repo.close()
 
+    # P1 T109：replay 的 run 级多轮标记与 local 同口径（逐轮 replay 后的实际轮次）。
+    manifest = replace(manifest, **_multi_turn_manifest_fields(cases, rows))
     summary = _build_summary(manifest, cases, rows)
     _write_artifacts(target, manifest, rows, summary)
     return RunResult(manifest=manifest, out_dir=target, cases=tuple(rows), summary=summary)
+
+
+def _source_turn_traces(source_row: Mapping[str, Any]) -> tuple[Mapping[str, Any], ...]:
+    """源 run 行的逐轮记录；旧产物（T109 前）没有该字段 → 空（按单轮处理）。"""
+    value = source_row.get("turn_traces")
+    if not isinstance(value, Sequence) or isinstance(value, (str, bytes)):
+        return ()
+    return tuple(item for item in value if isinstance(item, Mapping))
+
+
+def _replay_traces(
+    case: CaseSpec,
+    manifest: RunManifest,
+    repo: TraceRepository,
+    source_turns: Sequence[Mapping[str, Any]],
+    *,
+    source_trace_id: str | None,
+    outcome: EvalOutcome | None,
+    single_status: str,
+) -> tuple[str, list[dict[str, Any]]]:
+    """写 replay provenance trace，返回（本行 trace_id, turn_traces）。
+
+    单轮（含旧产物）：一条，链到源行 trace（父口径不变），``turn_traces[].status`` 取
+    ``single_status``（"ok"/"error"）。多轮：**逐轮**一条，每轮链到源轮 trace，逐轮 status
+    沿用源行；只给末轮带 outcome（逐轮结果源产物未持久化，不伪造中间轮结果）。
+    """
+    if len(source_turns) <= 1:
+        trace_id = _write_provenance_trace(
+            case,
+            manifest,
+            repo,
+            outcome=outcome,
+            previous_trace_id=source_trace_id,
+            replayed=True,
+        )
+        return trace_id, [{"turn": 1, "trace_id": trace_id, "status": str(single_status)}]
+
+    entries: list[dict[str, Any]] = []
+    last = len(source_turns)
+    for index, item in enumerate(source_turns, start=1):
+        raw_turn = item.get("turn")
+        number = (
+            raw_turn
+            if isinstance(raw_turn, int) and not isinstance(raw_turn, bool)
+            else index
+        )
+        raw_trace = item.get("trace_id")
+        entries.append(
+            {
+                "turn": number,
+                "trace_id": _write_provenance_trace(
+                    case,
+                    manifest,
+                    repo,
+                    outcome=outcome if index == last else None,
+                    previous_trace_id=None if raw_trace in (None, "") else str(raw_trace),
+                    replayed=True,
+                    request_suffix=f"turn{number}",
+                ),
+                "status": str(item.get("status") or "ok"),
+            }
+        )
+    return str(entries[-1]["trace_id"]), entries
 
 
 def _replay_case_row(
@@ -885,13 +1175,22 @@ def _replay_case_row(
     started = time.perf_counter()
     previous_trace_id = source_row.get("trace_id")
     previous_trace_id = None if previous_trace_id in (None, "") else str(previous_trace_id)
+    source_turns = _source_turn_traces(source_row)
 
     persisted_error = source_row.get("error")
     if isinstance(persisted_error, Mapping) and persisted_error:
         code = str(persisted_error.get("code") or "persisted_error")
         message = str(persisted_error.get("message") or "源 run 已标记 error")
-        trace_id = _write_provenance_trace(
-            case, manifest, repo, previous_trace_id=previous_trace_id, replayed=True
+        # 源行 status 原样复现（多轮里某一轮 error 时 local 记 fail，不能改判 error）。
+        status = str(source_row.get("status") or "error")
+        trace_id, turn_traces = _replay_traces(
+            case,
+            manifest,
+            repo,
+            source_turns,
+            source_trace_id=previous_trace_id,
+            outcome=None,
+            single_status="error",
         )
         return _error_row(
             case,
@@ -903,6 +1202,9 @@ def _replay_case_row(
             previous_trace_id=previous_trace_id,
             replayed=True,
             duration_ms=_elapsed_ms(started),
+            status=status,
+            turn_traces=turn_traces,
+            turns_executed=len(turn_traces),
         )
 
     try:
@@ -920,15 +1222,19 @@ def _replay_case_row(
                 )
             outcome = _outcome_from_dict(case, outcome_payload)
             result = score_case(case, gold, outcome, None)
-        _assert_same_score(case, source_row, result)
-        trace_id = _write_provenance_trace(
+        expected_status = _replay_expected_status(source_row, result)
+        _assert_same_score(case, source_row, result, expected_status=expected_status)
+        trace_id, turn_traces = _replay_traces(
             case,
             manifest,
             repo,
+            source_turns,
+            source_trace_id=previous_trace_id,
             outcome=outcome,
-            previous_trace_id=previous_trace_id,
-            replayed=True,
+            single_status="ok",
         )
+        if expected_status is not None and expected_status != result.status:
+            result = replace(result, status=expected_status)
         return _row_from_result(
             case,
             result,
@@ -938,10 +1244,18 @@ def _replay_case_row(
             previous_trace_id=previous_trace_id,
             replayed=True,
             duration_ms=_elapsed_ms(started),
+            turn_traces=turn_traces,
+            turns_executed=len(turn_traces),
         )
     except _CaseError as exc:
-        trace_id = _write_provenance_trace(
-            case, manifest, repo, previous_trace_id=previous_trace_id, replayed=True
+        trace_id, turn_traces = _replay_traces(
+            case,
+            manifest,
+            repo,
+            source_turns,
+            source_trace_id=previous_trace_id,
+            outcome=None,
+            single_status="error",
         )
         return _error_row(
             case,
@@ -953,7 +1267,24 @@ def _replay_case_row(
             previous_trace_id=previous_trace_id,
             replayed=True,
             duration_ms=_elapsed_ms(started),
+            turn_traces=turn_traces,
+            turns_executed=len(turn_traces),
         )
+
+
+def _replay_expected_status(
+    source_row: Mapping[str, Any], result: CaseResult
+) -> str | None:
+    """多轮行的期望 status：源 ``turn_traces`` 里任一轮 error → ``fail``（local 口径）。
+
+    单轮 / 旧产物没有逐轮记录 → ``None``（沿用 checks 重算的 status，父口径不变）。
+    """
+    turns = _source_turn_traces(source_row)
+    if len(turns) <= 1:
+        return None
+    if any(str(item.get("status")) == "error" for item in turns):
+        return "fail"
+    return str(result.status)
 
 
 # --------------------------------------------------------------------------- #
@@ -1290,7 +1621,10 @@ def _row_from_result(
     previous_trace_id: str | None,
     replayed: bool,
     duration_ms: int,
+    turn_traces: Sequence[Mapping[str, Any]],
+    turns_executed: int,
 ) -> dict[str, Any]:
+    """一行 cases.jsonl。既有字段/值/相对顺序不变；``turn_traces`` 追加在末尾（P1 T109）。"""
     return {
         "case_id": case.case_id,
         "suite": case.suite,
@@ -1308,11 +1642,12 @@ def _row_from_result(
         "tokens_out": result.tokens_out,
         "cost_cny": result.cost_cny,
         "duration_ms": int(duration_ms),
-        "turns_executed": 1,
-        "multi_turn_claimed": False,
+        "turns_executed": int(turns_executed),
+        "multi_turn_claimed": len(case.turns) > 1,
         "outcome": None if outcome is None else _outcome_to_dict(outcome),
         "gold": _gold_to_dict(gold),
         "error": None,
+        "turn_traces": [dict(item) for item in turn_traces],
     }
 
 
@@ -1329,15 +1664,21 @@ def _error_row(
     duration_ms: int = 0,
     outcome: EvalOutcome | None = None,
     gold: ResolvedGold | None = None,
+    status: str = "error",
+    turn_traces: Sequence[Mapping[str, Any]] | None = None,
+    turns_executed: int = 1,
 ) -> dict[str, Any]:
+    """失败行。``status`` 默认 ``error``（父口径）；多轮里某一轮 error 时由调用方传 ``fail``。"""
     if trace_id is None:
         trace_id = _write_provenance_trace(
             case, manifest, repo, previous_trace_id=previous_trace_id, replayed=replayed
         )
+    if turn_traces is None:
+        turn_traces = ({"turn": 1, "trace_id": trace_id, "status": "error"},)
     return {
         "case_id": case.case_id,
         "suite": case.suite,
-        "status": "error",
+        "status": str(status),
         "trace_id": trace_id,
         "previous_trace_id": previous_trace_id,
         "replayed": bool(replayed),
@@ -1351,11 +1692,12 @@ def _error_row(
         "tokens_out": None,
         "cost_cny": None,
         "duration_ms": int(duration_ms),
-        "turns_executed": 1,
-        "multi_turn_claimed": False,
+        "turns_executed": int(turns_executed),
+        "multi_turn_claimed": len(case.turns) > 1,
         "outcome": None if outcome is None else _outcome_to_dict(outcome),
         "gold": None if gold is None else _gold_to_dict(gold),
         "error": {"code": str(code), "message": str(message)},
+        "turn_traces": [dict(item) for item in turn_traces],
     }
 
 
@@ -1404,9 +1746,17 @@ def _assert_gold_unit_ids(case: CaseSpec, gold: ResolvedGold) -> None:
 
 
 def _assert_same_score(
-    case: CaseSpec, source_row: Mapping[str, Any], result: CaseResult
+    case: CaseSpec,
+    source_row: Mapping[str, Any],
+    result: CaseResult,
+    *,
+    expected_status: str | None = None,
 ) -> None:
-    """replay 必须复现 local 的 checks/metrics/status；任何漂移按 case error 暴露。"""
+    """replay 必须复现 local 的 checks/metrics/status；任何漂移按 case error 暴露。
+
+    ``expected_status`` 只用于多轮行：轮次 error 会在 local 把 verdict 收口为 ``fail``，
+    replay 从持久化的 ``turn_traces`` 复现同一判定（不重算中间轮）。
+    """
     expected = result.to_dict()
     if source_row.get("checks") != expected["checks"]:
         raise _CaseError(
@@ -1416,7 +1766,8 @@ def _assert_same_score(
         raise _CaseError(
             "replay_score_mismatch", f"{case.case_id}: replay 重算 metrics 与源 run 不一致"
         )
-    if source_row.get("status") != expected["status"]:
+    wanted = expected["status"] if expected_status is None else str(expected_status)
+    if source_row.get("status") != wanted:
         raise _CaseError(
             "replay_score_mismatch", f"{case.case_id}: replay 重算 status 与源 run 不一致"
         )
@@ -1537,6 +1888,7 @@ def _redact_case_ids(summary: dict[str, Any]) -> None:
         "single_turn_case_ids": "single_turn_case_count",
         "expected_pagination_case_ids": "expected_pagination_case_count",
         "range_gold_case_ids": "range_gold_case_count",
+        "multi_turn_error_case_ids": "multi_turn_error_case_count",
     }
     for block in declarations.values():
         if not isinstance(block, dict):
@@ -1556,6 +1908,24 @@ def _declarations(
         for case_id in P0_SINGLE_TURN_CASES.get(manifest.suite, ())
         if case_id in case_ids
     ]
+    # P1 T109：按**数据集**判定多轮 case，再按行读实际执行轮次（首轮即失败也如实计入）。
+    multi_turn_ids = [case.case_id for case in cases if len(case.turns) > 1]
+    row_by_id = {str(row.get("case_id")): row for row in rows}
+    multi_turn_turns = [
+        int(row_by_id[case_id].get("turns_executed") or 1)
+        for case_id in multi_turn_ids
+        if case_id in row_by_id
+    ]
+    multi_turn_errors = [
+        case_id
+        for case_id in multi_turn_ids
+        if case_id in row_by_id
+        and any(
+            str(item.get("status")) == "error"
+            for item in (row_by_id[case_id].get("turn_traces") or ())
+            if isinstance(item, Mapping)
+        )
+    ]
     range_gold_ids = [
         case.case_id
         for case in cases
@@ -1567,17 +1937,32 @@ def _declarations(
     pagination_expected = [
         case.case_id for case in cases if case.expected_pagination is not None
     ]
+    if multi_turn_ids:
+        execution_mode = "multi_turn"
+        execution_note = (
+            f"多轮执行：{len(multi_turn_ids)} 条 case 逐轮 ask"
+            f"（共 {sum(multi_turn_turns)} 轮），末轮按既有 scorer/gold 评分；"
+            "中间轮只要求无 error 且 Trace 完整"
+        )
+        if multi_turn_errors:
+            execution_note += f"；有轮次 error 的 case {len(multi_turn_errors)} 条"
+    else:
+        execution_mode = "single_turn"
+        execution_note = (
+            "P0 为单轮执行；N06/N11 不证明多轮能力"
+            if single_turn_ids
+            else "P0 为单轮执行；runner 不声明任何多轮能力"
+        )
     return {
         "execution": {
-            "mode": "single_turn",
-            "turns_executed": 1,
-            "multi_turn_verified": False,
+            "mode": execution_mode,
+            "turns_executed": max(multi_turn_turns) if multi_turn_turns else 1,
+            "multi_turn_verified": bool(multi_turn_ids) and not multi_turn_errors,
             "single_turn_case_ids": single_turn_ids,
-            "note": (
-                "P0 为单轮执行；N06/N11 不证明多轮能力"
-                if single_turn_ids
-                else "P0 为单轮执行；runner 不声明任何多轮能力"
-            ),
+            "multi_turn_case_count": len(multi_turn_ids),
+            "multi_turn_turns_executed": sum(multi_turn_turns),
+            "multi_turn_error_case_ids": multi_turn_errors,
+            "note": execution_note,
         },
         "pagination": {
             "claimed": bool(pagination_expected),
@@ -1648,11 +2033,15 @@ def _write_provenance_trace(
     outcome: EvalOutcome | None = None,
     previous_trace_id: str | None = None,
     replayed: bool = False,
+    request_suffix: str = "provenance",
 ) -> str:
-    """写一条无执行 Span 的 provenance Trace（OCR 跳过 / gold error / replay）。"""
+    """写一条无执行 Span 的 provenance Trace（OCR 跳过 / gold error / replay）。
+
+    ``request_suffix`` 只影响 ``http_request_id``（多轮 replay 每轮一条，便于按轮定位）。
+    """
     path = None if outcome is None else outcome.path
     with start_trace(
-        http_request_id=f"{manifest.run_id}:{case.case_id}:provenance",
+        http_request_id=f"{manifest.run_id}:{case.case_id}:{request_suffix}",
         mode=TraceMode.REPLAY if replayed else TraceMode.LOCAL,
         scope=manifest.scope,
         path=path,
