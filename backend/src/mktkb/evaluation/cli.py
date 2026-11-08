@@ -12,7 +12,14 @@
   ``require_release_baseline``（T007 MEDIUM-2），baseline 缺失时 fail closed；
 - ``export`` 只写 ``render_markdown`` / ``render_html`` 的返回值（UTF-8 无 BOM）。
 
-P0 不存在 ``--allow-holdout-details``；argparse 默认拒绝未知参数，不额外实现。
+P1 T108（holdout 防污染）：
+
+- ``run --suite holdout`` 默认只出聚合；``--allow-holdout-details`` 才写逐题 +
+  ``holdout_audit.json``，且在 CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI``）
+  硬失败（非零退出）；
+- 答案只从 ``--holdout-labels`` / ``MKTKB_HOLDOUT_LABELS`` 指向的本地文件读取；
+- ``dataset export-holdout-questions`` 把本地题目逐字节导出为仓库 fixture（校验 sha 与
+  无答案字段）；``dataset validate --suite holdout`` 只校验仓库导出（无答案）。
 """
 
 from __future__ import annotations
@@ -34,7 +41,14 @@ from .baseline import (
     baseline_id,
     load_baseline,
 )
-from .dataset import dataset_version, load_cases
+from .dataset import (
+    HOLDOUT_QUESTIONS_SHA256,
+    HOLDOUT_SUITE,
+    dataset_version,
+    export_holdout_questions,
+    load_cases,
+    load_holdout_questions,
+)
 from .gate import (
     DEFAULT_GATE_CONFIG_PATH,
     GateConfig,
@@ -54,13 +68,13 @@ from .report import (
     render_markdown,
     require_release_baseline,
 )
-from .runner import run_suite
+from .runner import HOLDOUT_LABELS_ENV, run_suite
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_BASELINE_ROOT = PROJECT_ROOT / "var" / "eval" / "baselines"
 EXIT_DATA = 3
 EXIT_USAGE = 2
-SUITES = ("b0", "badcase", "regression")
+SUITES = ("b0", "badcase", "regression", HOLDOUT_SUITE)
 MODES = ("local", "replay")
 
 
@@ -141,6 +155,18 @@ def _cmd_dataset_build(args: argparse.Namespace) -> int:
 def _cmd_dataset_validate(args: argparse.Namespace) -> int:
     path = Path(args.path)
     raw = path.read_bytes()
+    if args.suite == HOLDOUT_SUITE:
+        # holdout 仓库导出只有题目（无答案）：只做题目契约校验，不加载 labels。
+        questions = load_holdout_questions(path)
+        strata_text = ",".join(
+            f"{name}:{count}" for name, count in sorted(questions.strata.items())
+        )
+        print(
+            f"suite={HOLDOUT_SUITE} cases={len(questions.rows)} "
+            f"label_version={questions.label_version} "
+            f"answers=none sha256={questions.sha256} strata={strata_text}"
+        )
+        return 0
     cases = load_cases(path)
     if not cases:
         raise CliError(f"数据集为空: {path}")
@@ -162,9 +188,20 @@ def _cmd_dataset_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_dataset_export_holdout(args: argparse.Namespace) -> int:
+    expected = args.expected_sha256 or HOLDOUT_QUESTIONS_SHA256
+    digest = export_holdout_questions(
+        Path(args.from_path), Path(args.out), expected_sha256=expected
+    )
+    print(f"wrote {Path(args.out)} sha256={digest} answers=none")
+    return 0
+
+
 def _cmd_dataset(args: argparse.Namespace) -> int:
     if args.dataset_command == "build":
         return _cmd_dataset_build(args)
+    if args.dataset_command == "export-holdout-questions":
+        return _cmd_dataset_export_holdout(args)
     return _cmd_dataset_validate(args)
 
 
@@ -181,10 +218,15 @@ def _cmd_run(args: argparse.Namespace) -> int:
         scope=args.scope,
         replay_from=Path(args.from_run) if args.from_run else None,
         dataset_path=Path(args.dataset) if args.dataset else None,
+        holdout_labels=Path(args.holdout_labels) if args.holdout_labels else None,
+        allow_holdout_details=bool(args.allow_holdout_details),
     )
+    details = ""
+    if result.manifest.suite == HOLDOUT_SUITE:
+        details = f" details={str(result.manifest.holdout_details).lower()}"
     print(
         f"run_id={result.manifest.run_id} suite={result.manifest.suite} "
-        f"mode={result.manifest.mode} cases={len(result.cases)} out={result.out_dir}"
+        f"mode={result.manifest.mode} cases={len(result.cases)} out={result.out_dir}{details}"
     )
     return 0
 
@@ -445,6 +487,28 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--path", required=True, help="JSONL 路径")
     validate.set_defaults(handler=_cmd_dataset)
 
+    export_holdout = dataset_sub.add_parser(
+        "export-holdout-questions",
+        help="把本地 holdout questions.jsonl 逐字节导出为仓库 fixture（无答案）",
+    )
+    export_holdout.add_argument(
+        "--from",
+        dest="from_path",
+        required=True,
+        help="本地 questions.jsonl 副本（不读 holdout 目录本身）",
+    )
+    export_holdout.add_argument(
+        "--out",
+        default=str(PROJECT_ROOT / "fixtures" / "evaluation" / "holdout-questions.jsonl"),
+        help="仓库导出路径（默认 fixtures/evaluation/holdout-questions.jsonl）",
+    )
+    export_holdout.add_argument(
+        "--expected-sha256",
+        default=None,
+        help=f"期望的源文件 sha256（默认冻结值 {HOLDOUT_QUESTIONS_SHA256[:12]}…）",
+    )
+    export_holdout.set_defaults(handler=_cmd_dataset)
+
     run = sub.add_parser("run", help="跑 local / replay suite")
     run.add_argument("--suite", required=True, choices=SUITES)
     run.add_argument("--mode", choices=MODES, default="local")
@@ -452,6 +516,16 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--from-run", default=None, help="replay 的上一轮 local run 目录")
     run.add_argument("--dataset", default=None, help="覆盖默认 fixtures/evaluation/<suite>.jsonl")
     run.add_argument("--scope", default="end_to_end")
+    run.add_argument(
+        "--holdout-labels",
+        default=None,
+        help=f"holdout 本地 labels.jsonl 路径（也可用环境变量 {HOLDOUT_LABELS_ENV}）",
+    )
+    run.add_argument(
+        "--allow-holdout-details",
+        action="store_true",
+        help="允许写 holdout 逐题详情 + holdout_audit.json（CI/门禁环境硬失败）",
+    )
     run.set_defaults(handler=_cmd_run)
 
     gate = sub.add_parser("gate", help="评估硬门禁 + 质量层；--calibrate 只写提案")

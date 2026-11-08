@@ -88,6 +88,7 @@ from __future__ import annotations
 import hashlib
 import json
 import math
+import os
 import re
 import sqlite3
 from dataclasses import dataclass, field, fields, replace
@@ -101,7 +102,7 @@ from ..observability.contracts import (
     conditional_required_spans,
     required_spans,
 )
-from .dataset import CaseSpec, load_cases
+from .dataset import HOLDOUT_SUITE, CaseSpec, ci_environment, load_cases
 from .runner import RunManifest, RunResult
 from .scorers import EvalOutcome, _pagination_checks, check_value
 
@@ -2878,27 +2879,41 @@ def _read_json_file(path: Path, label: str) -> Any:
 
 
 def load_run_result(run_dir: Path | str) -> RunResult:
-    """从 run 目录读取三件套（只读）；失败抛 ``ValueError``（fail closed）。"""
+    """从 run 目录读取三件套（只读）；失败抛 ``ValueError``（fail closed）。
+
+    P1 T108：holdout **聚合** run（``holdout_details=false``）按契约不写 ``cases.jsonl``，
+    这里允许缺该文件并返回空行（gate 只走聚合判定）；若聚合 run 目录里出现
+    ``cases.jsonl``，说明产物被改动/泄漏，直接拒绝。
+    """
     target = Path(run_dir)
     manifest_payload = _read_json_file(target / "run_manifest.json", "run_manifest.json")
     if not isinstance(manifest_payload, Mapping):
         raise ValueError("run_manifest.json 必须是 JSON 对象")
     manifest = RunManifest.from_dict(manifest_payload)
-    try:
-        text = (target / "cases.jsonl").read_text(encoding="utf-8")
-    except OSError as exc:
-        raise ValueError(f"cases.jsonl 不可读: {exc}") from exc
-    rows: list[dict[str, Any]] = []
-    for line_number, line in enumerate(text.split("\n"), start=1):
-        if not line.strip():
-            continue
+    cases_path = target / "cases.jsonl"
+    holdout_aggregate = manifest.suite == HOLDOUT_SUITE and not manifest.holdout_details
+    if holdout_aggregate:
+        if cases_path.exists():
+            raise ValueError(
+                "holdout 聚合 run 不应包含 cases.jsonl（逐题详情未开启）；产物不一致，拒绝读取"
+            )
+        rows: list[dict[str, Any]] = []
+    else:
         try:
-            item = json.loads(line)
-        except json.JSONDecodeError as exc:
-            raise ValueError(f"cases.jsonl 第 {line_number} 行 JSON 非法: {exc.msg}") from exc
-        if not isinstance(item, Mapping):
-            raise ValueError(f"cases.jsonl 第 {line_number} 行必须是对象")
-        rows.append(dict(item))
+            text = cases_path.read_text(encoding="utf-8")
+        except OSError as exc:
+            raise ValueError(f"cases.jsonl 不可读: {exc}") from exc
+        rows = []
+        for line_number, line in enumerate(text.split("\n"), start=1):
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"cases.jsonl 第 {line_number} 行 JSON 非法: {exc.msg}") from exc
+            if not isinstance(item, Mapping):
+                raise ValueError(f"cases.jsonl 第 {line_number} 行必须是对象")
+            rows.append(dict(item))
     summary = _read_json_file(target / "summary.json", "summary.json")
     if not isinstance(summary, Mapping):
         raise ValueError("summary.json 必须是 JSON 对象")
@@ -3092,6 +3107,7 @@ def evaluate_gate(
     require_trace: bool = True,
     dataset_path: Path | str | None = None,
     quality: bool | QualityPolicy = False,
+    environ: Mapping[str, str] | None = None,
 ) -> GateResult:
     """评估一轮 run：8 项硬门禁 +（可选）质量层，并映射退出码 0 / 1 / 2 / 3 / 4。
 
@@ -3116,6 +3132,15 @@ def evaluate_gate(
     ``pass`` / ``fail`` 且非 ``skipped_requires_ocr``、非 runner ``error`` 的行。空 gold
     行（如 badcase 的 N10/N12/N13）仍参与 kind / 拒答 / 引用等硬门禁校验，因此计入
     硬门禁分母；质量指标（T006b）的检索 / 拒答分母另算，不得与本口径混用。
+
+    P1 T108（holdout 防污染）：holdout **不参与**硬门禁/质量门槛（``gate_v0_2`` 校准属
+    T112）。两类 holdout run 都返回 ``exit 3`` + 显式 unknown，不抛异常、不读逐题：
+
+    - 聚合 run（``holdout_details=false``，无 ``cases.jsonl``）：``check_id=holdout_aggregate_only``；
+    - 逐题详情 run：一律拒绝（``check_id=holdout_details_not_gated``；CI/门禁环境命中
+      ``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI`` 时记 ``holdout_details_forbidden_in_ci``
+      并在 reason 写明变量名）。原因是 gate 需要本地 labels 才能按数据集重算 gold，
+      T108 不引入 gate-time labels，逐题产物也不得进入门禁/CI。
     """
     manifest = _manifest_payload(run)
     rows = tuple(run.cases or ())
@@ -3150,6 +3175,9 @@ def evaluate_gate(
         warnings.append(
             "baseline 被忽略：quality=False（只跑硬门禁层），质量回退检测未启用"
         )
+
+    if str(manifest.get("suite") or "") == HOLDOUT_SUITE:
+        return _holdout_gate_result(manifest, rows, mode=mode, environ=environ)
 
     resolved_config = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
     if bad_rows:
@@ -3436,6 +3464,77 @@ def _manifest_payload(run: RunResult) -> dict[str, Any]:
     else:  # pragma: no cover - RunResult 契约固定
         raise TypeError("run.manifest 必须是 RunManifest 或等值映射")
     return {str(key): value for key, value in payload.items()}
+
+
+def _holdout_gate_result(
+    manifest: Mapping[str, Any],
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    mode: str,
+    environ: Mapping[str, str] | None,
+) -> GateResult:
+    """holdout 专用门禁结论：只给聚合/拒绝，不读逐题、不产生逐 case 证据。"""
+    details = bool(manifest.get("holdout_details", False))
+    ci_var = ci_environment(os.environ if environ is None else environ)
+    warnings = [
+        "P1 T108：holdout 不参与硬门禁/质量门槛（gate_v0_2 校准留给 T112）",
+    ]
+    if details:
+        check_id = "holdout_details_not_gated"
+        reason = (
+            "holdout 逐题详情 run 不参与门禁：gate 需要本地 labels 才能按数据集重算 gold，"
+            "T108 不引入 gate-time labels；逐题产物也不得进入门禁/CI"
+        )
+        if ci_var is not None:
+            check_id = "holdout_details_forbidden_in_ci"
+            reason = (
+                f"CI/门禁环境（命中环境变量 {ci_var}）禁止 holdout 逐题详情 run 参与门禁："
+                + reason
+            )
+        evidence: dict[str, Any] = {
+            "holdout_details": True,
+            "run_rows": len(rows),
+            "ci_env": ci_var,
+        }
+    else:
+        check_id = "holdout_aggregate_only"
+        reason = (
+            "holdout 聚合 run 只写 summary、不写 cases.jsonl：无法按数据集重算逐 case "
+            "硬门禁，按聚合口径记为未知"
+        )
+        evidence = {
+            "holdout_details": False,
+            "case_count": manifest.get("case_count"),
+            "run_rows": len(rows),
+            "ci_env": ci_var,
+        }
+        if rows:
+            warnings.append(
+                "内存中存在逐题行但 manifest 声明为聚合 run：按聚合口径判定，不使用这些行"
+            )
+    return GateResult(
+        exit_code=EXIT_UNKNOWN,
+        gate_status={gate_id: GATE_STATUS_NOT_EVALUATED for gate_id in HARD_GATE_IDS},
+        hard_failures=(),
+        failures=(),
+        unknowns=(
+            GateUnknown(
+                gate_id=HOLDOUT_SUITE,
+                case_id=None,
+                check_id=check_id,
+                reason=reason,
+                evidence=evidence,
+            ),
+        ),
+        not_applicable=(),
+        warnings=tuple(warnings),
+        run_id=str(manifest.get("run_id") or ""),
+        suite=str(manifest.get("suite") or ""),
+        mode=mode,
+        gate_version=str(manifest.get("gate_version") or ""),
+        scored_count=0,
+        min_sample=None,
+    )
 
 
 def _config_data_failure(

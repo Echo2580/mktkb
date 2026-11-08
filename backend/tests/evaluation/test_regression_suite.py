@@ -307,7 +307,7 @@ def test_regression_run_and_gate_fail_closed_without_min_sample(tmp_path: Path) 
     restored = RunManifest.from_dict(result.manifest.to_dict())
     assert restored.suite == "regression"
     bad_suite = result.manifest.to_dict()
-    bad_suite["suite"] = "holdout"
+    bad_suite["suite"] = "holdout-typo"  # P1 T108：holdout 已是合法 suite
     with pytest.raises(ValueError, match="suite"):
         RunManifest.from_dict(bad_suite)
 

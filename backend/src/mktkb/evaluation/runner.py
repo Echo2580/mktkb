@@ -25,12 +25,22 @@ fail closed 口径：
 - 有 gold 的 case 在引用/检索存在时缺 ``unit_ids`` → 行 ``error``（replay 同样），
   不静默算 0；
 - replay 必须显式给出 ``replay_from``；缺失时 ``ValueError``，不静默降级为 local。
+
+P1 T108（holdout 防污染，设计 §4）：
+
+- ``suite="holdout"`` 走 :func:`_run_local_holdout`：题目来自仓库导出（无答案），答案在
+  运行时从 ``--holdout-labels`` / ``MKTKB_HOLDOUT_LABELS`` 读取；
+- 默认只写 ``run_manifest.json`` + ``summary.json``（聚合），**不写** ``cases.jsonl``，
+  且 trace 落在临时目录随运行删除；``--allow-holdout-details`` 才写逐题 + ``holdout_audit.json``；
+- CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI``）带 details 直接拒绝；
+- holdout 只支持 ``mode="local"``；replay 需要源 run 的 ``cases.jsonl``，T108 不提供。
 """
 
 from __future__ import annotations
 
 import hashlib
 import json
+import os
 import tempfile
 import time
 import uuid
@@ -57,7 +67,19 @@ from .corpus import (
     load_suite_corpus,
     offline_eval_config,
 )
-from .dataset import CaseSpec, dataset_version, load_cases
+from .dataset import (
+    DEFAULT_HOLDOUT_POLICY,
+    HOLDOUT_QUESTIONS_PATH,
+    HOLDOUT_SUITE,
+    CaseSpec,
+    HoldoutDataset,
+    HoldoutError,
+    HoldoutPolicy,
+    ci_environment,
+    dataset_version,
+    load_cases,
+    load_holdout_dataset,
+)
 from .gold import GoldUnresolved, ResolvedGold, ResolvedSource, resolve_case
 from .scorers import (
     CaseCheck,
@@ -70,12 +92,24 @@ from .scorers import (
     score_case,
 )
 
-__all__ = ["IDENTITY_FIELDS", "MODES", "RunManifest", "RunResult", "run_suite"]
+__all__ = [
+    "HOLDOUT_SUITE",
+    "IDENTITY_FIELDS",
+    "MANIFEST_SUITES",
+    "MODES",
+    "RunManifest",
+    "RunResult",
+    "run_suite",
+]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 RUNS_ROOT = PROJECT_ROOT / "var" / "eval" / "runs"
 MODES = ("local", "replay")
+#: ``run_manifest.suite`` 允许值：P0 三套 + P1 holdout（T108）。
+MANIFEST_SUITES = frozenset(set(SUITES) | {HOLDOUT_SUITE})
 TRACE_STORE_NAME = "traces.sqlite3"
+HOLDOUT_OPERATOR_ENV = "MKTKB_HOLDOUT_OPERATOR"
+HOLDOUT_LABELS_ENV = "MKTKB_HOLDOUT_LABELS"
 
 #: PM 裁决（T004a 验收遗留）：N06/N11 是会话跟进题但数据集 turns 为空；
 #: P0 单轮执行，不在 runner 里发明多轮结构，只做显式声明。
@@ -139,6 +173,10 @@ class RunManifest:
     corpus_dir: str | None = None
     replay_from: str | None = None
     source_run_id: str | None = None
+    #: P1 T108：holdout 逐题详情是否落盘（默认 ``False`` = 只出聚合，不写 ``cases.jsonl``）。
+    holdout_details: bool = False
+    #: holdout labels 的 sha256（本地文件，永不入库）；其它 suite 为空串。
+    holdout_labels_sha256: str = ""
 
     def to_dict(self) -> dict[str, Any]:
         """按字段表返回可 JSON 序列化的普通对象（字段顺序稳定）。"""
@@ -174,13 +212,21 @@ class RunManifest:
             value = payload.get(name)
             if not isinstance(value, str) or not value:
                 raise ValueError(f"run_manifest.{name} 必须是非空字符串，收到 {value!r}")
-        if payload["suite"] not in SUITES:
+        if payload["suite"] not in MANIFEST_SUITES:
             raise ValueError(
-                f"run_manifest.suite 非法: {payload['suite']!r}（允许 {sorted(SUITES)}）"
+                f"run_manifest.suite 非法: {payload['suite']!r}（允许 {sorted(MANIFEST_SUITES)}）"
             )
         mode = str(payload["mode"])
         if mode not in MODES:
             raise ValueError(f"run_manifest.mode 非法: {mode!r}（允许 {MODES}）")
+        holdout_details = payload.get("holdout_details", False)
+        if not isinstance(holdout_details, bool):
+            raise ValueError(
+                f"run_manifest.holdout_details 必须是布尔值，收到 {holdout_details!r}"
+            )
+        holdout_labels_sha256 = payload.get("holdout_labels_sha256", "")
+        if not isinstance(holdout_labels_sha256, str):
+            raise ValueError("run_manifest.holdout_labels_sha256 必须是字符串")
         case_count = payload["case_count"]
         if isinstance(case_count, bool) or not isinstance(case_count, int) or case_count < 0:
             raise ValueError(f"run_manifest.case_count 必须是非负整数，收到 {case_count!r}")
@@ -194,7 +240,13 @@ class RunManifest:
             for field in fields(cls)
             if field.name in payload
         }
-        values.update(mode=mode, case_count=case_count, index_revision=index_revision)
+        values.update(
+            mode=mode,
+            case_count=case_count,
+            index_revision=index_revision,
+            holdout_details=holdout_details,
+            holdout_labels_sha256=holdout_labels_sha256,
+        )
         return cls(**values)
 
 
@@ -235,19 +287,70 @@ def run_suite(
     replay_from: Path | str | None = None,
     dataset_path: Path | str | None = None,
     config: Any | None = None,
+    holdout_labels: Path | str | None = None,
+    allow_holdout_details: bool = False,
+    holdout_policy: HoldoutPolicy | None = None,
+    holdout_operator: str | None = None,
+    environ: Mapping[str, str] | None = None,
 ) -> RunResult:
     """跑一个 suite：``mode="local"`` 建隔离索引直接 ask；``"replay"`` 只重评分。
 
     参数与 handoff §5.1 一致；``dataset_path`` 仅供测试/复现覆盖默认
     ``fixtures/evaluation/<suite>.jsonl``。
+
+    P1 T108（holdout 防污染）：
+
+    - ``suite="holdout"`` 只允许 ``mode="local"``；题目来自仓库导出
+      ``fixtures/evaluation/holdout-questions.jsonl``，答案来自 ``holdout_labels``
+      （或环境变量 ``MKTKB_HOLDOUT_LABELS``），缺失一律 fail closed；
+    - 默认**只写聚合**（``run_manifest.json`` / ``summary.json``，不写 ``cases.jsonl``）；
+      ``allow_holdout_details=True`` 才写逐题结果 + ``holdout_audit.json``；
+    - CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI`` 任一为真）带
+      ``allow_holdout_details`` 直接拒绝（非零退出，不执行任何 case）；
+    - holdout 参数用于其它 suite 时也直接拒绝（避免误把 holdout 策略带到 b0/badcase）。
     """
-    if suite not in SUITES:
-        raise ValueError(f"未知 suite {suite!r}；只允许 {sorted(SUITES)}")
+    environ_map: Mapping[str, str] = os.environ if environ is None else environ
+    if suite != HOLDOUT_SUITE and (
+        holdout_labels is not None
+        or allow_holdout_details
+        or holdout_policy is not None
+        or holdout_operator is not None
+    ):
+        raise ValueError(
+            "holdout 参数（--holdout-labels / --allow-holdout-details）只用于 --suite holdout；"
+            f"当前 suite={suite!r}"
+        )
+    if suite not in MANIFEST_SUITES:
+        raise ValueError(f"未知 suite {suite!r}；只允许 {sorted(MANIFEST_SUITES)}")
     if mode not in MODES:
         raise ValueError(f"未知 mode {mode!r}；只允许 {list(MODES)}")
     if not isinstance(scope, str) or not scope.strip():
         raise ValueError("scope 必须是非空字符串（P0 为 end_to_end）")
-    dataset = Path(dataset_path) if dataset_path is not None else default_dataset_path(suite)
+    dataset = Path(dataset_path) if dataset_path is not None else _default_dataset(suite)
+
+    if suite == HOLDOUT_SUITE:
+        if mode != "local":
+            raise ValueError(
+                "holdout 只允许 mode='local'（聚合运行）；逐题 replay 待 T109/T110 再评估，"
+                "不得用聚合 run 冒充 replay 源"
+            )
+        labels = (
+            Path(holdout_labels)
+            if holdout_labels is not None
+            else _holdout_labels_from_env(environ_map)
+        )
+        return _run_local_holdout(
+            scope=scope,
+            corpus_dir=Path(corpus_dir) if corpus_dir is not None else default_corpus_dir("regression"),
+            out_dir=None if out_dir is None else Path(out_dir),
+            questions_path=dataset,
+            labels_path=labels,
+            policy=DEFAULT_HOLDOUT_POLICY if holdout_policy is None else holdout_policy,
+            allow_details=allow_holdout_details,
+            operator=holdout_operator,
+            environ=environ_map,
+            config=config,
+        )
 
     if mode == "local":
         if replay_from is not None:
@@ -271,6 +374,31 @@ def run_suite(
         out_dir=None if out_dir is None else Path(out_dir),
         dataset_path=dataset,
     )
+
+
+def _default_dataset(suite: str) -> Path:
+    """holdout 的默认数据集是仓库导出（无答案）；其它 suite 走冻结 fixture。"""
+    if suite == HOLDOUT_SUITE:
+        return HOLDOUT_QUESTIONS_PATH
+    return default_dataset_path(suite)
+
+
+def _holdout_labels_from_env(environ: Mapping[str, str]) -> Path | None:
+    value = environ.get(HOLDOUT_LABELS_ENV)
+    if value is None or not value.strip():
+        return None
+    return Path(value)
+
+
+def _holdout_operator(operator: str | None, environ: Mapping[str, str]) -> str:
+    """审计用操作人：显式参数 → ``MKTKB_HOLDOUT_OPERATOR`` → USER/USERNAME → unknown。"""
+    if operator is not None and operator.strip():
+        return operator.strip()
+    for name in (HOLDOUT_OPERATOR_ENV, "USERNAME", "USER"):
+        value = environ.get(name)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    return "unknown"
 
 
 # --------------------------------------------------------------------------- #
@@ -351,6 +479,171 @@ def _run_local(
     summary = _build_summary(manifest, cases, rows)
     _write_artifacts(target, manifest, rows, summary)
     return RunResult(manifest=manifest, out_dir=target, cases=tuple(rows), summary=summary)
+
+
+def _run_local_holdout(
+    *,
+    scope: str,
+    corpus_dir: Path,
+    out_dir: Path | None,
+    questions_path: Path,
+    labels_path: Path | None,
+    policy: HoldoutPolicy,
+    allow_details: bool,
+    operator: str | None,
+    environ: Mapping[str, str],
+    config: Any | None,
+) -> RunResult:
+    """holdout local run：默认只出聚合；``allow_details`` 才写逐题 + 审计。"""
+    if allow_details:
+        ci_var = ci_environment(environ)
+        if ci_var is not None:
+            raise HoldoutError(
+                "CI/门禁环境禁止 --allow-holdout-details"
+                f"（命中环境变量 {ci_var}）：holdout 逐题详情只能在本地受限环境生成"
+            )
+    if labels_path is None:
+        raise HoldoutError(
+            "holdout 缺少 labels：请用 --holdout-labels <path> 或 "
+            f"{HOLDOUT_LABELS_ENV} 指向本地 labels.jsonl（labels 永不入库）"
+        )
+    dataset: HoldoutDataset = load_holdout_dataset(questions_path, labels_path, policy=policy)
+    cases = list(dataset.cases)
+    business_date = _single_business_date(cases)
+    label_version = _single_label_version(cases)
+    ds_version = dataset_version(cases, label_version)
+    ds_sha = dataset.questions.sha256
+
+    # holdout 语料 = 全量企业语料（与 regression 同一装配口径）：
+    # 引用到的 doc_code 必须全部解析成功，不让 gold 悄悄退化成 GoldUnresolved。
+    corpus = load_suite_corpus(
+        "regression",
+        corpus_dir,
+        business_date=business_date,
+        required_codes=_required_doc_codes(cases),
+    )
+    if corpus.business_date is not None and corpus.business_date != business_date:
+        raise ValueError(
+            "语料 manifest 业务日期与数据集不一致："
+            f"{corpus.business_date!r} != {business_date!r}"
+        )
+
+    run_id = _new_run_id(HOLDOUT_SUITE, "local")
+    target = _prepare_out_dir(out_dir, run_id)
+    rows: list[dict[str, Any]] = []
+    with tempfile.TemporaryDirectory(prefix="mktkb-eval-holdout-") as temp_dir:
+        # 聚合 run 的 trace 只落在临时目录（随后随目录删除）：产物里不留逐题痕迹。
+        trace_path = (
+            target / TRACE_STORE_NAME if allow_details else Path(temp_dir) / TRACE_STORE_NAME
+        )
+        repo = TraceRepository(trace_path)
+        try:
+            cfg = config or offline_eval_config(Path(temp_dir), business_date)
+            if getattr(cfg, "provider_mode", None) != "offline":
+                raise ValueError(
+                    "评测只允许 provider_mode='offline'（零真实调用），收到 "
+                    f"{getattr(cfg, 'provider_mode', None)!r}"
+                )
+            index, index_stats = build_suite_index(
+                corpus, Path(temp_dir) / "rag.sqlite3", config=cfg
+            )
+            try:
+                manifest = RunManifest(
+                    run_id=run_id,
+                    mode="local",
+                    scope=scope,
+                    suite=HOLDOUT_SUITE,
+                    dataset_version=ds_version,
+                    dataset_sha256=ds_sha,
+                    corpus_manifest_sha256=corpus.manifest_sha256,
+                    business_date=business_date,
+                    index_revision=int(index_stats["revision"]),
+                    pipeline_version=_pipeline_version(),
+                    gate_version=GATE_SCHEMA_VERSION,
+                    label_version=label_version,
+                    created_at=_utc_now(),
+                    case_count=len(cases),
+                    config_hash=_config_hash(cfg),
+                    trace_store=TRACE_STORE_NAME if allow_details else "",
+                    dataset_path=str(questions_path.resolve()),
+                    corpus_dir=str(corpus_dir.resolve()),
+                    holdout_details=allow_details,
+                    holdout_labels_sha256=dataset.labels.sha256,
+                )
+                rows = [_local_case_row(case, index, repo, manifest) for case in cases]
+            finally:
+                index.close()
+        finally:
+            repo.close()
+
+    summary = _build_summary(
+        manifest,
+        cases,
+        rows,
+        holdout=dataset,
+        redact_case_ids=not allow_details,
+    )
+    _write_artifacts(target, manifest, rows, summary, include_cases=allow_details)
+    if allow_details:
+        _write_holdout_audit(
+            target,
+            manifest=manifest,
+            dataset=dataset,
+            out_dir=target,
+            scope=scope,
+            questions_path=questions_path,
+            labels_path=Path(labels_path),
+            corpus_dir=corpus_dir,
+            operator=_holdout_operator(operator, environ),
+        )
+    return RunResult(manifest=manifest, out_dir=target, cases=tuple(rows), summary=summary)
+
+
+def _write_holdout_audit(
+    target: Path,
+    *,
+    manifest: RunManifest,
+    dataset: HoldoutDataset,
+    out_dir: Path,
+    scope: str,
+    questions_path: Path,
+    labels_path: Path,
+    corpus_dir: Path,
+    operator: str,
+) -> Path:
+    """写 ``holdout_audit.json``：操作人/时间/参数/run_id/数据 sha/label_version。
+
+    只记元数据与路径，**不含任何题干或答案原文**。
+    """
+    payload = {
+        "audit_schema_version": "mktkb.holdout.audit.v0.1",
+        "run_id": manifest.run_id,
+        "suite": manifest.suite,
+        "mode": manifest.mode,
+        "scope": scope,
+        "operator": operator,
+        "created_at": manifest.created_at,
+        "parameters": {
+            "allow_holdout_details": True,
+            "out_dir": str(Path(out_dir).resolve()),
+            "corpus_dir": str(Path(corpus_dir).resolve()),
+            "config_hash": manifest.config_hash,
+        },
+        "data": {
+            "questions_path": str(Path(questions_path).resolve()),
+            "questions_sha256": dataset.questions.sha256,
+            "labels_path": str(Path(labels_path).resolve()),
+            "labels_sha256": dataset.labels.sha256,
+            "label_version": manifest.label_version,
+            "case_count": manifest.case_count,
+            "strata": dict(sorted(dataset.questions.strata.items())),
+            "metadata_mismatch_count": dataset.metadata_mismatch_count,
+        },
+        "note": "holdout 逐题详情仅供本地受限分析；不得入库、不得进入报告或证据。",
+    }
+    path = Path(target) / "holdout_audit.json"
+    _write_json(path, payload)
+    return path
 
 
 def _local_case_row(
@@ -1116,7 +1409,12 @@ def _result_from_row(row: Mapping[str, Any]) -> CaseResult:
 
 
 def _build_summary(
-    manifest: RunManifest, cases: Sequence[CaseSpec], rows: Sequence[Mapping[str, Any]]
+    manifest: RunManifest,
+    cases: Sequence[CaseSpec],
+    rows: Sequence[Mapping[str, Any]],
+    *,
+    holdout: HoldoutDataset | None = None,
+    redact_case_ids: bool = False,
 ) -> dict[str, Any]:
     aligned_cases: list[CaseSpec] = []
     results: list[CaseResult] = []
@@ -1160,7 +1458,48 @@ def _build_summary(
         },
         "declarations": _declarations(manifest, cases, rows),
     }
+    if redact_case_ids:
+        _redact_case_ids(summary)
+    if holdout is not None:
+        summary["holdout"] = {
+            "aggregate_only": not manifest.holdout_details,
+            "details_written": manifest.holdout_details,
+            "audit_file": "holdout_audit.json" if manifest.holdout_details else None,
+            "questions_sha256": holdout.questions.sha256,
+            "labels_sha256": holdout.labels.sha256,
+            "label_version": manifest.label_version,
+            "strata": dict(sorted(holdout.questions.strata.items())),
+            "metadata_mismatch_count": holdout.metadata_mismatch_count,
+            "traces_persisted": manifest.holdout_details,
+            "note": (
+                "holdout 默认只出聚合（无 cases.jsonl / 逐题题干 / 答案 / 逐题结果）；"
+                "逐题详情需 --allow-holdout-details 并在本地受限环境使用，永不入库"
+            ),
+        }
     return summary
+
+
+def _redact_case_ids(summary: dict[str, Any]) -> None:
+    """把汇总里的逐 case 列表换成计数（holdout 聚合 run 的防污染要求）。"""
+    scope = summary.get("metrics_scope")
+    if isinstance(scope, dict):
+        excluded = scope.pop("excluded_error_case_ids", [])
+        scope["excluded_error_count"] = len(excluded) if isinstance(excluded, list) else 0
+    declarations = summary.get("declarations")
+    if not isinstance(declarations, dict):
+        return
+    replacements = {
+        "single_turn_case_ids": "single_turn_case_count",
+        "expected_pagination_case_ids": "expected_pagination_case_count",
+        "range_gold_case_ids": "range_gold_case_count",
+    }
+    for block in declarations.values():
+        if not isinstance(block, dict):
+            continue
+        for key, count_key in replacements.items():
+            if key in block:
+                value = block.pop(key)
+                block[count_key] = len(value) if isinstance(value, list) else 0
 
 
 def _declarations(
@@ -1221,13 +1560,17 @@ def _write_artifacts(
     manifest: RunManifest,
     rows: Sequence[Mapping[str, Any]],
     summary: Mapping[str, Any],
+    *,
+    include_cases: bool = True,
 ) -> None:
+    """写产物；``include_cases=False``（holdout 聚合）不写 ``cases.jsonl``。"""
     _write_json(target / "run_manifest.json", manifest.to_dict())
-    payload = "".join(
-        json.dumps(dict(row), ensure_ascii=False, separators=(",", ":")) + "\n"
-        for row in rows
-    )
-    (target / "cases.jsonl").write_bytes(payload.encode("utf-8"))
+    if include_cases:
+        payload = "".join(
+            json.dumps(dict(row), ensure_ascii=False, separators=(",", ":")) + "\n"
+            for row in rows
+        )
+        (target / "cases.jsonl").write_bytes(payload.encode("utf-8"))
     _write_json(target / "summary.json", summary)
 
 
