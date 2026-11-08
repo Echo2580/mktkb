@@ -35,7 +35,7 @@
 | T108 | Holdout 支持与防污染 | **G6 已收口**（dev `af08848`+R1 `d3b5745`；独立验收 R2 **PASS**：`review-R2.md`；真实 holdout 30/30、`error_count=0`、分母 30、拒答 2×2 可复算；B2/B3 防污染加固；全量 1776 passed；残余记 #53） | 1 | 否 | T106 ✅ |
 | T109 | 多轮 turns runner | **G6 已收口**（dev `703b7e0`+R1 `1ffd57a`；独立验收 R2 **PASS**：`review-R2.md`；replay fail-closed + error 明细；全量 1795 passed；RG006 非放宽；残余记 #54） | 1 | 否 | T108 ✅ |
 | T110 | 检索金标与检索指标 | **G6 已收口**（dev `6c82a8f`；独立验收技术 **PASS**：`review.md`；同 chunk 同排名/去重/金标 fail-closed/手算逐值；全量 1812 passed；残余与流程瑕疵裁定记 #55） | 0 | 否 | T109 ✅ |
-| T111 | live 检索运行器与真实索引（pilot 10 停） | **G1 已派单（开发中）**（handoff+prompts 落盘；唯一允许真实调用包；硬约束：retrieval_only/零 chat/预检+账本/pilot 10 停） | 0 | 否 | T110 ✅ |
+| T111 | live 检索运行器与真实索引（pilot 10 停） | **pilot 完成（10/10 pass），待独立验收**（dev `735bb93`；真实 b0 前 10：R/MRR/nDCG=1.0；账本 P1-RETRIEVAL 0.0026345 元/27 请求；chat=0；pilot 后已停，等主人过目全量） | 0 | 否 | T110 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
