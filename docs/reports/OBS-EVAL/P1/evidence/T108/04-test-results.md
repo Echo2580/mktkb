@@ -80,3 +80,60 @@ git diff --exit-code -- backend/src/mktkb/conversations backend/src/mktkb/rag ->
   （合成夹具的标记词只用于断言「不在产物里」）。
 - 真实 holdout run：**NOT-RUN（按红线由验收方执行）**；本包只验证缺 labels 时 fail closed
   （exit 3，无产物，见 03 §B）。
+
+## R1. 返工复跑（2026-11-08）
+
+环境/命令口径同 §A（`MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0`、`-B -q -p no:cacheprovider
+--basetemp backend\.pytest-tmp\<label>`；同一时间只跑一套 pytest；零真实模型调用）。
+
+### R1-A. pytest（每个范围 1 次；R1 最终树）
+
+| 范围 | label | 结果 |
+| --- | --- | --- |
+| 本包 `test_holdout_suite.py` | `t108r1-pkg` | **43 passed / 0 failed / 0 error**（62.01s） |
+| `backend/tests/evaluation` | `t108r1-eval` | **373 passed / 0 failed / 0 error**（77.06s） |
+| 全量 `backend/tests` | `t108r1-full` | **1776 passed / 0 failed / 0 error**（472.26s） |
+
+- 增量：本包 34→43（+9 条 R1 测试）、evaluation 364→373、全量 1767→1776；无删除断言、
+  无新增 `pytest.mark.skip/xfail/skipif`（diff 仅替换 2 行：import 行与 `_run` 的 labels 透传行）。
+- 内存：约 30s 间隔轮询 5 个样本（275.2 / 377.2 / 446.9 / 386.2 / 405.6 MB），峰值
+  **446.9 MB**（< 2 GB）。本次未出现既有 flake，未触发隔离复跑。
+
+### R1-B. b0 / badcase 对 P0
+
+| suite | 本轮 run_id | 状态 | gate | 对 P0 逐例 |
+| --- | --- | --- | --- | --- |
+| b0 | `b0-local-20261108T133817641064Z-e68c2ef8` | pass 29 / fail 3 / skipped 8 | exit 3，hard `[]` | **case_diffs=0/40** |
+| badcase | `badcase-local-20261108T133825980216Z-845c1411` | pass 9 / fail 4 | exit 3，hard `[]` | **case_diffs=0/13** |
+
+逐例口径同 §B（`compare_cases.py`，临时不入库）；两组 `case_diffs=0`，`summary.status_counts`
+与 P0 完全一致。
+
+### R1-C. regression 对 `17c0e63`
+
+基线 worktree `%TEMP%\t105-r1-baseline-wt`（`rev-parse`=`17c0e63`，`git status --short` 空；
+运行时打印 `mktkb.__file__=…\t105-r1-baseline-wt\backend\src\mktkb\__init__.py`）。
+
+| 版本 | run_id | 状态 | gate |
+| --- | --- | --- | --- |
+| `17c0e63` 基线 | `regression-local-20261108T133929774507Z-a7661903` | pass 4 / fail 3 | exit 1，hard `['security_leak']` |
+| 当前 R1 树 | `regression-local-20261108T134057830365Z-88c06963` | pass 5 / fail 2 | exit 3，hard `[]` |
+
+逐例：**仅 RG006** `fail/answer` → `pass/clarification`；RG005/RG007 仍 `fail/answer`（签名字段
+不变）；gate hard 由 `['security_leak']` 收缩为 `[]`，**无新 hard 名**。与 R1 前 `af08848`
+的回归结论一致（B1 改动不影响 b0/badcase/regression 的 gold 形态：三套 fixture 均无
+`expected_sources=[]` + `relevant_units` 非空的 case）。
+
+### R1-D. 范围 / 形式
+
+```text
+git status --short -> M backend/src/mktkb/evaluation/runner.py
+                      M backend/tests/evaluation/test_holdout_suite.py
+                      （另：report.md 与证据 03/04 的 R1 段）
+git diff --exit-code -- fixtures/evaluation/{b0,badcase,regression,holdout-questions}.jsonl -> 0
+git diff --exit-code -- backend/src/mktkb/{conversations,rag,api} docs/evaluation -> 0
+```
+
+- 未改 `dataset.py`/`gate.py`、未改业务代码/API/intent、未写账本/GO/`.env`；未 push/amend。
+- 探针与日志：`backend\.pytest-tmp\T108-R1\`（`probe_b1.py`、`probe_r1_cli.py`、`probe-*.log`、
+  `eval\*`），临时不入库。真实 holdout run 仍 **NOT-RUN**（由 R2 执行）。

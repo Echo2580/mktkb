@@ -78,3 +78,90 @@
   holdout 不进门禁，该口径留给 T110/T112 决定。
 - 聚合 run 不落 trace：holdout 聚合没有逐题 trace 证据；需要 trace 必须开 details（受限环境）。
 - 真实 holdout 的分数/阈值解释不在本包；`gate_v0_2` 校准（T112）前只能作为观察性证据。
+
+## 6. R1 返工（`rework-R1.md`，2026-11-08）
+
+模型：`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`。基线 `af08848`，本轮单 commit
+`p1/T108 R1 fix holdout refusal-case scoring + out-dir guard`。
+
+### 6.1 B1（F1 阻塞）拒答负样例不可评分 — 已修
+
+- 根因（与 review F1 一致）：`_assert_gold_unit_ids` 只要任一 ref 存在就要求 `gold.unit_ids`，
+  而 `gold.py:240-241` 的 `unit_ids` 只从 `expected_sources` 汇总；真实 3/30 是
+  `should_refuse=true` + `expected_sources=[]` + `relevant_units` 非空，合法拒答题被判
+  `gold_unit_ids_missing`，27/30 进分母。
+- 修法（`runner.py:1382`）：**仅当 `case.expected_sources` 非空**才要求 `gold.unit_ids`；
+  `expected_sources+relevant_units` 存在时仍要求 `relevant_unit_ids` 非空；
+  `record_code_only_gold`（`runner.py:1367` 起）与 replay 的同一断言未放宽。
+- 合成 before/after（探针 `backend\.pytest-tmp\T108-R1\probe_b1.py`，3 条合成 case，S03 改成
+  `expected_sources=[]` + `relevant_units` 非空 + `should_refuse=true`）：
+
+  | 时点 | status_counts | error | S03 | 分母 | refusal_recall | 产物 |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | 修复前（`af08848`） | `{error:1, pass:2}` | `gold_unit_ids_missing` | error | 2/3 | `None` | manifest+summary |
+  | 修复后 | `{fail:1, pass:2}` | `error=None` | fail（已评分） | 3/3 | `0.0` | manifest+summary |
+
+  S03 的 `refusal_expected`/`kind_correct` 走既有拒答与 kind 口径，`gold.unit_ids=[]` 而
+  `relevant_unit_ids` 非空；fail 是离线替身没有拒答的真实评分结果，不是 error。修复后聚合
+  仍不写 `cases.jsonl`（防污染口径不变）。
+- 防回归测试：`test_refusal_case_with_relevant_units_is_scored_not_error`
+  （`test_holdout_suite.py:750`）断言非 error、3/3 进分母、`excluded_error_count=0`、
+  `refusal_recall`/`Recall@10` 非 None；`test_expected_sources_still_require_unit_ids`（`:775`）
+  只抽掉 S01 的 `unit_ids`，断言仍 `gold_unit_ids_missing`，同轮负样例不 error；
+  既有 replay 断言测试 `test_replay_fails_closed_on_missing_unit_ids` 仍通过。
+- **真实 30/30 由验收 R2 用 labels 路径执行**：本包未读真实 holdout 内容，未运行真实 run。
+
+### 6.2 B2（review R1）out 目录防污染 — 采用「拒绝非空目录」（不清理）
+
+- `runner.py:112` 新增 `HOLDOUT_DETAIL_FILES`（`cases.jsonl` / `holdout_audit.json` /
+  `traces.sqlite3`）；`_assert_holdout_out_dir_fresh`（`:491`）在 `_run_local_holdout`（`:522`）
+  读 labels / 建索引**之前**执行：
+  - `--out` 不存在或存在且为空 → 允许（空目录是显式新建的合法目标）；
+  - 目录含旧详情三件套 → `HoldoutError`，点名已存在的文件；
+  - 目录非空但无详情 → `HoldoutError`，点名条目数/前 5 项。
+- 默认聚合与 `--allow-holdout-details` 同口径（details 更严于 rework 的最低要求「拒绝已存在
+  detail 文件」）：detail 三件套必须来自本次 run，避免新旧混合与 `holdout_audit.json` 失真。
+  二选一里选择「拒绝」而非「写前删除」，因为删除会掩盖误复用、且无法审计旧详情来源。
+- 测试：`test_holdout_rejects_out_dir_with_old_details`（`:796`，旧 `cases.jsonl` 原样保留、
+  无 manifest/summary 落盘）、`test_holdout_rejects_reused_nonempty_out_dir`（`:811`）、
+  `test_holdout_details_flag_rejects_dir_with_old_details`（`:822`）、
+  `test_holdout_accepts_existing_empty_out_dir`（`:833`）、CLI 面
+  `test_cli_holdout_rejects_reused_out_dir`（`:845`，exit 3、stderr 含「拒绝复用」、无 traceback、
+  旧文件不动）。
+
+### 6.3 B3（review R3）holdout local 静默忽略 `--from-run` — 已拒绝
+
+- `run_suite` 的 holdout 分支（`runner.py:341`）在 `mode` 校验后新增：
+  `holdout 不接受 replay_from（--from-run）：聚合 run 没有 cases.jsonl 可重放，不得静默忽略`。
+  CLI 走既有 `ValueError` → exit 3，out 目录不创建。
+- 测试：`test_holdout_local_rejects_from_run`（`:873`）、
+  `test_cli_holdout_rejects_from_run`（`:891`，exit 3、stderr 含 `replay_from`、无 traceback）。
+  既有 `test_holdout_replay_is_rejected`（`mode=replay`）仍先命中「只允许 mode='local'」。
+
+### 6.4 R1 运行数字（全部实跑）
+
+| 范围 | label | 结果 |
+| --- | --- | --- |
+| 本包 `test_holdout_suite.py` | `t108r1-pkg` | **43 passed**（62.01s；R1 前 34） |
+| `backend/tests/evaluation` | `t108r1-eval` | **373 passed / 0 failed / 0 error**（77.06s；R1 前 364） |
+| 全量 `backend/tests` | `t108r1-full` | **1776 passed / 0 failed / 0 error**（472.26s；R1 前 1767） |
+
+- 内存：约 30s 间隔轮询 5 个样本，python 进程组峰值 **446.9 MB**（< 2 GB）；无 flake，未触发隔离复跑。
+- b0：`b0-local-20261108T133817641064Z-e68c2ef8`，pass 29 / fail 3 / skipped 8，gate exit 3 hard `[]`，
+  对 `var/eval/runs/p0-b0` **case_diffs=0/40**；badcase：
+  `badcase-local-20261108T133825980216Z-845c1411`，pass 9 / fail 4，gate exit 3 hard `[]`，
+  对 `p0-badcase` **case_diffs=0/13**。
+- regression 对 `17c0e63`（worktree `%TEMP%\t105-r1-baseline-wt`，已打印
+  `mktkb.__file__=…\t105-r1-baseline-wt\backend\src\mktkb\__init__.py`）：基线
+  `…a7661903` pass 4/fail 3、gate exit 1 hard `['security_leak']`；当前 `…88c06963`
+  pass 5/fail 2、gate exit 3 hard `[]`；逐例**仅 RG006** `fail/answer`→`pass/clarification`，
+  RG005/RG007 签名不变，**无新 hard**。
+
+### 6.5 R1 残余 / 偏离
+
+- 真实 holdout 30/30 的可评分性与通过率：**NOT-RUN（红线）**，由验收 R2 用 labels 路径跑；
+  R1 只证明同一形态的合成负样例不再 error 并按既有口径评分。
+- B2 比 rework 最低要求更严：details run 也拒绝任何非空目录（不只是含详情文件的目录）。
+  代价是复用「只有旧 manifest/summary」的目录也会被拒绝；换来 holdout 产物可追溯、不混代。
+- 未改 `dataset.py` / `gate.py`（B1–B3 均可在 runner 层收口）；gate 对 details run 的拒绝口径不变。
+- 真实 run 的 3 个拒答题修复后是否 pass（模型/管线是否真拒答）仍由 R2 观察；本包不预测分数。

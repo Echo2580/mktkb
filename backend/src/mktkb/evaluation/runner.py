@@ -108,6 +108,8 @@ MODES = ("local", "replay")
 #: ``run_manifest.suite`` 允许值：P0 三套 + P1 holdout（T108）。
 MANIFEST_SUITES = frozenset(set(SUITES) | {HOLDOUT_SUITE})
 TRACE_STORE_NAME = "traces.sqlite3"
+#: holdout 逐题详情三件套；复用 out 目录时不得残留/新旧混合（P1 T108 R1 B2）。
+HOLDOUT_DETAIL_FILES: tuple[str, ...] = ("cases.jsonl", "holdout_audit.json", TRACE_STORE_NAME)
 HOLDOUT_OPERATOR_ENV = "MKTKB_HOLDOUT_OPERATOR"
 HOLDOUT_LABELS_ENV = "MKTKB_HOLDOUT_LABELS"
 
@@ -334,6 +336,11 @@ def run_suite(
                 "holdout 只允许 mode='local'（聚合运行）；逐题 replay 待 T109/T110 再评估，"
                 "不得用聚合 run 冒充 replay 源"
             )
+        if replay_from is not None:
+            raise ValueError(
+                "holdout 不接受 replay_from（--from-run）：聚合 run 没有 cases.jsonl 可重放，"
+                "不得静默忽略；holdout 重放待 T109/T110 再评估"
+            )
         labels = (
             Path(holdout_labels)
             if holdout_labels is not None
@@ -481,6 +488,37 @@ def _run_local(
     return RunResult(manifest=manifest, out_dir=target, cases=tuple(rows), summary=summary)
 
 
+def _assert_holdout_out_dir_fresh(out_dir: Path | None) -> None:
+    """holdout 拒绝复用已有内容的 out 目录（P1 T108 R1 B2）。
+
+    默认聚合 run 只写 ``run_manifest.json`` / ``summary.json``；若复用非空目录，旧的
+    ``cases.jsonl`` / ``holdout_audit.json`` / ``traces.sqlite3`` 会残留，导致「聚合目录里
+    藏着逐题详情」或新旧 run 混合、审计失真。因此 holdout 一律要求 out 目录为空或不存在
+    （``--allow-holdout-details`` 同样适用：详情三件套必须是本次 run 的）。
+    """
+    if out_dir is None:
+        return
+    target = Path(out_dir)
+    if not target.exists():
+        return
+    if not target.is_dir():
+        raise HoldoutError(f"holdout --out 必须是目录：{target}")
+    entries = sorted(entry.name for entry in target.iterdir())
+    if not entries:
+        return
+    existing_details = [name for name in HOLDOUT_DETAIL_FILES if (target / name).exists()]
+    if existing_details:
+        raise HoldoutError(
+            f"holdout 拒绝复用含逐题详情的 out 目录 {target}：已存在 "
+            f"{', '.join(existing_details)}；请换新目录或先清理，避免新旧 run 详情混合、审计失真"
+        )
+    raise HoldoutError(
+        f"holdout 拒绝复用非空 out 目录 {target}：已有 {len(entries)} 项 "
+        f"（{', '.join(entries[:5])}{'…' if len(entries) > 5 else ''}）；"
+        "请换新目录或先清空（holdout 产物必须来自一次全新的 run）"
+    )
+
+
 def _run_local_holdout(
     *,
     scope: str,
@@ -502,6 +540,7 @@ def _run_local_holdout(
                 "CI/门禁环境禁止 --allow-holdout-details"
                 f"（命中环境变量 {ci_var}）：holdout 逐题详情只能在本地受限环境生成"
             )
+    _assert_holdout_out_dir_fresh(out_dir)
     if labels_path is None:
         raise HoldoutError(
             "holdout 缺少 labels：请用 --holdout-labels <path> 或 "
@@ -1341,16 +1380,22 @@ def _assert_gold_references(case: CaseSpec) -> None:
 
 
 def _assert_gold_unit_ids(case: CaseSpec, gold: ResolvedGold) -> None:
+    """``expected_sources``（答案出处）非空时才要求 ``gold.unit_ids``，否则不得静默扩文档。
+
+    P1 T108 R1（F1）：负样例（``expected_sources=[]`` + ``relevant_units`` 非空，含
+    ``should_refuse=true``）的 ``unit_ids`` 本来就是空（``gold.py`` 只从 expected_sources
+    汇总），检索/拒答指标按 ``relevant_unit_ids`` 口径评分，不能判 error。
+    """
     if gold.skipped:
         return
-    refs = (*case.expected_sources, *case.relevant_units)
-    if not refs:
-        return
-    if not gold.unit_ids:
+    if case.expected_sources and not gold.unit_ids:
         raise _CaseError(
             "gold_unit_ids_missing",
             f"{case.case_id}: gold 引用存在但 unit_ids 为空（不得静默扩为整文档）",
         )
+    refs = (*case.expected_sources, *case.relevant_units)
+    if not refs:
+        return
     if not gold.relevant_unit_ids:
         raise _CaseError(
             "gold_unit_ids_missing",

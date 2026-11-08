@@ -85,3 +85,55 @@ var\eval\runs\p0-badcase gate exit 3 hard []
 
 holdout 分支只在 `run_manifest.suite=holdout` 时触发；b0/badcase/regression 的 gate 路径未变
 （见 04 的逐例对照）。
+
+## R1（返工）：F1 合成复现 / out 目录守卫 / from-run 拒绝
+
+依据 `.claude/handoffs/T108-holdout-support/rework-R1.md`；探针均只读合成夹具
+（`backend\.pytest-tmp\T108-R1\`，临时不入库），未读真实 holdout 内容。
+
+### R1-A. B1（F1）合成 before/after
+
+夹具：3 条合成 case（E11 一份语料）；S03 = `expected_sources=[]` + `relevant_units` 非空 +
+`should_refuse=true`（真实 3/30 的形态）。命令：
+
+```text
+$env:PYTHONPATH="backend/src"
+python -B backend\.pytest-tmp\T108-R1\probe_b1.py backend\.pytest-tmp\T108-R1\before   # af08848 代码
+python -B backend\.pytest-tmp\T108-R1\probe_b1.py backend\.pytest-tmp\T108-R1\after    # R1 代码
+```
+
+```text
+# before（af08848）
+case_count: 3  status_counts: {'error': 1, 'pass': 2}  error_count: 1
+scored_count: 2  cases_in_denominator: 2  refusal_recall: None
+  S03: status=error error=gold_unit_ids_missing should_refuse=True checks=[]
+# after（R1）
+case_count: 3  status_counts: {'fail': 1, 'pass': 2}  error_count: 0
+scored_count: 3  cases_in_denominator: 3  refusal_recall: 0.0
+  S03: status=fail error=None should_refuse=True
+       checks=[value_hit, value_forbidden, value_no_fabricated, source_hit, source_forbidden,
+               kind_correct, refusal_expected, refusal_unexpected, pagination_*]
+artifacts: ['run_manifest.json', 'summary.json']   # 聚合口径不变，无 cases.jsonl
+```
+
+### R1-B. B2 / B3 CLI 面
+
+```text
+python -B backend\.pytest-tmp\T108-R1\probe_r1_cli.py
+```
+
+```text
+== B2. 默认 run 复用含旧 cases.jsonl 的 out 目录 ==
+ERROR: HoldoutError: holdout 拒绝复用含逐题详情的 out 目录 …\cli-stale：已存在 cases.jsonl；
+       请换新目录或先清理，避免新旧 run 详情混合、审计失真
+exit: 3        out entries: ['cases.jsonl']        # 旧文件未被改写/删除
+== B3. holdout local + --from-run ==
+ERROR: ValueError: holdout 不接受 replay_from（--from-run）：聚合 run 没有 cases.jsonl 可重放，
+       不得静默忽略；holdout 重放待 T109/T110 再评估
+exit: 3        out_dir_exists: False
+```
+
+- B2 选择「拒绝非空 out 目录」（不清理）：默认与 `--allow-holdout-details` 同口径；
+  含详情三件套时错误点名文件名，非空但不含详情时点名条目。
+- B3 拒绝发生在加载 labels/建索引之前，CLI exit 3 且不创建 out 目录，无 traceback。
+- 测试断言见 `test_holdout_suite.py` §6（`:750-891`）；真实 holdout run 仍由 R2 执行。

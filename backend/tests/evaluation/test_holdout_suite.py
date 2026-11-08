@@ -11,12 +11,20 @@
 4. 拒绝条件逐项：缺 labels / 缺 label_version / 行数 / 分层 / case_id 集合 / sha 不符；
 5. 仓库导出 ``fixtures/evaluation/holdout-questions.jsonl`` 无答案字段、sha 固定。
 
+R1 返工（`rework-R1.md`）：
+
+6. 拒答负样例（``expected_sources=[]`` + ``relevant_units`` 非空 + ``should_refuse``）不得
+   判 error、须进入指标分母；``expected_sources`` 非空但 unit_ids 空仍 error；
+7. holdout 拒绝复用非空 / 含旧详情三件套的 out 目录（details 同口径）；
+8. ``run --suite holdout --mode local --from-run`` 明确拒绝，不静默忽略。
+
 红线：测试只用**临时合成** holdout 夹具（E11 一份合成语料），不读真实 labels，
 证据/断言里不出现真实题干或答案。
 """
 
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import json
 import shutil
@@ -24,7 +32,7 @@ from pathlib import Path
 
 import pytest
 
-from mktkb.evaluation import cli
+from mktkb.evaluation import cli, runner
 from mktkb.evaluation.dataset import (
     DEFAULT_HOLDOUT_POLICY,
     HOLDOUT_ANSWER_FIELDS,
@@ -142,6 +150,26 @@ def _labels() -> list[dict]:
     ]
 
 
+def _labels_refusal_with_relevant_units() -> list[dict]:
+    """真实 holdout 负样例形态（R1/F1）：``expected_sources=[]`` + ``relevant_units`` 非空。
+
+    默认 ``_labels()`` 的 S03 是 ``relevant_units=[]``，触发不到旧断言的 error 分支；
+    这里补上检索相关 unit，复现真实 3/30 的 ``gold_unit_ids_missing``。
+    """
+    labels = _labels()
+    labels[-1] = _l_row(
+        "S03",
+        expected_kind="refusal",
+        expected_values=[],
+        expected_sources=[],
+        relevant_units=[{"doc_code": "E11", "unit_key": "sheet:物品位置:row:7"}],
+        reference_answer="语料未记录该事项（合成）",
+        should_refuse=True,
+        refusal_reason="语料未记录该事项",
+    )
+    return labels
+
+
 def _policy(**overrides) -> HoldoutPolicy:
     base: dict = {
         "case_count": SYNTH_CASE_COUNT,
@@ -200,7 +228,8 @@ def _write_synthetic_corpus(tmp_path: Path) -> Path:
 
 
 def _run(tmp_path: Path, **kwargs):
-    questions, labels = _fixture(tmp_path)
+    labels_override = kwargs.pop("labels", None)
+    questions, labels = _fixture(tmp_path, labels=labels_override)
     policy = kwargs.pop("policy", _policy())
     corpus_dir = kwargs.pop("corpus_dir", None) or _write_synthetic_corpus(tmp_path)
     out_dir = kwargs.pop("out_dir", tmp_path / "run")
@@ -711,3 +740,177 @@ def test_cli_rejects_holdout_flag_for_b0(capsys) -> None:
     assert code != 0
     assert "只用于 --suite holdout" in captured.err
     assert "Traceback" not in captured.err
+
+
+# --------------------------------------------------------------------------- #
+# 6. R1 返工：拒答负样例可评分（F1）/ out 目录防污染 / from-run 拒绝
+# --------------------------------------------------------------------------- #
+
+
+def test_refusal_case_with_relevant_units_is_scored_not_error(tmp_path: Path) -> None:
+    """F1 回归：``expected_sources=[]`` + ``relevant_units`` 非空 + 拒答必须可评分。"""
+    result = _run(tmp_path, labels=_labels_refusal_with_relevant_units())
+
+    row = next(item for item in result.cases if item["case_id"] == "S03")
+    assert row["status"] in {"pass", "fail"}
+    assert row["error"] is None
+    assert row["should_refuse"] is True
+    assert row["gold"]["unit_ids"] == []
+    assert row["gold"]["relevant_unit_ids"]
+    assert any(
+        check["check_id"] == "refusal_expected" and check["status"] != "skipped"
+        for check in row["checks"]
+    )
+
+    summary = result.summary
+    assert summary["error_count"] == 0
+    assert summary["scored_count"] == SYNTH_CASE_COUNT
+    assert summary["metrics_scope"]["cases_in_denominator"] == SYNTH_CASE_COUNT
+    assert summary["metrics_scope"]["excluded_error_count"] == 0
+    # 负样例进入拒答 2×2 与检索分母（不是 unknown / 不进分母）
+    assert summary["metrics"]["refusal_recall"] is not None
+    assert summary["metrics"]["Recall@10"] is not None
+
+
+def test_expected_sources_still_require_unit_ids(tmp_path: Path, monkeypatch) -> None:
+    """``expected_sources`` 非空但 unit_ids 空仍须 error（不得放宽成静默扩文档）。"""
+    real_resolve = runner.resolve_case
+
+    def resolve_without_units(case, index):
+        gold = real_resolve(case, index)
+        if case.case_id == "S01":
+            return dataclasses.replace(gold, unit_ids=())
+        return gold
+
+    monkeypatch.setattr(runner, "resolve_case", resolve_without_units)
+    result = _run(tmp_path, labels=_labels_refusal_with_relevant_units())
+
+    positive = next(item for item in result.cases if item["case_id"] == "S01")
+    assert positive["status"] == "error"
+    assert positive["error"]["code"] == "gold_unit_ids_missing"
+    # 同一轮里负样例（expected_sources=[]）不因 unit_ids 空被判 error
+    negative = next(item for item in result.cases if item["case_id"] == "S03")
+    assert negative["status"] != "error"
+
+
+def test_holdout_rejects_out_dir_with_old_details(tmp_path: Path) -> None:
+    """默认聚合 run 复用带旧 ``cases.jsonl`` 的目录 → 明确拒绝，旧文件不动。"""
+    stale = tmp_path / "stale"
+    stale.mkdir()
+    old_cases = stale / "cases.jsonl"
+    old_cases.write_text('{"case_id":"OLD"}\n', encoding="utf-8")
+
+    with pytest.raises(HoldoutError, match="拒绝复用含逐题详情"):
+        _run(tmp_path, out_dir=stale)
+
+    assert old_cases.read_text(encoding="utf-8") == '{"case_id":"OLD"}\n'
+    assert not (stale / "run_manifest.json").exists()
+    assert not (stale / "summary.json").exists()
+
+
+def test_holdout_rejects_reused_nonempty_out_dir(tmp_path: Path) -> None:
+    stale = tmp_path / "stale"
+    stale.mkdir()
+    (stale / "keep.txt").write_text("old", encoding="utf-8")
+
+    with pytest.raises(HoldoutError, match="拒绝复用非空 out 目录"):
+        _run(tmp_path, out_dir=stale)
+
+    assert sorted(path.name for path in stale.iterdir()) == ["keep.txt"]
+
+
+def test_holdout_details_flag_rejects_dir_with_old_details(tmp_path: Path) -> None:
+    stale = tmp_path / "stale"
+    stale.mkdir()
+    (stale / "holdout_audit.json").write_text("{}", encoding="utf-8")
+
+    with pytest.raises(HoldoutError, match="逐题详情"):
+        _run(tmp_path, out_dir=stale, allow_holdout_details=True)
+
+    assert sorted(path.name for path in stale.iterdir()) == ["holdout_audit.json"]
+
+
+def test_holdout_accepts_existing_empty_out_dir(tmp_path: Path) -> None:
+    empty = tmp_path / "empty"
+    empty.mkdir()
+
+    result = _run(tmp_path, out_dir=empty)
+
+    assert sorted(path.name for path in result.out_dir.iterdir()) == [
+        "run_manifest.json",
+        "summary.json",
+    ]
+
+
+def test_cli_holdout_rejects_reused_out_dir(tmp_path: Path, capsys) -> None:
+    questions, labels = _fixture(tmp_path)
+    stale = tmp_path / "stale"
+    stale.mkdir()
+    (stale / "cases.jsonl").write_text('{"case_id":"OLD"}\n', encoding="utf-8")
+
+    code = cli.main(
+        [
+            "run",
+            "--suite",
+            "holdout",
+            "--mode",
+            "local",
+            "--dataset",
+            str(questions),
+            "--holdout-labels",
+            str(labels),
+            "--out",
+            str(stale),
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "拒绝复用" in captured.err
+    assert "Traceback" not in captured.err
+    assert sorted(path.name for path in stale.iterdir()) == ["cases.jsonl"]
+
+
+def test_holdout_local_rejects_from_run(tmp_path: Path) -> None:
+    questions, labels = _fixture(tmp_path)
+    out = tmp_path / "run"
+
+    with pytest.raises(ValueError, match="replay_from"):
+        run_suite(
+            HOLDOUT_SUITE,
+            "local",
+            dataset_path=questions,
+            holdout_labels=labels,
+            holdout_policy=_policy(),
+            replay_from=tmp_path / "previous-run",
+            out_dir=out,
+        )
+
+    assert not out.exists()
+
+
+def test_cli_holdout_rejects_from_run(tmp_path: Path, capsys) -> None:
+    questions, labels = _fixture(tmp_path)
+    out = tmp_path / "run"
+
+    code = cli.main(
+        [
+            "run",
+            "--suite",
+            "holdout",
+            "--mode",
+            "local",
+            "--dataset",
+            str(questions),
+            "--holdout-labels",
+            str(labels),
+            "--from-run",
+            str(tmp_path / "previous-run"),
+            "--out",
+            str(out),
+        ]
+    )
+    captured = capsys.readouterr()
+    assert code != 0
+    assert "replay_from" in captured.err
+    assert "Traceback" not in captured.err
+    assert not out.exists()
