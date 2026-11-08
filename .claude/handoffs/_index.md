@@ -31,7 +31,7 @@
 | T103 | D4 记录路回落语义检索（ERR-04） | **G6 已收口**（dev commit `43b7976`；独立验收 PASS：回落真实非换皮、八题 answer/8 来源、零真实 provider、RG004 非口径伪装；全量 1640 passed；残余记 #45） | 0 | 否 | T102 ✅ |
 | T104 | D1 异常原因透传（ERR-07 产品侧） | **G6 已收口**（dev commit `e7ee804`；独立验收 PASS 7/7；七类码/retryable 可区分、领域异常未被吞、响应 12 字段未变；全量 1678 passed；残余记 #46） | 0 | 否 | T103 ✅ |
 | T105 | D6 指代/字段错配（ERR-06） | **G6 已收口**（dev commits `2306aaa`+`fc60c57`+`b37ad21`；独立验收 R3 **PASS**：`review-R3.md`，133/133 探针、全量 1718 passed、b0/badcase `case_diffs=0`、regression 仅 RG006 fail→pass；P2 残余记 #51） | 2 | 否 | — |
-| T106 | D3 文案统一（ERR-05，后端+前端） | **G1 已派单（开发中）**（handoff + dev/verify 提示词已落盘；验收标准见 handoff §6） | 0 | 否 | T105 ✅ |
+| T106 | D3 文案统一（ERR-05，后端+前端） | **G4 验收 FAIL → R1 返工中**（dev `a42ee48`；阻塞：ID/NO_INTENT/ANAPHORA 文案自相矛盾/把未检索说成资料缺失；其余 4 项 PASS；`review.md`；轮次 1/3） | 1 | 否 | T105 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
