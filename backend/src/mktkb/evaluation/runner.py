@@ -57,6 +57,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import shutil
 import tempfile
 import time
 import uuid
@@ -69,6 +70,9 @@ from typing import Any, ClassVar, Mapping, Sequence
 from ..observability.contracts import GATE_SCHEMA_VERSION, TraceMode
 from ..observability.store import TraceRepository
 from ..observability.tracer import TraceContext, start_trace
+from ..rag.config import RagConfig, safe_config_summary
+from ..rag.providers import post_counters, reset_post_counters
+from ..rag.query import build_lexicon, parse_query
 from ..observability.versioning import (
     CONFIG_HASH_FIELDS,
     config_hash as _versioning_config_hash,
@@ -97,6 +101,20 @@ from .dataset import (
     load_holdout_dataset,
 )
 from .gold import GoldUnresolved, ResolvedGold, ResolvedSource, resolve_case
+from .live import (
+    DEFAULT_ENV_FILE,
+    LIVE_MAX_PILOT_CASES,
+    LIVE_RETRIEVAL_LIMIT,
+    LIVE_SCOPE,
+    LiveConfigError,
+    LiveRuntime,
+    budget_snapshot,
+    httpx_compatible_proxy_env,
+    ledger_event_counts,
+    load_live_runtime,
+    plan_live_cost,
+    validate_pilot_dataset,
+)
 from .scorers import (
     CaseCheck,
     CaseResult,
@@ -104,7 +122,11 @@ from .scorers import (
     EvalFact,
     EvalOutcome,
     EvalRetrieved,
+    _retrieval_case_metrics,
     aggregate_metrics,
+    cost_metrics,
+    latency_metrics,
+    retrieval_metrics,
     score_case,
 )
 
@@ -120,7 +142,7 @@ __all__ = [
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 RUNS_ROOT = PROJECT_ROOT / "var" / "eval" / "runs"
-MODES = ("local", "replay")
+MODES = ("local", "replay", "live")
 #: ``run_manifest.suite`` 允许值：P0 三套 + P1 holdout（T108）。
 MANIFEST_SUITES = frozenset(set(SUITES) | {HOLDOUT_SUITE})
 TRACE_STORE_NAME = "traces.sqlite3"
@@ -302,6 +324,8 @@ class RunResult:
     out_dir: Path
     cases: tuple[Mapping[str, Any], ...]
     summary: Mapping[str, Any]
+    #: live 分支：首个 case 失败后停止，剩余 case 显式写 ``run_aborted_after_failure``。
+    aborted: bool = False
 
     @property
     def manifest_path(self) -> Path:
@@ -336,6 +360,10 @@ def run_suite(
     holdout_policy: HoldoutPolicy | None = None,
     holdout_operator: str | None = None,
     environ: Mapping[str, str] | None = None,
+    pilot_cases: int | None = None,
+    allow_full_live: bool = False,
+    live_runtime: LiveRuntime | None = None,
+    live_env_file: Path | str | None = DEFAULT_ENV_FILE,
 ) -> RunResult:
     """跑一个 suite：``mode="local"`` 建隔离索引直接 ask；``"replay"`` 只重评分。
 
@@ -371,6 +399,45 @@ def run_suite(
     if not isinstance(scope, str) or not scope.strip():
         raise ValueError("scope 必须是非空字符串（P0 为 end_to_end）")
     dataset = Path(dataset_path) if dataset_path is not None else _default_dataset(suite)
+
+    if mode != "live" and (
+        pilot_cases is not None or allow_full_live or live_runtime is not None
+    ):
+        raise ValueError(
+            "pilot_cases / allow_full_live / live_runtime 只用于 mode='live'"
+        )
+    if mode == "live":
+        if suite == HOLDOUT_SUITE:
+            raise ValueError(
+                "T111 live 只允许 b0/badcase/regression pilot；holdout live 留 T112/T900"
+            )
+        if scope != LIVE_SCOPE:
+            raise ValueError(
+                f"live 只允许 scope={LIVE_SCOPE!r}（retrieval_only，不生成答案），收到 {scope!r}"
+            )
+        if replay_from is not None:
+            raise ValueError("mode='live' 不接受 replay_from")
+        if (
+            holdout_labels is not None
+            or allow_holdout_details
+            or holdout_policy is not None
+            or holdout_operator is not None
+        ):
+            raise ValueError("holdout 参数只用于 --suite holdout，不能带到 live")
+        if config is not None:
+            raise ValueError("live 配置必须由 load_live_runtime 生成，不接受外部 config")
+        return _run_live(
+            suite=suite,
+            scope=scope,
+            corpus_dir=Path(corpus_dir) if corpus_dir is not None else default_corpus_dir(suite),
+            out_dir=None if out_dir is None else Path(out_dir),
+            dataset_path=dataset,
+            pilot_cases=pilot_cases,
+            allow_full_live=allow_full_live,
+            runtime=live_runtime,
+            environ=environ,
+            env_file=None if live_env_file is None else Path(live_env_file),
+        )
 
     if suite == HOLDOUT_SUITE:
         if mode != "local":
@@ -448,6 +515,707 @@ def _holdout_operator(operator: str | None, environ: Mapping[str, str]) -> str:
         if isinstance(value, str) and value.strip():
             return value.strip()
     return "unknown"
+
+
+# --------------------------------------------------------------------------- #
+# live（P1 T111：retrieval_only，真实 embedding/rerank，零 chat）
+# --------------------------------------------------------------------------- #
+
+
+def _live_out_dir(out_dir: Path | None, run_id: str) -> Path:
+    """live 产物目录：默认 ``var/eval/runs/<run_id>``；拒绝复用非空目录。"""
+    target = (RUNS_ROOT / run_id) if out_dir is None else Path(out_dir)
+    if target.exists():
+        if not target.is_dir():
+            raise LiveConfigError(f"live --out 必须是目录：{target}")
+        if any(target.iterdir()):
+            raise LiveConfigError(
+                f"live 拒绝复用非空 out 目录 {target}；请换新目录或先清空"
+            )
+    return target.resolve()
+
+
+def _live_pipeline_version(config: RagConfig) -> str:
+    """真实 embedding 配置参与 pipeline_version（与 P0 local 明确区分）。"""
+    from ..qa.service import QA_ENGINE_VERSION
+    from ..rag.index import INDEX_CACHE_VERSION, SCHEMA_VERSION
+    from ..retrieval.tokenize import TOKENIZER_VERSION
+
+    return _pipeline_version(
+        {
+            "qa_engine_version": QA_ENGINE_VERSION,
+            "rag_schema_version": SCHEMA_VERSION,
+            "index_cache_version": INDEX_CACHE_VERSION,
+            "tokenizer_version": TOKENIZER_VERSION,
+            "provider_mode": config.provider_mode,
+            "embedding_model": config.embedding_model,
+            "embedding_dimensions": config.embedding_dimensions,
+            "embedding_batch_size": config.embedding_batch_size,
+            "rerank_model": config.rerank_model,
+            "rerank_top_n": config.rerank_top_n,
+            "chunk_max_chars": config.chunk_max_chars,
+            "chunk_max_units": config.chunk_max_units,
+            "chunk_overlap_units": config.chunk_overlap_units,
+            "top_k": config.top_k,
+            "page_size": config.page_size,
+            "retrieval_limit": LIVE_RETRIEVAL_LIMIT,
+        }
+    )
+
+
+def _row_versions(manifest: RunManifest) -> dict[str, Any]:
+    return {
+        "dataset_version": manifest.dataset_version,
+        "dataset_sha256": manifest.dataset_sha256,
+        "corpus_manifest_sha256": manifest.corpus_manifest_sha256,
+        "index_revision": manifest.index_revision,
+        "pipeline_version": manifest.pipeline_version,
+        "gate_version": manifest.gate_version,
+        "label_version": manifest.label_version,
+        "business_date": manifest.business_date,
+        "config_hash": manifest.config_hash,
+        "mode": manifest.mode,
+        "scope": manifest.scope,
+    }
+
+
+def _live_row(row: dict[str, Any], manifest: RunManifest) -> dict[str, Any]:
+    row["versions"] = _row_versions(manifest)
+    row["retrieval_only"] = True
+    return row
+
+
+def _live_plan(question: str, index: Any, previous: Any) -> Any:
+    """与产品答案路径同口径的检索计划（不生成答案/不调用 chat）。"""
+    lexicon = build_lexicon(index.lexicon_data())
+    plan = parse_query(
+        question,
+        previous=previous,
+        lexicon=lexicon,
+        business_date=index.config.business_date,
+        page_size=index.config.page_size,
+    )
+    if plan.reason == "POLICY_FOLLOWUP":
+        from ..rag.answer import _policy_document_plan
+
+        plan = _policy_document_plan(plan)
+    return plan
+
+
+def _assert_live_retrieval_ok(result: Any) -> None:
+    """真实检索里被内核降级吞掉的 provider 错误必须 fail closed。"""
+    diagnostics = dict(getattr(result, "diagnostics", {}) or {})
+    for key, code in (
+        ("query_embedding_error", "query_embedding_error"),
+        ("vector_error", "vector_degraded"),
+        ("rerank_error", "rerank_error"),
+    ):
+        value = diagnostics.get(key)
+        if value:
+            raise _CaseError(code, f"live 检索降级（{key}={value}），拒绝静默使用不完整结果")
+
+
+def _live_outcome(index: Any, result: Any, trace_id: str) -> EvalOutcome:
+    """把 ``RetrievalResult.evidence`` 归一化为可算检索指标的 ``EvalOutcome``。"""
+    chunk_ids = [str(item.chunk_id) for item in getattr(result, "evidence", ())]
+    if not chunk_ids:
+        return EvalOutcome(
+            kind="no_answer",
+            text="",
+            citations=(),
+            facts=(),
+            pagination={},
+            trace_id=trace_id,
+            path="rag",
+            retrieved=(),
+        )
+    chunks = {chunk.chunk_id: chunk for chunk in index.chunks_by_ids(chunk_ids)}
+    missing = [chunk_id for chunk_id in chunk_ids if chunk_id not in chunks]
+    if missing:
+        raise _CaseError("chunk_not_found", f"检索 chunk 不在当前索引: {missing[:3]}")
+    unit_keys = _unit_keys(
+        index, [unit_id for chunk in chunks.values() for unit_id in chunk.unit_ids]
+    )
+    retrieved: list[EvalRetrieved] = []
+    for chunk_id in chunk_ids:
+        chunk = chunks[chunk_id]
+        if not chunk.unit_ids:
+            raise _CaseError(
+                "retrieved_unit_ids_missing", f"检索 chunk {chunk.chunk_id} 没有 unit 归属"
+            )
+        for unit_id in chunk.unit_ids:
+            retrieved.append(
+                EvalRetrieved(
+                    doc_code=str(chunk.doc_id),
+                    unit_ids=(str(unit_id),),
+                    unit_key=unit_keys.get(str(unit_id)),
+                    locator=dict(chunk.locator or {}),
+                    chunk_id=str(chunk.chunk_id),
+                )
+            )
+    return EvalOutcome(
+        kind="answer" if retrieved else "no_answer",
+        text="",
+        citations=(),
+        facts=(),
+        pagination={},
+        trace_id=trace_id,
+        path="rag",
+        retrieved=tuple(retrieved),
+    )
+
+
+def _live_case_result(
+    case: CaseSpec,
+    gold: ResolvedGold,
+    outcome: EvalOutcome,
+    trace_id: str,
+    record: Any,
+) -> CaseResult:
+    metrics = _retrieval_case_metrics(case, outcome, gold)
+    return CaseResult(
+        case_id=case.case_id,
+        status="pass",
+        checks=(),
+        metrics=metrics,
+        refused=None,
+        should_refuse=bool(case.should_refuse),
+        trace_id=trace_id,
+        path="rag",
+        latency_ms=None if record is None else getattr(record, "latency_ms", None),
+    )
+
+
+def _live_error_row(
+    case: CaseSpec,
+    manifest: RunManifest,
+    repo: TraceRepository,
+    code: str,
+    message: str,
+    *,
+    trace_id: str | None = None,
+    duration_ms: int = 0,
+    turn_traces: Sequence[Mapping[str, Any]] | None = None,
+    turns_executed: int | None = None,
+) -> dict[str, Any]:
+    row = _error_row(
+        case,
+        manifest,
+        repo,
+        code,
+        message,
+        trace_id=trace_id,
+        duration_ms=duration_ms,
+        turn_traces=turn_traces,
+        turns_executed=turns_executed,
+    )
+    return _live_row(row, manifest)
+
+
+def _live_skipped_row(
+    case: CaseSpec,
+    manifest: RunManifest,
+    repo: TraceRepository,
+    gold: ResolvedGold,
+) -> dict[str, Any]:
+    trace_id = _write_provenance_trace(case, manifest, repo, mode=TraceMode.LIVE)
+    result = CaseResult(
+        case_id=case.case_id,
+        status="skipped_requires_ocr",
+        checks=(
+            CaseCheck(
+                check_id="scored",
+                status="skipped",
+                evidence={"reason": "skipped_requires_ocr"},
+            ),
+        ),
+        metrics={},
+        refused=None,
+        should_refuse=bool(case.should_refuse),
+        trace_id=trace_id,
+        path="rag",
+    )
+    return _live_row(
+        _row_from_result(
+            case,
+            result,
+            gold,
+            outcome=None,
+            trace_id=trace_id,
+            previous_trace_id=None,
+            replayed=False,
+            duration_ms=0,
+            turn_traces=({"turn": 1, "trace_id": trace_id, "status": "skipped"},),
+            turns_executed=1,
+        ),
+        manifest,
+    )
+
+
+def _live_single_turn_row(
+    case: CaseSpec,
+    index: Any,
+    repo: TraceRepository,
+    manifest: RunManifest,
+    gold: ResolvedGold,
+    *,
+    started: float,
+) -> dict[str, Any]:
+    trace: TraceContext | None = None
+    try:
+        with start_trace(
+            http_request_id=f"{manifest.run_id}:{case.case_id}",
+            mode=TraceMode.LIVE,
+            scope=manifest.scope,
+            path="rag",
+            question=case.question,
+            case_id=case.case_id,
+            repo=repo,
+        ) as active:
+            trace = active
+            _annotate_trace_identity(trace, manifest)
+            previous = index.load_state("eval", f"{manifest.run_id}:{case.case_id}")
+            plan = _live_plan(case.question, index, previous)
+            result = index.search(plan, limit=LIVE_RETRIEVAL_LIMIT)
+            _assert_live_retrieval_ok(result)
+            trace.set_outcome("answer" if getattr(result, "evidence", ()) else "no_answer")
+        record = _read_trace(repo, trace.trace_id)
+        if record is None:
+            raise _CaseError("trace_missing", "live Trace 不可读")
+        outcome = _live_outcome(index, result, trace.trace_id)
+        case_result = _live_case_result(case, gold, outcome, trace.trace_id, record)
+        return _live_row(
+            _row_from_result(
+                case,
+                case_result,
+                gold,
+                outcome=outcome,
+                trace_id=trace.trace_id,
+                previous_trace_id=None,
+                replayed=False,
+                duration_ms=_elapsed_ms(started),
+                turn_traces=({"turn": 1, "trace_id": trace.trace_id, "status": "ok"},),
+                turns_executed=1,
+            ),
+            manifest,
+        )
+    except _CaseError as exc:
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            exc.code,
+            exc.message,
+            trace_id=None if trace is None else trace.trace_id,
+            duration_ms=_elapsed_ms(started),
+        )
+    except Exception as exc:  # noqa: BLE001 - live 失败即停（不改写为 pass）
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            "execution_error",
+            f"{type(exc).__name__}: {exc}",
+            trace_id=None if trace is None else trace.trace_id,
+            duration_ms=_elapsed_ms(started),
+        )
+
+
+def _live_multi_turn_row(
+    case: CaseSpec,
+    index: Any,
+    repo: TraceRepository,
+    manifest: RunManifest,
+    gold: ResolvedGold,
+    turns: Sequence[str],
+    *,
+    started: float,
+) -> dict[str, Any]:
+    """live 多轮：同一 conversation 顺序检索；中间轮只要求无 error。"""
+    conversation_id = f"{manifest.run_id}:{case.case_id}"
+    total = len(turns)
+    turn_traces: list[dict[str, Any]] = []
+    previous_trace_id: str | None = None
+    outcome: EvalOutcome | None = None
+    case_result: CaseResult | None = None
+    failure: dict[str, str] | None = None
+    for number, question in enumerate(turns, start=1):
+        trace: TraceContext | None = None
+        try:
+            with start_trace(
+                http_request_id=f"{manifest.run_id}:{case.case_id}:turn{number}",
+                mode=TraceMode.LIVE,
+                scope=manifest.scope,
+                path="rag",
+                question=question,
+                case_id=case.case_id,
+                previous_trace_id=previous_trace_id,
+                repo=repo,
+            ) as active:
+                trace = active
+                _annotate_trace_identity(trace, manifest)
+                previous = index.load_state("eval", conversation_id)
+                plan = _live_plan(question, index, previous)
+                result = index.search(plan, limit=LIVE_RETRIEVAL_LIMIT)
+                _assert_live_retrieval_ok(result)
+                index.save_state(plan.state)
+                trace.set_outcome(
+                    "answer" if getattr(result, "evidence", ()) else "no_answer"
+                )
+            record = _read_trace(repo, trace.trace_id)
+            if record is None:
+                raise _CaseError("trace_missing", "live Trace 不可读")
+            turn_outcome = _live_outcome(index, result, trace.trace_id)
+        except Exception as exc:  # noqa: BLE001 - 轮级失败即停
+            if trace is not None:
+                turn_traces.append(
+                    {"turn": number, "trace_id": trace.trace_id, "status": "error"}
+                )
+            code = exc.code if isinstance(exc, _CaseError) else "execution_error"
+            failure = {
+                "code": str(code),
+                "message": f"turn {number}/{total}: {type(exc).__name__}: {exc}",
+            }
+            break
+        turn_traces.append(
+            {"turn": number, "trace_id": trace.trace_id, "status": "ok"}
+        )
+        previous_trace_id = trace.trace_id
+        if number == total:
+            outcome = turn_outcome
+            case_result = _live_case_result(
+                case, gold, turn_outcome, trace.trace_id, record
+            )
+    executed = len(turn_traces)
+    if failure is not None or case_result is None or outcome is None:
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            "execution_error" if failure is None else failure["code"],
+            f"case {case.case_id}: live 多轮未产出可评分的末轮结果"
+            if failure is None
+            else failure["message"],
+            trace_id=None if not turn_traces else str(turn_traces[-1]["trace_id"]),
+            duration_ms=_elapsed_ms(started),
+            turn_traces=turn_traces,
+            turns_executed=executed,
+        )
+    return _live_row(
+        _row_from_result(
+            case,
+            case_result,
+            gold,
+            outcome=outcome,
+            trace_id=str(turn_traces[-1]["trace_id"]),
+            previous_trace_id=None,
+            replayed=False,
+            duration_ms=_elapsed_ms(started),
+            turn_traces=turn_traces,
+            turns_executed=executed,
+        ),
+        manifest,
+    )
+
+
+def _live_case_row(
+    case: CaseSpec, index: Any, repo: TraceRepository, manifest: RunManifest
+) -> dict[str, Any]:
+    started = time.perf_counter()
+    try:
+        _assert_gold_references(case)
+        gold = resolve_case(case, index)
+        _assert_gold_unit_ids(case, gold)
+    except GoldUnresolved as exc:
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            "gold_unresolved",
+            str(exc),
+            duration_ms=_elapsed_ms(started),
+        )
+    except _CaseError as exc:
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            exc.code,
+            exc.message,
+            duration_ms=_elapsed_ms(started),
+        )
+    except Exception as exc:  # noqa: BLE001
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            "gold_resolution_error",
+            f"{type(exc).__name__}: {exc}",
+            duration_ms=_elapsed_ms(started),
+        )
+    if gold.skipped:
+        return _live_skipped_row(case, manifest, repo, gold)
+    try:
+        turns = _case_turn_questions(case)
+    except _CaseError as exc:
+        return _live_error_row(
+            case,
+            manifest,
+            repo,
+            exc.code,
+            exc.message,
+            duration_ms=_elapsed_ms(started),
+        )
+    if turns:
+        return _live_multi_turn_row(
+            case, index, repo, manifest, gold, turns, started=started
+        )
+    return _live_single_turn_row(
+        case, index, repo, manifest, gold, started=started
+    )
+
+
+def _aborted_row(
+    case: CaseSpec, manifest: RunManifest, failed_case: str
+) -> dict[str, Any]:
+    """首个失败后未执行的 case：显式 error，不伪造 trace/结果。"""
+    return _live_row(
+        {
+            "case_id": case.case_id,
+            "suite": case.suite,
+            "status": "error",
+            "trace_id": None,
+            "previous_trace_id": None,
+            "replayed": False,
+            "checks": [],
+            "metrics": {},
+            "refused": None,
+            "should_refuse": bool(case.should_refuse),
+            "path": None,
+            "latency_ms": None,
+            "tokens_in": None,
+            "tokens_out": None,
+            "cost_cny": None,
+            "duration_ms": 0,
+            "turns_executed": 0,
+            "multi_turn_claimed": len(case.turns) > 1,
+            "outcome": None,
+            "gold": None,
+            "error": {
+                "code": "run_aborted_after_failure",
+                "message": f"首个失败 case {failed_case} 后停止，本 case 未执行",
+            },
+            "turn_traces": [],
+        },
+        manifest,
+    )
+
+
+def _budget_delta(before: Mapping[str, Any], after: Mapping[str, Any]) -> dict[str, Any]:
+    keys = (
+        "accounted_cny",
+        "stage_accounted_cny",
+        "remaining_cny",
+        "stage_remaining_cny",
+        "success_estimated_list_price_cny",
+        "reservation_count",
+        "result_count",
+    )
+    delta: dict[str, Any] = {}
+    for key in keys:
+        left = before.get(key)
+        right = after.get(key)
+        if left is None or right is None:
+            continue
+        if isinstance(left, int) and isinstance(right, int):
+            delta[key] = right - left
+        else:
+            delta[key] = round(float(right) - float(left), 8)
+    return delta
+
+
+def _run_live(
+    *,
+    suite: str,
+    scope: str,
+    corpus_dir: Path,
+    out_dir: Path | None,
+    dataset_path: Path,
+    pilot_cases: int | None,
+    allow_full_live: bool,
+    runtime: LiveRuntime | None,
+    environ: Mapping[str, str] | None,
+    env_file: Path | None,
+) -> RunResult:
+    cases = load_cases(dataset_path)
+    if pilot_cases is None:
+        if not allow_full_live:
+            validate_pilot_dataset(cases, None)  # 稳定错误：必须显式放行全量
+    else:
+        validate_pilot_dataset(cases, pilot_cases)
+    if not allow_full_live and len(cases) > LIVE_MAX_PILOT_CASES:
+        raise LiveConfigError(
+            f"live 未放行全量，最多 {LIVE_MAX_PILOT_CASES} 题；收到 {len(cases)} 题"
+        )
+    business_date = _single_business_date(cases)
+    label_version = _single_label_version(cases)
+    ds_version = dataset_version(cases, label_version)
+    ds_sha = _sha256_file(dataset_path)
+
+    corpus = load_suite_corpus(
+        suite,
+        corpus_dir,
+        business_date=business_date,
+        required_codes=_required_doc_codes(cases),
+    )
+    if corpus.business_date is not None and corpus.business_date != business_date:
+        raise ValueError(
+            "语料 manifest 业务日期与数据集不一致："
+            f"{corpus.business_date!r} != {business_date!r}"
+        )
+
+    run_id = _new_run_id(suite, "live")
+    target = _live_out_dir(out_dir, run_id)
+    index_dir = target / "index"
+    db_path = index_dir / "rag.sqlite3"
+    runtime = runtime or load_live_runtime(
+        data_dir=index_dir,
+        business_date=business_date,
+        run_id=run_id,
+        environ=environ,
+        env_file=env_file,
+    )
+    cfg = replace(runtime.config, data_dir=index_dir)
+    if cfg.chat_model or cfg.chat_api_key or cfg.chat_base_url:
+        raise LiveConfigError("live retrieval_only 配置不得包含 chat 字段")
+    if cfg.max_retries != 0 or not cfg.require_zero_retries:
+        raise LiveConfigError("live 必须零重试（max_retries=0/require_zero_retries=True）")
+
+    before = budget_snapshot(runtime.budget.summary())
+    request_remaining = max(
+        0, int(runtime.max_requests) - int(before.get("reservation_count") or 0)
+    )
+    estimate = plan_live_cost(
+        corpus,
+        cases,
+        cfg,
+        stage_remaining_cny=float(before.get("stage_remaining_cny") or 0.0),
+        request_remaining=request_remaining,
+        max_request_cny=float(runtime.max_request_cny),
+    )
+    estimate.assert_accepted()
+
+    target.mkdir(parents=True, exist_ok=True)
+    repo = TraceRepository(target / TRACE_STORE_NAME)
+    index: Any | None = None
+    rows: list[dict[str, Any]] = []
+    aborted = False
+    failed_case: str | None = None
+    reset_post_counters()
+    try:
+        try:
+            # 供应商 Client 在索引装配时构造；仅在构造期临时清理 httpx 不兼容的
+            # NO_PROXY IPv6 条目（见 live.httpx_compatible_proxy_env）。
+            with httpx_compatible_proxy_env():
+                index, index_stats = build_suite_index(
+                    corpus,
+                    db_path,
+                    config=cfg,
+                    budget=runtime.budget,
+                    embedder=runtime.embedder,
+                    reranker=runtime.reranker,
+                )
+        except BaseException:
+            shutil.rmtree(index_dir, ignore_errors=True)
+            raise
+        try:
+            manifest = RunManifest(
+                run_id=run_id,
+                mode="live",
+                scope=scope,
+                suite=suite,
+                dataset_version=ds_version,
+                dataset_sha256=ds_sha,
+                corpus_manifest_sha256=corpus.manifest_sha256,
+                business_date=business_date,
+                index_revision=int(index_stats["revision"]),
+                pipeline_version=_live_pipeline_version(cfg),
+                gate_version=GATE_SCHEMA_VERSION,
+                label_version=label_version,
+                created_at=_utc_now(),
+                case_count=len(cases),
+                config_hash=_config_hash(cfg),
+                trace_store=TRACE_STORE_NAME,
+                dataset_path=str(dataset_path.resolve()),
+                corpus_dir=str(corpus_dir.resolve()),
+            )
+            for case in cases:
+                row = _live_case_row(case, index, repo, manifest)
+                rows.append(row)
+                if row.get("status") == "error":
+                    aborted = True
+                    failed_case = case.case_id
+                    break
+            if aborted:
+                for case in cases[len(rows) :]:
+                    rows.append(_aborted_row(case, manifest, failed_case or "unknown"))
+        finally:
+            if index is not None:
+                index.close()
+    finally:
+        repo.close()
+
+    after = budget_snapshot(runtime.budget.summary())
+    post = post_counters()
+    attempts = dict(post.get("attempts") or {})
+    chat_attempts = int(attempts.get("chat", 0))
+    if chat_attempts:
+        raise LiveConfigError(
+            "检测到 chat 供应商请求；live retrieval_only 违规，拒绝产出成功结果"
+        )
+    live_block: dict[str, Any] = {
+        "mode": "live",
+        "scope": scope,
+        "stage": runtime.stage,
+        "service": runtime.service,
+        "pilot": pilot_cases is not None,
+        "pilot_cases": pilot_cases,
+        "aborted": bool(aborted),
+        "dataset_path": str(dataset_path.resolve()),
+        "index_dir": str(index_dir),
+        "index": dict(index_stats),
+        "config": safe_config_summary(cfg),
+        "precheck": estimate.to_dict(),
+        "budget_before": before,
+        "budget_after": after,
+        "budget_delta": _budget_delta(before, after),
+        "ledger_events": ledger_event_counts(runtime.ledger_path, run_id),
+        "provider_requests": post,
+        "chat_calls": chat_attempts,
+        "retries": 0,
+        "credentials_source": runtime.credentials_source,
+        "go": (
+            None if runtime.authorization is None else runtime.authorization.as_dict()
+        ),
+        "provider_billed_cny": None,
+        "cost_note": (
+            "账本 conservative 记录 + 官方标价估算；provider_billed_cny 恒为 null，"
+            "不是供应商实际账单"
+        ),
+    }
+    manifest = replace(manifest, **_multi_turn_manifest_fields(cases, rows))
+    summary = _build_summary(
+        manifest, cases, rows, retrieval_only=True, live_block=live_block
+    )
+    summary["aborted"] = bool(aborted)
+    _write_artifacts(target, manifest, rows, summary)
+    return RunResult(
+        manifest=manifest,
+        out_dir=target,
+        cases=tuple(rows),
+        summary=summary,
+        aborted=bool(aborted),
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -1947,6 +2715,8 @@ def _build_summary(
     *,
     holdout: HoldoutDataset | None = None,
     redact_case_ids: bool = False,
+    retrieval_only: bool = False,
+    live_block: Mapping[str, Any] | None = None,
 ) -> dict[str, Any]:
     aligned_cases: list[CaseSpec] = []
     results: list[CaseResult] = []
@@ -1957,8 +2727,24 @@ def _build_summary(
             continue
         aligned_cases.append(case)
         results.append(_result_from_row(row))
-    metrics = aggregate_metrics(aligned_cases, results)
+    if retrieval_only:
+        # P1 live：只报告检索指标（没有答案/拒答语义，不能用 None/0 冒充）。
+        metrics: dict[str, Any] = {
+            "case_count": len(results),
+            "scored_count": sum(
+                1 for item in results if item.status != "skipped_requires_ocr"
+            ),
+            "skipped_count": sum(
+                1 for item in results if item.status == "skipped_requires_ocr"
+            ),
+        }
+        metrics.update(retrieval_metrics(results))
+        metrics.update(latency_metrics(results))
+        metrics.update(cost_metrics(results))
+    else:
+        metrics = aggregate_metrics(aligned_cases, results)
     status_counts = Counter(str(row.get("status")) for row in rows)
+    declarations = _declarations(manifest, cases, rows)
     summary = {
         "run_id": manifest.run_id,
         "mode": manifest.mode,
@@ -1988,8 +2774,31 @@ def _build_summary(
                 "skipped_requires_ocr 语义排除"
             ),
         },
-        "declarations": _declarations(manifest, cases, rows),
+        "declarations": declarations,
     }
+    if retrieval_only:
+        gold_cases = [
+            item for item in results if int(item.metrics.get("gold_units") or 0) > 0
+        ]
+        summary["retrieval_only"] = True
+        summary["metrics_scope"].update(
+            {
+                "retrieval_denominator": len(gold_cases),
+                "retrieval_denominator_note": (
+                    "只统计有 gold 且未 OCR 的 case；error/OCR case 不进任何检索指标分母"
+                ),
+            }
+        )
+        declarations["retrieval_only"] = {
+            "answers_generated": False,
+            "chat_calls": 0,
+            "note": (
+                "live retrieval_only：只执行 embedding/rerank 检索与检索指标；"
+                "不生成答案、不评估答案/拒答指标"
+            ),
+        }
+    if live_block is not None:
+        summary["live"] = dict(live_block)
     if redact_case_ids:
         _redact_case_ids(summary)
     if holdout is not None:
@@ -2168,17 +2977,20 @@ def _write_provenance_trace(
     replayed: bool = False,
     request_suffix: str = "provenance",
     question: str | None = None,
+    mode: TraceMode | None = None,
 ) -> str:
     """写一条无执行 Span 的 provenance Trace（OCR 跳过 / gold error / replay）。
 
     ``request_suffix`` 只影响 ``http_request_id``（多轮 replay 每轮一条，便于按轮定位）。
     ``question`` 默认 ``case.question``（单轮口径）；多轮 replay 传**该轮**题面（R3），
     使每轮 replay trace 的 ``question_hash`` 与 local 对应轮一致。
+    ``mode`` 缺省沿用父口径（replay→REPLAY，其它→LOCAL）；P1 T111 live OCR 跳过传 LIVE。
     """
     path = None if outcome is None else outcome.path
+    trace_mode = mode or (TraceMode.REPLAY if replayed else TraceMode.LOCAL)
     with start_trace(
         http_request_id=f"{manifest.run_id}:{case.case_id}:{request_suffix}",
-        mode=TraceMode.REPLAY if replayed else TraceMode.LOCAL,
+        mode=trace_mode,
         scope=manifest.scope,
         path=path,
         question=case.question if question is None else question,

@@ -13,7 +13,11 @@
   （``rag_experiment`` 的既有 subset policy 会排除 boundary/scan/X04），并强制
   本轮数据集引用的 ``doc_code`` 全部解析成功；缺任一份直接 fail closed。
 
-索引一律建在调用方给出的隔离路径（runner 用临时目录），不触碰 ``var/`` 与产品库。
+索引一律建在调用方给出的隔离路径（local 用临时目录，live 用
+``var/eval/runs/<run_id>/index/``），不触碰产品库。
+
+P1 T111：``build_suite_index`` 增加 live 分支（真实 embedding/rerank + 共享账本）；
+offline 分支的行为与 P0 完全一致。
 """
 
 from __future__ import annotations
@@ -259,8 +263,17 @@ def build_suite_index(
     db_path: Path,
     *,
     config: RagConfig | None = None,
+    budget: Any | None = None,
+    embedder: Any | None = None,
+    reranker: Any | None = None,
 ) -> tuple[RagIndex, dict[str, Any]]:
-    """在 ``db_path`` 构建隔离索引；``provider_mode`` 必须为 offline。"""
+    """在 ``db_path`` 构建隔离索引。
+
+    - ``provider_mode="offline"``：沿用确定性替身，零真实调用（P0/P1 local）；
+    - ``provider_mode="live"``：P1 T111 live 检索评测，真实 embedding/rerank；
+      必须注入共享账本（``budget``），否则拒绝。``embedder``/``reranker`` 仅用于
+      测试注入替身；生产路径不传，由 ``RagIndex`` 按 live 配置构造真实 provider。
+    """
     if corpus.suite not in SUITES:
         raise ValueError(f"未知 suite {corpus.suite!r}")
     if not corpus.documents:
@@ -268,10 +281,44 @@ def build_suite_index(
     cfg = config or offline_eval_config(
         Path(db_path).parent, corpus.business_date or "2026-10-28"
     )
-    if cfg.provider_mode != "offline":
+    if cfg.provider_mode not in {"offline", "live"}:
         raise ValueError(
-            f"评测只允许 provider_mode='offline'，收到 {cfg.provider_mode!r}（零真实调用）"
+            f"评测只允许 provider_mode='offline'/'live'，收到 {cfg.provider_mode!r}"
         )
+    if cfg.live:
+        # 真实索引：失败不得留下半成品索引；调用方负责删除整个隔离目录。
+        if budget is None and (embedder is None or reranker is None):
+            raise CorpusError("live 索引必须提供共享账本（预算闸门），拒绝无账本真实调用")
+        if embedder is None or reranker is None:
+            cfg.require_live_credentials()
+        index = RagIndex(
+            Path(db_path),
+            config=cfg,
+            embedder=embedder,
+            reranker=reranker,
+            budget=budget,
+        )
+        try:
+            results: list[dict[str, Any]] = []
+            for spec, units in corpus.documents:
+                result = index.add_document(spec, units, embed=True)
+                if result.get("embedding_error"):
+                    raise CorpusError(
+                        f"{corpus.suite} live 索引 embedding 失败 {spec.doc_id}: "
+                        f"{result['embedding_error']}"
+                    )
+                results.append(result)
+            summary = {
+                "suite": corpus.suite,
+                "documents": len(corpus.documents),
+                "units": sum(int(item.get("units") or 0) for item in results),
+                "chunks": sum(int(item.get("chunks") or 0) for item in results),
+                "revision": index.revision(),
+            }
+            return index, summary
+        except BaseException:
+            index.close()
+            raise
     if corpus.suite in {"badcase", "regression"}:
         rag_experiment = _load_rag_experiment()
         index, stats = rag_experiment.build_new_index(
