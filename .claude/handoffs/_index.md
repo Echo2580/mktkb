@@ -32,7 +32,7 @@
 | T104 | D1 异常原因透传（ERR-07 产品侧） | **G6 已收口**（dev commit `e7ee804`；独立验收 PASS 7/7；七类码/retryable 可区分、领域异常未被吞、响应 12 字段未变；全量 1678 passed；残余记 #46） | 0 | 否 | T103 ✅ |
 | T105 | D6 指代/字段错配（ERR-06） | **G6 已收口**（dev commits `2306aaa`+`fc60c57`+`b37ad21`；独立验收 R3 **PASS**：`review-R3.md`，133/133 探针、全量 1718 passed、b0/badcase `case_diffs=0`、regression 仅 RG006 fail→pass；P2 残余记 #51） | 2 | 否 | — |
 | T106 | D3 文案统一（ERR-05，后端+前端） | **G6 已收口**（dev `a42ee48`+R1 `972f508`；独立验收 R2 **PASS**：`review-R2.md`；B1/B2/B3 诚实文案+机械测试、T104 8/8 逐字、全量 1733 passed、b0/badcase 0/40+0/13、regression 仅 RG006；非阻塞观察记 #52） | 1 | 否 | T105 ✅ |
-| T108 | Holdout 支持与防污染 | **G4 验收 FAIL → R1 返工中**（dev `af08848`；F1：真实 holdout 3/30 拒答题 error（`_assert_gold_unit_ids` 过严）；另有旧详情残留/from-run 静默；其余六项 PASS；`review.md`；轮次 1/3） | 1 | 否 | T106 ✅ |
+| T108 | Holdout 支持与防污染 | **R1 返工交付，待复验 R2**（dev `af08848`+R1 `d3b5745`；F1 已改 `_assert_gold_unit_ids`、out 目录防污染、from-run 拒绝；`review.md`；轮次 1/3） | 1 | 否 | T106 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
