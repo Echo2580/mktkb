@@ -51,3 +51,31 @@ RG006 turn2: 那个海报呢                  → answer「根据资料，滨江
 - 基线 worktree 只复制了 `.gitignore` 忽略的 `subset-policy.json`（P0 dev 期的语料子集策略，
   与 holdout 无关）以保证语料装配口径一致；复制后 worktree `git status --short` 仍为空。
 - 无新增依赖；无 skip/xfail；未 push/amend；单 commit。
+
+## E. R1 返工（2026-11-09）
+
+### E.1 pytest（全部实跑，`MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0`）
+
+| 范围 | label | 结果 |
+| --- | --- | --- |
+| 本包 `test_multiturn_runner.py` | `t109r1-pkg2` | **19 passed**（9.49s；首轮 15 + R1 新增 4） |
+| `backend/tests/evaluation` | `t109r1-eval1` | **392 passed / 0 failed / 0 error**（85.86s） |
+| 全量 `backend/tests`（第 1 次） | `t109r1-full1` | **1795 passed / 0 failed / 0 error**（448.68s） |
+| 全量 `backend/tests`（第 2 次） | `t109r1-full2` | **1795 passed / 0 failed / 0 error**（451.82s） |
+
+- 内存：full2 期间按 8s 轮询 pytest 进程树工作集（含子进程），**52 个样本覆盖 454s**，峰值
+  **460.2 MB < 2 GB**；full1 采样峰值 511.3 MB。
+- flake：两次全量连续全绿，未出现既有 flake，未触发隔离复跑；无 skip/xfail。
+- 新增测试（4）：`test_intermediate_turn_trace_unreadable_fails_with_turn_detail`、
+  `test_gold_error_multi_turn_row_reports_zero_executed_turns`、
+  `test_replay_rejects_single_turn_source_for_multi_turn_case`、
+  `test_replay_rejects_source_with_too_few_turn_traces`。
+- 既有断言同步 2 条（R1/R2 契约，只加强）：中间轮 `kind=error` 的 `error is None` → 精确 error
+  字典；多轮 malformed turns 的 `turns_executed == 1` → `0` + `turn_traces == []`。
+
+### E.2 合规
+
+- 只改 `backend/src/mktkb/evaluation/runner.py`、`backend/tests/evaluation/test_multiturn_runner.py`、
+  `report.md`、证据 02/03/04（追加，不新增文件）。
+- 未改 fixtures、b0/badcase、业务代码/API/intent/dataset/gate 语义、账本/GO、`.env`/Holdout；
+  零真实模型/embedding/rerank 调用；未 push/amend；开工前 `git status --short` 为空。

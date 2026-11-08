@@ -130,6 +130,36 @@ def _record(result, trace_id: str):
         repo.close()
 
 
+def _rewrite_source_rows(run_dir: Path, mutate) -> None:
+    """改写源 run 的 ``cases.jsonl``（模拟旧产物 / 损坏源），manifest 不动。
+
+    replay 只读 ``run_manifest.json`` + ``cases.jsonl``：字段级改写足以复现「源 run 未逐轮
+    执行」的旧产物形态（父提交 run 的行确实没有 ``turn_traces``，见证据 03-F 实跑）。
+    """
+    path = run_dir / "cases.jsonl"
+    rows = [
+        json.loads(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    rewritten = [mutate(row) for row in rows]
+    path.write_text(
+        "\n".join(json.dumps(row, ensure_ascii=False) for row in rewritten) + "\n",
+        encoding="utf-8",
+    )
+
+
+def _replay(tmp_path: Path, name: str, source_dir: Path, dataset: Path):
+    return run_suite(
+        "regression",
+        "replay",
+        corpus_dir=_corpus_dir(tmp_path),
+        dataset_path=dataset,
+        out_dir=tmp_path / name,
+        replay_from=source_dir,
+    )
+
+
 # --------------------------------------------------------------------------- #
 # 1. 顺序执行 + 会话状态继承 + 逐轮 trace
 # --------------------------------------------------------------------------- #
@@ -236,13 +266,47 @@ def test_intermediate_turn_error_outcome_fails_case_even_if_last_turn_passes(
     row = _rows(run)[0]
 
     assert row["status"] == "fail", row
-    assert row["error"] is None
+    # R1：轮级 error 必须落 error 明细（code + turn n/N），不能只靠 turn_traces[].status。
+    assert row["error"] == {
+        "code": "answer_error",
+        "message": "turn 1/2: 答案结局 kind=error（要求无 error）",
+    }
     assert row["turns_executed"] == 2
     assert [item["status"] for item in row["turn_traces"]] == ["error", "ok"]
     assert all(item["status"] != "fail" for item in row["checks"]), row["checks"]
     declarations = run.summary["declarations"]["execution"]
     assert declarations["multi_turn_verified"] is False
     assert declarations["multi_turn_error_case_ids"] == ["MT04"]
+
+
+def test_intermediate_turn_trace_unreadable_fails_with_turn_detail(
+    tmp_path: Path, monkeypatch
+) -> None:
+    """R1：中间轮 Trace 不可读 → case fail，且 ``error`` 带 code 与 ``turn n/N``。"""
+    import mktkb.evaluation.runner as runner_module
+
+    real_read = runner_module._read_trace
+    calls = {"count": 0}
+
+    def unreadable_first_turn(repo, trace_id):
+        calls["count"] += 1
+        if calls["count"] == 1:
+            return None
+        return real_read(repo, trace_id)
+
+    monkeypatch.setattr(runner_module, "_read_trace", unreadable_first_turn)
+    run = _run(tmp_path, "trace-missing", [_case(case_id="MT12")])
+    row = _rows(run)[0]
+
+    assert row["status"] == "fail", row
+    assert row["error"] == {
+        "code": "trace_missing",
+        "message": "turn 1/2: Trace 不可读（trace store 无该轮记录）",
+    }
+    assert [item["status"] for item in row["turn_traces"]] == ["error", "ok"]
+    assert row["turns_executed"] == 2
+    # 末轮仍按既有 scorer 评（checks 有记录），只是 case 判 fail。
+    assert row["checks"]
 
 
 def test_last_turn_checks_fail_fails_case(tmp_path: Path) -> None:
@@ -334,6 +398,65 @@ def test_multi_turn_replay_replays_every_turn(tmp_path: Path) -> None:
         assert record.replayed is True
         assert record.previous_trace_id == local_row["turn_traces"][index]["trace_id"]
 
+    # R3：每轮 replay trace 的题面是对应轮的 question（不是统一用末轮问题）。
+    local_questions = [
+        _record(local, item["trace_id"]).question_hash
+        for item in local_row["turn_traces"]
+    ]
+    replay_questions = [
+        _record(replay, item["trace_id"]).question_hash
+        for item in replay_row["turn_traces"]
+    ]
+    assert replay_questions == local_questions
+    assert local_questions[0] != local_questions[1]
+
+
+def test_replay_rejects_single_turn_source_for_multi_turn_case(tmp_path: Path) -> None:
+    """R1 B1：源 run 没有 ``turn_traces``（T109 前的单轮产物）→ fail closed。"""
+    local = _run(tmp_path, "old-src", [_case()])
+    dataset = tmp_path / "old-src.jsonl"
+    _rewrite_source_rows(
+        local.out_dir,
+        lambda row: {k: v for k, v in row.items() if k != "turn_traces"}
+        | {"turns_executed": 1, "multi_turn_claimed": False},
+    )
+
+    replay = _replay(tmp_path, "old-src-replay", local.out_dir, dataset)
+    row = _rows(replay)[0]
+
+    assert row["status"] == "fail", row
+    assert row["error"]["code"] == "multi_turn_source_missing"
+    assert "2 轮" in row["error"]["message"]
+    assert row["multi_turn_claimed"] is True
+    # 不写单条 replay 冒充逐轮结果。
+    assert row["turn_traces"] == []
+    assert row["turns_executed"] == 0
+    # 声明层面不把该 case 当成「多轮已验证」。
+    declarations = replay.summary["declarations"]["execution"]
+    assert declarations["multi_turn_verified"] is False
+    assert declarations["multi_turn_error_case_ids"] == ["MT01"]
+
+
+def test_replay_rejects_source_with_too_few_turn_traces(tmp_path: Path) -> None:
+    """R1 B1：源行 ``turn_traces`` 少于 case 轮数 → fail closed（不补齐、不伪造）。"""
+    local = _run(tmp_path, "short-src", [_case()])
+    dataset = tmp_path / "short-src.jsonl"
+
+    def keep_first_turn(row: dict) -> dict:
+        row["turn_traces"] = row["turn_traces"][:1]
+        return row
+
+    _rewrite_source_rows(local.out_dir, keep_first_turn)
+
+    replay = _replay(tmp_path, "short-src-replay", local.out_dir, dataset)
+    row = _rows(replay)[0]
+
+    assert row["status"] == "fail", row
+    assert row["error"]["code"] == "multi_turn_source_incomplete"
+    assert "1 条" in row["error"]["message"] and "2" in row["error"]["message"]
+    assert row["turn_traces"] == []
+    assert row["turns_executed"] == 0
+
 
 def test_multi_turn_replay_keeps_turn_error_verdict(tmp_path: Path, monkeypatch) -> None:
     """源 run 因中间轮 error 判 fail：replay 复现 fail（不改判 error）。"""
@@ -402,11 +525,29 @@ def test_run_marks_multi_turn_counts_in_manifest_and_summary(tmp_path: Path) -> 
     ],
 )
 def test_malformed_turns_fail_closed(tmp_path: Path, turns: tuple, code: str) -> None:
+    """R2：多轮 turns 非法时未执行任何轮次 → ``turns_executed=0``、无逐轮记录。"""
     row = _rows(_run(tmp_path, "bad-turns", [_case(case_id="MT10", turns=turns)]))[0]
 
     assert row["status"] == "error", row
     assert row["error"]["code"] == code
-    assert row["turns_executed"] == 1
+    assert row["multi_turn_claimed"] is True
+    assert row["turns_executed"] == 0
+    assert row["turn_traces"] == []
+
+
+def test_gold_error_multi_turn_row_reports_zero_executed_turns(tmp_path: Path) -> None:
+    """R2：多轮 case 在首轮执行前 gold 解析失败 → ``turns_executed=0``（不是默认 1）。"""
+    case = _case(
+        case_id="MT13",
+        expected_sources=({"doc_code": "E11", "unit_key": "sheet:物品位置:row:9999"},),
+    )
+    row = _rows(_run(tmp_path, "gold-error", [case]))[0]
+
+    assert row["status"] == "error", row
+    assert row["error"]["code"] == "gold_unresolved"
+    assert row["multi_turn_claimed"] is True
+    assert row["turns_executed"] == 0
+    assert row["turn_traces"] == []
 
 
 def test_non_mapping_turn_is_rejected_by_the_runner(tmp_path: Path) -> None:

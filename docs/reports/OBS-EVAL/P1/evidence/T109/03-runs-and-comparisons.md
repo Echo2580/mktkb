@@ -113,3 +113,58 @@ RG001/RG004/RG005/RG007: turns=1，单条 replay trace，previous=对应 local t
 语义核对：`forbidden_values` 里**未问字段值全部保留**（位置=店内外侧、标识=QF01）；
 `40 张`从禁止值改为期望值（两者不能并存）；`滨江店`是 turn1 明问的主体、末轮答案的继承对象，
 不是「未问字段」，故移出 forbidden——移除范围仅这两项，且都不放宽任何未问字段。
+
+## F. R1 返工：实跑对照（2026-11-09）
+
+### F.1 B1（旧源单轮 run 遇多轮 case）
+
+命令（cwd=仓库根；源 run 在父提交 `ebfe956` 的 worktree 里，数据集用父 fixture）：
+
+```powershell
+.venv\Scripts\python.exe -B tools\rag_eval.py run --suite regression --mode replay `
+  --from-run backend\.pytest-tmp\T109-verify\base\backend\.pytest-tmp\T109-verify\eval\regression-parent `
+  --dataset backend\.pytest-tmp\T109-verify\base\fixtures\evaluation\regression.jsonl `
+  --out backend\.pytest-tmp\T109-R1\eval\<before|after>-parent-replay
+```
+
+| 行 | before `…13d79f03` | after `…b6e0e131` |
+| --- | --- | --- |
+| RG002 | pass / te=1 / claimed=True / ntt=1 / err=None | **fail** / te=0 / claimed=True / ntt=0 / err=`multi_turn_source_missing` |
+| RG003 | 同上（静默只 replay 首轮） | 同上（fail closed） |
+| RG006 | 同上（静默只 replay 首轮） | 同上（fail closed） |
+| RG001/RG004/RG005/RG007 | pass/pass/fail/fail | 前后一致 |
+
+after 另：`multi_turn_verified=false`、`multi_turn_error_case_ids=[RG002,RG003,RG006]`、
+manifest `multi_turn_turns_executed=0`、gate exit 3 hard `[]`（`scored=4/None`）。
+
+### F.2 单轮 replay 不变
+
+- 源 = `backend\.pytest-tmp\T109\eval\b0`（T109 交付 run，40 行单轮）。
+- 修复前/后 replay（`…f0e14f12` / `…b2499c01`）整行语义投影（去 trace_id/duration 等 volatile）
+  **0/40 diff**；修复后 replay 对 local signature **0/40 diff**。
+
+### F.3 逐轮题面（R3）
+
+`trace_turns.py` 实查修复后 replay（`…a2a19936`）：
+
+```text
+RG002: turn 1/2 q_hash MATCH (12/11 chars) replayed=True spans=0 prev=True; local hashes distinct
+RG003: turn 1/2 q_hash MATCH (22/21 chars) replayed=True spans=0 prev=True; local hashes distinct
+RG006: turn 1/2 q_hash MATCH (15/5  chars) replayed=True spans=0 prev=True; local hashes distinct
+```
+
+修复前 replay（`…aaf848ba`）：turn1 的 `question_hash` == local **turn2**（末轮）hash，≠ local turn1
+（即验收指出的「统一用末轮问题」）；修复后逐轮对齐，replay vs local `case_diffs=0/7`。
+
+### F.4 local 回归（R1 代码）
+
+| 对照 | 结果 |
+| --- | --- |
+| b0 vs P0（`var/eval/runs/p0-b0`） | `case_diffs=0/40`；gate exit 3 hard `[]` |
+| badcase vs P0（`var/eval/runs/p0-badcase`） | `case_diffs=0/13`；gate exit 3 hard `[]` |
+| b0/badcase vs T109 交付 run（整行语义投影） | 0/40、0/13 |
+| regression vs T109 交付 run（整行语义投影） | 0/7 |
+| regression vs 父提交 run（signature） | 1/7，仅 RG006（`pass/clarification`→`pass/answer`） |
+| regression replay vs local（signature） | 0/7 |
+
+R1 run id：b0 `…309fccaa`、badcase `…da79b966`、regression `…048e1c7b`、replay `…a2a19936`。
