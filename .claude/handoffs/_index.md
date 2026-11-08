@@ -33,7 +33,7 @@
 | T105 | D6 指代/字段错配（ERR-06） | **G6 已收口**（dev commits `2306aaa`+`fc60c57`+`b37ad21`；独立验收 R3 **PASS**：`review-R3.md`，133/133 探针、全量 1718 passed、b0/badcase `case_diffs=0`、regression 仅 RG006 fail→pass；P2 残余记 #51） | 2 | 否 | — |
 | T106 | D3 文案统一（ERR-05，后端+前端） | **G6 已收口**（dev `a42ee48`+R1 `972f508`；独立验收 R2 **PASS**：`review-R2.md`；B1/B2/B3 诚实文案+机械测试、T104 8/8 逐字、全量 1733 passed、b0/badcase 0/40+0/13、regression 仅 RG006；非阻塞观察记 #52） | 1 | 否 | T105 ✅ |
 | T108 | Holdout 支持与防污染 | **G6 已收口**（dev `af08848`+R1 `d3b5745`；独立验收 R2 **PASS**：`review-R2.md`；真实 holdout 30/30、`error_count=0`、分母 30、拒答 2×2 可复算；B2/B3 防污染加固；全量 1776 passed；残余记 #53） | 1 | 否 | T106 ✅ |
-| T109 | 多轮 turns runner | **G4 验收 FAIL → R1 返工中**（dev `703b7e0`；阻断：replay 源单轮 run 遇多轮 case 静默单 trace；另有 error 明细/turns_executed/replay 题面非阻塞；其余 PASS；`review.md`；轮次 1/3） | 1 | 否 | T108 ✅ |
+| T109 | 多轮 turns runner | **R1 返工交付，待复验 R2**（dev `703b7e0`+R1 `1ffd57a`；replay fail-closed/error 明细/turns_executed/逐轮题面已改；`review.md`；轮次 1/3） | 1 | 否 | T108 ✅ |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
