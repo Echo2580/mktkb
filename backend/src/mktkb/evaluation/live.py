@@ -20,6 +20,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import math
 import os
@@ -53,6 +54,9 @@ from .dataset import CaseSpec, load_cases
 
 __all__ = [
     "DEFAULT_ENV_FILE",
+    "FROZEN_FULL_LIVE_DATASET",
+    "LIVE_FULL_LIVE_CASES",
+    "LIVE_FULL_LIVE_SUITE",
     "LIVE_MAX_PILOT_CASES",
     "LIVE_RETRIEVAL_LIMIT",
     "LIVE_SCOPE",
@@ -68,11 +72,16 @@ __all__ = [
     "load_live_runtime",
     "main",
     "plan_live_cost",
+    "validate_full_live_dataset",
     "validate_pilot_dataset",
 ]
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_ENV_FILE = PROJECT_ROOT / ".env"
+#: P1 T112 全量 live 的唯一允许口径（默认关闭；打开只放行这一种）。
+LIVE_FULL_LIVE_SUITE = "b0"
+LIVE_FULL_LIVE_CASES = 40
+FROZEN_FULL_LIVE_DATASET = PROJECT_ROOT / "fixtures" / "evaluation" / "b0.jsonl"
 
 LIVE_STAGE = "P1-RETRIEVAL"
 LIVE_SERVICE = "rag"
@@ -657,6 +666,46 @@ def validate_pilot_dataset(cases: Sequence[CaseSpec], pilot_cases: int | None) -
         )
 
 
+def _sha256_file(path: Path) -> str:
+    try:
+        data = Path(path).read_bytes()
+    except OSError as exc:
+        raise LiveConfigError(f"数据集不可读：{Path(path)}（{type(exc).__name__}）") from None
+    return hashlib.sha256(data).hexdigest()
+
+
+def validate_full_live_dataset(
+    *,
+    suite: str,
+    dataset_path: Path | str,
+    cases: Sequence[CaseSpec],
+) -> str:
+    """全量 live 守卫：仅 b0 + 冻结 ``b0.jsonl`` 字节级 sha256 + 恰好 40 题。
+
+    返回冻结数据集的 sha256（可写入证据；不含题目/答案原文）。默认关闭的全量开关
+    由调用方（``run_suite`` / ``preview_live_run``）决定是否调用本函数。
+    """
+    if suite != LIVE_FULL_LIVE_SUITE:
+        raise LiveConfigError(
+            f"全量 live 只允许 suite={LIVE_FULL_LIVE_SUITE!r}，收到 {suite!r}"
+        )
+    if len(cases) != LIVE_FULL_LIVE_CASES:
+        raise LiveConfigError(
+            f"全量 live 必须恰好 {LIVE_FULL_LIVE_CASES} 题，收到 {len(cases)} 题"
+        )
+    frozen = FROZEN_FULL_LIVE_DATASET
+    if not frozen.is_file():
+        raise LiveConfigError(f"冻结数据集不存在：{frozen}")
+    expected = _sha256_file(frozen)
+    actual = _sha256_file(Path(dataset_path))
+    if actual != expected:
+        raise LiveConfigError(
+            "全量 live 数据集必须与冻结 b0.jsonl 字节级一致："
+            f"sha256={actual[:12]}… != {expected[:12]}…"
+        )
+    return expected
+
+
 def _single_business_date(cases: Sequence[CaseSpec]) -> str:
     dates = {case.business_date for case in cases}
     if len(dates) != 1:
@@ -685,13 +734,21 @@ def preview_live_run(
     *,
     suite: str,
     dataset_path: Path,
-    pilot_cases: int,
+    pilot_cases: int | None,
+    allow_full_live: bool = False,
     environ: Mapping[str, str] | None = None,
     env_file: Path | None = DEFAULT_ENV_FILE,
 ) -> tuple[LiveCostEstimate, dict[str, Any]]:
     """只读预检：GO/账本/凭据/绑定 + 成本估算；零预留、零 HTTP。"""
     cases = load_cases(dataset_path)
-    validate_pilot_dataset(cases, pilot_cases)
+    if allow_full_live:
+        if pilot_cases is not None:
+            raise LiveConfigError(
+                "--allow-full-live 与 --pilot 互斥：全量预检不接受 pilot 题数"
+            )
+        validate_full_live_dataset(suite=suite, dataset_path=dataset_path, cases=cases)
+    else:
+        validate_pilot_dataset(cases, pilot_cases)
     business_date = _single_business_date(cases)
     corpus = load_suite_corpus(
         suite,
@@ -720,6 +777,7 @@ def preview_live_run(
         "stage": runtime.stage,
         "service": runtime.service,
         "scope": LIVE_SCOPE,
+        "full_live": bool(allow_full_live),
         "budget_before": before,
         "credentials_source": runtime.credentials_source,
         "config": safe_config_summary(runtime.config),
@@ -739,7 +797,12 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--suite", required=True, choices=("b0", "badcase", "regression"))
     parser.add_argument("--dataset", required=True, help="pilot 子集 JSONL（必须恰好 N 题）")
-    parser.add_argument("--pilot", type=int, required=True, help="pilot 题数（1–10）")
+    parser.add_argument("--pilot", type=int, default=None, help="pilot 题数（1–10）")
+    parser.add_argument(
+        "--allow-full-live",
+        action="store_true",
+        help="显式放行 b0 全量 40 题（仅 suite=b0 + 冻结 b0.jsonl 字节级 sha + 40 题）",
+    )
     parser.add_argument("--out", default=None, help="输出目录（默认 var/eval/runs/<run_id>）")
     parser.add_argument("--dry-run", action="store_true", help="只做 GO/账本/成本预检，不发请求")
     parser.add_argument("--env-file", default=str(DEFAULT_ENV_FILE), help="凭据 .env 路径")
@@ -750,7 +813,8 @@ def _print_estimate(estimate: LiveCostEstimate, extra: Mapping[str, Any]) -> Non
     before = dict(extra.get("budget_before") or {})
     print(
         "mode=live scope=retrieval_only "
-        f"suite={estimate.suite} cases={estimate.case_count} dry_run=true"
+        f"suite={estimate.suite} cases={estimate.case_count} "
+        f"full_live={str(bool(extra.get('full_live'))).lower()} dry_run=true"
     )
     print(
         f"stage={extra.get('stage')} stage_limit_cny={before.get('stage_limit_cny')} "
@@ -786,6 +850,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 suite=args.suite,
                 dataset_path=dataset_path,
                 pilot_cases=args.pilot,
+                allow_full_live=bool(args.allow_full_live),
                 environ=environ,
                 env_file=env_file,
             )
@@ -805,7 +870,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             out_dir=Path(args.out) if args.out else None,
             dataset_path=dataset_path,
             pilot_cases=args.pilot,
-            allow_full_live=False,
+            allow_full_live=bool(args.allow_full_live),
             environ=environ,
             live_env_file=env_file,
         )

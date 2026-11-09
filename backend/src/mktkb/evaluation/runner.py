@@ -113,6 +113,7 @@ from .live import (
     ledger_event_counts,
     load_live_runtime,
     plan_live_cost,
+    validate_full_live_dataset,
     validate_pilot_dataset,
 )
 from .scorers import (
@@ -1048,15 +1049,22 @@ def _run_live(
     env_file: Path | None,
 ) -> RunResult:
     cases = load_cases(dataset_path)
-    if pilot_cases is None:
-        if not allow_full_live:
-            validate_pilot_dataset(cases, None)  # 稳定错误：必须显式放行全量
+    if allow_full_live:
+        if pilot_cases is not None:
+            raise LiveConfigError(
+                "--allow-full-live 与 pilot_cases 互斥：全量运行不接受 pilot 题数"
+            )
+        # P1 T112：打开全量开关时仍只允许 b0 + 冻结 b0.jsonl 字节级 sha + 恰好 40 题。
+        validate_full_live_dataset(suite=suite, dataset_path=dataset_path, cases=cases)
     else:
-        validate_pilot_dataset(cases, pilot_cases)
-    if not allow_full_live and len(cases) > LIVE_MAX_PILOT_CASES:
-        raise LiveConfigError(
-            f"live 未放行全量，最多 {LIVE_MAX_PILOT_CASES} 题；收到 {len(cases)} 题"
-        )
+        if pilot_cases is None:
+            validate_pilot_dataset(cases, None)  # 稳定错误：必须显式放行全量
+        else:
+            validate_pilot_dataset(cases, pilot_cases)
+        if len(cases) > LIVE_MAX_PILOT_CASES:
+            raise LiveConfigError(
+                f"live 未放行全量，最多 {LIVE_MAX_PILOT_CASES} 题；收到 {len(cases)} 题"
+            )
     business_date = _single_business_date(cases)
     label_version = _single_label_version(cases)
     ds_version = dataset_version(cases, label_version)
@@ -1129,6 +1137,9 @@ def _run_live(
             shutil.rmtree(index_dir, ignore_errors=True)
             raise
         try:
+            # 延迟导入：gate 模块顶层 import runner（避免循环导入）。
+            from .gate import GATE_VERSION_V0_2
+
             manifest = RunManifest(
                 run_id=run_id,
                 mode="live",
@@ -1140,7 +1151,7 @@ def _run_live(
                 business_date=business_date,
                 index_revision=int(index_stats["revision"]),
                 pipeline_version=_live_pipeline_version(cfg),
-                gate_version=GATE_SCHEMA_VERSION,
+                gate_version=GATE_VERSION_V0_2,
                 label_version=label_version,
                 created_at=_utc_now(),
                 case_count=len(cases),
@@ -1180,6 +1191,7 @@ def _run_live(
         "service": runtime.service,
         "pilot": pilot_cases is not None,
         "pilot_cases": pilot_cases,
+        "full_live": bool(allow_full_live),
         "aborted": bool(aborted),
         "dataset_path": str(dataset_path.resolve()),
         "index_dir": str(index_dir),

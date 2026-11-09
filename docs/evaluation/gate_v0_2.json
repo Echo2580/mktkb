@@ -1,0 +1,182 @@
+{
+  "schema_version": "mktkb.gate.config.v0.2",
+  "gate_version": "mktkb.gate.v0.2",
+  "status": "unapproved",
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "hard_gate_min_sample": {
+    "b0": 32,
+    "badcase": 13,
+    "regression": 7
+  },
+  "suites": [
+    "b0",
+    "badcase",
+    "regression"
+  ],
+  "sensitive_patterns": [],
+  "quality_layer": {
+    "status": "unapproved",
+    "approval_owner": "T112 human gate（P1 release baseline 审批；PM 报主人书面批准后由 R1 落盘）",
+    "evaluate_with": "evaluate_gate(..., quality=True)",
+    "status_source": "top_level status（只有 \"approved\" 才参与质量判定）",
+    "reporting": "per_stratum_and_all_no_composite_score",
+    "retrieval_only_scope": "live + retrieval_only 只评估 retrieval 组指标；不生成答案，答案/拒答/运行指标不参与（P1 design §5）",
+    "denominators": {
+      "retrieval": "gold_cases_non_ocr（有 gold 且非 OCR 的 case；b0=32 / badcase=10）",
+      "answer": "scored_cases_non_ocr（pass/fail 且非 OCR、非 error；b0=32 / badcase=13）",
+      "refusal": "refusal_eligible_cases（排除 error/service_error/knowledge_changed）",
+      "runtime": "latency_samples / cost_samples"
+    },
+    "thresholds": "empty_by_design：retrieval 5 指标的 min_sample / absolute_min / absolute_max / max_regression_pp 均为 null，等待 T112 校准提案 + 主人书面批准后由 R1 写入",
+    "calibration": "calibrate_gate 只产出 gate_proposal.json（建议值 + gate_config_hash + run_id），不写回本文件",
+    "calibration_evidence": "docs/reports/OBS-EVAL/P1/evidence/T112/02-gate-proposal.md",
+    "notes": "未审批时质量结果为 unknown（exit 3），不得当通过；硬门禁不可豁免，质量 waiver 必须带 reason + approver。质量 min_sample 按各指标分母计算，不得复用 hard_gate_min_sample；b0 live 的非 OCR 层为 all=32 / exact=24 / text=8，单一 min_sample 需主人按提案选择。"
+  },
+  "metrics": [
+    {
+      "name": "Recall@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "MRR@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "nDCG@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "hard_filter_violation_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "empty_recall_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "value_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "source_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "kind_correct",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_precision",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_recall",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_recall",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "false_refusal_rate",
+      "group": "refusal",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_precision",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "p95_latency_ms",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "cost_per_case_cny",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    }
+  ],
+  "notes": "P1 T112：v0.1 的 8 项硬门禁与方向不变；新增 regression suite 与 retrieval 5 指标阈值骨架（min_sample / absolute_min / absolute_max / max_regression_pp 字段齐全、值待审批）。status=unapproved 时质量结果必须为 unknown（exit 3）；本文件不得由 R0 改写为 approved，也不得用 calibrate 提案覆盖。P1 release baseline 只能由 gate v0.2 的 live + retrieval_only run 建立，且必须经 baseline approve 现场重算门禁 + approver/reason 审批（approval.json）。"
+}

@@ -48,7 +48,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
-from .gate import GateResult, load_run_result
+from .gate import GATE_VERSION_V0_2, GateResult, load_run_result
 from .runner import RunManifest, RunResult
 
 __all__ = [
@@ -147,13 +147,18 @@ def _identity_value(payload: Mapping[str, Any], name: str) -> str:
     return value
 
 
-def _validate_mode(mode: str) -> str:
-    if mode not in BASELINE_MODES:
-        raise BaselineIdentityError(
-            f"baseline 的 mode 只允许 {list(BASELINE_MODES)}，收到 {mode!r}"
-            "（live 不能建立 baseline）"
-        )
-    return mode
+def _validate_mode(mode: str, gate_version: str | None = None) -> str:
+    if mode in BASELINE_MODES:
+        return mode
+    # P1 T112：live 只能作为 gate v0.2 的 retrieval-only release baseline；
+    # P0 gate v0.1 的 live run 仍拒绝（T003/T007 口径不变）。
+    if mode == "live" and gate_version == GATE_VERSION_V0_2:
+        return mode
+    raise BaselineIdentityError(
+        f"baseline 的 mode 只允许 {list(BASELINE_MODES)}"
+        f"（或 live + gate_version={GATE_VERSION_V0_2} 的 P1 release baseline），"
+        f"收到 {mode!r} / gate_version={gate_version!r}"
+    )
 
 
 @dataclass(frozen=True)
@@ -172,7 +177,7 @@ class BaselineIdentity:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise BaselineIdentityError(f"baseline 身份字段 {name} 必须是非空字符串")
-        _validate_mode(self.mode)
+        _validate_mode(self.mode, self.gate_version)
 
     def canonical(self) -> str:
         """按 ``BASELINE_ID_FIELDS`` 顺序字面拼接（文档化的 digest 输入）。"""

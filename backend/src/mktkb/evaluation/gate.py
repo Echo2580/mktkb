@@ -184,9 +184,32 @@ GATE_STATUS_NOT_APPLICABLE = "not_applicable"
 GATE_STATUS_NOT_EVALUATED = "not_evaluated"
 
 CONFIG_SCHEMA_VERSION = "mktkb.gate.config.v0.1"
+#: T112：P1 gate 配置（检索阈值 + regression suite）；status 仍为 unapproved，阈值由
+#: 校准提案 + 主人书面批准后另派 R1 落盘，本模块从不自行审批。
+CONFIG_SCHEMA_VERSION_V0_2 = "mktkb.gate.config.v0.2"
+GATE_VERSION_V0_2 = "mktkb.gate.v0.2"
+#: P1 retrieval-only 评测的作用域（与 ``live.LIVE_SCOPE`` 同值；gate 不反向依赖 live）。
+RETRIEVAL_ONLY_SCOPE = "retrieval_only"
 #: 初版配置骨架（只有硬门禁 ID / min_sample / 指标方向 / 空阈值占位）。
 DEFAULT_GATE_CONFIG_PATH = (
     Path(__file__).resolve().parents[4] / "docs" / "evaluation" / "gate_v0_1.json"
+)
+#: P1 配置路径；``write_gate_proposal`` 同样拒绝覆盖它（提案只落 run 目录/证据）。
+P1_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_2.json"
+#: design §8.2 检索 5 指标（v0.2 必须全部声明，方向固定）。
+RETRIEVAL_METRIC_DIRECTIONS: Mapping[str, str] = {
+    "Recall@10": "higher_is_better",
+    "MRR@10": "higher_is_better",
+    "nDCG@10": "higher_is_better",
+    "hard_filter_violation_rate": "lower_is_better",
+    "empty_recall_rate": "lower_is_better",
+}
+#: v0.2 每个 metric 必须显式给出四个阈值字段（值可为 null；字段不得缺省）。
+V0_2_METRIC_FIELDS: tuple[str, ...] = (
+    "min_sample",
+    "absolute_min",
+    "absolute_max",
+    "max_regression_pp",
 )
 #: 冻结数据集目录（run_manifest.dataset_path 不可用时的回退）。
 FROZEN_DATASET_DIR = DEFAULT_GATE_CONFIG_PATH.parent.parent.parent / "fixtures" / "evaluation"
@@ -291,6 +314,8 @@ class GateConfig:
     min_sample: Mapping[str, int]
     metrics: tuple[MetricSpec, ...] = ()
     sensitive_patterns: tuple[str, ...] = ()
+    #: v0.2 声明的评测套件（必须含 ``regression``）；v0.1 为空元组（行为不变）。
+    suites: tuple[str, ...] = ()
     source_path: str | None = None
     config_hash: str = ""
 
@@ -319,6 +344,7 @@ class GateConfig:
             "min_sample": dict(self.min_sample),
             "metrics": [item.to_dict() for item in self.metrics],
             "sensitive_patterns": list(self.sensitive_patterns),
+            "suites": list(self.suites),
             "source_path": self.source_path,
             "config_hash": self.config_hash,
         }
@@ -366,14 +392,20 @@ def load_gate_config(path: Path | str) -> GateConfig:
     payload = _require_mapping(payload, "gate 配置")
 
     schema_version = _require_text(payload.get("schema_version"), "schema_version")
-    if schema_version != CONFIG_SCHEMA_VERSION:
+    if schema_version == CONFIG_SCHEMA_VERSION:
+        expected_gate_version = GATE_SCHEMA_VERSION
+    elif schema_version == CONFIG_SCHEMA_VERSION_V0_2:
+        expected_gate_version = GATE_VERSION_V0_2
+    else:
         raise ValueError(
-            f"schema_version 不兼容：{schema_version!r} != {CONFIG_SCHEMA_VERSION!r}"
+            f"schema_version 不兼容：{schema_version!r}；只允许 "
+            f"{CONFIG_SCHEMA_VERSION!r} / {CONFIG_SCHEMA_VERSION_V0_2!r}"
         )
+    is_v0_2 = schema_version == CONFIG_SCHEMA_VERSION_V0_2
     gate_version = _require_text(payload.get("gate_version"), "gate_version")
-    if gate_version != GATE_SCHEMA_VERSION:
+    if gate_version != expected_gate_version:
         raise ValueError(
-            f"gate_version 不匹配契约：{gate_version!r} != {GATE_SCHEMA_VERSION!r}"
+            f"gate_version 不匹配契约：{gate_version!r} != {expected_gate_version!r}"
         )
     status = _require_text(payload.get("status"), "status")
 
@@ -410,6 +442,13 @@ def load_gate_config(path: Path | str) -> GateConfig:
     metrics: list[MetricSpec] = []
     for index, item in enumerate(raw_metrics):
         item = _require_mapping(item, f"metrics[{index}]")
+        if is_v0_2:
+            missing_fields = [name for name in V0_2_METRIC_FIELDS if name not in item]
+            if missing_fields:
+                raise ValueError(
+                    f"metrics[{index}]（{item.get('name')!r}）缺少 v0.2 必填字段 "
+                    f"{missing_fields}（值可为 null，但字段不得缺省）"
+                )
         direction = _require_text(item.get("direction"), f"metrics[{index}].direction")
         if direction not in DIRECTIONS:
             raise ValueError(
@@ -435,6 +474,30 @@ def load_gate_config(path: Path | str) -> GateConfig:
             )
         )
 
+    suites: tuple[str, ...] = ()
+    if is_v0_2:
+        raw_suites = payload.get("suites")
+        if isinstance(raw_suites, (str, bytes)) or not isinstance(raw_suites, Sequence):
+            raise ValueError("v0.2 suites 必须是字符串数组且包含 'regression'")
+        suites = tuple(_require_text(item, "suites[]") for item in raw_suites)
+        if len(set(suites)) != len(suites):
+            raise ValueError(f"suites 含重复项: {list(suites)}")
+        if "regression" not in suites:
+            raise ValueError("v0.2 suites 必须包含 'regression'")
+        declared = {
+            (spec.name, spec.group, spec.direction) for spec in metrics
+        }
+        missing_metrics = sorted(
+            name
+            for name, direction in RETRIEVAL_METRIC_DIRECTIONS.items()
+            if (name, "retrieval", direction) not in declared
+        )
+        if missing_metrics:
+            raise ValueError(
+                "v0.2 metrics 必须覆盖 design §8.2 检索 5 指标（group=retrieval 且方向正确）；"
+                f"缺少 {missing_metrics}"
+            )
+
     raw_patterns = payload.get("sensitive_patterns", [])
     if isinstance(raw_patterns, (str, bytes)) or not isinstance(raw_patterns, Sequence):
         raise ValueError("sensitive_patterns 必须是字符串数组")
@@ -456,6 +519,7 @@ def load_gate_config(path: Path | str) -> GateConfig:
         min_sample=min_sample,
         metrics=tuple(metrics),
         sensitive_patterns=tuple(patterns),
+        suites=suites,
         source_path=str(target.resolve()),
         config_hash=hashlib.sha256(canonical.encode("utf-8")).hexdigest(),
     )
@@ -1640,7 +1704,9 @@ def _gate_citation_required(view: _View) -> _GateOutcome:
     )
 
 
-def _gate_trace_integrity(view: _View, require_trace: bool) -> _GateOutcome:
+def _gate_trace_integrity(
+    view: _View, require_trace: bool, *, retrieval_only: bool = False
+) -> _GateOutcome:
     gate_id = "trace_integrity"
     if not require_trace:
         return _outcome(
@@ -1838,9 +1904,14 @@ def _gate_trace_integrity(view: _View, require_trace: bool) -> _GateOutcome:
             )
             continue
         try:
-            required = set(
-                required_spans(record.path, record.outcome_kind, reason=record.reason)
-            )
+            if retrieval_only:
+                # P1 live + retrieval_only：不执行 parse/answer/commit（不生成答案），
+                # 只要求核心检索 Span；条件 Span（vector/rerank/…）仍按下文校验。
+                required = {"recall", "fuse"}
+            else:
+                required = set(
+                    required_spans(record.path, record.outcome_kind, reason=record.reason)
+                )
         except ValueError as exc:
             failures.append(
                 GateFailure(
@@ -1889,7 +1960,12 @@ def _gate_trace_integrity(view: _View, require_trace: bool) -> _GateOutcome:
         failures=failures,
         unknowns=unknowns,
         applicable=applicable,
-        detail="没有可校验的非 OCR 行",
+        detail=(
+            "live retrieval_only：只要求核心检索 Span（recall/fuse）；"
+            "parse/answer/commit 在 retrieval_only 下不适用"
+            if retrieval_only
+            else "没有可校验的非 OCR 行"
+        ),
     )
 
 
@@ -2691,7 +2767,16 @@ def _evaluate_quality(
     config: GateConfig,
     policy: QualityPolicy,
     baseline: Any,
+    *,
+    retrieval_only: bool = False,
 ) -> QualityResult:
+    if retrieval_only:
+        # live + retrieval_only 不生成答案：只评估检索组指标，答案/拒答/运行指标
+        # 不参与（也不伪造观测），与 P1 design §5 的口径一致。
+        config = replace(
+            config,
+            metrics=tuple(spec for spec in config.metrics if spec.group == "retrieval"),
+        )
     warnings: list[str] = []
     summary_payload, has_summary_metrics = _summary_payload(run)
     if not has_summary_metrics:
@@ -2988,6 +3073,13 @@ def calibrate_gate(
     resolved = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
     if not isinstance(resolved, GateConfig):
         raise TypeError("calibrate_gate 的 config 必须是 GateConfig")
+    retrieval_only = str(manifest.get("scope") or "") == RETRIEVAL_ONLY_SCOPE
+    if retrieval_only:
+        # P1：live retrieval_only 的提案只覆盖检索指标（不生成答案，答案指标无观测）。
+        resolved = replace(
+            resolved,
+            metrics=tuple(spec for spec in resolved.metrics if spec.group == "retrieval"),
+        )
     target, note = _dataset_path(manifest, None)
     if target is None:
         raise ValueError(f"校准需要可解析的数据集: {note or 'dataset_unavailable'}")
@@ -3053,6 +3145,12 @@ def calibrate_gate(
     )
     if warnings:
         notes = notes + " 观测提示：" + "；".join(warnings)
+    if retrieval_only:
+        notes = (
+            notes
+            + " 本 run 为 live + retrieval_only：提案只含 retrieval 组指标；"
+            "答案/拒答/运行指标不参与，不伪造观测。"
+        )
     return GateProposal(
         run_id=str(manifest.get("run_id") or ""),
         suite=str(manifest.get("suite") or ""),
@@ -3080,10 +3178,11 @@ def write_gate_proposal(
     if not isinstance(proposal, GateProposal):
         raise TypeError("write_gate_proposal 需要 GateProposal")
     target = Path(path)
-    if target.resolve() == DEFAULT_GATE_CONFIG_PATH.resolve():
-        raise ValueError(
-            "不得用校准提案覆盖 gate_v0_1.json：阈值必须经 T009 人工门审批后手写"
-        )
+    for protected in (DEFAULT_GATE_CONFIG_PATH, P1_GATE_CONFIG_PATH):
+        if target.resolve() == protected.resolve():
+            raise ValueError(
+                f"不得用校准提案覆盖 {protected.name}：阈值必须经人工门审批后手写"
+            )
     if target.exists() and not overwrite:
         raise FileExistsError(f"提案文件已存在（需 overwrite=True）：{target}")
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -3148,8 +3247,18 @@ def evaluate_gate(
     rows = tuple(row for row in rows if isinstance(row, Mapping))
     evaluated_count = sum(1 for row in rows if _is_evaluated_row(row))
     mode = str(manifest.get("mode") or "").strip()
+    resolved_config = (
+        config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
+    )
+    # P1 T112：``live + retrieval_only`` 只有绑定 gate v0.2 才允许进入判定；v0.1 / 其它
+    # scope 仍按 P0 契约 exit 4（live 未授权），既有行为逐字不变。
+    live_retrieval_only = (
+        mode.lower() == "live"
+        and str(manifest.get("scope") or "") == RETRIEVAL_ONLY_SCOPE
+        and resolved_config.gate_version == GATE_VERSION_V0_2
+    )
 
-    if mode.lower() == "live":
+    if mode.lower() == "live" and not live_retrieval_only:
         return GateResult(
             exit_code=EXIT_LIVE_UNAUTHORIZED,
             gate_status={gate_id: GATE_STATUS_NOT_EVALUATED for gate_id in HARD_GATE_IDS},
@@ -3179,7 +3288,6 @@ def evaluate_gate(
     if str(manifest.get("suite") or "") == HOLDOUT_SUITE:
         return _holdout_gate_result(manifest, rows, mode=mode, environ=environ)
 
-    resolved_config = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
     if bad_rows:
         return _config_data_failure(
             manifest,
@@ -3196,7 +3304,7 @@ def evaluate_gate(
             ],
             warnings=warnings,
         )
-    if mode not in {"local", "replay"}:
+    if mode not in {"local", "replay"} and not live_retrieval_only:
         return _config_data_failure(
             manifest,
             evaluated_count,
@@ -3329,12 +3437,49 @@ def evaluate_gate(
                 "字段，没有可判定的 stale_bypass case；只把上游 hard_filter_violation=stale "
                 "当违规证据",
             ),
-            _gate_conflict_not_rejected(view),
-            _gate_exact_value_contract(view),
-            _gate_pagination_contract(view),
-            _gate_citation_required(view),
-            _gate_trace_integrity(view, require_trace),
         ]
+        if live_retrieval_only:
+            # retrieval_only 不生成答案：答案文本/引用/分页类硬门禁无输入，显式
+            # not_applicable（不伪造 pass）；检索证据可判定的门禁照常评估。
+            outcomes.extend(
+                [
+                    _outcome(
+                        "conflict_not_rejected",
+                        detail="live retrieval_only：不生成答案，冲突结局不适用",
+                    ),
+                    _outcome(
+                        "exact_value_contract",
+                        detail="live retrieval_only：不生成答案文本，精确值契约不适用",
+                    ),
+                    _outcome(
+                        "pagination_contract",
+                        detail="live retrieval_only：只做检索，不产出分页结果",
+                    ),
+                    _outcome(
+                        "citation_required",
+                        detail="live retrieval_only：不生成答案/引用，引用契约不适用",
+                    ),
+                ]
+            )
+            warnings.append(
+                "live retrieval_only：答案文本类硬门禁（conflict_not_rejected / "
+                "exact_value_contract / pagination_contract / citation_required）"
+                "显式 not_applicable，不得当作已通过"
+            )
+        else:
+            outcomes.extend(
+                [
+                    _gate_conflict_not_rejected(view),
+                    _gate_exact_value_contract(view),
+                    _gate_pagination_contract(view),
+                    _gate_citation_required(view),
+                ]
+            )
+        outcomes.append(
+            _gate_trace_integrity(
+                view, require_trace, retrieval_only=live_retrieval_only
+            )
+        )
         view_warnings = tuple(view.warnings)
     finally:
         traces.close()
@@ -3418,6 +3563,7 @@ def evaluate_gate(
             resolved_config,
             policy,
             baseline,
+            retrieval_only=live_retrieval_only,
         )
         unknowns.extend(quality_result.unknowns)
         quality_failures = quality_result.failures
