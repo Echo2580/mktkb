@@ -10,7 +10,7 @@
 
 ## 第二步：只读核对现场（先做，不猜）
 - `git branch --show-current` 应为 `p1/fix-retrieval`；`git status --short` 应为 clean；`git log --oneline -8`。
-- 当前已知：HEAD **`5d675bf`**（暂停簿记后我提交的 T113 记录），上一个交付 commit **`9edc003` = T113（未验收）**；分支未 push（远端无 p1 分支）。
+- 当前已知：**HEAD 以 `git log -1` 为准**（写本提示词时为暂停后簿记 commit；关键锚点：T113 交付 **`9edc003`**、T113 记录 **`5d675bf`**、T112 等方案）；分支未 push（远端无 p1 分支）。
 - 空闲内存：`Get-CimInstance Win32_OperatingSystem` 的 FreePhysicalMemory，全量 pytest 需 ≥2GB（不足轮询，仍不足才 NOT-RUN）。
 - 账本只读事实（PM 只读校验，勿 commit）：`P1-RETRIEVAL` 已用 **0.005269 元 / 435 预留（上限 1000）**；总 accounted 约 15.0593/20；`provider_billed_cny=null`；GO 绑定前缀 sha `f4710b18…` 不变；GO 有效至 2026-11-30；运行需 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0`。
 
