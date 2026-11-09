@@ -19,6 +19,7 @@ from .documents.service import Store, UploadLimits
 from .errors import register_error_handlers
 from .ingestion.routes import router as ingestion_router
 from .observability import TraceMode, start_trace
+from .observability.routes import router as observability_router
 from .observability.store import TraceRepository
 from .providers import build_gateway, build_ocr_gateway
 from .qa import QaEngine, QaNotReady, resolve_rag_config
@@ -184,6 +185,7 @@ def create_app(
     api.include_router(ingestion_router)
     api.include_router(conversations_router)
     api.include_router(sources_router)
+    api.include_router(observability_router)
 
     @api.get("/healthz", tags=["health"], summary="最小健康检查")
     def healthz() -> dict[str, str]:

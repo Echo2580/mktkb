@@ -246,6 +246,39 @@ class TraceRepository:
                 raise TraceWriteError(f"读取 request {request_id!r} 的 trace 失败：{exc}") from exc
         return [self._row_to_trace(row) for row in rows]
 
+    def list_window(self, since: datetime) -> tuple[list[TraceRecord], int]:
+        """只读聚合查询：返回 ``created_at >= since`` 的 trace 与无法解析创建时间的条数。
+
+        T113 监控指标需要跨 trace 扫描时间窗口；既有读 API 只有按 id / request 的精确查询，
+        因此这里追加一个**纯 SELECT** 方法（不写库、不改 schema、不改变写入语义）：
+
+        - ``since`` 必须是 ``datetime``；无时区按 UTC 解释；
+        - ``created_at`` 缺失或不可解析的记录不能被证明在窗口内，**不进入结果**，单独
+          计数返回，由调用方按 degraded 处理，避免猜测时间或静默当成 0 条；
+        - 结果按写入顺序（rowid）返回；仓储不可用时抛 ``TraceWriteError``。
+        """
+        if not isinstance(since, datetime):
+            raise TypeError("since 必须是 datetime")
+        since_utc = self._coerce_since(since)
+        if since_utc is None:  # pragma: no cover - 上面的类型检查已排除 None
+            raise TypeError("since 必须是 datetime")
+        with self._lock:
+            conn = self._connection()
+            try:
+                rows = conn.execute("SELECT * FROM traces ORDER BY rowid ASC").fetchall()
+            except sqlite3.Error as exc:
+                raise TraceWriteError(f"读取 trace 时间窗口失败：{exc}") from exc
+        records: list[TraceRecord] = []
+        invalid_created_at = 0
+        for row in rows:
+            created = _parse_created_at(row["created_at"])
+            if created is None:
+                invalid_created_at += 1
+                continue
+            if created >= since_utc:
+                records.append(self._row_to_trace(row))
+        return records, invalid_created_at
+
     def export_jsonl(self, out: Path, *, since: datetime | None = None) -> int:
         """导出为 JSONL（每行是 ``TraceRecord`` 全部字段 + 嵌套 ``spans`` 数组），返回导出条数。
 
