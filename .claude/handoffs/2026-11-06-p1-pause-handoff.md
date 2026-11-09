@@ -133,3 +133,14 @@
 - **R2 交付 `b37ad21` 通过**：C3/C4/C5 系列/C6/C7 全部按目标（C5 58/140/156/58 字条文、C3 20 字含 21 天、C4 136 字含 2022-07-01、C6 37 字、C7 22 字准确文案）；B1/B2 点名项与控制组保持；独立探针 **133/133**；全量 **1718 passed / 0 failed / 0 error**；b0/badcase `case_diffs=0`+hard `[]`；regression 仅 RG006 fail→pass。
 - **PM 已簿记收口**：`_index` T105→**G6**（P2 残余 #51）、`review-R3.md`+`verify/T105-R3/`（4 份）入库、本文件 §2/§7 回填；`_scratch/T105/` 按 kickoff §7 保留待主人确认后清理。
 - **P1 暂停**：按主人 2026-11-06 指令 A，T105 收口后**不派 T106…T114/T900**；等主人指令再续。续跑顺序 `T106→T108→T109→T110→T111（pilot 停）→T112→T113→T114→T900`；执行要求见 `prompts/p1-resume-20261106.md`。
+
+## 15. 2026-11-09 09:18 主人「暂停任务」：当前进度与续跑须知
+
+- **暂停 HEAD**：`fcc3434`（T113 handoff 簿记）；分支 `p1/fix-retrieval`。
+- **已收口（本次持续推进段）**：T106 G6（文案统一，R2 PASS，全量 1733）；T108 G6（Holdout 防污染，R2 PASS，真实 holdout 30/30、error=0）；T109 G6（多轮 runner，R2 PASS，全量 1795，RG006 按多轮口径更新一行）；T110 G6（检索金标/同 chunk 同排名，技术 PASS，全量 1812）；T111 G6（live 检索 pilot：真实 b0 前 10 全 pass、R/MRR/nDCG=1.0、chat=0、零重试；验收方 ≤10 复跑后账本 **435/1000 请求、P1-RETRIEVAL 0.005269 元**；主人已「放行全量」，但 **T112 请求上限策略等主人指定**）。
+- **在飞（暂停时未完成）**：T113（监控 API）开发 subagent 于 09:14 前后派出，暂停时已写 `backend/src/mktkb/observability/routes.py`（新）、`main.py`、`observability/store.py`（只读聚合 helper）、`tests/observability/test_routes.py`，**尚未 commit**；子会话可能仍在跑。**恢复第一步**：`git status --short` + `git log --oneline -3` 核实；若已提交 → PM G2 → 独立验收；若未提交 → 按 §S 保留、等待/接续（禁止丢弃）。
+- **T112（门禁阈值校准 + P1 baseline）暂缓**：等主人指定请求上限方案。事实：账本 435/1000，剩余 565 请求；regression live 索引 49 docs/5066 chunks、batch=5 约需 1014+ 次 embedding，超出剩余。候选方案：缩语料/提高 embedding batch（provider 上限 10）/缩减 suite/重签 GO+放宽代码 `MAX_GO_REQUESTS`。阶段金额剩 **2.994731 元**（P1-RETRIEVAL 3.0 已用 0.005269）。
+- **账本/GO 现场**：`docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl`（已 435 预留；`provider_billed_cny=null`；GO 前缀 sha `f4710b18…` 不变）；**未 commit 账本/GO**。
+- **续跑顺序**：① 核实并收口 T113（→独立验收）→ ② T114（监控 API 权限/负例/文档；handoff 草稿在 `_scratch/T114/handoff-draft.md`，需落正式文件+提示词）→ ③ T112（等主人方案）→ ④ T900（P1 七条 + 1 PR 不合并）。T113/T114 零 live，可先做；T112/T111 全量 live 需主人放行。
+- **工作树**：非 clean（T113 在飞改动，见上；恢复时先核实归属）。`.claude/handoffs/_scratch/` 保留 T108/T109/T110/T111/T114 草稿（gitignored）。
+- **风险/残余（累计，详见 `_index` #51–#56）**：T105 P2（政策词+字段词 576 倾倒等）；T106 `not_found` 徽标/INVALID_QUERY e2e NOT-RUN；T108 report 167 行、3 拒答题 fail（质量留 T110/T112）；T109 report 140 行；T110 nDCG 保守下界/empty_recall 口径/真实 relevant_units 未覆盖；T111 GO 计划计数 7/4 vs 实际 17/10、pilot 指标平凡、请求上限阻塞 T112。
