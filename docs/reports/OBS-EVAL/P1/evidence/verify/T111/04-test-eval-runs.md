@@ -62,8 +62,13 @@ retrieved 均 0 diff；上表使用修正后的 parent2 基线。此为验收方
   账本/GO 的提交改动；`pyproject.toml`/lockfile 无 diff；无新依赖。
 - `git ls-files var` = 0；pilot 与验收方复跑产物均在 gitignore 的 `var/` 或
   `backend/.pytest-tmp/`；共享账本被 `docs/evidence/` gitignore 覆盖。
-- 验收方未读取 `.env`（live 运行时由既有配置体系内部读取，未打印）；未读取 Holdout；
-  未 commit/push/切分支/stash/reset；未改交付物。
+- 验收方未读取 `.env`（live 运行时由既有配置体系内部读取，未打印）；未主动读取/使用
+  Holdout 内容（全量测试按既有用例执行，未查看其内容）；未 commit/push/切分支/stash/
+  reset；未改 tracked 交付物。本 review/证据由 PM 在共享工作区提交为 `ac51f0a`
+  （验收方未执行 commit）。
+- 全量测试按其既有用例重新生成 gitignored `docs/evidence/T09/D1/actual/*`（测试副产物；
+  tracked 文件 0 改动；GO/budget/subset-policy 未变）；live 复跑产物在
+  `backend/.pytest-tmp/`，账本追加在 gitignored `docs/evidence/`。
 - 证据/本文件只含聚合指标、公开哈希与账本计数，不含凭据、GO 原文或逐题答案原文。
 - 文档小瑕疵（非阻断）：`T111/01-scope-and-commands.md` 写“10 条 fake/负例”，
   实际 `test_live_runner.py` 为 11 条（report §2/证据 04 均写 11）。

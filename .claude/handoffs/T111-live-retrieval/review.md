@@ -2,9 +2,10 @@
 
 # T111 独立验收：live 检索运行器与真实索引（pilot）
 
-验收对象：分支 `p1/fix-retrieval`，交付 `735bb93`（父 `1552a9e`），HEAD `0469601`（PM 簿记）；
-初始 `git status --porcelain` 为空；结束仅新增本 review/证据（untracked），交付物无改动。
-**结论：PASS（技术/交付；非阻断残余见 §3）。**
+验收对象：分支 `p1/fix-retrieval`，交付 `735bb93`（父 `1552a9e`）。验收开始时 HEAD
+`0469601`、`git status --porcelain` 为空；验收期间 PM 在共享工作区把本 review/证据提交为
+`ac51f0a`（HEAD 随之变化；验收方未执行 commit/push），本文件/证据的少量后续修订仍在
+工作树。**结论：PASS（技术/交付；非阻断残余见 §3）。**
 验收方 live 复跑 10 题后账本由 408 增至 **435/1000**（+0.0026345 元），见 §1.2/§3.6。
 
 ## 1. 逐项判定
@@ -27,7 +28,7 @@
 - 账本逐笔：pilot 27 笔 reserve 为 embedding 17×0.04096 + rerank 10×0.024（最大
   0.04096≤0.05）；result charge 0.0010345+0.0016=0.0026345；`provider_billed_cny` 全 null。
 - 失败不写半成品：fake embedder 第 2 次抛错→`CorpusError`，`index/` 与
-  manifest/summary/cases 均不存在（02-probe）。
+  manifest/summary/cases 均不存在（`03-probe-results.md §D`）。
 - 负例：未授权 service/stage、binding 不符、错误账本 sha、阶段/单请求/请求数超限均被拒。
 - 文档小瑕疵：`T111/01-scope-and-commands.md` 写“10 条 fake/负例”，实际 **11** 条；
   report §2/证据 04 正确。非功能问题。
@@ -61,8 +62,10 @@
 - 未用真实 provider 制造失败（会消耗请求/改账本）；失败语义用 fake/负例验证。
 - 未跑 OCR 题、未做 gate 阈值校准/审批（T112）。
 - 未覆盖 badcase/regression 企业语料 live 索引；未验证 T112 请求上限方案。
-- 未 commit/push/切分支/stash/reset；未改交付物；仅新增本 review 与 `verify/T111/` 证据，
-  以及 gitignored 的 live 复跑产物/账本追加。
+- 验收方未 commit/push/切分支/stash/reset；未改 tracked 交付物。本 review/证据由 PM 在
+  共享工作区提交为 `ac51f0a`（验收方未执行 commit）；live 复跑产物/账本追加均在 gitignored
+  路径。全量测试按其既有用例重新生成 gitignored `docs/evidence/T09/D1/actual/*`
+  （测试副产物；tracked 文件 0 改动；GO/budget/subset-policy 未变）。
 
 结论：**PASS（技术/交付）**。残余交 PM/T112；“请求上限不足”为 T112 非阻断前置风险，
 不得在本包自行跑全量或改 GO。证据：`docs/reports/OBS-EVAL/P1/evidence/verify/T111/`
