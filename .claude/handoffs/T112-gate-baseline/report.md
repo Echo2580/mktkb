@@ -1,5 +1,7 @@
 模型：`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`
 
+> R1（审批落盘）见 §6；R0 §5 的「待主人书面批准」项已由主人 2026-11-09 19:54 批准。
+
 # T112 报告：门禁阈值校准与 P1 b0 live baseline
 
 ## 1. 完成内容
@@ -67,3 +69,37 @@
 - **NOT-RUN**：badcase/regression/holdout live（方案 A 请求上限，未扩套件/未重跑 b0）；
   gate 审批与 baseline approve（R1）；与 P0 baseline 的跨版本比较（P1 baseline 未建）。
 - 无凭据/答案原文入证据；账本/GO 未 commit；未 push/amend；无 skip/xfail/删断言。
+
+## 6. R1 审批落盘
+
+模型：`wb / cn:deepseek-v4.1-flash / reasoning_effort=max`
+
+- 依据：主人 2026-11-09 19:54 +08:00 书面批准（审批人=主人；`handoff.md §7`）；只落盘批准值，
+  未改 R0 `gate_proposal.json`（`0E7D641F…` 不变）与证据 02。
+- 配置：`gate_v0_2.json` `status=approved`（仅检索层）；`min_sample=8`；Recall/MRR/nDCG
+  `absolute_min=0.855`；hard_filter `absolute_max=0.02`；empty_recall `absolute_max=0.145`；
+  `max_regression_pp=2.0`；answer/refusal/runtime 10 指标保持 null。补顶层 `approval`
+  （approver=主人、approved_at、reason、scope=retrieval_only）。sha256 `2A86D9…` → `02012B…`。
+- gate：approved 配置 × R0 live run → **exit 0**、`quality=pass`、`config_status=approved`、
+  `scored=32/32`、`hard_failures=[]`；15 条质量结果全 pass、`max_regression_pp=skipped`
+  （首次 baseline 无对照）。
+- baseline：`baseline approve` 现场重算 exit 0 → `baseline_id=bc6f6f906db1`；审批文件
+  `var/eval/baselines/bc6f6f906db1/approval.json`（sha `80113647…`）；`baseline list`
+  approved=yes；P0 baseline 未创建/未 copy。
+- 证据：`03-gate-config-and-baseline.md` §E（仍 4 份，无第 5 份）。
+- 测试：T112 13 passed；evaluation 433 passed；全量 1933 passed / 0 failed / 0 error（571.04s）。
+- 1 commit（不 amend `7f46121`、不 push）：本报告 + 证据 03 + `gate_v0_2.json` + 3 处测试适配。
+
+### R1 偏离/风险
+
+- `config_hash` 由 `5362de3c…` 变为 `b5bfdb49…`：loader 哈希覆盖整份 JSON，审批落盘必然改变；
+  该哈希不属于 baseline 六要素身份，approval 绑定 `gate_result_sha256=c9fcbb…`，不影响身份/审批。
+- `gate.json`（R0 派生门禁结果，非 live 产物）被 gate 重写（exit 3 → 0）；manifest/cases/summary
+  摘要未变（证据 03 §E3）。
+- 3 处 R0 测试更新（非删断言）：契约断言 approved + 批准值/元数据；两个 unapproved 用例改用
+  临时未审批副本。
+- 报告文件总行数超出原 80 行预算（R0 五段保留 + 本 R1 段）；本 R1 段本身 <80 行。
+- 本 workspace 审批前无 `var/eval/baselines`（无 P0 baseline 产物），故只能验证「未创建/未 copy」，
+  无 P0 产物摘要可比对。
+- NOT-RUN：零真实模型/embedding/rerank/OCR；未写账本/GO；未 push/amend；
+  badcase/regression/holdout live 仍未跑（范围同 R0）。

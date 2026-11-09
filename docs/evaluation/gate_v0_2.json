@@ -1,7 +1,14 @@
 {
   "schema_version": "mktkb.gate.config.v0.2",
   "gate_version": "mktkb.gate.v0.2",
-  "status": "unapproved",
+  "status": "approved",
+  "approval": {
+    "approver": "主人",
+    "approved_at": "2026-11-09T19:54:00+08:00",
+    "reason": "P1 首次 release baseline（b0 live 40 题）；绝对阈值按 T112 校准提案批准；首次建立不做回退检测",
+    "scope": "retrieval_only（仅检索层；answer/refusal/runtime 阈值保持 null、未批准）",
+    "basis": "docs/reports/OBS-EVAL/P1/evidence/T112/02-gate-proposal.md"
+  },
   "hard_gates": [
     "security_leak",
     "cross_entity",
@@ -24,8 +31,9 @@
   ],
   "sensitive_patterns": [],
   "quality_layer": {
-    "status": "unapproved",
-    "approval_owner": "T112 human gate（P1 release baseline 审批；PM 报主人书面批准后由 R1 落盘）",
+    "status": "approved",
+    "approval_scope": "retrieval_only（retrieval 5 指标已批准；answer/refusal/runtime 10 指标阈值仍为 null、未批准）",
+    "approval_owner": "主人（2026-11-09 19:54 +08:00 书面批准；R1 落盘）",
     "evaluate_with": "evaluate_gate(..., quality=True)",
     "status_source": "top_level status（只有 \"approved\" 才参与质量判定）",
     "reporting": "per_stratum_and_all_no_composite_score",
@@ -36,56 +44,56 @@
       "refusal": "refusal_eligible_cases（排除 error/service_error/knowledge_changed）",
       "runtime": "latency_samples / cost_samples"
     },
-    "thresholds": "empty_by_design：retrieval 5 指标的 min_sample / absolute_min / absolute_max / max_regression_pp 均为 null，等待 T112 校准提案 + 主人书面批准后由 R1 写入",
+    "thresholds": "approved_by_owner：retrieval 5 指标 min_sample=8；Recall@10/MRR@10/nDCG@10 absolute_min=0.855；hard_filter_violation_rate absolute_max=0.02；empty_recall_rate absolute_max=0.145；max_regression_pp=2.0（answer/refusal/runtime 10 指标仍为 null、未批准）",
     "calibration": "calibrate_gate 只产出 gate_proposal.json（建议值 + gate_config_hash + run_id），不写回本文件",
     "calibration_evidence": "docs/reports/OBS-EVAL/P1/evidence/T112/02-gate-proposal.md",
-    "notes": "未审批时质量结果为 unknown（exit 3），不得当通过；硬门禁不可豁免，质量 waiver 必须带 reason + approver。质量 min_sample 按各指标分母计算，不得复用 hard_gate_min_sample；b0 live 的非 OCR 层为 all=32 / exact=24 / text=8，单一 min_sample 需主人按提案选择。"
+    "notes": "R1 已按主人 2026-11-09 书面批准落盘：status=approved 仅指检索层（retrieval 5 指标）；answer/refusal/runtime 10 指标阈值保持 null、未批准。未审批时质量结果为 unknown（exit 3），不得当通过；硬门禁不可豁免，质量 waiver 必须带 reason + approver。质量 min_sample 按各指标分母计算，不得复用 hard_gate_min_sample；b0 live 的非 OCR 层为 all=32 / exact=24 / text=8，主人已批准单一 min_sample=8（跨层最宽松，三层均满足）。"
   },
   "metrics": [
     {
       "name": "Recall@10",
       "group": "retrieval",
       "direction": "higher_is_better",
-      "min_sample": null,
-      "absolute_min": null,
+      "min_sample": 8,
+      "absolute_min": 0.855,
       "absolute_max": null,
-      "max_regression_pp": null
+      "max_regression_pp": 2.0
     },
     {
       "name": "MRR@10",
       "group": "retrieval",
       "direction": "higher_is_better",
-      "min_sample": null,
-      "absolute_min": null,
+      "min_sample": 8,
+      "absolute_min": 0.855,
       "absolute_max": null,
-      "max_regression_pp": null
+      "max_regression_pp": 2.0
     },
     {
       "name": "nDCG@10",
       "group": "retrieval",
       "direction": "higher_is_better",
-      "min_sample": null,
-      "absolute_min": null,
+      "min_sample": 8,
+      "absolute_min": 0.855,
       "absolute_max": null,
-      "max_regression_pp": null
+      "max_regression_pp": 2.0
     },
     {
       "name": "hard_filter_violation_rate",
       "group": "retrieval",
       "direction": "lower_is_better",
-      "min_sample": null,
+      "min_sample": 8,
       "absolute_min": null,
-      "absolute_max": null,
-      "max_regression_pp": null
+      "absolute_max": 0.02,
+      "max_regression_pp": 2.0
     },
     {
       "name": "empty_recall_rate",
       "group": "retrieval",
       "direction": "lower_is_better",
-      "min_sample": null,
+      "min_sample": 8,
       "absolute_min": null,
-      "absolute_max": null,
-      "max_regression_pp": null
+      "absolute_max": 0.145,
+      "max_regression_pp": 2.0
     },
     {
       "name": "value_hit",
@@ -178,5 +186,5 @@
       "max_regression_pp": null
     }
   ],
-  "notes": "P1 T112：v0.1 的 8 项硬门禁与方向不变；新增 regression suite 与 retrieval 5 指标阈值骨架（min_sample / absolute_min / absolute_max / max_regression_pp 字段齐全、值待审批）。status=unapproved 时质量结果必须为 unknown（exit 3）；本文件不得由 R0 改写为 approved，也不得用 calibrate 提案覆盖。P1 release baseline 只能由 gate v0.2 的 live + retrieval_only run 建立，且必须经 baseline approve 现场重算门禁 + approver/reason 审批（approval.json）。"
+  "notes": "P1 T112 R1：v0.1 的 8 项硬门禁与方向不变；新增 regression suite 与 retrieval 5 指标阈值（主人 2026-11-09 19:54 +08:00 书面批准，见 approval 与质量层 approval_scope）。status=approved 仅指检索层：answer/refusal/runtime 10 指标阈值仍为 null、不参与 retrieval_only 判定。P1 release baseline 只能由 gate v0.2 的 live + retrieval_only run 建立，且必须经 baseline approve 现场重算门禁 + approver/reason 审批（approval.json）。"
 }

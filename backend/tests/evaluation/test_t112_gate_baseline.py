@@ -1,7 +1,8 @@
 """P1 T112：gate v0.2 解析/校准、全量 live 守卫与 P1 release baseline 机制。
 
 全部离屏：fake embedder/reranker + 临时目录；不读真实 ``.env``、不发网络、不写共享
-账本/GO、不改仓库 ``gate_v0_2.json``（只读）。真实 b0 全量 live 由 R0 在包内单独执行。
+账本/GO、只读仓库 ``gate_v0_2.json``（R1 已按主人书面批准改为 approved）。真实 b0
+全量 live 由 R0 在包内单独执行。
 """
 
 from __future__ import annotations
@@ -190,7 +191,7 @@ def test_gate_v0_2_config_contract() -> None:
     config = load_gate_config(P1_GATE_CONFIG_PATH)
     assert config.schema_version == CONFIG_SCHEMA_VERSION_V0_2
     assert config.gate_version == GATE_VERSION_V0_2
-    assert config.status == "unapproved"
+    assert config.status == "approved"
     assert len(config.hard_gates) == 8
     assert "regression" in config.suites
     assert dict(config.min_sample) == {"b0": 32, "badcase": 13, "regression": 7}
@@ -200,11 +201,32 @@ def test_gate_v0_2_config_contract() -> None:
     assert set(retrieval) == set(RETRIEVAL_METRIC_DIRECTIONS)
     for name, direction in RETRIEVAL_METRIC_DIRECTIONS.items():
         assert retrieval[name].direction == direction
+    # 主人 2026-11-09 书面批准的检索层单值阈值（R1 落盘，测试只读，不得自行改值）。
+    for name in ("Recall@10", "MRR@10", "nDCG@10"):
+        assert retrieval[name].min_sample == 8
+        assert retrieval[name].absolute_min == 0.855
+        assert retrieval[name].absolute_max is None
+        assert retrieval[name].max_regression_pp == 2.0
+    assert retrieval["hard_filter_violation_rate"].min_sample == 8
+    assert retrieval["hard_filter_violation_rate"].absolute_max == 0.02
+    assert retrieval["empty_recall_rate"].min_sample == 8
+    assert retrieval["empty_recall_rate"].absolute_max == 0.145
 
     raw = _payload()
     for item in raw["metrics"]:
         assert {"min_sample", "absolute_min", "absolute_max", "max_regression_pp"} <= set(item)
-    assert raw["status"] == "unapproved"
+    assert raw["status"] == "approved"
+    assert raw["approval"]["approver"] == "主人"
+    assert "P1 首次 release baseline" in raw["approval"]["reason"]
+    # 仅检索层获批：answer/refusal/runtime 10 指标阈值仍为 null（未批准）。
+    assert all(
+        item["min_sample"] is None
+        and item["absolute_min"] is None
+        and item["absolute_max"] is None
+        and item["max_regression_pp"] is None
+        for item in raw["metrics"]
+        if item["group"] != "retrieval"
+    )
 
 
 def test_v0_1_config_still_loads_unchanged() -> None:
@@ -330,8 +352,12 @@ def test_full_live_manifest_versions(full_live_run) -> None:
     assert len(full_live_run.cases) == 40
 
 
-def test_live_gate_v0_2_is_unknown_not_pass(full_live_run) -> None:
-    config = load_gate_config(P1_GATE_CONFIG_PATH)
+def test_live_gate_v0_2_is_unknown_not_pass(tmp_path: Path, full_live_run) -> None:
+    # 用未审批副本覆盖“unapproved → unknown/exit 3、不得当通过”（仓库配置已被 R1 批准）。
+    payload = _payload()
+    payload["status"] = "unapproved"
+    config = load_gate_config(_write_payload(tmp_path, payload))
+    assert config.status == "unapproved"
     result = evaluate_gate(full_live_run, config=config, quality=True)
     assert result.exit_code == 3, result.to_dict()
     assert result.hard_failures == ()
@@ -413,7 +439,9 @@ def test_live_baseline_identity_requires_gate_v0_2(full_live_run) -> None:
 
 
 def test_baseline_approve_refuses_unapproved_gate(tmp_path: Path, full_live_run) -> None:
-    config = load_gate_config(P1_GATE_CONFIG_PATH)
+    payload = _payload()
+    payload["status"] = "unapproved"
+    config = load_gate_config(_write_payload(tmp_path, payload))
     gate = evaluate_gate(full_live_run, config=config, quality=True)
     with pytest.raises(BaselineApprovalError, match="门禁未通过"):
         approve_baseline(
