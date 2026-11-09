@@ -36,6 +36,8 @@
 | T109 | 多轮 turns runner | **G6 已收口**（dev `703b7e0`+R1 `1ffd57a`；独立验收 R2 **PASS**：`review-R2.md`；replay fail-closed + error 明细；全量 1795 passed；RG006 非放宽；残余记 #54） | 1 | 否 | T108 ✅ |
 | T110 | 检索金标与检索指标 | **G6 已收口**（dev `6c82a8f`；独立验收技术 **PASS**：`review.md`；同 chunk 同排名/去重/金标 fail-closed/手算逐值；全量 1812 passed；残余与流程瑕疵裁定记 #55） | 0 | 否 | T109 ✅ |
 | T111 | live 检索运行器与真实索引（pilot 10 停） | **G6 已收口（pilot 通过，全量未放行）**（dev `735bb93`；独立验收 **PASS** `review.md`；pilot 10/10、chat=0、零重试；账本 P1-RETRIEVAL 0.005269 元 / **435/1000** 请求；T112 全量受请求上限阻塞，见 #56） | 0 | 否 | T110 ✅ |
+| T112 | 门禁阈值校准与 P1 baseline | **暂缓**（等主人指定 T112 请求上限方案；T111 pilot 已放行全量） | 0 | 否 | T111 ✅ |
+| T113 | 监控 API（只读聚合） | **G1 已派单（开发中）**（handoff+prompts 落盘；只读/仅哈希计数/admin/不暴露 Holdout；零 live） | 0 | 否 | T111 ✅（T112 暂缓） |
 
 ## P1 开工门（2026-11-05，PM；详见 `2026-11-05-p1-kickoff-gate.md`）
 
