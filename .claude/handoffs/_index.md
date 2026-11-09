@@ -38,7 +38,7 @@
 | T109 | 多轮 turns runner | **G6 已收口**（dev `703b7e0`+R1 `1ffd57a`；独立验收 R2 **PASS**：`review-R2.md`；replay fail-closed + error 明细；全量 1795 passed；RG006 非放宽；残余记 #54） | 1 | 否 | T108 ✅ |
 | T110 | 检索金标与检索指标 | **G6 已收口**（dev `6c82a8f`；独立验收技术 **PASS**：`review.md`；同 chunk 同排名/去重/金标 fail-closed/手算逐值；全量 1812 passed；残余与流程瑕疵裁定记 #55） | 0 | 否 | T109 ✅ |
 | T111 | live 检索运行器与真实索引（pilot 10 停） | **G6 已收口（pilot 通过，全量未放行）**（dev `735bb93`；独立验收 **PASS** `review.md`；pilot 10/10、chat=0、零重试；账本 P1-RETRIEVAL 0.005269 元 / **435/1000** 请求；T112 全量受请求上限阻塞，见 #56） | 0 | 否 | T110 ✅ |
-| T112 | 门禁阈值校准与 P1 baseline | **方案已定（主人 2026-11-09 18:2x：A 缩到 b0 live baseline）**：复用 T111 已建真实索引（6 docs/27 chunks），只跑 b0 40 题 live（约 80–90 请求，账本剩 565）；badcase/regression 用绝对阈值、不上 live baseline（设计 §8.2 首次 baseline 用绝对阈值）；待 T114 收口后派单 | 0 | 否 | T111 ✅ |
+| T112 | 门禁阈值校准与 P1 baseline | **R0 已交付（`7f46121`），主人 2026-11-09 19:54 批准阈值+baseline，R1 落盘中**（b0 全量 40 题 live：70 请求/账本 505/1000/+0.0090459 元；指标 all 0.96875、exact 1.0、text 0.875；批准单值 min_sample=8、R/M/nDCG≥0.855、hard_filter≤0.02、empty_recall≤0.145、max_reg_pp=2.0；baseline run `b0-live-20261109T111828086143Z-0efd058b`） | 0 | 否 | T111 ✅ |
 | T113 | 监控 API（只读聚合） | **G6 已收口**（dev `9edc003`；独立验收 **PASS**：`review.md` 72 行，6/7 项 PASS + 全量环境 BLOCKED；PM 环境恢复复跑 **1858 passed/0 failed/0 error**，见 `T113-observability-api/pm-full-suite-check.md`；残余 #57） | 0 | 否 | T111 ✅（T112 暂缓） |
 | T114 | 监控 API 权限/负例/文档 | **G6 已收口**（dev `2a0c192`；独立验收 **PASS**：`review.md` 73 行，6/6 项；探针 87/0、doc_check 40/0、全量 1920 passed；残余 #58） | 0 | 否 | T113 ✅ |
 

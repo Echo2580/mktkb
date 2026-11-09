@@ -62,3 +62,12 @@
 
 - `report.md` 五段（完成内容 / 验收标准自证每条≤2 行带命令或 `文件:行` / 实际运行结果：本包·evaluation·全量一行 + commit sha + stat + live run_id + 请求/成本 / 偏离 / 风险与 NOT-RUN），首行注明模型。
 - 回复 ≤10 行摘要：commit sha、测试数字、live run_id、请求/成本、proposal 摘要、NOT-RUN 项、需要主人审批的具体值与建议。
+
+## 7. 主人书面审批记录（2026-11-09 19:54 +08:00；R1 依据）
+
+- **审批人**：主人。**授权范围**：仅检索层（answer/refusal/runtime 阈值仍 unapproved，b0/badcase 门禁仍 exit 3）。
+- **批准的 gate_v0_2 单值阈值**（跨层最宽松 + 余量）：`min_sample=8`；`Recall@10`/`MRR@10`/`nDCG@10` → `absolute_min=0.855`、`max_regression_pp=2.0`；`hard_filter_violation_rate` → `absolute_max=0.02`、`max_regression_pp=2.0`；`empty_recall_rate` → `absolute_max=0.145`、`max_regression_pp=2.0`；`status=approved`。
+- **授权建立 P1 release baseline**：run `b0-live-20261109T111828086143Z-0efd058b`（b0/live/retrieval_only、dataset `b0:b0-2026-11-04:bd4f0f7ccc6e`、corpus `68899152…`、pipeline `08166b113481`、gate `mktkb.gate.v0.2`、gate_config_hash `5362de3c…`）；`baseline approve --approver "主人" --reason "P1 首次 release baseline（b0 live 40 题）；绝对阈值按 T112 校准提案批准；首次建立不做回退检测"`。
+- **R1 执行**：见 `prompts/T112-dev-R1.md`；R1 不得改批准值/不得改 proposal；gate 必须 exit 0，否则停手报告。
+- **背景事实（R0）**：dev `7f46121`；b0 40 题（32 计分/8 OCR）、70 请求（embedding 39 + rerank 31、chat 0、重试 0）、账本 435→505/1000、P1-RETRIEVAL +0.0090459 元；指标 all/exact/text：Recall=MRR=nDCG=0.96875/1.0/0.875、hard_filter=0、empty_recall all=0.03125/text=0.125；proposal sha `0E7D641F…`（两次一致）；本包 13 / evaluation 433 / 全量 1933 passed。
+
