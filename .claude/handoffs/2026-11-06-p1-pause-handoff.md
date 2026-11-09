@@ -153,4 +153,4 @@
 - **环境恢复**：主人将本会话文件策略切为 `danger-full-access`；PM 在未改交付物的工作树上原样复跑全量 → **1858 passed / 0 failed / 0 error（474.19s）**，记录 `T113-observability-api/pm-full-suite-check.md`。第 7 项环境缺口解除（验收方 BLOCKED 事实保留在 review §3/§5）。
 - **残余 #57（PM 裁定，非阻塞）**：OpenAPI 无 `securitySchemes`（LOW-1 → T114 文档如实写明 cookie-session/401/403，不新增全局 scheme）；report/证据父提交笔误（LOW-2，不返工）；只读测试未覆盖业务库（INFO，验收方已补）。
 - **清理**：验收方遗留在仓库根的 `_scratch/`（970MB、未被 gitignore）已删；关键脚本/日志保留在 `.claude/handoffs/_scratch/T113v/`（gitignored）；pm 全量日志 `.claude/handoffs/_scratch/pm-full-pytest-20261109.log`。
-- **下一包 = T114（监控 API 权限/负例/文档）**：正式 handoff `T114-observability-auth-docs/handoff.md` + `prompts/T114-{dev,verify}.md` 已落盘，按「派开发 → G2 → 独立验收 → 收口」执行。**T112 仍等主人指定请求上限方案**（不派、不跑全量 live）；T900 未开始。
+- **下一包 = T114（监控 API 权限/负例/文档）**：正式 handoff `T114-observability-auth-docs/handoff.md` + `prompts/T114-{dev,verify}.md` 已落盘，按「派开发 → G2 → 独立验收 → 收口」执行。**T112 方案已由主人于 2026-11-09 18:2x 定为 A（缩到 b0 live baseline）**：复用 T111 已建真实索引（6 docs/27 chunks），只跑 b0 40 题 live（约 80–90 请求），badcase/regression 用绝对阈值、不上 live baseline（设计 §8.2 首次 baseline 用绝对阈值）；待 T114 收口后派 T112。T900 未开始。

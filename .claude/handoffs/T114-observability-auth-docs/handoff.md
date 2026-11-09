@@ -44,7 +44,7 @@
 - 全量：`.\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\t114-full`（同一时间只跑一套；全量前空闲内存 ≥2GB，不足轮询，仍不足才 NOT-RUN 并如实记录）。
 - 环境说明：当前会话文件策略为 `danger-full-access`（主人 2026-11-09 调整），全量可直接写 gitignored 的 `docs/evidence` 测试产物；若仍遇 PermissionError，如实记录该环境失败，不得把环境失败写成通过。
 - b0/badcase local+gate 对 P0 与 regression 状态：沿用既有脚本/命令口径（见前包证据），只读。
-- OpenAPI 快照生成脚本可放 `_scratch/T114/`（gitignored，不入库）。
+- OpenAPI 快照生成脚本可放 `.claude\handoffs\_scratch\T114\`（**该目录 gitignored**；不要在仓库根建 `_scratch/`，它不入 gitignore）。
 
 ## 5. 坑
 
