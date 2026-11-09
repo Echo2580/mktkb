@@ -142,5 +142,6 @@
 - **T112（门禁阈值校准 + P1 baseline）暂缓**：等主人指定请求上限方案。事实：账本 435/1000，剩余 565 请求；regression live 索引 49 docs/5066 chunks、batch=5 约需 1014+ 次 embedding，超出剩余。候选方案：缩语料/提高 embedding batch（provider 上限 10）/缩减 suite/重签 GO+放宽代码 `MAX_GO_REQUESTS`。阶段金额剩 **2.994731 元**（P1-RETRIEVAL 3.0 已用 0.005269）。
 - **账本/GO 现场**：`docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl`（已 435 预留；`provider_billed_cny=null`；GO 前缀 sha `f4710b18…` 不变）；**未 commit 账本/GO**。
 - **续跑顺序**：① 核实并收口 T113（→独立验收）→ ② T114（监控 API 权限/负例/文档；handoff 草稿在 `_scratch/T114/handoff-draft.md`，需落正式文件+提示词）→ ③ T112（等主人方案）→ ④ T900（P1 七条 + 1 PR 不合并）。T113/T114 零 live，可先做；T112/T111 全量 live 需主人放行。
+- **2026-11-09 09:20 追加：主人「113 也暂停」**——T113 开发子会话在飞（已写 routes/main/store helper/测试，未 commit），PM 侧无法直接中断（非 teammate）；已停止一切派单/验收/后续动作。恢复时先 git status --short + git log --oneline -3 核实其最终落点：若已自提交 → 按 G2 核验；若未提交 → 按 §S 保留接续；禁止丢弃。T114 亦暂停（草稿留存 _scratch/T114/handoff-draft.md）。
 - **工作树**：非 clean（T113 在飞改动，见上；恢复时先核实归属）。`.claude/handoffs/_scratch/` 保留 T108/T109/T110/T111/T114 草稿（gitignored）。
 - **风险/残余（累计，详见 `_index` #51–#56）**：T105 P2（政策词+字段词 576 倾倒等）；T106 `not_found` 徽标/INVALID_QUERY e2e NOT-RUN；T108 report 167 行、3 拒答题 fail（质量留 T110/T112）；T109 report 140 行；T110 nDCG 保守下界/empty_recall 口径/真实 relevant_units 未覆盖；T111 GO 计划计数 7/4 vs 实际 17/10、pilot 指标平凡、请求上限阻塞 T112。
