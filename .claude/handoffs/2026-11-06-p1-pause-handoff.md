@@ -146,3 +146,11 @@
 - **工作树**：非 clean（T113 在飞改动，见上；恢复时先核实归属）。`.claude/handoffs/_scratch/` 保留 T108/T109/T110/T111/T114 草稿（gitignored）。
 - **风险/残余（累计，详见 `_index` #51–#56）**：T105 P2（政策词+字段词 576 倾倒等）；T106 `not_found` 徽标/INVALID_QUERY e2e NOT-RUN；T108 report 167 行、3 拒答题 fail（质量留 T110/T112）；T109 report 140 行；T110 nDCG 保守下界/empty_recall 口径/真实 relevant_units 未覆盖；T111 GO 计划计数 7/4 vs 实际 17/10、pilot 指标平凡、请求上限阻塞 T112。
 - **2026-11-09 09:33 更正：T113 已在暂停后自行收尾并提交 `9edc003`**（父 `10bb42b`，未 push/amend；工作树 clean；9 文件均在允许路径、report 80 行、证据 4 份；无业务代码/API/intent/fixtures/账本/GO 改动）。按暂停指令**未做 G2 与独立验收**。恢复顺序：PM G2 核验（4 端点/降级/holdout 聚合/store 只读 helper 必要性/OpenAPI）→ 派独立验收 → 收口。**工作树当前 clean**（本条之前的“非 clean（T113 在飞）”已过时）。T114 仍暂停（草稿 `_scratch/T114/handoff-draft.md`）。
+
+## 16. 2026-11-09 18:0x 续跑（新窗口接管）：T113 收口，T114 启动
+
+- **T113 G6 已收口**：PM G2 通过（单 dev commit `9edc003`、9 文件全在允许路径、4 个 GET + `require_role("admin")`、trace 关闭降级、holdout 只聚合、`store.list_window` 纯 SELECT、OpenAPI 注册）。独立验收（全新上下文 `wb/cn:deepseek-v4.1-flash/max`）判 **PASS**：6/7 项（`review.md` 72 行 + `verify/T113/` 4 份），全量 0 failed 在验收沙箱因 `docs/evidence` 只读 **BLOCKED**（46 项环境性 PermissionError，两次总数均 1858）。
+- **环境恢复**：主人将本会话文件策略切为 `danger-full-access`；PM 在未改交付物的工作树上原样复跑全量 → **1858 passed / 0 failed / 0 error（474.19s）**，记录 `T113-observability-api/pm-full-suite-check.md`。第 7 项环境缺口解除（验收方 BLOCKED 事实保留在 review §3/§5）。
+- **残余 #57（PM 裁定，非阻塞）**：OpenAPI 无 `securitySchemes`（LOW-1 → T114 文档如实写明 cookie-session/401/403，不新增全局 scheme）；report/证据父提交笔误（LOW-2，不返工）；只读测试未覆盖业务库（INFO，验收方已补）。
+- **清理**：验收方遗留在仓库根的 `_scratch/`（970MB、未被 gitignore）已删；关键脚本/日志保留在 `.claude/handoffs/_scratch/T113v/`（gitignored）；pm 全量日志 `.claude/handoffs/_scratch/pm-full-pytest-20261109.log`。
+- **下一包 = T114（监控 API 权限/负例/文档）**：正式 handoff `T114-observability-auth-docs/handoff.md` + `prompts/T114-{dev,verify}.md` 已落盘，按「派开发 → G2 → 独立验收 → 收口」执行。**T112 仍等主人指定请求上限方案**（不派、不跑全量 live）；T900 未开始。

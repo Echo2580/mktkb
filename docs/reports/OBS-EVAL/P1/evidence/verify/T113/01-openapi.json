@@ -1,0 +1,204 @@
+{
+  "data_dir_exists_after_openapi": false,
+  "full_schema_bytes": 94408,
+  "full_schema_sha256": "8e4f6a696a6f04f2a519e16f18c10220c2d975803d2b7c111c7024316c9a0693",
+  "observability": {
+    "/api/v1/observability/metrics": {
+      "get": {
+        "operationId": "get_metrics_api_v1_observability_metrics_get",
+        "parameters": [
+          {
+            "description": "聚合窗口，如 24h / 30m",
+            "in": "query",
+            "name": "window",
+            "required": false,
+            "schema": {
+              "default": "24h",
+              "description": "聚合窗口，如 24h / 30m",
+              "title": "Window",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MetricsResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "未登录"
+          },
+          "403": {
+            "description": "需要管理员权限"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "按 path/outcome 聚合 Trace 指标",
+        "tags": [
+          "observability"
+        ]
+      }
+    },
+    "/api/v1/observability/requests/{request_id}/traces": {
+      "get": {
+        "operationId": "get_request_traces_api_v1_observability_requests__request_id__traces_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "request_id",
+            "required": true,
+            "schema": {
+              "title": "Request Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestTracesResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "未登录"
+          },
+          "403": {
+            "description": "需要管理员权限"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询同一产品请求的全部 Trace 尝试",
+        "tags": [
+          "observability"
+        ]
+      }
+    },
+    "/api/v1/observability/runs/{run_id}": {
+      "get": {
+        "operationId": "get_run_api_v1_observability_runs__run_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RunResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "未登录"
+          },
+          "403": {
+            "description": "需要管理员权限"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询评测 run 的 manifest/summary/gate 聚合",
+        "tags": [
+          "observability"
+        ]
+      }
+    },
+    "/api/v1/observability/traces/{trace_id}": {
+      "get": {
+        "operationId": "get_trace_api_v1_observability_traces__trace_id__get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "trace_id",
+            "required": true,
+            "schema": {
+              "title": "Trace Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TraceDetailResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "未登录"
+          },
+          "403": {
+            "description": "需要管理员权限"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "summary": "查询单次执行 Trace（仅哈希/计数/时长/状态）",
+        "tags": [
+          "observability"
+        ]
+      }
+    }
+  },
+  "securitySchemes": {},
+  "source": "create_app(Settings(_env_file=None,...), initialize=False).openapi() observability path slice; full schema digest is over json.dumps(schema, ensure_ascii=False, indent=2, sort_keys=True)+newline (94408 bytes); data_dir was absent after openapi()"
+}
