@@ -336,7 +336,38 @@ def is_policy_followup(question: str) -> bool:
     return any(word in text for word in POLICY_WORDS if word not in ("要求", "规则"))
 
 
+#: P1-FIX/B：明确在问制度/流程的话题词。``POLICY_WORDS`` 里的「标准/提交/要求/规则」
+#: 会与台账字段同形，不能单凭它们把追问判成正文题；只有这类**强话题词**与字段词同时
+#: 出现，才说明问的是制度正文而不是台账字段值（“报销规则”是制度，“扣分规则”是台账）。
+_STRONG_POLICY_TOPIC_WORDS: tuple[str, ...] = (
+    "报销",
+    "核销",
+    "审批",
+    "申请",
+    "提报",
+    "流程",
+    "制度",
+    "规定",
+    "办法",
+    "政策",
+    "法规",
+    "权限",
+    "时限",
+)
+
+
+def strong_policy_topics(question: str) -> tuple[str, ...]:
+    """返回问题里明确点名制度/流程的话题词（按登记顺序、去重）。"""
+    text = str(question or "")
+    return tuple(word for word in _STRONG_POLICY_TOPIC_WORDS if word in text)
+
+
+def _strong_policy_topic(question: str) -> bool:
+    return bool(strong_policy_topics(question))
+
+
 def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
+
     """T105/ERR-06：只继承字段的指代追问，答案只答该字段。
 
     ``parse_query`` 对这种轮次置 ``enumerate`` 真值，作为产品层
@@ -381,6 +412,89 @@ def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple
             continue
         kept.append(role)
     return tuple(kept)
+
+
+#: P1-FIX/A：公司级经营/财务指标检测（越界资料范围）。
+#:
+#: 这不是“按题干匹配”的拒答规则，而是登记一类**当前语料不覆盖的指标语义**
+#: （公司营收/利润/利润率等经营财务结果）。它只负责“认出问题在问哪类指标”，
+#: 是否真的无依据由答案层的资料支持判定（``texts_support_financial_metric``）
+#: 在检索证据上复核：证据里确有该指标的数值时仍正常作答，不会被一律拒答。
+#: 法规/制度题（问条文本身）直接跳过，避免把“法规对利润/成本的规定”误判成越界。
+FINANCIAL_METRIC_TERMS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    # 长词优先：先匹配“利润率”类，避免被“利润”抢先。
+    ("利润率", ("营业利润率", "销售利润率", "毛利率", "净利率", "利润率")),
+    ("营收", ("营业总收入", "营业收入", "营收额", "营业额", "营收")),
+    ("利润", ("净利润", "营业利润", "利润总额", "毛利", "盈利", "亏损额", "亏损", "利润")),
+    ("现金流", ("经营现金流", "现金净流量", "现金流")),
+    ("市值", ("总市值", "市值", "估值")),
+    ("资产负债", ("资产负债率", "资产总额", "总资产", "净资产", "负债总额", "负债")),
+)
+
+
+def financial_metric_terms(metric: str) -> tuple[str, ...]:
+    """返回某个指标词所属的同义词组（用于资料支持判定，不做整句匹配）。"""
+    for _canonical, terms in FINANCIAL_METRIC_TERMS:
+        if metric in terms:
+            return terms
+    return (metric,)
+
+
+def financial_metric_question(question: str) -> str | None:
+    """问题是否在问公司级经营/财务指标；返回命中的指标词，否则 None。
+
+    只做语义/词面识别，不判断资料有无；法规题跳过（先 ``strip`` 再 ``normalize``，
+    与既有 ``is_regulation_question`` 口径一致）。中文问法允许“营收/营业收入/营业额”
+    等同义改写，不绑定具体题目。
+    """
+    text = str(question or "").strip()
+    if not text:
+        return None
+    if is_regulation_question(text):
+        return None
+    normalized = _norm(text)
+    for _canonical, terms in FINANCIAL_METRIC_TERMS:
+        for term in terms:
+            if _norm(term) in normalized:
+                return term
+    return None
+
+
+def _metric_value_context(text: str, term: str) -> bool:
+    """指标词附近是否有数值/百分比——用来区分“资料给出该指标的数据”与“只是提到该词”。
+
+    例如 W03“须同时提交毛利影响测算”只出现“毛利”而没有数值，不能当作“公司毛利数据”；
+    若资料写“营收 4812 万元”，指标词与数字在同一窗口内，才算有资料支持。
+    """
+    start = 0
+    while True:
+        index = text.find(term, start)
+        if index < 0:
+            return False
+        window = text[max(0, index - 40) : index + len(term) + 60]
+        if re.search(r"\d|%|百分之", window):
+            return True
+        start = index + 1
+
+
+def texts_support_financial_metric(metric: str, texts: Iterable[str]) -> bool:
+    """资料支持判定：任一候选文本里既有该指标词、又有数值/百分比，视为有依据。
+
+    调用方只应传入**本轮检索候选/证据**文本；没有候选或只有弱词面命中时返回 False，
+    由答案层明确拒答，而不是让模型/抽取层用无关段落拼答案。
+    """
+    terms = financial_metric_terms(metric)
+    for text in texts:
+        if not text:
+            continue
+        normalized = _norm(str(text))
+        if not normalized:
+            continue
+        for term in terms:
+            key = _norm(term)
+            if key and key in normalized and _metric_value_context(normalized, key):
+                return True
+    return False
 
 
 def _match_labels(question: str, labels: tuple[str, ...]) -> list[str]:
@@ -1001,8 +1115,10 @@ def parse_query(
     normalized = _norm(question)
     # T105 R2：政策/法规题（``is_policy_question`` 已含 ``is_regulation_question`` 口径）
     # 问的是制度/法规正文，不能当作记录字段追问；指代追问用 ``policy_followup`` 同口径
-    # 判别（排除“要求/规则”这类同时是台账字段名的词）。
-    policy_followup = is_policy_followup(question)
+    # 判别（排除“要求/规则”这类同时是台账字段名的词）。P1-FIX/B：强制度/流程话题词
+    # （报销/审批/规定…）即使只与字段词同形，也算正文话题，单独走 POLICY_TOPIC_FOLLOWUP。
+    strong_policy_topic = _strong_policy_topic(question)
+    policy_followup = is_policy_followup(question) or strong_policy_topic
     stores = _match_stores(question, lexicon)
     unknown_stores = _unknown_store_tokens(question, lexicon)
     unknown_regions = _unknown_region_tokens(question, lexicon)
@@ -1370,9 +1486,11 @@ def parse_query(
         state.enumerate = True
         plan_reason = "ANAPHORA_NEW_CONTENT"
     elif (
-        not policy_followup
-        and explicit_record_entity
+        explicit_record_entity
         and is_anaphora_field_followup(question, state.field_role)
+        # P1-FIX/B：泛化政策词（“标准/提交”）与明确字段词同现时仍按单字段作答；
+        # 只有强制度/流程话题词才让位给正文路径（见下面 POLICY_TOPIC_FOLLOWUP）。
+        and not (policy_followup and strong_policy_topic)
     ):
         # 只接管“本轮明确给出实体”的新内容字段追问；仅靠上文继承实体的短追问
         # （如“它的电话呢”）保持原有 legacy 路径，避免改变既有模型措辞/上下文行为。
@@ -1390,6 +1508,22 @@ def parse_query(
         state.field_roles = ()
         state.enumerate = True
         plan_reason = "POLICY_FOLLOWUP"
+    elif (
+        anaphora
+        and strong_policy_topic
+        and explicit_record_entity
+        and field_roles
+        and page_request is None
+        and not any(word in question for word in ENUMERATE_WORDS)
+    ):
+        # P1-FIX/B：强制度/流程话题与台账字段词同形冲突（“那个海报的报销规则是什么”）。
+        # 问的是制度正文，不能按“规则=台账备注字段”只答台账字段；清掉继承字段、交给
+        # 正文检索，答案层再要求证据里确有该话题词，否则如实说明未找到可支撑正文。
+        # “全部/列出/第 N 页”等明确完整请求不受此影响（仍走枚举/分页）。
+        state.field_role = None
+        state.field_roles = ()
+        state.enumerate = True
+        plan_reason = "POLICY_TOPIC_FOLLOWUP"
 
     filters = {
         key: str(getattr(state, key))

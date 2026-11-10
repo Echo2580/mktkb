@@ -246,6 +246,8 @@ class Citation:
     locator: Mapping[str, Any]
     text: str
     kind: str
+    #: P1-FIX/C：本 chunk 背书的产品来源单元 ID（产品层提交时按同一可见性/版本复核）。
+    unit_ids: tuple[str, ...] = ()
 
     def display(self) -> str:
         where = _locator_text(self.locator)

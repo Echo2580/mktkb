@@ -27,12 +27,14 @@ import mktkb.evaluation.gate as gate_module
 from mktkb.evaluation.baseline import approve_baseline, load_baseline, save_baseline
 from mktkb.evaluation.dataset import CaseSpec, write_cases
 from mktkb.evaluation.gate import (
+    DEFAULT_GATE_CONFIG_PATH,
     GateFailure,
     GateResult,
     GateUnknown,
     QualityCheck,
     QualityMetricResult,
     QualityResult,
+    load_gate_config,
 )
 from mktkb.evaluation.report import (
     MetricDelta,
@@ -47,6 +49,9 @@ from mktkb.observability.contracts import GATE_SCHEMA_VERSION
 
 DS_VERSION = "b0:dev-1:0123456789ab"
 CORPUS_SHA = "b" * 64
+#: 当前默认 gate 配置（``diff_runs`` 不传 config 时加载它）的内容哈希；放行路径要求
+#: gate 质量层 ``gate_config_hash`` 与它一致（P1 #59：同 gate_version 改内容也要拒绝）。
+CURRENT_CONFIG_HASH = load_gate_config(DEFAULT_GATE_CONFIG_PATH).config_hash
 
 
 # --------------------------------------------------------------------------- #
@@ -168,6 +173,23 @@ def write_run(
     return RunResult(manifest=manifest, out_dir=run_dir, cases=tuple(rows), summary=summary)
 
 
+def write_gate_json(run: RunResult | object, gate: GateResult) -> Path:
+    """把门禁结果写到 run 目录 ``gate.json``（与 CLI ``gate`` 命令同内容）。
+
+    ``run`` 可以是 ``RunResult``（``out_dir``）或 ``Baseline``（``run_dir``）。
+    放行路径会用它重核**审批时刻**的配置哈希：其 canonical JSON 的 SHA-256 必须等于
+    审批绑定的 ``gate_result_sha256``（P1 #59）。
+    """
+    payload = json.dumps(
+        gate.to_dict(), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    directory = getattr(run, "out_dir", None) or getattr(run, "run_dir", None)
+    assert directory is not None, f"write_gate_json 需要 run_dir/out_dir，收到 {type(run).__name__}"
+    path = Path(directory) / "gate.json"
+    path.write_bytes(payload.encode("utf-8"))
+    return path
+
+
 def baseline_run(tmp_path: Path, **overrides) -> RunResult:
     rows = [
         make_row(CASES[0], status="fail", value_hit=1.0, latency_ms=10),
@@ -228,6 +250,10 @@ def make_gate(
     failures: tuple[GateFailure, ...] = (),
     unknowns: tuple[GateUnknown, ...] = (),
     metrics: tuple[QualityMetricResult, ...] = (),
+    gate_config_hash: str | None = None,
+    gate_version: str = GATE_SCHEMA_VERSION,
+    suite: str = "b0",
+    mode: str = "local",
 ) -> GateResult:
     quality_result = (
         QualityResult(
@@ -241,7 +267,9 @@ def make_gate(
             diagnostics={},
             warnings=(),
             config_status="approved" if exit_code == 0 else "unapproved",
-            gate_config_hash="f" * 64,
+            gate_config_hash=(
+                CURRENT_CONFIG_HASH if gate_config_hash is None else gate_config_hash
+            ),
             baseline_run_id=None,
             baseline_pipeline_version=None,
         )
@@ -269,9 +297,9 @@ def make_gate(
         not_applicable=(),
         warnings=(),
         run_id=run_id,
-        suite="b0",
-        mode="local",
-        gate_version=GATE_SCHEMA_VERSION,
+        suite=suite,
+        mode=mode,
+        gate_version=gate_version,
         scored_count=3,
         min_sample=32,
         quality=quality_result,
@@ -414,15 +442,18 @@ def test_diff_release_path_requires_approved_same_version_baseline(tmp_path: Pat
     assert unapproved.release_allowed is False
     assert unapproved.release_blocked_reason == "baseline_unapproved"
 
+    approve_gate = make_gate(0, quality_status="pass", run_id=baseline.manifest.run_id)
     approve_baseline(
-        baseline, make_gate(0, quality_status="pass", run_id=baseline.manifest.run_id),
-        root, approver="owner", reason="fixture",
+        baseline, approve_gate, root, approver="owner", reason="fixture",
     )
+    write_gate_json(saved, approve_gate)  # 审批绑定的那份门禁结果（放行重核用）
     approved_baseline = load_baseline(saved.baseline_id, root)
-    approved = diff_runs(approved_baseline, current)
+    # P1 #59：放行还要求当前 gate 非空且绑定当前 run、配置哈希一致（缺 gate 不再放行）。
+    current_gate = make_gate(0, quality_status="pass", run_id=current.manifest.run_id)
+    approved = diff_runs(approved_baseline, current, gate=current_gate)
     assert approved.comparison == "release_baseline"
     assert approved.release_allowed is True
-    require_release_baseline(approved)  # 同版本已审批 → 可放行
+    require_release_baseline(approved)  # 同版本已审批 + 当前 gate 通过 → 可放行
 
 
 def test_diff_release_path_blocks_failed_current_gate(tmp_path: Path):

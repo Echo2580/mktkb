@@ -409,6 +409,27 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         requires_user_input=True,
     ),
     _entry(
+        # P1-FIX/A：公司级经营/财务指标（营收、利润率等）不在当前已发布资料范围内。
+        # 只有答案层“资料支持判定”确认检索证据里没有该指标的数据时才会走到这里；
+        # 法规/制度题（问条文本身）与有资料支持的问题不在此列。
+        "UNSUPPORTED_FINANCIAL_METRIC",
+        "找到的资料中没有可支撑“{metric}”的经营财务数据，不能据此推算或编造；"
+        "这不是服务故障，请改问制度、价目表、台账等资料已覆盖的内容后重新查询。",
+        retryable=True,
+        material_related=True,
+        requires_user_input=True,
+    ),
+    _entry(
+        # P1-FIX/B：指代追问里的制度/流程话题（如“报销规则”）进入正文查询后，
+        # 证据里没有可支撑该话题的正文；如实说明“找到的资料里没有”，不拿无关正文冒充。
+        "POLICY_TOPIC_NOT_FOUND",
+        "找到的资料中没有可支撑“{topic}”相关制度/流程的内容，不能据此作答；"
+        "这不等于资料中一定没有该制度，请核对名称或改问已发布制度后重新查询。",
+        retryable=True,
+        material_related=True,
+        requires_user_input=True,
+    ),
+    _entry(
         "EMPTY_QUERY",
         "请说明要查询的物品、门店或流程名称；"
         "这不是资料中没有答案，补充后可重新提问。",
@@ -584,6 +605,8 @@ REQUIRED_REASONS: tuple[str, ...] = (
     "KNOWLEDGE_CHANGED",
     "EMPTY_QUERY",
     "UNKNOWN_REGION",
+    "UNSUPPORTED_FINANCIAL_METRIC",
+    "POLICY_TOPIC_NOT_FOUND",
     "MISSING_SLOT",
 )
 

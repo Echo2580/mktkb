@@ -1,0 +1,91 @@
+{
+  "business_date": "2026-10-28",
+  "case_count": 30,
+  "corpus_manifest_sha256": "5f41b1b811a5fecb0c0beab1b5070540e3c622a175a59939e293cc9b17ec3218",
+  "dataset_sha256": "a8c8aa7f028ce14047173e3e57db36dda72d3a13b3578ad82ec8cd1b86cd6738",
+  "dataset_version": "holdout:holdout-2026-11-04:13143200a039",
+  "declarations": {
+    "execution": {
+      "mode": "multi_turn",
+      "multi_turn_case_count": 5,
+      "multi_turn_error_case_count": 0,
+      "multi_turn_turns_executed": 10,
+      "multi_turn_verified": true,
+      "note": "多轮执行：5 条 case 逐轮 ask（共 10 轮），末轮按既有 scorer/gold 评分；中间轮只要求无 error 且 Trace 完整",
+      "single_turn_case_count": 0,
+      "turns_executed": 2
+    },
+    "gold": {
+      "note": "locator / 整篇级引用是范围型 gold（unit 集合），检索指标按集合计；record_code-only 引用在 runner 层 fail closed",
+      "range_gold_case_count": 0,
+      "record_code_only_allowed": false
+    },
+    "pagination": {
+      "claimed": false,
+      "expected_pagination_case_count": 0,
+      "note": "P0 数据集 expected_pagination 全为 null；N05 的 expected_min_total 只在 notes，runner 不声称分页契约覆盖"
+    }
+  },
+  "error_count": 0,
+  "gate_version": "mktkb.gate.v0.1",
+  "holdout": {
+    "aggregate_only": true,
+    "audit_file": null,
+    "details_written": false,
+    "label_version": "holdout-2026-11-04",
+    "labels_sha256": "8f713a2a22fe605cad53cec7c2679c0e5606421d2ac6baa34d17521650f4c1bf",
+    "metadata_mismatch_count": 0,
+    "note": "holdout 默认只出聚合（无 cases.jsonl / 逐题题干 / 答案 / 逐题结果）；逐题详情需 --allow-holdout-details 并在本地受限环境使用，永不入库",
+    "questions_sha256": "a8c8aa7f028ce14047173e3e57db36dda72d3a13b3578ad82ec8cd1b86cd6738",
+    "strata": {
+      "cross_doc_security": 5,
+      "multi_turn": 5,
+      "negative": 5,
+      "paraphrase": 10,
+      "stale_conflict": 5
+    },
+    "traces_persisted": false
+  },
+  "index_revision": 49,
+  "metrics": {
+    "MRR@10": 0.5740740740740741,
+    "Recall@10": 0.4537037037037037,
+    "case_count": 30,
+    "citation_precision": 0.33968253968253964,
+    "citation_recall": 0.4087301587301588,
+    "cost_per_case_cny": null,
+    "cost_total_cny": null,
+    "empty_recall_rate": 0.2962962962962963,
+    "false_refusal_rate": 0.125,
+    "hard_filter_violation_rate": 0.0,
+    "kind_correct": 0.5,
+    "nDCG@10": 0.4730012810252809,
+    "p50_latency_ms": 203,
+    "p95_latency_ms": 1001,
+    "refusal_precision": 0.5,
+    "refusal_recall": 0.5,
+    "scored_count": 30,
+    "skipped_count": 0,
+    "source_hit": 0.2916666666666667,
+    "tokens_in_total": null,
+    "tokens_out_total": null,
+    "value_hit": 0.2916666666666667
+  },
+  "metrics_scope": {
+    "cases_in_denominator": 30,
+    "excluded_error_count": 0,
+    "note": "error case 不进任何指标分母（unknown，不是 0）；OCR case 由 scorer 的 skipped_requires_ocr 语义排除",
+    "ocr_excluded_by_scorer": 0
+  },
+  "mode": "local",
+  "pipeline_version": "735da1397044",
+  "run_id": "holdout-local-20261109T150047793989Z-c6675d8c",
+  "scope": "end_to_end",
+  "scored_count": 30,
+  "skipped_ocr_count": 0,
+  "status_counts": {
+    "fail": 23,
+    "pass": 7
+  },
+  "suite": "holdout"
+}

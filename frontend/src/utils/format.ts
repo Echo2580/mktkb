@@ -171,6 +171,9 @@ export const RESULT_KIND_LABELS: Record<string, string> = {
 /** 无候选的澄清不是“在等用户确认某个选项”，而是需要补充更明确的条件。 */
 export const CLARIFICATION_NEEDS_INPUT_LABEL = '需补充条件';
 
+/** 记录存在、但所问字段未记录：与正文“记录存在，但缺少该字段”保持一致。 */
+export const FIELD_NOT_RECORDED_LABEL = '字段未记录';
+
 /**
  * 服务错误里属于“查询条件问题”的稳定码：正文写“这是查询条件问题”，
  * 徽标不能笼统说成“服务调用失败”（P2）。
@@ -184,14 +187,20 @@ export const SERVICE_ERROR_BADGE_LABELS: Record<string, string> = {
  * 有候选仍是“需要确认”；无候选（含未持久化候选的历史消息）用中性、
  * 可自救的“需补充条件”，不得暗示系统已经给出可选项。
  * service_error 可用稳定码细分（如 INVALID_QUERY 是查询条件问题，不是服务故障）。
+ * not_found 带缺失字段时显示“字段未记录”，与正文“记录存在、缺少该字段”一致；
+ * 无缺失字段时仍是“无匹配资料”。
  */
 export function resultBadgeLabel(
   kind: string | null | undefined,
   candidateCount = 0,
   errorCode?: string | null,
+  missingFieldCount = 0,
 ): string {
   if (kind === 'clarification' && candidateCount === 0) {
     return CLARIFICATION_NEEDS_INPUT_LABEL;
+  }
+  if (kind === 'not_found' && missingFieldCount > 0) {
+    return FIELD_NOT_RECORDED_LABEL;
   }
   if (kind === 'service_error' && errorCode) {
     const specific = SERVICE_ERROR_BADGE_LABELS[errorCode];

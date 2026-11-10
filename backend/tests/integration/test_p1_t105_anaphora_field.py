@@ -399,3 +399,123 @@ def test_bare_policy_and_regulation_questions_unchanged(t105_policy_ready, chat_
     text = _flat(legal["text"])
     assert "2022年7月1日" in text, legal["text"]
     assert "禁止价格欺诈行为的规定" in text, legal["text"]
+
+
+# ---------------------------------------------------------------------------
+# P1-FIX/B（2026-11-10）：政策词 + 台账字段词组合不再整条倾倒（产品 HTTP 路径）
+# ---------------------------------------------------------------------------
+
+RECORD_MARKER = "标识："
+
+
+def _follow_after_location(client, question: str) -> dict:
+    conversation = _conversation(client)
+    _ask(client, conversation, "城西店的宣传海报在哪里？")
+    return _ask(client, conversation, question)
+
+
+@pytest.mark.parametrize(
+    ("question", "expected", "forbidden"),
+    (
+        ("那个海报的标准规格是什么？", "A2 铜版纸 157g", ("C区2号货架第一层", "2.6", "20")),
+        ("那个海报的价格标准是什么？", "2.6", ("A2 铜版纸 157g", "C区2号货架第一层", "20")),
+        ("那个海报的提交数量呢", "20", ("A2 铜版纸 157g", "C区2号货架第一层", "2.6")),
+    ),
+)
+def test_policy_word_plus_field_word_followup_answers_single_field(
+    t105_ready, chat_employee, question: str, expected: str, forbidden: tuple[str, ...]
+) -> None:
+    """“标准规格/价格标准/提交数量”只答所问字段，不再 576 字 8×8 倾倒。"""
+    answer = _follow_after_location(chat_employee, question)
+    assert answer["kind"] == "answer", answer
+    assert expected in answer["text"], answer["text"]
+    for value in forbidden:
+        assert value not in answer["text"], (value, answer["text"])
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    assert len(answer["text"]) <= 80, answer["text"]
+    assert answer["sources"], answer
+
+
+def test_reimburse_rule_followup_is_honest_refusal(t105_policy_ready, chat_employee) -> None:
+    """“报销规则”是制度话题；资料没有该话题时如实拒答，不按台账备注字段冒充。"""
+    answer = _follow_after_location(chat_employee, "那个海报的报销规则是什么？")
+    assert answer["kind"] == "not_found", answer
+    assert "没有可支撑" in answer["text"], answer["text"]
+    assert "报销" in answer["text"], answer["text"]
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    for value in UNASKED_IN_ANSWER:
+        assert value not in answer["text"], (value, answer["text"])
+    assert answer["sources"] == [], answer
+
+
+def test_approval_requirement_anaphora_uses_policy_document(
+    t105_policy_ready, chat_employee
+) -> None:
+    """“那个海报的审批要求是什么”进入正文查询，不继承上一轮位置字段。"""
+    answer = _follow_after_location(chat_employee, "那个海报的审批要求是什么？")
+    assert answer["kind"] == "answer", answer
+    assert "审批" in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    assert not answer.get("pagination"), answer
+
+
+def test_topic_switch_after_entity_does_not_inherit_store(t105_policy_ready, chat_employee) -> None:
+    """话题切到制度/流程题时不得沿用上一轮门店/物品。"""
+    conversation = _conversation(chat_employee)
+    _ask(chat_employee, conversation, "城西店的宣传海报在哪里？")
+    answer = _ask(chat_employee, conversation, "档期物料要提前多少天提报需求？")
+    assert answer["kind"] == "answer", answer
+    assert "21" in answer["text"], answer["text"]
+    assert "城西店" not in answer["text"], answer["text"]
+    assert "C区2号货架第一层" not in answer["text"], answer["text"]
+
+
+def test_unknown_store_does_not_dump_records(t105_ready, chat_employee) -> None:
+    """未知门店仍是诚实拒答，不整条倾倒其它门店记录。"""
+    answer = _ask(chat_employee, _conversation(chat_employee), "城南店的宣传海报在哪里？")
+    assert answer["kind"] == "not_found", answer
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    for value in UNASKED_IN_ANSWER:
+        assert value not in answer["text"], (value, answer["text"])
+    assert answer["sources"] == [], answer
+
+
+def test_no_context_anaphora_clarifies_without_dump(t105_ready, chat_employee) -> None:
+    """无上文指代给出澄清，不倾倒、不列任何记录字段值。"""
+    answer = _ask(chat_employee, _conversation(chat_employee), "那个海报呢")
+    assert answer["kind"] == "clarification", answer
+    assert "哪项信息" in answer["text"], answer["text"]
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    for value in UNASKED_IN_ANSWER:
+        assert value not in answer["text"], (value, answer["text"])
+    assert answer["sources"] == [], answer
+
+
+def test_missing_field_followup_is_honest_and_carries_missing_field(
+    t105_ready, chat_employee
+) -> None:
+    """记录存在但缺所问字段：如实说明，并带出缺失字段供前端徽标区分（P1-FIX/C4）。"""
+    answer = _follow_after_location(chat_employee, "那个海报的盘点时间是什么？")
+    assert answer["kind"] == "not_found", answer
+    assert "记录存在" in answer["text"] or "缺少该字段" in answer["text"], answer["text"]
+    assert "未在资料中找到" not in answer["text"], answer["text"]
+    assert answer["missing_fields"] == ["日期"], answer
+    assert RECORD_MARKER not in answer["text"], answer["text"]
+    assert answer["sources"] == [], answer
+
+
+def test_explicit_full_enumeration_still_works(t105_many_ready, chat_employee) -> None:
+    """控制组：用户明确要求完整内容时仍按枚举/分页返回（P1-FIX/B 不得收窄）。"""
+    conversation = _conversation(chat_employee)
+    answer = _ask(chat_employee, conversation, "把宣传海报都列出来")
+    assert answer["kind"] == "answer", answer
+    pagination = answer.get("pagination") or {}
+    assert pagination.get("total") == 12, pagination
+    assert pagination.get("returned") == 10, pagination
+    assert pagination.get("has_more") is True, pagination
+
+    page_two = _ask(chat_employee, conversation, "那个海报的第2页")
+    page_two_pagination = page_two.get("pagination") or {}
+    assert page_two_pagination.get("page") == 2, page_two
+    assert page_two_pagination.get("returned") == 2, page_two

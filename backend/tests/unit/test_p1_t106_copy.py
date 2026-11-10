@@ -55,6 +55,8 @@ SAMPLE_FIELDS = {
     "status": "生效、有效",
     "document": "D01_物品位置表.xlsx",
     "region": "城西区",
+    "metric": "营收",
+    "topic": "报销规则",
     "label": "门店",
     "entity": "宣传海报",
     "field": "位置",

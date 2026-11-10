@@ -89,7 +89,7 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
           {message.kind ? (
             <span className={toneBadgeClass(resultKindTone(kind))}>
               <span className="badge-dot" />
-              {resultBadgeLabel(kind, candidates.length, errorCode)}
+              {resultBadgeLabel(kind, candidates.length, errorCode, missing.length)}
             </span>
           ) : null}
           <span className="message-time">{formatTime(message.created_at)}</span>

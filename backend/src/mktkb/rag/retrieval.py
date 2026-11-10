@@ -576,6 +576,7 @@ def _to_evidence(
             locator=locator,
             text=chunk.text,
             kind=chunk.kind,
+            unit_ids=tuple(str(unit_id) for unit_id in (chunk.unit_ids or ())),
         )
         evidence.append(
             EvidenceItem(

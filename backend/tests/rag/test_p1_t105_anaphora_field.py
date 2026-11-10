@@ -390,3 +390,62 @@ def test_bare_policy_question_without_anaphora_still_answers_from_text(rag_index
     assert answer.kind == "answer", (answer.reason, answer.text)
     assert "21" in answer.text, answer.text
     assert "城西店" not in answer.text, answer.text
+
+
+# ---------------------------------------------------------------------------
+# P1-FIX/B（2026-11-10）：政策词 + 台账字段词组合不再整条倾倒
+# ---------------------------------------------------------------------------
+
+
+@pytest.mark.parametrize(
+    ("question", "expected", "forbidden"),
+    (
+        ("那个海报的标准规格是什么？", "A2 铜版纸 157g", ("C区2号货架第一层", "2.6", "20")),
+        ("那个海报的价格标准是什么？", "2.6", ("A2 铜版纸 157g", "C区2号货架第一层", "20")),
+        ("那个海报的提交数量呢", "20", ("A2 铜版纸 157g", "C区2号货架第一层", "2.6")),
+    ),
+)
+def test_policy_word_plus_field_word_answers_single_field(
+    rag_index, add_records, question: str, expected: str, forbidden: tuple[str, ...]
+) -> None:
+    """“标准/提交”这类政策词与台账字段词同现时，仍只答所问字段，不倾倒整条记录。"""
+    _seed(rag_index, add_records)
+    conversation = "c-mixed:" + question
+    _ask(rag_index, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, conversation, question)
+    assert answer.kind == "answer", (answer.reason, answer.text)
+    assert expected in answer.text, answer.text
+    for value in forbidden:
+        assert value not in answer.text, (value, answer.text)
+    assert "标识：" not in answer.text, answer.text
+    assert len(answer.text) <= 80, answer.text
+
+
+def test_reimburse_rule_followup_is_honest_refusal(rag_index, add_records) -> None:
+    """“报销规则”是制度话题：正文里没有该话题时如实说明，不拿同形字段/无关正文冒充。"""
+    _seed(rag_index, add_records)
+    _seed_policy_docs(rag_index, add_records)
+    _ask(rag_index, "c-reimburse", "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, "c-reimburse", "那个海报的报销规则是什么？")
+    assert answer.kind == "no_answer", (answer.reason, answer.text)
+    assert answer.reason == "POLICY_TOPIC_NOT_FOUND", answer.text
+    assert "没有可支撑" in answer.text, answer.text
+    assert "报销" in answer.text, answer.text
+    for value in UNASKED_VALUES:
+        assert value not in answer.text, (value, answer.text)
+    assert not answer.citations, answer.text
+
+
+@pytest.mark.parametrize("question", ("那个海报的陈列规则呢", "那个海报的扣分规则是什么？"))
+def test_field_named_rule_words_stay_record_field(rag_index, add_records, question: str) -> None:
+    """“陈列规则/扣分规则”里的“规则”是台账备注字段，不能被强政策话题劫持。"""
+    _seed(rag_index, add_records)
+    conversation = "c-field-rule:" + question
+    _ask(rag_index, conversation, "城西店的宣传海报在哪里？")
+
+    answer = _ask(rag_index, conversation, question)
+    assert answer.kind == "no_answer", (answer.reason, answer.text)
+    assert answer.reason == "FIELD_NOT_RECORDED", answer.text
+    assert "标识：" not in answer.text, answer.text

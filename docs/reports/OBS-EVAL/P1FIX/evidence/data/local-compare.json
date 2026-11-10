@@ -1,0 +1,349 @@
+{
+ "p0_b0_vs_final": {
+  "name": "p0_b0_vs_final",
+  "reference": "var\\eval\\runs\\p0-b0",
+  "current": ".claude\\handoffs\\_scratch\\p1fix\\final-b0",
+  "reference_status": {
+   "fail": 3,
+   "pass": 29,
+   "skipped_requires_ocr": 8
+  },
+  "current_status": {
+   "fail": 3,
+   "pass": 29,
+   "skipped_requires_ocr": 8
+  },
+  "signature_diff_count": 0,
+  "diffs": []
+ },
+ "p0_badcase_vs_final": {
+  "name": "p0_badcase_vs_final",
+  "reference": "var\\eval\\runs\\p0-badcase",
+  "current": ".claude\\handoffs\\_scratch\\p1fix\\final-badcase",
+  "reference_status": {
+   "fail": 4,
+   "pass": 9
+  },
+  "current_status": {
+   "fail": 4,
+   "pass": 9
+  },
+  "signature_diff_count": 0,
+  "diffs": []
+ },
+ "regression_before_vs_final": {
+  "name": "regression_before_vs_final",
+  "reference": ".claude\\handoffs\\_scratch\\p1fix\\before-regression",
+  "current": ".claude\\handoffs\\_scratch\\p1fix\\final-regression",
+  "reference_status": {
+   "fail": 2,
+   "pass": 5
+  },
+  "current_status": {
+   "pass": 7
+  },
+  "signature_diff_count": 2,
+  "diffs": [
+   {
+    "case_id": "RG005",
+    "before": [
+     "RG005",
+     "fail",
+     "answer",
+     null,
+     [
+      [
+       "kind_correct",
+       "fail"
+      ],
+      [
+       "pagination_has_more",
+       "skipped"
+      ],
+      [
+       "pagination_next_page",
+       "skipped"
+      ],
+      [
+       "pagination_returned",
+       "skipped"
+      ],
+      [
+       "pagination_total",
+       "skipped"
+      ],
+      [
+       "refusal_expected",
+       "fail"
+      ],
+      [
+       "refusal_unexpected",
+       "skipped"
+      ],
+      [
+       "source_forbidden",
+       "skipped"
+      ],
+      [
+       "source_hit",
+       "skipped"
+      ],
+      [
+       "value_forbidden",
+       "pass"
+      ],
+      [
+       "value_hit",
+       "skipped"
+      ],
+      [
+       "value_no_fabricated",
+       "skipped"
+      ]
+     ]
+    ],
+    "after": [
+     "RG005",
+     "pass",
+     "no_answer",
+     null,
+     [
+      [
+       "kind_correct",
+       "pass"
+      ],
+      [
+       "pagination_has_more",
+       "skipped"
+      ],
+      [
+       "pagination_next_page",
+       "skipped"
+      ],
+      [
+       "pagination_returned",
+       "skipped"
+      ],
+      [
+       "pagination_total",
+       "skipped"
+      ],
+      [
+       "refusal_expected",
+       "pass"
+      ],
+      [
+       "refusal_unexpected",
+       "skipped"
+      ],
+      [
+       "source_forbidden",
+       "skipped"
+      ],
+      [
+       "source_hit",
+       "skipped"
+      ],
+      [
+       "value_forbidden",
+       "pass"
+      ],
+      [
+       "value_hit",
+       "skipped"
+      ],
+      [
+       "value_no_fabricated",
+       "skipped"
+      ]
+     ]
+    ]
+   },
+   {
+    "case_id": "RG007",
+    "before": [
+     "RG007",
+     "fail",
+     "answer",
+     null,
+     [
+      [
+       "kind_correct",
+       "fail"
+      ],
+      [
+       "pagination_has_more",
+       "skipped"
+      ],
+      [
+       "pagination_next_page",
+       "skipped"
+      ],
+      [
+       "pagination_returned",
+       "skipped"
+      ],
+      [
+       "pagination_total",
+       "skipped"
+      ],
+      [
+       "refusal_expected",
+       "fail"
+      ],
+      [
+       "refusal_unexpected",
+       "skipped"
+      ],
+      [
+       "source_forbidden",
+       "skipped"
+      ],
+      [
+       "source_hit",
+       "skipped"
+      ],
+      [
+       "value_forbidden",
+       "pass"
+      ],
+      [
+       "value_hit",
+       "skipped"
+      ],
+      [
+       "value_no_fabricated",
+       "skipped"
+      ]
+     ]
+    ],
+    "after": [
+     "RG007",
+     "pass",
+     "no_answer",
+     null,
+     [
+      [
+       "kind_correct",
+       "pass"
+      ],
+      [
+       "pagination_has_more",
+       "skipped"
+      ],
+      [
+       "pagination_next_page",
+       "skipped"
+      ],
+      [
+       "pagination_returned",
+       "skipped"
+      ],
+      [
+       "pagination_total",
+       "skipped"
+      ],
+      [
+       "refusal_expected",
+       "pass"
+      ],
+      [
+       "refusal_unexpected",
+       "skipped"
+      ],
+      [
+       "source_forbidden",
+       "skipped"
+      ],
+      [
+       "source_hit",
+       "skipped"
+      ],
+      [
+       "value_forbidden",
+       "pass"
+      ],
+      [
+       "value_hit",
+       "skipped"
+      ],
+      [
+       "value_no_fabricated",
+       "skipped"
+      ]
+     ]
+    ]
+   }
+  ]
+ },
+ "pipeline_versions": {
+  "final-b0": {
+   "run_id": "b0-local-20261110T010336076233Z-c4db84c7",
+   "suite": "b0",
+   "mode": "local",
+   "pipeline_version": "d3ca88d2c515",
+   "gate_version": "mktkb.gate.v0.1"
+  },
+  "final-badcase": {
+   "run_id": "badcase-local-20261110T010338743174Z-1cc00bf2",
+   "suite": "badcase",
+   "mode": "local",
+   "pipeline_version": "d3ca88d2c515",
+   "gate_version": "mktkb.gate.v0.1"
+  },
+  "final-regression": {
+   "run_id": "regression-local-20261110T010433483006Z-c8506139",
+   "suite": "regression",
+   "mode": "local",
+   "pipeline_version": "d3ca88d2c515",
+   "gate_version": "mktkb.gate.v0.1"
+  }
+ },
+ "gates": [
+  {
+   "run": ".claude\\handoffs\\_scratch\\p1fix\\final-b0",
+   "exit_code": 3,
+   "stdout_tail": [
+    "gate exit_code=3 run_id=b0-local-20261110T010336076233Z-c4db84c7 suite=b0 mode=local scored=32/32 hard_failures=[] quality=unknown config_status=unapproved",
+    "wrote .claude\\handoffs\\_scratch\\p1fix\\final-b0\\gate.json"
+   ],
+   "gate": {
+    "exit_code": 3,
+    "gate_version": "mktkb.gate.v0.1",
+    "hard_failures": [],
+    "quality_status": "unknown",
+    "config_status": "unapproved"
+   }
+  },
+  {
+   "run": ".claude\\handoffs\\_scratch\\p1fix\\final-badcase",
+   "exit_code": 3,
+   "stdout_tail": [
+    "gate exit_code=3 run_id=badcase-local-20261110T010338743174Z-1cc00bf2 suite=badcase mode=local scored=13/13 hard_failures=[] quality=unknown config_status=unapproved",
+    "wrote .claude\\handoffs\\_scratch\\p1fix\\final-badcase\\gate.json"
+   ],
+   "gate": {
+    "exit_code": 3,
+    "gate_version": "mktkb.gate.v0.1",
+    "hard_failures": [],
+    "quality_status": "unknown",
+    "config_status": "unapproved"
+   }
+  },
+  {
+   "run": ".claude\\handoffs\\_scratch\\p1fix\\final-regression",
+   "exit_code": 3,
+   "stdout_tail": [
+    "gate exit_code=3 run_id=regression-local-20261110T010433483006Z-c8506139 suite=regression mode=local scored=7/None hard_failures=[] quality=unknown config_status=unapproved",
+    "wrote .claude\\handoffs\\_scratch\\p1fix\\final-regression\\gate.json"
+   ],
+   "gate": {
+    "exit_code": 3,
+    "gate_version": "mktkb.gate.v0.1",
+    "hard_failures": [],
+    "quality_status": "unknown",
+    "config_status": "unapproved"
+   }
+  }
+ ]
+}

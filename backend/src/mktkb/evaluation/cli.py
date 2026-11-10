@@ -8,6 +8,10 @@
   ``--calibrate`` 只写 ``gate_proposal.json``，绝不改写 gate 配置；
 - ``baseline approve`` 必须现场重算门禁（``--gate`` 文件只做审计，不作为审批依据），
   拒绝时返回该门禁退出码且不写 ``approval.json``；
+- ``baseline archive / verify / restore`` 只移植既有证据链：归档 ``baseline.json`` /
+  ``approval.json`` / run 三件套 / ``gate.json`` 并写 ``archive_manifest.json``，
+  restore 只重写 ``baseline.json.run_dir``，不改 identity / approval / artifact 摘要；
+  holdout 相关 run、已存在目标目录、缺文件或哈希不符一律拒绝（E 工作流，fail closed）；
 - ``diff`` 必须把当前 run 的 ``GateResult`` 传给 ``diff_runs`` 并调用
   ``require_release_baseline``（T007 MEDIUM-2），baseline 缺失时 fail closed；
 - ``export`` 只写 ``render_markdown`` / ``render_html`` 的返回值（UTF-8 无 BOM）。
@@ -38,8 +42,11 @@ from .baseline import (
     BaselineError,
     CrossVersionBaselineError,
     approve_baseline,
+    archive_baseline,
     baseline_id,
     load_baseline,
+    restore_baseline,
+    verify_archive,
 )
 from .dataset import (
     HOLDOUT_QUESTIONS_SHA256,
@@ -340,9 +347,54 @@ def _cmd_baseline_list(args: argparse.Namespace) -> int:
     return code
 
 
+def _cmd_baseline_archive(args: argparse.Namespace) -> int:
+    record = archive_baseline(args.baseline, Path(args.root), Path(args.out))
+    approved = "yes" if record.has_approval else "no"
+    print(
+        f"archive baseline_id={record.baseline_id} run_id={record.run_id} "
+        f"suite={record.suite} files={len(record.files)} approved={approved}"
+    )
+    print(f"wrote {Path(args.out)}")
+    return 0
+
+
+def _cmd_baseline_verify(args: argparse.Namespace) -> int:
+    record = verify_archive(Path(args.archive))
+    approved = "yes" if record.has_approval else "no"
+    print(
+        f"archive ok baseline_id={record.baseline_id} run_id={record.run_id} "
+        f"suite={record.suite} files={len(record.files)} approved={approved} "
+        f"schema={record.schema_version}"
+    )
+    if record.source_run_dir:
+        print(f"source run_dir={record.source_run_dir}")
+    return 0
+
+
+def _cmd_baseline_restore(args: argparse.Namespace) -> int:
+    result = restore_baseline(
+        Path(args.archive),
+        Path(args.root),
+        runs_root=Path(args.runs_root) if args.runs_root else None,
+    )
+    approved = "yes" if result.baseline.approval is not None else "no"
+    print(
+        f"restored baseline_id={result.baseline_id} run_id={result.baseline.run_id} "
+        f"run_dir={result.run_dir} approved={approved} files={len(result.files)}"
+    )
+    print(f"wrote {result.baseline_dir} {result.run_dir}")
+    return 0
+
+
 def _cmd_baseline(args: argparse.Namespace) -> int:
     if args.baseline_command == "approve":
         return _cmd_baseline_approve(args)
+    if args.baseline_command == "archive":
+        return _cmd_baseline_archive(args)
+    if args.baseline_command == "verify":
+        return _cmd_baseline_verify(args)
+    if args.baseline_command == "restore":
+        return _cmd_baseline_restore(args)
     return _cmd_baseline_list(args)
 
 
@@ -534,7 +586,9 @@ def build_parser() -> argparse.ArgumentParser:
     gate.add_argument("--calibrate", action="store_true", help="写 gate_proposal.json（不审批）")
     gate.set_defaults(handler=_cmd_gate)
 
-    baseline = sub.add_parser("baseline", help="baseline 审批 / 列表（无 copy/rename）")
+    baseline = sub.add_parser(
+        "baseline", help="baseline 审批 / 列表 / 归档 / 校验 / 恢复（移植不改 identity）"
+    )
     baseline_sub = baseline.add_subparsers(dest="baseline_command", required=True)
     approve = baseline_sub.add_parser("approve", help="现场重算门禁后审批 baseline")
     approve.add_argument("--run", required=True)
@@ -547,6 +601,37 @@ def build_parser() -> argparse.ArgumentParser:
     listing = baseline_sub.add_parser("list", help="列出 <root>/<baseline_id>/baseline.json")
     listing.add_argument("--root", default=str(DEFAULT_BASELINE_ROOT))
     listing.set_defaults(handler=_cmd_baseline)
+    archive = baseline_sub.add_parser(
+        "archive",
+        help="把 baseline 证据链归档到 --out（fail closed；holdout 一律拒绝）",
+    )
+    archive.add_argument("--baseline", required=True, help="baseline_id（12 位十六进制）")
+    archive.add_argument(
+        "--root",
+        default=str(DEFAULT_BASELINE_ROOT),
+        help=f"源 baseline 根目录（默认 {DEFAULT_BASELINE_ROOT}）",
+    )
+    archive.add_argument("--out", required=True, help="新归档目录（必须不存在，不覆盖）")
+    archive.set_defaults(handler=_cmd_baseline)
+    verify = baseline_sub.add_parser(
+        "verify", help="只读校验归档（文件 sha256 / 身份 / 审批关系）"
+    )
+    verify.add_argument("--archive", required=True, help="归档目录（含 archive_manifest.json）")
+    verify.set_defaults(handler=_cmd_baseline)
+    restore = baseline_sub.add_parser(
+        "restore",
+        help="把归档恢复成隔离根下的 baseline（只重写 run_dir，不覆盖已存在目录）",
+    )
+    restore.add_argument("--archive", required=True, help="归档目录（含 archive_manifest.json）")
+    restore.add_argument(
+        "--root", required=True, help="目标 baseline 根目录（新建，如 <tmp>/eval/baselines）"
+    )
+    restore.add_argument(
+        "--runs-root",
+        default=None,
+        help="目标 run 根目录（默认 <root>/../runs）",
+    )
+    restore.set_defaults(handler=_cmd_baseline)
 
     diff = sub.add_parser("diff", help="baseline vs 当前 run 的 diff + 报告")
     _add_run_selector(diff, with_comparison=True)

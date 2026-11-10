@@ -64,6 +64,7 @@ from ..observability.tracer import current_trace
 from ..qa import QaNotReady
 from ..rag.chunking import role_label as rag_role_label
 from ..rag.errors import KnowledgeChanged as RagKnowledgeChanged
+from ..rag.query import texts_support_financial_metric
 from ..rag.types import QueryPlan, QueryState, RagAnswer
 from ..providers.types import (
     MAX_MODEL_TERM_CHARS,
@@ -1925,6 +1926,15 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
             unit_id = str(fact.source_unit_id or "")
             if unit_id and unit_id not in source_ids:
                 source_ids.append(unit_id)
+        if kind == "answer" and not answer.facts:
+            # P1-FIX/C：文档/法规抽取答案没有结构化 facts，但内核 citations 带有来源单元 ID。
+            # 这里把引用来源映射为产品来源，交给 _commit_result_impl 统一复核可见性/有效版本；
+            # 不伪造来源，也不因缺 facts 就让答案丢失用户可访问的依据。
+            for citation in answer.citations:
+                for unit_id in citation.unit_ids:
+                    value = str(unit_id or "")
+                    if value and value not in source_ids:
+                        source_ids.append(value)
     if kind == "conflict" and answer.facts:
         entries: list[ConflictEntry] = []
         seen: set[tuple[str, str]] = set()
@@ -1971,6 +1981,14 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
         reason = str(answer.reason or "")
         error_code = "INDEX_NOT_READY" if "NOT_READY" in reason else "RETRIEVAL_ERROR"
         retryable = True
+    missing_fields: list[str] = []
+    if kind == "not_found" and answer.reason == "FIELD_NOT_RECORDED":
+        # P1-FIX/C：记录存在但缺所问字段时，把缺失字段名带出来，前端徽标可据此显示
+        # “字段未记录”而不是“无匹配资料”（正文早已说明“记录存在、缺少该字段”）。
+        plan_payload = dict((answer.diagnostics or {}).get("plan") or {})
+        field_role = str(plan_payload.get("field_role") or "")
+        if field_role:
+            missing_fields = [rag_role_label(field_role)]
     return _Result(
         kind=kind,
         text=answer.text,
@@ -1979,6 +1997,7 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
         candidates=candidates,
         conflicts=conflicts,
         pagination=pagination,
+        missing_fields=missing_fields,
         error_code=error_code,
         retryable=retryable,
     )
@@ -2146,6 +2165,20 @@ async def _answer(
         return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
     except QueryRejected:
         return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+
+    # P1-FIX/A：公司级经营/财务指标的资料支持判定。必须在 query_expansion/答案生成等
+    # 任何模型调用之前完成；证据（含正文候选）里确有该指标数值时继续原有路径，不一律拒答。
+    if plan.out_of_scope:
+        evidence_texts = [str(unit.text or "") for unit in evidence.units]
+        if not texts_support_financial_metric(plan.out_of_scope, evidence_texts):
+            return _Result(
+                kind="not_found",
+                text=copy_module.text(
+                    "UNSUPPORTED_FINANCIAL_METRIC", metric=plan.out_of_scope
+                ),
+                revision=revision,
+                reason="UNSUPPORTED_FINANCIAL_METRIC",
+            )
 
     if evidence.kind == "none" and plan.intent.terms and model is not None:
         # 只有真正触发扩展调用时才置条件属性并创建 query_expansion Span（不伪造）。

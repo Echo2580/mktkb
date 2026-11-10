@@ -43,34 +43,49 @@ from __future__ import annotations
 import hashlib
 import json
 import re
+import shutil
+import tempfile
+import time
 from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Iterable, Mapping, Sequence
 
+from .dataset import HOLDOUT_SUITE
 from .gate import GATE_VERSION_V0_2, GateResult, load_run_result
 from .runner import RunManifest, RunResult
 
 __all__ = [
     "APPROVAL_SCHEMA_VERSION",
+    "ARCHIVE_BASELINE_DIR",
+    "ARCHIVE_MANIFEST_FILENAME",
+    "ARCHIVE_RUN_DIR",
+    "ARCHIVE_RUN_ARTIFACTS",
+    "ARCHIVE_SCHEMA_VERSION",
     "BASELINE_ID_FIELDS",
     "BASELINE_MODES",
     "BASELINE_SCHEMA_VERSION",
     "Baseline",
     "BaselineApproval",
     "BaselineApprovalError",
+    "BaselineArchive",
+    "BaselineArchiveError",
     "BaselineComparabilityError",
     "BaselineError",
     "BaselineGate",
     "BaselineIdentity",
     "BaselineIdentityError",
+    "BaselineRestoreResult",
     "CrossVersionBaselineError",
     "approve_baseline",
+    "archive_baseline",
     "baseline_id",
     "baseline_identity",
     "gate_result_digest",
     "load_baseline",
+    "restore_baseline",
     "save_baseline",
+    "verify_archive",
 ]
 
 BASELINE_SCHEMA_VERSION = "mktkb.baseline.v0.1"
@@ -92,6 +107,16 @@ BASELINE_FILENAME = "baseline.json"
 APPROVAL_FILENAME = "approval.json"
 _IDENTITY_PATTERN = re.compile(r"^[0-9a-f]{12}$")
 
+#: P1 可移植性（E 工作流）：归档只移植证据链，不建立新 baseline 身份。
+ARCHIVE_SCHEMA_VERSION = "mktkb.baseline.archive.v0.1"
+ARCHIVE_TOOL = "mktkb.evaluation.baseline.archive"
+ARCHIVE_MANIFEST_FILENAME = "archive_manifest.json"
+ARCHIVE_BASELINE_DIR = "baseline"
+ARCHIVE_RUN_DIR = "run"
+#: 归档 run 部分：三件套必须存在，``gate.json`` 存在时一并归档。
+ARCHIVE_RUN_ARTIFACTS: tuple[str, ...] = RUN_ARTIFACTS + ("gate.json",)
+_ARCHIVE_GATE_FILENAME = "gate.json"
+
 
 class BaselineError(ValueError):
     """baseline 相关的 fail-closed 错误基类。"""
@@ -111,6 +136,10 @@ class CrossVersionBaselineError(BaselineError):
 
 class BaselineComparabilityError(BaselineError):
     """dataset / corpus / gate / mode / scope 口径不可比。"""
+
+
+class BaselineArchiveError(BaselineError):
+    """归档 / 校验 / 恢复 fail closed：缺文件、哈希不符、holdout、目标已存在等。"""
 
 
 # --------------------------------------------------------------------------- #
@@ -854,3 +883,655 @@ def load_baseline(
             f"compare_with={compare_with!r} 与 baseline_id={baseline.baseline_id!r} 不一致"
         )
     return baseline
+
+
+# --------------------------------------------------------------------------- #
+# 归档 / 校验 / 恢复（P1 可移植性：证据移植，不建立新身份）
+# --------------------------------------------------------------------------- #
+#
+# 目录布局（``archive_baseline`` 写、``verify_archive`` 校验、``restore_baseline`` 读）::
+#
+#     <archive>/archive_manifest.json      # 文件 sha256 / 身份六要素 / 审批关系 / 源路径
+#     <archive>/baseline/baseline.json     # 建立时原字节（identity/artifact 摘要不改）
+#     <archive>/baseline/approval.json     # 存在时原字节（审批证据）
+#     <archive>/run/{run_manifest,cases,summary}.json[l]  # RUN_ARTIFACTS 原字节
+#     <archive>/run/gate.json              # run 目录存在时原字节
+#
+# 边界（写死，fail closed）：
+# - 源 baseline / run 只读；不打包 ``traces.sqlite3`` / ``index/`` / ``gate_proposal.json`` /
+#   ``holdout_audit.json`` 等非证据文件（在 manifest ``excluded`` 里登记名字）；
+# - ``suite=holdout`` 或 manifest 标记 holdout（``holdout_details`` / ``holdout_labels_sha256``）
+#   的 run 一律拒绝：不得打包逐题明细或本地 labels；
+# - 目标目录已存在、缺文件、哈希不符、未知多余文件、符号链接一律拒绝；
+# - 恢复只把 ``baseline.json`` 的顶层 ``run_dir`` 重写到新 run 目录，identity / approval /
+#   artifact_sha256 / gate 快照逐键不变；恢复后必须能过 ``load_baseline`` + ``load_run``；
+# - 归档/恢复都不改变「同一 baseline_id 只绑定一个 run_id」的身份约束；旧 baseline 只是
+#   证据移植，**不得**用作新 pipeline 的发布基线（新 pipeline 需重新 live run + 重新审批）。
+
+
+@dataclass(frozen=True)
+class BaselineArchive:
+    """已校验归档的只读视图（``archive_manifest.json`` 的规范化投影）。"""
+
+    archive_dir: str
+    schema_version: str
+    archived_at: str
+    baseline_id: str
+    run_id: str
+    suite: str
+    identity: BaselineIdentity
+    has_approval: bool
+    approval_approver: str
+    approval_gate_result_sha256: str
+    files: Mapping[str, str] = field(default_factory=dict)
+    source_baseline_dir: str = ""
+    source_run_dir: str = ""
+
+    @property
+    def approved(self) -> bool:
+        return self.has_approval
+
+
+@dataclass(frozen=True)
+class BaselineRestoreResult:
+    """一次恢复的结果：新位置 + 重新加载并复核过的 ``Baseline``。"""
+
+    baseline: Baseline
+    baseline_dir: str
+    run_dir: str
+    files: tuple[str, ...]
+
+    @property
+    def baseline_id(self) -> str:
+        return self.baseline.baseline_id
+
+
+def _read_archive_bytes(path: Path, label: str) -> bytes:
+    try:
+        return path.read_bytes()
+    except OSError as exc:
+        raise BaselineArchiveError(f"归档文件 {label} 不可读 {path}: {exc}") from exc
+
+
+def _publish_staging(staging: Path, target: Path) -> None:
+    """把自校验通过的暂存归档目录上架为 ``target``（目标必须不存在）。
+
+    Windows 上刚写完的目录可能被杀软/索引器短暂占用（PermissionError/WinError 5/32），
+    这里做**有限次**重试；仍失败则抛错（调用方删除暂存目录，目标不会出现半成品）。
+    """
+    last: OSError | None = None
+    for attempt in range(3):
+        try:
+            staging.rename(target)
+            return
+        except PermissionError as exc:
+            last = exc
+            if attempt < 2:
+                time.sleep(0.05)
+    raise BaselineArchiveError(f"归档目录上架失败（目标未创建）: {target}: {last}") from last
+
+
+def _decode_archive_json(data: bytes, label: str) -> Any:
+    try:
+        return json.loads(data.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise BaselineArchiveError(f"归档文件 {label} 不是合法 UTF-8 JSON: {exc}") from exc
+
+
+def _gate_payload_digest(payload: Mapping[str, Any]) -> str:
+    """``gate.json`` 解析后的 canonical 摘要；与 :func:`gate_result_digest` 同一口径。"""
+    canonical = json.dumps(
+        dict(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _reject_holdout_manifest(manifest: RunManifest, *, suite: str, source: str) -> None:
+    reasons: list[str] = []
+    if suite == HOLDOUT_SUITE:
+        reasons.append(f"baseline.suite={suite!r}")
+    if manifest.suite == HOLDOUT_SUITE:
+        reasons.append(f"run_manifest.suite={manifest.suite!r}")
+    if manifest.holdout_details:
+        reasons.append("run_manifest.holdout_details=true（含逐题明细）")
+    if manifest.holdout_labels_sha256:
+        reasons.append("run_manifest.holdout_labels_sha256 非空（引用本地 labels）")
+    if reasons:
+        raise BaselineArchiveError(
+            "holdout 相关 run 拒绝归档/恢复（不得打包逐题明细或本地 labels）："
+            + "；".join(reasons)
+            + f"（{source}）"
+        )
+
+
+def _archive_file_entries(entries: Iterable[tuple[str, bytes]]) -> list[dict[str, Any]]:
+    return [
+        {"path": rel, "sha256": hashlib.sha256(data).hexdigest(), "bytes": len(data)}
+        for rel, data in sorted(entries)
+    ]
+
+
+def _build_archive_manifest(
+    baseline: Baseline,
+    entries: Sequence[tuple[str, bytes]],
+    *,
+    excluded: Sequence[str],
+    archived_at: str,
+    source_baseline_dir: Path,
+    source_run_dir: Path,
+) -> dict[str, Any]:
+    approval = baseline.approval
+    gate = baseline.gate
+    approval_relation: dict[str, Any] | None = None
+    if approval is not None:
+        approval_relation = {
+            "baseline_id": approval.baseline_id,
+            "run_id": approval.run_id,
+            "gate_result_sha256": approval.gate_result_sha256,
+            "gate_exit_code": approval.gate_exit_code,
+            "gate_version": approval.gate_version,
+            "quality_status": approval.quality_status,
+            "approver": approval.approver,
+            "approved_at": approval.approved_at,
+        }
+    gate_snapshot: dict[str, Any] | None = None
+    if gate is not None:
+        gate_snapshot = {
+            "exit_code": gate.exit_code,
+            "gate_result_sha256": gate.gate_result_sha256,
+            "gate_version": gate.gate_version,
+            "quality_status": gate.quality_status,
+        }
+    return {
+        "schema_version": ARCHIVE_SCHEMA_VERSION,
+        "tool": ARCHIVE_TOOL,
+        "archived_at": archived_at,
+        "baseline_id": baseline.baseline_id,
+        "identity": baseline.identity.to_dict(),
+        "run_id": baseline.run_id,
+        "suite": baseline.suite,
+        "source": {
+            "baseline_dir": str(source_baseline_dir),
+            "run_dir": str(source_run_dir),
+        },
+        "has_approval": approval is not None,
+        "approval": approval_relation,
+        "gate": gate_snapshot,
+        "files": _archive_file_entries(entries),
+        "excluded": list(excluded),
+        "note": (
+            "只移植证据：restore 只重写 baseline.json 的顶层 run_dir，不改 identity / "
+            "approval / artifact_sha256；旧 baseline 不得冒充新 pipeline 的发布基线，"
+            "新 pipeline 需重新 live run + 重新审批。"
+        ),
+    }
+
+
+def archive_baseline(
+    baseline_id_value: str,
+    root: Path | str,
+    out_dir: Path | str,
+    *,
+    archived_at: str | None = None,
+) -> BaselineArchive:
+    """把已建立 baseline 的证据链归档到 ``out_dir``（目标已存在则拒绝，源只读）。
+
+    归档前用 ``load_baseline`` + ``Baseline.load_run()`` 复核身份与三件套摘要；写盘后再用
+    :func:`verify_archive` 自校验，通过才把目标目录上架（失败不留半成品目录）。
+    """
+    baseline = load_baseline(baseline_id_value, root)
+    source_baseline_dir = _baseline_dir(baseline.baseline_id, root)
+    # 先读 run_manifest 判 holdout（holdout 聚合 run 没有 cases.jsonl，不能被「缺产物」误导）；
+    # 再做完整 load_run 复核（身份 / run_id / 三件套摘要）。
+    run_dir = Path(baseline.run_dir)
+    if not run_dir.is_dir():
+        raise BaselineArchiveError(f"baseline 指向的 run 目录不存在: {run_dir}")
+    manifest_payload = _read_json(run_dir / "run_manifest.json", "run_manifest.json")
+    try:
+        run_manifest = RunManifest.from_dict(manifest_payload)
+    except ValueError as exc:
+        raise BaselineArchiveError(f"run_manifest.json 不合法，拒绝归档: {exc}") from exc
+    if run_manifest.run_id != baseline.run_id:
+        raise BaselineArchiveError(
+            f"run_manifest.run_id={run_manifest.run_id!r} 与 baseline 的 "
+            f"{baseline.run_id!r} 不一致，拒绝归档"
+        )
+    if baseline_identity(run_manifest) != baseline.identity:
+        raise BaselineArchiveError("run_manifest 的身份六要素与 baseline 不一致，拒绝归档")
+    _reject_holdout_manifest(
+        run_manifest, suite=baseline.suite, source=f"baseline {baseline.baseline_id!r}"
+    )
+    try:
+        run = baseline.load_run()
+    except (BaselineError, ValueError, OSError) as exc:
+        raise BaselineArchiveError(
+            f"baseline 指向的 run 不可用（身份/产物校验失败），拒绝归档: {exc}"
+        ) from exc
+    run_dir = Path(run.out_dir)
+
+    entries: list[tuple[str, bytes]] = []
+    entries.append(
+        (
+            f"{ARCHIVE_BASELINE_DIR}/{BASELINE_FILENAME}",
+            _read_archive_bytes(source_baseline_dir / BASELINE_FILENAME, BASELINE_FILENAME),
+        )
+    )
+    approval_path = source_baseline_dir / APPROVAL_FILENAME
+    if approval_path.is_file():
+        entries.append(
+            (
+                f"{ARCHIVE_BASELINE_DIR}/{APPROVAL_FILENAME}",
+                _read_archive_bytes(approval_path, APPROVAL_FILENAME),
+            )
+        )
+    elif baseline.approval is not None:
+        raise BaselineArchiveError(
+            "baseline 记录了审批但 approval.json 缺失，拒绝归档（不伪造审批证据）"
+        )
+    for name in RUN_ARTIFACTS:
+        data = _read_archive_bytes(run_dir / name, name)
+        if not data:
+            raise BaselineArchiveError(f"run 产物 {name} 为空，拒绝归档")
+        entries.append((f"{ARCHIVE_RUN_DIR}/{name}", data))
+    if (run_dir / _ARCHIVE_GATE_FILENAME).is_file():
+        entries.append(
+            (
+                f"{ARCHIVE_RUN_DIR}/{_ARCHIVE_GATE_FILENAME}",
+                _read_archive_bytes(run_dir / _ARCHIVE_GATE_FILENAME, _ARCHIVE_GATE_FILENAME),
+            )
+        )
+
+    archived_names = set(RUN_ARTIFACTS) | {_ARCHIVE_GATE_FILENAME}
+    excluded = sorted(item.name for item in run_dir.iterdir() if item.name not in archived_names)
+
+    manifest = _build_archive_manifest(
+        baseline,
+        entries,
+        excluded=excluded,
+        archived_at=archived_at or _utc_now(),
+        source_baseline_dir=source_baseline_dir,
+        source_run_dir=run_dir,
+    )
+
+    out = Path(out_dir)
+    if out.exists():
+        raise BaselineArchiveError(f"归档目标已存在，拒绝覆盖: {out}")
+    parent = out.parent
+    try:
+        parent.mkdir(parents=True, exist_ok=True)
+    except OSError as exc:
+        raise BaselineArchiveError(f"归档目标父目录不可创建 {parent}: {exc}") from exc
+    staging = Path(tempfile.mkdtemp(prefix=f".{out.name}.staging-", dir=str(parent)))
+    try:
+        for rel, data in entries:
+            target = staging / rel
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_bytes(data)
+        _write_json(staging / ARCHIVE_MANIFEST_FILENAME, manifest)
+        verified = verify_archive(staging)
+        _publish_staging(staging, out)
+    except BaseException:
+        shutil.rmtree(staging, ignore_errors=True)
+        raise
+    return replace(verified, archive_dir=str(out))
+
+
+def _validate_archive_relpath(rel: str) -> None:
+    if not isinstance(rel, str) or not rel:
+        raise BaselineArchiveError(f"archive_manifest 文件路径非法: {rel!r}")
+    if "\\" in rel or ":" in rel or rel.startswith("/"):
+        raise BaselineArchiveError(f"archive_manifest 文件路径必须是相对 POSIX 路径: {rel!r}")
+    parts = rel.split("/")
+    if any(part in ("", ".", "..") for part in parts):
+        raise BaselineArchiveError(f"archive_manifest 文件路径非法: {rel!r}")
+    if parts[0] not in (ARCHIVE_BASELINE_DIR, ARCHIVE_RUN_DIR):
+        raise BaselineArchiveError(
+            f"archive_manifest 文件路径不在 {ARCHIVE_BASELINE_DIR}/ 或 {ARCHIVE_RUN_DIR}/ 下: {rel!r}"
+        )
+
+
+def _load_archive_manifest(
+    archive_dir: Path,
+) -> tuple[Mapping[str, Any], dict[str, dict[str, Any]]]:
+    manifest_path = archive_dir / ARCHIVE_MANIFEST_FILENAME
+    if not archive_dir.is_dir():
+        raise BaselineArchiveError(f"归档目录不存在: {archive_dir}")
+    if not manifest_path.is_file():
+        raise BaselineArchiveError(f"归档缺少 {ARCHIVE_MANIFEST_FILENAME}: {archive_dir}")
+    payload = _read_json(manifest_path, ARCHIVE_MANIFEST_FILENAME)
+    if not isinstance(payload, Mapping):
+        raise BaselineArchiveError(f"{ARCHIVE_MANIFEST_FILENAME} 必须是 JSON 对象")
+    schema = str(payload.get("schema_version") or "")
+    if schema != ARCHIVE_SCHEMA_VERSION:
+        raise BaselineArchiveError(
+            f"归档 schema_version 不兼容: {schema!r}（期望 {ARCHIVE_SCHEMA_VERSION!r}）"
+        )
+    raw_files = payload.get("files")
+    if not isinstance(raw_files, list) or not raw_files:
+        raise BaselineArchiveError("archive_manifest.files 必须是非空数组")
+    files: dict[str, dict[str, Any]] = {}
+    for item in raw_files:
+        if not isinstance(item, Mapping):
+            raise BaselineArchiveError("archive_manifest.files 条目必须是 JSON 对象")
+        rel = item.get("path")
+        sha = item.get("sha256")
+        size = item.get("bytes")
+        if not isinstance(rel, str) or not isinstance(sha, str):
+            raise BaselineArchiveError(f"archive_manifest 文件条目字段非法: {item!r}")
+        if isinstance(size, bool) or not isinstance(size, int) or size < 0:
+            raise BaselineArchiveError(f"archive_manifest 文件字节数非法: {item!r}")
+        if not re.fullmatch(r"[0-9a-f]{64}", sha):
+            raise BaselineArchiveError(f"archive_manifest 文件 sha256 非法: {item!r}")
+        _validate_archive_relpath(rel)
+        if rel in files:
+            raise BaselineArchiveError(f"archive_manifest 重复登记文件: {rel}")
+        files[rel] = {"sha256": sha, "bytes": size}
+    return payload, files
+
+
+def verify_archive(archive_dir: Path | str) -> BaselineArchive:
+    """只读校验归档：文件集合 / sha256 / baseline↔run 身份 / approval↔gate 关系。
+
+    任何缺失、哈希不符、未登记文件、符号链接、holdout 痕迹或身份不一致都抛
+    :class:`BaselineArchiveError`（fail closed）；通过后返回 :class:`BaselineArchive`。
+    """
+    target = Path(archive_dir)
+    payload, files = _load_archive_manifest(target)
+
+    # 1) 磁盘文件集合必须恰好等于「manifest 登记 + manifest 自身」。
+    disk: set[str] = set()
+    for path in target.rglob("*"):
+        if path.is_symlink():
+            raise BaselineArchiveError(f"归档不允许符号链接: {path}")
+        if path.is_dir():
+            continue
+        if not path.is_file():
+            raise BaselineArchiveError(f"归档包含非普通文件: {path}")
+        disk.add(path.relative_to(target).as_posix())
+    expected = set(files) | {ARCHIVE_MANIFEST_FILENAME}
+    if disk != expected:
+        missing = sorted(expected - disk)
+        extra = sorted(disk - expected)
+        raise BaselineArchiveError(f"归档文件集合不符（缺 {missing}；多 {extra}）")
+
+    # 2) 每个登记文件的实际字节数与 sha256。
+    content: dict[str, bytes] = {}
+    for rel, meta in files.items():
+        data = _read_archive_bytes(target / rel, rel)
+        if len(data) != meta["bytes"]:
+            raise BaselineArchiveError(
+                f"归档文件 {rel} 字节数不符（记录 {meta['bytes']}，实际 {len(data)}）"
+            )
+        if hashlib.sha256(data).hexdigest() != meta["sha256"]:
+            raise BaselineArchiveError(f"归档文件 {rel} sha256 与清单不符（被改写）")
+        content[rel] = data
+
+    # 3) 必须成员 + approval 存在性声明。
+    baseline_rel = f"{ARCHIVE_BASELINE_DIR}/{BASELINE_FILENAME}"
+    if baseline_rel not in files:
+        raise BaselineArchiveError(f"归档缺少 {baseline_rel}")
+    missing_run = [
+        f"{ARCHIVE_RUN_DIR}/{name}" for name in RUN_ARTIFACTS
+        if f"{ARCHIVE_RUN_DIR}/{name}" not in files
+    ]
+    if missing_run:
+        raise BaselineArchiveError(f"归档缺少 run 产物: {missing_run}")
+    has_approval = payload.get("has_approval")
+    if not isinstance(has_approval, bool):
+        raise BaselineArchiveError("archive_manifest.has_approval 必须是布尔值")
+    approval_rel = f"{ARCHIVE_BASELINE_DIR}/{APPROVAL_FILENAME}"
+    if has_approval != (approval_rel in files):
+        raise BaselineArchiveError(
+            "archive_manifest.has_approval 与 approval.json 是否归档不一致（不冒充审批）"
+        )
+
+    # 4) baseline.json / approval.json 自身一致性（含 baseline_id 重算 + 审批绑定）。
+    baseline_payload = _decode_archive_json(content[baseline_rel], baseline_rel)
+    if not isinstance(baseline_payload, Mapping):
+        raise BaselineArchiveError("归档 baseline.json 必须是 JSON 对象")
+    approval: BaselineApproval | None = None
+    if has_approval:
+        approval_payload = _decode_archive_json(content[approval_rel], approval_rel)
+        if not isinstance(approval_payload, Mapping):
+            raise BaselineArchiveError("归档 approval.json 必须是 JSON 对象")
+        approval = BaselineApproval.from_dict(approval_payload)
+    try:
+        baseline = Baseline.from_dict(baseline_payload, approval=approval)
+    except BaselineError as exc:
+        raise BaselineArchiveError(f"归档 baseline.json 不合法: {exc}") from exc
+    manifest_baseline_id = str(payload.get("baseline_id") or "")
+    if baseline.baseline_id != manifest_baseline_id:
+        raise BaselineArchiveError(
+            f"archive_manifest.baseline_id={manifest_baseline_id!r} 与 baseline.json "
+            f"的 {baseline.baseline_id!r} 不一致"
+        )
+    identity_payload = payload.get("identity")
+    if not isinstance(identity_payload, Mapping):
+        raise BaselineArchiveError("archive_manifest.identity 必须是 JSON 对象")
+    try:
+        manifest_identity = BaselineIdentity.from_dict(identity_payload)
+    except BaselineError as exc:
+        raise BaselineArchiveError(f"archive_manifest.identity 不合法: {exc}") from exc
+    if manifest_identity != baseline.identity:
+        raise BaselineArchiveError("archive_manifest.identity 与 baseline.json 身份不一致")
+    if str(payload.get("run_id") or "") != baseline.run_id:
+        raise BaselineArchiveError("archive_manifest.run_id 与 baseline.json 不一致")
+    if str(payload.get("suite") or "") != baseline.suite:
+        raise BaselineArchiveError("archive_manifest.suite 与 baseline.json 不一致")
+
+    # 5) 归档 run_manifest 必须与 baseline 身份一致，且不得是 holdout。
+    run_manifest_rel = f"{ARCHIVE_RUN_DIR}/run_manifest.json"
+    run_manifest_payload = _decode_archive_json(content[run_manifest_rel], run_manifest_rel)
+    if not isinstance(run_manifest_payload, Mapping):
+        raise BaselineArchiveError("归档 run_manifest.json 必须是 JSON 对象")
+    try:
+        run_manifest = RunManifest.from_dict(run_manifest_payload)
+    except ValueError as exc:
+        raise BaselineArchiveError(f"归档 run_manifest.json 不合法: {exc}") from exc
+    if run_manifest.run_id != baseline.run_id:
+        raise BaselineArchiveError(
+            f"归档 run_manifest.run_id={run_manifest.run_id!r} 与 baseline 的 "
+            f"{baseline.run_id!r} 不一致"
+        )
+    if baseline_identity(run_manifest) != baseline.identity:
+        raise BaselineArchiveError("归档 run_manifest 的身份六要素与 baseline 不一致")
+    if run_manifest.suite != baseline.suite:
+        raise BaselineArchiveError("归档 run_manifest.suite 与 baseline 不一致")
+    _reject_holdout_manifest(run_manifest, suite=baseline.suite, source=str(target))
+
+    # 6) 三件套实际字节必须等于 baseline 建立时记录的 artifact_sha256。
+    for name in RUN_ARTIFACTS:
+        expected_sha = baseline.artifact_sha256.get(name)
+        if not expected_sha:
+            raise BaselineArchiveError(f"baseline 未登记产物摘要 {name}")
+        actual = hashlib.sha256(content[f"{ARCHIVE_RUN_DIR}/{name}"]).hexdigest()
+        if actual != expected_sha:
+            raise BaselineArchiveError(
+                f"归档产物 {name} 与 baseline.artifact_sha256 不一致（被改写）"
+            )
+
+    # 7) manifest 的审批关系必须与 approval.json 一致（gate_result_sha256 / approver）。
+    approval_meta = payload.get("approval")
+    if has_approval:
+        if not isinstance(approval_meta, Mapping):
+            raise BaselineArchiveError("archive_manifest.approval 必须是 JSON 对象")
+        assert approval is not None
+        for name, actual in (
+            ("baseline_id", approval.baseline_id),
+            ("run_id", approval.run_id),
+            ("gate_result_sha256", approval.gate_result_sha256),
+            ("approver", approval.approver),
+        ):
+            if approval_meta.get(name) != actual:
+                raise BaselineArchiveError(
+                    f"archive_manifest.approval.{name} 与 approval.json 不一致"
+                )
+    elif approval_meta is not None:
+        raise BaselineArchiveError("无 approval.json 时 archive_manifest.approval 必须为 null")
+
+    # 8) gate.json（存在时）必须绑定到 baseline.gate / approval 记录的 gate 结果摘要。
+    expected_gate_digest: str | None = None
+    gate_snapshot = payload.get("gate")
+    if gate_snapshot is not None:
+        if not isinstance(gate_snapshot, Mapping):
+            raise BaselineArchiveError("archive_manifest.gate 必须是 JSON 对象或 null")
+        expected_gate_digest = str(gate_snapshot.get("gate_result_sha256") or "")
+        if baseline.gate is not None and expected_gate_digest != baseline.gate.gate_result_sha256:
+            raise BaselineArchiveError("archive_manifest.gate 与 baseline.gate 快照不一致")
+    if expected_gate_digest is None and approval is not None:
+        expected_gate_digest = approval.gate_result_sha256
+    gate_rel = f"{ARCHIVE_RUN_DIR}/{_ARCHIVE_GATE_FILENAME}"
+    if gate_rel in files:
+        gate_payload = _decode_archive_json(content[gate_rel], gate_rel)
+        if not isinstance(gate_payload, Mapping):
+            raise BaselineArchiveError("归档 gate.json 必须是 JSON 对象")
+        gate_digest = _gate_payload_digest(gate_payload)
+        if expected_gate_digest is not None and gate_digest != expected_gate_digest:
+            raise BaselineArchiveError(
+                "归档 gate.json 与 baseline/approval 记录的 gate_result_sha256 不一致"
+            )
+
+    source = payload.get("source")
+    source_baseline_dir = ""
+    source_run_dir = ""
+    if isinstance(source, Mapping):
+        source_baseline_dir = str(source.get("baseline_dir") or "")
+        source_run_dir = str(source.get("run_dir") or "")
+    return BaselineArchive(
+        archive_dir=str(target),
+        schema_version=ARCHIVE_SCHEMA_VERSION,
+        archived_at=str(payload.get("archived_at") or ""),
+        baseline_id=baseline.baseline_id,
+        run_id=baseline.run_id,
+        suite=baseline.suite,
+        identity=baseline.identity,
+        has_approval=has_approval,
+        approval_approver=approval.approver if approval else "",
+        approval_gate_result_sha256=approval.gate_result_sha256 if approval else "",
+        files={rel: meta["sha256"] for rel, meta in files.items()},
+        source_baseline_dir=source_baseline_dir,
+        source_run_dir=source_run_dir,
+    )
+
+
+def _assert_restored_identity(
+    original: Baseline, restored: Baseline, *, run_dir: Path
+) -> None:
+    if restored.baseline_id != original.baseline_id:
+        raise BaselineArchiveError("恢复后 baseline_id 变化，拒绝")
+    if restored.identity != original.identity:
+        raise BaselineArchiveError("恢复后 identity 六要素变化，拒绝")
+    if restored.run_id != original.run_id:
+        raise BaselineArchiveError("恢复后 run_id 变化，拒绝")
+    if restored.suite != original.suite:
+        raise BaselineArchiveError("恢复后 suite 变化，拒绝")
+    if dict(restored.artifact_sha256) != dict(original.artifact_sha256):
+        raise BaselineArchiveError("恢复后 artifact_sha256 变化，拒绝")
+    if restored.gate != original.gate:
+        raise BaselineArchiveError("恢复后 gate 快照变化，拒绝")
+    if (restored.approval is None) != (original.approval is None):
+        raise BaselineArchiveError("恢复后审批状态变化，拒绝（不冒充 approve）")
+    if original.approval is not None:
+        assert restored.approval is not None
+        if restored.approval.to_dict() != original.approval.to_dict():
+            raise BaselineArchiveError("恢复后 approval 内容变化，拒绝")
+    if Path(restored.run_dir) != Path(run_dir):
+        raise BaselineArchiveError("恢复后 baseline.run_dir 未指向新 run 目录，拒绝")
+
+
+def restore_baseline(
+    archive_dir: Path | str,
+    root: Path | str,
+    *,
+    runs_root: Path | str | None = None,
+) -> BaselineRestoreResult:
+    """把已校验归档恢复到新的隔离根；只重写 ``baseline.json.run_dir``。
+
+    - ``root`` 是目标 baseline 根（如 ``<tmp>/eval/baselines``）；run 产物默认写到
+      ``<root>/../runs/<run_id>/``，也可用 ``runs_root`` 显式指定；
+    - 目标 baseline 目录 / run 目录任一已存在 → 拒绝（不覆盖旧证据）；
+    - 目标写盘后立即 ``load_baseline`` + ``load_run`` 复核，失败则删除本次新建的目录并抛错。
+    """
+    archive = verify_archive(archive_dir)
+    source = Path(archive_dir)
+    baseline_payload = _decode_archive_json(
+        _read_archive_bytes(source / ARCHIVE_BASELINE_DIR / BASELINE_FILENAME, BASELINE_FILENAME),
+        BASELINE_FILENAME,
+    )
+    if not isinstance(baseline_payload, Mapping):
+        raise BaselineArchiveError("归档 baseline.json 必须是 JSON 对象")
+    approval_bytes: bytes | None = None
+    approval: BaselineApproval | None = None
+    if archive.has_approval:
+        approval_bytes = _read_archive_bytes(
+            source / ARCHIVE_BASELINE_DIR / APPROVAL_FILENAME, APPROVAL_FILENAME
+        )
+        approval_payload = _decode_archive_json(approval_bytes, APPROVAL_FILENAME)
+        if not isinstance(approval_payload, Mapping):
+            raise BaselineArchiveError("归档 approval.json 必须是 JSON 对象")
+        approval = BaselineApproval.from_dict(approval_payload)
+    try:
+        original = Baseline.from_dict(dict(baseline_payload), approval=approval)
+    except BaselineError as exc:
+        raise BaselineArchiveError(f"归档 baseline.json 不合法: {exc}") from exc
+
+    root_path = Path(root)
+    runs_path = Path(runs_root) if runs_root is not None else root_path.parent / "runs"
+    baseline_target = root_path / archive.baseline_id
+    run_target = runs_path / archive.run_id
+    for target, label in (
+        (baseline_target, "baseline 目标目录"),
+        (run_target, "run 目标目录"),
+    ):
+        if target.exists():
+            raise BaselineArchiveError(f"{label}已存在，拒绝覆盖: {target}")
+    if root_path.exists() and not root_path.is_dir():
+        raise BaselineArchiveError(f"baseline 根不是目录: {root_path}")
+    if runs_root is not None and runs_path.exists() and not runs_path.is_dir():
+        raise BaselineArchiveError(f"runs 根不是目录: {runs_path}")
+
+    root_existed = root_path.exists()
+    runs_existed = runs_path.exists()
+    try:
+        run_target.mkdir(parents=True, exist_ok=True)
+        for rel, data in archive.files.items():
+            if not rel.startswith(f"{ARCHIVE_RUN_DIR}/"):
+                continue
+            name = rel.split("/", 1)[1]
+            (run_target / name).write_bytes(
+                _read_archive_bytes(source / rel, rel)
+            )
+        baseline_target.mkdir(parents=True, exist_ok=True)
+        new_payload = dict(baseline_payload)
+        new_payload["run_dir"] = str(run_target.resolve())
+        if {
+            key: value for key, value in new_payload.items() if key != "run_dir"
+        } != {
+            key: value for key, value in baseline_payload.items() if key != "run_dir"
+        }:
+            raise BaselineArchiveError("恢复只允许重写 baseline.json 的 run_dir 字段")
+        _write_json(baseline_target / BASELINE_FILENAME, new_payload)
+        if approval_bytes is not None:
+            (baseline_target / APPROVAL_FILENAME).write_bytes(approval_bytes)
+        try:
+            restored = load_baseline(archive.baseline_id, root_path)
+            restored.load_run()
+        except BaselineError as exc:
+            raise BaselineArchiveError(f"恢复后复核失败（已回滚）: {exc}") from exc
+        _assert_restored_identity(original, restored, run_dir=run_target.resolve())
+    except BaseException:
+        if baseline_target.exists():
+            shutil.rmtree(baseline_target, ignore_errors=True)
+        if run_target.exists():
+            shutil.rmtree(run_target, ignore_errors=True)
+        if not runs_existed:
+            shutil.rmtree(runs_path, ignore_errors=True)
+        if not root_existed:
+            shutil.rmtree(root_path, ignore_errors=True)
+        raise
+    return BaselineRestoreResult(
+        baseline=restored,
+        baseline_dir=str(baseline_target),
+        run_dir=str(run_target.resolve()),
+        files=tuple(sorted(archive.files)),
+    )

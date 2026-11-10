@@ -1,0 +1,38 @@
+{
+  "purpose": "owner-authorized PR #2 integration verification; not independent product acceptance",
+  "base_commit": "083eaef71b50db1cf227317c8d470db7168ce074",
+  "starting_head": "3eec866aca9f734a93d15fc92ebaedca98b817bc",
+  "backend": {
+    "tests": 2023,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "seconds": 1084.15,
+    "command": "python -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend/.pytest-tmp/pr2-merge-20261110-native --junitxml <ignored merge scratch>/backend-native-junit.xml"
+  },
+  "frontend": {
+    "typecheck_exit_code": 0,
+    "vite_build_exit_code": 0,
+    "modules": 40
+  },
+  "selected_file_count": 54,
+  "selected_source_changed_during_verification": [],
+  "protected_existing_file_count": 186,
+  "protected_existing_files_changed": [],
+  "previous_incomplete_attempts": [
+    "sandbox run stopped after no progress in old B0 setup; not counted as pass",
+    "diagnostic-wrapper run ended with Windows access violation; root cause unconfirmed, not counted as pass"
+  ],
+  "limitations": [
+    "P1FIX independent acceptance not performed",
+    "frontend browser e2e not performed",
+    "Holdout local remains 7/30; question exposure disclosed",
+    "new-pipeline release baseline absent; old baseline cannot authorize release",
+    "no additional live evaluation or deployment authorized"
+  ],
+  "evidence_sha256": {
+    "backend-full.txt": "126cd00446d3912b11a53da73b7bbf4648177cdc0b377b0a84d34479459a999a",
+    "frontend-build.txt": "4a831229159069f1bf5e8e44c1048117bf8e0b884d36453272c35bd42074f629"
+  }
+}

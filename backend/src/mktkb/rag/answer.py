@@ -22,9 +22,12 @@ from .facts import FactValidator
 from .query import (
     Lexicon,
     build_lexicon,
+    financial_metric_question,
     is_anaphora_field_followup,
     is_regulation_question,
     parse_query,
+    strong_policy_topics,
+    texts_support_financial_metric,
 )
 from .types import Citation, EvidenceItem, Fact, QueryPlan, QueryState, RagAnswer, RetrievalResult
 
@@ -88,7 +91,7 @@ def answer_question(
             unknown_store=bool(plan.unknown_store),
             reason=plan.reason,
         )
-    if plan.reason == "POLICY_FOLLOWUP":
+    if plan.reason in ("POLICY_FOLLOWUP", "POLICY_TOPIC_FOLLOWUP"):
         # T105 R2：政策/法规指代追问不能按继承的记录字段/整条记录作答，换回正文计划。
         plan = _policy_document_plan(plan)
     diagnostics: dict[str, Any] = {
@@ -193,6 +196,21 @@ def answer_question(
             "revision": int(result.revision),
         },
     )
+    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）先做“资料支持判定”。
+    # 只有检索候选/证据里找不到该指标的数值时才拒答，且发生在答案生成（含 live chat）
+    # 之前；证据确有该指标数据时保持原有作答路径，不按题干一律拒答。
+    metric = financial_metric_question(plan.question)
+    if metric is not None and not texts_support_financial_metric(
+        metric, _metric_candidate_texts(result)
+    ):
+        answer = _no_answer(
+            plan,
+            copy_module.text("UNSUPPORTED_FINANCIAL_METRIC", metric=metric),
+            "UNSUPPORTED_FINANCIAL_METRIC",
+            _finish_diagnostics(index, diagnostics, started),
+        )
+        _commit(index, QueryState.from_dict(answer.state))
+        return answer
     validator = FactValidator(index, plan, lexicon)
 
     with trace_attrs.span("answer") as answer_span:
@@ -698,6 +716,17 @@ def _document_fallback(
     reason: str | None,
 ) -> RagAnswer:
     evidence = result.evidence[: min(8, len(result.evidence))]
+    if plan.reason == "POLICY_TOPIC_FOLLOWUP":
+        # P1-FIX/B：强制度/流程话题（“报销规则”）必须真的有对应正文证据，不能拿只有
+        # 同形字段词（“规则”）的无关内容冒充；证据里没有该话题词时如实说明未找到。
+        topics = strong_policy_topics(plan.question)
+        if topics and not any(topic in item.text for topic in topics for item in evidence):
+            return _no_answer(
+                plan,
+                copy_module.text("POLICY_TOPIC_NOT_FOUND", topic=topics[0]),
+                "POLICY_TOPIC_NOT_FOUND",
+                diagnostics,
+            )
     sentence = _best_sentence(plan.question, evidence)
     if not sentence:
         return _no_answer(
@@ -992,6 +1021,7 @@ def _citation(index: Any, chunk: Any) -> Citation:
         locator=locator,
         text=chunk.text,
         kind=chunk.kind,
+        unit_ids=tuple(str(unit_id) for unit_id in (chunk.unit_ids or ())),
     )
 
 
@@ -1051,6 +1081,22 @@ def _reject(plan: QueryPlan, exc: FactRejected, diagnostics: dict[str, Any]) -> 
         answer_source="refusal",
         diagnostics=diagnostics,
     )
+
+
+def _metric_candidate_texts(result: RetrievalResult) -> list[str]:
+    """P1-FIX/A：资料支持判定只看本轮真实检索候选/证据文本，不看模型记忆。
+
+    覆盖精确/词面/向量候选与最终证据面：任一处出现指标词且邻近数值，才算有依据。
+    """
+    texts: list[str] = []
+    for collection in (result.exact, result.lexical, result.vector):
+        for chunk in collection:
+            if getattr(chunk, "text", None):
+                texts.append(str(chunk.text))
+    for item in result.evidence:
+        if getattr(item, "text", None):
+            texts.append(str(item.text))
+    return texts
 
 
 def _result_diagnostics(result: RetrievalResult) -> dict[str, Any]:

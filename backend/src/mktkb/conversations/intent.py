@@ -21,6 +21,7 @@ from ..retrieval.tokenize import cut, normalize
 from ..retrieval.types import QueryIntent
 from ..rag.query import (
     GENERIC_FIELD_WORDS,
+    financial_metric_question,
     identifier_shape,
     is_regulation_question,
     match_identifier,
@@ -149,6 +150,9 @@ class IntentPlan:
     unknown_store: str | None = None
     identifier: str | None = None
     unknown_identifier: str | None = None
+    #: P1-FIX/A：问题在问公司级经营/财务指标（营收/利润率等）。
+    #: 这里只标记“问的是哪类指标”；是否拒答由 service 层在检索后做资料支持判定。
+    out_of_scope: str | None = None
 
 
 def load_lexicon(db: Session) -> EntityLexicon:
@@ -398,6 +402,16 @@ def parse_question(
     不把历史助手答案当事实。
     """
     context_entities = dict(context_entities or {})
+    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）不在当前语料范围。先标记，
+    # 仍走正文检索以做“资料支持判定”（证据里确有该指标数值时不拒答）；判定在
+    # service 层检索后、任何模型调用前完成。
+    out_of_scope = financial_metric_question(question)
+    if out_of_scope:
+        return IntentPlan(
+            mode="document",
+            intent=QueryIntent(mode="document", terms=_document_terms(question)),
+            out_of_scope=out_of_scope,
+        )
     stores = _match_labels(question, lexicon.store_labels)
     item_labels = _match_labels(question, lexicon.item_labels)
     for alias_label in _alias_labels(question, lexicon):
