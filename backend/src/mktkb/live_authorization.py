@@ -46,6 +46,13 @@ TOTAL_LIMIT_CNY = 10.0
 TOTAL_LIMIT_ENV = "MKTKB_PROJECT_TOTAL_LIMIT_CNY"
 PRODUCT_STAGE_DEFAULT = "S2-DEV"
 ALLOWED_SERVICES: tuple[str, ...] = ("rag", "chat")
+P1_FORBIDDEN_STAGES: tuple[str, ...] = ("P2-LIVE",)
+"""P2 阶段不属于 P1 live 入口。
+
+主人 2026-11-10 增量授权开设的是**独立** P2 阶段/预算/GO；P1 的 rag/chat 授权
+（document=S2-LIVE-GO）不能因此获得 P2 权限，OCR/judge 也不能借旧服务名偷渡。
+P2 自己的门在 mktkb.evaluation.p2_authorization（document=P2-LIVE-GO）。
+"""
 # GO scope.bindings 字段名/值不得是凭据；计数与公开 artifact 哈希仍可绑定。
 _SECRET_BINDING_NAMES = frozenset(
     {
@@ -405,6 +412,20 @@ def _historical_prefix_bytes(raw: bytes) -> bytes:
     return bytes(prefix)
 
 
+def _assert_p1_stage(stage: str) -> None:
+    """P1 入口拒绝 P2 阶段名（前缀 P2），默认不继承 P2 的按操作权限。"""
+    if stage in P1_FORBIDDEN_STAGES or stage.startswith("P2"):
+        raise LiveGateError(
+            f"阶段 {stage!r} 不属于 P1 live 入口（P2 必须走 P2 GO/预算门，旧 GO 不获得新权限）"
+        )
+
+
+def historical_prefix_sha256(ledger_path: Path | str) -> str:
+    """共享账本不可变历史前缀的 SHA-256（只读；没有 historical_import 行时拒绝）。"""
+    raw = Path(ledger_path).read_bytes()
+    return hashlib.sha256(_historical_prefix_bytes(raw)).hexdigest()
+
+
 def ledger_binding_ok(bound_sha256: str, ledger_path: Path) -> bool:
     try:
         raw = Path(ledger_path).read_bytes()
@@ -484,6 +505,7 @@ def load_live_authorization(
     requested_service = str(service or "").strip()
     if not requested_stage:
         raise LiveGateError("必须显式给出阶段")
+    _assert_p1_stage(requested_stage)
     if requested_service not in ALLOWED_SERVICES:
         raise LiveGateError(f"服务 {requested_service!r} 不在允许清单 {ALLOWED_SERVICES}")
     fixed_ledger = _ensure_fixed_file(
@@ -779,7 +801,9 @@ __all__ = [
     "TOTAL_LIMIT_CNY",
     "TOTAL_LIMIT_ENV",
     "assert_fixed_env_paths",
+    "P1_FORBIDDEN_STAGES",
     "gate_refusal",
+    "historical_prefix_sha256",
     "ledger_binding_ok",
     "load_live_authorization",
     "product_stage",

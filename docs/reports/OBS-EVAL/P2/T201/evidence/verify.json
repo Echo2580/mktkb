@@ -1,0 +1,160 @@
+{
+  "schema": "p2-t201-verify/1",
+  "task": "P2-T201",
+  "generated_utc": "2026-11-10T10:39:38.198Z",
+  "agent": {
+    "provider": "wb",
+    "model": "cn:deepseek-v4.1-flash",
+    "reasoning_effort": "max",
+    "role": "dev-selfcheck"
+  },
+  "workspace": {
+    "branch": "codex/p2-e2e",
+    "base_head": "59107fc1c2de58ed83cee62bee39f3fde28995f1",
+    "commits_made": 0,
+    "pushed": false,
+    "note": "未 commit/push（派发方禁令优先于任务书 §12 的本地 commit 许可）"
+  },
+  "shared_state": {
+    "ledger_path": "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl",
+    "ledger_sha256_start": "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390",
+    "ledger_sha256_end": "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390",
+    "ledger_historical_prefix_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "ledger_reservations": 505,
+    "ledger_results": 505,
+    "ledger_accounted_cny": 15.070944499999985,
+    "budget_sha256_start": "084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58",
+    "budget_sha256_end": "084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58",
+    "budget_limit_cny": 20,
+    "budget_has_p2_stage": false,
+    "go_p2_file_created": false,
+    "original_files_written": false
+  },
+  "real_calls": {
+    "http_requests": 0,
+    "reserve_events_added_to_shared_ledger": 0,
+    "provider_calls": 0,
+    "ocr_calls": 0,
+    "chat_calls": 0,
+    "evidence": "共享账本起止 SHA-256 一致且仍为 505 预留/505 结果；本包测试只用 tmp_path 隔离账本与假发送记录器"
+  },
+  "plan": {
+    "plan_id": "P2-CAND-20261110",
+    "stage": "P2-LIVE",
+    "total_requests": 30,
+    "cases": 6,
+    "turns": 6,
+    "ocr_pages": 2,
+    "cost_centers_cny": {
+      "answer_retrieval": 12,
+      "ocr": 3,
+      "judge": 3,
+      "independent": 2
+    },
+    "project_total_limit_cny": 40,
+    "stage_limit_cny": 20,
+    "max_requests": 1000,
+    "plan_sha256": "f166cea99f3bd5b045480ec6b4c047f9b2f029010f03e59538077f169c89f6c0",
+    "worst_case_cny": 0.887504,
+    "reserve_peak_cny": 0.5,
+    "estimated_success_cny": 0.6989,
+    "center_needs_cny": {
+      "answer_retrieval": 0.18144,
+      "ocr": 0.65,
+      "judge": 0.037376,
+      "independent": 0.018688
+    },
+    "center_estimates_cny": {
+      "answer_retrieval": 0.0369,
+      "ocr": 0.65,
+      "judge": 0.008,
+      "independent": 0.004
+    },
+    "requests_by_operation": {
+      "index_embedding": 8,
+      "query_embedding": 5,
+      "rerank": 5,
+      "answer": 5,
+      "query_expansion": 2,
+      "ocr": 2,
+      "judge": 2,
+      "independent": 1
+    }
+  },
+  "go": {
+    "document": "P2-LIVE-GO",
+    "schema_version": "p2-live-go/v0.1",
+    "draft": true,
+    "usable_authorization": false,
+    "expires_utc": "2026-11-24T00:00:00+00:00",
+    "bound_ledger_prefix_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "operations": [
+      "answer",
+      "independent",
+      "index_embedding",
+      "judge",
+      "ocr",
+      "query_embedding",
+      "query_expansion",
+      "rerank"
+    ],
+    "max_request_cny": 0.5,
+    "max_requests": 1000
+  },
+  "file_sha256": {
+    "backend/src/mktkb/evaluation/p2_contracts.py": "cc3e33f8799e52981b8b74ff5578af11aa61e94d41be599b777674b9402b63f2",
+    "backend/src/mktkb/evaluation/p2_authorization.py": "b0a566b604d136b0dcf451d131bdd2fc899b7f7adce2d4c060613db7b8531e41",
+    "backend/tests/evaluation/test_p2_authorization.py": "58a4864cbe92946973b0ce882aefb6c863205efae604a87455df99b62fc00a05",
+    "backend/src/mktkb/live_authorization.py": "4366be7799d082088077de3766c4c9a5342fe4fc5d05fbcd056f04310fdc43ab",
+    "backend/src/mktkb/rag/budget.py": "7c756e3fec8d5d50ceec2e6252caf7aebd5eb813e418368e5989a7cbd1708e51",
+    "docs/evaluation/p2-run-contract-v0_1.md": "e693a7ac95dcda3593b7188517a0d3b327022edc3a87c0026eeb9bb5c370b970",
+    "docs/reports/OBS-EVAL/P2/T201/candidates/p2-run-plan-v0_1.CANDIDATE-DRAFT.json": "2b6a99e9b1795dbb2d563eefc4f2eddc69c0d088f3544280929204640f7e8b4e",
+    "docs/reports/OBS-EVAL/P2/T201/candidates/p2-live-go.CANDIDATE-DRAFT.json": "3f649ae0ee805ffc92bedd4c11941c234427ec74343ba9da0d09bb0d6c508729",
+    "docs/reports/OBS-EVAL/P2/T201/candidates/budget.CANDIDATE-DRAFT.json": "aafbf749323ee797ddeab09ab58e360d640faa2d55aafad79fffe5b0d64ad167",
+    "docs/reports/OBS-EVAL/P2/T201/candidates/p2-ledger-snapshot.CANDIDATE-DRAFT.json": "10d0a82dc6205cef8e0ab290d40b45c77204b83628851f8d21cecd90a0de0890",
+    "docs/reports/OBS-EVAL/P2/T201/candidates/README.md": "852b92a7e9d00ccb9b133c076505e942a4b71fb86193062f3210901d97376723",
+    "docs/reports/OBS-EVAL/P2/T201/report.md": "2b198207e7b099ad502ff65c37fcbc3a5b4e53e0c37368be59f47531c4d13a46"
+  },
+  "tests": {
+    "command": ".\\.venv\\Scripts\\python.exe -B -m pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t201",
+    "result": "69 passed, 1 warning",
+    "duration_seconds": 1.12,
+    "legacy_affected": {
+      "backend/tests/rag/test_budget.py": "5 passed",
+      "backend/tests/rag/test_budget_settlement.py": "65 passed",
+      "backend/tests/rag/test_budget_settlement_rejection_echo.py": "27 passed",
+      "backend/tests/rag/test_r4_regressions.py": "6 passed",
+      "backend/tests/evaluation/test_live_request_accounting.py": "5 passed",
+      "backend/tests/unit/test_s2b_live_gate.py": "22 passed",
+      "backend/tests/unit/test_s2c_numeric_and_refresh.py": "8 passed",
+      "backend/tests/unit/test_s2d_post_send_guard.py": "7 passed",
+      "backend/tests/unit/test_j2_ocr_budget.py": "11 passed",
+      "backend/tests/rag/test_j2_controlled_usage.py": "18 passed",
+      "backend/tests/integration/test_s2c_paygate_http.py": "1 passed",
+      "backend/tests/integration/test_s2d_post_guard_http.py": "1 passed"
+    },
+    "not_run": "backend/tests 全仓（未获授权，且任务书禁止默认重跑）"
+  },
+  "candidates": {
+    "files": [
+      "p2-run-plan-v0_1.CANDIDATE-DRAFT.json",
+      "p2-live-go.CANDIDATE-DRAFT.json",
+      "budget.CANDIDATE-DRAFT.json",
+      "p2-ledger-snapshot.CANDIDATE-DRAFT.json",
+      "README.md"
+    ],
+    "draft_markers": [
+      "DRAFT in GO.issued_by/authorization",
+      "filename suffix CANDIDATE-DRAFT",
+      "README 顶部 DRAFT 声明"
+    ],
+    "usable_authorization": false,
+    "production_ready": false,
+    "center_reallocation_proposal": "answer_retrieval 9 / ocr 6 / judge 3 / independent 2（未应用；OCR 12 页 × 0.5 = 6.00 元 > 中心 3 元）"
+  },
+  "evidence_files": [
+    "verify.json",
+    "candidate-numbers.json",
+    "pytest-p2-t201.log"
+  ]
+}

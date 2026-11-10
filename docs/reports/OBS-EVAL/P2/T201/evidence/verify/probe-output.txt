@@ -1,0 +1,46 @@
+EXIT CODE: 0
+== section 1: real shared ledger facts ==
+PASS  real_ledger_matches_recorded_facts :: lines=1011 reserved=505 result=505 accounted=15.0709445000 prefix=f4710b1869fe
+PASS  real_budget_has_no_p2_stage :: limit=20 stages=['P1-RETRIEVAL', 'S1-DEV', 'S1-IA', 'S2-DEV', 'later_shared_reserve']
+PASS  no_fixed_p2_go_file :: P2_GO_PATH absent; loader reason=path_missing
+== section 2: candidate DRAFT arithmetic and status ==
+PASS  candidate_budget_keeps_owner_arithmetic :: 40 = 39.97(stages) + 0.03(history); P2-LIVE=20; old remaining 4.9290555 stays outside P2
+PASS  candidate_plan_centers_and_request_caps :: requests=30 cases=6 pages=2 worst=0.887504 peak=0.500000 est=0.698900
+PASS  candidate_authorizes_only_as_non_production :: preflight ok, stage_remaining=20 total_remaining=24.929 requests_remaining=495 production_ready=False
+PASS  candidate_files_are_marked_draft :: GO marks DRAFT; binds real prefix f4710b1869fe
+PASS  candidate_cannot_be_used_against_real_budget :: reasons=('budget_total_mismatch', 'stage_allocation_missing', 'stage_budget_insufficient') reason=budget_total_mismatch
+== section 3: preflight rejections ==
+PASS  preflight_rejections :: stage_allocation_missing=stage_allocation_missing; stage_allocation_below_plan=stage_allocation_below_plan; budget_total_mismatch=budget_total_mismatch; stage_budget_insufficient=stage_budget_insufficient; center_budget_insufficient:ocr=center_budget_insufficient:ocr; center_accounting_inconsistent=center_accounting_inconsistent; request_budget_insufficient=request_budget_insufficient; total_budget_insufficient=total_budget_insufficient
+PASS  plan_schema_numeric_and_cap_matrix :: 18 plan rejections (all before any ledger/GO involvement)
+== section 4: authorization rejections ==
+PASS  authorize_rejects_legacy_p1_go :: real P1 GO -> legacy_go_document; minimal -> legacy_go_document
+PASS  authorize_rejects_stage_operation_center_and_limits :: 21 GO rejections, reserved=0
+PASS  authorize_rejects_plan_swap_with_same_nonce :: reason=go_plan_sha256_mismatch
+PASS  authorize_rejects_ledger_prefix_change :: reason=go_ledger_binding_mismatch
+PASS  authorize_rejects_budget_and_env_mismatch :: budget_total_mismatch,budget_stage_missing,budget_stage_below_plan,budget_history_mismatch,budget_ledger_path_not_fixed; env_total_limit_mismatch; env_total_limit_missing
+PASS  authorize_rejects_path_substitution_and_other_snapshot :: path_not_fixed; snapshot_ledger_path_not_fixed
+== section 5: runtime gate ==
+PASS  gate_serial_and_zero_retry :: request_inflight / gate_stopped; transport=1 reserved=1
+PASS  gate_cumulative_request_cap_across_kinds :: cap at 1000 -> request_limit
+PASS  gate_center_and_stage_caps_are_runtime :: center_budget_exceeded / stage_budget_exceeded / center_accounting_inconsistent
+PASS  gate_reserve_then_invalidate_is_conservative :: status=failed charge=0.01868800 request_id=p2req-66c22d center=answer_retrieval (kept on reservation row + ticket)
+PASS  gate_reserve_then_plan_or_prefix_change_is_conservative :: plan_sha256_changed / ledger_prefix_mismatch / operation_unauthorized
+PASS  gate_no_bypass_by_model_or_center :: begin(item_id only); cost_center_mismatch; price_model_invalid
+PASS  gate_missing_evidence_stays_inflight :: evidence_required then settled at 0.004000
+== section 6: legal mock path settles ==
+PASS  legal_mock_path_completes_and_settles :: chat 0.018688->0.004, ocr 0.5->0.5, receipt settled=0.504, production_ready=True
+PASS  in_memory_go_can_still_reserve_on_fixed_ledger :: production_ready=False but reservation written to the fixed path ledger (runner must assert)
+PASS  production_defaults_fail_closed_without_p2_go :: default open -> path_missing; loader -> path_missing; real ledger untouched (505)
+PASS  no_retry_logic_in_gate :: no retry/backoff/sleep tokens in P2 modules; auto-retry=0 by construction
+== section 7: interface freeze, P1 non-regression, no network ==
+PASS  frozen_interface_matches_contract :: 4 DTO + preflight_p2/authorize_p2/P2Gate frozen; schema versions stable; hard cap 1000
+PASS  p2_modules_do_not_touch_network :: no network imports in p2_contracts/p2_authorization (socket guarded during whole probe)
+PASS  p1_entry_still_retrieval_only_and_rejects_p2_stage :: services=('rag', 'chat') scope=retrieval_only; P2 stage rejected (NoneType); refresh re-checks GO
+PASS  shared_files_untouched_by_probe :: ledger/budget sha unchanged; 505 reservations; budget dir=['budget.json', 'live-ledger.jsonl']
+
+SUMMARY: 31 checks, 31 passed, 0 failed
+real ledger sha start=1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390
+real ledger sha end  =1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390
+real budget sha start=084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+real budget sha end  =084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+temp sandbox: C:\Users\dell1712\AppData\Local\Temp\p2-t201-verify-b5ng0bg9 (isolated; nothing written into docs/evidence)

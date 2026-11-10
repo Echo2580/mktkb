@@ -16,7 +16,7 @@ import re
 import time
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from decimal import Decimal
 from pathlib import Path
@@ -150,6 +150,8 @@ class BudgetSummary:
     provider_billed_cny: float | None
     reservation_count: int
     result_count: int
+    # P2 起：按 cost_center 归属的**本阶段**保守占用（旧调用者不声明则为空）。
+    center_accounted_cny: Mapping[str, float] = field(default_factory=dict)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -165,6 +167,10 @@ class BudgetSummary:
             "provider_billed_cny": self.provider_billed_cny,
             "reservation_count": self.reservation_count,
             "result_count": self.result_count,
+            "center_accounted_cny": {
+                str(center): round(amount, 8)
+                for center, amount in self.center_accounted_cny.items()
+            },
         }
 
 
@@ -196,6 +202,21 @@ def _ledger_int(value: Any, label: str, *, maximum: int | None = None) -> int:
         return positive_int(value, label, maximum=maximum)
     except NumericInvalid as exc:
         raise BudgetLedgerInvalid(str(exc)) from None
+
+
+def _ledger_cost_center(value: Any) -> str | None:
+    """预留的成本中心标签（P2 逐请求归属）。None = 旧调用者不声明，行为不变。
+
+    只接受 1..64 字符、无空白的标识；不写入任何金额，只用于同阶段聚合。
+    """
+    if value is None:
+        return None
+    if not isinstance(value, str):
+        raise BudgetLedgerInvalid("cost_center 必须是字符串或 None")
+    text = value.strip()
+    if not text or len(text) > 64 or any(ch.isspace() for ch in text):
+        raise BudgetLedgerInvalid("cost_center 必须是 1..64 的无空白标识")
+    return text
 
 
 def _parse_json_object(raw: str, label: str) -> Any:
@@ -339,6 +360,15 @@ class BudgetLedger:
         finally:
             os.close(fd)
 
+    @staticmethod
+    def _add_center(
+        center_accounted: dict[str, float], reserved: Mapping[str, Any], charge: float
+    ) -> None:
+        """把一笔本阶段预留的保守占用记到它的成本中心（无标签则不计，交给门控自检）。"""
+        center = reserved.get("cost_center")
+        if isinstance(center, str) and center:
+            center_accounted[center] = center_accounted.get(center, 0.0) + charge
+
     def _accounting(self, events: list[dict[str, Any]]) -> dict[str, Any]:
         historical = 0.0
         success_estimate = 0.0
@@ -367,6 +397,9 @@ class BudgetLedger:
                 results[reservation_id] = event
         accounted = historical
         stage_accounted = 0.0
+        # 本阶段按成本中心归属的保守占用（P2 用；旧账行没有 cost_center 字段则不计入，
+        # 由 P2 门控的「中心合计必须等于阶段占用」自检把缺归属的预留挡在门外）。
+        center_accounted: dict[str, float] = {}
         for reservation_id, reserved in reservations.items():
             reserve_cny = _ledger_non_negative(
                 reserved.get("reserve_cny") or 0.0, "reserved.reserve_cny"
@@ -385,6 +418,7 @@ class BudgetLedger:
                 accounted += charge
                 if reserved.get("stage") == self.stage:
                     stage_accounted += charge
+                    self._add_center(center_accounted, reserved, charge)
                 success_estimate += estimate
                 continue
             if result is not None:
@@ -398,6 +432,7 @@ class BudgetLedger:
             accounted += charge
             if reserved.get("stage") == self.stage:
                 stage_accounted += charge
+                self._add_center(center_accounted, reserved, charge)
             if result is not None:
                 success_estimate += _ledger_non_negative(
                     result.get("estimated_list_price_cny") or 0.0,
@@ -430,6 +465,7 @@ class BudgetLedger:
             "provider_billed": provider_billed,
             "reservation_count": len(reservations),
             "result_count": len(results),
+            "center_accounted": center_accounted,
         }
 
     @staticmethod
@@ -497,6 +533,7 @@ class BudgetLedger:
             provider_billed_cny=facts["provider_billed"],
             reservation_count=facts["reservation_count"],
             result_count=facts["result_count"],
+            center_accounted_cny=facts["center_accounted"],
         )
 
     def reserve(
@@ -511,8 +548,10 @@ class BudgetLedger:
         metadata: Mapping[str, Any] | None = None,
         stage_limit_cny: float | None = None,
         max_requests: int | None = None,
+        cost_center: str | None = None,
     ) -> Reservation:
         amount = _ledger_number(max_cny, "预留金额")
+        center = _ledger_cost_center(cost_center)
         # S2-J1：新结算版本必须在**预留时**固化 policy/caps/费率/来源绑定快照；
         # 未显式传入的旧预留完全不改变事件结构，默认仍按 max(reserve,charge)。
         settlement_snapshot: dict[str, Any] | None = None
@@ -592,6 +631,9 @@ class BudgetLedger:
                 "stage_limit_cny": round(effective_stage_limit, 8),
                 "time_utc": reservation.created_utc,
             }
+            if center is not None:
+                # P2 逐请求成本中心归属：与预留一起原子落盘，跨进程/重启仍可重算。
+                event["cost_center"] = center
             if self.run_id:
                 event["run_id"] = self.run_id
             if settlement_snapshot is not None:
