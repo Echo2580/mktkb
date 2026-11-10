@@ -31,7 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
-from .p2_authorization import P2SendRefused
+from .p2_authorization import P2Gate, P2SendRefused
 from .p2_contracts import (
     COST_CENTERS,
     P2_AUTHORIZATION_SCHEMA_VERSION,
@@ -57,6 +57,7 @@ __all__ = [
     "P2RunDataset",
     "P2RunLedger",
     "build_dry_run_authorization",
+    "is_real_p2_gate",
     "run_p2",
 ]
 
@@ -84,6 +85,8 @@ STOP_OPERATION_UNAUTHORIZED = "operation_unauthorized"
 STOP_REQUEST_CAP = "request_cap_exceeded"
 STOP_ADAPTER_NOT_MOCK = "adapter_must_be_mock"
 STOP_MOCK_GATE_WITHOUT_STUB = "mock_gate_requires_stub_gate"
+STOP_LIVE_REQUIRES_REAL_GATE = "live_requires_real_gate"
+STOP_HOLDOUT_REQUIRES_PURGE = "holdout_requires_purge"
 STOP_PRODUCTION_NOT_READY = "production_not_ready"
 STOP_MOCK_REQUIRES_DRY_RUN = "mock_adapter_requires_dry_run"
 STOP_CANCELLED = "cancelled"
@@ -113,6 +116,7 @@ _STOP_BY_CHECK = {
     "adapter_mock": STOP_ADAPTER_NOT_MOCK,
     "stub_gate": STOP_MOCK_GATE_WITHOUT_STUB,
     "mock_gate": STOP_MOCK_GATE_WITHOUT_STUB,
+    "live_gate": STOP_LIVE_REQUIRES_REAL_GATE,
     "production_ready": STOP_PRODUCTION_NOT_READY,
 }
 
@@ -126,6 +130,49 @@ def _sha256_file(path: Path) -> str | None:
         return _sha256_bytes(Path(path).read_bytes())
     except OSError:
         return None
+
+
+def is_real_p2_gate(gate: Any) -> bool:
+    """live 只认**真实** P2Gate：桩门（``is_mock_gate=True``）或鸭子门一律不算。
+
+    F2：桩门在 live 链上会"照跑 begin/confirm/settle"，却没有任何账本/GO 事实，
+    产物还会写 ``real_sends_allowed=true``——所以这里在发送之前就把它挡掉。
+    """
+    return isinstance(gate, P2Gate) and not bool(getattr(gate, "is_mock_gate", False))
+
+
+def _measured_outbound(providers: Mapping[str, Any]) -> int:
+    """取适配器**实测**的出站次数；没有这个字段就报错，不用常量 0 兜底（F1）。"""
+    if "outbound_network" not in providers:
+        raise ValueError("适配器 provider_calls() 必须报告实测 outbound_network")
+    return max(0, int(providers["outbound_network"]))
+
+
+def _provider_counters(adapter: Any) -> dict[str, int]:
+    """一次 provider 计数快照（chat/embedding/rerank/出站），用于算每轮增量。
+
+    每轮取前后快照相减：某轮有没有真的出网、调了几次 chat，都由测量得出，
+    而不是由 execution 标签或常量推断。
+    """
+    calls = adapter.provider_calls()
+    if not isinstance(calls, Mapping):
+        raise ValueError("适配器 provider_calls() 必须返回映射")
+    snapshot = {"outbound": _measured_outbound(calls)}
+    for name in ("chat", "embedding", "rerank"):
+        entry = calls.get(name)
+        if not isinstance(entry, Mapping) or "calls" not in entry:
+            raise ValueError(f"适配器 provider_calls() 缺少实测 {name}.calls")
+        snapshot[name] = int(entry["calls"])
+    return snapshot
+
+
+def _charged_cny(settled: Any, ticket: Any) -> float:
+    """结算的实际入账金额：门返回数值就用它，否则退回该笔预留上界（保守）。"""
+    if isinstance(settled, bool):
+        return float(getattr(ticket, "bound_cny", 0.0))
+    if isinstance(settled, (int, float)):
+        return float(settled)
+    return float(getattr(ticket, "bound_cny", 0.0))
 
 
 def _json_default(value: Any) -> Any:  # pragma: no cover - 兜底，正常路径不触发
@@ -224,6 +271,8 @@ class P2RunLedger:
         error_code: str | None,
         elapsed_ms: int,
         include_question: bool,
+        provider_calls: Mapping[str, int] | None = None,
+        charged_cny: float | None = None,
     ) -> dict[str, Any]:
         row: dict[str, Any] = {
             "schema_version": P2_RUN_REQUEST_SCHEMA_VERSION,
@@ -238,6 +287,11 @@ class P2RunLedger:
             "error_code": error_code,
             "elapsed_ms": int(elapsed_ms),
             "execution": self.execution,
+            # 实测：这一轮各 provider 的调用增量与该笔的实际入账金额（F1）。
+            "provider_calls": {
+                str(name): int(value) for name, value in (provider_calls or {}).items()
+            },
+            "charged_cny": float(charged_cny or 0.0),
         }
         if product is not None:
             row["product"] = {
@@ -384,7 +438,8 @@ def _prepare(
     - ``mock_gate``：Mock 适配器 + **桩门**（``is_mock_gate=True``）。只用来验证 runner
       真的走了 begin -> confirm_before_send -> settle 的门序；真实 ``P2Gate`` 没有这个标记，
       因此绝不会在 Mock 链上写账本；
-    - ``live``：真实适配器 + 真实门，且**必须** ``production_ready=True``（T201 遗留 ①）。
+    - ``live``：真实适配器 + **真实 ``P2Gate``**（桩门不算），且**必须**
+      ``production_ready=True``（T201 遗留 ① + F2：live 的资金事实不能来自桩门）。
     """
     checks: list[dict[str, Any]] = []
 
@@ -435,6 +490,12 @@ def _prepare(
             bool(authorization.production_ready),
             "authorization.production_ready=False，拒绝真实发送",
         )
+        # F2：live 必须配真实 P2Gate；桩门/鸭子门只能在 Mock 链上验证门序。
+        add(
+            "live_gate",
+            is_real_p2_gate(gate),
+            "live 只接受真实 P2Gate（桩门只能配 Mock 适配器）",
+        )
     for check in checks:
         if not check["ok"]:
             return execution, checks, _STOP_BY_CHECK.get(str(check["name"]))
@@ -469,6 +530,29 @@ async def run_p2(
     started = time.perf_counter()
     run_id = "p2run-" + uuid.uuid4().hex[:16]
     execution, checks, stop_code = _prepare(plan, authorization, adapter, gate, moment)
+    if frozen_dataset.visibility == "holdout":
+        if not bool(getattr(adapter, "purge_traces_on_close", False)):
+            # F3：H2 的逐题 trace 不允许留在磁盘上。不满足就一行都不跑（fail closed）。
+            checks.append(
+                {
+                    "name": "holdout_purge",
+                    "ok": False,
+                    "detail": "holdout run 必须 purge_traces_on_close=True，拒绝执行",
+                }
+            )
+            if stop_code is None:
+                stop_code = STOP_HOLDOUT_REQUIRES_PURGE
+        else:
+            checks.append(
+                {
+                    "name": "holdout_purge",
+                    "ok": True,
+                    "detail": "holdout：trace 在 close 时删除，业务库题干在 close 时封存删除",
+                }
+            )
+            seal = getattr(adapter, "require_holdout_sealing", None)
+            if callable(seal):
+                seal()
     ledger = P2RunLedger(
         run_id=run_id,
         plan_id=plan.plan_id,
@@ -487,7 +571,11 @@ async def run_p2(
     if stop_code is not None:
         ledger.stop(stop_code)
         ledger.failure = {
-            "stage": "authorization",
+            "stage": (
+                "holdout_policy"
+                if stop_code == STOP_HOLDOUT_REQUIRES_PURGE
+                else "authorization"
+            ),
             "stop_code": stop_code,
             "error_code": stop_code,
             "case_id": None,
@@ -760,6 +848,8 @@ async def _execute(
             else:
                 ticket_payload = _dry_ticket(item, item_id, client_request_id)
 
+            # 每轮前后各取一次实测快照：这轮有没有真的出网、调了几次 provider。
+            counters_before = _provider_counters(adapter)
             turn_started = time.perf_counter()
             product: ProductTurn | None = None
             error_code: str | None = None
@@ -783,6 +873,11 @@ async def _execute(
                     error_code=error_code,
                 )
             elapsed_ms = int((time.perf_counter() - turn_started) * 1000)
+            counters_after = _provider_counters(adapter)
+            turn_calls = {
+                name: max(0, counters_after[name] - counters_before[name])
+                for name in counters_before
+            }
 
             turn_row: dict[str, Any] = {
                 "turn": turn,
@@ -831,6 +926,7 @@ async def _execute(
                     turn_row["status"] = "error"
                     turn_row["error_code"] = str(product.error_code or product.kind)
 
+            charged_cny = 0.0
             if gate is not None and ticket is not None:
                 try:
                     if turn_row["status"] == "error":
@@ -841,25 +937,31 @@ async def _execute(
                         )
                         ledger.settled_failure += 1
                         ledger.settled_cny += float(getattr(ticket, "bound_cny", 0.0))
+                        # 失败结算按门的保守口径占用该笔上界（与 T201 P2Gate 一致）。
+                        charged_cny = float(getattr(ticket, "bound_cny", 0.0))
                     else:
                         evidence = (
                             settle_evidence(ticket, product)
                             if settle_evidence is not None and product is not None
                             else None
                         )
-                        gate.settle_success(
+                        settled = gate.settle_success(
                             ticket,
                             evidence=evidence,
                             elapsed_seconds=elapsed_ms / 1000.0,
                         )
                         ledger.settled_success += 1
+                        charged_cny = _charged_cny(settled, ticket)
+                        # 成功路径过去不累计 settled_cny（只有失败才加），会表现成"成功却 0 元"；
+                        # 这里按门返回的实际金额记，与 P2Gate.settle_success 的口径一致。
+                        ledger.settled_cny += charged_cny
                     billed = True
                     ledger.by_operation[item.operation] = (
                         ledger.by_operation.get(item.operation, 0) + 1
                     )
                     ledger.by_center_cny[item.cost_center] = ledger.by_center_cny.get(
                         item.cost_center, 0.0
-                    ) + float(item.bound_cny)
+                    ) + float(charged_cny)
                 except Exception as exc:  # noqa: BLE001 - 结算失败同样停
                     _case_item_failure(
                         ledger,
@@ -887,6 +989,8 @@ async def _execute(
                 error_code=turn_row.get("error_code"),
                 elapsed_ms=elapsed_ms,
                 include_question=include_question,
+                provider_calls=turn_calls,
+                charged_cny=charged_cny,
             )
             case_row["turns"].append(turn_row)
             if turn_row["status"] == "error":
@@ -952,6 +1056,15 @@ def _sanitize_failure(failure: Mapping[str, Any] | None) -> dict[str, Any] | Non
     return payload
 
 
+def _trace_retention(dataset: P2RunDataset, adapter: Any, result: P2RunResult) -> str:
+    """trace 保留策略：holdout 未 purge 时本 runner 在发送前就拒了，trace 根本没建。"""
+    if dataset.visibility == "holdout" and result.stop_code == STOP_HOLDOUT_REQUIRES_PURGE:
+        return "refused-before-start"
+    if getattr(adapter, "purge_traces_on_close", False):
+        return "purged-at-close"
+    return "kept-in-isolated-dir"
+
+
 def _holdout_aggregate(ledger: P2RunLedger, dataset: P2RunDataset) -> dict[str, Any]:
     turns = [turn for case in ledger.cases for turn in case.get("turns") or ()]
     kinds = ledger.counts("kind")
@@ -1007,6 +1120,17 @@ def _write_artifacts(
 ) -> None:
     run_dir = adapter.paths.run_dir
     providers = adapter.provider_calls()
+    outbound_attempts = _measured_outbound(providers)
+    # F1：真实请求数/计费金额都从"每轮实测增量 + 实际结算金额"算，不从 execution 标签推断。
+    measured_requests = [
+        row
+        for row in ledger.requests
+        if int((row.get("provider_calls") or {}).get("outbound", 0)) > 0
+    ]
+    real_requests = len(measured_requests)
+    billed_cny = round(
+        sum(float(row.get("charged_cny") or 0.0) for row in measured_requests), 8
+    )
     index_status = adapter.index_status()
     module_dir = Path(__file__).resolve().parent
     manifest = {
@@ -1119,19 +1243,21 @@ def _write_artifacts(
             "reserved": int(ledger.reserved),
             "settled_success": int(ledger.settled_success),
             "settled_failure": int(ledger.settled_failure),
-            "real_requests": 0,
-            "billed_cny": 0.0,
+            "real_requests": int(real_requests),
+            "billed_cny": float(billed_cny),
         },
         "providers": providers,
         "network": {
-            "outbound_attempts": 0,
-            "policy": "offline embedding/rerank + httpx.MockTransport chat（真实出站 0）",
+            "outbound_attempts": int(outbound_attempts),
+            "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
+            "detail": dict(providers.get("network") or {}),
         },
         "holdout": {
             "aggregate_only": dataset.visibility == "holdout",
-            "trace_retention": (
-                "purged-at-close"
-                if getattr(adapter, "purge_traces_on_close", False)
+            "trace_retention": _trace_retention(dataset, adapter, result),
+            "question_store": (
+                "deleted-at-close"
+                if dataset.visibility == "holdout"
                 else "kept-in-isolated-dir"
             ),
         },
@@ -1154,8 +1280,11 @@ def _write_artifacts(
             "stop_code": result.stop_code,
             "execution": execution,
             "production_ready": bool(authorization.production_ready),
+            # F2：live 且所有发送前检查都过才算"允许真实发送"（桩门会让 live_gate 不通过）。
             "real_sends_allowed": bool(
-                execution == EXECUTION_LIVE and authorization.production_ready
+                execution == EXECUTION_LIVE
+                and authorization.production_ready
+                and all(bool(check["ok"]) for check in checks)
             ),
             "checks": [dict(check) for check in checks],
             "authorization": authorization.as_dict(),

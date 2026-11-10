@@ -1,0 +1,129 @@
+{
+  "scenarios": {
+    "f1_injected_outbound": {
+      "gate_facts": {
+        "requests_reserved": 2,
+        "requests_sent": 2,
+        "settled_cny": 0.037376
+      },
+      "measured": {
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 0,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 0,
+            "rag_provider_posts": 0,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "outbound_attempts": 4
+        },
+        "providers_outbound_network": 4,
+        "requests": {
+          "billed_cny": 0.037376,
+          "real_requests": 2
+        }
+      },
+      "request_outbound_deltas": [
+        2,
+        2
+      ],
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "f1_mock_dry_run_measured": {
+      "measured": {
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 0,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 0,
+            "rag_provider_posts": 0,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "outbound_attempts": 0
+        },
+        "providers_outbound_network": 0,
+        "requests": {
+          "billed_cny": 0.0,
+          "real_requests": 0
+        }
+      },
+      "request_rows": [
+        {
+          "chat": 0,
+          "embedding": 1,
+          "outbound": 0,
+          "rerank": 1
+        },
+        {
+          "chat": 1,
+          "embedding": 0,
+          "outbound": 0,
+          "rerank": 0
+        }
+      ],
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "f2_live_with_stub_gate": {
+      "adapter_asks": 0,
+      "execution": "live",
+      "failed_checks": [
+        "live_gate"
+      ],
+      "gate_calls": [],
+      "real_requests": 0,
+      "real_sends_allowed": false,
+      "status": "blocked",
+      "stop_code": "live_requires_real_gate"
+    },
+    "f3_holdout_without_purge": {
+      "chat_calls": 0,
+      "embedding_calls": 0,
+      "failure_stage": "holdout_policy",
+      "holdout": {
+        "aggregate_only": true,
+        "question_store": "deleted-at-close",
+        "trace_retention": "refused-before-start"
+      },
+      "ingest_receipts": 0,
+      "status": "blocked",
+      "stop_code": "holdout_requires_purge",
+      "trace_db_exists": false
+    },
+    "f6_holdout_sealed": {
+      "aggregate_exists": true,
+      "business_db_exists": false,
+      "detail_files": [
+        "gate.json",
+        "holdout_aggregate.json",
+        "run_manifest.json",
+        "run_result.json",
+        "summary.json"
+      ],
+      "holdout": {
+        "aggregate_only": true,
+        "question_store": "deleted-at-close",
+        "trace_retention": "purged-at-close"
+      },
+      "plaintext_hits_after_close": [],
+      "plaintext_hits_before_close": [
+        "data\\mktkb.sqlite3-wal"
+      ],
+      "seal_receipt": {
+        "question_store": "deleted",
+        "removed": [
+          "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t203-r1-holdout-sealed-h5ahblwc\\run\\data\\mktkb.sqlite3"
+        ]
+      },
+      "status": "succeeded",
+      "stop_code": null,
+      "trace_db_exists": false
+    }
+  },
+  "schema": "p2-t203-r1-digest/v0.1"
+}

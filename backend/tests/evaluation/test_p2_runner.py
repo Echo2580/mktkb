@@ -17,11 +17,12 @@ import asyncio
 import functools
 import json
 import sys
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Mapping
 
+import httpx
 import pytest
 
 _TESTS_DIR = Path(__file__).resolve().parents[1]
@@ -32,7 +33,7 @@ from acceptance.support.netguard import t09_network_guard  # noqa: E402,F401  (p
 
 from mktkb.evaluation import cli
 from mktkb.evaluation.dataset import CaseSpec
-from mktkb.evaluation.p2_authorization import P2SendRefused, preflight_p2
+from mktkb.evaluation.p2_authorization import P2Gate, P2SendRefused, preflight_p2
 from mktkb.evaluation.p2_contracts import (
     CHAT_HOST,
     CHAT_MODEL,
@@ -48,6 +49,7 @@ from mktkb.evaluation.p2_contracts import (
 )
 from mktkb.evaluation.p2_runner import (
     build_dry_run_authorization,
+    is_real_p2_gate,
     run_p2,
 )
 from mktkb.evaluation.product_adapter import (
@@ -330,7 +332,14 @@ class RealishAdapter:
         return False
 
     def provider_calls(self) -> dict[str, Any]:
-        return {"chat": {"calls": 0}, "embedding": {"calls": 0}, "rerank": {"calls": 0}}
+        # 替身也必须交出**实测**字段（runner 不认常量兜底）：这里确实一次都没调过 provider。
+        return {
+            "chat": {"calls": 0},
+            "embedding": {"calls": 0},
+            "rerank": {"calls": 0},
+            "outbound_network": 0,
+            "network": {"outbound_attempts": 0, "mock_intercepted": 0},
+        }
 
     def index_status(self) -> dict[str, Any]:
         return {}
@@ -407,7 +416,9 @@ async def test_dry_run_completes_without_production_ready(tmp_path: Path) -> Non
     assert manifest["authorization"]["production_ready"] is False
     assert manifest["authorization"]["go_nonce_len"] == len(NONCE)
     assert manifest["providers"]["chat"]["transport"] == "httpx.MockTransport"
-    assert manifest["providers"]["chat"]["outbound_network"] == 0
+    # F1：出站数是**实测**的（Mock 链上被传输层接住，计到拦截而不是出站）。
+    assert manifest["providers"]["outbound_network"] == 0
+    assert manifest["providers"]["network"]["mock_intercepted"] > 0
     assert manifest["execution"] == "dry_run"
     for name, digest in manifest["pipeline"]["code_sha256"].items():
         assert len(str(digest)) == 64, name
@@ -438,6 +449,16 @@ async def test_dry_run_completes_without_production_ready(tmp_path: Path) -> Non
     multi = next(row for row in case_rows if row["case_id"] == "P02")
     assert multi["turns_executed"] == 2
     assert len({turn["trace_id"] for turn in multi["turns"]}) == 2
+
+    # F4：P04（火星店）这一轮是产品 not_found 且 **0 次 chat**——从逐轮实测计数断言，
+    # 不靠"总结里写一句"。
+    p04 = next(row for row in case_rows if row["case_id"] == "P04")
+    assert p04["turns"][0]["kind"] == "not_found"
+    p04_request = next(row for row in request_rows if row["case_id"] == "P04")
+    assert p04_request["product"]["kind"] == "not_found"
+    assert p04_request["provider_calls"]["chat"] == 0
+    # 同一份产物里，RAG/legacy 轮确实调过 chat（否则上面那条断言没有证伪力）。
+    assert any(row["provider_calls"]["chat"] > 0 for row in request_rows)
 
     # 两条分支都经过产品入口（trace.path 由产品自己写），且确实调用过 provider。
     branches = summary["branches"]
@@ -475,8 +496,9 @@ async def test_real_adapter_without_production_ready_never_sends(tmp_path: Path)
     assert gate.calls == []
     gate_payload = read_json(adapter.paths.run_dir / "gate.json")
     assert gate_payload["real_sends_allowed"] is False
+    # 发送前有两处不通过：没有 production_ready，且这个门不是真实 P2Gate（F2）。
     failed = {check["name"] for check in gate_payload["checks"] if not check["ok"]}
-    assert failed == {"production_ready"}
+    assert failed == {"production_ready", "live_gate"}
     assert read_json(adapter.paths.run_dir / "summary.json")["failure"]["stage"] == "authorization"
 
 
@@ -531,6 +553,9 @@ async def test_mock_gate_runs_full_send_sequence_without_billing(tmp_path: Path)
     assert result.requests_reserved == 1 and result.requests_sent == 1
     assert result.by_operation == {"answer": 1}
     assert result.production_ready is False
+    # 桩门结算的金额进入门回执（success 路径不再记 0 元），但没有任何真实出站；
+    # 因此 summary 的实测口径仍然是 real_requests=0 / billed_cny=0（见下）。
+    assert result.settled_cny == 0.018688
     gate_payload = read_json(adapter.paths.run_dir / "gate.json")
     assert gate_payload["execution"] == "mock_gate"
     # 桩门不是真实账本：产物里仍然如实写"真实请求 0、计费 0"。
@@ -868,10 +893,313 @@ async def test_holdout_run_writes_aggregate_only_and_purges_traces(tmp_path: Pat
     assert summary["holdout"] == {
         "aggregate_only": True,
         "trace_retention": "purged-at-close",
+        "question_store": "deleted-at-close",
     }
+    # F6：业务库（会话/消息/请求里的题干明文）在 close 时删除，不是"留着等 T206"。
+    assert adapter.seal_receipt == {
+        "question_store": "deleted",
+        "removed": [str(adapter.paths.business_db)],
+    }
+    assert not adapter.paths.business_db.exists()
     # 临时 trace 已删除，且任何产物里都找不到题干/H2 case id。
     assert not adapter.paths.trace_db.exists()
     for path in run_dir.iterdir():
         raw = path.read_text(encoding="utf-8")
         for secret in (RAG_QUESTION, LEGACY_QUESTION, "H01", "H02"):
             assert secret not in raw, f"{path.name} 泄漏受限内容: {secret}"
+
+
+# --------------------------------------------------------------------------- #
+# 7. R1 加固：F1 实测计数 / F2 live 真门 / F3 holdout fail-closed / F5 / F6
+# --------------------------------------------------------------------------- #
+
+#: 哨兵题干：只要它还出现在 out_dir 里，就说明 holdout 的题干明文没被封存（F6）。
+HOLDOUT_SENTINEL = "H2哨兵题干9F4A：火星店的宣传海报到底在哪里？"
+#: 第二轮仍会真的调用 chat 的问题（用于"多轮中间失败"保留现场，F5）。
+SECOND_CHAT_QUESTION = "活动策划流程有哪些环节？"
+
+
+def files_containing(root: Path, text: str) -> list[str]:
+    """在目录里按字节找明文（含 sqlite 等二进制文件），返回命中的相对路径。"""
+    needle = text.encode("utf-8")
+    hits: list[str] = []
+    for path in sorted(Path(root).rglob("*")):
+        if not path.is_file():
+            continue
+        try:
+            raw = path.read_bytes()
+        except OSError:  # pragma: no cover - 临时目录里正常都读得到
+            continue
+        if needle in raw:
+            hits.append(str(path.relative_to(root)))
+    return hits
+
+
+class MeteredMockAdapter(ProductEvalAdapter):
+    """真实 Mock 适配器 + 可注入的"出站"计数（证明 summary 用测量值，不是常量）。
+
+    只在**测试**里模拟"这一轮真的出去了 N 次"；其余部分（产品 HTTP、Mock provider、隔离库）
+    完全走真实实现，所以验证的是 runner 的统计口径，而不是替换被测逻辑。
+    """
+
+    def __init__(self, *args: Any, outbound_per_turn: int = 0, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.outbound_per_turn = int(outbound_per_turn)
+        self._injected_outbound = 0
+
+    async def ask_turn(self, question: str, **kwargs: Any):  # noqa: ANN201 - 透传父类
+        turn = await super().ask_turn(question, **kwargs)
+        self._injected_outbound += self.outbound_per_turn
+        return turn
+
+    def provider_calls(self) -> dict[str, Any]:
+        payload = super().provider_calls()
+        payload["outbound_network"] = int(payload["outbound_network"]) + self._injected_outbound
+        return payload
+
+
+@asyncio_test
+async def test_metered_transport_counts_real_outbound_without_network() -> None:
+    """F1：同一个计数器在 MockTransport 上记"拦截"、在真实传输上记"出站"（本例不出网）。"""
+    from mktkb.evaluation.product_adapter import NetworkMeter, _MeteredTransport
+
+    request = httpx.Request("POST", "http://provider.invalid/chat")
+    meter = NetworkMeter()
+    mocked = _MeteredTransport(
+        httpx.MockTransport(lambda _request: httpx.Response(200, json={})), meter
+    )
+    await mocked.handle_async_request(request)
+    assert (meter.outbound_attempts, meter.mock_intercepted) == (0, 1)
+
+    class _LocalDummyTransport(httpx.AsyncBaseTransport):
+        """不联网的"真实"传输替身：只用来证明计量分支，不产生任何出站。"""
+
+        async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+            return httpx.Response(200, json={})
+
+    realish = _MeteredTransport(_LocalDummyTransport(), meter)
+    await realish.handle_async_request(request)
+    assert (meter.outbound_attempts, meter.mock_intercepted) == (1, 1)
+    assert meter.as_dict() == {"outbound_attempts": 1, "mock_intercepted": 1}
+
+
+@asyncio_test
+async def test_summary_reports_measured_network_and_billing_counts(tmp_path: Path) -> None:
+    cases = (make_case("P01", RAG_QUESTION), make_case("P03", LEGACY_QUESTION))
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    adapter = MeteredMockAdapter(
+        tmp_path / "metered",
+        chat=MockChatBackend(),
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+        outbound_per_turn=2,
+    )
+    gate = StubGate(is_mock_gate=True)
+    try:
+        result = await run_p2(
+            plan, adapter=adapter, authorization=authorization, gate=gate, now=NOW
+        )
+    finally:
+        await adapter.close()
+
+    assert result.status == "succeeded", result.as_dict()
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    request_rows = read_jsonl(adapter.paths.run_dir / "requests.jsonl")
+    # 每轮注入 2 次出站：真实请求数/出站数/计费都必须跟着实测走（不是常量 0）。
+    assert [row["provider_calls"]["outbound"] for row in request_rows] == [2, 2]
+    assert summary["requests"]["real_requests"] == 2
+    assert summary["network"]["outbound_attempts"] == 4
+    assert summary["requests"]["billed_cny"] == round(2 * 0.018688, 8)
+    assert summary["providers"]["outbound_network"] == 4
+    # 门的回执（reserved/sent/settled）与实测口径互相印证：成功结算不再表现为 0 元。
+    assert result.requests_reserved == 2 and result.requests_sent == 2
+    assert result.settled_cny == summary["requests"]["billed_cny"]
+
+
+@asyncio_test
+async def test_live_requires_real_gate_refuses_stub_gate_before_send(tmp_path: Path) -> None:
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = replace(dry_run_authorization(plan), production_ready=True)
+    adapter = RealishAdapter(tmp_path / "live-stub", make_dataset(cases))
+    gate = StubGate(is_mock_gate=True)  # 桩门：没有真实 P2Gate 的账本/GO 事实
+
+    result = await run_p2(
+        plan, adapter=adapter, authorization=authorization, gate=gate, now=NOW
+    )
+
+    assert result.status == "blocked"
+    assert result.stop_code == "live_requires_real_gate"
+    # 发送前就拒：适配器一行没答、门一步没走。
+    assert adapter.asks == []
+    assert gate.calls == []
+    gate_payload = read_json(adapter.paths.run_dir / "gate.json")
+    assert gate_payload["execution"] == "live"
+    assert gate_payload["real_sends_allowed"] is False
+    failed = {check["name"] for check in gate_payload["checks"] if not check["ok"]}
+    assert failed == {"live_gate"}
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    assert summary["failure"]["stage"] == "authorization"
+    assert summary["requests"]["real_requests"] == 0
+
+
+@asyncio_test
+async def test_live_refuses_duck_gate_that_is_not_p2gate(tmp_path: Path) -> None:
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = replace(dry_run_authorization(plan), production_ready=True)
+    adapter = RealishAdapter(tmp_path / "live-duck", make_dataset(cases))
+    gate = StubGate(is_mock_gate=False)  # 看起来"不是桩"，但不是 P2Gate 本身
+
+    result = await run_p2(
+        plan, adapter=adapter, authorization=authorization, gate=gate, now=NOW
+    )
+
+    assert result.status == "blocked"
+    assert result.stop_code == "live_requires_real_gate"
+    assert adapter.asks == [] and gate.calls == []
+
+
+def test_live_gate_policy_accepts_only_concrete_p2gate() -> None:
+    assert is_real_p2_gate(None) is False
+    assert is_real_p2_gate(object()) is False
+    assert is_real_p2_gate(StubGate(is_mock_gate=True)) is False
+    assert is_real_p2_gate(StubGate(is_mock_gate=False)) is False
+    # 真实 P2Gate 类型（这里只判类型，不构造账本/GO）才是 live 唯一接受的"门"。
+    assert is_real_p2_gate(P2Gate.__new__(P2Gate)) is True
+
+
+@asyncio_test
+async def test_holdout_without_purge_is_refused_before_any_work(tmp_path: Path) -> None:
+    cases = (make_case("H01", RAG_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    dataset = make_dataset(cases, visibility="holdout", manifest_sha256="e" * 64)
+    chat = MockChatBackend()
+    adapter = ProductEvalAdapter(
+        tmp_path / "holdout-nopurge", chat=chat, dataset=dataset, ingest_plan=make_ingest_plan()
+    )
+    try:
+        result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+        calls = adapter.provider_calls()
+    finally:
+        await adapter.close()
+
+    assert result.status == "blocked"
+    assert result.stop_code == "holdout_requires_purge"
+    # fail closed：没灌库、没建会话、没调 provider、也没建 trace 库。
+    assert adapter.ingest_receipts == []
+    assert chat.call_count == 0 and calls["embedding"]["calls"] == 0
+    assert not adapter.paths.trace_db.exists()
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    assert summary["failure"]["stage"] == "holdout_policy"
+    assert summary["holdout"]["trace_retention"] == "refused-before-start"
+    gate_payload = read_json(adapter.paths.run_dir / "gate.json")
+    failed = {check["name"] for check in gate_payload["checks"] if not check["ok"]}
+    assert failed == {"holdout_purge"}
+    assert gate_payload["real_sends_allowed"] is False
+
+
+@asyncio_test
+async def test_real_adapter_without_gate_is_refused_as_adapter_must_be_mock(
+    tmp_path: Path,
+) -> None:
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    adapter = RealishAdapter(tmp_path / "realish-no-gate", make_dataset(cases))
+
+    result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+
+    assert result.status == "blocked"
+    assert result.stop_code == "adapter_must_be_mock"
+    assert adapter.asks == []
+    gate_payload = read_json(adapter.paths.run_dir / "gate.json")
+    failed = {check["name"] for check in gate_payload["checks"] if not check["ok"]}
+    assert failed == {"adapter_mock"}
+    assert gate_payload["execution"] == "dry_run"
+    assert read_json(adapter.paths.run_dir / "summary.json")["requests"]["real_requests"] == 0
+
+
+@asyncio_test
+async def test_multiturn_midway_failure_keeps_stage_case_turn_item_and_ticket(
+    tmp_path: Path,
+) -> None:
+    case = make_case(
+        "P02",
+        LEGACY_QUESTION,
+        turns=(
+            {"role": "user", "question": LEGACY_QUESTION},
+            {"role": "user", "question": SECOND_CHAT_QUESTION},
+        ),
+        stratum="multi_turn",
+    )
+    cases = (case,)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    # 第一轮正常，第二轮 Mock 供应商 503：失败必须停在第二轮并保留全部现场。
+    chat = MockChatBackend(
+        behaviors=(ChatBehavior(), ChatBehavior(kind="http_error", status_code=503))
+    )
+    adapter = ProductEvalAdapter(
+        tmp_path / "midturn-fail",
+        chat=chat,
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    try:
+        result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+    finally:
+        await adapter.close()
+
+    assert result.status == "aborted"
+    assert result.stop_code == "product_service_error"
+    failure = read_json(adapter.paths.run_dir / "summary.json")["failure"]
+    assert failure["stage"] == "product_answer"
+    assert failure["case_id"] == "P02"
+    assert failure["turn"] == 2
+    assert failure["item_id"] == "P02:turn2:answer"
+    assert failure["error_code"] == "MODEL_UNAVAILABLE"
+    assert failure["ticket"]["item_id"] == "P02:turn2:answer"
+    assert failure["ticket"]["request_id"]
+    case_rows = read_jsonl(adapter.paths.run_dir / "cases.jsonl")
+    assert case_rows[0]["turns_executed"] == 2
+    assert [turn["status"] for turn in case_rows[0]["turns"]] == ["ok", "error"]
+
+
+@asyncio_test
+async def test_holdout_close_removes_question_plaintext_from_out_dir(tmp_path: Path) -> None:
+    cases = (make_case("H91", HOLDOUT_SENTINEL),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    dataset = make_dataset(cases, visibility="holdout", manifest_sha256="f" * 64)
+    adapter = ProductEvalAdapter(
+        tmp_path / "holdout-sealed",
+        chat=MockChatBackend(),
+        dataset=dataset,
+        ingest_plan=make_ingest_plan(),
+        purge_traces_on_close=True,
+    )
+    out_dir = adapter.paths.root
+    try:
+        result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+        # 前置：运行期业务库里确实存着题干明文——否则这个测试没有证伪力。
+        assert adapter.paths.business_db.is_file()
+        assert files_containing(out_dir, HOLDOUT_SENTINEL), "close 前应能在 out_dir 里找到题干"
+    finally:
+        await adapter.close()
+
+    assert result.status == "succeeded", result.as_dict()
+    # close 之后：题干明文在 out_dir 里一次都不出现（业务库/trace 都已删除）。
+    assert files_containing(out_dir, HOLDOUT_SENTINEL) == []
+    assert not adapter.paths.business_db.exists()
+    assert adapter.seal_receipt == {
+        "question_store": "deleted",
+        "removed": [str(adapter.paths.business_db)],
+    }
+    # 聚合产物仍在，且依旧没有逐题行/题干。
+    assert (adapter.paths.run_dir / "holdout_aggregate.json").is_file()
+    assert not (adapter.paths.run_dir / "cases.jsonl").exists()
+    assert not (adapter.paths.run_dir / "requests.jsonl").exists()
+

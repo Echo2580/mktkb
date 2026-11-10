@@ -30,9 +30,10 @@ ProductEvalAdapter(
 | `async start()` | 建隔离 `Settings`（`_env_file=None`，不读 `.env`）→ `create_app` → 登录隔离账号。幂等。 |
 | `async ingest(plan=None)` | 走产品 `POST /documents`（或 `/documents/{id}/versions`）→ `ingestion.worker.run_one_job` → `POST .../publish`；返回 `IngestReceipt` 列表。**不复制**解析/发布逻辑。 |
 | `async ask_turn(question, *, user_id, conversation_id, client_request_id)` | 走产品 `POST /api/v1/conversations/{id}/messages`（含 Origin/CSRF/会话）；返回 `ProductTurn`。**不调用** `RagIndex.ask`。 |
-| `async close()` | 关闭产品应用/网关/索引/客户端；`purge_traces_on_close` 时删除 trace 库。 |
+| `async close()` | 关闭产品应用/网关/索引/客户端；`purge_traces_on_close` 时删除 trace 库；holdout（`require_holdout_sealing()` 标记过）时**删除隔离业务库**（题干明文）。 |
 | `open_conversation(*, user_id, title=None)` / `source_detail(message_id, source_id, *, user_id)` / `list_messages(conversation_id, *, user_id)` / `messages_in_db(conversation_id)` | 只读/建会话的观测面，全部走产品路由。 |
-| `provider_calls()` / `index_status()` / `trace_of(trace_id)` | 观测面：provider 计数（含 `outbound_network=0`）、索引状态、产品 trace 记录。 |
+| `provider_calls()` / `network_stats()` / `index_status()` / `trace_of(trace_id)` | 观测面：provider 计数与**实测**网络边界（`outbound_network` = chat 注入传输的真实出站 + RAG 供应商 POST 增量；Mock 链上为 0，拦截数另计）、索引状态、产品 trace 记录。 |
+| `require_holdout_sealing()` / `seal_question_store()` | H2 封存：标记后 `close()` 删除 `data/mktkb.sqlite3`（会话/消息/请求表里的题干明文）并返回 `{"question_store": "deleted", ...}`；删不干净直接报错。 |
 
 不变量：`is_mock is True`（本包只提供 Mock）；不构造真实 provider；不碰原 `var/`；
 不写共享账本/GO。
@@ -69,27 +70,41 @@ async def run_p2(
 |---|---|---|---|
 | `dry_run` | `gate is None` 且 `adapter.is_mock` | 无预留/无结算 | 0 |
 | `mock_gate` | `adapter.is_mock` 且 `getattr(gate, "is_mock_gate", False) is True`（**桩门**） | 只有桩门记录，无账本 | 0 |
-| `live` | 非 Mock 适配器 + 真实 `P2Gate` | 走 T201 真实预留/结算 | 需 `production_ready=True` |
+| `live` | 非 Mock 适配器 + **真实 `P2Gate`**（`isinstance(gate, P2Gate)` 且无 `is_mock_gate` 标记） | 走 T201 真实预留/结算 | 需 `production_ready=True` |
 
 规则（任一不满足即**发送前**停，`status=blocked`）：
 - 真实适配器配 `gate=None` → 拒绝（`adapter_must_be_mock`）；
 - Mock 适配器配**真实门** → 拒绝（`mock_gate_requires_stub_gate`）；
-- `live` 且 `authorization.production_ready=False` → 拒绝（`production_not_ready`，T201 遗留 ①）。
+- `live` 且 `authorization.production_ready=False` → 拒绝（`production_not_ready`，T201 遗留 ①）；
+- `live` 且门是桩门/鸭子门而不是真实 `P2Gate` → 拒绝（`live_requires_real_gate`，R1/F2）；
+  桩门只能在 `mock_gate` 链上验证门序，不能出现在 live 链上；
+- `visibility=holdout` 且 `purge_traces_on_close=False` → 拒绝（`holdout_requires_purge`，R1/F3）：
+  一行都不执行（不灌库、不建会话、不调 provider），trace 库也不会被创建。
+
+`gate.json.real_sends_allowed` 只在 `live` + `production_ready=True` + **全部发送前检查通过**时为 true；
+桩门导致的 `live_gate` 不通过会把它压成 false。
 
 ## 3. 产物（`<out_dir>/p2-run/`）
 
 | 文件 | 出现在 | 内容 |
 |---|---|---|
 | `run_manifest.json` | 全部 | run/plan/mode/scope、dataset 身份（version/label/suite/manifest_sha256/case_count/strata）、plan 摘要与预算、授权快照（go_sha256/nonce_len/production_ready）、pipeline（入口、turn 超时、trace 模式、索引统计、两个模块的 `code_sha256`）、provider 身份、隔离路径、ingest 回执 |
-| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests=0**/billed_cny）、providers、network（outbound_attempts=0）、failure（含 stage 与在飞 ticket）、holdout 策略 |
+| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**）、providers、network（**outbound_attempts 实测** + detail）、failure（含 stage 与在飞 ticket）、holdout 策略 |
 | `run_result.json` | 全部 | `P2RunResult.as_dict()`（sent<=reserved<=planned） |
 | `gate.json` | 全部 | 门/授权检查逐项结果、`real_sends_allowed`、拒绝原因、`quality_gate="deferred-to-T205"` |
 | `cases.jsonl` | 仅 `visibility="public"` | 逐题行：会话 id、逐轮 kind/trace_id/trace_path/trace_outcome/http_status、产品来源、ticket、是否计费 |
-| `requests.jsonl` | 仅 `visibility="public"` | 逐次请求身份：item_id、client_request_id、ticket（request_id/reservation_id/cost_center/bound_cny/dry_run）、billed、status、error_code、elapsed_ms |
+| `requests.jsonl` | 仅 `visibility="public"` | 逐次请求身份：item_id、client_request_id、ticket（request_id/reservation_id/cost_center/bound_cny/dry_run）、billed、status、error_code、elapsed_ms、`provider_calls`（本轮实测增量：chat/embedding/rerank/outbound）、`charged_cny`（该笔实际结算金额） |
 | `holdout_aggregate.json` | 仅 `visibility="holdout"` | 只含计数/分层/分支/kind 聚合、stop_code 与**脱敏**失败（无 case_id、无题干、item_id 只留 sha256） |
 
-holdout 额外约束：不写 `cases.jsonl`/`requests.jsonl`；trace 用 `content_mode=hash`（题目只留哈希），
-并在 `close()` 时删除 trace 库（`summary.holdout.trace_retention="purged-at-close"`）。
+holdout 额外约束：
+- 不写 `cases.jsonl`/`requests.jsonl`；trace 用 `content_mode=hash`（题目只留哈希）；
+- `purge_traces_on_close=True` 是硬前提，否则 runner 直接拒绝（`holdout_requires_purge`，见 §2）；
+- `close()` 时删除 trace 库（`summary.holdout.trace_retention="purged-at-close"`），
+  并**删除隔离业务库** `data/mktkb.sqlite3`（会话/消息/请求表里有题干明文），
+  `summary.holdout.question_store="deleted-at-close"`；删除失败即报错，不允许"以为删了"；
+- 证据口径：holdout run 的 `out_dir` 在 close 之后不得再出现题干明文（哨兵题干测试
+  `test_holdout_close_removes_question_plaintext_from_out_dir` 覆盖）；聚合产物不受影响，
+  公开 run 与 dry-run 路径不删业务库（`question_store="kept-in-isolated-dir"`）。
 
 ## 4. 停止码（稳定，可机读）
 
@@ -102,6 +117,8 @@ holdout 额外约束：不写 `cases.jsonl`/`requests.jsonl`；trace 用 `conten
 | `adapter_must_be_mock` | authorization | dry-run 却给了非 Mock 适配器 |
 | `mock_gate_requires_stub_gate` | authorization | Mock 适配器配了真实门 |
 | `production_not_ready` | authorization | live 但没有 production_ready |
+| `live_requires_real_gate` | authorization | live 但门不是真实 `P2Gate`（桩门/鸭子门），发送前拒绝 |
+| `holdout_requires_purge` | holdout_policy | holdout run 没有 `purge_traces_on_close=True`，一行都不执行 |
 | `ingest_failed` | ingest | 上传/解析/发布失败（不重试） |
 | `plan_item_missing` | plan | 某 case 的某轮没有 answer 计划项 |
 | `open_conversation_failed` | open_conversation | 建会话失败 |
@@ -121,4 +138,8 @@ holdout 额外约束：不写 `cases.jsonl`/`requests.jsonl`；trace 用 `conten
 - P1 `live.py` 的 `LIVE_SCOPE=retrieval_only`、零 chat 与 `production_ready` 语义不动；
   本模块不 import `live.py`，也不放宽它；
 - `P2Authorization`/`P2Gate` 的固定账本/GO 路径不动；本包不写账本；
+- 实测口径：`summary.requests.real_requests` = 本轮**实际出网**（`provider_calls().outbound_network`
+  每轮增量 >0）的请求数；`summary.requests.billed_cny` = 这些请求的实际结算金额（`settle_*` 回执）；
+  `summary.network.outbound_attempts` = 适配器实测总出站。三者都**不是常量**：Mock 链上由测量得到 0，
+  换成真实传输同一个计数器就会 >0；缺测量字段时 runner 直接报错，不静默按 0 处理；
 - 产品单轮 60 秒口径直接取 `conversations.service.BUDGET_SECONDS`，不另立常量。

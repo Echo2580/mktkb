@@ -290,7 +290,11 @@ async def test_product_path_end_to_end_with_mock_providers(tmp_path: Path) -> No
         assert calls["chat"]["calls"] == chat.call_count >= 1
         assert calls["embedding"]["calls"] > 0
         assert calls["rerank"]["calls"] > 0
+        # F1：出站数是**实测**的：MockTransport 接住了每一次调用，所以出站 0、拦截 >0。
         assert calls["outbound_network"] == 0
+        assert calls["network"]["outbound_attempts"] == 0
+        assert calls["network"]["mock_intercepted"] >= 1
+        assert calls["network"]["chat_outbound_attempts"] == 0
         assert all(
             value == 0
             for kind in post_counters().values()

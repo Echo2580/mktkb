@@ -1,0 +1,752 @@
+{
+  "checks": [
+    {
+      "detail": "",
+      "name": "F1.mock.real_requests==0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.mock.billed_cny==0",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.mock.top_outbound==0",
+      "ok": true
+    },
+    {
+      "detail": "0",
+      "name": "F1.mock.detail_outbound==top",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.mock.providers_outbound==0",
+      "ok": true
+    },
+    {
+      "detail": "[{'chat': 0, 'embedding': 1, 'outbound': 0, 'rerank': 1}, {'chat': 1, 'embedding': 0, 'outbound': 0, 'rerank': 0}]",
+      "name": "F1.mock.rows_outbound_all_zero",
+      "ok": true
+    },
+    {
+      "detail": "1",
+      "name": "F1.mock.transport_saw_intercept",
+      "ok": true
+    },
+    {
+      "detail": "{'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 0, 'rag_provider_posts': 0, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}",
+      "name": "F1.mock.detail_decomposes",
+      "ok": true
+    },
+    {
+      "detail": "{'schema_version': 'p2-run-result/v0.1', 'run_id': 'p2run-cbcbbcf6eba74b44', 'plan_id': 'p2-t203-unit', 'plan_sha256': '4f5d635ca6bba30c2cf716164b4fb35e91922daf010a7e26e66338d10ff8c74e', 'status': 'succeeded', 'stop_code': None, 'requests_planned': 2, 'requests_reserved': 2, 'requests_sent': 2, 'reserved_cny': 0.037376, 'settled_cny': 0.037376, 'by_operation': {'answer': 2}, 'by_center_cny': {'answer_retrieval': 0.037376, 'ocr': 0.0, 'judge': 0.0, 'independent': 0.0}, 'production_ready': False}",
+      "name": "F1.metered.status",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.metered.top_outbound==4",
+      "ok": true
+    },
+    {
+      "detail": "4",
+      "name": "F1.metered.detail_outbound==top",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.metered.providers==4",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.metered.real_requests==2",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F1.metered.billed==2x",
+      "ok": true
+    },
+    {
+      "detail": "[2, 2]",
+      "name": "F1.metered.rows_outbound==[2,2]",
+      "ok": true
+    },
+    {
+      "detail": "[0.018688, 0.018688]",
+      "name": "F1.metered.rows_charged==0.018688",
+      "ok": true
+    },
+    {
+      "detail": "0.037376",
+      "name": "F1.settled_success_accumulated",
+      "ok": true
+    },
+    {
+      "detail": "2",
+      "name": "F1.requests_sent==2",
+      "ok": true
+    },
+    {
+      "detail": "{'schema_version': 'p2-run-result/v0.1', 'run_id': 'p2run-a901ae38c768404f', 'plan_id': 'p2-t203-unit', 'plan_sha256': '4f5d635ca6bba30c2cf716164b4fb35e91922daf010a7e26e66338d10ff8c74e', 'status': 'succeeded', 'stop_code': None, 'requests_planned': 2, 'requests_reserved': 2, 'requests_sent': 2, 'reserved_cny': 0.037376, 'settled_cny': 0.037376, 'by_operation': {'answer': 2}, 'by_center_cny': {'answer_retrieval': 0.037376, 'ocr': 0.0, 'judge': 0.0, 'independent': 0.0}, 'production_ready': False}",
+      "name": "F1.ragrun.status",
+      "ok": true
+    },
+    {
+      "detail": "{'requests': {'real_requests': 2, 'billed_cny': 0.037376, 'settled_success': 2}, 'network': {'outbound_attempts': 2, 'detail_outbound_attempts': 2, 'detail': {'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}}, 'providers_outbound_network': 2, 'holdout': {'aggregate_only': False, 'question_store': 'kept-in-isolated-dir', 'trace_retention': 'kept-in-isolated-dir'}}",
+      "name": "F1.ragrun.top_outbound==2",
+      "ok": true
+    },
+    {
+      "detail": "{'requests': {'real_requests': 2, 'billed_cny': 0.037376, 'settled_success': 2}, 'network': {'outbound_attempts': 2, 'detail_outbound_attempts': 2, 'detail': {'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}}, 'providers_outbound_network': 2, 'holdout': {'aggregate_only': False, 'question_store': 'kept-in-isolated-dir', 'trace_retention': 'kept-in-isolated-dir'}}",
+      "name": "F1.ragrun.top==detail",
+      "ok": true
+    },
+    {
+      "detail": "{'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}",
+      "name": "F1.ragrun.rag_posts==2",
+      "ok": true
+    },
+    {
+      "detail": "{'requests': {'real_requests': 2, 'billed_cny': 0.037376, 'settled_success': 2}, 'network': {'outbound_attempts': 2, 'detail_outbound_attempts': 2, 'detail': {'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}}, 'providers_outbound_network': 2, 'holdout': {'aggregate_only': False, 'question_store': 'kept-in-isolated-dir', 'trace_retention': 'kept-in-isolated-dir'}}",
+      "name": "F1.ragrun.real_requests==2",
+      "ok": true
+    },
+    {
+      "detail": "{'requests': {'real_requests': 2, 'billed_cny': 0.037376, 'settled_success': 2}, 'network': {'outbound_attempts': 2, 'detail_outbound_attempts': 2, 'detail': {'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}}, 'providers_outbound_network': 2, 'holdout': {'aggregate_only': False, 'question_store': 'kept-in-isolated-dir', 'trace_retention': 'kept-in-isolated-dir'}}",
+      "name": "F1.ragrun.billed==2x",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'succeeded', 'measured': {'requests': {'real_requests': 2, 'billed_cny': 0.037376, 'settled_success': 2}, 'network': {'outbound_attempts': 2, 'detail_outbound_attempts': 2, 'detail': {'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}}, 'providers_outbound_network': 2, 'holdout': {'aggregate_only': False, 'question_store': 'kept-in-isolated-dir', 'trace_retention': 'kept-in-isolated-dir'}}, 'row_outbound': [1, 1]}",
+      "name": "F1.ragrun.rows_outbound==[1,1]",
+      "ok": true
+    },
+    {
+      "detail": "{'chat_outbound_attempts': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'mock_intercepted': 1, 'ocr_provider': 'disabled（T204 前不构造）', 'outbound_attempts': 2, 'rag_provider_posts': 2, 'rerank_provider': 'offline-fake（无传输层，不能出网）'}",
+      "name": "F1.ragrun.decomposes",
+      "ok": true
+    },
+    {
+      "detail": "top=4 detail=0（R1 digest 即此形态；runner 未报错）",
+      "name": "F1.top_only.artifacts_not_cross_checked",
+      "ok": true
+    },
+    {
+      "detail": "{\"raised\": \"ValueError\", \"message\": \"适配器 provider_calls() 必须报告实测 outbound_network\"}",
+      "name": "F1.missing_outbound_raises",
+      "ok": true
+    },
+    {
+      "detail": "{\"raised\": \"ValueError\", \"message\": \"适配器 provider_calls() 缺少实测 chat.calls\"}",
+      "name": "F1.missing_chat_raises",
+      "ok": true
+    },
+    {
+      "detail": "{'raised': 'ValueError', 'message': '适配器 provider_calls() 必须报告实测 outbound_network'}",
+      "name": "F1.missing_outbound_message",
+      "ok": true
+    },
+    {
+      "detail": "{'outbound_attempts': 2, 'chat_outbound_attempts': 0, 'rag_provider_posts': 2, 'mock_intercepted': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'rerank_provider': 'offline-fake（无传输层，不能出网）', 'ocr_provider': 'disabled（T204 前不构造）'}",
+      "name": "F1.rag.rag_posts==2",
+      "ok": true
+    },
+    {
+      "detail": "{'outbound_attempts': 2, 'chat_outbound_attempts': 0, 'rag_provider_posts': 2, 'mock_intercepted': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'rerank_provider': 'offline-fake（无传输层，不能出网）', 'ocr_provider': 'disabled（T204 前不构造）'}",
+      "name": "F1.rag.outbound==2",
+      "ok": true
+    },
+    {
+      "detail": "{'baseline': {'outbound_attempts': 0, 'chat_outbound_attempts': 0, 'rag_provider_posts': 0, 'mock_intercepted': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'rerank_provider': 'offline-fake（无传输层，不能出网）', 'ocr_provider': 'disabled（T204 前不构造）'}, 'after_increment': {'outbound_attempts': 2, 'chat_outbound_attempts': 0, 'rag_provider_posts': 2, 'mock_intercepted': 0, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'rerank_provider': 'offline-fake（无传输层，不能出网）', 'ocr_provider': 'disabled（T204 前不构造）'}, 'outbound_from_provider_calls': 2}",
+      "name": "F1.rag.provider_calls_follows",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.blocked",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.stop",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.execution_live",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.real_sends_false",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.only_live_gate_failed",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.gate_zero_steps",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.adapter_zero_calls",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.stub.real_requests_zero",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.blocked",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.stop",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.execution_live",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.real_sends_false",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.only_live_gate_failed",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.gate_zero_steps",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.adapter_zero_calls",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'live_requires_real_gate', 'execution': 'live', 'real_sends_allowed': False, 'failed_checks': ['live_gate'], 'gate_calls': [], 'adapter_asks': [], 'real_requests': 0, 'stage': 'authorization'}",
+      "name": "F2.duck_false_flag.real_requests_zero",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'mock_gate_requires_stub_gate', 'execution': 'dry_run', 'failed_checks': ['stub_gate', 'mock_gate'], 'real_sends_allowed': False}",
+      "name": "F2.mock_with_real_gate_still_rejected",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'adapter_must_be_mock'}",
+      "name": "F2.real_no_gate_still_rejected",
+      "ok": true
+    },
+    {
+      "detail": "{'none': False, 'object': False, 'stub_true': False, 'stub_false': False, 'real_new': True, 'p2gate_subclass_mock_flag': False}",
+      "name": "F2.type_checks",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.blocked",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.stop",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.stage",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_ingest",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_chat",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_embedding",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_trace_db",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_business_db_created",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'blocked', 'stop_code': 'holdout_requires_purge', 'execution': 'dry_run', 'failure_stage': 'holdout_policy', 'holdout': {'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}, 'ingest_receipts': 0, 'chat_calls': 0, 'embedding_calls': 0, 'trace_db_exists': False, 'business_db_exists': False, 'run_files': ['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json'], 'question_plaintext_hits': []}",
+      "name": "F3.no_question_plaintext",
+      "ok": true
+    },
+    {
+      "detail": "['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json']",
+      "name": "F3.aggregate_only_artifacts",
+      "ok": true
+    },
+    {
+      "detail": "{'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'refused-before-start'}",
+      "name": "F3.trace_retention_refused",
+      "ok": true
+    },
+    {
+      "detail": "{'schema_version': 'p2-run-result/v0.1', 'run_id': 'p2run-af19c8005d7b42f6', 'plan_id': 'p2-t203-unit', 'plan_sha256': '4e7cc59ce842146e0f696f514e3e543d89b36734883ee35f11261d49398f369c', 'status': 'succeeded', 'stop_code': None, 'requests_planned': 1, 'requests_reserved': 0, 'requests_sent': 0, 'reserved_cny': 0.0, 'settled_cny': 0.0, 'by_operation': {}, 'by_center_cny': {'answer_retrieval': 0.0, 'ocr': 0.0, 'judge': 0.0, 'independent': 0.0}, 'production_ready': False}",
+      "name": "F6.holdout.status",
+      "ok": true
+    },
+    {
+      "detail": "['data\\\\mktkb.sqlite3-wal']",
+      "name": "F6.before_close_has_plaintext",
+      "ok": true
+    },
+    {
+      "detail": "[]",
+      "name": "F6.after_close_zero_plaintext",
+      "ok": true
+    },
+    {
+      "detail": "{'': False, '-wal': False, '-shm': False, '-journal': False}",
+      "name": "F6.business_db_family_deleted",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F6.trace_db_deleted",
+      "ok": true
+    },
+    {
+      "detail": "['gate.json', 'holdout_aggregate.json', 'run_manifest.json', 'run_result.json', 'summary.json']",
+      "name": "F6.aggregate_kept",
+      "ok": true
+    },
+    {
+      "detail": "",
+      "name": "F6.no_per_case_artifacts",
+      "ok": true
+    },
+    {
+      "detail": "{'question_store': 'deleted', 'removed': ['C:\\\\Users\\\\dell1712\\\\AppData\\\\Local\\\\Temp\\\\t203-verify-r1-f6-sealed-a8n5k3o5\\\\run\\\\data\\\\mktkb.sqlite3']}",
+      "name": "F6.seal_receipt",
+      "ok": true
+    },
+    {
+      "detail": "{'aggregate_only': True, 'question_store': 'deleted-at-close', 'trace_retention': 'purged-at-close'}",
+      "name": "F6.summary_flags",
+      "ok": true
+    },
+    {
+      "detail": "{'schema_version': 'p2-run-result/v0.1', 'run_id': 'p2run-c9c00a327b2c4dbc', 'plan_id': 'p2-t203-unit', 'plan_sha256': '62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21', 'status': 'succeeded', 'stop_code': None, 'requests_planned': 1, 'requests_reserved': 0, 'requests_sent': 0, 'reserved_cny': 0.0, 'settled_cny': 0.0, 'by_operation': {}, 'by_center_cny': {'answer_retrieval': 0.0, 'ocr': 0.0, 'judge': 0.0, 'independent': 0.0}, 'production_ready': False}",
+      "name": "F6.public.status",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'succeeded', 'business_db_exists': True, 'plaintext_hits_after_close': ['data\\\\mktkb.sqlite3'], 'question_store': 'kept-in-isolated-dir', 'cases_jsonl_exists': True, 'requests_jsonl_exists': True, 'seal_receipt': None}",
+      "name": "F6.public.business_db_kept",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'succeeded', 'business_db_exists': True, 'plaintext_hits_after_close': ['data\\\\mktkb.sqlite3'], 'question_store': 'kept-in-isolated-dir', 'cases_jsonl_exists': True, 'requests_jsonl_exists': True, 'seal_receipt': None}",
+      "name": "F6.public.no_seal",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'succeeded', 'business_db_exists': True, 'plaintext_hits_after_close': ['data\\\\mktkb.sqlite3'], 'question_store': 'kept-in-isolated-dir', 'cases_jsonl_exists': True, 'requests_jsonl_exists': True, 'seal_receipt': None}",
+      "name": "F6.public.question_store_label",
+      "ok": true
+    },
+    {
+      "detail": "{'status': 'succeeded', 'business_db_exists': True, 'plaintext_hits_after_close': ['data\\\\mktkb.sqlite3'], 'question_store': 'kept-in-isolated-dir', 'cases_jsonl_exists': True, 'requests_jsonl_exists': True, 'seal_receipt': None}",
+      "name": "F6.public.per_case_artifacts_kept",
+      "ok": true
+    },
+    {
+      "detail": "{\"raised\": \"PermissionError\", \"message\": \"[WinError 5] 拒绝访问。: 'C:\\\\\\\\Users\\\\\\\\dell1712\\\\\\\\AppData\\\\\\\\Local\\\\\\\\Temp\\\\\\\\t203-verify-r1-f6-fail-fnruux1i\\\\\\\\run\\\\\\\\data\\\\\\\\mktkb.sqlite3-journal'\"}",
+      "name": "F6.delete_failure_raises",
+      "ok": true
+    },
+    {
+      "detail": "{'settled_cny': 0.018688, 'billed_cny': 0.0, 'real_requests': 0, 'row_charged': [0.018688]}",
+      "name": "SETTLE.mock_gate.settled",
+      "ok": true
+    },
+    {
+      "detail": "{'settled_cny': 0.018688, 'billed_cny': 0.0, 'real_requests': 0, 'row_charged': [0.018688]}",
+      "name": "SETTLE.mock_gate.billed_zero",
+      "ok": true
+    },
+    {
+      "detail": "{'settled_cny': 0.018688, 'billed_cny': 0.0, 'real_requests': 0, 'row_charged': [0.018688]}",
+      "name": "SETTLE.mock_gate.row_charged",
+      "ok": true
+    },
+    {
+      "detail": "{'settled_cny': 0.018688, 'row_charged': [0.018688]}",
+      "name": "SETTLE.bool_gate.conservative_bound",
+      "ok": true
+    },
+    {
+      "detail": "[]",
+      "name": "NET.external==0",
+      "ok": true
+    },
+    {
+      "detail": "{'attempts': {}, 'outcomes': {}}",
+      "name": "F1.post_counters_end_zero",
+      "ok": true
+    }
+  ],
+  "counts": {
+    "checks": 84,
+    "failed": 0
+  },
+  "failed": [],
+  "network": {
+    "external_attempts": [],
+    "local_attempts": 0
+  },
+  "observations": {
+    "f1_top_only_contradiction": {
+      "detail": 0,
+      "top": 4
+    },
+    "f3_question_store_label": {
+      "business_db_exists": false,
+      "note": "业务库从未创建，但 summary 已写 deleted-at-close（标签非测量）",
+      "value": "deleted-at-close"
+    }
+  },
+  "ok": true,
+  "scenarios": {
+    "f1_default_mock": {
+      "measured": {
+        "holdout": {
+          "aggregate_only": false,
+          "question_store": "kept-in-isolated-dir",
+          "trace_retention": "kept-in-isolated-dir"
+        },
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 0,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 0,
+            "rag_provider_posts": 0,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "detail_outbound_attempts": 0,
+          "outbound_attempts": 0
+        },
+        "providers_outbound_network": 0,
+        "requests": {
+          "billed_cny": 0.0,
+          "real_requests": 0,
+          "settled_success": 0
+        }
+      },
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "f1_measured_injection": {
+      "gate_settled_cny": 0.037376,
+      "measured": {
+        "holdout": {
+          "aggregate_only": false,
+          "question_store": "kept-in-isolated-dir",
+          "trace_retention": "kept-in-isolated-dir"
+        },
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 4,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 4,
+            "rag_provider_posts": 0,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "detail_outbound_attempts": 4,
+          "outbound_attempts": 4
+        },
+        "providers_outbound_network": 4,
+        "requests": {
+          "billed_cny": 0.037376,
+          "real_requests": 2,
+          "settled_success": 2
+        }
+      },
+      "requests_sent": 2,
+      "row_charged": [
+        0.018688,
+        0.018688
+      ],
+      "row_outbound": [
+        2,
+        2
+      ],
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "f1_missing_fields": {
+      "chat": {
+        "message": "适配器 provider_calls() 缺少实测 chat.calls",
+        "raised": "ValueError"
+      },
+      "outbound": {
+        "message": "适配器 provider_calls() 必须报告实测 outbound_network",
+        "raised": "ValueError"
+      }
+    },
+    "f1_rag_measured_in_artifacts": {
+      "measured": {
+        "holdout": {
+          "aggregate_only": false,
+          "question_store": "kept-in-isolated-dir",
+          "trace_retention": "kept-in-isolated-dir"
+        },
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 0,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 2,
+            "rag_provider_posts": 2,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "detail_outbound_attempts": 2,
+          "outbound_attempts": 2
+        },
+        "providers_outbound_network": 2,
+        "requests": {
+          "billed_cny": 0.037376,
+          "real_requests": 2,
+          "settled_success": 2
+        }
+      },
+      "row_outbound": [
+        1,
+        1
+      ],
+      "status": "succeeded"
+    },
+    "f1_rag_post_increment": {
+      "after_increment": {
+        "chat_outbound_attempts": 0,
+        "embedding_provider": "offline-fake（无传输层，不能出网）",
+        "mock_intercepted": 0,
+        "ocr_provider": "disabled（T204 前不构造）",
+        "outbound_attempts": 2,
+        "rag_provider_posts": 2,
+        "rerank_provider": "offline-fake（无传输层，不能出网）"
+      },
+      "baseline": {
+        "chat_outbound_attempts": 0,
+        "embedding_provider": "offline-fake（无传输层，不能出网）",
+        "mock_intercepted": 0,
+        "ocr_provider": "disabled（T204 前不构造）",
+        "outbound_attempts": 0,
+        "rag_provider_posts": 0,
+        "rerank_provider": "offline-fake（无传输层，不能出网）"
+      },
+      "outbound_from_provider_calls": 2
+    },
+    "f1_top_only_injection": {
+      "measured": {
+        "holdout": {
+          "aggregate_only": false,
+          "question_store": "kept-in-isolated-dir",
+          "trace_retention": "kept-in-isolated-dir"
+        },
+        "network": {
+          "detail": {
+            "chat_outbound_attempts": 0,
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "mock_intercepted": 1,
+            "ocr_provider": "disabled（T204 前不构造）",
+            "outbound_attempts": 0,
+            "rag_provider_posts": 0,
+            "rerank_provider": "offline-fake（无传输层，不能出网）"
+          },
+          "detail_outbound_attempts": 0,
+          "outbound_attempts": 4
+        },
+        "providers_outbound_network": 4,
+        "requests": {
+          "billed_cny": 0.037376,
+          "real_requests": 2,
+          "settled_success": 2
+        }
+      },
+      "status": "succeeded"
+    },
+    "f2_live_gates": {
+      "duck_false_flag": {
+        "adapter_asks": [],
+        "execution": "live",
+        "failed_checks": [
+          "live_gate"
+        ],
+        "gate_calls": [],
+        "real_requests": 0,
+        "real_sends_allowed": false,
+        "stage": "authorization",
+        "status": "blocked",
+        "stop_code": "live_requires_real_gate"
+      },
+      "mock_with_real_gate": {
+        "execution": "dry_run",
+        "failed_checks": [
+          "stub_gate",
+          "mock_gate"
+        ],
+        "real_sends_allowed": false,
+        "status": "blocked",
+        "stop_code": "mock_gate_requires_stub_gate"
+      },
+      "real_no_gate": {
+        "status": "blocked",
+        "stop_code": "adapter_must_be_mock"
+      },
+      "stub": {
+        "adapter_asks": [],
+        "execution": "live",
+        "failed_checks": [
+          "live_gate"
+        ],
+        "gate_calls": [],
+        "real_requests": 0,
+        "real_sends_allowed": false,
+        "stage": "authorization",
+        "status": "blocked",
+        "stop_code": "live_requires_real_gate"
+      },
+      "type_checks": {
+        "none": false,
+        "object": false,
+        "p2gate_subclass_mock_flag": false,
+        "real_new": true,
+        "stub_false": false,
+        "stub_true": false
+      }
+    },
+    "f3_holdout_without_purge": {
+      "business_db_exists": false,
+      "chat_calls": 0,
+      "embedding_calls": 0,
+      "execution": "dry_run",
+      "failure_stage": "holdout_policy",
+      "holdout": {
+        "aggregate_only": true,
+        "question_store": "deleted-at-close",
+        "trace_retention": "refused-before-start"
+      },
+      "ingest_receipts": 0,
+      "question_plaintext_hits": [],
+      "run_files": [
+        "gate.json",
+        "holdout_aggregate.json",
+        "run_manifest.json",
+        "run_result.json",
+        "summary.json"
+      ],
+      "status": "blocked",
+      "stop_code": "holdout_requires_purge",
+      "trace_db_exists": false
+    },
+    "f6_delete_failure": {
+      "message": "[WinError 5] 拒绝访问。: 'C:\\\\Users\\\\dell1712\\\\AppData\\\\Local\\\\Temp\\\\t203-verify-r1-f6-fail-fnruux1i\\\\run\\\\data\\\\mktkb.sqlite3-journal'",
+      "raised": "PermissionError"
+    },
+    "f6_holdout_sealed": {
+      "aggregate_exists": true,
+      "business_db_family": {
+        "": false,
+        "-journal": false,
+        "-shm": false,
+        "-wal": false
+      },
+      "cases_jsonl_exists": false,
+      "detail_files": [
+        "gate.json",
+        "holdout_aggregate.json",
+        "run_manifest.json",
+        "run_result.json",
+        "summary.json"
+      ],
+      "holdout": {
+        "aggregate_only": true,
+        "question_store": "deleted-at-close",
+        "trace_retention": "purged-at-close"
+      },
+      "plaintext_hits_after_close": [],
+      "plaintext_hits_before_close": [
+        "data\\mktkb.sqlite3-wal"
+      ],
+      "requests_jsonl_exists": false,
+      "seal_receipt": {
+        "question_store": "deleted",
+        "removed": [
+          "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t203-verify-r1-f6-sealed-a8n5k3o5\\run\\data\\mktkb.sqlite3"
+        ]
+      },
+      "status": "succeeded",
+      "stop_code": null,
+      "trace_db_exists": false
+    },
+    "f6_public_path": {
+      "business_db_exists": true,
+      "cases_jsonl_exists": true,
+      "plaintext_hits_after_close": [
+        "data\\mktkb.sqlite3"
+      ],
+      "question_store": "kept-in-isolated-dir",
+      "requests_jsonl_exists": true,
+      "seal_receipt": null,
+      "status": "succeeded"
+    },
+    "settle_semantics": {
+      "bool_gate": {
+        "row_charged": [
+          0.018688
+        ],
+        "settled_cny": 0.018688
+      },
+      "mock_gate": {
+        "billed_cny": 0.0,
+        "real_requests": 0,
+        "row_charged": [
+          0.018688
+        ],
+        "settled_cny": 0.018688
+      }
+    }
+  },
+  "schema": "p2-t203-r1-verify-digest/v0.1"
+}

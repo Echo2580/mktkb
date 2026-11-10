@@ -19,6 +19,8 @@
 | 新增 | `docs/evaluation/p2-runner-contract-v0_1.md` | 124 | `36de5bc2e5a8d4fa` | 接口/产物/停止码契约 |
 | 新增 | `docs/reports/OBS-EVAL/P2/T203/` | — | — | 本报告 + `evidence/`（3 入口） |
 
+> R1 加固改动了上表中 4 个代码/测试文件，行数与哈希已变——以 `## R1 加固` 的表格为准。
+
 未改：`live.py`、`qa/service.py`、`rag/*`、产品路由/模型/schema、`p2_contracts.py`、其它既有测试。
 
 ## 2. 接口
@@ -53,7 +55,8 @@
 | 与 T201 门衔接（production_ready 才能发、空跑≠成功） | `test_real_adapter_without_production_ready_never_sends`（HTTP=0）、`test_mock_gate_runs_full_send_sequence_without_billing`（门序 begin/confirm/settle + `real_requests=0`）、`test_empty_run_is_blocked_not_succeeded` |
 | 反例：取消 / 超时 / 无候选拒答 / 多轮中间失败 / 知识库变化 / 服务错误后不付费 | `test_cancel_between_cases…`、`test_turn_timeout_stops_run_without_retry`（0.2s 客户端硬截止、chat=1 次）、反例三态见下、`test_knowledge_changed_while_turn_in_flight`（产品自身 `knowledge_changed`）、`test_service_error_stops_and_does_not_pay_again`（503 后 chat=1 次、后续 case 未执行） |
 
-"无候选拒答"：`test_dry_run…` 的 `P04`（火星店）产品返回 `not_found` 且该轮 **0 次 chat**（规则路径合法零 chat）；
+"无候选拒答"：`test_dry_run…` 的 `P04`（火星店）产品返回 `not_found` 且该轮 **0 次 chat**（规则路径合法零 chat）——
+R1 起这条是**真实断言**（逐轮实测 `provider_calls.chat==0` 且 `kind=not_found`，见 R1/F4）；
 "多轮中间失败"：`test_plan_item_missing_fails_closed` + 超时/服务错误用例（同一轮失败即停，后续 case 记 `not_executed`）。
 
 ## 5. 实际命令与结果（只跑本包文件；另附加固后的 T201 套件）
@@ -71,11 +74,13 @@ pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider 
 ## 6. 真实调用 = 0 的证据（三方互证）
 
 1. 网络闸门：两个测试文件都 `pytest.mark.usefixtures("t09_network_guard")`（复用 `tests/acceptance/support/netguard.py`，不复制），
-   任何**外部**出站即测试失败；18 个用例全绿 ⇒ 外部尝试 0。
+   任何**外部**出站即测试失败；18 个用例全绿（R1 后 27）⇒ 外部尝试 0。
 2. provider 身份：chat 走**真实** `DeepSeekClient` + `httpx.MockTransport`（`manifest.providers.chat.transport`），
-   `outbound_network=0`；embedding/rerank 是离线计数替身（`FakeEmbeddingProvider`/`LexicalReranker` 包装）；OCR 未使用。
+   `outbound_network=0`（R1 起是传输层的**实测**结果：Mock 调用计入"拦截"，不进出站计数）；
+   embedding/rerank 是离线计数替身（`FakeEmbeddingProvider`/`LexicalReranker` 包装）；OCR 未使用。
 3. 供应商 POST 计数：`mktkb.rag.providers.post_counters()` 全 0（RAG 真实 HTTP 的机器计数）。
-4. 资金/请求回执：`run_result.requests_sent=0`、`summary.requests.real_requests=0`、`billed_cny=0`、`production_ready=False`；
+4. 资金/请求回执：`run_result.requests_sent=0`、`summary.requests.real_requests=0`、`billed_cny=0`、`production_ready=False`
+   （R1 起 `real_requests/billed_cny/outbound_attempts` 是**实测值**：传输层 + RAG 供应商 POST 计数，不是常量）；
    未创建/写入共享账本与 GO（`ledger_path="in-memory:dry-run"`）。
 5. 隔离：`Settings(_env_file=None)` + 会话级 `.env` 隔离（既有 conftest），全部产物落在 `backend/.pytest-tmp/`（gitignore）。
 
@@ -98,3 +103,31 @@ pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider 
 1. `evidence/pytest-p2-t203.txt`：18 passed + T201 加固后 70 passed 的原始输出。
 2. `evidence/p2-t203-digest.json`：从实际产物聚合的机器证据（五件套、mock_gate、blocked、timeout、holdout 聚合、文件 sha256、真实调用=0）。
 3. 契约 `docs/evaluation/p2-runner-contract-v0_1.md`（本报告即第 4 入口）。
+4. R1 加固证据 `evidence/r1/`：`pytest-r1-runner-e2e.txt`（27 passed）、`pytest-r1-auth.txt`（70 passed）、
+   `r1-digest.json`（F1 实测/F2 stop_code/F3 拒绝/F6 封存前后命中）与可复跑探针源码。
+
+## R1 加固（2026-11-10，对照独立验收 F1–F6）
+
+- 现场/边界：`codex/p2-e2e` @ `897a751`（未 commit/push）；只改本包允许文件；真实调用 **0**，未读 `.env`/H1/H2、未联网；全部为正向加固（无行为回退）。
+- **F1 证据完整性**：`NetworkMeter` 包住注入给 `DeepSeekClient` 的传输（MockTransport 记"拦截"、真实传输记"出站"），RAG 供应商 POST 取 `post_counters()` 增量；每轮前后快照相减 → `requests.jsonl.provider_calls/charged_cny`；`real_requests`=实测出站>0 的请求数、`billed_cny`=其实际结算额、`network.outbound_attempts`/`provider_calls().outbound_network`=实测总出站。缺测量字段直接报错、**不按 0 兜底**；顺带修正成功结算不累计 `settled_cny`（曾表现"成功却 0 元"）。
+- **F2 live 护栏**：live 追加硬断言 `isinstance(gate, P2Gate)` 且无 `is_mock_gate`；桩门/鸭子门 → 发送前 `blocked/live_requires_real_gate`（门 0 步、适配器 0 行）；`gate.json.real_sends_allowed` = live + production_ready + 全部发送前检查通过。
+- **F3 holdout fail-closed**：`visibility=holdout` 且 `purge_traces_on_close=False` → 一行都不跑：`blocked/holdout_requires_purge`、`failure.stage=holdout_policy`、不灌库/不建会话/不调 provider、trace 库不建（`trace_retention=refused-before-start`）。
+- **F6 H2 防泄漏**：holdout `close()` 删隔离业务库 `data/mktkb.sqlite3`（+ `-wal/-shm/-journal`；题干明文在会话/消息/请求表），返回 `seal_receipt`，删不干净即报错；公开/dry-run 不动。哨兵题干测试：close 前命中、close 后 **0 命中**，聚合产物照旧；`summary.holdout.question_store=deleted-at-close`。
+- **F4/F5**：`test_dry_run…` 补真断言 P04 `kind=not_found` + 该轮 `provider_calls.chat==0`（另有轮次 chat>0 作对照）；新增 `adapter_must_be_mock`（真实适配器+无门）与多轮中间失败（第 2 轮 503，保留 stage/case/turn/item/ticket）两个测试。
+
+**改动文件（行数 / sha256 前 16）**：`product_adapter.py` 1300/`a782e211355825d9`；`p2_runner.py` 1315/`7c6a011fbe8d569a`；`test_p2_runner.py` 1205/`36e6b7f137b618be`；`test_p2_product_e2e.py` 445/`378a7e8aa26f9f9b`；契约 `p2-runner-contract-v0_1.md` 145/`4c7d3b6e19c46b9e`（已同步 §1.1/§2/§3/§4/§5）。
+
+**复跑（本机亲跑）**
+
+```
+./.venv/Scripts/python.exe -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/integration/test_p2_product_e2e.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t203-r1
+→ 27 passed, 1 warning in 21.50s（T203 时 18；R1 净增 9 个用例）
+./.venv/Scripts/python.exe -B -m pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t203-r1-auth
+→ 70 passed, 1 warning in 1.55s
+./.venv/Scripts/python.exe -B docs/reports/OBS-EVAL/P2/T203/evidence/r1/probe_r1_f1_f2_f3_f6.py
+→ F1 mock：real_requests=0/billed=0/outbound=0（拦截 1）；注入 2 次出站/轮：real=2、billed=0.037376、outbound=4
+   F2：live_requires_real_gate + real_sends_allowed=false + 门 0 步；F3：holdout_requires_purge + provider 0 次
+   F6：close 前明文命中 1 → close 后 0；业务库/trace 库均不存在，holdout_aggregate.json 仍在
+```
+
+**残留（如实）**：① 真实 `P2Gate` 的**正向** live 链仍未真跑（需固定 GO/账本，归 T206）——R1 只证"桩门/鸭子门必被拒 + 只有真实 `P2Gate` 过类型判定"；② "真实传输会让出站>0"由注入计数测试证明，T206 首次真实发送需复核同一字段；③ 封存只删业务库（题干），索引/存储语料副本与聚合产物保留；④ mock_gate 的 `run_result.settled_cny` 由 0 变 0.018688/轮（与 `settle_success` 同口径），`summary.requests.billed_cny` 仍按实测出站计 0，两套口径见契约 §5。⑤ 编号对照：review.md 的 F6 是"产品预算/结算包装未进本包链路"（按任务书归 T206，需真实 `build_gateway`）；R1 修的 F6 指验收"残留风险"里的 holdout 业务库题干明文。

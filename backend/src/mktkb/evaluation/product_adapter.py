@@ -103,6 +103,57 @@ def _sha256_text(text: str) -> str:
 
 
 # --------------------------------------------------------------------------- #
+# 网络边界实测（F1：产物里的"零出站"必须是测量结果，不是常量）
+# --------------------------------------------------------------------------- #
+
+
+@dataclass
+class NetworkMeter:
+    """一次 run 的网络边界实测：区分「真实出站尝试」与「本地 Mock 拦截」。
+
+    真实出站由注入给 ``DeepSeekClient`` 的**传输层**计数（MockTransport 一律记拦截，不出网）；
+    RAG 供应商 POST 用既有机器计数 ``rag.providers.post_counters()`` 的进程内增量。
+    本地替身（embedding/rerank）没有传输层，其出站恒为 0 由实现保证，而不是声明。
+    """
+
+    outbound_attempts: int = 0
+    mock_intercepted: int = 0
+
+    def as_dict(self) -> dict[str, int]:
+        return {
+            "outbound_attempts": int(self.outbound_attempts),
+            "mock_intercepted": int(self.mock_intercepted),
+        }
+
+
+class _MeteredTransport(httpx.AsyncBaseTransport):
+    """包住注入的传输：``MockTransport`` 记「拦截」，其余一律记「真实出站尝试」。"""
+
+    def __init__(self, inner: httpx.AsyncBaseTransport, meter: NetworkMeter) -> None:
+        self._inner = inner
+        self._meter = meter
+
+    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
+        if isinstance(self._inner, httpx.MockTransport):
+            self._meter.mock_intercepted += 1
+        else:
+            self._meter.outbound_attempts += 1
+        return await self._inner.handle_async_request(request)
+
+    async def aclose(self) -> None:
+        closer = getattr(self._inner, "aclose", None)
+        if closer is not None:
+            await closer()
+
+
+def _rag_provider_posts() -> int:
+    """RAG 供应商真实 POST 次数（既有机器计数的进程内累计，只数 attempts）。"""
+    from ..rag.providers import post_counters
+
+    return sum(int(value) for value in (post_counters().get("attempts") or {}).values())
+
+
+# --------------------------------------------------------------------------- #
 # 数据集（跑什么）
 # --------------------------------------------------------------------------- #
 
@@ -364,7 +415,7 @@ class MockChatBackend:
             "transport": "httpx.MockTransport",
             "calls": len(self.calls),
             "by_purpose": self.counts_by_purpose(),
-            "outbound_network": 0,
+            # 本类只统计被 MockTransport 接住的调用；真实出站由适配器的计量传输实测。
         }
 
     # ---------------------------------------------------------------- 行为
@@ -501,7 +552,7 @@ class MockEmbeddingProvider:
             "model": MOCK_EMBEDDING_MODEL,
             "calls": int(self.calls),
             "texts": int(self.texts),
-            "outbound_network": 0,
+            "transport": "offline-fake（无传输层，不能出网）",
         }
 
 
@@ -532,7 +583,7 @@ class MockReranker:
             "model": MOCK_RERANK_MODEL,
             "calls": int(self.calls),
             "documents": int(self.documents),
-            "outbound_network": 0,
+            "transport": "offline-fake（无传输层，不能出网）",
         }
 
 
@@ -715,6 +766,13 @@ class ProductEvalAdapter:
         self._closed = False
         self.ingest_receipts: list[IngestReceipt] = []
         self.real_provider_built = False
+        # F1：网络边界必须实测；F6：holdout run 的题干明文在 close 时封存删除。
+        self._meter = NetworkMeter()
+        # 构造时先取一次基线：即使 run 在发送前被拒（adapter 从未 start），
+        # provider_calls() 也不会把进程里别的 run 的 RAG 供应商 POST 算进来。
+        self._rag_posts_baseline = _rag_provider_posts()
+        self._seal_questions = bool(dataset is not None and dataset.visibility == "holdout")
+        self.seal_receipt: dict[str, Any] | None = None
 
     # ---------------------------------------------------------------- 生命周期
     @property
@@ -733,6 +791,8 @@ class ProductEvalAdapter:
             return self
         if self._closed:
             raise RuntimeError("adapter 已关闭，不能再次启动")
+        # 出站基线：RAG 供应商 POST 计数是进程级机器计数，取增量才是本 run 的事实。
+        self._rag_posts_baseline = _rag_provider_posts()
         self.paths.data_dir.mkdir(parents=True, exist_ok=True)
         database_url = f"sqlite:///{self.paths.business_db.as_posix()}"
         self._settings = Settings(
@@ -760,11 +820,12 @@ class ProductEvalAdapter:
         # 真实 DeepSeekClient（走 provider 编解码但不出网）。默认不构造任何真实 provider。
         gateway = None
         if self.chat is not None:
+            # 计量传输包住注入的 MockTransport：被拦截的调用与真实出站尝试分开计数。
             gateway = DeepSeekClient(
                 base_url=MOCK_CHAT_BASE_URL,
                 model=MOCK_CHAT_MODEL,
                 api_key=MOCK_CHAT_API_KEY,
-                transport=self.chat.transport,
+                transport=_MeteredTransport(self.chat.transport, self._meter),
             )
             self.real_provider_built = False
         rag_config = RagConfig(
@@ -841,6 +902,40 @@ class ProductEvalAdapter:
             self._app.state.db.dispose()
         if self.purge_traces_on_close:
             self.purge_traces()
+        if self._seal_questions:
+            # F6/H2：通知关闭后再封存，避免"trace 删了、业务库还留着题干明文"。
+            self.seal_receipt = self.seal_question_store()
+
+    def require_holdout_sealing(self) -> None:
+        """runner 对 holdout run 的显式标记：close() 时必须删掉含题干明文的隔离业务库。"""
+        self._seal_questions = True
+
+    @staticmethod
+    def _sqlite_family(path: Path) -> list[Path]:
+        """SQLite 主文件 + 同目录的同名 -wal/-shm/-journal 副本。"""
+        return [path] + [
+            path.with_name(path.name + suffix) for suffix in ("-wal", "-shm", "-journal")
+        ]
+
+    def seal_question_store(self) -> dict[str, Any]:
+        """H2 收尾：删除隔离业务库（会话/消息/请求表里存着题干明文）。
+
+        只在 holdout run 的 close() 里调用（此时连接已关闭、引擎已 dispose）；公开/dry-run
+        路径不触发封存，聚合产物与索引/存储副本保持原样。删不干净就报错，不允许"以为删了"。
+        """
+        removed: list[str] = []
+        for path in self._sqlite_family(self.paths.business_db):
+            try:
+                path.unlink()
+            except FileNotFoundError:
+                continue
+            removed.append(str(path))
+        remaining = [
+            str(path) for path in self._sqlite_family(self.paths.business_db) if path.exists()
+        ]
+        if remaining:
+            raise RuntimeError(f"holdout 封存失败：题干明文仍留在 {remaining}")
+        return {"question_store": "deleted", "removed": removed}
 
     def purge_traces(self) -> list[str]:
         """删除本轮的临时 trace 库（H2 只留聚合，不把逐题 trace 留在磁盘上）。"""
@@ -858,18 +953,37 @@ class ProductEvalAdapter:
         return removed
 
     # ---------------------------------------------------------------- 观测面
+    def network_stats(self) -> dict[str, Any]:
+        """本轮**实测**网络边界：出站尝试 = 注入传输的真实出站 + RAG 供应商 POST 增量。
+
+        ``outbound_network`` 不再是常量：Mock 链上由传输层计到 0（调用被 MockTransport 接住，
+        计入 ``mock_intercepted``）；换成真实传输时同一个计数器就会>0，产物如实反映。
+        """
+        rag_posts = max(0, _rag_provider_posts() - int(self._rag_posts_baseline))
+        return {
+            "outbound_attempts": int(self._meter.outbound_attempts + rag_posts),
+            "chat_outbound_attempts": int(self._meter.outbound_attempts),
+            "rag_provider_posts": int(rag_posts),
+            "mock_intercepted": int(self._meter.mock_intercepted),
+            "embedding_provider": "offline-fake（无传输层，不能出网）",
+            "rerank_provider": "offline-fake（无传输层，不能出网）",
+            "ocr_provider": "disabled（T204 前不构造）",
+        }
+
     def provider_calls(self) -> dict[str, Any]:
-        """本轮所有 provider 的调用计数与「出站 0」声明（供产物与测试断言）。"""
+        """本轮所有 provider 的调用计数与**实测**网络边界（供产物与测试断言）。"""
+        network = self.network_stats()
         return {
             "chat": (
                 self.chat.as_dict()
                 if self.chat is not None
-                else {"calls": 0, "provider": None, "outbound_network": 0}
+                else {"calls": 0, "provider": None, "transport": None}
             ),
             "embedding": self._embedder.as_dict(),
             "rerank": self._reranker.as_dict(),
             "ocr": {"calls": 0, "state": "T203 不执行 OCR（T204）"},
-            "outbound_network": 0,
+            "outbound_network": int(network["outbound_attempts"]),
+            "network": network,
         }
 
     def trace_of(self, trace_id: str | None) -> tuple[Any, list[Any]] | None:
