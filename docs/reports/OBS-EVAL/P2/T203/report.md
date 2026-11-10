@@ -76,7 +76,8 @@ pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider 
 1. 网络闸门：两个测试文件都 `pytest.mark.usefixtures("t09_network_guard")`（复用 `tests/acceptance/support/netguard.py`，不复制），
    任何**外部**出站即测试失败；18 个用例全绿（R1 后 27）⇒ 外部尝试 0。
 2. provider 身份：chat 走**真实** `DeepSeekClient` + `httpx.MockTransport`（`manifest.providers.chat.transport`），
-   `outbound_network=0`（R1 起是传输层的**实测**结果：Mock 调用计入"拦截"，不进出站计数）；
+   `providers.chat.outbound_network=0`（R2 起该 provider 级键已恢复；值与顶层同源，都是传输层的**实测**结果：
+   Mock 调用计入「拦截」，不进出站计数。R1 时该字段只在顶层，R2/A3 已把明细键补回，见下节）；
    embedding/rerank 是离线计数替身（`FakeEmbeddingProvider`/`LexicalReranker` 包装）；OCR 未使用。
 3. 供应商 POST 计数：`mktkb.rag.providers.post_counters()` 全 0（RAG 真实 HTTP 的机器计数）。
 4. 资金/请求回执：`run_result.requests_sent=0`、`summary.requests.real_requests=0`、`billed_cny=0`、`production_ready=False`
@@ -131,3 +132,24 @@ pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider 
 ```
 
 **残留（如实）**：① 真实 `P2Gate` 的**正向** live 链仍未真跑（需固定 GO/账本，归 T206）——R1 只证"桩门/鸭子门必被拒 + 只有真实 `P2Gate` 过类型判定"；② "真实传输会让出站>0"由注入计数测试证明，T206 首次真实发送需复核同一字段；③ 封存只删业务库（题干），索引/存储语料副本与聚合产物保留；④ mock_gate 的 `run_result.settled_cny` 由 0 变 0.018688/轮（与 `settle_success` 同口径），`summary.requests.billed_cny` 仍按实测出站计 0，两套口径见契约 §5。⑤ 编号对照：review.md 的 F6 是"产品预算/结算包装未进本包链路"（按任务书归 T206，需真实 `build_gateway`）；R1 修的 F6 指验收"残留风险"里的 holdout 业务库题干明文。
+
+## R2 加固（2026-11-10，对照 T203 验收 R1 的 F1-a/F1-b/F1-e/F3-a）
+
+- 现场/边界：`codex/p2-e2e` @ `d850b49`（未 commit/push）；只改本包允许文件；真实调用 **0**，未读 `.env`/H1/H2、未联网；未跑全仓。
+- **A1(F1-a) detail 是顶层的分解**：契约 §5 写明 `network.detail` 不是第二份真值；runner 新增 `_validated_network()` 交叉校验
+  `chat_outbound_attempts + rag_provider_posts == detail.outbound_attempts == 顶层 outbound_network`，任一不成立抛稳定码
+  `provider_network_detail_mismatch`（不静默拼接/覆盖）。测试注入三种不一致（只抬顶层 / detail 分解之和对不上 / 缺 detail）都必须失败；
+  原 `MeteredMockAdapter` 改为在**计量器本身**注入，R1 证据里「顶层 4、detail 0」的自相矛盾由此消失。
+- **A2(F1-b) RAG 增量用例**：新增 `RagPostMockAdapter`（每轮真实记一次 `rag.providers` POST，不联网），断言逐轮
+  `provider_calls.outbound=1`、`real_requests=2`、`billed_cny=2×0.018688`、`detail=(chat 0, rag 2)`、`providers.chat.outbound_network=0`。
+- **A3(F1-e) 旧 probe 可复跑**：`provider_calls()` 恢复 `chat/embedding/rerank/ocr` 各自的 `outbound_network`（chat = 计量传输实测，
+  embedding/rerank 无传输层故结构性 0）。复跑 `evidence/verify/probe-scripts/probe1_product_entry_netguard.py` → **25 断言 0 失败**
+  （此前读 `chat["outbound_network"]` KeyError），`external_attempts=[]`；本报告 §6 表述已同步。
+- **A4(F3-a) `question_store` 是策略标签**：`summary.holdout.question_store` 改为 `policy:delete-at-close` / `policy:keep-in-isolated-dir`，
+  并新增 `question_store_measurement` 说明真证据是 `close()` 的 `seal_receipt`（删不净即抛错）；summary 在 close 前落盘，产物不自证已删。
+  契约 §3 同步。
+- 复跑（本机亲跑）：`pytest test_p2_runner.py test_p2_product_e2e.py` → **30 passed**（原 27 + 新增 3）；
+  `test_p2_authorization.py` → **70 passed**。原始输出见 `../R2/evidence/01-pytest.txt`；语义摘要 `../R2/evidence/03-r2-semantics.json`。
+- 残留（如实）：① 真实 `P2Gate` 正向 live 链、真实 GO/账本仍归 T206；② 历史证据 `evidence/r1/r1-digest.json` 里
+  `question_store="deleted-at-close"` 与 `verify-r1` 探针的对应断言未回改（那是 R1 的时点记录），复跑该旧探针会因标签改名失败；
+  ③ `providers.<name>.outbound_network` 是明细展示，真值仍是顶层（契约已写明，runner 不以此为准）。

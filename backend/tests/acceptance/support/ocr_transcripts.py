@@ -76,8 +76,11 @@ D09_TEXT: list[str] = [
     f"{MARK}／链路验证样张",
 ]
 
-# D10：规则表格图片；实测产品判定为 text 模式（`looks_like_rule_table` 对该图返回 False），
-# 因此这里同时给出"读取顺序的逐行文本"（text 模式实际使用）与结构化表格（若将来判为 table 模式）。
+# D10：规则表格图片；实测产品判定为 **table** 模式（`looks_like_rule_table` 对该图返回 True，
+# 见 `backend/tests/unit/test_rule_table_scan.py`，T204 已按 table 计费 0.15），
+# 因此解析/断言走 table 分支（`D10_TABLE_*`）；`D10_TEXT` 仍按 text 模式的逐行文本登记，
+# 当前判定不会用到它，保留供模式变化时逐行比对。
+# （B3/N6：此处原注释写"实测判定为 text 模式"，与现行为相反，已更正；行为未改。）
 D10_TABLE_HEADER: tuple[str, ...] = ("门店", "物品", "盘点时间", "盘点地点")
 D10_TABLE_ROWS: tuple[tuple[str, ...], ...] = (
     ("城东店", "宣传海报", "2026-10-30 16:00", "城东店物料区"),

@@ -61,6 +61,7 @@ from mktkb.evaluation.product_adapter import (
     ProductEvalAdapter,
     ProductPaths,
 )
+from mktkb.rag import providers as rag_providers
 
 pytestmark = pytest.mark.usefixtures("t09_network_guard")
 
@@ -333,12 +334,18 @@ class RealishAdapter:
 
     def provider_calls(self) -> dict[str, Any]:
         # 替身也必须交出**实测**字段（runner 不认常量兜底）：这里确实一次都没调过 provider。
+        # A1：network.detail 必须是顶层出站的分解（chat + RAG POST），而不是第二份真值。
         return {
-            "chat": {"calls": 0},
-            "embedding": {"calls": 0},
-            "rerank": {"calls": 0},
+            "chat": {"calls": 0, "outbound_network": 0},
+            "embedding": {"calls": 0, "outbound_network": 0},
+            "rerank": {"calls": 0, "outbound_network": 0},
             "outbound_network": 0,
-            "network": {"outbound_attempts": 0, "mock_intercepted": 0},
+            "network": {
+                "outbound_attempts": 0,
+                "chat_outbound_attempts": 0,
+                "rag_provider_posts": 0,
+                "mock_intercepted": 0,
+            },
         }
 
     def index_status(self) -> dict[str, Any]:
@@ -890,11 +897,11 @@ async def test_holdout_run_writes_aggregate_only_and_purges_traces(tmp_path: Pat
     assert sum(aggregate["branches"].values()) == 2
     assert aggregate["turns"]["with_product_result"] == 2
     summary = read_json(run_dir / "summary.json")
-    assert summary["holdout"] == {
-        "aggregate_only": True,
-        "trace_retention": "purged-at-close",
-        "question_store": "deleted-at-close",
-    }
+    assert summary["holdout"]["aggregate_only"] is True
+    assert summary["holdout"]["trace_retention"] == "purged-at-close"
+    # A4(F3-a)：这是策略标签，不是"已删"的测量结论；测量证据是 close() 的 seal_receipt。
+    assert summary["holdout"]["question_store"] == "policy:delete-at-close"
+    assert summary["holdout"]["question_store_measurement"].startswith("close() 返回 seal_receipt")
     # F6：业务库（会话/消息/请求里的题干明文）在 close 时删除，不是"留着等 T206"。
     assert adapter.seal_receipt == {
         "question_store": "deleted",
@@ -940,22 +947,57 @@ class MeteredMockAdapter(ProductEvalAdapter):
 
     只在**测试**里模拟"这一轮真的出去了 N 次"；其余部分（产品 HTTP、Mock provider、隔离库）
     完全走真实实现，所以验证的是 runner 的统计口径，而不是替换被测逻辑。
+
+    A1(F1-a)：注入点是**计量器本身**（真实的测量源），顶层 outbound 与 network.detail
+    都从同一个计数器派生，不会出现"顶层 4 次、分解 0 次"这种自相矛盾的证据。
     """
 
     def __init__(self, *args: Any, outbound_per_turn: int = 0, **kwargs: Any) -> None:
         super().__init__(*args, **kwargs)
         self.outbound_per_turn = int(outbound_per_turn)
-        self._injected_outbound = 0
 
     async def ask_turn(self, question: str, **kwargs: Any):  # noqa: ANN201 - 透传父类
         turn = await super().ask_turn(question, **kwargs)
-        self._injected_outbound += self.outbound_per_turn
+        self._meter.outbound_attempts += self.outbound_per_turn
         return turn
 
+
+class _TopLevelOnlyAdapter(MeteredMockAdapter):
+    """只抬高**顶层** outbound_network、detail 不动：模拟"证据自相矛盾"。"""
+
     def provider_calls(self) -> dict[str, Any]:
-        payload = super().provider_calls()
-        payload["outbound_network"] = int(payload["outbound_network"]) + self._injected_outbound
+        payload = dict(super().provider_calls())
+        payload["outbound_network"] = int(payload["outbound_network"]) + 3
         return payload
+
+
+class _BrokenDetailAdapter(MeteredMockAdapter):
+    """detail 自身对不上（分解之和 ≠ network.outbound_attempts）。"""
+
+    def provider_calls(self) -> dict[str, Any]:
+        payload = dict(super().provider_calls())
+        detail = dict(payload["network"])
+        detail["rag_provider_posts"] = int(detail["rag_provider_posts"]) + 2
+        payload["network"] = detail
+        return payload
+
+
+class RagPostMockAdapter(ProductEvalAdapter):
+    """每轮真的记一次 RAG 供应商 POST（`rag.providers` 的机器计数，不联网）。
+
+    A2(F1-b)：RAG 增量必须一路反映到 summary 的顶层/detail/real_requests/billed_cny，
+    而不是只在 chat 计分器上成立。
+    """
+
+    def __init__(self, *args: Any, posts_per_turn: int = 1, **kwargs: Any) -> None:
+        super().__init__(*args, **kwargs)
+        self.posts_per_turn = int(posts_per_turn)
+
+    async def ask_turn(self, question: str, **kwargs: Any):  # noqa: ANN201 - 透传父类
+        turn = await super().ask_turn(question, **kwargs)
+        for _ in range(self.posts_per_turn):
+            rag_providers._record_post_attempt("embedding")
+        return turn
 
 
 @asyncio_test
@@ -1012,8 +1054,111 @@ async def test_summary_reports_measured_network_and_billing_counts(tmp_path: Pat
     assert summary["network"]["outbound_attempts"] == 4
     assert summary["requests"]["billed_cny"] == round(2 * 0.018688, 8)
     assert summary["providers"]["outbound_network"] == 4
+    # A1：detail 是顶层的分解（chat 出站 + RAG POST），不是第二份真值。
+    detail = summary["network"]["detail"]
+    assert detail["chat_outbound_attempts"] == 4 and detail["rag_provider_posts"] == 0
+    assert detail["outbound_attempts"] == summary["providers"]["outbound_network"] == 4
+    # A3：provider 级 outbound_network 已恢复，且与 detail 的同一来源对齐（旧 probe 依赖此键）。
+    assert summary["providers"]["chat"]["outbound_network"] == 4
+    assert summary["providers"]["embedding"]["outbound_network"] == 0
     # 门的回执（reserved/sent/settled）与实测口径互相印证：成功结算不再表现为 0 元。
     assert result.requests_reserved == 2 and result.requests_sent == 2
+    assert result.settled_cny == summary["requests"]["billed_cny"]
+
+
+@asyncio_test
+async def test_inconsistent_network_detail_is_a_stable_error(tmp_path: Path) -> None:
+    """A1(F1-a)：顶层与 detail 不一致（或 detail 自身对不上）必须失败，不静默拼接。"""
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    for name, adapter_cls in (
+        ("top-level-only", _TopLevelOnlyAdapter),
+        ("broken-detail", _BrokenDetailAdapter),
+    ):
+        adapter = adapter_cls(
+            tmp_path / f"inconsistent-{name}",
+            chat=MockChatBackend(),
+            dataset=make_dataset(cases),
+            ingest_plan=make_ingest_plan(),
+        )
+        try:
+            with pytest.raises(ValueError, match="provider_network_detail_mismatch"):
+                await run_p2(
+                    plan,
+                    adapter=adapter,
+                    authorization=authorization,
+                    gate=StubGate(is_mock_gate=True),
+                    now=NOW,
+                )
+        finally:
+            await adapter.close()
+
+
+@asyncio_test
+async def test_missing_network_detail_is_refused(tmp_path: Path) -> None:
+    """A1：连 detail 都不给，runner 直接报错（缺测量字段不按 0 兜底）。"""
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+
+    class _NoDetailAdapter(MeteredMockAdapter):
+        def provider_calls(self) -> dict[str, Any]:
+            payload = dict(super().provider_calls())
+            payload.pop("network", None)
+            return payload
+
+    adapter = _NoDetailAdapter(
+        tmp_path / "no-detail",
+        chat=MockChatBackend(),
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    try:
+        with pytest.raises(ValueError, match="provider_network_detail_mismatch"):
+            await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+    finally:
+        await adapter.close()
+
+
+@asyncio_test
+async def test_rag_post_increment_flows_into_summary_and_billing(tmp_path: Path) -> None:
+    """A2(F1-b)：每轮一次 RAG 供应商 POST → 顶层/detail/real_requests/billed 都跟着动。"""
+    rag_providers.reset_post_counters()
+    cases = (make_case("P01", RAG_QUESTION), make_case("P03", LEGACY_QUESTION))
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    adapter = RagPostMockAdapter(
+        tmp_path / "rag-post",
+        chat=MockChatBackend(),
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    try:
+        result = await run_p2(
+            plan,
+            adapter=adapter,
+            authorization=authorization,
+            gate=StubGate(is_mock_gate=True),
+            now=NOW,
+        )
+    finally:
+        await adapter.close()
+        rag_providers.reset_post_counters()
+
+    assert result.status == "succeeded", result.as_dict()
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    request_rows = read_jsonl(adapter.paths.run_dir / "requests.jsonl")
+    # 每轮实测增量：chat 0 次、RAG POST 1 次 → 该轮确实"出网"1 次。
+    assert [row["provider_calls"]["outbound"] for row in request_rows] == [1, 1]
+    assert summary["requests"]["real_requests"] == 2
+    assert summary["requests"]["billed_cny"] == round(2 * 0.018688, 8)
+    assert summary["providers"]["outbound_network"] == 2
+    detail = summary["network"]["detail"]
+    assert (detail["chat_outbound_attempts"], detail["rag_provider_posts"]) == (0, 2)
+    assert detail["outbound_attempts"] == 2
+    # A3：provider 级字段与 detail 同源（chat 为 0，RAG 只体现在 network.detail）。
+    assert summary["providers"]["chat"]["outbound_network"] == 0
     assert result.settled_cny == summary["requests"]["billed_cny"]
 
 

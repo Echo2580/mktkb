@@ -1,0 +1,240 @@
+# P2-R2 加固：三包 probe 复跑（出站 0；本机亲跑，UTF-8）
+
+## T203 `evidence/verify/probe-scripts/probe1_product_entry_netguard.py`（A3：恢复 provider 级 outbound_network 后可复跑）
+
+```
+{
+ "ok": true,
+ "checks": 25,
+ "failed": [],
+ "external_attempts": [],
+ "local_attempts": 1,
+ "chat_calls": 1,
+ "http_calls": 18,
+ "rag_ask_callers": [
+  "mktkb.qa.service"
+ ],
+ "qa_answer_callers": [
+  "mktkb.conversations.service"
+ ]
+}
+```
+
+25 条断言 0 失败；`provider_outbound_zero`（读 `calls["chat"]["outbound_network"]`）通过——该键曾因接口面删除而 KeyError。
+
+## T204 `evidence/probe_t204.py`（B1：默认 stdout，不再覆写 `evidence/02-probe-output.txt`）
+
+```
+== A. ZERO-REAL-CALLS ==
+{
+ "planned": 12,
+ "actual_provider_requests": 12,
+ "provider_requests": 12,
+ "transport_violations": [],
+ "uses_mock_transport": true,
+ "ledger_reserved": 12,
+ "ledger_settled": 12,
+ "ledger_cost_centers": [
+  "ocr"
+ ],
+ "ledger_center_accounted_cny": {
+  "ocr": 5.65
+ },
+ "cache_entries": 0,
+ "receipts": 12,
+ "receipt_cache_states": [
+  "miss"
+ ],
+ "request_identity": [
+  "doc=499a9565/ver=0d4b9e8a/p1/text/input=b5bb9e9f79a0/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p2/text/input=5c3274ce653d/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p3/text/input=15226f4be4b8/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p4/text/input=53ae0a01eca9/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p5/text/input=722d1ad3f5fd/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p6/text/input=b8afc0aeea56/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p7/text/input=28d95e464b16/region=ap-guangzhou",
+  "doc=499a9565/ver=0d4b9e8a/p8/text/input=1e14deba6862/region=ap-guangzhou",
+  "doc=c829e0eb/ver=665620c0/p1/text/input=33e749bad32c/region=ap-guangzhou",
+  "doc=c829e0eb/ver=665620c0/p2/text/input=0676106a9adb/region=ap-guangzhou",
+  "doc=9d41c426/ver=e4649cf3/p1/text/input=26bd2b53e3d2/region=ap-guangzhou",
+  "doc=c598473f/ver=8202d51a/p1/table/input=155263e5fe45/region=ap-guangzhou"
+ ],
+ "external_outbound_attempts": [],
+ "loopback_attempts": 0
+}
+```
+
+```
+== SUMMARY ==
+{
+ "external_outbound_attempts": [],
+ "loopback_attempts": 22
+}
+```
+
+复跑前后 `evidence/02-probe-output.txt` 字节不变（7786B，sha256 前缀 `805dc852b66205fe`）。C 段（缓存 / 重试 / 取消删除）摘要：
+
+```json
+{
+ "cross_use_rows": [
+  {
+   "label": "first_document",
+   "admission": "admitted",
+   "cache": "miss"
+  },
+  {
+   "label": "second_document_page1",
+   "cache": "rejected:cache_source_identity_mismatch"
+  },
+  {
+   "label": "same_document_new_version",
+   "cache": "rejected:cache_source_identity_mismatch"
+  }
+ ],
+ "cross_use_provider_requests": 3,
+ "retry_first_run": {
+  "job_state": "failed",
+  "error_code": "PARSE_INCOMPLETE",
+  "attempts": 4,
+  "provider_requests": 4,
+  "failed_pages": [
+   4
+  ],
+  "missing_pages": [
+   5,
+   6,
+   7,
+   8
+  ]
+ },
+ "retry_run": {
+  "job_state": "succeeded",
+  "attempts": 5,
+  "provider_requests": 5,
+  "product_checkpoint_reuses": 3,
+  "charged_cny": 2.5,
+  "reused_pages": [
+   1,
+   2,
+   3
+  ]
+ },
+ "retry_total_provider_requests": 9,
+ "retry_ledger_reserved": 9,
+ "cancel_delete": {
+  "cancel_version": {
+   "http_status": 204,
+   "job_state": "cancelled",
+   "calls_during": 3,
+   "calls_after_release": 3,
+   "page3_source": [
+    {
+     "page": 3,
+     "source": "provider_call",
+     "mode": "text",
+     "provider_request_id": "sha256:fe3597b7b17c7ebe2ca9fb5300253268",
+     "reservation_id": "7bac11f149c3426f890954ea75718992",
+     "charged_cny": 0.5,
+     "bound_cny": 0.5,
+     "admission": "rejected:cache_provenance_missing"
+    }
+   ],
+   "missing_pages": [
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "cache_pages": [
+    1,
+    2
+   ],
+   "records_pages": [
+    [
+     1,
+     "succeeded"
+    ],
+    [
+     2,
+     "succeeded"
+    ],
+    [
+     3,
+     "discarded"
+    ]
+   ]
+  },
+  "delete_document": {
+   "http_status": 200,
+   "job_state": "cancelled",
+   "calls_during": 3,
+   "calls_after_release": 3,
+   "page3_source": [
+    {
+     "page": 3,
+     "source": "provider_call",
+     "mode": "text",
+     "provider_request_id": "sha256:30517faff12a2154fdc12992e948b56b",
+     "reservation_id": "eb6b4cde194a457f97f056f13cd72765",
+     "charged_cny": 0.5,
+     "bound_cny": 0.5,
+     "admission": "rejected:cache_provenance_missing"
+    }
+   ],
+   "missing_pages": [
+    4,
+    5,
+    6,
+    7,
+    8
+   ],
+   "cache_pages": [
+    1,
+    2
+   ],
+   "records_pages": [
+    [
+     1,
+     "succeeded"
+    ],
+    [
+     2,
+     "succeeded"
+    ],
+    [
+     3,
+     "discarded"
+    ]
+   ]
+  }
+ },
+ "external_outbound_attempts": []
+}
+```
+
+## T205 `evidence/probe_t205.py`（C3：`-X utf8` 重生成 `02-reproduction.txt`）
+
+```json
+{
+ "ingest": [
+  "E10_市场部KPI月报.xlsx:succeeded/200",
+  "W03_促销活动申请审批与结案流程管理办法.docx:succeeded/200",
+  "E03_2026年Q4渠道价目表.xlsx:succeeded/200"
+ ],
+ "verdicts": [
+  "F01:fail(value_hit)",
+  "F02:fail(value_forbidden,value_no_fabricated)",
+  "F03:fail(value_hit,value_no_fabricated)",
+  "F04:fail(kind_correct)",
+  "F05:pass"
+ ],
+ "provider_calls": {
+  "outbound_network": 0,
+  "chat_calls": 5
+ },
+ "rag_provider_attempts": 0
+}
+```
+
+F01 现只差 `value_hit`（缺 90%）；`value_no_fabricated` 不再误伤照实给出的 `×100%` 口径（C2）。F05 正向 pass；出站 0、RAG POST 0。

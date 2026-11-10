@@ -1,9 +1,11 @@
 r"""P2-T204 证据生成器（可复跑；零真实调用）。
 
 用法（在仓库根）：
-    .\.venv\Scripts\python.exe -B docs/reports/OBS-EVAL/P2/T204/evidence/probe_t204.py
+    .\.venv\Scripts\python.exe -X utf8 -B docs/reports/OBS-EVAL/P2/T204/evidence/probe_t204.py
+    .\.venv\Scripts\python.exe -X utf8 -B ...\probe_t204.py --out <自己目录>/probe-output.txt
 
-输出三段（只打印计数/身份/费用，不打印任何页面正文）：
+输出（B1/N1）：默认只打印 stdout，**不覆写**归档证据 `evidence/02-probe-output.txt`；
+要落盘用 `--out` 显式指定路径。三段（只打印计数/身份/费用，不打印任何页面正文）：
     A. ZERO-REAL-CALLS：socket/httpx 闸门实测出站 0；真实 OCR 客户端只接 Mock 传输
     B. PLAN-VS-ACTUAL：B0 D07-D10 经产品上传→worker→发布→索引→问答引用，12 次调用逐页对账
     C. CACHE-AND-RACE：跨文档/跨版本串用拒绝、失败重试复用、取消/删除不续页
@@ -13,6 +15,7 @@ r"""P2-T204 证据生成器（可复跑；零真实调用）。
 
 from __future__ import annotations
 
+import argparse
 import asyncio
 import json
 import shutil
@@ -24,6 +27,13 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[6]
 sys.path.insert(0, str(ROOT / "backend" / "src"))
 sys.path.insert(0, str(ROOT / "backend" / "tests"))
+
+# 控制台编码与平台无关：Windows 默认 cp936 会让中文在重定向时变成不可逆乱码（C3 教训）。
+for _stream in (sys.stdout, sys.stderr):
+    try:
+        _stream.reconfigure(encoding="utf-8")
+    except (AttributeError, ValueError):  # pragma: no cover - 非常规流
+        pass
 
 NORMAL = ROOT / "fixtures" / "acceptance" / "normal"
 WORK = ROOT / "backend" / ".pytest-tmp" / "p2-t204-evidence"
@@ -515,7 +525,22 @@ async def section_c() -> dict:
         await adapter.close()
 
 
-def main() -> int:
+def main(argv: list[str] | None = None) -> int:
+    """跑三段证据并输出。
+
+    B1(N1)：**不再覆写** `evidence/02-probe-output.txt`。默认只打印到 stdout；
+    要落盘必须显式 `--out PATH`（调用方自己指定位置，通常是自己目录下的 verify/）。
+    这样"复跑一次"不会改掉已归档的证据文件。
+    """
+    parser = argparse.ArgumentParser(
+        description="P2-T204 evidence probe（Mock-only；默认 stdout，不覆写归档证据）"
+    )
+    parser.add_argument(
+        "--out",
+        default=None,
+        help="可选：把本段输出写到指定文件（父目录自动创建）；缺省只打印 stdout",
+    )
+    args = parser.parse_args(argv)
     sections = {
         "A. ZERO-REAL-CALLS": section_a(),
         "B. PLAN-VS-ACTUAL": asyncio.run(section_b()),
@@ -531,10 +556,15 @@ def main() -> int:
         chunks.append(json.dumps(payload, ensure_ascii=False, indent=1))
         chunks.append("")
     text = "\n".join(chunks)
-    target = Path(__file__).resolve().parent / "02-probe-output.txt"
-    target.write_text(text, encoding="utf-8")
-    print(f"wrote {target} ({len(text)} chars)")
-    print(json.dumps(sections["SUMMARY"], ensure_ascii=False))
+    if args.out:
+        target = Path(args.out)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+        print(f"wrote {target} ({len(text)} chars)", file=sys.stderr)
+        print(text)
+    else:
+        print(text)
+    print(json.dumps(sections["SUMMARY"], ensure_ascii=False), file=sys.stderr)
     return 0
 
 

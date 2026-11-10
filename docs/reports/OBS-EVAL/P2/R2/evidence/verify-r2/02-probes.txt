@@ -1,0 +1,123 @@
+# P2-R2 独立复验证据（verify-r2）：探针输出（复验者自写探针，全部 Mock / 零出站）
+
+生成命令（仓库根）：
+```
+.venv\Scripts\python.exe -X utf8 -B docs/reports/OBS-EVAL/P2/R2/evidence/verify-r2/probe_verify_r2.py
+```
+
+## 1) 主探针：53 条自写断言（退出码 0）
+
+```
+=== A1 unit: network.detail 是顶层的分解 ===
+{"check": "A1.consistent_accepted", "ok": true, "detail": {"top": 4}}
+{"check": "A1.top_level_only_bumped_rejected", "ok": true, "detail": "ValueError: provider_network_detail_mismatch: 顶层 outbound_network 7 != network.outbound_attempts 4"}
+{"check": "A1.detail_parts_sum_rejected", "ok": true, "detail": "ValueError: provider_network_detail_mismatch: detail 分解之和 6 != network.outbound_attempts 4"}
+{"check": "A1.missing_detail_rejected", "ok": true, "detail": "ValueError: provider_network_detail_mismatch: provider_calls() 缺少 network detail"}
+{"check": "A1.missing_component_key_rejected", "ok": true, "detail": "ValueError: provider_network_detail_mismatch: network detail 缺少 ['rag_provider_posts']"}
+{"check": "A1.negative_values_clamped", "ok": true, "detail": {"returned_top": 0, "note": "负值被 max(0,..) 归零，未报错"}}
+
+=== A1 全链路：注入不一致 → run_p2 抛稳定码，不写 summary ===
+{"check": "A1.full_path_raises_stable_code", "ok": true, "detail": "ValueError: provider_network_detail_mismatch: 顶层 outbound_network 3 != network.outbound_attempts 0"}
+{"check": "A1.full_path_no_summary_written", "ok": true, "detail": {"run_dir": "p2-run", "summary_exists": false}}
+
+=== A2 RAG 供应商 POST 增量 → 顶层/detail/real_requests/billed（自写变体：每轮 2 次） ===
+{"check": "A2.run_succeeded", "ok": true, "detail": "succeeded"}
+{"check": "A2.per_turn_outbound_increment", "ok": true, "detail": [2, 2]}
+{"check": "A2.real_requests", "ok": true, "detail": 2}
+{"check": "A2.billed", "ok": true, "detail": 0.037376}
+{"check": "A2.top_outbound", "ok": true, "detail": 4}
+{"check": "A2.detail_split", "ok": true, "detail": {"chat_outbound_attempts": 0, "embedding_provider": "offline-fake（无传输层，不能出网）", "mock_intercepted": 1, "ocr_provider": "disabled（T204 前不构造）", "outbound_attempts": 4, "rag_provider_posts": 4, "rerank_provider": "offline-fake（无传输层，不能出网）"}}
+{"check": "A2.settled_matches_billed", "ok": true, "detail": 0.037376}
+
+=== A3 provider 级 outbound_network 已恢复（旧 probe1 依赖的键） ===
+{"check": "A3.provider_keys_present", "ok": true, "detail": {"chat": 0, "embedding": 0, "rerank": 0, "ocr": 0}}
+{"check": "A3.chat_matches_detail", "ok": true, "detail": {"chat": 0, "detail_chat": 0}}
+{"check": "A3.top_is_sum_of_parts", "ok": true, "detail": 0}
+
+=== A4 question_store 是策略标签（public 路径，holdout 见下一节） ===
+{"check": "A4.public_label_is_policy", "ok": true, "detail": "policy:keep-in-isolated-dir"}
+{"check": "A4.measurement_points_at_seal_receipt", "ok": true, "detail": "close() 返回 seal_receipt；未删净即报错，summary 不自证已删除"}
+
+=== A4 holdout 全链路：policy:delete-at-close + seal_receipt ===
+{"check": "A4.holdout_label_is_policy", "ok": true, "detail": "policy:delete-at-close"}
+{"check": "A4.holdout_status", "ok": true, "detail": "succeeded"}
+{"check": "A4.seal_receipt_is_measurement", "ok": true, "detail": {"question_store": "deleted", "removed": ["C:\\Users\\dell1712\\AppData\\Local\\Temp\\verify-r2-_dx9_sm3\\a4-holdout\\data\\mktkb.sqlite3"]}}
+
+=== B2 契约称 4 个拒绝码不可达：实测可达性 ===
+{"check": "B2.baseline_hit_reachable", "ok": true, "detail": {"status": "hit", "reason": null, "provider_request_id": "req-1"}}
+{"check": "B2.mode_switch_is_miss_not_reject", "ok": true, "detail": {"status": "miss", "reason": null, "provider_request_id": null}}
+{"check": "B2.input_hash_mismatch_reachable", "ok": true, "detail": {"status": "rejected", "reason": "cache_input_hash_mismatch", "provider_request_id": null}}
+{"check": "B2.forged_provider_quarantined_not_candidate", "ok": true, "detail": {"entries": 0, "quarantined": ["cache_payload_invalid"]}}
+{"check": "B2.forged_region_quarantined_not_candidate", "ok": true, "detail": {"entries": 0, "quarantined": ["cache_payload_invalid"]}}
+{"check": "B2.no_reachable_path_returns_provider_model_region_codes", "ok": true, "detail": {"note": "同 (page,mode) 桶内候选只能来自合法身份条目；provider/model/region 非法者在 from_payload 即隔离"}}
+
+=== C1/L 标记：四类对象 execution_mode / real_calls ===
+{"check": "C1.case_default_local_mock", "ok": true, "detail": {"case_id": "Q01", "suite": "b0", "stratum": "exact", "status": "pass", "requires_ocr": false, "planned_turns": 1, "executed_turns": 1, "checks": [], "issues": [], "turn_kinds": [], "trace_ids": [], "execution_mode": "local_mock", "real_calls": 0}}
+{"check": "C1.mock_claiming_real_calls_rejected", "ok": true, "detail": "P2ScoringError: real_calls_without_live_mode: case Q01: execution_mode='local_mock' 却声称 real_calls=1（mock 不得标真实调用）"}
+{"check": "C1.typo_mode_rejected", "ok": true, "detail": "P2ScoringError: execution_mode_invalid: case Q01: 'real'"}
+{"check": "C1.negative_calls_rejected", "ok": true, "detail": "P2ScoringError: real_calls_invalid: case Q01: real_calls=-1"}
+{"check": "C1.live_explicit_carried", "ok": true, "detail": {"execution_mode": "live", "real_calls": 3}}
+{"check": "C1.public_card_derives_and_binds_run", "ok": true, "detail": "verify-r2-run"}
+{"check": "C1.public_mixed_modes_rejected", "ok": true, "detail": "P2ScoringError: execution_mode_mixed: 同一张公开矩阵混用执行模式 ['live', 'local_mock']"}
+{"check": "C1.holdout_card_carried", "ok": true, "detail": "verify-h2"}
+{"check": "C1.holdout_mock_cannot_claim_calls", "ok": true, "detail": "P2ScoringError: real_calls_without_live_mode: holdout scorecard: execution_mode='local_mock' 却声称 real_calls=1（mock 不得标真实调用）"}
+{"check": "C1.holdout_default_conservative", "ok": true, "detail": null}
+
+=== C2 F01：正确回答 pass / 缺 90% fail / 95% 仍 fail；冻结项未动 ===
+{"check": "C2.correct_answer_passes", "ok": true, "detail": "pass"}
+{"check": "C2.without_reference_answer_would_fail (证明修复是必要的)", "ok": true, "detail": ["value_no_fabricated"]}
+{"check": "C2.missing_target_still_fails", "ok": true, "detail": ["value_hit"]}
+{"check": "C2.95pct_still_fabricated", "ok": true, "detail": ["value_no_fabricated"]}
+{"check": "C2.e2e_pass_branch_reachable_with_correct_product_answer", "ok": true, "detail": "pass"}
+
+=== C4 判定绑定 run_id / 执行模式 ===
+{"check": "C4.bound_run_and_mode", "ok": true, "detail": {"run_id": "run-p2", "execution_mode": "local_mock", "real_calls": 0}}
+{"check": "C4.clean_decision_release_allowed", "ok": true, "detail": true}
+{"check": "C4.foreign_scorecard_blocked", "ok": true, "detail": ["run_binding_mismatch"]}
+{"check": "C4.foreign_scorecard_unknown_exit", "ok": true, "detail": 3}
+{"check": "C4.explicit_conflicting_run_id_rejected", "ok": true, "detail": "P2ScoringError: run_id_mismatch: run_id='run-conflict' 与 run_manifest.run_id='run-p2' 不一致"}
+{"check": "C4.manifest_without_run_id_not_bound (边界探测)", "ok": true, "detail": {"blocks": [], "decision_run_id": null, "note": "manifest 无 run_id 时绑定静默失效（真实 runner 恒写 run_id，故非阻断）"}}
+
+=== C3 证据文件 UTF-8 / 无替换字符 ===
+{"check": "C3.utf8_decodable_no_replacement_char", "ok": true, "detail": {"bytes": 4272, "lines": 163, "has_fffd": false}}
+{"check": "C3.chinese_readable", "ok": true, "detail": "中文可读"}
+
+=== 外部出站实测 ===
+{"check": "ZERO.external_outbound", "ok": true, "detail": []}
+
+=== SUMMARY ===
+{"checks": 53, "failed": []}
+```
+
+## 2) A3：T203 归档 probe1 复跑（字节同源副本，probe1 自身会写同目录 probe1_result.json）
+
+- 源 `docs/reports/OBS-EVAL/P2/T203/evidence/verify/probe-scripts/probe1_product_entry_netguard.py` sha256/16 = 8aebc1ff17a84308
+- 副本 `verify-r2/scripts/probe1_product_entry_netguard.py` sha256/16 = 8aebc1ff17a84308（同深度落位，`parents[8]` 仍指向仓库根）
+
+```
+{"ok": true, "error": null, "checks": 25, "failed": [], "external_attempts": [], "local_attempts": 1, "ask_callers": ["mktkb.qa.service"], "answer_callers": ["mktkb.conversations.service"]}
+```
+
+`probe1_result.json`：ok=true，checks=25，failed=[]，external_attempts=[]
+其中 `provider_outbound_zero` 读取的正是 `provider_calls()["chat"]["outbound_network"]`：{"name":"provider_outbound_zero","ok":true,"detail":{"provider":"p2-mock","model":"mock-chat","transport":"httpx.MockTransport","calls":1,"by_purpose":{"answer":1},"outbound_network":0}}
+
+## 3) B1：T204 probe 默认不覆写归档证据（前后 sha 对比）
+
+- 复跑前：sha256/16 = 805dc852b66205fe，7786 B
+- 默认复跑：exit 0，stdout 7788 字符（末行 `{"external_outbound_attempts": [], "loopback_attempts": 22}`）
+- 复跑后：sha256/16 = 805dc852b66205fe，7786 B → **字节不变**
+- `--out <本人目录>` 复跑：exit 0，落盘 7786 B（sha/16 b6b535b442b5fb18），归档仍 805dc852b66205fe
+- `--out` 产物与归档仅 31 行不同，全部是 run 内文档/版本 id（`doc=…/ver=…`），`input=` 内容哈希与全部计数逐行一致：属 run 本地身份，不是证据漂移。
+
+## 4) C3：T205 `02-reproduction.txt` UTF-8 与重生成确定性
+
+- 归档：4272 B，164 行，含 U+FFFD：false，中文可读（`陈列达标率`/`活动` 命中）
+- 重生成（`-X utf8` 跑 `probe_t205.py`，stdout）：sha256/16 = 6ccec007dd7c30ed，归档 sha256/16 = 6ccec007dd7c30ed → **完全一致（逐字节确定）**
+
+## 5) B3：D10 规则表格判定（注释更正的事实依据）
+
+- `looks_like_rule_table(fixtures/acceptance/normal/D10_盘点通知.jpg)` → `True`（与 `test_rule_table_scan.py:39`、`test_p2_ocr_ingestion.py:177` 的 table 期望一致）
+
+## 6) 零出站
+
+- 主探针自带 socket 闸门：`external_outbound=[]`；三包 probe 复跑亦为 `[]`（见 02 内各段与 R2/evidence/02-probe-outputs.txt）。

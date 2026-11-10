@@ -74,6 +74,12 @@ DOCUMENTS = {
 
 #: 语料里同一张表同时有 2026 与 2025 两行同 SKU 的档期特价（2.99 / 2.5），
 #: 以及同一列里其他指标的年度目标（陈列达标率 90% vs 物料覆盖率 95%）。
+#: C2(F2)：F01 是 T205 新建、非冻结的公开控制用例。问题本身问了"口径"，而口径里天然有
+#: `×100%`——若不给参考答案，照实回答也会被 `value_no_fabricated` 当成编造数字判 fail。
+#: 这里补 `reference_answer`（含语料该行的月份/指标/口径/目标），让"正确回答可 pass"成立；
+#: 诱饵回答（缺 90% 或换成 95%）仍然 fail，判别力不变。
+KPI_TARGET_REFERENCE = "月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%；年度目标：90%"
+
 KPI_TARGET_CASE = CaseSpec(
     case_id="F01",
     suite="b0",
@@ -84,6 +90,7 @@ KPI_TARGET_CASE = CaseSpec(
     expected_kind="answer",
     expected_values=("90%",),
     expected_sources=({"doc_code": "E10", "locator": {"sheet": "KPI月报", "row": 103}},),
+    reference_answer=KPI_TARGET_REFERENCE,
     labeler="lead",
     label_version="public-financial-2026-11-10",
 )
@@ -311,6 +318,32 @@ def test_supported_frozen_answer_passes() -> None:
     assert supported.score.status == CASE_STATUS_PASS, supported.score.to_dict()
 
 
+def test_f01_correct_answer_with_formula_passes() -> None:
+    """C2(F2)：照实回答（含 90% 与 ×100% 口径）必须 PASS，不能被当成编造数字。"""
+    sources = freeze_sources("E10_市场部KPI月报.xlsx", {"sheet": "KPI月报", "row": 103})
+    correct = score_frozen(
+        KPI_TARGET_CASE,
+        text="陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。",
+        sources=sources,
+    )
+    assert correct.score.status == CASE_STATUS_PASS, correct.score.to_dict()
+    # 同一题：缺目标值 / 换成分档外的 95% 仍然 fail（判别力未被放宽）。
+    missing = score_frozen(
+        KPI_TARGET_CASE,
+        text="月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%",
+        sources=sources,
+    )
+    assert missing.score.status == CASE_STATUS_FAIL
+    fabricated = score_frozen(
+        KPI_TARGET_CASE,
+        text="陈列达标率年度目标 90%；计算口径：合格门店 ÷ 抽检门店 × 95%。",
+        sources=sources,
+    )
+    assert fabricated.score.status == CASE_STATUS_FAIL
+    failed = {check["check_id"] for check in fabricated.score.checks if check["status"] == "fail"}
+    assert "value_no_fabricated" in failed
+
+
 def test_year_decoy_price_row_is_rejected() -> None:
     """2025 旧价（2.5）不能当 2026 Q4 档期特价的依据。"""
     stale = score_frozen(
@@ -397,8 +430,8 @@ async def test_public_financial_controls_end_to_end(tmp_path: Path) -> None:
         target = score_turn(KPI_TARGET_CASE, target_turn)
         if "90%" not in target_turn.text:
             assert target.score.status == CASE_STATUS_FAIL, "缺目标值时不得判通过"
-        else:  # 若产品已修复：必须同时给出口径与目标值
-            assert target.score.status == CASE_STATUS_PASS
+        else:  # 若产品已修复：必须同时给出口径与目标值（C2：F01 已带 reference_answer）
+            assert target.score.status == CASE_STATUS_PASS, target.score.to_dict()
 
         # ---- 诱饵 2：同一法条其他分档的审批人 ----
         approval_turn = await ask(4, "单场预算 8000 元的活动由谁审批？")

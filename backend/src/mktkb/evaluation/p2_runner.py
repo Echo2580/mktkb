@@ -148,6 +148,44 @@ def _measured_outbound(providers: Mapping[str, Any]) -> int:
     return max(0, int(providers["outbound_network"]))
 
 
+#: A1：(F1-a) 顶层 outbound_attempts 与 network.detail 不一致时的稳定错误码。
+NETWORK_DETAIL_MISMATCH = "provider_network_detail_mismatch"
+
+#: network.detail 必须给出的分解分量（之和 = 顶层出站）。
+_NETWORK_DETAIL_KEYS = ("outbound_attempts", "chat_outbound_attempts", "rag_provider_posts")
+
+
+def _validated_network(providers: Mapping[str, Any]) -> tuple[int, dict[str, Any]]:
+    """核对 network.detail 只是顶层出站的**分解**，不是第二份"真值"（A1）。
+
+    契约（`p2-runner-contract-v0_1` §5）规定：``providers.outbound_network`` 是唯一真值，
+    ``providers.network`` 是它的分解（``chat_outbound_attempts`` + ``rag_provider_posts``）。
+    两者不一致（或分解之和 ≠ detail 汇总）时直接报稳定错误码，**不静默拼接/覆盖**。
+    """
+    detail = providers.get("network")
+    if not isinstance(detail, Mapping):
+        raise ValueError(f"{NETWORK_DETAIL_MISMATCH}: provider_calls() 缺少 network detail")
+    missing = [key for key in _NETWORK_DETAIL_KEYS if key not in detail]
+    if missing:
+        raise ValueError(f"{NETWORK_DETAIL_MISMATCH}: network detail 缺少 {missing}")
+    top = _measured_outbound(providers)
+    detail_total = max(0, int(detail["outbound_attempts"]))
+    parts = max(0, int(detail["chat_outbound_attempts"])) + max(
+        0, int(detail["rag_provider_posts"])
+    )
+    if parts != detail_total:
+        raise ValueError(
+            f"{NETWORK_DETAIL_MISMATCH}: detail 分解之和 {parts} != "
+            f"network.outbound_attempts {detail_total}"
+        )
+    if detail_total != top:
+        raise ValueError(
+            f"{NETWORK_DETAIL_MISMATCH}: 顶层 outbound_network {top} != "
+            f"network.outbound_attempts {detail_total}"
+        )
+    return top, dict(detail)
+
+
 def _provider_counters(adapter: Any) -> dict[str, int]:
     """一次 provider 计数快照（chat/embedding/rerank/出站），用于算每轮增量。
 
@@ -1120,7 +1158,8 @@ def _write_artifacts(
 ) -> None:
     run_dir = adapter.paths.run_dir
     providers = adapter.provider_calls()
-    outbound_attempts = _measured_outbound(providers)
+    # A1：顶层实测出站与 network.detail 交叉校验（detail 是分解，不是独立真值）。
+    outbound_attempts, network_detail = _validated_network(providers)
     # F1：真实请求数/计费金额都从"每轮实测增量 + 实际结算金额"算，不从 execution 标签推断。
     measured_requests = [
         row
@@ -1250,15 +1289,20 @@ def _write_artifacts(
         "network": {
             "outbound_attempts": int(outbound_attempts),
             "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
-            "detail": dict(providers.get("network") or {}),
+            "detail": network_detail,
         },
         "holdout": {
             "aggregate_only": dataset.visibility == "holdout",
             "trace_retention": _trace_retention(dataset, adapter, result),
+            # A4(F3-a)：这是**策略标签**，不是"已删"的测量结论。真正的证据是
+            # close() 返回的 seal_receipt（删不干净即抛错）；产物本身不自证已删。
             "question_store": (
-                "deleted-at-close"
+                "policy:delete-at-close"
                 if dataset.visibility == "holdout"
-                else "kept-in-isolated-dir"
+                else "policy:keep-in-isolated-dir"
+            ),
+            "question_store_measurement": (
+                "close() 返回 seal_receipt；未删净即报错，summary 不自证已删除"
             ),
         },
         "failure": (

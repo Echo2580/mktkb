@@ -13,6 +13,7 @@
 from __future__ import annotations
 
 import json
+from dataclasses import replace
 
 import pytest
 
@@ -40,6 +41,8 @@ from mktkb.evaluation.p2_scoring import (
     CASE_STATUS_NOT_EXECUTED,
     CASE_STATUS_PASS,
     CASE_STATUS_SKIPPED_OCR,
+    EXECUTION_MODE_LIVE,
+    EXECUTION_MODE_LOCAL_MOCK,
     P2CaseScore,
     P2HoldoutCaseScore,
     P2HoldoutScorecard,
@@ -563,6 +566,79 @@ def test_holdout_rejects_detail_payload() -> None:
     with pytest.raises(P2ScoringError) as excinfo:
         leaky.to_dict()
     assert excinfo.value.code == "holdout_detail_leak"
+
+
+# --------------------------------------------------------------------------- #
+# 5. C1：执行模式 / 真实调用标记（验收 2b 项）
+# --------------------------------------------------------------------------- #
+
+
+def test_case_score_defaults_to_local_mock_and_live_must_be_explicit() -> None:
+    """默认保守记 local_mock/0；要标 live 必须显式传，且 mock 上不许有真实调用。"""
+    default = score(make_case("Q01"))
+    assert (default.execution_mode, default.real_calls) == (EXECUTION_MODE_LOCAL_MOCK, 0)
+    payload = default.to_dict()
+    assert payload["execution_mode"] == "local_mock" and payload["real_calls"] == 0
+
+    live = replace(score(make_case("Q01")), execution_mode=EXECUTION_MODE_LIVE, real_calls=3)
+    assert (live.execution_mode, live.real_calls) == ("live", 3)
+    assert live.to_dict()["real_calls"] == 3
+
+    # 1) mock 链上声称真实调用 = 谎报，直接拒绝
+    with pytest.raises(P2ScoringError) as excinfo:
+        replace(default, real_calls=1)
+    assert excinfo.value.code == "real_calls_without_live_mode"
+    # 2) 拼错的模式名不猜、不兜底
+    with pytest.raises(P2ScoringError) as excinfo:
+        replace(default, execution_mode="real")
+    assert excinfo.value.code == "execution_mode_invalid"
+    # 3) 负数调用数同样拒绝
+    with pytest.raises(P2ScoringError) as excinfo:
+        replace(default, execution_mode=EXECUTION_MODE_LIVE, real_calls=-1)
+    assert excinfo.value.code == "real_calls_invalid"
+
+
+def test_public_scorecard_derives_execution_mark_and_rejects_mixed_modes() -> None:
+    card = score_public_suites(full_scores(), run_id="p2run-mock")
+    assert (card.execution_mode, card.real_calls, card.run_id) == ("local_mock", 0, "p2run-mock")
+    payload = card.to_dict()
+    assert payload["execution_mode"] == "local_mock" and payload["run_id"] == "p2run-mock"
+
+    live_scores = [
+        replace(item, execution_mode=EXECUTION_MODE_LIVE, real_calls=1)
+        for item in full_scores()
+    ]
+    live_card = score_public_suites(live_scores, run_id="p2run-live")
+    assert live_card.execution_mode == "live"
+    assert live_card.real_calls == sum(item.real_calls for item in live_scores)
+    assert live_card.real_calls > 0
+
+    mixed = [replace(live_scores[0], execution_mode=EXECUTION_MODE_LOCAL_MOCK, real_calls=0)] + live_scores[1:]
+    with pytest.raises(P2ScoringError) as excinfo:
+        score_public_suites(mixed)
+    assert excinfo.value.code == "execution_mode_mixed"
+
+
+def test_holdout_scorecard_carries_execution_mark_and_run_id() -> None:
+    card = aggregate_holdout(
+        holdout_scores(),
+        thresholds_approved=True,
+        execution_mode=EXECUTION_MODE_LIVE,
+        real_calls=7,
+        run_id="p2run-h2",
+    )
+    payload = card.to_dict()
+    assert payload["execution_mode"] == "live"
+    assert payload["real_calls"] == 7
+    assert payload["run_id"] == "p2run-h2"
+    # 聚合产物仍然不含明细（run_id 是身份，不是题目）
+    assert "H2-" not in json.dumps(payload, ensure_ascii=False)
+
+    default = aggregate_holdout(holdout_scores(), thresholds_approved=True)
+    assert (default.execution_mode, default.real_calls, default.run_id) == ("local_mock", 0, None)
+    with pytest.raises(P2ScoringError) as excinfo:
+        aggregate_holdout(holdout_scores(), thresholds_approved=True, real_calls=1)
+    assert excinfo.value.code == "real_calls_without_live_mode"
 
 
 def test_holdout_case_hard_failure_cannot_be_pass() -> None:

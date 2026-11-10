@@ -79,5 +79,26 @@
 
 1. evidence/01-pytest.txt：上表四条命令的原始输出（44/109/136/7 passed，全部 exit 0）。
 2. evidence/02-reproduction.txt：public 财务反例复现（产品回答 + p2 判定 + 出站 0 / RAG POST 0 / 真实请求 0）。
-3. evidence/probe_t205.py：可复跑生成器（同一脚本重跑即重建 02；不读 .env / H1/H2）。
+3. evidence/probe_t205.py：可复跑生成器（stdout；归档文件用 `-X utf8` 重定向生成，R2 起 02 为 UTF-8 可读版；不读 .env / H1/H2）。
 4. 本报告（含 gate/分母口径与限制）。
+
+## R2 加固（2026-11-10，对照 T205 验收 2b-FAIL / F2 / F3 / F4）
+
+- 现场/边界：`codex/p2-e2e` @ `d850b49`（未 commit/push）；只改本包允许文件；真实调用 **0**，未读 `.env`/H1/H2、未联网；未跑全仓。
+- **C1(2b，验收 FAIL 项) L/真实标记到位**：`P2CaseScore` / `P2PublicScorecard` / `P2HoldoutScorecard` / `P2GateDecision` 增加
+  `execution_mode`（`local_mock` / `live`）与 `real_calls`，并写进各自的 `to_dict()`。默认是**保守**的 `local_mock`/0；
+  要标 `live` 必须显式传（`score_public_case(..., execution_mode="live", real_calls=N)` / `aggregate_holdout(...)` / `evaluate_p2_gate(...)`）；
+  mock 上声称 `real_calls>0` 直接抛 `real_calls_without_live_mode`，拼错的模式名抛 `execution_mode_invalid`；
+  公开矩阵按逐题派生（混用模式抛 `execution_mode_mixed`），判定按 public+holdout 派生并与调用方声明核对。
+- **C2(F2) F01 标签自相矛盾已修**：给 F01 的 `CaseSpec` 加 `reference_answer`（含 2026-09/陈列达标率/口径 ×100%/目标 90%）。
+  现在"照实回答"（含 `×100%`）判 **pass**，而缺 90% 或换成 95% 仍 fail；`test_p2_public_controls.py` 里"含 90% 就必须 PASS"分支
+  不再是红灯陷阱。**未改冻结 fixtures**（F01 是 T205 新建、非冻结标签）；`probe_t205.py` 内同名 CaseSpec 同步同一口径。
+- **C3(F3) 证据可读**：`evidence/02-reproduction.txt` 用 `-X utf8` 重生成（4272B，无替换字符，中文正常）；
+  内容随时点更新：F01 现仅差 `value_hit`（缺 90%），不再被 `value_no_fabricated` 误伤。
+- **C4(F4) run 绑定量力而为**：`P2PublicScorecard` / `P2HoldoutScorecard` / `P2GateDecision` 增 `run_id`；`evaluate_p2_gate` 从
+  `run_manifest.run_id` 取身份，scorecard 的 `run_id` 与之不符 → `run_binding_mismatch`（unknown，不放行）；
+  调用方显式 `run_id` 与 manifest 冲突 → `run_id_mismatch` 直接报错。**跨 run 的 config_hash 级绑定仍留 T206/T209**：
+  scorecard 由纯计数构成、不含 gate 配置身份，强行塞 `config_hash` 会制造"看起来绑定了"的假象；T206 采集侧补 `run_summary.gate_*` 后一并核对。
+- 复跑（本机亲跑）：`pytest test_p2_scoring.py test_p2_gate.py test_p2_public_controls.py` → **51 passed**（22+23+6，原 44 + 新增 7）；
+  受影响门槛套件 `test_gate.py test_gate_quality.py` → **109 passed**；`probe_t205.py` 出站 0 / RAG POST 0。
+  原始输出见 `../R2/evidence/01-pytest.txt`，判定摘要见 `../R2/evidence/02-probe-outputs.txt`、`../R2/evidence/03-r2-semantics.json`。

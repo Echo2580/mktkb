@@ -1,0 +1,198 @@
+{
+ "generated_by": "P2-R2 加固开发助手（本脚本为临时生成器，未入库）",
+ "error_code_checked": "provider_network_detail_mismatch",
+ "checks": [
+  {
+   "name": "A1.consistent_accepted",
+   "ok": true,
+   "detail": {
+    "top": 4
+   }
+  },
+  {
+   "name": "A1.top_only_rejected",
+   "ok": true,
+   "detail": "provider_network_detail_mismatch: 顶层 outbound_network 7 != network.outbound_attempts 4"
+  },
+  {
+   "name": "A1.detail_sum_rejected",
+   "ok": true,
+   "detail": "provider_network_detail_mismatch: detail 分解之和 6 != network.outbound_attempts 4"
+  },
+  {
+   "name": "A1.detail_missing_rejected",
+   "ok": true,
+   "detail": "provider_network_detail_mismatch: provider_calls() 缺少 network detail"
+  },
+  {
+   "name": "A3.provider_fields_present",
+   "ok": true,
+   "detail": {
+    "chat": 0,
+    "embedding": 0,
+    "rerank": 0,
+    "ocr": 0,
+    "outbound_network": 0,
+    "network": null
+   }
+  },
+  {
+   "name": "C1.default_local_mock",
+   "ok": true,
+   "detail": {
+    "case_id": "Q01",
+    "suite": "b0",
+    "stratum": "exact",
+    "status": "pass",
+    "requires_ocr": false,
+    "planned_turns": 1,
+    "executed_turns": 1,
+    "checks": [],
+    "issues": [],
+    "turn_kinds": [],
+    "trace_ids": [],
+    "execution_mode": "local_mock",
+    "real_calls": 0
+   }
+  },
+  {
+   "name": "C1.live_requires_explicit",
+   "ok": true,
+   "detail": {
+    "case_id": "Q01",
+    "suite": "b0",
+    "stratum": "exact",
+    "status": "pass",
+    "requires_ocr": false,
+    "planned_turns": 1,
+    "executed_turns": 1,
+    "checks": [],
+    "issues": [],
+    "turn_kinds": [],
+    "trace_ids": [],
+    "execution_mode": "live",
+    "real_calls": 3
+   }
+  },
+  {
+   "name": "C1.mock_cannot_claim_real_calls",
+   "ok": true,
+   "detail": "real_calls_without_live_mode"
+  },
+  {
+   "name": "C2.correct_answer_passes",
+   "ok": true,
+   "detail": []
+  },
+  {
+   "name": "C2.without_reference_would_fail",
+   "ok": true,
+   "detail": [
+    {
+     "check_id": "value_no_fabricated",
+     "status": "fail",
+     "evidence": {
+      "extra": [
+       "100"
+      ],
+      "checked": 1
+     }
+    }
+   ]
+  },
+  {
+   "name": "C2.decoy_still_fails",
+   "ok": true,
+   "detail": [
+    {
+     "check_id": "value_hit",
+     "status": "fail",
+     "evidence": {
+      "expected": 1,
+      "missing": [
+       "90%"
+      ]
+     }
+    }
+   ]
+  }
+ ],
+ "failed": [],
+ "checks_total": 11,
+ "file_identity": {
+  "backend/src/mktkb/evaluation/p2_runner.py": {
+   "lines": 1359,
+   "sha256_16": "af9d7c2e13dd71e4",
+   "bytes": 56175
+  },
+  "backend/src/mktkb/evaluation/product_adapter.py": {
+   "lines": 1316,
+   "sha256_16": "6dfb759acd8206d5",
+   "bytes": 53472
+  },
+  "backend/src/mktkb/evaluation/p2_scoring.py": {
+   "lines": 1945,
+   "sha256_16": "130a4a06f81c61ec",
+   "bytes": 75587
+  },
+  "backend/tests/evaluation/test_p2_runner.py": {
+   "lines": 1350,
+   "sha256_16": "251b6b072016947e",
+   "bytes": 54137
+  },
+  "backend/tests/evaluation/test_p2_scoring.py": {
+   "lines": 652,
+   "sha256_16": "2f77c24dd56bce56",
+   "bytes": 24973
+  },
+  "backend/tests/evaluation/test_p2_gate.py": {
+   "lines": 934,
+   "sha256_16": "ff6bcd1a59acca7b",
+   "bytes": 34348
+  },
+  "backend/tests/integration/test_p2_public_controls.py": {
+   "lines": 541,
+   "sha256_16": "e923a59ff402c394",
+   "bytes": 22159
+  },
+  "backend/tests/acceptance/support/ocr_transcripts.py": {
+   "lines": 138,
+   "sha256_16": "b975e8e4a08ed100",
+   "bytes": 5997
+  },
+  "docs/evaluation/p2-runner-contract-v0_1.md": {
+   "lines": 156,
+   "sha256_16": "52dc9104fb9e6ed6",
+   "bytes": 12590
+  },
+  "docs/evaluation/p2-ocr-contract-v0_1.md": {
+   "lines": 174,
+   "sha256_16": "c034902a9bfcaeae",
+   "bytes": 12614
+  },
+  "docs/reports/OBS-EVAL/P2/T204/evidence/probe_t204.py": {
+   "lines": 572,
+   "sha256_16": "fc905f657bfb0b15",
+   "bytes": 24948
+  },
+  "docs/reports/OBS-EVAL/P2/T205/evidence/probe_t205.py": {
+   "lines": 240,
+   "sha256_16": "75ae2b44459df3da",
+   "bytes": 8416
+  },
+  "docs/reports/OBS-EVAL/P2/T205/evidence/02-reproduction.txt": {
+   "lines": 163,
+   "sha256_16": "6ccec007dd7c30ed",
+   "bytes": 4272
+  }
+ },
+ "covered_elsewhere_by_tests": {
+  "A1": "test_inconsistent_network_detail_is_a_stable_error / test_missing_network_detail_is_refused",
+  "A2": "test_rag_post_increment_flows_into_summary_and_billing",
+  "A3": "test_summary_reports_measured_network_and_billing_counts（provider 级字段）",
+  "A4": "test_holdout_run_writes_aggregate_only_and_purges_traces（policy: 标签）",
+  "C1": "test_execution_mode_defaults_to_local_mock_and_live_must_be_explicit / test_public_scorecard_derives_execution_mark_and_rejects_mixed_modes / test_holdout_scorecard_carries_execution_mark_and_run_id",
+  "C2": "test_f01_correct_answer_with_formula_passes（另：test_frozen_decoy_answers_are_rejected 未放宽）",
+  "C4": "test_decision_binds_run_id_and_execution_mode / test_decision_refuses_scorecard_from_another_run / test_decision_execution_mode_must_match_scorecards"
+ }
+}

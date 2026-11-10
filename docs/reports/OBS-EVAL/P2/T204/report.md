@@ -50,6 +50,8 @@
    三类证据：无缓存（新调用 miss）、合法真实缓存命中（`test_same_identity_second_call_hits_legal_cache_without_new_charge`，
    0 请求/0 计费）+ 产品检查点复用（重试用例 `product_checkpoint_reuses=3` 且逐页 `certified`）、
    伪造/过期缓存拒绝（`test_forged_expired_and_simulated_cache_entries_are_refused`）。
+   **口径（R2/B4/N7）**：端到端链路上产品检查点**先短路**已成功页，`OcrResultCache` 命中只能在模块级证明
+   （单测）；端到端给的是「产品检查点复用」，两者分别计数，不混称"缓存命中"。
 5. **反例**：取消/删除中断、迟到响应不写、页失败停、预算不足停、缓存串用拒绝、`finalize` 只按产品成功审计行准入
    （`test_cache_admission_requires_product_success_record`）。
 
@@ -79,7 +81,7 @@
 |---|---|
 | `evidence/01-pytest.txt` | 指定命令输出（18 passed，exit 0） |
 | `evidence/02-probe-output.txt` | A 零出站 12 次调用 / B 产品链路 12 次计划=实际+引用身份 / C 串用·重试·取消计数 |
-| `evidence/probe_t204.py` | 可复跑生成器（同一脚本重跑即重建上面两份计数） |
+| `evidence/probe_t204.py` | 可复跑生成器；R2 起默认打印 stdout、**不再覆写** `02-probe-output.txt`（要落盘用 `--out`） |
 
 ## 7. 偏差 / 限制 / 请验收关注
 
@@ -93,3 +95,19 @@
 - 未做（属 T205/T206/T207）：真实 OCR、真实 TTL/价格、真实账本/GO 接入、评分与硬门禁；`region` 只在身份
   与线上头部校验（账本行沿用既有 schema 不含 region）。
 - 待独立验收：行为/计数以 `probe_t204.py` 可复跑；未声称"已通过"。
+
+## R2 加固（2026-11-10，对照 T204 验收 N1/N2/N6/N7）
+
+- 现场/边界：`codex/p2-e2e` @ `d850b49`（未 commit/push）；只改允许文件；真实调用 **0**，未读 `.env`/H1/H2、未联网。
+  **行为零改动**：`p2_ingestion.py` 未动；本包只改契约措辞、探针输出方式与一行注释。
+- **B1(N1) 复跑不再自改证据**：`evidence/probe_t204.py` 默认只打印 stdout，落盘需显式 `--out`，stdout/stderr 强制 UTF-8。
+  实测复跑后 `evidence/02-probe-output.txt` 字节不变（7786B / `805dc852…`）；探针 exit 0、`external_outbound_attempts=[]`、`loopback_attempts=22`。
+- **B2(N2) 契约 §4 拒绝码措辞**：`cache_mode_mismatch` 与 `cache_provider/model/region_mismatch` 标为**当前路径不可达的防御分支**，
+  并写明实际语义——换模式落到 `(page, mode)` 另一个桶 ⇒ `miss`（不复用）；伪造身份在 `OcrCallIdentity.from_payload` 被拒 ⇒
+  `cache_payload_invalid` 隔离（0 可用条目）。门控未放宽。
+- **B3(N6) 过时注释**：`backend/tests/acceptance/support/ocr_transcripts.py:79` 原写"D10 判定为 text 模式"与现行为（table，
+  `test_rule_table_scan` 断言 True）相反，已改为 table 并注明"行为未改"。任务单写的 `backend/src/mktkb/providers/ocr_transcripts.py`
+  不存在；实际文件在 tests 支持目录，本次仅改注释。
+- **B4(N7) 端到端"缓存命中"口径**：契约 §4/§7 与本报告 §3 已区分「单测缓存命中」与「产品检查点复用」。
+- 复跑（本机亲跑）：`pytest test_p2_ocr_ingestion.py test_p2_ocr_source_identity.py` → **18 passed**；`test_rule_table_scan.py` → 6 passed；
+  `probe_t204.py` → exit 0、出站 0。原始输出见 `../R2/evidence/01-pytest.txt`、`../R2/evidence/02-probe-outputs.txt`；统一报告 `../R2/report.md`。

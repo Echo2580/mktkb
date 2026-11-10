@@ -112,15 +112,23 @@ executor(OcrExecutor) → P2OcrIngestion.recognize（身份/计划/缓存/回执
   非法条目进 `quarantined`（`cache_payload_invalid`），不进可用缓存。
 - **拒绝原因**（稳定码，机读；不回显被拒条目的原始值）：
 
-| reason | 触发 |
-|---|---|
-| `cache_source_identity_mismatch` | 同页不同 document/version（两份资料的 page1、同资料换版本） |
-| `cache_input_hash_mismatch` | 同页不同图块字节 |
-| `cache_mode_mismatch` | text/table 不同 |
-| `cache_provider_mismatch` / `cache_model_mismatch` / `cache_region_mismatch` | 供应商/模型/区域不符（伪造） |
-| `cache_expired` | 超过 TTL |
-| `cache_simulated` | `origin="simulated"`（模拟缓存不得冒充真实效果） |
-| `cache_provenance_missing` | 无产品成功审计行 / 缺 usage |
+| reason | 触发 | 可达性（B2/N2） |
+|---|---|---|
+| `cache_source_identity_mismatch` | 同页不同 document/version（两份资料的 page1、同资料换版本） | 可达：`lookup` 在「同 (page, mode) 桶」里看到另一条身份 |
+| `cache_input_hash_mismatch` | 同页同模式、图块字节不同 | 可达：同上，桶内候选的 `input_sha256` 不同 |
+| `cache_mode_mismatch` | text/table 不同 | **当前路径不可达**：桶的主键是 `(page, mode)`，换模式会落到另一个桶 ⇒ 结果是 `miss`（不复用、也**不判拒绝**）；该码只保留为 `OcrCallIdentity.mismatches()` 的防御分支 |
+| `cache_provider_mismatch` / `cache_model_mismatch` / `cache_region_mismatch` | 供应商/模型/区域不符 | **当前路径不可达**：伪造 payload 在 `OcrCallIdentity.from_payload` 就被拒，条目进 `quarantined`（`cache_payload_invalid`），根本不会成为候选；三者同为防御分支 |
+| `cache_expired` | 超过 TTL | 可达（命中同一身份后判 TTL） |
+| `cache_simulated` | `origin="simulated"`（模拟缓存不得冒充真实效果） | 可达（同身份、非 observed 条目） |
+| `cache_provenance_missing` | 无产品成功审计行 / 缺 usage / 空结果 | 可达（删除·迟到·取消路径实测） |
+
+> 诚实说明（R2）：上表 4 个"不可达"码**行为不变**（没有放宽门控），语义是二选一的 fail-safe：
+> 换模式 = `miss`（走真实调用，0 复用），伪造身份 = `cache_payload_invalid` 隔离（0 可用条目）。
+> 契约按**实际码**描述，避免 T900 按字面复验时把"不可达"当成实现缺失。
+
+> 端到端与单测的口径（B4/N7）：产品检查点会**先短路**已成功页，`OcrResultCache` 的命中因此
+> 只能在模块级证明（单测：同身份二次调用 0 请求 0 计费）；端到端证据给的是
+> 「产品检查点复用」（`product_checkpoint_reuses`），**不要**把它称作"缓存命中"。两者分开计数。
 
 - 被拒条目**不会被当作结果返回**：网关继续走真实调用（新回执 `cache=rejected:<reason>`）；
   命中与真实调用分别计数（`summary.cache_hits` / `summary.provider_requests`）。
@@ -162,3 +170,5 @@ executor(OcrExecutor) → P2OcrIngestion.recognize（身份/计划/缓存/回执
 - 跨进程缓存持久化（`as_payload`/`from_payload` 已具备）与真实账本接入属 T206 装配；
   本包只证明语义，不写共享账本/GO。
 - 结果缓存不改变产品自身的 OCR 检查点；两者命中分别计数（产品检查点由 `finalize` 认证）。
+  端到端链路上产品检查点先短路成功页，`OcrResultCache.lookup` 在集成路径里不会产生"命中"——
+  见 §4 末尾的口径说明（R2/B4）。

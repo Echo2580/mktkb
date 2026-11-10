@@ -32,7 +32,7 @@ ProductEvalAdapter(
 | `async ask_turn(question, *, user_id, conversation_id, client_request_id)` | 走产品 `POST /api/v1/conversations/{id}/messages`（含 Origin/CSRF/会话）；返回 `ProductTurn`。**不调用** `RagIndex.ask`。 |
 | `async close()` | 关闭产品应用/网关/索引/客户端；`purge_traces_on_close` 时删除 trace 库；holdout（`require_holdout_sealing()` 标记过）时**删除隔离业务库**（题干明文）。 |
 | `open_conversation(*, user_id, title=None)` / `source_detail(message_id, source_id, *, user_id)` / `list_messages(conversation_id, *, user_id)` / `messages_in_db(conversation_id)` | 只读/建会话的观测面，全部走产品路由。 |
-| `provider_calls()` / `network_stats()` / `index_status()` / `trace_of(trace_id)` | 观测面：provider 计数与**实测**网络边界（`outbound_network` = chat 注入传输的真实出站 + RAG 供应商 POST 增量；Mock 链上为 0，拦截数另计）、索引状态、产品 trace 记录。 |
+| `provider_calls()` / `network_stats()` / `index_status()` / `trace_of(trace_id)` | 观测面：provider 计数与**实测**网络边界（`outbound_network` = chat 注入传输的真实出站 + RAG 供应商 POST 增量；Mock 链上为 0，拦截数另计）、索引状态、产品 trace 记录。`provider_calls()` 的 `outbound_network` 分三层语义：**顶层**是唯一真值；`network` 是它的**分解**（`chat_outbound_attempts` + `rag_provider_posts`）；`chat/embedding/rerank/ocr` 各自的 `outbound_network` 是该 provider 的实测出站（chat = 计量传输真实出站；embedding/rerank 为离线替身、无传输层，结构性 0）。 |
 | `require_holdout_sealing()` / `seal_question_store()` | H2 封存：标记后 `close()` 删除 `data/mktkb.sqlite3`（会话/消息/请求表里的题干明文）并返回 `{"question_store": "deleted", ...}`；删不干净直接报错。 |
 
 不变量：`is_mock is True`（本包只提供 Mock）；不构造真实 provider；不碰原 `var/`；
@@ -89,7 +89,7 @@ async def run_p2(
 | 文件 | 出现在 | 内容 |
 |---|---|---|
 | `run_manifest.json` | 全部 | run/plan/mode/scope、dataset 身份（version/label/suite/manifest_sha256/case_count/strata）、plan 摘要与预算、授权快照（go_sha256/nonce_len/production_ready）、pipeline（入口、turn 超时、trace 模式、索引统计、两个模块的 `code_sha256`）、provider 身份、隔离路径、ingest 回执 |
-| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**）、providers、network（**outbound_attempts 实测** + detail）、failure（含 stage 与在飞 ticket）、holdout 策略 |
+| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
 | `run_result.json` | 全部 | `P2RunResult.as_dict()`（sent<=reserved<=planned） |
 | `gate.json` | 全部 | 门/授权检查逐项结果、`real_sends_allowed`、拒绝原因、`quality_gate="deferred-to-T205"` |
 | `cases.jsonl` | 仅 `visibility="public"` | 逐题行：会话 id、逐轮 kind/trace_id/trace_path/trace_outcome/http_status、产品来源、ticket、是否计费 |
@@ -100,11 +100,16 @@ holdout 额外约束：
 - 不写 `cases.jsonl`/`requests.jsonl`；trace 用 `content_mode=hash`（题目只留哈希）；
 - `purge_traces_on_close=True` 是硬前提，否则 runner 直接拒绝（`holdout_requires_purge`，见 §2）；
 - `close()` 时删除 trace 库（`summary.holdout.trace_retention="purged-at-close"`），
-  并**删除隔离业务库** `data/mktkb.sqlite3`（会话/消息/请求表里有题干明文），
-  `summary.holdout.question_store="deleted-at-close"`；删除失败即报错，不允许"以为删了"；
+  并**删除隔离业务库** `data/mktkb.sqlite3`（会话/消息/请求表里有题干明文）；删除失败即报错，
+  不允许"以为删了"；
+- `summary.holdout.question_store` 是**策略标签**，不是测量结论（A4/F3-a）：holdout 写
+  `"policy:delete-at-close"`、公开/dry-run 写 `"policy:keep-in-isolated-dir"`，且 summary 在
+  `close()` **之前**落盘，产物无法自证"已删"。真正的证据是 `close()` 的 `seal_receipt`
+  （`{"question_store": "deleted", "removed": [...]}`，删不干净直接抛错）；标签值前缀写死
+  `policy:`，并另有 `question_store_measurement` 说明测量入口，避免把标签读成测量；
 - 证据口径：holdout run 的 `out_dir` 在 close 之后不得再出现题干明文（哨兵题干测试
   `test_holdout_close_removes_question_plaintext_from_out_dir` 覆盖）；聚合产物不受影响，
-  公开 run 与 dry-run 路径不删业务库（`question_store="kept-in-isolated-dir"`）。
+  公开 run 与 dry-run 路径不删业务库（`question_store="policy:keep-in-isolated-dir"`）。
 
 ## 4. 停止码（稳定，可机读）
 
@@ -142,4 +147,10 @@ holdout 额外约束：
   每轮增量 >0）的请求数；`summary.requests.billed_cny` = 这些请求的实际结算金额（`settle_*` 回执）；
   `summary.network.outbound_attempts` = 适配器实测总出站。三者都**不是常量**：Mock 链上由测量得到 0，
   换成真实传输同一个计数器就会 >0；缺测量字段时 runner 直接报错，不静默按 0 处理；
+- `network.detail` 只是 `summary.network.outbound_attempts` 的**分解**，不是第二份真值（A1/F1-a）：
+  必须给出 `outbound_attempts`、`chat_outbound_attempts`、`rag_provider_posts`，且满足
+  `chat_outbound_attempts + rag_provider_posts == detail.outbound_attempts == 顶层 outbound_network`。
+  任一等号不成立（含缺 `network` detail）→ runner 抛稳定错误码
+  `provider_network_detail_mismatch`，**不静默拼接/覆盖**，也不挑一个"看起来对"的值写产物；
+  同理，`summary.providers.<name>.outbound_network` 是明细展示（供旧 probe / 人工核对），不与顶层独立；
 - 产品单轮 60 秒口径直接取 `conversations.service.BUDGET_SECONDS`，不另立常量。

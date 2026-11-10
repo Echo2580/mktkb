@@ -170,6 +170,12 @@ DECISION_PASS = "pass"
 DECISION_BLOCKED = "blocked"
 DECISION_UNKNOWN = "unknown"
 
+#: C1(2b)：执行模式标记。默认是**保守**的本地/Mock；要标 live 必须由调用方显式传入，
+#: 且只有 live 模式才允许 real_calls > 0（mock 链绝不能"顺手"标成真实调用）。
+EXECUTION_MODE_LOCAL_MOCK = "local_mock"
+EXECUTION_MODE_LIVE = "live"
+EXECUTION_MODES: tuple[str, ...] = (EXECUTION_MODE_LOCAL_MOCK, EXECUTION_MODE_LIVE)
+
 _P2_STATUSES = frozenset(
     {CASE_STATUS_PASS, CASE_STATUS_FAIL, CASE_STATUS_ERROR, CASE_STATUS_NOT_EXECUTED, CASE_STATUS_SKIPPED_OCR}
 )
@@ -184,6 +190,28 @@ class P2ScoringError(ValueError):
         self.detail = str(detail)
         message = f"{self.code}: {detail}" if detail else self.code
         super().__init__(message)
+
+
+def _execution_mark(execution_mode: str, real_calls: int, *, owner: str) -> tuple[str, int]:
+    """校验执行模式/真实调用标记（C1）。
+
+    - 只接受 ``local_mock`` / ``live``；拼写错误即报错（不猜）；
+    - ``real_calls`` 不能为负；
+    - 非 live 模式不允许 ``real_calls > 0``：mock 链上说"有真实调用"就是谎报，直接拒绝；
+    - live 模式允许 0 次真实调用（规则路径/全部拒答也是合法结果），但**必须显式**标 live。
+    """
+    mode = str(execution_mode)
+    if mode not in EXECUTION_MODES:
+        raise P2ScoringError("execution_mode_invalid", f"{owner}: {mode!r}")
+    calls = int(real_calls)
+    if calls < 0:
+        raise P2ScoringError("real_calls_invalid", f"{owner}: real_calls={calls}")
+    if mode != EXECUTION_MODE_LIVE and calls > 0:
+        raise P2ScoringError(
+            "real_calls_without_live_mode",
+            f"{owner}: execution_mode={mode!r} 却声称 real_calls={calls}（mock 不得标真实调用）",
+        )
+    return mode, calls
 
 
 # --------------------------------------------------------------------------- #
@@ -477,8 +505,12 @@ class P2CaseScore:
     issues: tuple[P2IsolationIssue, ...] = ()
     trace_ids: tuple[str, ...] = ()
     turn_kinds: tuple[str, ...] = ()
+    #: C1(2b)：执行模式（默认 local_mock）与该题的真实调用次数；live 必须显式传入。
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK
+    real_calls: int = 0
 
     def __post_init__(self) -> None:
+        _execution_mark(self.execution_mode, self.real_calls, owner=f"case {self.case_id}")
         if not str(self.case_id).strip():
             raise P2ScoringError("case_id_missing", "P2CaseScore.case_id 不能为空")
         if self.status not in _P2_STATUSES:
@@ -511,6 +543,8 @@ class P2CaseScore:
             "issues": [item.to_dict() for item in self.issues],
             "turn_kinds": list(self.turn_kinds),
             "trace_ids": list(self.trace_ids),
+            "execution_mode": self.execution_mode,
+            "real_calls": int(self.real_calls),
         }
 
 
@@ -549,8 +583,15 @@ def score_public_case(
     allowed_doc_codes: Iterable[str] | None = None,
     forbidden_doc_codes: Iterable[str] = (),
     evidence: Sequence[Mapping[str, Any]] = (),
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
+    real_calls: int = 0,
 ) -> P2ScoredCase:
-    """给一条 public case 打分：多轮取末轮、中间轮 error 即整题 error、OCR 不跳过。"""
+    """给一条 public case 打分：多轮取末轮、中间轮 error 即整题 error、OCR 不跳过。
+
+    ``execution_mode``/``real_calls`` 由 run 上下文显式传入（C1）：默认保守地记
+    ``local_mock``/0；真实链必须在构造时明确标 ``live`` 并给出实测出站次数，
+    不允许"默认当成真实"或"mock 上顺手标真实"。
+    """
     if not isinstance(case, CaseSpec):
         raise P2ScoringError("case_invalid", "score_public_case 只接受 CaseSpec")
     base = {
@@ -559,6 +600,8 @@ def score_public_case(
         "stratum": str(case.stratum),
         "requires_ocr": bool(case.requires_ocr),
         "planned_turns": max(1, len(case.turns)),
+        "execution_mode": execution_mode,
+        "real_calls": int(real_calls),
     }
     if case_row is None:
         return P2ScoredCase(
@@ -721,10 +764,20 @@ class P2SuiteTally:
 
 @dataclass(frozen=True)
 class P2PublicScorecard:
-    """公开控制矩阵：分母 + 结构性阻断项；release_ready 只表示「没有已知阻断」。"""
+    """公开控制矩阵：分母 + 结构性阻断项；release_ready 只表示「没有已知阻断」。
+
+    C1(2b)：``execution_mode``/``real_calls`` 来自逐题打分（同一 run 必须同模式，混用即报错）；
+    C4：``run_id`` 记录本矩阵出自哪个 run，供门禁核对"这份分母是不是这次 run 的"。
+    """
 
     suites: Mapping[str, P2SuiteTally]
     blocks: tuple[P2Block, ...] = ()
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK
+    real_calls: int = 0
+    run_id: str | None = None
+
+    def __post_init__(self) -> None:
+        _execution_mark(self.execution_mode, self.real_calls, owner="public scorecard")
 
     @property
     def release_ready(self) -> bool:
@@ -736,6 +789,9 @@ class P2PublicScorecard:
             "suites": {name: tally.to_dict() for name, tally in self.suites.items()},
             "blocks": [item.to_dict() for item in self.blocks],
             "release_ready": bool(self.release_ready),
+            "execution_mode": self.execution_mode,
+            "real_calls": int(self.real_calls),
+            "run_id": self.run_id,
         }
 
 
@@ -865,8 +921,16 @@ def _tally(
     return tally, blocks
 
 
-def score_public_suites(scores: Iterable[P2CaseScore]) -> P2PublicScorecard:
-    """汇总公开控制矩阵；分母固定，缺题/多题/error/未执行/OCR 跳过都不放行。"""
+def score_public_suites(
+    scores: Iterable[P2CaseScore],
+    *,
+    run_id: str | None = None,
+) -> P2PublicScorecard:
+    """汇总公开控制矩阵；分母固定，缺题/多题/error/未执行/OCR 跳过都不放行。
+
+    C1：矩阵的执行模式/真实调用数由逐题打分派生（同一 run 内必须一致，混用即报错）；
+    空输入时保守记 ``local_mock``/0——不因为"没数据"就默认成真实或默认成 mock 以外的值。
+    """
     by_id: dict[str, P2CaseScore] = {}
     blocks: list[P2Block] = []
     for score in scores:
@@ -925,7 +989,19 @@ def score_public_suites(scores: Iterable[P2CaseScore]) -> P2PublicScorecard:
             "update_delete": update_delete,
         }
     )
-    return P2PublicScorecard(suites=suites, blocks=tuple(blocks))
+    modes = {score.execution_mode for score in by_id.values()}
+    if len(modes) > 1:
+        raise P2ScoringError(
+            "execution_mode_mixed", f"同一张公开矩阵混用执行模式 {sorted(modes)}"
+        )
+    mode = next(iter(modes), EXECUTION_MODE_LOCAL_MOCK)
+    return P2PublicScorecard(
+        suites=suites,
+        blocks=tuple(blocks),
+        execution_mode=mode,
+        real_calls=sum(score.real_calls for score in by_id.values()),
+        run_id=run_id,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -972,6 +1048,14 @@ class P2HoldoutScorecard:
     thresholds_approved: bool
     blocks: tuple[P2Block, ...] = ()
     detail_export: bool = False
+    #: C1：执行模式/真实调用数由调用方从 run 上下文显式传入（默认保守 local_mock/0）。
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK
+    real_calls: int = 0
+    #: C4：该聚合出自哪个 run（门禁据此核对绑定）。
+    run_id: str | None = None
+
+    def __post_init__(self) -> None:
+        _execution_mark(self.execution_mode, self.real_calls, owner="holdout scorecard")
 
     @property
     def threshold_met(self) -> bool:
@@ -1004,6 +1088,9 @@ class P2HoldoutScorecard:
             "detail_export": False,
             "blocks": [item.to_dict() for item in self.blocks],
             "release_ready": bool(self.release_ready),
+            "execution_mode": self.execution_mode,
+            "real_calls": int(self.real_calls),
+            "run_id": self.run_id,
         }
         _assert_no_holdout_detail(payload)
         return payload
@@ -1033,6 +1120,9 @@ def aggregate_holdout(
     hard_failures_max: int = P2_HOLDOUT_MAX_HARD_FAILURES,
     thresholds_approved: bool = False,
     expected_strata: Mapping[str, int] | None = None,
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
+    real_calls: int = 0,
+    run_id: str | None = None,
 ) -> P2HoldoutScorecard:
     """只把逐题 pass/fail 折成计数；不返回、不记录任何单题信息。"""
     strata_expected = dict(expected_strata or P2_HOLDOUT_STRATA)
@@ -1134,6 +1224,9 @@ def aggregate_holdout(
         hard_failures_max=int(hard_failures_max),
         thresholds_approved=bool(thresholds_approved),
         blocks=tuple(blocks),
+        execution_mode=execution_mode,
+        real_calls=int(real_calls),
+        run_id=run_id,
     )
 
 
@@ -1324,6 +1417,14 @@ class P2GateDecision:
     public: Mapping[str, Any] | None = None
     holdout: Mapping[str, Any] | None = None
     notes: tuple[str, ...] = ()
+    #: C1(2b)：执行模式与真实调用次数（默认 local_mock/0；live 必须显式传入且与 scorecard 一致）。
+    execution_mode: str = EXECUTION_MODE_LOCAL_MOCK
+    real_calls: int = 0
+    #: C4：本判定所依据的 run_id（来自 run_manifest，不能由调用方随口给另一个）。
+    run_id: str | None = None
+
+    def __post_init__(self) -> None:
+        _execution_mark(self.execution_mode, self.real_calls, owner="gate decision")
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -1342,6 +1443,9 @@ class P2GateDecision:
             "public": None if self.public is None else dict(self.public),
             "holdout": None if self.holdout is None else dict(self.holdout),
             "notes": list(self.notes),
+            "execution_mode": self.execution_mode,
+            "real_calls": int(self.real_calls),
+            "run_id": self.run_id,
         }
 
 
@@ -1354,6 +1458,9 @@ def evaluate_p2_gate(
     public: P2PublicScorecard | None,
     holdout: P2HoldoutScorecard | None,
     citation_evidence_complete: bool = False,
+    execution_mode: str | None = None,
+    real_calls: int | None = None,
+    run_id: str | None = None,
 ) -> P2GateDecision:
     """P2 放行判定：8 硬门禁 + 配置绑定 + 分母 + H2；任何未知都不放行。
 
@@ -1596,6 +1703,44 @@ def evaluate_p2_gate(
         blocks.extend(holdout.blocks)
         holdout_payload = holdout.to_dict()
 
+    # 5b) C1/C4：执行模式、真实调用数与 run 身份必须与 scorecard/manifest 对得上
+    cards = [("public", public), ("holdout", holdout)]
+    card_modes = {name: card.execution_mode for name, card in cards if card is not None}
+    if len(set(card_modes.values())) > 1:
+        raise P2ScoringError(
+            "execution_mode_mismatch", f"public/holdout 执行模式不一致 {card_modes}"
+        )
+    derived_mode = next(iter(card_modes.values()), EXECUTION_MODE_LOCAL_MOCK)
+    derived_calls = sum(int(card.real_calls) for _, card in cards if card is not None)
+    if execution_mode is not None and str(execution_mode) != derived_mode:
+        raise P2ScoringError(
+            "execution_mode_mismatch",
+            f"调用方声明 execution_mode={execution_mode!r}，scorecard 却是 {derived_mode!r}",
+        )
+    if real_calls is not None and int(real_calls) != derived_calls:
+        raise P2ScoringError(
+            "real_calls_mismatch",
+            f"调用方声明 real_calls={real_calls}，scorecard 合计 {derived_calls}",
+        )
+    manifest_run_id = str(manifest.get("run_id") or "").strip()
+    if run_id is not None and manifest_run_id and str(run_id) != manifest_run_id:
+        raise P2ScoringError(
+            "run_id_mismatch", f"run_id={run_id!r} 与 run_manifest.run_id={manifest_run_id!r} 不一致"
+        )
+    bound_run_id = str(run_id) if run_id is not None else (manifest_run_id or None)
+    for name, card in cards:
+        if card is None or card.run_id is None:
+            continue
+        if manifest_run_id and str(card.run_id) != manifest_run_id:
+            blocks.append(
+                P2Block(
+                    "run_binding_mismatch",
+                    SEVERITY_UNKNOWN,
+                    f"{name} scorecard 不是本次 run 的产物，分母/阈值不可比，不得放行",
+                    {"manifest_run_id": manifest_run_id, "scorecard_run_id": str(card.run_id)},
+                )
+            )
+
     # 6) 退出码：执行/质量分开；执行未成功也不能把质量判成通过
     execution_exit_code = EXIT_PASS if execution_ok else EXIT_UNKNOWN
     quality_exit_code = _severity_exit_code(blocks)
@@ -1625,6 +1770,9 @@ def evaluate_p2_gate(
         public=public_payload,
         holdout=holdout_payload,
         notes=tuple(notes),
+        execution_mode=derived_mode,
+        real_calls=derived_calls,
+        run_id=bound_run_id,
     )
 
 

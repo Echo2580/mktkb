@@ -41,6 +41,7 @@ from mktkb.evaluation.gate import (
 )
 from mktkb.evaluation.p2_scoring import (
     CASE_STATUS_PASS,
+    EXECUTION_MODE_LIVE,
     P2_B0_EXACT_IDS,
     P2_B0_IDS,
     P2_B0_OCR_IDS,
@@ -317,7 +318,12 @@ def config_for(
     return P2GateConfig(config=gate_config, standards=SHIPPED.standards, raw={})
 
 
-def public_card() -> object:
+def public_card(
+    *,
+    run_id: str | None = None,
+    execution_mode: str | None = None,
+    real_calls: int = 0,
+) -> object:
     scores = []
     for case_id in P2_B0_IDS:
         scores.append(
@@ -343,10 +349,21 @@ def public_card() -> object:
                 executed_turns=1,
             )
         )
-    return score_public_suites(scores)
+    if execution_mode is not None:
+        scores = [
+            dataclasses.replace(item, execution_mode=execution_mode, real_calls=real_calls)
+            for item in scores
+        ]
+    return score_public_suites(scores, run_id=run_id)
 
 
-def holdout_card(*, approved: bool = True):
+def holdout_card(
+    *,
+    approved: bool = True,
+    run_id: str | None = None,
+    execution_mode: str = "local_mock",
+    real_calls: int = 0,
+):
     items = []
     for index, (stratum, count) in enumerate(P2_HOLDOUT_STRATA.items()):
         for offset in range(count):
@@ -357,7 +374,13 @@ def holdout_card(*, approved: bool = True):
                     status=CASE_STATUS_PASS if len(items) < 24 else "fail",
                 )
             )
-    return aggregate_holdout(items, thresholds_approved=approved)
+    return aggregate_holdout(
+        items,
+        thresholds_approved=approved,
+        execution_mode=execution_mode,
+        real_calls=real_calls,
+        run_id=run_id,
+    )
 
 
 def evaluate(run, config: P2GateConfig | None = None):
@@ -624,6 +647,81 @@ def test_approved_config_can_release_only_with_complete_evidence(tmp_path: Path)
     assert decision.release_allowed is False
     assert "citation_evidence_unavailable" in {block.code for block in decision.blocks}
     assert decision.quality_exit_code == EXIT_UNKNOWN
+
+
+def test_decision_binds_run_id_and_execution_mode(tmp_path: Path) -> None:
+    """C4/C1：判定记录 run_id 与执行模式；默认 local_mock（不谎报真实调用）。"""
+    run, manifest_map, gate_result, summary = clean_decision_inputs(tmp_path)
+    run_id = manifest_map["run_id"]
+    decision = evaluate_p2_gate(
+        config=config_for(status="approved"),
+        run_manifest=manifest_map,
+        run_summary=summary,
+        hard_gate=gate_result,
+        public=public_card(run_id=run_id),
+        holdout=holdout_card(approved=True, run_id=run_id),
+        citation_evidence_complete=True,
+    )
+    payload = json.loads(json.dumps(decision.to_dict(), ensure_ascii=False))
+    assert (payload["execution_mode"], payload["real_calls"]) == ("local_mock", 0)
+    assert payload["run_id"] == run_id
+    assert decision.release_allowed is True
+
+
+def test_decision_refuses_scorecard_from_another_run(tmp_path: Path) -> None:
+    run, manifest_map, gate_result, summary = clean_decision_inputs(tmp_path)
+    decision = evaluate_p2_gate(
+        config=config_for(status="approved"),
+        run_manifest=manifest_map,
+        run_summary=summary,
+        hard_gate=gate_result,
+        public=public_card(run_id="run-other"),
+        holdout=holdout_card(approved=True, run_id=manifest_map["run_id"]),
+        citation_evidence_complete=True,
+    )
+    codes = {block.code for block in decision.blocks}
+    assert "run_binding_mismatch" in codes
+    assert decision.release_allowed is False
+    assert decision.quality_exit_code == EXIT_UNKNOWN
+
+
+def test_decision_execution_mode_must_match_scorecards(tmp_path: Path) -> None:
+    run, manifest_map, gate_result, summary = clean_decision_inputs(tmp_path)
+    kwargs = dict(
+        config=config_for(status="approved"),
+        run_manifest=manifest_map,
+        run_summary=summary,
+        hard_gate=gate_result,
+        citation_evidence_complete=True,
+    )
+    # 显式 live + 与 scorecard 一致 → 判定如实记 live（不是默认值）
+    decision = evaluate_p2_gate(
+        public=public_card(execution_mode=EXECUTION_MODE_LIVE),
+        holdout=holdout_card(approved=True, execution_mode=EXECUTION_MODE_LIVE),
+        execution_mode=EXECUTION_MODE_LIVE,
+        **kwargs,
+    )
+    assert decision.execution_mode == "live"
+    assert decision.to_dict()["execution_mode"] == "live"
+
+    # 调用方声明 local_mock、scorecard 却是 live → 直接拒绝（不挑一个"看起来对"的值）
+    with pytest.raises(P2ScoringError) as excinfo:
+        evaluate_p2_gate(
+            public=public_card(execution_mode=EXECUTION_MODE_LIVE),
+            holdout=holdout_card(approved=True, execution_mode=EXECUTION_MODE_LIVE),
+            execution_mode="local_mock",
+            **kwargs,
+        )
+    assert excinfo.value.code == "execution_mode_mismatch"
+
+    # public 与 holdout 模式不一致 → 拒绝
+    with pytest.raises(P2ScoringError) as excinfo:
+        evaluate_p2_gate(
+            public=public_card(),
+            holdout=holdout_card(approved=True, execution_mode=EXECUTION_MODE_LIVE),
+            **kwargs,
+        )
+    assert excinfo.value.code == "execution_mode_mismatch"
 
 
 def test_same_gate_version_config_change_is_hard_block(tmp_path: Path) -> None:

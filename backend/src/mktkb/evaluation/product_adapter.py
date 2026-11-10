@@ -971,17 +971,33 @@ class ProductEvalAdapter:
         }
 
     def provider_calls(self) -> dict[str, Any]:
-        """本轮所有 provider 的调用计数与**实测**网络边界（供产物与测试断言）。"""
+        """本轮所有 provider 的调用计数与**实测**网络边界（供产物与测试断言）。
+
+        ``outbound_network`` 有两个层次，语义不同、不可互相替代：
+
+        - **顶层** ``outbound_network``：本轮实测总出站（chat 传输出站 + RAG 供应商 POST），
+          是唯一真值；
+        - **``network``**：该真值的**分解**（``chat_outbound_attempts`` +
+          ``rag_provider_posts``），runner 会核对二者之和是否等于顶层，不一致即报错；
+        - 每个 provider 字典里的 ``outbound_network`` 是该 provider 各自的实测出站
+          （A3：恢复此字段以便 T203 旧 probe 复跑）：chat 取计量传输的真实出站，
+          embedding/rerank 是离线替身、没有传输层，故结构性为 0，而不是"运行时测出来的 0"。
+        """
         network = self.network_stats()
+        chat = (
+            self.chat.as_dict()
+            if self.chat is not None
+            else {"calls": 0, "provider": None, "transport": None}
+        )
         return {
-            "chat": (
-                self.chat.as_dict()
-                if self.chat is not None
-                else {"calls": 0, "provider": None, "transport": None}
-            ),
-            "embedding": self._embedder.as_dict(),
-            "rerank": self._reranker.as_dict(),
-            "ocr": {"calls": 0, "state": "T203 不执行 OCR（T204）"},
+            "chat": {**chat, "outbound_network": int(network["chat_outbound_attempts"])},
+            "embedding": {**self._embedder.as_dict(), "outbound_network": 0},
+            "rerank": {**self._reranker.as_dict(), "outbound_network": 0},
+            "ocr": {
+                "calls": 0,
+                "state": "T203 不执行 OCR（T204）",
+                "outbound_network": 0,
+            },
             "outbound_network": int(network["outbound_attempts"]),
             "network": network,
         }

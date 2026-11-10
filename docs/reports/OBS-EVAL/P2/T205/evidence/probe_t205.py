@@ -59,6 +59,10 @@ CASES = (
         expected_kind="answer",
         expected_values=("90%",),
         expected_sources=({"doc_code": "E10", "locator": {"sheet": "KPI月报", "row": 103}},),
+        # C2：与 test_p2_public_controls.KPI_TARGET_CASE 同一口径（含 90% 与 ×100%）。
+        reference_answer=(
+            "月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%；年度目标：90%"
+        ),
         labeler="lead",
         label_version="public-financial-2026-11-10",
     ),
