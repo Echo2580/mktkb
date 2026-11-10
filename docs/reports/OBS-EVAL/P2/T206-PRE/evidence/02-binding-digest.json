@@ -1,0 +1,200 @@
+{
+  "schema": "p2-t206-pre-binding/v0.1",
+  "gate": {
+    "gate_version": "mktkb.gate.v0.3",
+    "config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+    "status": "unapproved"
+  },
+  "run_a": {
+    "status": "succeeded",
+    "run_id": "p2run-ee138ab8642b4ae0",
+    "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+    "binding": {
+      "binding_version": "p2-binding/v0.1",
+      "complete": true,
+      "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+      "dataset_sha256": "33f2e8aa086e4dc8825a8f7130685e51f7a5e624115ed0c3ac4d5eb04af5174b",
+      "dataset_version": "p2-synthetic-v1",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "index_revision": 2,
+      "label_version": "synthetic-v1",
+      "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "missing": [],
+      "pipeline_version": "d3ca88d2c515",
+      "provider": {
+        "chat": {
+          "model": "mock-chat",
+          "provider": "p2-mock",
+          "transport": "MockTransport"
+        },
+        "embedding": {
+          "impl": "MockEmbeddingProvider",
+          "model": "text-embedding-v4",
+          "provider": "p2-mock"
+        },
+        "ocr": "disabled",
+        "rerank": {
+          "impl": "MockReranker",
+          "model": "gte-rerank-v2",
+          "provider": "p2-mock"
+        }
+      },
+      "trace_identity_bound": true
+    },
+    "identity_fields": {
+      "suite": "p2-holdout",
+      "dataset_version": "p2-synthetic-v1",
+      "dataset_sha256": "33f2e8aa086e4dc8825a8f7130685e51f7a5e624115ed0c3ac4d5eb04af5174b",
+      "corpus_manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "business_date": "2026-11-10",
+      "index_revision": 2,
+      "pipeline_version": "d3ca88d2c515",
+      "gate_version": "mktkb.gate.v0.3",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "label_version": "synthetic-v1",
+      "case_count": 2
+    },
+    "trace_identity": [
+      {
+        "case_id": "P01",
+        "turn": 1,
+        "run_id": "p2run-ee138ab8642b4ae0",
+        "dataset_version": "p2-synthetic-v1",
+        "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "pipeline_version": "d3ca88d2c515",
+        "index_revision": "2",
+        "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+        "mode": "local",
+        "spans": [
+          "answer",
+          "commit",
+          "embedding_query",
+          "exact_recall",
+          "fact_validate",
+          "fuse",
+          "hard_filter",
+          "lexical_recall",
+          "parse",
+          "recall",
+          "rerank",
+          "vector_recall"
+        ]
+      },
+      {
+        "case_id": "P03",
+        "turn": 1,
+        "run_id": "p2run-ee138ab8642b4ae0",
+        "dataset_version": "p2-synthetic-v1",
+        "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "pipeline_version": "d3ca88d2c515",
+        "index_revision": "2",
+        "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+        "mode": "local",
+        "spans": [
+          "answer_validate",
+          "commit",
+          "intent_parse",
+          "model_answer",
+          "retrieve"
+        ]
+      }
+    ],
+    "trace_integrity": "pass",
+    "trace_hard_failures": [],
+    "citation_evidence": {
+      "complete": true,
+      "answered_turns": 2,
+      "turns_with_evidence": 2,
+      "citations": 4,
+      "verified_citations": 4,
+      "issues": []
+    },
+    "summary_citation_evidence": true,
+    "network": {
+      "available": true,
+      "code": null,
+      "detail": {
+        "chat_outbound_attempts": 0,
+        "embedding_provider": "offline-fake（无传输层，不能出网）",
+        "mock_intercepted": 1,
+        "ocr_provider": "disabled（T204 前不构造）",
+        "outbound_attempts": 0,
+        "rag_provider_posts": 0,
+        "rerank_provider": "offline-fake（无传输层，不能出网）"
+      },
+      "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
+      "outbound_attempts": 0
+    },
+    "real_requests": 0,
+    "billed_cny": 0.0,
+    "adapter_outbound": 0
+  },
+  "run_b": {
+    "run_id": "p2run-f601606250974ccf",
+    "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+    "same_config_hash_as_run_a": true,
+    "trace_integrity": "pass"
+  },
+  "config_hash": {
+    "recomputed_matches_run": true,
+    "changed_after_index_revision_bump": true,
+    "changed_digest_prefix": "1987b70d45ce"
+  },
+  "failure_artifacts": {
+    "raised": {
+      "code": "provider_network_detail_mismatch",
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0"
+    },
+    "files": [
+      "cases.jsonl",
+      "dataset.jsonl",
+      "gate.json",
+      "requests.jsonl",
+      "run_manifest.json",
+      "run_result.json",
+      "summary.json"
+    ],
+    "status": "aborted",
+    "stop_code": "provider_network_detail_mismatch",
+    "failure": {
+      "case_id": null,
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0",
+      "error_code": "provider_network_detail_mismatch",
+      "item_id": null,
+      "stage": "artifact_validation",
+      "stop_code": "provider_network_detail_mismatch",
+      "ticket": null,
+      "turn": null
+    },
+    "network": {
+      "available": false,
+      "code": "provider_network_detail_mismatch",
+      "detail": null,
+      "measurement": "未通过交叉校验：不把未核对的计数当实测事实",
+      "outbound_attempts": null
+    },
+    "providers": null,
+    "artifact_validation": {
+      "code": "provider_network_detail_mismatch",
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0",
+      "ok": false
+    },
+    "real_sends_allowed": false
+  },
+  "run_id_refusal": {
+    "raised": {
+      "code": "run_id_missing",
+      "detail": "run_id 必须是非空 str，收到 ''"
+    },
+    "run_dir_created": false,
+    "adapter_started": false
+  },
+  "zero_real_calls": {
+    "run_a_real_requests": 0,
+    "run_a_billed_cny": 0.0,
+    "run_a_adapter_outbound": 0,
+    "run_a_network_outbound": 0,
+    "run_b_real_requests": 0
+  }
+}

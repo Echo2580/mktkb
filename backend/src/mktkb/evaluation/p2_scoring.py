@@ -26,6 +26,7 @@ evaluate_p2_gate 里分别是 citation_evidence_complete 与 run_manifest["gate_
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -93,8 +94,11 @@ __all__ = [
     "P2ScoringError",
     "P2Standards",
     "P2SuiteTally",
+    "P2_BINDING_VERSION",
     "aggregate_holdout",
+    "binding_config_hash",
     "build_gate_rows",
+    "citation_evidence_status",
     "build_gate_run",
     "check_scenario_isolation",
     "check_source_isolation",
@@ -110,6 +114,21 @@ P2_SCORING_SCHEMA_VERSION = "mktkb.p2.scoring.v0.1"
 #: P2 run 的作用域与模式（T203 契约：end-to-end 产品问答，不是 P1 的 retrieval_only）。
 P2_RUN_SCOPE = "end_to_end"
 P2_RUN_MODE = "end_to_end"
+
+#: T206-PRE：绑定摘要的口径版本。改了参与摘要的组件集合就必须升版本（否则同 hash
+#: 会被误当成"同一份身份"）。
+P2_BINDING_VERSION = "p2-binding/v0.1"
+#: 绑定摘要必须覆盖的组件（缺任何一项都 fail closed，不 quietly 跳过）。
+P2_BINDING_FIELDS: tuple[str, ...] = (
+    "dataset_version",
+    "manifest_sha256",
+    "label_version",
+    "pipeline_version",
+    "index_revision",
+    "provider",
+    "gate_version",
+    "gate_config_hash",
+)
 
 # --------------------------------------------------------------------------- #
 # 冻结分母（验收矩阵 §1/§3/§4/§5；任务书 §5）
@@ -212,6 +231,154 @@ def _execution_mark(execution_mode: str, real_calls: int, *, owner: str) -> tupl
             f"{owner}: execution_mode={mode!r} 却声称 real_calls={calls}（mock 不得标真实调用）",
         )
     return mode, calls
+
+
+# --------------------------------------------------------------------------- #
+# 绑定摘要 + 引用证据（T206-PRE）
+# --------------------------------------------------------------------------- #
+
+
+def _binding_component(value: Any, name: str) -> Any:
+    """绑定组件规范化：字符串必须非空（去空白），映射按 canonical JSON 递归排序。
+
+    不做"缺字段给默认值"：缺/空一律抛 ``binding_input_missing``（fail closed）。
+    """
+    if isinstance(value, Mapping):
+        if not value:
+            raise P2ScoringError("binding_input_missing", f"{name} 不能为空对象")
+        return {
+            str(key): _binding_component(item, f"{name}.{key}")
+            for key, item in sorted(value.items(), key=lambda pair: str(pair[0]))
+        }
+    if isinstance(value, (list, tuple)):
+        return [_binding_component(item, f"{name}[]") for item in value]
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, int):
+        if int(value) < 0:
+            raise P2ScoringError("binding_input_invalid", f"{name} 不能为负：{value}")
+        return int(value)
+    if isinstance(value, str):
+        text = value.strip()
+        if not text:
+            raise P2ScoringError("binding_input_missing", f"{name} 不能为空字符串")
+        return text
+    if value is None:
+        raise P2ScoringError("binding_input_missing", f"{name} 缺失（None）")
+    raise P2ScoringError("binding_input_invalid", f"{name} 只接受 str/int/bool/映射，收到 {type(value).__name__}")
+
+
+def binding_config_hash(
+    *,
+    dataset_version: str,
+    manifest_sha256: str,
+    label_version: str,
+    pipeline_version: str,
+    index_revision: int,
+    provider: Mapping[str, Any],
+    gate_version: str,
+    gate_config_hash: str,
+) -> str:
+    """由 dataset manifest / pipeline / 索引 / provider / gate 身份算**确定性**绑定摘要。
+
+    - 同配置同 hash：所有组件先规范化（去空白、键排序、类型收紧）再 canonical JSON；
+    - 改配置必变：任一组件变化都会改变摘要（不做"近似相等"）；
+    - 缺任一组件 → ``binding_input_missing``，声明了 ``P2_BINDING_VERSION`` 以免跨口径复用；
+    - 摘要只含身份/版本/模型名，不含题面、答案、凭据或路径。
+    """
+    if index_revision is None:
+        raise P2ScoringError("binding_input_missing", "index_revision 缺失（None）")
+    if isinstance(index_revision, bool) or not isinstance(index_revision, int) or index_revision < 0:
+        raise P2ScoringError("binding_input_invalid", f"index_revision 必须是非负整数，收到 {index_revision!r}")
+    payload = {
+        "binding_version": P2_BINDING_VERSION,
+        "dataset_version": _binding_component(dataset_version, "dataset_version"),
+        "manifest_sha256": _binding_component(manifest_sha256, "manifest_sha256"),
+        "label_version": _binding_component(label_version, "label_version"),
+        "pipeline_version": _binding_component(pipeline_version, "pipeline_version"),
+        "index_revision": int(index_revision),
+        "provider": _binding_component(provider, "provider"),
+        "gate_version": _binding_component(gate_version, "gate_version"),
+        "gate_config_hash": _binding_component(gate_config_hash, "gate_config_hash"),
+    }
+    raw = json.dumps(payload, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
+
+
+def citation_evidence_status(
+    case_rows: Sequence[Mapping[str, Any]],
+    *,
+    include_case_ids: bool = True,
+) -> dict[str, Any]:
+    """从 P2 逐题行判定"引用是否落在本轮可核对的证据身份上"（不伪造）。
+
+    只对 ``kind == "answer"` 的轮次要求引用；每条引用必须有稳定的 ``unit_id``、
+    非空 ``locator``，且产品库侧解析 ``verified is True``（当前有效版本 + 本 run 灌入）。
+    任一轮缺证据、任一引用未核实、或根本没有作答轮 → ``complete=False``（unknown），
+    绝不用"计数看起来对"代替核实。
+
+    ``include_case_ids=False`` 时 issue 里不带 case_id（H2 聚合路径用）。
+    """
+    answered = 0
+    turns_with_evidence = 0
+    citations = 0
+    verified = 0
+    issues: list[dict[str, Any]] = []
+    for row in case_rows:
+        if not isinstance(row, Mapping):
+            raise P2ScoringError("case_row_invalid", "citation_evidence_status 只接受对象行")
+        case_id = str(row.get("case_id") or "")
+        for turn in row.get("turns") or ():
+            if not isinstance(turn, Mapping):
+                raise P2ScoringError("turn_invalid", "case 行的 turns 必须是对象数组")
+            product = turn.get("product")
+            if not isinstance(product, Mapping):
+                continue
+            if str(product.get("kind") or "") != "answer":
+                continue
+            answered += 1
+            raw = product.get("evidence")
+            items = (
+                [item for item in raw if isinstance(item, Mapping)]
+                if isinstance(raw, Sequence) and not isinstance(raw, (str, bytes))
+                else []
+            )
+            if not items:
+                issue = {"code": "citation_evidence_missing", "turn": int(turn.get("turn") or 0)}
+                if include_case_ids:
+                    issue["case_id"] = case_id
+                issues.append(issue)
+                continue
+            turns_with_evidence += 1
+            for item in items:
+                citations += 1
+                ok = (
+                    bool(str(item.get("unit_id") or "").strip())
+                    and bool(item.get("locator") or {})
+                    and item.get("verified") is True
+                )
+                if ok:
+                    verified += 1
+                else:
+                    issue = {
+                        "code": "citation_evidence_unverified",
+                        "turn": int(turn.get("turn") or 0),
+                        "unit_id": str(item.get("unit_id") or ""),
+                        "reason": item.get("reason"),
+                    }
+                    if include_case_ids:
+                        issue["case_id"] = case_id
+                    issues.append(issue)
+    if answered == 0:
+        issues.append({"code": "no_answer_turn"})
+    return {
+        "complete": bool(answered > 0 and not issues),
+        "answered_turns": answered,
+        "turns_with_evidence": turns_with_evidence,
+        "citations": citations,
+        "verified_citations": verified,
+        "issues": issues,
+    }
 
 
 # --------------------------------------------------------------------------- #
@@ -775,9 +942,13 @@ class P2PublicScorecard:
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK
     real_calls: int = 0
     run_id: str | None = None
+    #: T206-PRE：本矩阵所属 run 的绑定摘要（与 run_manifest.config_hash 同源）。
+    config_hash: str | None = None
 
     def __post_init__(self) -> None:
         _execution_mark(self.execution_mode, self.real_calls, owner="public scorecard")
+        if self.config_hash is not None and not str(self.config_hash).strip():
+            raise P2ScoringError("config_hash_invalid", "public scorecard 的 config_hash 不能为空字符串")
 
     @property
     def release_ready(self) -> bool:
@@ -792,6 +963,7 @@ class P2PublicScorecard:
             "execution_mode": self.execution_mode,
             "real_calls": int(self.real_calls),
             "run_id": self.run_id,
+            "config_hash": self.config_hash,
         }
 
 
@@ -925,6 +1097,7 @@ def score_public_suites(
     scores: Iterable[P2CaseScore],
     *,
     run_id: str | None = None,
+    config_hash: str | None = None,
 ) -> P2PublicScorecard:
     """汇总公开控制矩阵；分母固定，缺题/多题/error/未执行/OCR 跳过都不放行。
 
@@ -1001,6 +1174,7 @@ def score_public_suites(
         execution_mode=mode,
         real_calls=sum(score.real_calls for score in by_id.values()),
         run_id=run_id,
+        config_hash=config_hash,
     )
 
 
@@ -1053,9 +1227,13 @@ class P2HoldoutScorecard:
     real_calls: int = 0
     #: C4：该聚合出自哪个 run（门禁据此核对绑定）。
     run_id: str | None = None
+    #: T206-PRE：该聚合所属 run 的绑定摘要（缺失 → 门禁按 unknown 处理）。
+    config_hash: str | None = None
 
     def __post_init__(self) -> None:
         _execution_mark(self.execution_mode, self.real_calls, owner="holdout scorecard")
+        if self.config_hash is not None and not str(self.config_hash).strip():
+            raise P2ScoringError("config_hash_invalid", "holdout scorecard 的 config_hash 不能为空字符串")
 
     @property
     def threshold_met(self) -> bool:
@@ -1091,6 +1269,7 @@ class P2HoldoutScorecard:
             "execution_mode": self.execution_mode,
             "real_calls": int(self.real_calls),
             "run_id": self.run_id,
+            "config_hash": self.config_hash,
         }
         _assert_no_holdout_detail(payload)
         return payload
@@ -1123,6 +1302,7 @@ def aggregate_holdout(
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
     real_calls: int = 0,
     run_id: str | None = None,
+    config_hash: str | None = None,
 ) -> P2HoldoutScorecard:
     """只把逐题 pass/fail 折成计数；不返回、不记录任何单题信息。"""
     strata_expected = dict(expected_strata or P2_HOLDOUT_STRATA)
@@ -1227,6 +1407,7 @@ def aggregate_holdout(
         execution_mode=execution_mode,
         real_calls=int(real_calls),
         run_id=run_id,
+        config_hash=config_hash,
     )
 
 
@@ -1422,6 +1603,9 @@ class P2GateDecision:
     real_calls: int = 0
     #: C4：本判定所依据的 run_id（来自 run_manifest，不能由调用方随口给另一个）。
     run_id: str | None = None
+    #: T206-PRE：本判定所依据的**绑定摘要**（run_manifest.config_hash）；
+    #: 与 ``config_hash``（gate 配置自己的 hash）语义不同，不可混用。
+    binding_config_hash: str | None = None
 
     def __post_init__(self) -> None:
         _execution_mark(self.execution_mode, self.real_calls, owner="gate decision")
@@ -1446,6 +1630,7 @@ class P2GateDecision:
             "execution_mode": self.execution_mode,
             "real_calls": int(self.real_calls),
             "run_id": self.run_id,
+            "binding_config_hash": self.binding_config_hash,
         }
 
 
@@ -1509,6 +1694,25 @@ def evaluate_p2_gate(
             )
         )
     else:
+        # T206-PRE：run 身份/绑定摘要必须显式给出（R2-F-R2-3：缺 run_id 不得"静默可放行"）。
+        if not str(manifest.get("run_id") or "").strip():
+            blocks.append(
+                P2Block(
+                    "run_binding_missing",
+                    SEVERITY_UNKNOWN,
+                    "run_manifest 没有 run_id：无法证明 scorecard/判定属于同一 run，不得放行",
+                    {},
+                )
+            )
+        if not str(manifest.get("config_hash") or "").strip():
+            blocks.append(
+                P2Block(
+                    "config_hash_unbound",
+                    SEVERITY_UNKNOWN,
+                    "run_manifest 没有 config_hash：无法证明 dataset/pipeline/索引/provider/gate 同源",
+                    {},
+                )
+            )
         if str(manifest.get("scope") or "") != P2_RUN_SCOPE or str(manifest.get("mode") or "") != P2_RUN_MODE:
             blocks.append(
                 P2Block(
@@ -1723,6 +1927,7 @@ def evaluate_p2_gate(
             f"调用方声明 real_calls={real_calls}，scorecard 合计 {derived_calls}",
         )
     manifest_run_id = str(manifest.get("run_id") or "").strip()
+    manifest_binding_hash = str(manifest.get("config_hash") or "").strip()
     if run_id is not None and manifest_run_id and str(run_id) != manifest_run_id:
         raise P2ScoringError(
             "run_id_mismatch", f"run_id={run_id!r} 与 run_manifest.run_id={manifest_run_id!r} 不一致"
@@ -1738,6 +1943,30 @@ def evaluate_p2_gate(
                     SEVERITY_UNKNOWN,
                     f"{name} scorecard 不是本次 run 的产物，分母/阈值不可比，不得放行",
                     {"manifest_run_id": manifest_run_id, "scorecard_run_id": str(card.run_id)},
+                )
+            )
+
+    # 5c) T206-PRE：scorecard 声明的绑定摘要必须与本 run 的 config_hash 一致
+    for name, card in cards:
+        if card is None or card.config_hash is None:
+            continue
+        declared = str(card.config_hash).strip()
+        if not manifest_binding_hash:
+            blocks.append(
+                P2Block(
+                    "config_hash_unbound",
+                    SEVERITY_UNKNOWN,
+                    f"{name} scorecard 声明了绑定摘要，但 run_manifest 没有 config_hash",
+                    {"scorecard_config_hash": declared},
+                )
+            )
+        elif declared != manifest_binding_hash:
+            blocks.append(
+                P2Block(
+                    "config_hash_binding_mismatch",
+                    SEVERITY_UNKNOWN,
+                    f"{name} scorecard 来自另一份绑定配置（dataset/pipeline/索引/provider/gate 不同源）",
+                    {"manifest_config_hash": manifest_binding_hash, "scorecard_config_hash": declared},
                 )
             )
 
@@ -1773,6 +2002,7 @@ def evaluate_p2_gate(
         execution_mode=derived_mode,
         real_calls=derived_calls,
         run_id=bound_run_id,
+        binding_config_hash=manifest_binding_hash or None,
     )
 
 

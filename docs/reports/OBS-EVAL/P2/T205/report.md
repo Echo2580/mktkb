@@ -102,3 +102,28 @@
 - 复跑（本机亲跑）：`pytest test_p2_scoring.py test_p2_gate.py test_p2_public_controls.py` → **51 passed**（22+23+6，原 44 + 新增 7）；
   受影响门槛套件 `test_gate.py test_gate_quality.py` → **109 passed**；`probe_t205.py` 出站 0 / RAG POST 0。
   原始输出见 `../R2/evidence/01-pytest.txt`，判定摘要见 `../R2/evidence/02-probe-outputs.txt`、`../R2/evidence/03-r2-semantics.json`。
+
+
+## T206-PRE 补充（2026-11-11，T205 §7 限制 1/2 的补采集）
+
+- 现场/边界：`codex/p2-e2e` @ `a8f2a6b`（未 commit）；只改 T205 允许文件 + 本报告追加；
+  真实调用 **0**；未改 `gate.py`、未改 `gate_v0_3.json`（门禁阈值/分母零变化）。
+- **限制 1（trace 无评测身份）已补**：Mock 产品路径把 `run_id/dataset_version/manifest_sha256/
+  pipeline_version/index_revision/config_hash` 绑进 `TraceRecord`（contextvar + 适配器最外层
+  middleware，业务代码零改动）；实测把真实 run 产物接进 `build_gate_run` + `evaluate_p2_hard_gates`
+  后 `trace_integrity == "pass"`；未绑定/只绑半套仍 fail-closed。
+- **限制 2（检索证据 id）已补**：产品 `sources[].source_id`（unit 级）解析成稳定证据身份
+  （unit_id/unit_key/locator/document_id/version_id/version_number/state/active/in_run），
+  判定函数 `citation_evidence_status` 只在**全部作答轮的引用都核实**时给 `complete=True`；
+  缺证据/未核实仍是 unknown。**未新增 API 字段**（`SourceSummary` 不变）。
+- **C4 遗留的 config_hash 级绑定已补**：`run_manifest/summary/gate` 与两个 scorecard 都带
+  `config_hash`（`binding_config_hash` 由 dataset/pipeline/索引/provider/gate 身份确定性算出），
+  `evaluate_p2_gate` 新增 `run_binding_missing`（缺 run_id）、`config_hash_unbound`、
+  `config_hash_binding_mismatch`（均 unknown 不放行）；`P2GateDecision.binding_config_hash` 记录依据。
+- 新增用例（本包 3 个，全部在本目录既有测试文件内）：
+  `test_binding_config_hash_is_deterministic_and_config_sensitive`、
+  `test_citation_evidence_status_only_counts_verified_identity`、
+  `test_gate_blocks_missing_run_id_and_config_binding`。
+- 复跑：`test_p2_scoring.py test_p2_gate.py integration/test_p2_public_controls.py` → **54 passed**
+  （原 51 + 新增 3）；`test_gate.py test_gate_quality.py` → **109 passed**（未变）。
+- 契约：`docs/evaluation/p2-live-binding-v0_1.md`；统一报告 `docs/reports/OBS-EVAL/P2/T206-PRE/report.md`。

@@ -14,6 +14,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from typing import Any
 
 import pytest
 
@@ -49,9 +50,14 @@ from mktkb.evaluation.p2_scoring import (
     P2ScoringError,
     SEVERITY_HARD,
     SEVERITY_UNKNOWN,
+    P2_BINDING_VERSION,
     aggregate_holdout,
+    binding_config_hash,
     check_scenario_isolation,
     check_source_isolation,
+    citation_evidence_status,
+    evaluate_p2_gate,
+    load_p2_gate_config,
     normalize_product_outcome,
     score_public_case,
     score_public_suites,
@@ -650,3 +656,189 @@ def test_holdout_case_hard_failure_cannot_be_pass() -> None:
     with pytest.raises(P2ScoringError) as excinfo:
         P2HoldoutCaseScore(case_id="H2-01", stratum="negative", status=CASE_STATUS_FAIL, hard_failure="oops")
     assert excinfo.value.code == "hard_failure_kind_invalid"
+
+
+# --------------------------------------------------------------------------- #
+# T206-PRE：绑定摘要 / 引用证据状态 / 判定侧的 run+config 绑定
+# --------------------------------------------------------------------------- #
+
+BINDING_BASE = {
+    "dataset_version": "P2-HOLDOUT-v2",
+    "manifest_sha256": "a" * 64,
+    "label_version": "holdout-2026-11-04",
+    "pipeline_version": "pipeline1234",
+    "index_revision": 6,
+    "provider": {
+        "chat": {"model": "mock-chat", "transport": "MockTransport"},
+        "embedding": {"model": "text-embedding-v4", "dimensions": 1024},
+    },
+    "gate_version": "mktkb.gate.v0.3",
+    "gate_config_hash": "f" * 64,
+}
+
+
+def test_binding_config_hash_is_deterministic_and_config_sensitive() -> None:
+    """同配置同 hash；任一组件（dataset/pipeline/索引/provider/gate）变化必变。"""
+    first = binding_config_hash(**BINDING_BASE)
+    again = binding_config_hash(**{key: value for key, value in BINDING_BASE.items()})
+    assert first == again and len(first) == 64
+    assert P2_BINDING_VERSION.startswith("p2-binding/")
+
+    changes = {
+        "dataset_version": "P2-HOLDOUT-v3",
+        "manifest_sha256": "b" * 64,
+        "label_version": "holdout-2026-11-05",
+        "pipeline_version": "pipeline9999",
+        "index_revision": 7,
+        "provider": {"chat": {"model": "mock-chat-2", "transport": "MockTransport"}},
+        "gate_version": "mktkb.gate.v0.2",
+        "gate_config_hash": "0" * 64,
+    }
+    for name, value in changes.items():
+        changed = binding_config_hash(**{**BINDING_BASE, name: value})
+        assert changed != first, f"{name} 改了但摘要没变（绑定不可信）"
+
+    # 缺组件 / 空组件 fail closed（不 quietly 用默认值）
+    for name, value in (("gate_config_hash", ""), ("dataset_version", ""), ("index_revision", None)):
+        with pytest.raises(P2ScoringError) as excinfo:
+            binding_config_hash(**{**BINDING_BASE, name: value})
+        assert excinfo.value.code in {"binding_input_missing", "binding_input_invalid"}
+    with pytest.raises(P2ScoringError) as excinfo:
+        binding_config_hash(**{**BINDING_BASE, "provider": {}})
+    assert excinfo.value.code == "binding_input_missing"
+
+
+GOOD_EVIDENCE = {
+    "unit_id": UNIT_ID,
+    "unit_key": UNIT_KEY,
+    "locator": {"sheet": "物品位置", "row": 8},
+    "document_id": "22222222-2222-4222-8222-222222222222",
+    "version_id": "33333333-3333-4333-8333-333333333333",
+    "version_number": 1,
+    "state": "published",
+    "active": True,
+    "in_run": True,
+    "verified": True,
+    "reason": None,
+}
+
+
+def _turn_row(*, kind: str = "answer", evidence: Any = None, turn: int = 1, case_id: str = "Q01") -> dict:
+    product = {"kind": kind}
+    if evidence is not None:
+        product["evidence"] = evidence
+    return {"case_id": case_id, "turns": [{"turn": turn, "status": "ok", "product": product}]}
+
+
+def test_citation_evidence_status_only_counts_verified_identity() -> None:
+    ok = citation_evidence_status([_turn_row(evidence=[dict(GOOD_EVIDENCE)])])
+    assert ok["complete"] is True
+    assert (ok["answered_turns"], ok["turns_with_evidence"], ok["verified_citations"]) == (1, 1, 1)
+
+    missing = citation_evidence_status([_turn_row()])
+    assert missing["complete"] is False
+    assert missing["issues"][0]["code"] == "citation_evidence_missing"
+
+    # 未核实（verified=False）不能当证据
+    unverified = citation_evidence_status(
+        [_turn_row(evidence=[{**GOOD_EVIDENCE, "verified": False, "reason": "unit_not_found"}])]
+    )
+    assert unverified["complete"] is False
+    assert unverified["issues"][0]["code"] == "citation_evidence_unverified"
+
+    # 空 locator 也不算证据身份
+    no_locator = citation_evidence_status(
+        [_turn_row(evidence=[{**GOOD_EVIDENCE, "locator": {}}])]
+    )
+    assert no_locator["complete"] is False
+
+    # 只有非作答轮 → 没有可判定证据（保持 unknown，不当通过）
+    no_answer = citation_evidence_status([_turn_row(kind="not_found")])
+    assert no_answer["complete"] is False
+    assert any(item["code"] == "no_answer_turn" for item in no_answer["issues"])
+
+    # H2 聚合路径不得带 case_id
+    hidden = citation_evidence_status([_turn_row(case_id="H2-01")], include_case_ids=False)
+    assert "case_id" not in json.dumps(hidden, ensure_ascii=False)
+    assert '"H2-01"' not in json.dumps(hidden, ensure_ascii=False)
+
+
+def _gate_inputs(*, run_id: str | None = "p2run-bind", config_hash: str | None = "a" * 64):
+    config = load_p2_gate_config()
+    manifest: dict[str, Any] = {
+        "mode": "end_to_end",
+        "scope": "end_to_end",
+        "gate_version": config.gate_version,
+        "gate_config_hash": config.config_hash,
+    }
+    if run_id is not None:
+        manifest["run_id"] = run_id
+    if config_hash is not None:
+        manifest["config_hash"] = config_hash
+    public = score_public_suites([], run_id=run_id, config_hash=config_hash)
+    holdout = aggregate_holdout(
+        [], thresholds_approved=False, run_id=run_id, config_hash=config_hash
+    )
+    return config, manifest, public, holdout
+
+
+def test_gate_blocks_missing_run_id_and_config_binding() -> None:
+    config, manifest, public, holdout = _gate_inputs()
+    clean = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=public,
+        holdout=holdout,
+        citation_evidence_complete=True,
+    )
+    codes = {block.code for block in clean.blocks}
+    assert "run_binding_missing" not in codes and "config_hash_unbound" not in codes
+    assert clean.binding_config_hash == "a" * 64
+
+    # 缺 run_id → unknown（R2-F-R2-3：不得"没有 run_id 也能放行"）
+    config, manifest, public, holdout = _gate_inputs(run_id=None)
+    decision = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=public,
+        holdout=holdout,
+        citation_evidence_complete=True,
+    )
+    assert "run_binding_missing" in {block.code for block in decision.blocks}
+    assert decision.run_id is None and decision.release_allowed is False
+
+    # manifest 缺 config_hash → unbound
+    config, manifest, public, holdout = _gate_inputs(config_hash=None)
+    decision = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=public,
+        holdout=holdout,
+        citation_evidence_complete=True,
+    )
+    assert "config_hash_unbound" in {block.code for block in decision.blocks}
+    assert decision.binding_config_hash is None
+
+    # scorecard 来自另一份绑定配置 → mismatch（不是 run_id 级，而是 config_hash 级）
+    config, manifest, _, _ = _gate_inputs()
+    public_other = score_public_suites([], run_id="p2run-bind", config_hash="b" * 64)
+    holdout_other = aggregate_holdout(
+        [], thresholds_approved=False, run_id="p2run-bind", config_hash="a" * 64
+    )
+    decision = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=public_other,
+        holdout=holdout_other,
+        citation_evidence_complete=True,
+    )
+    assert "config_hash_binding_mismatch" in {block.code for block in decision.blocks}
+    assert decision.release_allowed is False

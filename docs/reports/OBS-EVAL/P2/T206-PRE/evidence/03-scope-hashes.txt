@@ -1,0 +1,65 @@
+# P2-T206-PRE 改动面与只读面（2026-11-11，codex/p2-e2e @ a8f2a6b，未 commit）
+
+## 1. 本包改动文件（M=修改，??=新增；行数=当前文件行数；sha256 取前 16 位）
+| 状态 | 路径 | 增/删行 | 行数 | sha256[:16] |
+|---|---|---|---|---|
+| M | `backend/src/mktkb/evaluation/product_adapter.py` | 181/0 | 1498 | b99c606387e349dd |
+| M | `backend/src/mktkb/evaluation/p2_runner.py` | 305/30 | 1635 | 3427158f43be4794 |
+| M | `backend/src/mktkb/evaluation/p2_scoring.py` | 230/0 | 2176 | c8ae31a49c1bcb5c |
+| M | `backend/src/mktkb/observability/tracer.py` | 60/0 | 821 | 01dc81e40f20be46 |
+| M | `backend/src/mktkb/observability/__init__.py` | 12/1 | 66 | cd87a495491d20f2 |
+| M | `backend/tests/evaluation/test_p2_runner.py` | 207/0 | 1558 | f211851db89f63c3 |
+| M | `backend/tests/evaluation/test_p2_scoring.py` | 192/0 | 845 | c25d9d4e7ff64137 |
+| M | `docs/evaluation/p2-runner-contract-v0_1.md` | 20/0 | 177 | a4946bd4a0bef7af |
+| ?? | `docs/evaluation/p2-live-binding-v0_1.md` | - | 152 | 2af58efebbccdfbb |
+| M | `docs/reports/OBS-EVAL/P2/T203/report.md` | 19/0 | 175 | 121e7e88f5567f00 |
+| M | `docs/reports/OBS-EVAL/P2/T204/report.md` | 11/0 | 125 | f63e7c58e83d94da |
+| M | `docs/reports/OBS-EVAL/P2/T205/report.md` | 25/0 | 130 | d2ccc2141fe65b0d |
+| M | `docs/reports/OBS-EVAL/P2/T203/evidence/verify/probe-scripts/probe1_product_entry_netguard.py` | 17/1 | 331 | 4acdf80bc0e14177 |
+| ?? | `docs/reports/OBS-EVAL/P2/T206-PRE/report.md` | - | 93 | f69e688434efa34b |
+| ?? | `docs/reports/OBS-EVAL/P2/T206-PRE/evidence/01-pytest.txt` | - | 79 | 219bd7934b9992f5 |
+| ?? | `docs/reports/OBS-EVAL/P2/T206-PRE/evidence/02-binding-digest.json` | - | 201 | 0b2c00061378053c |
+| ?? | `docs/reports/OBS-EVAL/P2/T206-PRE/evidence/probe_t206_pre.py` | - | 238 | 8f8917b9fa453f44 |
+
+（本文件是生成器输出，不列自身 hash —— 写入后即变。）
+
+## 2. 禁改面（零 diff / 零 porcelain）
+- `backend/src/mktkb/evaluation/gate.py`：porcelain=""；diff="-"；sha256[:16]=7e54fbf672cbc1c0
+- `backend/src/mktkb/evaluation/p2_ingestion.py`：porcelain=""；diff="-"；sha256[:16]=2eda2b3207b3a734
+- `docs/evaluation/gate_v0_3.json`：porcelain=""；diff="-"；sha256[:16]=3af301dba2d4dbd1
+- `fixtures/`：porcelain=""
+- `.env` / H1 / H2：未读取（本包只跑隔离临时目录与合成用例）
+
+## 3. 共享账本 / 预算 / GO（只读，未修改）
+- `docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl`：sha256[:16]=1f46d1b9e846528d，bytes=958277
+- `docs/evidence/LOCAL-R1-20261101/budget/budget.json`：sha256[:16]=084ba9acb4ee9037，bytes=1444
+- `docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json` 存在性=false
+
+## 4. 现场既有、本包未触碰（协调/规划文档，未跟踪）
+- `M .claude/handoffs/_index.md`
+- `?? .claude/handoffs/2026-11-10-154731-p2-project-manager.md`
+- `?? .claude/handoffs/2026-11-10-p2-progress.md`
+- `?? .claude/handoffs/prompts/P2-R2-dev.md`
+- `?? .claude/handoffs/prompts/P2-R2-verify.md`
+- `?? .claude/handoffs/prompts/P2-T201-dev.md`
+- `?? .claude/handoffs/prompts/P2-T201-verify.md`
+- `?? .claude/handoffs/prompts/P2-T202-custodian.md`
+- `?? .claude/handoffs/prompts/P2-T202-dev.md`
+- `?? .claude/handoffs/prompts/P2-T202-verify.md`
+- `?? .claude/handoffs/prompts/P2-T203-R1-dev.md`
+- `?? .claude/handoffs/prompts/P2-T203-R1-verify.md`
+- `?? .claude/handoffs/prompts/P2-T203-dev.md`
+- `?? .claude/handoffs/prompts/P2-T203-verify.md`
+- `?? .claude/handoffs/prompts/P2-T204-dev.md`
+- `?? .claude/handoffs/prompts/P2-T204-verify.md`
+- `?? .claude/handoffs/prompts/P2-T205-dev.md`
+- `?? .claude/handoffs/prompts/P2-T205-verify.md`
+- `?? docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md`
+- `?? docs/面试/`
+
+## 5. 零真实调用（探针实测，见 02-binding-digest.json）
+- run_a：real_requests=0、billed_cny=0、adapter_outbound=0、network_outbound=0
+- run_b：real_requests=0
+- trace_integrity：run_a=pass、run_b=pass；两次 run 的 config_hash 相同=true（58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e）
+- 摘要可复算=true；抬 index_revision 后必变=true
+- 未联网、未构造真实 provider（chat=MockTransport，embedding/rerank=离线替身，OCR=disabled），未写共享账本/GO。

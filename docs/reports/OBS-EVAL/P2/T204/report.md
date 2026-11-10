@@ -111,3 +111,14 @@
 - **B4(N7) 端到端"缓存命中"口径**：契约 §4/§7 与本报告 §3 已区分「单测缓存命中」与「产品检查点复用」。
 - 复跑（本机亲跑）：`pytest test_p2_ocr_ingestion.py test_p2_ocr_source_identity.py` → **18 passed**；`test_rule_table_scan.py` → 6 passed；
   `probe_t204.py` → exit 0、出站 0。原始输出见 `../R2/evidence/01-pytest.txt`、`../R2/evidence/02-probe-outputs.txt`；统一报告 `../R2/report.md`。
+
+
+## T206-PRE 补充（2026-11-11，绑定与失败语义）
+
+- 现场/边界：`codex/p2-e2e` @ `a8f2a6b`（未 commit）；**本包业务代码零改动**
+  （`p2_ingestion.py` 未动、缓存/OCR 语义未动）；真实调用 **0**，未读 `.env`/H1/H2、未联网。
+- 本包不参与本轮新增的 trace 身份/引用证据/config_hash 绑定（那是 T203 运行器与 T205 评分侧的口径），
+  但 T206 真实 pilot 会复用同一份 run 产物：OCR 页面计数与 `cache_input_hash` 身份仍由本包契约
+  （`p2-ingestion-v0_1`）约束，未放宽。
+- 回归：`test_p2_ocr_ingestion.py` + `integration/test_p2_ocr_source_identity.py` → **18 passed**（未改动用例）。
+- 绑定契约入口：`docs/evaluation/p2-live-binding-v0_1.md`；本包报告与证据未改。

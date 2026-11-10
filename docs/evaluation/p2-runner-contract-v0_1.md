@@ -154,3 +154,23 @@ holdout 额外约束：
   `provider_network_detail_mismatch`，**不静默拼接/覆盖**，也不挑一个"看起来对"的值写产物；
   同理，`summary.providers.<name>.outbound_network` 是明细展示（供旧 probe / 人工核对），不与顶层独立；
 - 产品单轮 60 秒口径直接取 `conversations.service.BUDGET_SECONDS`，不另立常量。
+
+
+## 6. T206-PRE 追加：绑定与失败语义（v0.1 增补，不改上文口径）
+
+- **评测身份**：`run_manifest` 顶层新增 `suite/dataset_version/dataset_sha256/
+  corpus_manifest_sha256/business_date/index_revision/pipeline_version/gate_version/
+  gate_config_hash/label_version/created_at/case_count/config_hash/dataset_path/trace_store`，
+  可直接作为 `build_gate_run(manifest=...)` 的输入；另有 `binding` 块记录组件与是否完整。
+  公开 run 额外落 `dataset.jsonl`（H2 不落题面，`dataset_path` 为空 → gate 记 unknown）。
+- **trace 身份**：`run_id/dataset_version/manifest_sha256/pipeline_version/index_revision/
+  config_hash` 六字段齐全才绑定，缺一项整体不绑；未绑定即 `trace_integrity` fail-closed。
+- **引用证据**：每轮 `product.evidence`（unit_id/unit_key/locator/document_id/version_id/
+  version_number/state/active/in_run/verified）来自产品库只读解析；`summary.citation_evidence`
+  与 `gate.json.citation_evidence` 给出 `complete` 与计数。
+- **失败也写产物**：产物校验失败（如 `provider_network_detail_mismatch`）时写
+  `run_manifest/summary/run_result/gate`（+ holdout 聚合）后**再抛出**同一稳定码；
+  `summary.network.available=false`、`summary.providers=null`、`gate.json.real_sends_allowed=false`。
+- **run_id 必填**：`run_p2(run_id=...)` 传空/非 str → 发送前 `P2RunError("run_id_missing")`。
+- 完整口径（确定性 config_hash、错误码表、fail-closed 矩阵）见
+  `docs/evaluation/p2-live-binding-v0_1.md`。

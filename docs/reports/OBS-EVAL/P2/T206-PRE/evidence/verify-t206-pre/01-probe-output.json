@@ -1,0 +1,450 @@
+{
+  "schema": "p2-t206-pre-verify/v0.1",
+  "bound": {
+    "status": "succeeded",
+    "case_ids": [
+      "P01",
+      "P03"
+    ],
+    "manifest_run_id": "p2run-74dba844a39341c7",
+    "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+    "binding": {
+      "binding_version": "p2-binding/v0.1",
+      "complete": true,
+      "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+      "dataset_sha256": "33f2e8aa086e4dc8825a8f7130685e51f7a5e624115ed0c3ac4d5eb04af5174b",
+      "dataset_version": "p2-synthetic-v1",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "index_revision": 2,
+      "label_version": "synthetic-v1",
+      "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "missing": [],
+      "pipeline_version": "d3ca88d2c515",
+      "provider": {
+        "chat": {
+          "model": "mock-chat",
+          "provider": "p2-mock",
+          "transport": "MockTransport"
+        },
+        "embedding": {
+          "impl": "MockEmbeddingProvider",
+          "model": "text-embedding-v4",
+          "provider": "p2-mock"
+        },
+        "ocr": "disabled",
+        "rerank": {
+          "impl": "MockReranker",
+          "model": "gte-rerank-v2",
+          "provider": "p2-mock"
+        }
+      },
+      "trace_identity_bound": true
+    },
+    "traces": [
+      {
+        "run_id": "p2run-74dba844a39341c7",
+        "dataset_version": "p2-synthetic-v1",
+        "pipeline_version": "d3ca88d2c515",
+        "index_revision": "2",
+        "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e"
+      },
+      {
+        "run_id": "p2run-74dba844a39341c7",
+        "dataset_version": "p2-synthetic-v1",
+        "pipeline_version": "d3ca88d2c515",
+        "index_revision": "2",
+        "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e"
+      }
+    ],
+    "trace_fields_equal_manifest": true,
+    "trace_integrity": "pass",
+    "trace_integrity_failures": [],
+    "hard_failures": [
+      "citation_required"
+    ],
+    "hard_failure_details": [
+      {
+        "gate_id": "citation_required",
+        "case_id": "P01",
+        "check_id": "citation_not_in_evidence",
+        "evidence": {
+          "unit_ids": [
+            "0262633c-bb0b-4b49-bc36-2c2ceee0f2b3",
+            "9961d5d4-13b6-433e-b7aa-100cdb4822c6"
+          ],
+          "evidence_units": 0
+        }
+      },
+      {
+        "gate_id": "citation_required",
+        "case_id": "P03",
+        "check_id": "citation_not_in_evidence",
+        "evidence": {
+          "unit_ids": [
+            "01513ee3-a552-4593-9e34-2667127a8bb5",
+            "b7e294db-c6de-4981-bfcf-7234583fda17"
+          ],
+          "evidence_units": 0
+        }
+      }
+    ],
+    "gate_artifact_validation_ok": true,
+    "requests_run_ids": [
+      "p2run-74dba844a39341c7"
+    ],
+    "case_rows_have_evidence": true,
+    "hard_gate_status": {
+      "security_leak": "not_applicable",
+      "cross_entity": "not_applicable",
+      "stale_bypass": "not_applicable",
+      "conflict_not_rejected": "not_applicable",
+      "exact_value_contract": "not_applicable",
+      "pagination_contract": "not_applicable",
+      "citation_required": "fail",
+      "trace_integrity": "pass"
+    },
+    "citation_evidence": {
+      "complete": true,
+      "answered_turns": 2,
+      "turns_with_evidence": 2,
+      "citations": 4,
+      "verified_citations": 4,
+      "issues": []
+    },
+    "summary_citation_complete": true,
+    "gate_citation_complete": true,
+    "evidence_db_check": [
+      {
+        "unit_id_is_source_id": true,
+        "evidence_covers_sources": true,
+        "document_id_matches_db": true,
+        "version_id_matches_db": true,
+        "version_number_matches_db": true,
+        "db_state": "published",
+        "db_active": true,
+        "db_locator_nonempty": true,
+        "document_in_run": true,
+        "verified": true
+      },
+      {
+        "unit_id_is_source_id": true,
+        "evidence_covers_sources": true,
+        "document_id_matches_db": true,
+        "version_id_matches_db": true,
+        "version_number_matches_db": true,
+        "db_state": "published",
+        "db_active": true,
+        "db_locator_nonempty": true,
+        "document_in_run": true,
+        "verified": true
+      },
+      {
+        "unit_id_is_source_id": true,
+        "evidence_covers_sources": true,
+        "document_id_matches_db": true,
+        "version_id_matches_db": true,
+        "version_number_matches_db": true,
+        "db_state": "published",
+        "db_active": true,
+        "db_locator_nonempty": true,
+        "document_in_run": true,
+        "verified": true
+      },
+      {
+        "unit_id_is_source_id": true,
+        "evidence_covers_sources": true,
+        "document_id_matches_db": true,
+        "version_id_matches_db": true,
+        "version_number_matches_db": true,
+        "db_state": "published",
+        "db_active": true,
+        "db_locator_nonempty": true,
+        "document_in_run": true,
+        "verified": true
+      }
+    ],
+    "network": {
+      "available": true,
+      "code": null,
+      "detail": {
+        "chat_outbound_attempts": 0,
+        "embedding_provider": "offline-fake（无传输层，不能出网）",
+        "mock_intercepted": 1,
+        "ocr_provider": "disabled（T204 前不构造）",
+        "outbound_attempts": 0,
+        "rag_provider_posts": 0,
+        "rerank_provider": "offline-fake（无传输层，不能出网）"
+      },
+      "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
+      "outbound_attempts": 0
+    },
+    "providers_nonnull": true,
+    "real_requests": 0,
+    "billed_cny": 0.0,
+    "adapter_outbound": 0,
+    "run_dir": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2-t206-verify-jluph_v9\\bound\\p2-run",
+    "trace_ctx": {
+      "no_identity_six": {
+        "run_id": null,
+        "dataset_version": null,
+        "pipeline_version": null,
+        "index_revision": null,
+        "manifest_sha256": null,
+        "config_hash": null
+      },
+      "with_identity_six": {
+        "run_id": "p2run-unit",
+        "dataset_version": "ds-v1",
+        "pipeline_version": "pipe-1",
+        "index_revision": "4",
+        "manifest_sha256": "abababababababababababababababababababababababababababababababab",
+        "config_hash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "late_identity_not_applied": {
+        "run_id": null,
+        "dataset_version": null,
+        "pipeline_version": null,
+        "index_revision": null,
+        "manifest_sha256": null,
+        "config_hash": null
+      },
+      "snapshot_survives_exit": {
+        "run_id": "p2run-unit",
+        "dataset_version": "ds-v1",
+        "pipeline_version": "pipe-1",
+        "index_revision": "4",
+        "manifest_sha256": "abababababababababababababababababababababababababababababababab",
+        "config_hash": "cdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcdcd"
+      },
+      "identity_after_exit": null,
+      "invalid_inputs": {
+        "unknown_field": "ValueError: 未知的 trace 身份字段：'not_a_field'；只允许 ['dataset_version', 'run_id', 'index_revision', 'manifest_sha256', 'pipeline_version', 'config_hash']",
+        "empty_value": "ValueError: trace 身份 'run_id' 不能为空",
+        "bool_value": "ValueError: trace 身份 'index_revision' 必须是 str/int，收到 bool"
+      }
+    }
+  },
+  "bound_manifest_identity": {
+    "suite": "p2-holdout",
+    "dataset_version": "p2-synthetic-v1",
+    "dataset_sha256": "33f2e8aa086e4dc8825a8f7130685e51f7a5e624115ed0c3ac4d5eb04af5174b",
+    "corpus_manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "business_date": "2026-11-10",
+    "index_revision": 2,
+    "pipeline_version": "d3ca88d2c515",
+    "gate_version": "mktkb.gate.v0.3",
+    "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+    "label_version": "synthetic-v1",
+    "case_count": 2,
+    "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e"
+  },
+  "second_run": {
+    "status": "succeeded",
+    "run_id": "p2run-verify-custom",
+    "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+    "trace_run_ids": [
+      "p2run-verify-custom"
+    ],
+    "request_run_ids": [
+      "p2run-verify-custom"
+    ],
+    "trace_integrity": "pass"
+  },
+  "unbound": {
+    "status": "succeeded",
+    "binding_complete": false,
+    "binding_missing": [
+      "gate_config_hash",
+      "gate_version",
+      "trace_identity"
+    ],
+    "binding_config_hash": null,
+    "manifest_config_hash": null,
+    "manifest_index_revision": 2,
+    "trace_six": {
+      "run_id": null,
+      "dataset_version": null,
+      "pipeline_version": null,
+      "index_revision": null,
+      "manifest_sha256": null,
+      "config_hash": null
+    },
+    "all_six_none": true,
+    "native_build_gate_run": {
+      "code": "run_manifest_incomplete",
+      "message": "run_manifest_incomplete: manifest 缺少 ['gate_version', 'config_hash']"
+    },
+    "forged_trace_integrity": "fail",
+    "forged_hard_failures": [
+      "citation_required",
+      "trace_integrity"
+    ],
+    "forged_version_binding": [
+      {
+        "gate_id": "trace_integrity",
+        "case_id": "P01",
+        "check_id": "version_binding",
+        "evidence": {
+          "trace_id": "e099c4ed981846ef86995d543f7a30cc",
+          "mismatched": [
+            "dataset_version",
+            "pipeline_version",
+            "run_id",
+            "index_revision",
+            "manifest_sha256",
+            "config_hash"
+          ],
+          "expected": {
+            "dataset_version": "p2-synthetic-v1",
+            "pipeline_version": "d3ca88d2c515",
+            "run_id": "p2run-295de8226f5d46b8",
+            "index_revision": 2,
+            "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+            "config_hash": "dededededededededededededededededededededededededededededededede",
+            "mode": "local"
+          }
+        }
+      }
+    ]
+  },
+  "failure": {
+    "raised": {
+      "code": "provider_network_detail_mismatch",
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0",
+      "message_starts_with_code": true,
+      "is_value_error": true
+    },
+    "files": [
+      "cases.jsonl",
+      "dataset.jsonl",
+      "gate.json",
+      "requests.jsonl",
+      "run_manifest.json",
+      "run_result.json",
+      "summary.json"
+    ],
+    "four_products_present": true,
+    "run_ids_consistent": true,
+    "status": "aborted",
+    "stop_code": "provider_network_detail_mismatch",
+    "failure": {
+      "case_id": null,
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0",
+      "error_code": "provider_network_detail_mismatch",
+      "item_id": null,
+      "stage": "artifact_validation",
+      "stop_code": "provider_network_detail_mismatch",
+      "ticket": null,
+      "turn": null
+    },
+    "network": {
+      "available": false,
+      "code": "provider_network_detail_mismatch",
+      "detail": null,
+      "measurement": "未通过交叉校验：不把未核对的计数当实测事实",
+      "outbound_attempts": null
+    },
+    "providers": null,
+    "artifact_validation": {
+      "code": "provider_network_detail_mismatch",
+      "detail": "顶层 outbound_network 3 != network.outbound_attempts 0",
+      "ok": false
+    },
+    "real_sends_allowed": false,
+    "gate_has_binding": true
+  },
+  "run_id_refusal": {
+    "empty": {
+      "code": "run_id_missing",
+      "is_value_error": true,
+      "run_dir_created": false,
+      "adapter_started": false
+    },
+    "spaces": {
+      "code": "run_id_missing",
+      "is_value_error": true,
+      "run_dir_created": false,
+      "adapter_started": false
+    },
+    "int": {
+      "code": "run_id_missing",
+      "is_value_error": true,
+      "run_dir_created": false,
+      "adapter_started": false
+    }
+  },
+  "config_hash": {
+    "recomputed_matches_run": true,
+    "changed_after_index_bump": true,
+    "changed_for_each_component": {
+      "dataset_version": true,
+      "manifest_sha256": true,
+      "label_version": true,
+      "pipeline_version": true,
+      "index_revision": true,
+      "provider": true,
+      "gate_version": true,
+      "gate_config_hash": true
+    },
+    "bumped_prefix": "1987b70d45ce",
+    "provider_has_no_runtime_counts": true,
+    "missing_component_codes": {
+      "dataset_version": "binding_input_missing",
+      "manifest_sha256": "binding_input_missing",
+      "label_version": "binding_input_missing",
+      "pipeline_version": "binding_input_missing",
+      "index_revision": "binding_input_missing",
+      "provider": "binding_input_missing",
+      "gate_version": "binding_input_missing",
+      "gate_config_hash": "binding_input_missing"
+    }
+  },
+  "citation_edge_cases": {
+    "complete": {
+      "complete": false,
+      "answered_turns": 1,
+      "turns_with_evidence": 0,
+      "citations": 0,
+      "verified_citations": 0,
+      "issues": [
+        {
+          "code": "citation_evidence_missing",
+          "turn": 1,
+          "case_id": "Q01"
+        }
+      ]
+    },
+    "unverified": {
+      "complete": false,
+      "answered_turns": 1,
+      "turns_with_evidence": 1,
+      "citations": 1,
+      "verified_citations": 0,
+      "issues": [
+        {
+          "code": "citation_evidence_unverified",
+          "turn": 1,
+          "unit_id": "u",
+          "reason": "unit_not_found",
+          "case_id": "Q01"
+        }
+      ]
+    },
+    "not_found_turn": {
+      "complete": false,
+      "answered_turns": 0,
+      "turns_with_evidence": 0,
+      "citations": 0,
+      "verified_citations": 0,
+      "issues": [
+        {
+          "code": "no_answer_turn"
+        }
+      ]
+    },
+    "h2_no_case_id": true
+  }
+}

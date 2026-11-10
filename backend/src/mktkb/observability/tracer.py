@@ -57,6 +57,60 @@ _SPAN_STACK: ContextVar[tuple[str, ...]] = ContextVar(
     "mktkb.trace.span_stack", default=()
 )
 
+#: 评测身份字段（P2-T206-PRE）：由评测侧在**请求上下文**中显式给出，供
+#: ``start_trace`` 把 run 身份绑进 TraceRecord。只认 TraceRecord 已有的六个绑定字段，
+#: 不允许发明新字段；未设置时行为与之前完全一致（全部为 None）。
+TRACE_IDENTITY_FIELDS: tuple[str, ...] = (
+    "dataset_version",
+    "run_id",
+    "index_revision",
+    "manifest_sha256",
+    "pipeline_version",
+    "config_hash",
+)
+_TRACE_IDENTITY_FIELD_SET = frozenset(TRACE_IDENTITY_FIELDS)
+#: 当前上下文中的评测身份（contextvar；未设置 = None，不产生任何字段）。
+_TRACE_IDENTITY: ContextVar[dict[str, str] | None] = ContextVar(
+    "mktkb.trace.identity", default=None
+)
+
+
+@contextmanager
+def trace_identity(**fields: Any) -> Iterator[dict[str, str]]:
+    """在上下文里绑定评测身份（dataset_version/run_id/index_revision/manifest_sha256/
+    pipeline_version/config_hash）。
+
+    - 只允许上述六个字段名；未知字段 → ``ValueError``（不静默丢弃）；
+    - 值必须是 str/int 且非空；int 仅用于 index_revision，统一转成 str 落库；
+    - 嵌套/退出安全：contextvar token 重置，不泄漏到后续请求；
+    - 只影响**之后**创建的 TraceContext（已有 Trace 不改写，避免"事后改身份"）。
+    """
+    resolved: dict[str, str] = {}
+    for raw_name, value in fields.items():
+        name = str(raw_name)
+        if name not in _TRACE_IDENTITY_FIELD_SET:
+            raise ValueError(
+                f"未知的 trace 身份字段：{name!r}；只允许 {list(TRACE_IDENTITY_FIELDS)}"
+            )
+        if isinstance(value, bool) or not isinstance(value, (str, int)):
+            raise ValueError(f"trace 身份 {name!r} 必须是 str/int，收到 {type(value).__name__}")
+        text = str(value).strip()
+        if not text:
+            raise ValueError(f"trace 身份 {name!r} 不能为空")
+        resolved[name] = text
+    token = _TRACE_IDENTITY.set(resolved)
+    try:
+        yield resolved
+    finally:
+        _TRACE_IDENTITY.reset(token)
+
+
+def current_trace_identity() -> dict[str, str] | None:
+    """返回当前上下文里的评测身份副本（没有则 None）；只读，不创建任何 Trace。"""
+    found = _TRACE_IDENTITY.get()
+    return None if found is None else dict(found)
+
+
 # 内容模式（设计 §6.5）：P0 只实现最保守的两种。
 CONTENT_MODE_HASH = "hash"
 CONTENT_MODE_OFF = "off"
@@ -407,6 +461,8 @@ class TraceContext:
         self._repo = repo
         self._content_mode = content_mode
         self._hmac_key = hmac_key
+        # T206-PRE：创建时快照上下文身份（之后改上下文不影响已开始的 Trace）。
+        self._identity: dict[str, str] = dict(_TRACE_IDENTITY.get() or {})
 
         self._request_id: str | None = None
         self._question: str | None = question or None
@@ -585,6 +641,10 @@ class TraceContext:
         record_fields.update(
             _hash_question_fields(self._question, self._content_mode, self._hmac_key)
         )
+        # T206-PRE：先落上下文身份，再让显式 annotate 覆盖（业务埋点优先，身份不可伪造
+        # 未被埋点声明的字段）。
+        for _name, _value in self._identity.items():
+            record_fields.setdefault(_name, _value)
         record_fields.update(annotations)
         if self._error_code is not None and "error_code" not in annotations:
             record_fields["error_code"] = self._error_code

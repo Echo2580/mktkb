@@ -48,9 +48,18 @@ from mktkb.evaluation.p2_contracts import (
     P2_LEDGER_SNAPSHOT_SCHEMA_VERSION,
 )
 from mktkb.evaluation.p2_runner import (
+    P2RunError,
     build_dry_run_authorization,
     is_real_p2_gate,
     run_p2,
+)
+from mktkb.evaluation.p2_scoring import (
+    build_gate_rows,
+    build_gate_run,
+    citation_evidence_status,
+    evaluate_p2_hard_gates,
+    load_p2_gate_config,
+    score_public_case as score_p2_public_case,
 )
 from mktkb.evaluation.product_adapter import (
     ChatBehavior,
@@ -1348,3 +1357,201 @@ async def test_holdout_close_removes_question_plaintext_from_out_dir(tmp_path: P
     assert not (adapter.paths.run_dir / "cases.jsonl").exists()
     assert not (adapter.paths.run_dir / "requests.jsonl").exists()
 
+
+
+# --------------------------------------------------------------------------- #
+# 8. T206-PRE：真实准入前的绑定（trace 身份 / 证据 id / config_hash / 失败产物 / run_id）
+# --------------------------------------------------------------------------- #
+
+DOCUMENT_CODES = {
+    D01.name: "D01",
+    D04.name: "D04",
+}
+
+
+def read_trace(adapter: Any, trace_id: str) -> Any:
+    repo = adapter.app.state.trace_repo
+    found = repo.get(trace_id)
+    assert found is not None, trace_id
+    return found
+
+
+@asyncio_test
+async def test_mock_dry_run_binds_identity_and_passes_trace_integrity(tmp_path: Path) -> None:
+    """Mock dry-run：身份绑进 trace、证据 id 可判定 True、8 硬门禁里的 trace_integrity 真 PASS。"""
+    cases = (make_case("P01", RAG_QUESTION), make_case("P03", LEGACY_QUESTION))
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    dataset = make_dataset(cases)
+    config = load_p2_gate_config()
+    adapter = ProductEvalAdapter(
+        tmp_path / "bound", chat=MockChatBackend(), dataset=dataset, ingest_plan=make_ingest_plan()
+    )
+    try:
+        result = await run_p2(
+            plan,
+            adapter=adapter,
+            authorization=authorization,
+            now=NOW,
+            gate_config=config,
+        )
+        assert result.status == "succeeded", result.as_dict()
+        run_dir = adapter.paths.run_dir
+        manifest = read_json(run_dir / "run_manifest.json")
+        summary = read_json(run_dir / "summary.json")
+        gate_payload = read_json(run_dir / "gate.json")
+        case_rows = read_jsonl(run_dir / "cases.jsonl")
+
+        # 1) config_hash 绑定：确定、64 位、写入 manifest/summary/gate，且 gate 身份齐全
+        binding = manifest["binding"]
+        assert binding["complete"] is True, binding["missing"]
+        assert len(binding["config_hash"]) == 64
+        assert manifest["config_hash"] == binding["config_hash"] == summary["binding"]["config_hash"]
+        assert gate_payload["binding"]["config_hash"] == binding["config_hash"]
+        assert manifest["gate_version"] == config.gate_version
+        assert manifest["gate_config_hash"] == config.config_hash
+        assert manifest["index_revision"] == adapter.product_revision()
+        assert manifest["dataset_sha256"] == binding["dataset_sha256"]
+        assert binding["trace_identity_bound"] is True
+
+        # 2) trace 身份：每条 trace 与 manifest 同源（不是评测器自己写一个"看起来对"的值）
+        expected = {
+            "dataset_version": manifest["dataset_version"],
+            "run_id": manifest["run_id"],
+            "index_revision": str(manifest["index_revision"]),
+            "manifest_sha256": manifest["corpus_manifest_sha256"],
+            "pipeline_version": manifest["pipeline_version"],
+            "config_hash": manifest["config_hash"],
+        }
+        for case_row in case_rows:
+            for turn in case_row["turns"]:
+                trace, _spans = read_trace(adapter, turn["trace_id"])
+                for name, value in expected.items():
+                    assert str(getattr(trace, name)) == str(value), (case_row["case_id"], name)
+
+        # 3) 引用证据 id：产品来源解析出稳定 unit_id/locator/版本，判定 True（不是伪造）
+        status = citation_evidence_status(case_rows)
+        assert status["complete"] is True, status
+        assert status["answered_turns"] >= 1 and status["verified_citations"] == status["citations"]
+        assert summary["citation_evidence"]["complete"] is True
+        first_evidence = case_rows[0]["turns"][0]["product"]["evidence"][0]
+        assert first_evidence["unit_id"] and first_evidence["locator"] and first_evidence["version_number"] >= 1
+        assert first_evidence["active"] is True and first_evidence["in_run"] is True
+
+        # 4) 把 run 产物接进 gate：trace_integrity 必须真 PASS（不是合成 trace）
+        scored = []
+        for case, case_row in zip(cases, case_rows):
+            scored.append(
+                score_p2_public_case(
+                    case,
+                    case_row,
+                    document_codes=DOCUMENT_CODES,
+                    allowed_doc_codes=set(DOCUMENT_CODES.values()),
+                )
+            )
+        rows = build_gate_rows(cases, scored)
+        gate_run = build_gate_run(
+            run_dir=run_dir, manifest=manifest, cases=cases, rows=rows, summary=summary
+        )
+        hard = evaluate_p2_hard_gates(gate_run, config=config, require_trace=True)
+        assert hard.gate_status["trace_integrity"] == "pass", hard.to_dict()
+        assert not [
+            item for item in hard.hard_failures if item == "trace_integrity"
+        ], hard.to_dict()
+    finally:
+        await adapter.close()
+
+
+@asyncio_test
+async def test_dry_run_without_gate_config_keeps_identity_unbound(tmp_path: Path) -> None:
+    """没给 gate 配置 → 绑定不完整、trace 不绑身份（缺一项整体不绑，不写半套）。"""
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    adapter = ProductEvalAdapter(
+        tmp_path / "unbound", chat=MockChatBackend(), dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    try:
+        result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+        assert result.status == "succeeded", result.as_dict()
+        run_dir = adapter.paths.run_dir
+        manifest = read_json(run_dir / "run_manifest.json")
+        binding = manifest["binding"]
+        assert binding["complete"] is False
+        assert binding["config_hash"] is None
+        assert {"gate_version", "gate_config_hash", "trace_identity"} <= set(binding["missing"])
+        assert binding["trace_identity_bound"] is False
+        case_row = read_jsonl(run_dir / "cases.jsonl")[0]
+        trace, _ = read_trace(adapter, case_row["turns"][0]["trace_id"])
+        for name in ("run_id", "dataset_version", "pipeline_version", "index_revision",
+                     "manifest_sha256", "config_hash"):
+            assert getattr(trace, name) is None, name
+    finally:
+        await adapter.close()
+
+
+@asyncio_test
+async def test_artifact_validation_failure_still_writes_all_products(tmp_path: Path) -> None:
+    """R2-F-R2-1：校验失败也要落 run_result/summary/gate（带失败阶段与稳定码）。"""
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    adapter = _TopLevelOnlyAdapter(
+        tmp_path / "artifact-fail",
+        chat=MockChatBackend(),
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    try:
+        with pytest.raises(P2RunError) as excinfo:
+            await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
+        code = excinfo.value.code
+        run_dir = adapter.paths.run_dir
+        result = read_json(run_dir / "run_result.json")
+        summary = read_json(run_dir / "summary.json")
+        gate_payload = read_json(run_dir / "gate.json")
+        assert read_json(run_dir / "run_manifest.json")["run_id"] == result["run_id"]
+    finally:
+        await adapter.close()
+
+    assert code == "provider_network_detail_mismatch"
+    assert result["status"] == "aborted" and result["stop_code"] == code
+    assert summary["status"] == "aborted" and summary["stop_code"] == code
+    assert summary["failure"]["stage"] == "artifact_validation"
+    assert summary["failure"]["error_code"] == code
+    # 未通过交叉校验的计数**不得**写成实测事实
+    assert summary["network"]["available"] is False and summary["network"]["code"] == code
+    assert summary["providers"] is None
+    assert gate_payload["artifact_validation"]["ok"] is False
+    assert gate_payload["artifact_validation"]["code"] == code
+    assert gate_payload["failure"]["stop_code"] == code
+    assert gate_payload["real_sends_allowed"] is False
+
+
+@asyncio_test
+async def test_missing_run_id_is_refused_before_any_send(tmp_path: Path) -> None:
+    """R2-F-R2-3：run_id 必填；空/非字符串在发送前用稳定码拒绝，不悄悄换一个身份。"""
+    cases = (make_case("P01", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    for bad in ("", "   ", 123):
+        adapter = ProductEvalAdapter(
+            tmp_path / f"run-id-{type(bad).__name__}-{len(str(bad))}",
+            chat=MockChatBackend(),
+            dataset=make_dataset(cases),
+            ingest_plan=make_ingest_plan(),
+        )
+        try:
+            with pytest.raises(P2RunError) as excinfo:
+                await run_p2(
+                    plan,
+                    adapter=adapter,
+                    authorization=authorization,
+                    now=NOW,
+                    run_id=bad,  # type: ignore[arg-type]
+                )
+        finally:
+            await adapter.close()
+        assert excinfo.value.code == "run_id_missing"
+        assert not adapter.paths.run_dir.exists(), "拒绝必须在建 run 目录/发送之前"

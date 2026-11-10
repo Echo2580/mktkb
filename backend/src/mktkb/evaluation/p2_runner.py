@@ -31,6 +31,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Callable, Iterable, Mapping, Sequence
 
+from ..observability import TRACE_IDENTITY_FIELDS as _TRACE_IDENTITY_FIELDS
 from .p2_authorization import P2Gate, P2SendRefused
 from .p2_contracts import (
     COST_CENTERS,
@@ -41,6 +42,12 @@ from .p2_contracts import (
     P2PreflightResult,
     P2RunPlan,
     P2RunResult,
+)
+from .dataset import cases_to_jsonl
+from .p2_scoring import (
+    P2_BINDING_VERSION,
+    binding_config_hash,
+    citation_evidence_status,
 )
 from .product_adapter import (
     P2RunDataset,
@@ -55,6 +62,7 @@ __all__ = [
     "ANSWER_OPERATION",
     "DEFAULT_USER_ID",
     "P2RunDataset",
+    "P2RunError",
     "P2RunLedger",
     "build_dry_run_authorization",
     "is_real_p2_gate",
@@ -73,6 +81,12 @@ ANSWER_OPERATION = "answer"
 
 DEFAULT_USER_ID = "employee"
 """隔离库里的普通员工账号（P2 视角与真实用户一致：不是管理员特权）。"""
+
+#: T206-PRE：产物/绑定校验的稳定错误码（R2-F-R2-2：不再只靠异常消息前缀）。
+ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH = "provider_network_detail_mismatch"
+ERROR_RUN_ID_MISSING = "run_id_missing"
+ERROR_BINDING_INCOMPLETE = "binding_incomplete"
+ERROR_ARTIFACT_WRITE_FAILED = "artifact_write_failed"
 
 EXECUTION_DRY_RUN = "dry_run"
 EXECUTION_MOCK_GATE = "mock_gate"
@@ -100,6 +114,18 @@ STOP_NO_CASE_EXECUTED = "no_case_executed"
 STOP_GATE_ERROR = "gate_error"
 STOP_ADAPTER_ERROR = "adapter_error"
 STOP_OPEN_CONVERSATION_FAILED = "open_conversation_failed"
+#: T206-PRE：产物校验失败也要落盘并带稳定 stop_code（R2-F-R2-1）。
+STOP_ARTIFACT_VALIDATION_FAILED = "artifact_validation_failed"
+
+
+class P2RunError(ValueError):
+    """runner 的稳定错误：``code`` 可机读，消息以 code 开头（既有断言仍匹配）。"""
+
+    def __init__(self, code: str, detail: str = "") -> None:
+        self.code = str(code)
+        self.detail = str(detail)
+        super().__init__(f"{self.code}: {detail}" if detail else self.code)
+
 
 #: 产品结局里"可以继续"的集合；``service_error`` / 超时必须停。
 CONTINUABLE_KINDS = frozenset(
@@ -164,24 +190,24 @@ def _validated_network(providers: Mapping[str, Any]) -> tuple[int, dict[str, Any
     """
     detail = providers.get("network")
     if not isinstance(detail, Mapping):
-        raise ValueError(f"{NETWORK_DETAIL_MISMATCH}: provider_calls() 缺少 network detail")
+        raise P2RunError(ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH, "provider_calls() 缺少 network detail")
     missing = [key for key in _NETWORK_DETAIL_KEYS if key not in detail]
     if missing:
-        raise ValueError(f"{NETWORK_DETAIL_MISMATCH}: network detail 缺少 {missing}")
+        raise P2RunError(ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH, f"network detail 缺少 {missing}")
     top = _measured_outbound(providers)
     detail_total = max(0, int(detail["outbound_attempts"]))
     parts = max(0, int(detail["chat_outbound_attempts"])) + max(
         0, int(detail["rag_provider_posts"])
     )
     if parts != detail_total:
-        raise ValueError(
-            f"{NETWORK_DETAIL_MISMATCH}: detail 分解之和 {parts} != "
-            f"network.outbound_attempts {detail_total}"
+        raise P2RunError(
+            ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH,
+            f"detail 分解之和 {parts} != network.outbound_attempts {detail_total}",
         )
     if detail_total != top:
-        raise ValueError(
-            f"{NETWORK_DETAIL_MISMATCH}: 顶层 outbound_network {top} != "
-            f"network.outbound_attempts {detail_total}"
+        raise P2RunError(
+            ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH,
+            f"顶层 outbound_network {top} != network.outbound_attempts {detail_total}",
         )
     return top, dict(detail)
 
@@ -544,6 +570,113 @@ def _prepare(
 # --------------------------------------------------------------------------- #
 
 
+def _dataset_sha256(dataset: P2RunDataset) -> str:
+    """数据集内容的 sha256（与 P1 ``dataset_version`` 同一份规范 JSONL 字节）。
+
+    只算摘要、不落题面：H2 路径同样可用，产物里只有 64 位十六进制。
+    """
+    return _sha256_bytes(cases_to_jsonl(dataset.cases).encode("utf-8"))
+
+
+def _gate_identity(gate_config: Any | None) -> tuple[str | None, str | None]:
+    """从 P2GateConfig 取 gate 身份；不是 P2GateConfig 就当作"没有"（不猜）。"""
+    if gate_config is None:
+        return None, None
+    version = str(getattr(gate_config, "gate_version", "") or "").strip()
+    digest = str(getattr(gate_config, "config_hash", "") or "").strip()
+    return (version or None), (digest or None)
+
+
+def _empty_binding(dataset: P2RunDataset, run_id: str) -> dict[str, Any]:
+    """绑定状态的"未完成"基线（不含摘要）：仅数据集侧已知的部分，其余显式 None。"""
+    return {
+        "binding_version": P2_BINDING_VERSION,
+        "run_id": run_id,
+        "dataset_version": str(dataset.identity.get("dataset_version") or ""),
+        "manifest_sha256": str(dataset.identity.get("manifest_sha256") or ""),
+        "label_version": str(dataset.identity.get("label_version") or ""),
+        "suite": str(dataset.identity.get("suite") or ""),
+        "case_count": len(dataset.cases),
+        "dataset_sha256": _dataset_sha256(dataset),
+        "pipeline_version": None,
+        "index_revision": None,
+        "provider": None,
+        "gate_version": None,
+        "gate_config_hash": None,
+        "config_hash": None,
+        "complete": False,
+        "missing": [],
+    }
+
+
+def _binding_state(
+    adapter: Any,
+    dataset: P2RunDataset,
+    run_id: str,
+    gate_config: Any | None,
+) -> dict[str, Any]:
+    """组装本次 run 的绑定组件与确定性 config_hash（T206-PRE 要求 3）。
+
+    - 适配器必须提供 ``binding_components()``（真实/Mock 产品适配器都有）；没有就记
+      ``complete=False`，绝不拿常量冒充；
+    - gate 身份来自 ``P2GateConfig``（gate_version + gate_config_hash）；没给也算缺项
+      —— 这正是 evaluate_p2_gate 的 ``gate_config_unbound``/``config_hash_unbound``
+      路径，不是"默认通过"；
+    - 任一组件缺失 → ``config_hash=None`` 且 ``complete=False`，调用方不得把它当身份。
+    """
+    gate_version, gate_config_hash = _gate_identity(gate_config)
+    state = _empty_binding(dataset, run_id)
+    state["gate_version"] = gate_version
+    state["gate_config_hash"] = gate_config_hash
+    missing: list[str] = state["missing"]
+    components = getattr(adapter, "binding_components", None)
+    try:
+        raw = components() if callable(components) else None
+    except Exception:  # noqa: BLE001 - 适配器未 start：绑定只能记"未完成"，不能编造
+        raw = None
+    if not isinstance(raw, Mapping):
+        missing.append("adapter_binding_components")
+        raw = {}
+    for name in ("pipeline_version", "index_revision", "provider"):
+        if raw.get(name) in (None, ""):
+            missing.append(name)
+        else:
+            state[name] = raw[name]
+    for name in ("gate_version", "gate_config_hash", "dataset_version", "manifest_sha256", "label_version"):
+        if not state.get(name):
+            missing.append(name)
+    if missing:
+        return state
+    try:
+        state["config_hash"] = binding_config_hash(
+            dataset_version=state["dataset_version"],
+            manifest_sha256=state["manifest_sha256"],
+            label_version=state["label_version"],
+            pipeline_version=str(state["pipeline_version"]),
+            index_revision=int(state["index_revision"]),
+            provider=state["provider"],
+            gate_version=str(state["gate_version"]),
+            gate_config_hash=str(state["gate_config_hash"]),
+        )
+    except ValueError as exc:  # binding_config_hash 的 P2ScoringError 也是 ValueError
+        missing.append(f"config_hash:{type(exc).__name__}")
+        return state
+    state["complete"] = True
+    return state
+
+
+def _trace_identity_from_binding(binding: Mapping[str, Any]) -> dict[str, str]:
+    """把绑定状态转成 trace 身份六元组；缺一项就整体不给（fail closed，不绑半套）。"""
+    fields = ("dataset_version", "run_id", "index_revision", "manifest_sha256", "pipeline_version", "config_hash")
+    resolved: dict[str, str] = {}
+    for name in fields:
+        value = binding.get(name)
+        if value in (None, ""):
+            return {}
+        resolved[name] = str(value)
+    return resolved
+
+
 async def run_p2(
     plan: P2RunPlan,
     *,
@@ -554,6 +687,8 @@ async def run_p2(
     cancel: Callable[[], bool] | None = None,
     now: datetime | None = None,
     settle_evidence: Callable[[Any, ProductTurn], Any] | None = None,
+    run_id: str | None = None,
+    gate_config: Any | None = None,
 ) -> P2RunResult:
     """按 plan 逐轮驱动隔离产品；返回请求/费用回执 ``P2RunResult``（产物同时落盘）。
 
@@ -566,7 +701,14 @@ async def run_p2(
         raise ValueError("run_p2 需要 P2RunDataset（adapter.dataset 或显式 dataset=）")
     moment = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     started = time.perf_counter()
-    run_id = "p2run-" + uuid.uuid4().hex[:16]
+    # T206-PRE（R2-F-R2-3）：run_id 是身份必填项 —— 显式给空/non-str 就在**任何发送前**
+    # 用稳定码拒绝，而不是悄悄生成一个新身份。
+    if run_id is not None:
+        if not isinstance(run_id, str) or not run_id.strip():
+            raise P2RunError(ERROR_RUN_ID_MISSING, f"run_id 必须是非空 str，收到 {run_id!r}")
+        run_id = run_id.strip()
+    else:
+        run_id = "p2run-" + uuid.uuid4().hex[:16]
     execution, checks, stop_code = _prepare(plan, authorization, adapter, gate, moment)
     if frozen_dataset.visibility == "holdout":
         if not bool(getattr(adapter, "purge_traces_on_close", False)):
@@ -606,6 +748,8 @@ async def run_p2(
     planned_turns = sum(len(case_questions(case)) for case in frozen_dataset.cases)
 
     status = "succeeded"
+    binding: dict[str, Any] = _empty_binding(frozen_dataset, run_id)
+    binding["missing"] = ["run_not_started"]
     if stop_code is not None:
         ledger.stop(stop_code)
         ledger.failure = {
@@ -638,6 +782,14 @@ async def run_p2(
                     "ticket": None,
                 }
         if ledger.stop_code is None:
+            # T206-PRE：灌库/发布之后 index_revision 已定型，这里才算绑定并写进 trace 身份。
+            binding = _binding_state(adapter, frozen_dataset, run_id, gate_config)
+            identity = _trace_identity_from_binding(binding)
+            bind = getattr(adapter, "bind_trace_identity", None)
+            if identity and callable(bind):
+                bind(identity)
+            elif not identity:
+                binding["missing"] = sorted(set(binding["missing"]) | {"trace_identity"})
             await _execute(
                 plan=plan,
                 adapter=adapter,
@@ -664,6 +816,44 @@ async def run_p2(
             status = "blocked" if ledger.stop_code == STOP_NO_CASE_EXECUTED or not ledger.cases else "aborted"
 
     result = ledger.result(status=status)
+    # T206-PRE（R2-F-R2-1）：任何"发过请求 / 校验失败"都必须留下 run_result+summary+gate。
+    # 校验先失败 → 先补失败现场（stop_code/error_code/stage），写完全部产物再抛出。
+    try:
+        providers = adapter.provider_calls()
+        network = _validated_network(providers)
+    except P2RunError as exc:
+        ledger.stop(exc.code)
+        ledger.failure = {
+            "stage": "artifact_validation",
+            "stop_code": exc.code,
+            "error_code": exc.code,
+            "case_id": None,
+            "turn": None,
+            "item_id": None,
+            "ticket": None,
+            "detail": exc.detail,
+        }
+        failed_status = "blocked" if not ledger.cases else "aborted"
+        result = ledger.result(status=failed_status)
+        _write_artifacts(
+            plan=plan,
+            authorization=authorization,
+            adapter=adapter,
+            dataset=frozen_dataset,
+            ledger=ledger,
+            result=result,
+            execution=execution,
+            checks=checks,
+            planned_turns=planned_turns,
+            executed_turns=ledger.turns_executed(),
+            duration_ms=int((time.perf_counter() - started) * 1000),
+            started_utc=utc_iso(moment),
+            binding=binding,
+            providers=None,
+            network=None,
+            artifact_failure=exc,
+        )
+        raise
     _write_artifacts(
         plan=plan,
         authorization=authorization,
@@ -677,6 +867,10 @@ async def run_p2(
         executed_turns=ledger.turns_executed(),
         duration_ms=int((time.perf_counter() - started) * 1000),
         started_utc=utc_iso(moment),
+        binding=binding,
+        providers=providers,
+        network=network,
+        artifact_failure=None,
     )
     return result
 
@@ -1155,30 +1349,99 @@ def _write_artifacts(
     executed_turns: int,
     duration_ms: int,
     started_utc: str,
+    binding: Mapping[str, Any],
+    providers: Mapping[str, Any] | None,
+    network: tuple[int, Mapping[str, Any]] | None,
+    artifact_failure: P2RunError | None = None,
 ) -> None:
+    """写全部产物；**校验失败也要写**（R2-F-R2-1：不能"已发生请求但无产物"）。
+
+    ``providers/network`` 为 None 表示本轮实测网络边界**没有通过交叉校验**：此时产物里
+    明确写 ``available=False`` + 稳定错误码，绝不把未核对的计数当事实落盘。
+    """
     run_dir = adapter.paths.run_dir
-    providers = adapter.provider_calls()
-    # A1：顶层实测出站与 network.detail 交叉校验（detail 是分解，不是独立真值）。
-    outbound_attempts, network_detail = _validated_network(providers)
-    # F1：真实请求数/计费金额都从"每轮实测增量 + 实际结算金额"算，不从 execution 标签推断。
-    measured_requests = [
-        row
-        for row in ledger.requests
-        if int((row.get("provider_calls") or {}).get("outbound", 0)) > 0
-    ]
-    real_requests = len(measured_requests)
-    billed_cny = round(
-        sum(float(row.get("charged_cny") or 0.0) for row in measured_requests), 8
-    )
+    measured = [row for row in ledger.requests if int((row.get("provider_calls") or {}).get("outbound", 0)) > 0]
+    real_requests = len(measured)
+    billed_cny = round(sum(float(row.get("charged_cny") or 0.0) for row in measured), 8)
+    if network is None:
+        network_payload: dict[str, Any] = {
+            "available": False,
+            "outbound_attempts": None,
+            "code": None if artifact_failure is None else artifact_failure.code,
+            "detail": None,
+            "measurement": "未通过交叉校验：不把未核对的计数当实测事实",
+        }
+        providers_payload: dict[str, Any] | None = None
+    else:
+        outbound_attempts, network_detail = network
+        network_payload = {
+            "available": True,
+            "outbound_attempts": int(outbound_attempts),
+            "code": None,
+            "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
+            "detail": dict(network_detail),
+        }
+        providers_payload = dict(providers or {})
+
     index_status = adapter.index_status()
     module_dir = Path(__file__).resolve().parent
+    # T206-PRE：引用证据只按逐题行判定；H2 不写 case_id（聚合路径不给明细）。
+    evidence_status = citation_evidence_status(
+        ledger.cases, include_case_ids=dataset.public_details
+    )
+    binding_payload = {
+        "binding_version": binding.get("binding_version"),
+        "config_hash": binding.get("config_hash"),
+        "complete": bool(binding.get("complete")),
+        "missing": list(binding.get("missing") or ()),
+        "dataset_version": binding.get("dataset_version"),
+        "dataset_sha256": binding.get("dataset_sha256"),
+        "manifest_sha256": binding.get("manifest_sha256"),
+        "label_version": binding.get("label_version"),
+        "pipeline_version": binding.get("pipeline_version"),
+        "index_revision": binding.get("index_revision"),
+        "provider": binding.get("provider"),
+        "gate_version": binding.get("gate_version"),
+        "gate_config_hash": binding.get("gate_config_hash"),
+        "trace_identity_bound": bool(getattr(adapter, "trace_identity_bound", False)),
+    }
+    # gate 产物（build_gate_run）要求的身份字段：顶层逐个给，缺就留空让 gate 拒绝。
+    business_dates = sorted({str(case.business_date) for case in dataset.cases if str(case.business_date or "")})
+    business_date = business_dates[0] if len(business_dates) == 1 else ""
+    identity_fields = {
+        "suite": str(dataset.identity.get("suite") or ""),
+        "dataset_version": str(dataset.identity.get("dataset_version") or ""),
+        "dataset_sha256": binding.get("dataset_sha256"),
+        "corpus_manifest_sha256": str(dataset.identity.get("manifest_sha256") or ""),
+        "business_date": business_date,
+        "index_revision": binding.get("index_revision"),
+        "pipeline_version": binding.get("pipeline_version"),
+        "gate_version": binding.get("gate_version"),
+        "label_version": str(dataset.identity.get("label_version") or ""),
+        "created_at": started_utc,
+        "case_count": int(len(dataset.cases)),
+        "config_hash": binding.get("config_hash"),
+        "gate_config_hash": binding.get("gate_config_hash"),
+        "trace_store": str(adapter.paths.trace_db),
+    }
+    # 公开 run 把本轮实际加载的题面写成规范 JSONL：既有 gate 需要可解析的数据集才能
+    # 做逐题核对（H2 绝不落题面，只留空串 → 由 gate 记 unknown，不放行）。
+    dataset_path = ""
+    if dataset.public_details:
+        target = run_dir / "dataset.jsonl"
+        target.write_text(cases_to_jsonl(dataset.cases), encoding="utf-8")
+        dataset_path = str(target)
+    identity_fields["dataset_path"] = dataset_path
     manifest = {
         "schema_version": P2_RUN_MANIFEST_SCHEMA_VERSION,
         "run_id": ledger.run_id,
         "mode": plan.mode,
         "execution": execution,
         "scope": "end_to_end",
+        **identity_fields,
+        "business_dates": business_dates,
         "dataset": dataset.as_dict(),
+        "binding": binding_payload,
         "plan": {
             "plan_id": plan.plan_id,
             "plan_version": plan.plan_version,
@@ -1218,6 +1481,8 @@ def _write_artifacts(
                 "content_mode": str(getattr(adapter, "trace_content_mode", "off")),
                 "mode": "local",
                 "scope": "end_to_end",
+                "identity_bound": bool(getattr(adapter, "trace_identity_bound", False)),
+                "identity_fields": list(_TRACE_IDENTITY_FIELDS),
             },
             "index": {
                 "engine_version": index_status.get("engine_version"),
@@ -1231,7 +1496,7 @@ def _write_artifacts(
                 "p2_runner.py": _sha256_file(module_dir / "p2_runner.py"),
             },
         },
-        "providers": providers,
+        "providers": providers_payload,
         "paths": adapter.paths.as_dict(),
         "ingest": [receipt.as_dict() for receipt in adapter.ingest_receipts],
         "started_utc": started_utc,
@@ -1254,6 +1519,8 @@ def _write_artifacts(
         "stop_code": result.stop_code,
         "execution": execution,
         "visibility": dataset.visibility,
+        "binding": binding_payload,
+        "citation_evidence": evidence_status,
         "cases": {
             "planned": len(dataset.cases),
             "executed": len(ledger.cases),
@@ -1285,12 +1552,8 @@ def _write_artifacts(
             "real_requests": int(real_requests),
             "billed_cny": float(billed_cny),
         },
-        "providers": providers,
-        "network": {
-            "outbound_attempts": int(outbound_attempts),
-            "measurement": "实测：chat 注入传输 + RAG 供应商 POST 计数（非常量）",
-            "detail": network_detail,
-        },
+        "providers": providers_payload,
+        "network": network_payload,
         "holdout": {
             "aggregate_only": dataset.visibility == "holdout",
             "trace_retention": _trace_retention(dataset, adapter, result),
@@ -1324,11 +1587,24 @@ def _write_artifacts(
             "stop_code": result.stop_code,
             "execution": execution,
             "production_ready": bool(authorization.production_ready),
+            "binding": binding_payload,
+            "citation_evidence": evidence_status,
+            "artifact_validation": {
+                "ok": artifact_failure is None,
+                "code": None if artifact_failure is None else artifact_failure.code,
+                "detail": None if artifact_failure is None else artifact_failure.detail,
+            },
+            "failure": (
+                _sanitize_failure(ledger.failure)
+                if dataset.visibility == "holdout"
+                else ledger.failure
+            ),
             # F2：live 且所有发送前检查都过才算"允许真实发送"（桩门会让 live_gate 不通过）。
             "real_sends_allowed": bool(
                 execution == EXECUTION_LIVE
                 and authorization.production_ready
                 and all(bool(check["ok"]) for check in checks)
+                and artifact_failure is None
             ),
             "checks": [dict(check) for check in checks],
             "authorization": authorization.as_dict(),
@@ -1356,4 +1632,3 @@ def _write_artifacts(
                 pass
     # 临时 trace 的清理放在 ``ProductEvalAdapter.close()``：Windows 上仓储未关闭时不能删文件，
     # 所以这里只声明保留策略，真正的 purge 在 close 里（此时已关闭连接）。
-

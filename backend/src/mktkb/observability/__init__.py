@@ -21,7 +21,15 @@ from .contracts import (
     required_spans,
     validate_required_spans,
 )
-from .tracer import SpanHandle, TraceContext, current_trace, start_trace
+from .tracer import (
+    TRACE_IDENTITY_FIELDS,
+    SpanHandle,
+    TraceContext,
+    current_trace,
+    current_trace_identity,
+    start_trace,
+    trace_identity,
+)
 from .versioning import (
     CONFIG_HASH_FIELDS,
     config_hash,
@@ -38,6 +46,7 @@ __all__ = [
     "OutcomeKind",
     "SpanHandle",
     "SpanRecord",
+    "TRACE_IDENTITY_FIELDS",
     "TraceContext",
     "TraceMode",
     "TracePath",
@@ -45,10 +54,12 @@ __all__ = [
     "conditional_required_spans",
     "config_hash",
     "current_trace",
+    "current_trace_identity",
     "hash_question",
     "key_fingerprint",
     "pipeline_version",
     "required_spans",
     "start_trace",
+    "trace_identity",
     "validate_required_spans",
 ]

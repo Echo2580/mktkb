@@ -13,8 +13,21 @@ from __future__ import annotations
 import asyncio
 import json
 import sys
+import tempfile
 import traceback
 from pathlib import Path
+
+RESULT_NAME = "probe1_result.json"
+
+
+def _result_path(argv: list[str]) -> Path:
+    """结果文件位置：``--out <path>`` 优先；否则系统临时目录下固定子目录。
+
+    绝不默认写进仓库（旧实现写在自己旁边，复跑一次就在 evidence/ 里多一个未跟踪文件）。
+    """
+    if len(argv) >= 2 and argv[0] == "--out":
+        return Path(argv[1])
+    return Path(tempfile.gettempdir()) / "mktkb-p2-t203-probe1" / RESULT_NAME
 
 REPO = Path(__file__).resolve().parents[8]
 sys.path.insert(0, str(REPO / "backend" / "src"))
@@ -299,7 +312,10 @@ def main() -> int:
         result["local_attempts"] = len(LOCAL)
         result["rag_ask_callers"] = sorted(set(ask_callers))
         result["qa_answer_callers"] = sorted(set(answer_callers))
-        target = Path(__file__).resolve().with_name("probe1_result.json")
+        # T206-PRE：复跑不得往仓库/证据目录写结果（R2-F-R2-5）。默认写系统临时目录，
+        # 需要归档时用 --out 显式指定工作区外的位置；只写 JSON、不改任何跟踪文件。
+        target = _result_path(sys.argv[1:])
+        target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(json.dumps(result, ensure_ascii=False, indent=2), encoding="utf-8")
         print(json.dumps({"ok": result.get("ok"), "error": result.get("error"),
                           "checks": len(result["checks"]),

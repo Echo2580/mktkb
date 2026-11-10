@@ -153,3 +153,22 @@ pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider 
 - 残留（如实）：① 真实 `P2Gate` 正向 live 链、真实 GO/账本仍归 T206；② 历史证据 `evidence/r1/r1-digest.json` 里
   `question_store="deleted-at-close"` 与 `verify-r1` 探针的对应断言未回改（那是 R1 的时点记录），复跑该旧探针会因标签改名失败；
   ③ `providers.<name>.outbound_network` 是明细展示，真值仍是顶层（契约已写明，runner 不以此为准）。
+
+
+## T206-PRE 补充（2026-11-11，绑定与失败语义；只记录，不改历史证据）
+
+- 现场/边界：`codex/p2-e2e` @ `a8f2a6b`（未 commit）；只改 T203 允许文件 + 本报告追加；
+  真实调用 **0**，未读 `.env`/H1/H2、未联网、未跑全仓。
+- **§F6 旧值（不改历史正文）**：上文 R1 段写 `summary.holdout.question_store=deleted-at-close`；
+  R2-A4 已把该字段改为**策略标签** `policy:delete-at-close`，测量证据是 `close()` 的 `seal_receipt`
+  （`question_store=deleted`）。当前实现与 `test_p2_runner.py::test_holdout_run_writes_aggregate_only_and_purges_traces` 一致；
+  本节只为消除"报告自相矛盾"，原始 R1 文本保留。
+- **`evidence/verify-r1/probe_verify_r1.py:751` 的旧断言**（`deleted-at-close`）同样因 A4 改名而过时。
+  该探针是**历史时点证据**，本轮未改、未复跑；如需复跑应以 `policy:delete-at-close` + `seal_receipt` 为准。
+- **probe1 副作用已清（R2-F-R2-5）**：`evidence/verify/probe-scripts/probe1_product_entry_netguard.py`
+  不再把 `probe1_result.json` 写在自己旁边；默认写系统临时目录 `<tmp>/mktkb-p2-t203-probe1/`，
+  需要归档时显式 `--out <工作区外路径>`。本轮复跑实测：25 断言 / 0 失败 / `external_attempts=[]`，
+  `git status` 在该目录只剩探针文件本身的修改。
+- **run 产物新增身份绑定**（trace 身份、引用证据 id、`config_hash`、失败也写 5 件套、稳定错误码、
+  `run_id` 必填）：契约见 `docs/evaluation/p2-live-binding-v0_1.md`，实现与用例见
+  `docs/reports/OBS-EVAL/P2/T206-PRE/report.md`。T203 的 5 件套键名与语义未变（只增不改）。

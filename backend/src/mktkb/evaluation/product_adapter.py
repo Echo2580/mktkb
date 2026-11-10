@@ -38,6 +38,11 @@ from ..conversations.service import BUDGET_SECONDS as _CONVERSATION_BUDGET_SECON
 from ..documents.lifecycle import get_revision
 from ..ingestion.worker import run_one_job
 from ..main import create_app
+from ..observability import (
+    TRACE_IDENTITY_FIELDS,
+    pipeline_version as product_pipeline_version,
+    trace_identity as trace_identity_scope,
+)
 from ..providers.deepseek import DeepSeekClient
 from ..providers.types import OCRNotConfigured
 from ..qa import QaEngine
@@ -663,6 +668,9 @@ class ProductTurn:
     trace_spans: tuple[str, ...]
     replayed: bool
     elapsed_ms: int
+    #: T206-PRE：本轮引用解析出的**稳定证据身份**（unit_id/locator/文档/版本）。
+    #: 只来自产品库的只读解析；解析不到的项 ``verified=False``，不猜默认值。
+    evidence: tuple[Mapping[str, Any], ...] = ()
 
     def as_dict(self, *, include_text: bool) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -687,6 +695,7 @@ class ProductTurn:
             "trace_spans": list(self.trace_spans),
             "replayed": bool(self.replayed),
             "elapsed_ms": int(self.elapsed_ms),
+            "evidence": [dict(item) for item in self.evidence],
         }
         if include_text:
             payload["text"] = self.text
@@ -741,6 +750,7 @@ class ProductEvalAdapter:
         trace_content_mode: str = "hash",
         purge_traces_on_close: bool = False,
         label: str = "",
+        trace_identity: Mapping[str, Any] | None = None,
     ) -> None:
         self.paths = ProductPaths.of(out_dir)
         self.ingest_plan = ingest_plan
@@ -773,6 +783,11 @@ class ProductEvalAdapter:
         self._rag_posts_baseline = _rag_provider_posts()
         self._seal_questions = bool(dataset is not None and dataset.visibility == "holdout")
         self.seal_receipt: dict[str, Any] | None = None
+        # T206-PRE：评测身份绑定（run_id/dataset/manifest/pipeline/index/config）。
+        self._trace_identity: dict[str, str] = {}
+        self._identity_bound = False
+        if trace_identity is not None:
+            self.bind_trace_identity(trace_identity)
 
     # ---------------------------------------------------------------- 生命周期
     @property
@@ -850,6 +865,14 @@ class ProductEvalAdapter:
             ocr_gateway=_NoOcrGateway(),
             qa_engine=self._qa,
         )
+        # T206-PRE：后注册的 HTTP middleware 在最外层执行 —— 先把评测身份放进
+        # contextvar，create_app 内部那段 trace middleware 才会在 start_trace 时
+        # 快照到它。业务代码/产品路由零改动。
+        @self._app.middleware("http")
+        async def _p2_trace_identity(request: Any, call_next: Any) -> Any:
+            with trace_identity_scope(**self._trace_identity):
+                return await call_next(request)
+
         self._qa.db_factory = self._app.state.db
         self._qa.ensure_ready()
         transport = httpx.ASGITransport(app=self._app, raise_app_exceptions=False)
@@ -1001,6 +1024,159 @@ class ProductEvalAdapter:
             "outbound_network": int(network["outbound_attempts"]),
             "network": network,
         }
+
+    # ---------------------------------------------------------------- 评测身份（T206-PRE）
+    def bind_trace_identity(self, identity: Mapping[str, Any]) -> dict[str, str]:
+        """绑定本次 run 的评测身份（之后发出的请求才会写进 TraceRecord）。
+
+        fail closed：六个字段必须**全部**给出且非空（缺一个就整体拒绝，不绑"半套"），
+        避免出现"只绑了 run_id 就自称身份完整"。字段名白名单来自
+        ``observability.tracer.TRACE_IDENTITY_FIELDS``，不允许发明新字段。
+        """
+        if not isinstance(identity, Mapping):
+            raise ValueError("trace_identity 必须是映射")
+        resolved: dict[str, str] = {}
+        for raw_name, value in identity.items():
+            name = str(raw_name)
+            if name not in TRACE_IDENTITY_FIELDS:
+                raise ValueError(
+                    f"未知 trace 身份字段 {name!r}；只允许 {list(TRACE_IDENTITY_FIELDS)}"
+                )
+            if isinstance(value, bool) or not isinstance(value, (str, int)):
+                raise ValueError(f"trace 身份 {name!r} 必须是 str/int，收到 {type(value).__name__}")
+            text = str(value).strip()
+            if not text:
+                raise ValueError(f"trace 身份 {name!r} 不能为空")
+            resolved[name] = text
+        missing = sorted(set(TRACE_IDENTITY_FIELDS) - set(resolved))
+        if missing:
+            raise ValueError(f"trace_identity_incomplete: 缺少 {missing}（不绑半套身份）")
+        self._trace_identity = resolved
+        self._identity_bound = True
+        return dict(resolved)
+
+    @property
+    def trace_identity_bound(self) -> bool:
+        """是否已绑定完整评测身份（未绑定 → trace_integrity 必然 fail-closed）。"""
+        return bool(self._identity_bound)
+
+    def binding_components(self) -> dict[str, Any]:
+        """本次 run 的**绑定组件**（不含摘要本身；摘要由评测侧确定性计算）。
+
+        只在 ``start()`` 之后调用：index_revision 取产品自己的 revision（灌库/发布后），
+        pipeline_version 取产品 observability 的同一口径（qa/rag/tokenizer 版本），
+        provider 段落只含模型/实现/传输名（**不含任何凭据**）。
+        """
+        dataset = self.dataset
+        identity = dict(dataset.identity) if dataset is not None else {}
+        chat_transport = (
+            type(self.chat.transport).__name__ if self.chat is not None else None
+        )
+        # 只取**身份**字段（provider/model/实现名）：调用计数等运行期量绝不进摘要，
+        # 否则同一份配置每跑一次都变 hash。
+        embedding = self._embedder.as_dict()
+        rerank = self._reranker.as_dict()
+        return {
+            "dataset_version": str(identity.get("dataset_version") or ""),
+            "manifest_sha256": str(identity.get("manifest_sha256") or ""),
+            "label_version": str(identity.get("label_version") or ""),
+            "suite": str(identity.get("suite") or ""),
+            "pipeline_version": str(product_pipeline_version()),
+            # 索引身份 = revision + pipeline 组件里的 rag schema / index cache 版本（同一口径）。
+            "index_revision": int(self.product_revision()),
+            "provider": {
+                "chat": {
+                    # 显式 "none" 标记而不是 None：缺 chat 网关也是一种确定的身份，
+                    # 不能因为"没配"就让摘要算不出来（None 会被 _binding_component 拒绝）。
+                    "provider": MOCK_PROVIDER if self.chat is not None else "none",
+                    "model": MOCK_CHAT_MODEL if self.chat is not None else "none",
+                    "transport": chat_transport or "none",
+                },
+                "embedding": {
+                    "impl": type(self._embedder).__name__,
+                    "provider": embedding.get("provider"),
+                    "model": embedding.get("model"),
+                },
+                "rerank": {
+                    "impl": type(self._reranker).__name__,
+                    "provider": rerank.get("provider"),
+                    "model": rerank.get("model"),
+                },
+                "ocr": "disabled",
+            },
+        }
+
+    # ---------------------------------------------------------------- 引用证据 id（T206-PRE）
+    def citation_evidence(self, source_ids: Sequence[str]) -> tuple[dict[str, Any], ...]:
+        """把产品来源的 ``source_id`` 解析成**只读**的稳定证据身份（不发明字段）。
+
+        每条证据：``unit_id / unit_key / document_id / version_id / version_number /
+        locator / state / active``；解析不到或不是本 run 灌入的文档 → ``verified=False``
+        并写明 reason（调用方据此保持 unknown，而不是当成"有证据"）。
+        """
+        from sqlalchemy import select
+
+        from ..documents.models import Document, DocumentVersion, SourceUnit
+
+        ingested = {str(receipt.document_id) for receipt in self.ingest_receipts}
+        records: list[dict[str, Any]] = []
+        db = self._app.state.db.session() if self._app is not None else None
+        if db is None:
+            return tuple(
+                {"unit_id": str(raw), "verified": False, "reason": "adapter_not_started"}
+                for raw in source_ids
+            )
+        try:
+            for raw in source_ids:
+                item: dict[str, Any] = {"unit_id": str(raw), "verified": False, "reason": None}
+                try:
+                    unit_id = uuid.UUID(str(raw))
+                except (ValueError, AttributeError, TypeError):
+                    item["reason"] = "unit_id_invalid"
+                    records.append(item)
+                    continue
+                row = db.execute(
+                    select(SourceUnit, DocumentVersion, Document)
+                    .join(DocumentVersion, SourceUnit.version_id == DocumentVersion.id)
+                    .join(Document, SourceUnit.document_id == Document.id)
+                    .where(SourceUnit.id == unit_id)
+                ).first()
+                if row is None:
+                    item["reason"] = "unit_not_found"
+                    records.append(item)
+                    continue
+                unit, version, document = row
+                locator = dict(unit.locator or {})
+                active = str(document.active_version_id) == str(version.id)
+                item.update(
+                    unit_key=str(unit.unit_key),
+                    document_id=str(document.id),
+                    version_id=str(version.id),
+                    version_number=int(version.number),
+                    locator=locator,
+                    state=str(version.state),
+                    active=bool(active),
+                    in_run=str(document.id) in ingested,
+                )
+                item["verified"] = bool(
+                    locator
+                    and active
+                    and str(version.state) == "published"
+                    and int(version.number) >= 1
+                    and item["in_run"]
+                )
+                if not item["verified"]:
+                    item["reason"] = (
+                        "locator_missing"
+                        if not locator
+                        else "version_not_active"
+                        if not active or str(version.state) != "published"
+                        else "document_outside_run"
+                    )
+                records.append(item)
+        finally:
+            db.close()
+        return tuple(records)
 
     def trace_of(self, trace_id: str | None) -> tuple[Any, list[Any]] | None:
         repo = getattr(self._app.state, "trace_repo", None) if self._app is not None else None
@@ -1234,6 +1410,10 @@ class ProductEvalAdapter:
             value = str(item.get("source_id") or "").strip()
             if value and value not in source_ids:
                 source_ids.append(value)
+        # T206-PRE：引用证据 id 在**产品返回之后**从产品库只读解析（不猜、不补默认值）。
+        evidence = (
+            self.citation_evidence(source_ids) if kind == "answer" and source_ids else ()
+        )
         return ProductTurn(
             question_sha256=_sha256_text(question),
             question_chars=len(question),
@@ -1257,6 +1437,7 @@ class ProductEvalAdapter:
             trace_spans=trace_spans,
             replayed=bool(payload.get("replayed", False)),
             elapsed_ms=elapsed_ms,
+            evidence=evidence,
         )
 
     @staticmethod
