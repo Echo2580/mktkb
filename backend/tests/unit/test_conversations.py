@@ -183,12 +183,16 @@ def test_budget_refusal_is_mapped_to_its_own_code_and_chinese_text(monkeypatch):
     assert excinfo.value.retryable is False
 
     text = service._model_error_text("MODEL_BUDGET_REFUSED")
-    assert text == "当前预算或授权额度不足，本次未发送请求，请联系管理员处理。"
+    assert text == (
+        "当前预算或授权额度不足，本次未发送请求，请联系管理员处理。"
+        "这是服务调用失败，不是资料中没有答案；重试不会自行恢复，需管理员补足额度或重新授权。"
+        "服务端不会因重试而重复保存同一条回答。"
+    )
     assert "预算" in text and "授权" in text and "未发送请求" in text
     # 与真正的供应商不可用文案不同，且未被替换掉
     assert service._model_error_text("MODEL_UNAVAILABLE").startswith("模型服务暂不可用")
 
-    # 生产映射：_ask 里正是用 exc.code / _model_error_text(exc.code) / exc.retryable 构造结果
+    # 生产映射：_ask 里按异常真实原因取（error_code / 文案 / retryable），预算码值可区分
     result = service._service_error(
         excinfo.value.code,
         service._model_error_text(excinfo.value.code),

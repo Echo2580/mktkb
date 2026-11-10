@@ -35,7 +35,11 @@ from ..rag.errors import KnowledgeChanged, RagError
 from ..rag.query import QueryPlan, build_lexicon, parse_query
 from ..rag.types import AtomicUnit, QueryState, RagAnswer, RetrievalResult
 
-QA_ENGINE_VERSION = "s2-a-1"
+#: P1-FIX（2026-11-10）：A/B/C 修复改变了答案语义（越界财务指标拒答、指代追问
+#: 字段/制度分流、文档答案来源映射），按版本纪律递增引擎版本：新 run 的
+#: pipeline_version 与 P1 baseline（s2-a-1）不同，旧 baseline 只能用于跨版本分析，
+#: 不能冒充新 pipeline 的发布基线；新基线必须重新 live run + 重新审批。
+QA_ENGINE_VERSION = "s2-a-2"
 _META_REVISION = "product_revision"
 _META_DIGEST = "product_manifest_sha256"
 _META_STATUS = "product_sync_status"

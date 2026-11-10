@@ -1,0 +1,47 @@
+Independent verification facts (T100) - read-only; no writes to GO/budget/ledger
+cwd: D:\GPT项目\市场部AI知识库
+branch: p1/fix-retrieval
+HEAD: b35ae7233e6b0dd9276bee2fc83d2355de5c4555
+HEAD subject: p1/T100 fix baseline test coupling to signed P1 config
+parent of HEAD: ac96f45f52b98abcc7105a2a345a2cc11366dc32
+commits since ac96f45: 1
+working tree before my runs: clean
+commit name-status (b35ae72):
+A	.claude/handoffs/T100-baseline-config/report.md
+M	backend/tests/rag/test_s4_stage_limit.py
+A	docs/reports/OBS-EVAL/P1/evidence/T100/01-target-pytest.txt
+A	docs/reports/OBS-EVAL/P1/evidence/T100/02-rag-pytest.txt
+A	docs/reports/OBS-EVAL/P1/evidence/T100/03-full-pytest.txt
+A	docs/reports/OBS-EVAL/P1/evidence/T100/04-config-ledger-facts.txt
+
+GO     docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json sha256=39070de56f97a4e9a7d70364716580237811ac1316feff34a094294785961df4
+       stage=P1-RETRIEVAL  scope.stage_limits_cny={"P1-RETRIEVAL": 3.0}
+       budget_ledger_sha256=f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014 (historical_import prefix anchor per kickoff gate, NOT whole-file hash)
+BUDGET docs/evidence/LOCAL-R1-20261101/budget/budget.json sha256=084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+       limit_cny=20.0  historical_conservative_accounted_cny=0.03
+       stages={"S1-DEV":0.0,"S1-IA":0.0,"S2-DEV":15.4,"P1-RETRIEVAL":3.0,"later_shared_reserve":1.57}
+       sum(stages)=19.97  sum+hist=20.0  stage_revision.revision=8
+LEDGER docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl sha256=ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+       sha256_after_summary=ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+       sha256_after_target_run=ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+       sha256_after_rag_run=ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+       sha256_after_full_run=ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+       S2-DEV summary: stage_limit_cny=15.4 stage_accounted_cny=15.02662959999999 reservations=381 results=381
+       P1-RETRIEVAL summary: stage_limit_cny=3.0 stage_accounted_cny=0.0 reservations=381 results=381
+       whole-accounted (kickoff gate 2026-11-05): 15.0566296 / 20
+
+CHECKS (independent Python, read-only)
+  a_every_go_stage_in_budget_and_equal=True
+  b_stage_sum_plus_historical_equals_limit=True (19.97+0.03=20.0)
+  c_p1_equals_3_0=True (and >=3.0)
+  d_s2_alloc_15_4_covers_ledger_accounted=True (15.4 >= 15.0266296)
+  e_ledger_exists_and_parsed=True
+  ledger_unchanged_by_summary=True
+  old_test_premise: limits[S2-DEV] -> KeyError; budget stages[S2-DEV]==18.4 -> False (actual 15.4)
+  skip/xfail occurrences in test file: 0
+
+DEV EVIDENCE HASHES (docs/reports/OBS-EVAL/P1/evidence/T100/)
+  01-target-pytest.txt sha256=f99d499b9785db0839029f9fd0029102390c213fb289f459709e1fe1156a44c8
+  02-rag-pytest.txt sha256=66d06e8c463d720e3ea32fbdac35d48f7c4fb018a1f1553aed29d272db3feb59
+  03-full-pytest.txt sha256=04727aede03b64d0252e019b989fccc91aa4847081aef54835b1318d54d66658
+  04-config-ledger-facts.txt sha256=64508c9a625d084d0791e71d1bfdba7ff7bb9ef44b219e68d16ae2a98ae26a4b

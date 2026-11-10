@@ -181,15 +181,51 @@ def test_legacy_go_stage_limit_field_still_supported():
 
 
 def test_current_go_and_budget_are_consistent_and_above_three_yuan():
-    """当前真实 GO/budget（只读）互相一致，且额度远高于旧的 3.00 元硬限。"""
+    """当前真实 GO/budget（只读）彼此自洽，且阶段额度不低于旧的 3.00 元硬限。
+
+    2026-11-05 主人签署 PRE-2 后，GO 只声明 ``P1-RETRIEVAL = 3.0``，共享预算改为
+    ``S2-DEV 15.4 + P1-RETRIEVAL 3.0``（总额 20 不变）。这里按签署后的真实配置校验
+    结构关系，不再把旧 ``S2-DEV = 18.4`` 写死。
+    """
+    from mktkb.rag.budget import BudgetLedger
+
     tools = _tools()
     go = json.loads((ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json").read_text(encoding="utf-8"))
     budget = json.loads(REAL_BUDGET.read_text(encoding="utf-8"))
     limits = go["scope"]["stage_limits_cny"]
-    assert limits["S2-DEV"] == pytest.approx(18.4)
-    assert budget["stages"]["S2-DEV"] == pytest.approx(18.4)
+    stages = budget["stages"]
+
+    # a) GO 声明的每个阶段额度，都必须在共享预算里有同名且等额的分配。
+    assert limits, "GO 必须声明至少一个阶段额度"
+    for stage, limit_cny in limits.items():
+        assert stage in stages, f"共享预算缺少 GO 阶段 {stage} 的分配"
+        assert stages[stage] == pytest.approx(limit_cny)
+
+    # b) 各阶段分配合计 + 历史保守占用 == 总上限（20.0）：新增 P1 只是划转，没有放大总额。
+    assert sum(stages.values()) + budget["historical_conservative_accounted_cny"] == pytest.approx(
+        budget["limit_cny"]
+    )
+    assert budget["limit_cny"] == pytest.approx(20.0)
+
+    # c) 签署后的 P1-RETRIEVAL 额度 3.0，且不低于旧实现的 3.00 元硬限；min 解析同样收敛到 3.0。
+    assert stages["P1-RETRIEVAL"] == pytest.approx(3.0)
+    assert stages["P1-RETRIEVAL"] >= 3.0
+    assert limits["P1-RETRIEVAL"] == pytest.approx(3.0)
+    assert go["stage"] == "P1-RETRIEVAL"
     assert tools._resolve_stage_limit_cny(
-        go_payload=go, budget_payload=budget, stage="S2-DEV", requested=None
-    ) == pytest.approx(18.4)
-    assert 18.4 > 3.0
+        go_payload=go, budget_payload=budget, stage="P1-RETRIEVAL", requested=None
+    ) == pytest.approx(3.0)
+
+    # d) S2-DEV 分配（15.4）仍覆盖账本里的实际已占（只读重放 ``summary()``，当前 15.0266296），
+    #    确认划转没有把历史占用挪走，且旧 3.00 元硬限早已不适用。
+    assert stages["S2-DEV"] == pytest.approx(15.4)
+    assert stages["S2-DEV"] > 3.0
+    summary = BudgetLedger(
+        REAL_LEDGER, REAL_BUDGET, stage="S2-DEV", stage_limit_cny=stages["S2-DEV"]
+    ).summary()
+    assert summary.stage_limit_cny == pytest.approx(stages["S2-DEV"])
+    assert summary.stage_accounted_cny > 0.0
+    assert stages["S2-DEV"] >= summary.stage_accounted_cny
+
+    # e) 共享账本真实存在且可被产品预算类解析（上面的 summary() 已完整重放）。
     assert REAL_LEDGER.is_file()

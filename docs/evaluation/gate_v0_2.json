@@ -1,0 +1,190 @@
+{
+  "schema_version": "mktkb.gate.config.v0.2",
+  "gate_version": "mktkb.gate.v0.2",
+  "status": "approved",
+  "approval": {
+    "approver": "主人",
+    "approved_at": "2026-11-09T19:54:00+08:00",
+    "reason": "P1 首次 release baseline（b0 live 40 题）；绝对阈值按 T112 校准提案批准；首次建立不做回退检测",
+    "scope": "retrieval_only（仅检索层；answer/refusal/runtime 阈值保持 null、未批准）",
+    "basis": "docs/reports/OBS-EVAL/P1/evidence/T112/02-gate-proposal.md"
+  },
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "hard_gate_min_sample": {
+    "b0": 32,
+    "badcase": 13,
+    "regression": 7
+  },
+  "suites": [
+    "b0",
+    "badcase",
+    "regression"
+  ],
+  "sensitive_patterns": [],
+  "quality_layer": {
+    "status": "approved",
+    "approval_scope": "retrieval_only（retrieval 5 指标已批准；answer/refusal/runtime 10 指标阈值仍为 null、未批准）",
+    "approval_owner": "主人（2026-11-09 19:54 +08:00 书面批准；R1 落盘）",
+    "evaluate_with": "evaluate_gate(..., quality=True)",
+    "status_source": "top_level status（只有 \"approved\" 才参与质量判定）",
+    "reporting": "per_stratum_and_all_no_composite_score",
+    "retrieval_only_scope": "live + retrieval_only 只评估 retrieval 组指标；不生成答案，答案/拒答/运行指标不参与（P1 design §5）",
+    "denominators": {
+      "retrieval": "gold_cases_non_ocr（有 gold 且非 OCR 的 case；b0=32 / badcase=10）",
+      "answer": "scored_cases_non_ocr（pass/fail 且非 OCR、非 error；b0=32 / badcase=13）",
+      "refusal": "refusal_eligible_cases（排除 error/service_error/knowledge_changed）",
+      "runtime": "latency_samples / cost_samples"
+    },
+    "thresholds": "approved_by_owner：retrieval 5 指标 min_sample=8；Recall@10/MRR@10/nDCG@10 absolute_min=0.855；hard_filter_violation_rate absolute_max=0.02；empty_recall_rate absolute_max=0.145；max_regression_pp=2.0（answer/refusal/runtime 10 指标仍为 null、未批准）",
+    "calibration": "calibrate_gate 只产出 gate_proposal.json（建议值 + gate_config_hash + run_id），不写回本文件",
+    "calibration_evidence": "docs/reports/OBS-EVAL/P1/evidence/T112/02-gate-proposal.md",
+    "notes": "R1 已按主人 2026-11-09 书面批准落盘：status=approved 仅指检索层（retrieval 5 指标）；answer/refusal/runtime 10 指标阈值保持 null、未批准。未审批时质量结果为 unknown（exit 3），不得当通过；硬门禁不可豁免，质量 waiver 必须带 reason + approver。质量 min_sample 按各指标分母计算，不得复用 hard_gate_min_sample；b0 live 的非 OCR 层为 all=32 / exact=24 / text=8，主人已批准单一 min_sample=8（跨层最宽松，三层均满足）。"
+  },
+  "metrics": [
+    {
+      "name": "Recall@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": 8,
+      "absolute_min": 0.855,
+      "absolute_max": null,
+      "max_regression_pp": 2.0
+    },
+    {
+      "name": "MRR@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": 8,
+      "absolute_min": 0.855,
+      "absolute_max": null,
+      "max_regression_pp": 2.0
+    },
+    {
+      "name": "nDCG@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": 8,
+      "absolute_min": 0.855,
+      "absolute_max": null,
+      "max_regression_pp": 2.0
+    },
+    {
+      "name": "hard_filter_violation_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": 8,
+      "absolute_min": null,
+      "absolute_max": 0.02,
+      "max_regression_pp": 2.0
+    },
+    {
+      "name": "empty_recall_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": 8,
+      "absolute_min": null,
+      "absolute_max": 0.145,
+      "max_regression_pp": 2.0
+    },
+    {
+      "name": "value_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "source_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "kind_correct",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_precision",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_recall",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_recall",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "false_refusal_rate",
+      "group": "refusal",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_precision",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "p95_latency_ms",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "cost_per_case_cny",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    }
+  ],
+  "notes": "P1 T112 R1：v0.1 的 8 项硬门禁与方向不变；新增 regression suite 与 retrieval 5 指标阈值（主人 2026-11-09 19:54 +08:00 书面批准，见 approval 与质量层 approval_scope）。status=approved 仅指检索层：answer/refusal/runtime 10 指标阈值仍为 null、不参与 retrieval_only 判定。P1 release baseline 只能由 gate v0.2 的 live + retrieval_only run 建立，且必须经 baseline approve 现场重算门禁 + approver/reason 审批（approval.json）。"
+}

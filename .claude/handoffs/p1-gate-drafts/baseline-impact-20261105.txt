@@ -1,0 +1,24 @@
+﻿.......F..............                                                   [100%]
+================================== FAILURES ===================================
+_______ test_current_go_and_budget_are_consistent_and_above_three_yuan ________
+
+    def test_current_go_and_budget_are_consistent_and_above_three_yuan():
+        """当前真实 GO/budget（只读）互相一致，且额度远高于旧的 3.00 元硬限。"""
+        tools = _tools()
+        go = json.loads((ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json").read_text(encoding="utf-8"))
+        budget = json.loads(REAL_BUDGET.read_text(encoding="utf-8"))
+        limits = go["scope"]["stage_limits_cny"]
+>       assert limits["S2-DEV"] == pytest.approx(18.4)
+               ^^^^^^^^^^^^^^^^
+E       KeyError: 'S2-DEV'
+
+backend\tests\rag\test_s4_stage_limit.py:189: KeyError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\rag\test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan
+1 failed, 21 passed, 1 warning in 0.87s

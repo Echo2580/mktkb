@@ -8,11 +8,22 @@
   ``--calibrate`` 只写 ``gate_proposal.json``，绝不改写 gate 配置；
 - ``baseline approve`` 必须现场重算门禁（``--gate`` 文件只做审计，不作为审批依据），
   拒绝时返回该门禁退出码且不写 ``approval.json``；
+- ``baseline archive / verify / restore`` 只移植既有证据链：归档 ``baseline.json`` /
+  ``approval.json`` / run 三件套 / ``gate.json`` 并写 ``archive_manifest.json``，
+  restore 只重写 ``baseline.json.run_dir``，不改 identity / approval / artifact 摘要；
+  holdout 相关 run、已存在目标目录、缺文件或哈希不符一律拒绝（E 工作流，fail closed）；
 - ``diff`` 必须把当前 run 的 ``GateResult`` 传给 ``diff_runs`` 并调用
   ``require_release_baseline``（T007 MEDIUM-2），baseline 缺失时 fail closed；
 - ``export`` 只写 ``render_markdown`` / ``render_html`` 的返回值（UTF-8 无 BOM）。
 
-P0 不存在 ``--allow-holdout-details``；argparse 默认拒绝未知参数，不额外实现。
+P1 T108（holdout 防污染）：
+
+- ``run --suite holdout`` 默认只出聚合；``--allow-holdout-details`` 才写逐题 +
+  ``holdout_audit.json``，且在 CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI``）
+  硬失败（非零退出）；
+- 答案只从 ``--holdout-labels`` / ``MKTKB_HOLDOUT_LABELS`` 指向的本地文件读取；
+- ``dataset export-holdout-questions`` 把本地题目逐字节导出为仓库 fixture（校验 sha 与
+  无答案字段）；``dataset validate --suite holdout`` 只校验仓库导出（无答案）。
 """
 
 from __future__ import annotations
@@ -31,10 +42,20 @@ from .baseline import (
     BaselineError,
     CrossVersionBaselineError,
     approve_baseline,
+    archive_baseline,
     baseline_id,
     load_baseline,
+    restore_baseline,
+    verify_archive,
 )
-from .dataset import dataset_version, load_cases
+from .dataset import (
+    HOLDOUT_QUESTIONS_SHA256,
+    HOLDOUT_SUITE,
+    dataset_version,
+    export_holdout_questions,
+    load_cases,
+    load_holdout_questions,
+)
 from .gate import (
     DEFAULT_GATE_CONFIG_PATH,
     GateConfig,
@@ -54,13 +75,13 @@ from .report import (
     render_markdown,
     require_release_baseline,
 )
-from .runner import run_suite
+from .runner import HOLDOUT_LABELS_ENV, run_suite
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_BASELINE_ROOT = PROJECT_ROOT / "var" / "eval" / "baselines"
 EXIT_DATA = 3
 EXIT_USAGE = 2
-SUITES = ("b0", "badcase")
+SUITES = ("b0", "badcase", "regression", HOLDOUT_SUITE)
 MODES = ("local", "replay")
 
 
@@ -127,7 +148,8 @@ def _cmd_dataset_build(args: argparse.Namespace) -> int:
         stats = builder.build_dataset(PROJECT_ROOT, b0_path, badcase_path, out_dir)
     except Exception as exc:  # 构建器把 gold 不可定位等统一抛 BuildError
         raise CliError(f"dataset build 失败: {type(exc).__name__}: {exc}") from exc
-    for suite in SUITES:
+    # ``dataset build`` 只构建 b0/badcase；regression 是手工维护的种子集。
+    for suite in ("b0", "badcase"):
         payload = stats.get(suite, {}) if isinstance(stats, Mapping) else {}
         print(
             f"{suite}: cases={payload.get('cases')} sha256={payload.get('sha256')} "
@@ -140,6 +162,18 @@ def _cmd_dataset_build(args: argparse.Namespace) -> int:
 def _cmd_dataset_validate(args: argparse.Namespace) -> int:
     path = Path(args.path)
     raw = path.read_bytes()
+    if args.suite == HOLDOUT_SUITE:
+        # holdout 仓库导出只有题目（无答案）：只做题目契约校验，不加载 labels。
+        questions = load_holdout_questions(path)
+        strata_text = ",".join(
+            f"{name}:{count}" for name, count in sorted(questions.strata.items())
+        )
+        print(
+            f"suite={HOLDOUT_SUITE} cases={len(questions.rows)} "
+            f"label_version={questions.label_version} "
+            f"answers=none sha256={questions.sha256} strata={strata_text}"
+        )
+        return 0
     cases = load_cases(path)
     if not cases:
         raise CliError(f"数据集为空: {path}")
@@ -161,9 +195,20 @@ def _cmd_dataset_validate(args: argparse.Namespace) -> int:
     return 0
 
 
+def _cmd_dataset_export_holdout(args: argparse.Namespace) -> int:
+    expected = args.expected_sha256 or HOLDOUT_QUESTIONS_SHA256
+    digest = export_holdout_questions(
+        Path(args.from_path), Path(args.out), expected_sha256=expected
+    )
+    print(f"wrote {Path(args.out)} sha256={digest} answers=none")
+    return 0
+
+
 def _cmd_dataset(args: argparse.Namespace) -> int:
     if args.dataset_command == "build":
         return _cmd_dataset_build(args)
+    if args.dataset_command == "export-holdout-questions":
+        return _cmd_dataset_export_holdout(args)
     return _cmd_dataset_validate(args)
 
 
@@ -180,10 +225,15 @@ def _cmd_run(args: argparse.Namespace) -> int:
         scope=args.scope,
         replay_from=Path(args.from_run) if args.from_run else None,
         dataset_path=Path(args.dataset) if args.dataset else None,
+        holdout_labels=Path(args.holdout_labels) if args.holdout_labels else None,
+        allow_holdout_details=bool(args.allow_holdout_details),
     )
+    details = ""
+    if result.manifest.suite == HOLDOUT_SUITE:
+        details = f" details={str(result.manifest.holdout_details).lower()}"
     print(
         f"run_id={result.manifest.run_id} suite={result.manifest.suite} "
-        f"mode={result.manifest.mode} cases={len(result.cases)} out={result.out_dir}"
+        f"mode={result.manifest.mode} cases={len(result.cases)} out={result.out_dir}{details}"
     )
     return 0
 
@@ -297,9 +347,54 @@ def _cmd_baseline_list(args: argparse.Namespace) -> int:
     return code
 
 
+def _cmd_baseline_archive(args: argparse.Namespace) -> int:
+    record = archive_baseline(args.baseline, Path(args.root), Path(args.out))
+    approved = "yes" if record.has_approval else "no"
+    print(
+        f"archive baseline_id={record.baseline_id} run_id={record.run_id} "
+        f"suite={record.suite} files={len(record.files)} approved={approved}"
+    )
+    print(f"wrote {Path(args.out)}")
+    return 0
+
+
+def _cmd_baseline_verify(args: argparse.Namespace) -> int:
+    record = verify_archive(Path(args.archive))
+    approved = "yes" if record.has_approval else "no"
+    print(
+        f"archive ok baseline_id={record.baseline_id} run_id={record.run_id} "
+        f"suite={record.suite} files={len(record.files)} approved={approved} "
+        f"schema={record.schema_version}"
+    )
+    if record.source_run_dir:
+        print(f"source run_dir={record.source_run_dir}")
+    return 0
+
+
+def _cmd_baseline_restore(args: argparse.Namespace) -> int:
+    result = restore_baseline(
+        Path(args.archive),
+        Path(args.root),
+        runs_root=Path(args.runs_root) if args.runs_root else None,
+    )
+    approved = "yes" if result.baseline.approval is not None else "no"
+    print(
+        f"restored baseline_id={result.baseline_id} run_id={result.baseline.run_id} "
+        f"run_dir={result.run_dir} approved={approved} files={len(result.files)}"
+    )
+    print(f"wrote {result.baseline_dir} {result.run_dir}")
+    return 0
+
+
 def _cmd_baseline(args: argparse.Namespace) -> int:
     if args.baseline_command == "approve":
         return _cmd_baseline_approve(args)
+    if args.baseline_command == "archive":
+        return _cmd_baseline_archive(args)
+    if args.baseline_command == "verify":
+        return _cmd_baseline_verify(args)
+    if args.baseline_command == "restore":
+        return _cmd_baseline_restore(args)
     return _cmd_baseline_list(args)
 
 
@@ -444,6 +539,28 @@ def build_parser() -> argparse.ArgumentParser:
     validate.add_argument("--path", required=True, help="JSONL 路径")
     validate.set_defaults(handler=_cmd_dataset)
 
+    export_holdout = dataset_sub.add_parser(
+        "export-holdout-questions",
+        help="把本地 holdout questions.jsonl 逐字节导出为仓库 fixture（无答案）",
+    )
+    export_holdout.add_argument(
+        "--from",
+        dest="from_path",
+        required=True,
+        help="本地 questions.jsonl 副本（不读 holdout 目录本身）",
+    )
+    export_holdout.add_argument(
+        "--out",
+        default=str(PROJECT_ROOT / "fixtures" / "evaluation" / "holdout-questions.jsonl"),
+        help="仓库导出路径（默认 fixtures/evaluation/holdout-questions.jsonl）",
+    )
+    export_holdout.add_argument(
+        "--expected-sha256",
+        default=None,
+        help=f"期望的源文件 sha256（默认冻结值 {HOLDOUT_QUESTIONS_SHA256[:12]}…）",
+    )
+    export_holdout.set_defaults(handler=_cmd_dataset)
+
     run = sub.add_parser("run", help="跑 local / replay suite")
     run.add_argument("--suite", required=True, choices=SUITES)
     run.add_argument("--mode", choices=MODES, default="local")
@@ -451,6 +568,16 @@ def build_parser() -> argparse.ArgumentParser:
     run.add_argument("--from-run", default=None, help="replay 的上一轮 local run 目录")
     run.add_argument("--dataset", default=None, help="覆盖默认 fixtures/evaluation/<suite>.jsonl")
     run.add_argument("--scope", default="end_to_end")
+    run.add_argument(
+        "--holdout-labels",
+        default=None,
+        help=f"holdout 本地 labels.jsonl 路径（也可用环境变量 {HOLDOUT_LABELS_ENV}）",
+    )
+    run.add_argument(
+        "--allow-holdout-details",
+        action="store_true",
+        help="允许写 holdout 逐题详情 + holdout_audit.json（CI/门禁环境硬失败）",
+    )
     run.set_defaults(handler=_cmd_run)
 
     gate = sub.add_parser("gate", help="评估硬门禁 + 质量层；--calibrate 只写提案")
@@ -459,7 +586,9 @@ def build_parser() -> argparse.ArgumentParser:
     gate.add_argument("--calibrate", action="store_true", help="写 gate_proposal.json（不审批）")
     gate.set_defaults(handler=_cmd_gate)
 
-    baseline = sub.add_parser("baseline", help="baseline 审批 / 列表（无 copy/rename）")
+    baseline = sub.add_parser(
+        "baseline", help="baseline 审批 / 列表 / 归档 / 校验 / 恢复（移植不改 identity）"
+    )
     baseline_sub = baseline.add_subparsers(dest="baseline_command", required=True)
     approve = baseline_sub.add_parser("approve", help="现场重算门禁后审批 baseline")
     approve.add_argument("--run", required=True)
@@ -472,6 +601,37 @@ def build_parser() -> argparse.ArgumentParser:
     listing = baseline_sub.add_parser("list", help="列出 <root>/<baseline_id>/baseline.json")
     listing.add_argument("--root", default=str(DEFAULT_BASELINE_ROOT))
     listing.set_defaults(handler=_cmd_baseline)
+    archive = baseline_sub.add_parser(
+        "archive",
+        help="把 baseline 证据链归档到 --out（fail closed；holdout 一律拒绝）",
+    )
+    archive.add_argument("--baseline", required=True, help="baseline_id（12 位十六进制）")
+    archive.add_argument(
+        "--root",
+        default=str(DEFAULT_BASELINE_ROOT),
+        help=f"源 baseline 根目录（默认 {DEFAULT_BASELINE_ROOT}）",
+    )
+    archive.add_argument("--out", required=True, help="新归档目录（必须不存在，不覆盖）")
+    archive.set_defaults(handler=_cmd_baseline)
+    verify = baseline_sub.add_parser(
+        "verify", help="只读校验归档（文件 sha256 / 身份 / 审批关系）"
+    )
+    verify.add_argument("--archive", required=True, help="归档目录（含 archive_manifest.json）")
+    verify.set_defaults(handler=_cmd_baseline)
+    restore = baseline_sub.add_parser(
+        "restore",
+        help="把归档恢复成隔离根下的 baseline（只重写 run_dir，不覆盖已存在目录）",
+    )
+    restore.add_argument("--archive", required=True, help="归档目录（含 archive_manifest.json）")
+    restore.add_argument(
+        "--root", required=True, help="目标 baseline 根目录（新建，如 <tmp>/eval/baselines）"
+    )
+    restore.add_argument(
+        "--runs-root",
+        default=None,
+        help="目标 run 根目录（默认 <root>/../runs）",
+    )
+    restore.set_defaults(handler=_cmd_baseline)
 
     diff = sub.add_parser("diff", help="baseline vs 当前 run 的 diff + 报告")
     _add_run_selector(diff, with_comparison=True)

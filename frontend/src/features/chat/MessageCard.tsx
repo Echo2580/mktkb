@@ -1,12 +1,20 @@
 import type { AskResult, MessageView, SourceSummary } from '../../api/client';
 import { Icon, fileIconFor } from '../../components/Icon';
 import {
-  RESULT_KIND_LABELS,
   SOURCE_STATUS_LABELS,
   formatDateTime,
   formatTime,
+  resultBadgeLabel,
   resultKindTone,
 } from '../../utils/format';
+
+/** 服务端明确不可重试的稳定码；历史消息没有 retryable 字段，只能按码推导。 */
+const NON_RETRYABLE_SERVICE_ERROR_CODES = new Set([
+  'MODEL_NOT_CONFIGURED',
+  'MODEL_BUDGET_REFUSED',
+  'QA_INTERNAL_ERROR',
+  'INVALID_QUERY',
+]);
 
 interface MessageCardProps {
   message: MessageView;
@@ -61,7 +69,12 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
           ? 'answer-card is-info'
           : 'answer-card';
 
-  const retryable = live ? live.retryable : message.error_code !== 'MODEL_OUTPUT_INVALID';
+  const errorCode = live?.error_code ?? message.error_code ?? null;
+  // 历史消息没有 retryable 字段（MessageView 字段集不得新增），只能按稳定码推导；
+  // 实时结果以服务端 retryable 为准。MODEL_OUTPUT_INVALID 重试同一问题不会改变结果。
+  const retryable =
+    errorCode !== 'MODEL_OUTPUT_INVALID' &&
+    (live ? live.retryable : !NON_RETRYABLE_SERVICE_ERROR_CODES.has(errorCode ?? ''));
   const pagination = live?.pagination ?? message.pagination ?? null;
   const nextPage = pagination?.has_more && pagination.next_page ? pagination.next_page : null;
 
@@ -76,7 +89,7 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
           {message.kind ? (
             <span className={toneBadgeClass(resultKindTone(kind))}>
               <span className="badge-dot" />
-              {RESULT_KIND_LABELS[kind] ?? kind}
+              {resultBadgeLabel(kind, candidates.length, errorCode, missing.length)}
             </span>
           ) : null}
           <span className="message-time">{formatTime(message.created_at)}</span>
@@ -135,7 +148,7 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
               ) : (
                 <p className="state-note">
                   <Icon name="info" size={12} />
-                  该历史消息未保存候选明细；请重新提问以获取可选项。
+                  这次回答没有提供可选项，无法直接点选；请按上方提示补充门店、物品或更具体的条件后重新提问。
                 </p>
               )}
             </>
@@ -241,11 +254,15 @@ export function MessageCard({ message, questionBefore, liveResult, onOpenSource,
               <div className="state-note" style={{ background: 'var(--rose-50)', color: 'var(--rose-800)' }}>
                 <Icon name="alert-circle" size={12} />
                 <span>
-                  这是服务调用失败，不是资料中没有答案。
-                  {message.error_code ? `错误码：${message.error_code}。` : ''}
-                  {message.error_code === 'MODEL_OUTPUT_INVALID'
+                  本次问答未完成，这不是资料中没有答案。
+                  {errorCode ? `错误码：${errorCode}。` : ''}
+                  {errorCode === 'MODEL_OUTPUT_INVALID'
                     ? '模型输出未通过来源校验，已拒绝展示，重新提问不会改变结果。'
-                    : '可稍后重新提问；服务端不会因重试而重复保存同一条回答。'}
+                    : errorCode === 'INVALID_QUERY'
+                      ? '这是查询条件问题，不是服务故障；请换个说法后重新提问。'
+                      : retryable
+                        ? '可稍后重新提问；服务端不会因重试而重复保存同一条回答。'
+                        : '这类失败重试同一问题不会自行恢复；请按错误码联系管理员处理，或修改问题后重试。'}
                 </span>
               </div>
               <div className="state-actions">

@@ -52,6 +52,32 @@ test.describe('结果类型与稳定文案', () => {
     }
   });
 
+  test('clarification（C02）：无候选时徽标诚实，历史消息不武断', async ({ browser }) => {
+    const { context, page } = await openSession(browser, 'employee');
+    try {
+      await page.goto('/chat');
+      await askViaUi(page, '城东店的宣传海报在哪里？');
+      await waitForAnswer(page);
+      const answer = await askViaUi(page, '城西区的宣传海报在哪？');
+      // 未知区域澄清没有候选：徽标不得再显示“需要确认”，也不得暗示“基于已发布资料”。
+      await expect(answer.locator('.assistant-head .badge')).toHaveText('需补充条件', { timeout: 30_000 });
+      await expect(answer).not.toContainText('需要确认');
+      await expect(answer).toContainText('资料中没有收录');
+      await expect(answer).not.toContainText('该历史消息未保存');
+      await expect(answer).toContainText('没有提供可选项');
+      await shot(page, '02b-clarification-no-candidate', { locator: answer });
+
+      // 历史消息没有持久化候选：文案仍必须中性、可自救，不得断言“未保存/资料缺失”。
+      await page.reload();
+      const history = page.locator('.message-assistant').last();
+      await expect(history.locator('.assistant-head .badge')).toHaveText('需补充条件', { timeout: 30_000 });
+      await expect(history).not.toContainText('该历史消息未保存');
+      await expect(history).toContainText('没有提供可选项');
+    } finally {
+      await context.close();
+    }
+  });
+
   test('not_found（N01）：无匹配资料且无来源依据', async ({ browser }) => {
     const { context, page } = await openSession(browser, 'employee');
     try {
@@ -67,7 +93,7 @@ test.describe('结果类型与稳定文案', () => {
     }
   });
 
-  test('service_error：fail-next 注入 → 服务暂不可用 + 错误码 + 重新提问可恢复', async ({ browser, request }) => {
+  test('service_error：fail-next 注入 → 服务调用失败 + 错误码 + 重新提问可恢复', async ({ browser, request }) => {
     const armed = await controlPost(request, '/__acceptance/gateway/fail-next', {
       count: 1,
       code: 'MODEL_UNAVAILABLE',
@@ -80,8 +106,8 @@ test.describe('结果类型与稳定文案', () => {
       await page.goto('/chat');
       await askViaUi(page, '领取活动物料需要哪些步骤？');
       const failed = await waitForAnswer(page);
-      // 回答正文同样含「服务暂不可用」字样，用结果标记 badge 精确定位避免 strict mode 冲突。
-      await expect(failed.locator('.assistant-head .badge')).toHaveText('服务暂不可用');
+      // 回答正文同样含「服务调用失败」字样，用结果标记 badge 精确定位避免 strict mode 冲突。
+      await expect(failed.locator('.assistant-head .badge')).toHaveText('服务调用失败');
       await expect(failed).toContainText('这是服务调用失败，不是资料中没有答案');
       await expect(failed).toContainText('MODEL_UNAVAILABLE');
       await expect(failed.getByText('无匹配资料')).toHaveCount(0);

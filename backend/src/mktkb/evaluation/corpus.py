@@ -9,8 +9,15 @@
 - ``badcase``：``corpus/enterprise-20261101/manifest.json`` 的 ``files``，复用
   ``rag_experiment.load_corpus`` + ``build_new_index``，只解析被 gold 引用的
   E03/E11/P03/W01；缺任一份直接 fail closed。
+- ``regression``（P1 T107）：同一 ``corpus/enterprise-20261101`` 全量语料
+  （``rag_experiment`` 的既有 subset policy 会排除 boundary/scan/X04），并强制
+  本轮数据集引用的 ``doc_code`` 全部解析成功；缺任一份直接 fail closed。
 
-索引一律建在调用方给出的隔离路径（runner 用临时目录），不触碰 ``var/`` 与产品库。
+索引一律建在调用方给出的隔离路径（local 用临时目录，live 用
+``var/eval/runs/<run_id>/index/``），不触碰产品库。
+
+P1 T111：``build_suite_index`` 增加 live 分支（真实 embedding/rerank + 共享账本）；
+offline 分支的行为与 P0 完全一致。
 """
 
 from __future__ import annotations
@@ -20,7 +27,7 @@ import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from ..ingestion.parsers import ParseError, ParseServices, parse_document
 from ..rag import AtomicUnit, DocumentSpec, RagConfig, RagIndex, adapt_parsed_unit
@@ -40,7 +47,7 @@ __all__ = [
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
-SUITES = frozenset({"b0", "badcase"})
+SUITES = frozenset({"b0", "badcase", "regression"})
 #: B0 可离线解析的资料 kind；扫描 PDF/图片不在此集合，禁止进入解析。
 B0_NON_OCR_KINDS = frozenset({"xlsx", "docx", "pdf-text"})
 B0_REQUIRED_CODES = ("D01", "D02", "D03", "D04", "D05", "D06")
@@ -48,6 +55,7 @@ BADCASE_CODES = ("E03", "E11", "P03", "W01")
 DEFAULT_CORPUS_DIRS: dict[str, Path] = {
     "b0": PROJECT_ROOT / "fixtures" / "acceptance",
     "badcase": PROJECT_ROOT / "corpus" / "enterprise-20261101",
+    "regression": PROJECT_ROOT / "corpus" / "enterprise-20261101",
 }
 EVAL_DATASET_DIR = PROJECT_ROOT / "fixtures" / "evaluation"
 
@@ -186,15 +194,22 @@ def _load_rag_experiment():
 
 
 def _load_enterprise_documents(
-    root: Path, manifest: Mapping[str, Any]
+    root: Path,
+    manifest: Mapping[str, Any],
+    *,
+    only_codes: Sequence[str] | None,
+    required_codes: Sequence[str] | None,
 ) -> tuple[list[tuple[DocumentSpec, list[AtomicUnit]]], list[dict[str, Any]], str | None]:
     rag_experiment = _load_rag_experiment()
-    documents, skipped = rag_experiment.load_corpus(root, only_codes=set(BADCASE_CODES))
+    documents, skipped = rag_experiment.load_corpus(
+        root, only_codes=None if only_codes is None else set(only_codes)
+    )
     parsed_codes = {spec.doc_id for spec, _ in documents}
-    required = set(BADCASE_CODES)
-    if parsed_codes != required:
+    required = set(required_codes or ())
+    missing = sorted(required - parsed_codes)
+    if missing:
         raise CorpusError(
-            f"badcase 必要资料解析缺失: {sorted(required - parsed_codes)} / skipped={skipped[:5]}"
+            f"必要资料解析缺失: {missing} / skipped={skipped[:5]}"
         )
     business_date = manifest.get("business_base_date") or manifest.get("business_date")
     return documents, skipped, None if business_date is None else str(business_date)
@@ -205,8 +220,13 @@ def load_suite_corpus(
     corpus_dir: Path | str | None = None,
     *,
     business_date: str | None = None,
+    required_codes: Sequence[str] | None = None,
 ) -> Corpus:
-    """按 suite 装配文档（不建索引、不写任何数据库）。"""
+    """按 suite 装配文档（不建索引、不写任何数据库）。
+
+    ``required_codes`` 只对 ``regression`` 生效：本轮数据集引用到的 ``doc_code``
+    必须全部解析成功，缺任一份 fail closed（``badcase`` 固定要求四份）。
+    """
     if suite not in SUITES:
         raise ValueError(f"未知 suite {suite!r}；只允许 {sorted(SUITES)}")
     root = Path(corpus_dir) if corpus_dir is not None else default_corpus_dir(suite)
@@ -219,8 +239,14 @@ def load_suite_corpus(
             root, manifest, None if date is None else str(date)
         )
         resolved_date = None if date is None else str(date)
+    elif suite == "badcase":
+        documents, skipped, resolved_date = _load_enterprise_documents(
+            root, manifest, only_codes=BADCASE_CODES, required_codes=BADCASE_CODES
+        )
     else:
-        documents, skipped, resolved_date = _load_enterprise_documents(root, manifest)
+        documents, skipped, resolved_date = _load_enterprise_documents(
+            root, manifest, only_codes=None, required_codes=required_codes
+        )
     return Corpus(
         suite=suite,
         root=root,
@@ -237,8 +263,17 @@ def build_suite_index(
     db_path: Path,
     *,
     config: RagConfig | None = None,
+    budget: Any | None = None,
+    embedder: Any | None = None,
+    reranker: Any | None = None,
 ) -> tuple[RagIndex, dict[str, Any]]:
-    """在 ``db_path`` 构建隔离索引；``provider_mode`` 必须为 offline。"""
+    """在 ``db_path`` 构建隔离索引。
+
+    - ``provider_mode="offline"``：沿用确定性替身，零真实调用（P0/P1 local）；
+    - ``provider_mode="live"``：P1 T111 live 检索评测，真实 embedding/rerank；
+      必须注入共享账本（``budget``），否则拒绝。``embedder``/``reranker`` 仅用于
+      测试注入替身；生产路径不传，由 ``RagIndex`` 按 live 配置构造真实 provider。
+    """
     if corpus.suite not in SUITES:
         raise ValueError(f"未知 suite {corpus.suite!r}")
     if not corpus.documents:
@@ -246,11 +281,45 @@ def build_suite_index(
     cfg = config or offline_eval_config(
         Path(db_path).parent, corpus.business_date or "2026-10-28"
     )
-    if cfg.provider_mode != "offline":
+    if cfg.provider_mode not in {"offline", "live"}:
         raise ValueError(
-            f"评测只允许 provider_mode='offline'，收到 {cfg.provider_mode!r}（零真实调用）"
+            f"评测只允许 provider_mode='offline'/'live'，收到 {cfg.provider_mode!r}"
         )
-    if corpus.suite == "badcase":
+    if cfg.live:
+        # 真实索引：失败不得留下半成品索引；调用方负责删除整个隔离目录。
+        if budget is None and (embedder is None or reranker is None):
+            raise CorpusError("live 索引必须提供共享账本（预算闸门），拒绝无账本真实调用")
+        if embedder is None or reranker is None:
+            cfg.require_live_credentials()
+        index = RagIndex(
+            Path(db_path),
+            config=cfg,
+            embedder=embedder,
+            reranker=reranker,
+            budget=budget,
+        )
+        try:
+            results: list[dict[str, Any]] = []
+            for spec, units in corpus.documents:
+                result = index.add_document(spec, units, embed=True)
+                if result.get("embedding_error"):
+                    raise CorpusError(
+                        f"{corpus.suite} live 索引 embedding 失败 {spec.doc_id}: "
+                        f"{result['embedding_error']}"
+                    )
+                results.append(result)
+            summary = {
+                "suite": corpus.suite,
+                "documents": len(corpus.documents),
+                "units": sum(int(item.get("units") or 0) for item in results),
+                "chunks": sum(int(item.get("chunks") or 0) for item in results),
+                "revision": index.revision(),
+            }
+            return index, summary
+        except BaseException:
+            index.close()
+            raise
+    if corpus.suite in {"badcase", "regression"}:
         rag_experiment = _load_rag_experiment()
         index, stats = rag_experiment.build_new_index(
             [(spec, list(units)) for spec, units in corpus.documents],
@@ -260,7 +329,7 @@ def build_suite_index(
         if int(stats.get("documents") or 0) != len(corpus.documents):
             index.close()
             raise CorpusError(
-                f"badcase 索引资料数 {stats.get('documents')} != 装配数 {len(corpus.documents)}"
+                f"{corpus.suite} 索引资料数 {stats.get('documents')} != 装配数 {len(corpus.documents)}"
             )
         summary = {
             "suite": corpus.suite,

@@ -12,6 +12,33 @@
   ``comparison="release_baseline"`` 才是 ``release_allowed=True``；
   ``comparison="explicit_cross_version"`` 只用于分析，``require_release_baseline`` 拒绝。
 
+**发布放行证据链（P1 #59 修复；``release_allowed=True`` 的必要条件）**：
+
+- ``comparison="release_baseline"`` 且非跨 ``pipeline_version``；
+- current gate 结果**非空**并绑定**当前 run**（``run_id`` / ``suite`` / ``mode`` 与
+  ``run.manifest`` 一致）、``exit_code=0``、``gate_version`` 与当前配置一致；
+- current gate 的质量层 ``gate_config_hash`` == 当前配置 ``config_hash``
+  （**同 ``gate_version`` 但阈值内容变化** → 旧 gate 结果不得复用）；
+- baseline 的 ``approval`` 与 ``gate`` 快照都非空，且 ``approval.gate_result_sha256``
+  绑定同一份门禁结果（``Baseline.__post_init__`` 已校验）；
+- **审批时刻**的配置内容哈希 == 当前配置 ``config_hash``：旧 schema 的门禁快照没有
+  config 哈希，此时从 ``baseline.run_dir/gate.json`` 重核——其 canonical JSON 的
+  SHA-256 必须等于审批绑定的 ``gate_result_sha256``，再取其中的
+  ``quality.gate_config_hash``；文件缺失 / 摘要不一致一律 fail closed
+  （``baseline_gate_config_unverifiable``），**审批后阈值内容漂移**
+  （``baseline_gate_config_drift``）直接拒绝。
+
+任一条件不满足 → ``release_allowed=False`` 且 ``release_blocked_reason`` 给出稳定原因码
+（``current_gate_missing`` / ``current_gate_run_mismatch`` / ``current_gate_exit_<n>`` /
+``gate_config_drift`` / ``baseline_unapproved`` / ``baseline_gate_missing`` /
+``baseline_gate_config_drift`` / ``explicit_cross_version_analysis_only`` 等）；
+``RunDiff`` / ``RunDiff.to_dict()`` 的字段结构不变，只新增该字段的取值。
+
+**配置更新后的规则**：gate 配置内容（阈值 / ``min_sample`` / ``status`` 等任意字节级
+内容）一变，``config_hash`` 就变；旧的 gate 结果与旧审批只证明“旧配置下的通过”，不得
+复用。必须按新配置重新 ``gate`` 评估并重新审批 baseline——即使 ``gate_version`` 字符串
+没变也一样。
+
 **报告口径**（设计 §8.5）：
 
 - ``render_markdown`` / ``render_html`` 都由同一份 :func:`_report_data` 渲染，保证
@@ -27,7 +54,9 @@
 
 from __future__ import annotations
 
+import hashlib
 import html as _html
+import json
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Mapping, Sequence
@@ -456,6 +485,103 @@ def _normalise_comparison(
     )
 
 
+def _canonical_json_sha256(payload: Mapping[str, Any]) -> str:
+    """与 ``baseline.gate_result_digest`` 同口径（这里只有 JSON 映射，没有 GateResult）。"""
+    canonical = json.dumps(
+        dict(payload), ensure_ascii=False, sort_keys=True, separators=(",", ":")
+    )
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def _baseline_approved_config_hash(baseline: Baseline) -> tuple[str | None, str | None]:
+    """重核**审批时刻**的 gate 配置内容哈希；返回 ``(config_hash, blocked_reason)``。
+
+    证据链（fail closed）：
+
+    1. baseline 门禁快照若已记录 ``gate_config_hash``（后续 schema）直接使用；
+    2. 旧 schema 快照没有 config 哈希时，读 ``baseline.run_dir/gate.json``：其 canonical
+       JSON 的 SHA-256 必须等于门禁快照的 ``gate_result_sha256``（即 approval 绑定的
+       **具体一份**门禁结果），再从 ``quality.gate_config_hash`` 取配置哈希；文件缺失 /
+       解析失败 / 摘要不一致一律视为不可证明，不得放行；
+    3. 都拿不到 → ``baseline_gate_config_unverifiable``。
+
+    这样“审批后阈值内容漂移”（``gate_version`` 不变但内容变了）与“审批证据缺失”都能
+    被拒绝，且不需要改 ``baseline.py`` 的既有 schema。
+    """
+    gate = baseline.gate
+    if gate is None:
+        return None, "baseline_gate_missing"
+    direct = getattr(gate, "gate_config_hash", "")
+    if isinstance(direct, str) and direct.strip():
+        return direct, None
+    path = Path(baseline.run_dir) / "gate.json"
+    try:
+        payload = json.loads(path.read_bytes().decode("utf-8"))
+    except (OSError, UnicodeDecodeError, json.JSONDecodeError):
+        return None, "baseline_gate_config_unverifiable"
+    if not isinstance(payload, Mapping):
+        return None, "baseline_gate_config_unverifiable"
+    if _canonical_json_sha256(payload) != str(gate.gate_result_sha256):
+        return None, "baseline_gate_config_unverifiable"
+    quality = payload.get("quality")
+    if not isinstance(quality, Mapping):
+        return None, "baseline_gate_config_unverifiable"
+    value = quality.get("gate_config_hash")
+    if not isinstance(value, str) or not value.strip():
+        return None, "baseline_gate_config_unverifiable"
+    return value, None
+
+
+def _release_blocked_reason(
+    baseline: Baseline,
+    run: RunResult,
+    *,
+    comparison: str,
+    config: GateConfig,
+    gate: GateResult | None,
+) -> str | None:
+    """返回放行阻断原因码；``None`` 表示放行证据链完整。
+
+    顺序按“最根本的阻断先报”：跨版本 → baseline 审批/快照 → 当前 gate 绑定与退出码 →
+    配置内容一致性（当前 gate 与审批时刻）→ 对比方式。所有原因码都是稳定字符串，便于
+    报告/CI 断言；新增原因码不需要改 ``RunDiff`` 字段结构。
+    """
+    if comparison == COMPARISON_CROSS_VERSION:
+        return "explicit_cross_version_analysis_only"
+    if baseline.approval is None:
+        return "baseline_unapproved"
+    if baseline.gate is None:
+        return "baseline_gate_missing"
+    if str(baseline.approval.gate_result_sha256) != str(baseline.gate.gate_result_sha256):
+        return "baseline_approval_gate_mismatch"
+    if gate is None:
+        return "current_gate_missing"
+    manifest = run.manifest
+    if (
+        str(gate.run_id) != str(manifest.run_id)
+        or str(gate.suite) != str(manifest.suite)
+        or str(gate.mode) != str(manifest.mode)
+    ):
+        return "current_gate_run_mismatch"
+    if str(gate.gate_version) != str(config.gate_version):
+        return "current_gate_gate_version_mismatch"
+    exit_code = int(gate.exit_code)
+    if exit_code != 0:
+        return f"current_gate_exit_{exit_code}"
+    if gate.quality is None:
+        return "current_gate_quality_missing"
+    if str(gate.quality.gate_config_hash) != str(config.config_hash):
+        return "gate_config_drift"
+    approved_hash, evidence_reason = _baseline_approved_config_hash(baseline)
+    if evidence_reason is not None:
+        return evidence_reason
+    if approved_hash != str(config.config_hash):
+        return "baseline_gate_config_drift"
+    if comparison != COMPARISON_RELEASE:
+        return "comparison_not_release"
+    return None
+
+
 def diff_runs(
     baseline: Baseline,
     run: RunResult,
@@ -469,6 +595,12 @@ def diff_runs(
 
     参数顺序兼容 handoff §5.4 的 ``diff_runs(baseline, run)`` 与计划 Task 6 的
     ``diff_runs(run, baseline)``（按类型自动换位）。
+
+    ``release_allowed`` 不是“同版本 + 已审批”这么弱：见模块 docstring 的放行证据链——
+    还要求当前 gate 非空且绑定当前 run、``exit_code=0``、``gate_version`` / 质量层
+    ``gate_config_hash`` 与**当前配置**一致、审批时刻的配置内容哈希与当前配置一致。
+    任一不满足都 fail closed（``release_blocked_reason`` 为稳定原因码），绝不因缺 gate /
+    旧 gate / 审批后配置漂移而放行。
     """
     if isinstance(baseline, RunResult) and isinstance(run, Baseline):
         baseline, run = run, baseline
@@ -489,16 +621,6 @@ def diff_runs(
     comparison_value = _normalise_comparison(
         baseline, current_identity, comparison=comparison, compare_with=compare_with
     )
-    if comparison_value == COMPARISON_CROSS_VERSION:
-        release_allowed, blocked = False, "explicit_cross_version_analysis_only"
-    elif gate is not None and int(gate.exit_code) != 0:
-        release_allowed, blocked = False, f"current_gate_exit_{int(gate.exit_code)}"
-    elif baseline.approval is None:
-        release_allowed, blocked = False, "baseline_unapproved"
-    elif comparison_value != COMPARISON_RELEASE:
-        release_allowed, blocked = False, "comparison_not_release"
-    else:
-        release_allowed, blocked = True, None
 
     resolved_config = config if config is not None else load_gate_config(DEFAULT_GATE_CONFIG_PATH)
     if resolved_config.gate_version != baseline.identity.gate_version:
@@ -506,6 +628,15 @@ def diff_runs(
             "gate 配置版本与 baseline 身份不一致："
             f"{resolved_config.gate_version!r} != {baseline.identity.gate_version!r}"
         )
+
+    blocked = _release_blocked_reason(
+        baseline,
+        run,
+        comparison=comparison_value,
+        config=resolved_config,
+        gate=gate,
+    )
+    release_allowed = blocked is None
 
     base_run = baseline.load_run()
     base_cases, base_rows = _run_dataset(base_run, "baseline")
@@ -546,7 +677,13 @@ def diff_runs(
 
 
 def require_release_baseline(diff: RunDiff) -> None:
-    """发布放行路径：只接受同版本、已审批且当前门禁通过的 ``release_baseline``。"""
+    """发布放行路径：只接受“当前 gate 绑定当前 run 且配置未漂移”的已审批同版本对比。
+
+    放行证据链在 :func:`diff_runs` 里已逐项核验（当前 gate 非空且绑定当前 run、
+    ``exit_code=0``、``gate_version`` / 质量层 ``gate_config_hash`` 与当前配置一致、
+    审批时刻配置哈希与当前配置一致、baseline 审批绑定具体门禁结果、非跨版本）；
+    ``release_allowed=False`` 时这里直接拒绝，并带上稳定原因码。
+    """
     if not isinstance(diff, RunDiff):
         raise TypeError(f"require_release_baseline 只接受 RunDiff，收到 {type(diff).__name__}")
     if not diff.release_allowed:

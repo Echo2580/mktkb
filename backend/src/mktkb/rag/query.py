@@ -10,6 +10,7 @@ import re
 from dataclasses import dataclass, replace
 from typing import Any, Iterable, Mapping
 
+from .. import copy as copy_module
 from ..retrieval.tokenize import cut, normalize
 from .types import QueryPlan, QueryState
 
@@ -47,6 +48,28 @@ FIELD_WORDS: dict[str, tuple[str, ...]] = {
     "clause": ("条款", "第几条", "第几条规定"),
     "price_type": ("价格类型", "价格类别"),
 }
+#: T101/ERR-03：法规/制度类问题的判别线索（问的是条文本身，不是某条记录的字段值）。
+#: 只认法规名词、条款引用与以法规名词结尾的书名号标题；《…通知》这类记录题不算，
+#: 避免把“按《…通知》调整后的位置”误判成法规题。
+REGULATION_NOUNS: tuple[str, ...] = (
+    "规定",
+    "条例",
+    "办法",
+    "细则",
+    "制度",
+    "条款",
+    "法规",
+    "法律",
+)
+CLAUSE_REF_PATTERN = re.compile(r"第[一二三四五六七八九十百零〇两0-9]+条")
+_REGULATION_TITLE = re.compile(r"《[^》]*(?:规定|条例|办法|细则|法)》")
+#: T101/ERR-03：同样会出现在法规/制度题干里的泛化字段词，单一来源供查询规划与产品意图层共用。
+#: ``FIELD_WORDS["price"]`` 里的「价格」在条文里是术语（价格欺诈），不能当成“在问字段值”；
+#: 产品层把「销售」当“销售额缺失”，条文里的“有奖销售”同理不得触发。
+GENERIC_FIELD_WORDS: dict[str, tuple[str, ...]] = {
+    "price": ("价格",),
+    "sales": ("销售",),
+}
 ENUMERATE_WORDS = (
     "全部",
     "所有",
@@ -65,6 +88,24 @@ ENUMERATE_WORDS = (
 )
 ANAPHORA_WORDS = ("它", "这个", "那个", "该", "上述", "刚才", "前面", "这家", "那家", "这种", "该项", "其")
 SWITCH_WORDS = ("换成", "改为", "另外", "其他", "不说", "重新问", "换个", "再问一个", "换一个话题")
+#: T102/ERR-02：无显式实体、无记录字段时，哪些问法仍应按“政策/制度/流程题”独立检索，
+#: 而不是继承上一轮门店/物品。法规名词由 ``is_regulation_question`` 统一覆盖，这里只补
+#: 流程与提交时限类说法（如“档期物料要提前多少天提报需求”）。
+POLICY_WORDS = (
+    "政策",
+    "规则",
+    "标准",
+    "要求",
+    "流程",
+    "提报",
+    "提交",
+    "申请",
+    "审批",
+    "时限",
+    "权限",
+    "条件",
+    "提前",
+)
 PAGE_WORDS = ("下一页", "继续看", "更多", "下一页呢")
 FUTURE_WORDS = ("调整后", "通知", "生效后", "之后", "未来", "新版", "将调整", "拟")
 STOPWORDS = frozenset(
@@ -127,6 +168,44 @@ _STORE_NAME_LIMIT = 8
 _STORE_CONNECTORS = "和与及跟同"
 _STORE_SEPARATORS = "、、，,；;：:。.·/|\\|\t\n\r（）()【】[]「」""'' \u3000"
 _STORE_MASK = "\u0000"
+#: T102/ERR-01：资料未收录的“区域形态词”（城西区、城南片区…）同样是作用域约束。
+#: 它们不以「店」结尾，旧 `_unknown_store_tokens` 抓不到，于是静默继承上一轮门店。
+#: 这里只做形态识别（区/片区 + 前面的中文名），是否收录由词表决定；命中即澄清。
+_REGION_NAME_LIMIT = 6
+#: 这些是通用行政区/功能区的后缀或整词，不是某家门店的区域名，不能当未知门店依据。
+_BAD_REGION_WORDS = (
+    "大区",
+    "区域",
+    "城区",
+    "市区",
+    "园区",
+    "小区",
+    "社区",
+    "厂区",
+    "库区",
+    "展区",
+    "专区",
+    "货区",
+    "辖区",
+    "地区",
+    "景区",
+    "校区",
+    "营区",
+    "灾区",
+    "疫区",
+    "开发区",
+    "城市片区",
+)
+_BAD_REGION_PREFIXES = ("这个", "那个", "该", "本", "各", "全", "所有", "哪个", "哪些", "上述", "前面", "刚才")
+#: `区` 后接这些字时是“区间/区域/区号/货架区…”的一部分，不是独立的区域名。
+_REGION_FOLLOWERS = "间域号货柜层架位"
+#: 区域名前一个汉字是这些虚词/动词/地名后缀时，才认为区域名从下一个字开始；
+#: 否则“经销商跨区”会被切成“商跨区”，“城东店物料区”会被当成新作用域。
+_REGION_LEADINS = frozenset("是在和与及或的看查询问去到的从往对关于这那市省县镇乡村解道")
+#: 产品层 `_rag_owns_turn` 只把带 identifier 过滤的记录型计划交回 RAG 直答；未知区域澄清
+#: 必须由 RAG 自己返回（含 state 重置），否则会落到 legacy 意图层重新继承上一轮门店。
+#: 该键只用于让澄清计划被识别，`answer_question` 在 clarification 分支提前返回，不参与检索。
+_RAG_OWNED_CLARIFICATION_FILTER = "identifier"
 _BAD_STORE_WORDS = (
     "门店",
     "店家",
@@ -212,6 +291,210 @@ def _norm(value: str) -> str:
 def _compact(value: str) -> str:
     """去空白/常见分隔符，用于“NKA 卖场”与“NKA卖场”等价匹配。"""
     return re.sub(r"[\s\-_/|｜、，,;；:：()（）\[\]【】]+", "", _norm(value))
+
+
+def is_regulation_question(question: str) -> bool:
+    """问题是否指向法规/制度条文（T101/ERR-03）。
+
+    这类问题优先按正文检索：题干里的「价格」「销售」是条文术语，不是“在问某条记录的字段值”。
+    判别只看法规名词、条款引用和以法规名词结尾的书名号标题；《…通知》这类记录题不受影响。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if CLAUSE_REF_PATTERN.search(text) or _REGULATION_TITLE.search(text):
+        return True
+    return any(noun in text for noun in REGULATION_NOUNS)
+
+
+def is_policy_question(question: str) -> bool:
+    """问题是否在问政策/制度/流程（T102/ERR-02）。
+
+    只用于“无显式实体时是否继承上一轮门店/物品”的判定：政策题紧跟一次实体查询时，
+    不能把旧实体带进来。法规名词沿用 ``is_regulation_question`` 的同一口径，避免两套判别。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if is_regulation_question(text):
+        return True
+    return any(word in text for word in POLICY_WORDS)
+
+
+def is_policy_followup(question: str) -> bool:
+    """T105 R2：指代/实体追问里的政策/法规话题判别。
+
+    与 ``is_policy_question`` 同一口径，只把「要求/规则」这类同时是台账字段名的词排除：
+    “那个海报的陈列要求呢”“扣分规则呢”是在问记录字段，不是政策题；否则 B2 点名项会被
+    改判成正文题而回退。政策/法规题不继承上一轮实体，也不按继承字段作答。
+    """
+    text = str(question or "")
+    if not text:
+        return False
+    if is_regulation_question(text):
+        return True
+    return any(word in text for word in POLICY_WORDS if word not in ("要求", "规则"))
+
+
+#: P1-FIX/B：明确在问制度/流程的话题词。``POLICY_WORDS`` 里的「标准/提交/要求/规则」
+#: 会与台账字段同形，不能单凭它们把追问判成正文题；只有这类**强话题词**与字段词同时
+#: 出现，才说明问的是制度正文而不是台账字段值（“报销规则”是制度，“扣分规则”是台账）。
+_STRONG_POLICY_TOPIC_WORDS: tuple[str, ...] = (
+    "报销",
+    "核销",
+    "审批",
+    "申请",
+    "提报",
+    "流程",
+    "制度",
+    "规定",
+    "办法",
+    "政策",
+    "法规",
+    "权限",
+    "时限",
+)
+
+
+def strong_policy_topics(question: str) -> tuple[str, ...]:
+    """返回问题里明确点名制度/流程的话题词（按登记顺序、去重）。"""
+    text = str(question or "")
+    return tuple(word for word in _STRONG_POLICY_TOPIC_WORDS if word in text)
+
+
+def _strong_policy_topic(question: str) -> bool:
+    return bool(strong_policy_topics(question))
+
+
+def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
+
+    """T105/ERR-06：只继承字段的指代追问，答案只答该字段。
+
+    ``parse_query`` 对这种轮次置 ``enumerate`` 真值，作为产品层
+    ``conversations.service._rag_owns_turn`` 的既有入口（否则 legacy 措辞层拿整条记录
+    的全部字段去回答）；本函数让答案层把这类计划按单字段答案渲染，而不是枚举页。
+    用户显式要求“全部/列出/下一页/第 N 页”时不算只继承字段的追问。
+    """
+    if not field_role:
+        return False
+    text = str(question or "")
+    if _PAGE_NUMBER.search(text):
+        return False
+    if any(word in text for word in ENUMERATE_WORDS) or any(word in text for word in PAGE_WORDS):
+        return False
+    return any(word in text for word in ANAPHORA_WORDS)
+
+
+def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
+    """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
+    不判记录字段。
+
+    - 法规/制度题里的「价格」由“价格欺诈”这类术语带出，按 record 规划会向用户索要商品规格，
+      从而把“何时施行/废止了哪两个规定”挡在检索之前；这里让法规题优先走正文检索。
+    - 政策/流程题（如“档期物料要提前多少天提报需求”）同理：没有实体时，「时间/数量」是
+      政策问题的一部分，不应把问题变成“请补充门店”的记录题。
+    - 没有商品/物品/门店/渠道/标识等实体的「价格」同理：没有所指对象就不该按 price 取值，
+      更不能向用户索要商品名称（E118 这类条文题）。
+    """
+    if is_regulation_question(question):
+        return ()
+    if is_policy_question(question) and not has_entity:
+        return ()
+    roles = _match_fields(question)
+    if not roles or has_entity:
+        return roles
+    normalized = _norm(question)
+    kept: list[str] = []
+    for role in roles:
+        words = FIELD_WORDS.get(role, ())
+        generic = GENERIC_FIELD_WORDS.get(role, ())
+        if generic and not any(_norm(word) in normalized for word in words if word not in generic):
+            continue
+        kept.append(role)
+    return tuple(kept)
+
+
+#: P1-FIX/A：公司级经营/财务指标检测（越界资料范围）。
+#:
+#: 这不是“按题干匹配”的拒答规则，而是登记一类**当前语料不覆盖的指标语义**
+#: （公司营收/利润/利润率等经营财务结果）。它只负责“认出问题在问哪类指标”，
+#: 是否真的无依据由答案层的资料支持判定（``texts_support_financial_metric``）
+#: 在检索证据上复核：证据里确有该指标的数值时仍正常作答，不会被一律拒答。
+#: 法规/制度题（问条文本身）直接跳过，避免把“法规对利润/成本的规定”误判成越界。
+FINANCIAL_METRIC_TERMS: tuple[tuple[str, tuple[str, ...]], ...] = (
+    # 长词优先：先匹配“利润率”类，避免被“利润”抢先。
+    ("利润率", ("营业利润率", "销售利润率", "毛利率", "净利率", "利润率")),
+    ("营收", ("营业总收入", "营业收入", "营收额", "营业额", "营收")),
+    ("利润", ("净利润", "营业利润", "利润总额", "毛利", "盈利", "亏损额", "亏损", "利润")),
+    ("现金流", ("经营现金流", "现金净流量", "现金流")),
+    ("市值", ("总市值", "市值", "估值")),
+    ("资产负债", ("资产负债率", "资产总额", "总资产", "净资产", "负债总额", "负债")),
+)
+
+
+def financial_metric_terms(metric: str) -> tuple[str, ...]:
+    """返回某个指标词所属的同义词组（用于资料支持判定，不做整句匹配）。"""
+    for _canonical, terms in FINANCIAL_METRIC_TERMS:
+        if metric in terms:
+            return terms
+    return (metric,)
+
+
+def financial_metric_question(question: str) -> str | None:
+    """问题是否在问公司级经营/财务指标；返回命中的指标词，否则 None。
+
+    只做语义/词面识别，不判断资料有无；法规题跳过（先 ``strip`` 再 ``normalize``，
+    与既有 ``is_regulation_question`` 口径一致）。中文问法允许“营收/营业收入/营业额”
+    等同义改写，不绑定具体题目。
+    """
+    text = str(question or "").strip()
+    if not text:
+        return None
+    if is_regulation_question(text):
+        return None
+    normalized = _norm(text)
+    for _canonical, terms in FINANCIAL_METRIC_TERMS:
+        for term in terms:
+            if _norm(term) in normalized:
+                return term
+    return None
+
+
+def _metric_value_context(text: str, term: str) -> bool:
+    """指标词附近是否有数值/百分比——用来区分“资料给出该指标的数据”与“只是提到该词”。
+
+    例如 W03“须同时提交毛利影响测算”只出现“毛利”而没有数值，不能当作“公司毛利数据”；
+    若资料写“营收 4812 万元”，指标词与数字在同一窗口内，才算有资料支持。
+    """
+    start = 0
+    while True:
+        index = text.find(term, start)
+        if index < 0:
+            return False
+        window = text[max(0, index - 40) : index + len(term) + 60]
+        if re.search(r"\d|%|百分之", window):
+            return True
+        start = index + 1
+
+
+def texts_support_financial_metric(metric: str, texts: Iterable[str]) -> bool:
+    """资料支持判定：任一候选文本里既有该指标词、又有数值/百分比，视为有依据。
+
+    调用方只应传入**本轮检索候选/证据**文本；没有候选或只有弱词面命中时返回 False，
+    由答案层明确拒答，而不是让模型/抽取层用无关段落拼答案。
+    """
+    terms = financial_metric_terms(metric)
+    for text in texts:
+        if not text:
+            continue
+        normalized = _norm(str(text))
+        if not normalized:
+            continue
+        for term in terms:
+            key = _norm(term)
+            if key and key in normalized and _metric_value_context(normalized, key):
+                return True
+    return False
 
 
 def _match_labels(question: str, labels: tuple[str, ...]) -> list[str]:
@@ -518,6 +801,55 @@ def _match_store(question: str, lexicon: Lexicon) -> tuple[str | None, str | Non
     return store, (unknown[0] if unknown else None)
 
 
+def _unknown_region_tokens(question: str, lexicon: Lexicon) -> tuple[str, ...]:
+    """提取词表外的“区域形态词”（如「城西区」「城南片区」）。
+
+    T102/ERR-01：`城西区` 不以「店」结尾，旧 `_unknown_store_tokens` 抓不到，门店槽为空后
+    会静默继承上一轮的 `城东店`。这里按形态找“2 个以上汉字 + 区/片区”，再用通用词表与
+    后缀排除「高度区间」「华东大区」「开发区」这类非区域名；是否收录仍只看当前索引词表。
+    """
+    masked = _mask_known_stores(question, lexicon)
+    tokens: list[str] = []
+    for index, char in enumerate(masked):
+        if char != "区":
+            continue
+        suffix = "区"
+        prefix_end = index
+        if index > 0 and masked[index - 1] == "片":
+            suffix = "片区"
+            prefix_end = index - 1
+        # `区` 后接“间/域/号/货架…”时不是独立区域名（高度区间、B区1号货架）。
+        following = masked[index + 1] if index + 1 < len(masked) else ""
+        if following and following in _REGION_FOLLOWERS:
+            continue
+        run_match = re.search(r"([\u4e00-\u9fff]{1,%d})$" % _REGION_NAME_LIMIT, masked[:prefix_end])
+        if not run_match:
+            continue
+        run = run_match.group(1)
+        if len(run) < 2:
+            continue
+        # 区域名必须从词边界开始：前面是句首/非汉字/常见虚词或地名后缀。这样
+        # “经销商跨区”不会被切成“商跨区”，“城东店物料区”也不会被当成门店作用域。
+        token_start = prefix_end - 2
+        if token_start > 0:
+            previous = masked[token_start - 1]
+            if previous == _STORE_MASK or ("\u4e00" <= previous <= "\u9fff" and previous not in _REGION_LEADINS):
+                continue
+        # 长候选只用于排除通用词；真正的区域名取最短的中文名 + 后缀（避免把“看看城西”
+        # 这类动词一起吞进来）。
+        candidates = [run[offset:] + suffix for offset in range(0, max(0, len(run) - 1))]
+        if any(any(candidate.endswith(bad) for bad in _BAD_REGION_WORDS) for candidate in candidates):
+            continue
+        token = run[-2:] + suffix
+        if any(token.startswith(bad) for bad in _BAD_REGION_PREFIXES):
+            continue
+        if any(_norm(token) == _norm(label) or _norm(token) in _norm(label) for label in lexicon.stores):
+            continue
+        if token not in tokens:
+            tokens.append(token)
+    return tuple(tokens)
+
+
 def _match_field(question: str) -> str | None:
     normalized = _norm(question)
     # 明确的生效/失效词优先于“组合价/价格”等泛化词。
@@ -567,6 +899,33 @@ def _terms(question: str, extra: tuple[str, ...] = ()) -> tuple[str, ...]:
         if token and token not in seen and len(token) >= 2:
             seen.append(token)
     return tuple(seen[:12])
+
+
+def _anaphora_residual_terms(question: str, lexicon: Lexicon) -> tuple[str, ...]:
+    """T105/ERR-06：指代追问去掉实体词后还剩哪些检索词。
+
+    为空即“那个海报呢/前面那个呢”这类纯指代追问——只有指代词与（可继承的）实体，没有
+    新的问法；此时才需要判断“问什么”。带“打印材质/陈列要求”等新内容的问题不走本分支。
+    """
+    text = _norm(question)
+    labels = [*lexicon.all_entity_labels(), *lexicon.identifiers]
+    labels.extend(str(alias) for alias in (lexicon.alias_map or {}))
+    for label in sorted({item for item in labels if item}, key=len, reverse=True):
+        key = _norm(label)
+        if len(key) >= 2 and key in text:
+            text = text.replace(key, " ")
+    # 分词后仍是完整指代词的（前面/刚才/上述/这家…）不是新内容；``_terms`` 已滤掉
+    # 这个/那个/该/其/它 等停用词，这里只补滤同属 ANAPHORA_WORDS 的非停用词。
+    return tuple(token for token in _terms(text) if token not in ANAPHORA_WORDS)
+
+
+def _anaphora_field_text(state: QueryState) -> str:
+    """T105/ERR-06：继承了实体但没有可继承字段时，问清要哪项信息（不倾倒整条记录）。"""
+    if state.store and state.item:
+        subject = f"{state.store}的{state.item}"
+    else:
+        subject = state.item or state.product or state.store or state.doc_title or "该对象"
+    return copy_module.text("ANAPHORA_NO_FIELD", subject=subject)
 
 
 def _as_of(question: str, previous: str | None, business_date: str | None) -> str | None:
@@ -754,10 +1113,18 @@ def parse_query(
         raise ValueError("问题不能为空")
     previous = previous or QueryState()
     normalized = _norm(question)
+    # T105 R2：政策/法规题（``is_policy_question`` 已含 ``is_regulation_question`` 口径）
+    # 问的是制度/法规正文，不能当作记录字段追问；指代追问用 ``policy_followup`` 同口径
+    # 判别（排除“要求/规则”这类同时是台账字段名的词）。P1-FIX/B：强制度/流程话题词
+    # （报销/审批/规定…）即使只与字段词同形，也算正文话题，单独走 POLICY_TOPIC_FOLLOWUP。
+    strong_policy_topic = _strong_policy_topic(question)
+    policy_followup = is_policy_followup(question) or strong_policy_topic
     stores = _match_stores(question, lexicon)
     unknown_stores = _unknown_store_tokens(question, lexicon)
+    unknown_regions = _unknown_region_tokens(question, lexicon)
     store = stores[0] if stores else None
     unknown_store = unknown_stores[0] if unknown_stores else None
+    unknown_region = unknown_regions[0] if unknown_regions else None
     item_hits = _match_aliases(question, lexicon.items, lexicon)
     product, product_candidates = _match_products(question, lexicon)
     channel_hits = _match_channels(question, lexicon)
@@ -766,6 +1133,12 @@ def parse_query(
     document, document_candidates = _match_document(question, lexicon)
     missing_document = _missing_document(question) if document is None else None
     missing_stores = unknown_stores if stores else ()
+    # T102/ERR-02：政策题里的“档期”指物料档期，不是“档期特价”这个价格类型；无实体时
+    # 不能把它当成记录型价格条件，否则会被 _required_missing 判成“请补充门店”。
+    if is_policy_question(question) and not any(
+        (store, item_hits, product, product_candidates, channel_hits, identifier)
+    ):
+        price_type_hits = []
     slots: dict[str, str | None] = {
         "store": store if len(stores) <= 1 else None,
         "item": item_hits[0] if len(item_hits) == 1 and not product else None,
@@ -776,13 +1149,19 @@ def parse_query(
         "doc_id": document.doc_id if document else None,
         "doc_title": document.title if document else None,
     }
-    field_roles = _match_fields(question)
+    field_roles = field_roles_for_question(
+        question,
+        has_entity=bool(
+            store or item_hits or product or product_candidates or channel_hits or identifier
+        ),
+    )
     field_role = field_roles[0] if field_roles else None
     page_request = _page_request(question, previous)
     enumerate_flag = any(word in question for word in ENUMERATE_WORDS)
     if page_request is not None and previous.enumerate:
         enumerate_flag = True
     page = page_request
+    plan_reason: str | None = None
     as_of = _as_of(question, previous.as_of, business_date)
     include_future = any(word in question for word in FUTURE_WORDS)
 
@@ -798,13 +1177,45 @@ def parse_query(
     previous_entity = any(
         getattr(previous, key) for key in ("store", "item", "product", "identifier", "doc_id")
     )
+    # T102/ERR-02：“给出所有内容”跟在政策事实题后时，命中 ENUMERATE_WORDS 会让检索走
+    # 记录枚举分支（按标签排序取页），反而把 W02 这类制度正文挤出证据面。政策题无实体
+    # 且不是“列出/清单/逐一”这类明确列表请求时，按正文问题检索，不进入枚举。
+    if (
+        is_policy_question(question)
+        and not explicit_entity
+        and not any(
+            word in question
+            for word in ("列出", "列一下", "清单", "逐一", "分别", "每一条", "各店", "每个")
+        )
+    ):
+        enumerate_flag = False
     overlap = any(
         slots.get(key) and slots.get(key) == getattr(previous, key)
         for key in ("store", "item", "product", "identifier", "doc_id")
     )
     anaphora = any(word in question for word in ANAPHORA_WORDS)
+    anaphora_residual = _anaphora_residual_terms(question, lexicon) if anaphora else ()
+    # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
+    # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
+    # 普通字段追问（“电话呢”“数量呢”）仍保留实体，裸补槽、指代与分页也不在此重置。
+    topic_switch = (
+        previous_entity
+        and not explicit_entity
+        and not anaphora
+        and page_request is None
+        and not previous.pending_slot
+        and (field_role is None or is_policy_question(question))
+    )
+    # T102/ERR-01：未知区域词（城西区）不是已知门店；即使上一轮有门店，也必须先重置，
+    # 不能让 _new_state 原样继承 store。词表外的 `*店` 仍走既有 UNKNOWN_STORE 分支
+    # （无上一轮门店时拒答）；该分支的检索预算行为已有 P0 live 结构上界测试锁定，本包不改。
+    unknown_region_scope = bool(unknown_regions and not stores)
     reset = False
     if any(word in question for word in SWITCH_WORDS):
+        reset = True
+    elif unknown_region_scope:
+        reset = True
+    elif topic_switch:
         reset = True
     elif explicit_entity and previous_entity and not overlap and field_role is not None:
         reset = True
@@ -847,7 +1258,9 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification=f"资料“{missing_document}”未收录，未使用其它资料替代。",
+            clarification=copy_module.text(
+                "DOCUMENT_NOT_FOUND", document=missing_document
+            ),
             include_future=include_future,
             reason="DOCUMENT_NOT_FOUND",
             missing_stores=missing_stores,
@@ -867,7 +1280,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多份资料，请指定要查询的资料。",
+            clarification=copy_module.text("DOCUMENT_AMBIGUOUS"),
             candidates=document_candidates[:8],
             include_future=include_future,
             reason="DOCUMENT_AMBIGUOUS",
@@ -885,7 +1298,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="该商品有多个规格/版本，请选择要查询的商品。",
+            clarification=copy_module.text("PRODUCT_AMBIGUOUS"),
             candidates=product_candidates[:8],
             include_future=include_future,
             reason="PRODUCT_AMBIGUOUS",
@@ -903,7 +1316,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个物品，请选择要查询的物品。",
+            clarification=copy_module.text("ITEM_AMBIGUOUS"),
             candidates=tuple(item_hits[:8]),
             include_future=include_future,
             reason="ITEM_AMBIGUOUS",
@@ -921,7 +1334,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个渠道，请选择要查询的渠道。",
+            clarification=copy_module.text("CHANNEL_AMBIGUOUS"),
             candidates=tuple(channel_hits[:8]),
             include_future=include_future,
             reason="CHANNEL_AMBIGUOUS",
@@ -939,7 +1352,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="问题包含多个价格类型，请选择要查询的价格类型。",
+            clarification=copy_module.text("PRICE_TYPE_AMBIGUOUS"),
             candidates=tuple(price_type_hits[:8]),
             include_future=include_future,
             reason="PRICE_TYPE_AMBIGUOUS",
@@ -962,6 +1375,155 @@ def parse_query(
             include_future=include_future,
             reason="UNKNOWN_STORE",
         )
+    if unknown_region:
+        # T102/ERR-01：区域形态词不在门店词表里，不能当门店名去检索，更不能沿用上一轮门店。
+        # 采用 PM 口径澄清，不做区域→门店展开；candidates 留空，避免把上一轮门店名回显进答案。
+        # ``identifier`` 键只是产品层 `_rag_owns_turn` 识别“本轮由 RAG 直答”的既有入口；
+        # 本计划在 clarification 分支提前返回，该值不会进入检索或持久状态。
+        return QueryPlan(
+            question=question,
+            mode="record",
+            query_text=question,
+            field_role=state.field_role,
+            field_label=state.field_role,
+            filters={_RAG_OWNED_CLARIFICATION_FILTER: unknown_region},
+            terms=_terms(question),
+            state=state,
+            enumerate=state.enumerate,
+            page=state.page,
+            page_size=state.page_size,
+            clarification=copy_module.text(
+                "UNKNOWN_REGION", region=unknown_region
+            ),
+            candidates=(),
+            unknown_stores=unknown_regions,
+            include_future=include_future,
+            reason="UNKNOWN_REGION",
+        )
+
+    # T105/ERR-06：指代追问必须判断“问什么”。只有“那个海报呢 / 那个呢”这类只剩指代词与
+    # 实体的追问才进入本分支（带新内容的问题沿用既有流程，不抢正文检索）：
+    # - 没有可继承的对象（上文没提过）→ 澄清指的是什么；
+    # - 继承了实体但没有唯一的可继承字段 → 澄清要哪项信息；
+    # - 只继承到一个记录字段 → 只答该字段；``enumerate`` 置真值只是产品层
+    #   ``_rag_owns_turn`` 的既有入口，答案层按单字段渲染，不按枚举页渲染（未改 conversations）。
+    # 政策/制度/流程题沿用 T102 口径（不当作记录字段追问）。
+    # 上一轮是枚举页且本轮在翻页（“那个海报的第2页/下一页”）时，分页优先于指代澄清，
+    # 否则会丢掉 ``_page_request`` 已经解析出的页码（T105 R1/B1 回退）。
+    if (
+        anaphora
+        and field_role is None
+        and not is_policy_question(question)
+        and not (page_request is not None and previous.enumerate)
+    ):
+        if not anaphora_residual:
+            inherited_roles = state.field_roles or ((state.field_role,) if state.field_role else ())
+            has_entity = any(
+                (state.store, state.item, state.product, state.identifier, state.doc_id)
+            )
+            marker = state.item or state.product or state.store or "指代追问"
+            if not has_entity and not inherited_roles:
+                return QueryPlan(
+                    question=question,
+                    mode="record",
+                    query_text=question,
+                    field_role=state.field_role,
+                    field_label=state.field_role,
+                    filters={_RAG_OWNED_CLARIFICATION_FILTER: marker},
+                    terms=_terms(question),
+                    state=state,
+                    enumerate=False,
+                    page=state.page,
+                    page_size=state.page_size,
+                    clarification=copy_module.text("ANAPHORA_NO_ENTITY"),
+                    candidates=(),
+                    include_future=include_future,
+                    reason="ANAPHORA_NO_ENTITY",
+                )
+            if has_entity and len(inherited_roles) != 1:
+                return QueryPlan(
+                    question=question,
+                    mode="record",
+                    query_text=question,
+                    field_role=state.field_role,
+                    field_label=state.field_role,
+                    filters={_RAG_OWNED_CLARIFICATION_FILTER: marker},
+                    terms=_terms(question),
+                    state=state,
+                    enumerate=False,
+                    page=state.page,
+                    page_size=state.page_size,
+                    clarification=_anaphora_field_text(state),
+                    candidates=(),
+                    include_future=include_future,
+                    reason="ANAPHORA_NO_FIELD",
+                )
+            if has_entity and inherited_roles[0] in RECORD_FIELD_ROLES:
+                state.field_role = inherited_roles[0]
+                state.field_roles = (inherited_roles[0],)
+                state.enumerate = True
+
+    # T105 R1/B2：带新内容的指代追问（“那个海报的规格型号呢/打印材质呢/陈列要求呢”）。
+    # 明确问到台账记录字段时仍只答该字段；新内容不是台账字段（打印材质/陈列要求）时，
+    # 不能落回 legacy 的整条记录渲染。两种都把 enumerate 置真值作为产品层交给 rag 直答的
+    # 既有入口（未改 conversations）；后者由答案层按“未记录该字段”收口，不输出记录。
+    explicit_record_entity = any(
+        slots.get(key) for key in ("store", "item", "product", "identifier")
+    )
+    anaphora_new_content = (
+        anaphora
+        and not field_roles
+        and bool(anaphora_residual)
+        and explicit_record_entity
+        and page_request is None
+        and not any(word in question for word in ENUMERATE_WORDS)
+        # T105 R2：政策/法规题不能落进“新内容→未记录”收口（C3/C6 的 35 字 not_found），
+        # 也不能按继承字段作答；交回既有正文检索（T101 法规优先、T102 政策题口径）。
+        and not policy_followup
+    )
+    if anaphora_new_content:
+        # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
+        state.enumerate = True
+        plan_reason = "ANAPHORA_NEW_CONTENT"
+    elif (
+        explicit_record_entity
+        and is_anaphora_field_followup(question, state.field_role)
+        # P1-FIX/B：泛化政策词（“标准/提交”）与明确字段词同现时仍按单字段作答；
+        # 只有强制度/流程话题词才让位给正文路径（见下面 POLICY_TOPIC_FOLLOWUP）。
+        and not (policy_followup and strong_policy_topic)
+    ):
+        # 只接管“本轮明确给出实体”的新内容字段追问；仅靠上文继承实体的短追问
+        # （如“它的电话呢”）保持原有 legacy 路径，避免改变既有模型措辞/上下文行为。
+        state.enumerate = True
+
+    # T105 R2：政策/法规题问的是制度/法规正文（T101 法规优先、T102 政策题不继承实体），
+    # 不能沿用上一轮继承的记录字段（C5 系列“那个海报的价格欺诈规定”会因此返回继承的
+    # 位置/规格），也不能按记录字段渲染。产品层只把 ``enumerate`` 当“交给内核直答”的既有
+    # 入口（未改 conversations），这里置真值并打 ``POLICY_FOLLOWUP`` 标记；答案层据此换用
+    # 正文计划检索/作答，记录实体仍保留在状态里供后续纯指代追问使用。
+    # 仅限“实体+指代”的政策/法规追问：本轮自身识别出字段角色、或非指代地明确点名实体时
+    # 保持既有行为；无显式实体的“那个流程要提前几天提报”仍走既有正文路径（不抢）。
+    if anaphora and policy_followup and explicit_record_entity and not field_roles:
+        state.field_role = None
+        state.field_roles = ()
+        state.enumerate = True
+        plan_reason = "POLICY_FOLLOWUP"
+    elif (
+        anaphora
+        and strong_policy_topic
+        and explicit_record_entity
+        and field_roles
+        and page_request is None
+        and not any(word in question for word in ENUMERATE_WORDS)
+    ):
+        # P1-FIX/B：强制度/流程话题与台账字段词同形冲突（“那个海报的报销规则是什么”）。
+        # 问的是制度正文，不能按“规则=台账备注字段”只答台账字段；清掉继承字段、交给
+        # 正文检索，答案层再要求证据里确有该话题词，否则如实说明未找到可支撑正文。
+        # “全部/列出/第 N 页”等明确完整请求不受此影响（仍走枚举/分页）。
+        state.field_role = None
+        state.field_roles = ()
+        state.enumerate = True
+        plan_reason = "POLICY_TOPIC_FOLLOWUP"
 
     filters = {
         key: str(getattr(state, key))
@@ -1008,7 +1570,12 @@ def parse_query(
             reason="MISSING_SLOT",
         )
 
-    terms = _terms(question, tuple(filters.values()))
+    if anaphora and policy_followup and not field_roles:
+        # 政策/法规指代追问按正文检索：指代实体（“那个海报的”）只是话题引用，不是检索过滤
+        # 条件；沿用问题里的新内容词，避免台账记录挤占正文/法规证据面（C3/C6）。
+        terms = anaphora_residual
+    else:
+        terms = _terms(question, tuple(filters.values()))
     if mode == "document" and not terms and not filters:
         return QueryPlan(
             question=question,
@@ -1022,7 +1589,7 @@ def parse_query(
             enumerate=state.enumerate,
             page=state.page,
             page_size=state.page_size,
-            clarification="请说明要查询的物品、门店或流程名称。",
+            clarification=copy_module.text("EMPTY_QUERY"),
             candidates=tuple(lexicon.stores[:8]),
             include_future=include_future,
             reason="EMPTY_QUERY",
@@ -1042,14 +1609,9 @@ def parse_query(
         include_future=include_future,
         field_roles=state.field_roles,
         missing_stores=missing_stores,
+        reason=plan_reason,
     )
 
 
 def _clarification_text(missing: str) -> str:
-    return {
-        "product": "请补充要查询的商品名称或规格。",
-        "store": "请补充要查询的门店。",
-        "item": "请补充要查询的物品。",
-        "channel": "请补充要查询的渠道。",
-        "price_type": "请补充要查询的价格类型。",
-    }.get(missing, "请补充查询条件。")
+    return copy_module.missing_slot_text(missing)

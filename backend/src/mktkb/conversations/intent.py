@@ -19,7 +19,13 @@ from sqlalchemy.orm import Session
 from ..retrieval.models import RetrievalFieldIndex, RetrievalUnitIndex
 from ..retrieval.tokenize import cut, normalize
 from ..retrieval.types import QueryIntent
-from ..rag.query import identifier_shape, match_identifier
+from ..rag.query import (
+    GENERIC_FIELD_WORDS,
+    financial_metric_question,
+    identifier_shape,
+    is_regulation_question,
+    match_identifier,
+)
 from ..text_zh import iter_store_names
 
 # 受支持的记录字段（能由检索层按角色取原值）
@@ -38,6 +44,13 @@ MISSING_FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
     "销售额": ("销售额", "营业额", "销售"),
     "采购价格": ("采购价格", "采购价", "价格", "多少钱"),
     "营业执照号": ("营业执照号", "营业执照", "执照号"),
+}
+#: T101/ERR-03：上表里同时会出现在法规/制度题干中的泛化词。词表与
+#: ``rag.query.GENERIC_FIELD_WORDS`` 同源（同一批词不重复登记），只有问题里确有门店与物品
+#: （确有所指记录）、且没有更明确的字段说法时，才判成“资料未记录该字段”；法规/制度题一律不判。
+MISSING_FIELD_GENERIC_WORDS: dict[str, tuple[str, ...]] = {
+    "销售额": GENERIC_FIELD_WORDS["sales"],
+    "采购价格": GENERIC_FIELD_WORDS["price"],
 }
 STOPWORDS: frozenset[str] = frozenset(
     {
@@ -137,6 +150,9 @@ class IntentPlan:
     unknown_store: str | None = None
     identifier: str | None = None
     unknown_identifier: str | None = None
+    #: P1-FIX/A：问题在问公司级经营/财务指标（营收/利润率等）。
+    #: 这里只标记“问的是哪类指标”；是否拒答由 service 层在检索后做资料支持判定。
+    out_of_scope: str | None = None
 
 
 def load_lexicon(db: Session) -> EntityLexicon:
@@ -279,6 +295,30 @@ def _field_hits(question: str, synonyms: dict[str, tuple[str, ...]]) -> list[str
     return hits
 
 
+def _missing_field_hits(question: str, *, has_record_entity: bool) -> list[str]:
+    """缺失字段判定（T101/ERR-03）：法规/制度题优先，泛化词要有所指记录实体的语境。
+
+    - 法规/制度题问的是条文本身（「价格欺诈」「有奖销售」是术语），不判缺失字段；
+    - 「价格」「销售」这类泛化词只有在问题同时给出门店与物品（确有所指记录），且没有更明确
+      的字段说法时，才判成“资料未记录采购价格/销售额”。只提商品/渠道的价格题属于价目表
+      取值问题，不能被意图层提前截断。
+    """
+    if is_regulation_question(question):
+        return []
+    normalized = normalize(question)
+    hits: list[str] = []
+    for label, words in MISSING_FIELD_SYNONYMS.items():
+        if not any(normalize(word) in normalized for word in words):
+            continue
+        generic = MISSING_FIELD_GENERIC_WORDS.get(label, ())
+        if generic and not has_record_entity:
+            specific = tuple(word for word in words if word not in generic)
+            if not any(normalize(word) in normalized for word in specific):
+                continue
+        hits.append(label)
+    return hits
+
+
 def _previous_item(context_questions: tuple[str, ...], lexicon: EntityLexicon) -> str | None:
     """上一轮问题里唯一明确的物品名；没有/多个都不继承（避免猜对象）。
 
@@ -362,6 +402,16 @@ def parse_question(
     不把历史助手答案当事实。
     """
     context_entities = dict(context_entities or {})
+    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）不在当前语料范围。先标记，
+    # 仍走正文检索以做“资料支持判定”（证据里确有该指标数值时不拒答）；判定在
+    # service 层检索后、任何模型调用前完成。
+    out_of_scope = financial_metric_question(question)
+    if out_of_scope:
+        return IntentPlan(
+            mode="document",
+            intent=QueryIntent(mode="document", terms=_document_terms(question)),
+            out_of_scope=out_of_scope,
+        )
     stores = _match_labels(question, lexicon.store_labels)
     item_labels = _match_labels(question, lexicon.item_labels)
     for alias_label in _alias_labels(question, lexicon):
@@ -414,7 +464,9 @@ def parse_question(
     previous_item = _previous_item(context_questions, lexicon)
 
     record_fields = _field_hits(question, FIELD_SYNONYMS)
-    missing_fields = _field_hits(question, MISSING_FIELD_SYNONYMS)
+    missing_fields = _missing_field_hits(
+        question, has_record_entity=bool(stores) and bool(item_labels)
+    )
     # "负责人"是资料未记录的字段，不能被当作联系人命中
     if "负责人" in missing_fields:
         record_fields = [name for name in record_fields if name != "联系人"]
@@ -439,7 +491,11 @@ def parse_question(
         # 上一轮问的是可复用字段（位置/联系人/电话/地址/合作状态）时，按原字段继续问，
         # 避免把“江湾店”这类补槽变成全表检索。
         previous_fields = _field_hits(context_questions[-1], FIELD_SYNONYMS)
-        previous_missing = _field_hits(context_questions[-1], MISSING_FIELD_SYNONYMS)
+        previous_missing = _missing_field_hits(
+            context_questions[-1],
+            has_record_entity=bool(_match_labels(context_questions[-1], lexicon.store_labels))
+            and bool(_match_labels(context_questions[-1], lexicon.item_labels)),
+        )
         if previous_fields and not previous_missing:
             record_fields = list(previous_fields)
             store_level = bool(set(record_fields) & {"联系人", "电话", "地址", "合作状态"})

@@ -24,6 +24,7 @@ from sqlalchemy import func, select, text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 
+from .. import copy as copy_module
 from ..auth.service import UserContext
 from ..conversations import intent as intent_module
 from ..conversations.models import (
@@ -63,6 +64,7 @@ from ..observability.tracer import current_trace
 from ..qa import QaNotReady
 from ..rag.chunking import role_label as rag_role_label
 from ..rag.errors import KnowledgeChanged as RagKnowledgeChanged
+from ..rag.query import texts_support_financial_metric
 from ..rag.types import QueryPlan, QueryState, RagAnswer
 from ..providers.types import (
     MAX_MODEL_TERM_CHARS,
@@ -76,7 +78,6 @@ from ..providers.types import (
     ModelNotConfigured,
     ModelOutputInvalid,
     ModelTimeout,
-    ModelUnavailable,
 )
 from ..retrieval.index import HEADER_ROLES, resolve_requested_role
 from ..retrieval.service import retrieve
@@ -1413,6 +1414,46 @@ def _record_answer_text(
     return text
 
 
+# ---------------------------------------------------------------- T104 异常原因分类
+
+
+class ModelCallFailed(ModelError):
+    """T104：模型调用抛出无法归类的异常（既不是网关稳定错误，也不是超时）。
+
+    与 ``ModelUnavailable`` 分开：真实原因无法归因（本地网关、依赖或上游都可能），
+    不能冒充“供应商不可用”；按“未知”透传并允许用户稍后重试。
+    """
+
+    code = "MODEL_CALL_FAILED"
+    retryable = True
+
+
+#: T104：已知稳定错误码 → 产品口径的可重试性。输出校验在此按“可重试”覆盖网关里的
+#: 默认 False；未登记的码值（含供应商自定义码，如 ``MODEL_POST_SEND_AUTH_DENIED``）
+#: 保留网关自带的 code / retryable，不改变既有契约。
+_MODEL_RETRYABLE_BY_CODE: dict[str, bool] = {
+    "MODEL_NOT_CONFIGURED": False,
+    "MODEL_BUDGET_REFUSED": False,
+    "MODEL_TIMEOUT": True,
+    "MODEL_OUTPUT_INVALID": True,
+    "MODEL_UNAVAILABLE": True,
+    "MODEL_CALL_FAILED": True,
+}
+
+#: T104：产品自身（非模型层）非预期异常的稳定码。与 HTTP 500 信封的 ``INTERNAL_ERROR``
+#: 分名，避免把“问答编排内部错误”与“未处理路由异常”混成同一遥测口径。
+QA_INTERNAL_ERROR = "QA_INTERNAL_ERROR"
+
+
+def _classify_model_error(exc: ModelError) -> tuple[str, bool]:
+    """按真实原因归类模型异常；未登记的码值保留网关自带码值（网关联约）。"""
+    code = str(getattr(exc, "code", "") or "")
+    retryable = _MODEL_RETRYABLE_BY_CODE.get(code)
+    if retryable is not None:
+        return code, retryable
+    return code, bool(getattr(exc, "retryable", False))
+
+
 async def _call_model(
     model: ModelGateway | None,
     payload: CompletionInput,
@@ -1435,7 +1476,8 @@ async def _call_model(
     except asyncio.TimeoutError as exc:  # pragma: no cover - 由可控网关触发
         raise ModelTimeout() from exc
     except Exception as exc:  # noqa: BLE001 - 外部调用统一映射，不透传原始异常
-        raise ModelUnavailable(f"{type(exc).__name__}") from exc
+        # T104：无法归类的调用期异常按“未知”透传；不再一律冒充 provider 不可用。
+        raise ModelCallFailed(f"{type(exc).__name__}") from exc
     if monotonic() > deadline:
         raise ModelTimeout("总预算已用尽")
     return output
@@ -1460,6 +1502,73 @@ class _Result:
     #: 不进响应体、不参与业务分支。解析级早退的取值见 contracts 的
     #: ``_LEGACY_PRE_RETRIEVAL_NOT_FOUND_REASONS``。
     reason: str | None = None
+
+
+def _annotate_overshoot_fallback(*, total: int, strategy: str, term_queries: int = 0) -> None:
+    """T103：把 overshoot 回落的降级事实写入既有 trace 数据字段。
+
+    只写 ``filter_decisions_json`` 的顶层数据键（tracer 在 finish 时会保留既有键并并入
+    条件 Span 属性），不新增 TraceRecord 字段、不改必需 Span 表或 outcome 枚举。
+    """
+    trace_attrs.annotate_trace(
+        filter_decisions_json={
+            "record_overshoot_fallback": True,
+            "record_overshoot_total": int(total),
+            "record_overshoot_strategy": strategy,
+            "record_overshoot_term_queries": int(term_queries),
+        }
+    )
+
+
+def _record_overshoot_result(
+    evidence: EvidenceSet, revision: int, plan: intent_module.IntentPlan
+) -> _Result:
+    """记录型 overshoot：给出真实命中量 + 可点击候选/缩小方式，不再返回零候选死路。"""
+    total = int(evidence.total_candidates)
+    candidates = _candidate_view(plan, evidence)
+    return _Result(
+        kind="clarification",
+        text=copy_module.record_overshoot_text(total, len(candidates)),
+        revision=revision,
+        candidates=candidates,
+    )
+
+
+def _document_overshoot_evidence(
+    db_factory,
+    evidence: EvidenceSet,
+    intent: QueryIntent,
+    revision: int,
+) -> EvidenceSet:
+    """正文型 overshoot：按单检索词复用 ``_retrieve`` 扩大证据面，再交既有排序取正文。
+
+    正文检索结果按文档/序号截断；宽泛词面命中超过 100 条时，前 100 条可能压掉真正
+    命中的小文档。逐词再取一次（仍走同一检索入口与同一 limit 上限）只扩大候选集合，
+    不改变检索/排序语义。返回值仍标记 ``truncated``，由后续既有正文排序选取证据。
+    """
+    terms = tuple(intent.terms)
+    _annotate_overshoot_fallback(
+        total=evidence.total_candidates,
+        strategy="document_term_union",
+        term_queries=len(terms),
+    )
+    units = list(evidence.units)
+    seen = {unit.id for unit in units}
+    for term in terms:
+        narrowed = QueryIntent(mode="document", terms=(term,), entity_filters=intent.entity_filters)
+        extra = _retrieve(db_factory, narrowed, revision, limit=100)
+        for unit in extra.units:
+            if unit.id not in seen:
+                seen.add(unit.id)
+                units.append(unit)
+    return EvidenceSet(
+        units=units,
+        kind=evidence.kind,
+        total_candidates=evidence.total_candidates,
+        revision=evidence.revision,
+        candidates=list(evidence.candidates),
+        truncated=True,
+    )
 
 
 def _reference_ids(result: _Result) -> list[str]:
@@ -1520,7 +1629,7 @@ def _commit_result_impl(db: Session, user: UserContext, claim: _Claim, result: _
     if current_revision != claim.initial_revision or any(item not in valid for item in reference_ids):
         result = _Result(
             kind="knowledge_changed",
-            text="资料已更新，本次回答已中止，请重新查询。",
+            text=KNOWLEDGE_CHANGED_TEXT,
             revision=current_revision,
             error_code=None,
             retryable=False,
@@ -1624,7 +1733,7 @@ def _conversation_of(db: Session, request_id: uuid.UUID) -> uuid.UUID:
 # ---------------------------------------------------------------- 问答编排
 
 
-KNOWLEDGE_CHANGED_TEXT = "资料已更新，本次回答已中止，请重新查询。"
+KNOWLEDGE_CHANGED_TEXT = copy_module.text("KNOWLEDGE_CHANGED")
 
 
 def _current_revision(db_factory) -> int:
@@ -1639,15 +1748,26 @@ def _service_error(code: str, text: str, retryable: bool, revision: int) -> _Res
     return _Result(kind="service_error", text=text, revision=revision, error_code=code, retryable=retryable)
 
 
-def _model_error_text(code: str) -> str:
-    return {
-        "MODEL_NOT_CONFIGURED": "问答模型尚未配置，请联系管理员。",
-        "MODEL_TIMEOUT": "模型服务响应超时，本次回答未完成，请稍后重试。",
-        "MODEL_UNAVAILABLE": "模型服务暂不可用，本次回答未完成，请稍后重试。",
-        # 预算/授权阶段拒绝：请求未发出（不是供应商故障），重试无用，需补额度或重签 GO。
-        "MODEL_BUDGET_REFUSED": "当前预算或授权额度不足，本次未发送请求，请联系管理员处理。",
-        "MODEL_OUTPUT_INVALID": "模型输出未通过来源与字段校验，已拒绝本次回答。",
-    }.get(code, "模型服务调用失败，本次回答未完成。")
+def _model_failure_result(exc: ModelError, revision: int) -> _Result:
+    """T104：按异常真实原因返回稳定码 / 可重试性 / ERR-07 模板文案。"""
+    code, retryable = _classify_model_error(exc)
+    return _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
+
+
+def _internal_failure_result(revision: int) -> _Result:
+    """T104：本地校验/编排抛出的非预期异常；不冒充 provider，也不回显异常文本。"""
+    return _service_error(QA_INTERNAL_ERROR, _model_error_text(QA_INTERNAL_ERROR), False, revision)
+
+
+#: T106：服务错误文案统一由 ``mktkb.copy`` 提供；本函数保留既有私有名，
+#: 供 T104 测试与 ``model is None`` 分支继续调用。未登记码按真实 retryable
+#: 选提示（T104 复核残余 5），不再固定“可稍后重新提问”。
+def _model_error_text(code: str, retryable: bool | None = None) -> str:
+    return copy_module.service_error_text(code, retryable=retryable)
+
+
+_INDEX_NOT_READY_TEXT = copy_module.service_error_text("INDEX_NOT_READY")
+_INVALID_QUERY_TEXT = copy_module.service_error_text("INVALID_QUERY")
 
 
 def _merge_missing(primary: Iterable[str], secondary: Iterable[str]) -> list[str]:
@@ -1788,12 +1908,11 @@ def _clarification_followup(label: str, field_role: str) -> str:
     """澄清候选的追问：候选标签本身已含能收敛的门店/物品约束，再带上所问字段。
 
     D-IA-1：多义标识候选必须能“选择后实际收敛”，不能只回一句与约束无关的问句。
+    T106：文案模板统一由 ``mktkb.copy`` 提供。
     """
-    if not field_role:
-        return f"把{label}的记录列出来"
-    if field_role in ("location", "store"):
-        return f"{label}在哪里？"
-    return f"{label}的{rag_role_label(field_role)}是什么？"
+    return copy_module.clarification_followup(
+        label, field_role, rag_role_label(field_role) if field_role else None
+    )
 
 
 def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
@@ -1807,6 +1926,15 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
             unit_id = str(fact.source_unit_id or "")
             if unit_id and unit_id not in source_ids:
                 source_ids.append(unit_id)
+        if kind == "answer" and not answer.facts:
+            # P1-FIX/C：文档/法规抽取答案没有结构化 facts，但内核 citations 带有来源单元 ID。
+            # 这里把引用来源映射为产品来源，交给 _commit_result_impl 统一复核可见性/有效版本；
+            # 不伪造来源，也不因缺 facts 就让答案丢失用户可访问的依据。
+            for citation in answer.citations:
+                for unit_id in citation.unit_ids:
+                    value = str(unit_id or "")
+                    if value and value not in source_ids:
+                        source_ids.append(value)
     if kind == "conflict" and answer.facts:
         entries: list[ConflictEntry] = []
         seen: set[tuple[str, str]] = set()
@@ -1853,6 +1981,14 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
         reason = str(answer.reason or "")
         error_code = "INDEX_NOT_READY" if "NOT_READY" in reason else "RETRIEVAL_ERROR"
         retryable = True
+    missing_fields: list[str] = []
+    if kind == "not_found" and answer.reason == "FIELD_NOT_RECORDED":
+        # P1-FIX/C：记录存在但缺所问字段时，把缺失字段名带出来，前端徽标可据此显示
+        # “字段未记录”而不是“无匹配资料”（正文早已说明“记录存在、缺少该字段”）。
+        plan_payload = dict((answer.diagnostics or {}).get("plan") or {})
+        field_role = str(plan_payload.get("field_role") or "")
+        if field_role:
+            missing_fields = [rag_role_label(field_role)]
     return _Result(
         kind=kind,
         text=answer.text,
@@ -1861,6 +1997,7 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
         candidates=candidates,
         conflicts=conflicts,
         pagination=pagination,
+        missing_fields=missing_fields,
         error_code=error_code,
         retryable=retryable,
     )
@@ -1887,14 +2024,14 @@ async def _answer(
         except QaNotReady as exc:
             return _service_error(
                 "INDEX_NOT_READY",
-                "检索索引暂不可用，请稍后重试。",
+                _INDEX_NOT_READY_TEXT,
                 True,
                 revision,
             )
         except Exception:  # noqa: BLE001 - 索引层稳定错误不把内部细节暴露给用户
             return _service_error(
                 "INDEX_NOT_READY",
-                "检索索引暂不可用，请稍后重试。",
+                _INDEX_NOT_READY_TEXT,
                 True,
                 revision,
             )
@@ -1913,7 +2050,7 @@ async def _answer(
                 )
             except QaNotReady:
                 return _service_error(
-                    "INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision
+                    "INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision
                 )
             # outcome 由 QaEngine.answer 按 RagAnswer.kind 设置（reason 一并写入）。
             return _rag_turn_result(rag_answer, revision)
@@ -1944,7 +2081,9 @@ async def _answer(
     if plan.unknown_identifier:
         return _Result(
             kind="not_found",
-            text=f"资料中未找到标识“{plan.unknown_identifier}”的记录。",
+            text=copy_module.text(
+                "UNKNOWN_IDENTIFIER", identifier=plan.unknown_identifier
+            ),
             revision=revision,
             reason="UNKNOWN_IDENTIFIER",
         )
@@ -1954,7 +2093,9 @@ async def _answer(
         # 不允许拿同门店/同物品的其它行当答案。
         return _Result(
             kind="not_found",
-            text=f"资料中未找到标识“{plan.identifier}”对应的记录。",
+            text=copy_module.text(
+                "IDENTIFIER_NOT_RETRIEVABLE", identifier=plan.identifier
+            ),
             revision=revision,
             reason="IDENTIFIER_NOT_RETRIEVABLE",
         )
@@ -1969,14 +2110,16 @@ async def _answer(
     if plan.intent is None:
         return _Result(
             kind="not_found",
-            text="资料中未找到与问题相符的内容。",
+            text=copy_module.text("NO_INTENT"),
             revision=revision,
             reason="NO_INTENT",
         )
     if not plan.requested_fields and plan.missing_fields:
         return _Result(
             kind="not_found",
-            text="资料中未记录：" + "、".join(plan.missing_fields) + "。",
+            text=copy_module.text(
+                "UNRECORDED_FIELD", subject="：" + "、".join(plan.missing_fields)
+            ),
             revision=revision,
             missing_fields=list(plan.missing_fields),
             reason="UNRECORDED_FIELD",
@@ -1995,9 +2138,9 @@ async def _answer(
                 # 实际拿到 rag 候选后才记 legacy_with_rag_candidates；空候选仍是纯 legacy。
                 trace.set_path(TracePath.LEGACY_WITH_RAG_CANDIDATES)
         except QaNotReady:
-            return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
+            return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
         except Exception:  # noqa: BLE001 - 稳定错误，不暴露内部细节
-            return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
+            return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
 
     def _evidence(intent: QueryIntent, limit: int = 20) -> EvidenceSet:
         with trace_attrs.span("retrieve", limit=limit):
@@ -2010,17 +2153,32 @@ async def _answer(
         if evidence.truncated:
             evidence = _evidence(plan.intent, 100)
             if evidence.truncated:
-                return _Result(
-                    kind="clarification",
-                    text="符合条件的记录过多，请缩小查询条件后重试。",
-                    revision=revision,
-                )
+                if plan.intent.mode == "record":
+                    _annotate_overshoot_fallback(
+                        total=evidence.total_candidates, strategy="record_candidates"
+                    )
+                    return _record_overshoot_result(evidence, revision, plan)
+                evidence = _document_overshoot_evidence(db_factory, evidence, plan.intent, revision)
     except KnowledgeRevisionChanged:
         return _Result(kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory))
     except IndexNotReady:
-        return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
+        return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
     except QueryRejected:
-        return _service_error("INVALID_QUERY", "无法理解该查询条件，请换个说法。", False, revision)
+        return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+
+    # P1-FIX/A：公司级经营/财务指标的资料支持判定。必须在 query_expansion/答案生成等
+    # 任何模型调用之前完成；证据（含正文候选）里确有该指标数值时继续原有路径，不一律拒答。
+    if plan.out_of_scope:
+        evidence_texts = [str(unit.text or "") for unit in evidence.units]
+        if not texts_support_financial_metric(plan.out_of_scope, evidence_texts):
+            return _Result(
+                kind="not_found",
+                text=copy_module.text(
+                    "UNSUPPORTED_FINANCIAL_METRIC", metric=plan.out_of_scope
+                ),
+                revision=revision,
+                reason="UNSUPPORTED_FINANCIAL_METRIC",
+            )
 
     if evidence.kind == "none" and plan.intent.terms and model is not None:
         # 只有真正触发扩展调用时才置条件属性并创建 query_expansion Span（不伪造）。
@@ -2032,12 +2190,10 @@ async def _answer(
                 )
                 terms = _validate_terms(output)
                 expansion_span.annotate(terms=len(terms))
-        except ModelOutputInvalid:
-            return _service_error(
-                "MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision
-            )
         except ModelError as exc:
-            return _service_error(exc.code, _model_error_text(exc.code), exc.retryable, revision)
+            return _model_failure_result(exc, revision)
+        except Exception:  # noqa: BLE001 - T104：本地校验/编排异常按“内部”透传
+            return _internal_failure_result(revision)
         if terms:
             extra_terms = terms
             expanded = QueryIntent(
@@ -2049,32 +2205,44 @@ async def _answer(
                 evidence = _evidence(expanded, 20)
                 if evidence.truncated:
                     evidence = _evidence(expanded, 100)
+                    if evidence.truncated:
+                        if expanded.mode == "record":
+                            _annotate_overshoot_fallback(
+                                total=evidence.total_candidates, strategy="record_candidates"
+                            )
+                            return _record_overshoot_result(evidence, revision, plan)
+                        evidence = _document_overshoot_evidence(
+                            db_factory, evidence, expanded, revision
+                        )
             except KnowledgeRevisionChanged:
                 return _Result(
                     kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory)
                 )
             except IndexNotReady:
-                return _service_error("INDEX_NOT_READY", "检索索引暂不可用，请稍后重试。", True, revision)
+                return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
             except QueryRejected:
-                return _service_error("INVALID_QUERY", "无法理解该查询条件，请换个说法。", False, revision)
+                return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
 
     if evidence.kind == "none":
         if plan.unknown_store:
-            text = f"资料中未找到“{plan.unknown_store}”的记录。"
+            text = copy_module.text("LEGACY_UNKNOWN_STORE", store=plan.unknown_store)
         elif plan.missing_fields:
-            text = "资料中未记录：" + "、".join(plan.missing_fields) + "。"
+            text = copy_module.text(
+                "UNRECORDED_FIELD", subject="：" + "、".join(plan.missing_fields)
+            )
         else:
-            text = "资料中未找到与问题相符的内容。"
+            text = copy_module.text("LEGACY_NO_EVIDENCE")
         return _Result(
             kind="not_found", text=text, revision=revision, missing_fields=list(plan.missing_fields)
         )
 
     if evidence.kind == "ambiguous":
+        candidates = _candidate_view(plan, evidence)
         return _Result(
             kind="clarification",
-            text="存在多个可能对象，请选择要查询的对象。",
+            text=copy_module.text("LEGACY_MULTIPLE_ENTITIES"),
             revision=revision,
-            candidates=_candidate_view(plan, evidence),
+            candidates=candidates,
         )
 
     if evidence.kind == "conflict":
@@ -2082,14 +2250,14 @@ async def _answer(
         if not conflicts:
             return _Result(
                 kind="clarification",
-                text="资料中存在无法唯一确定的对象，请补充更明确的条件。",
+                text=copy_module.text("CLARIFICATION_REQUIRED"),
                 revision=revision,
                 candidates=_candidate_view(plan, evidence),
             )
         fields_text = "、".join(conflict.field for conflict in conflicts)
         return _Result(
             kind="conflict",
-            text=f"资料中对{fields_text}记录了多个有效值，请以下列来源为准核对。",
+            text=copy_module.legacy_conflict_text(fields_text),
             revision=revision,
             conflicts=conflicts,
             reason="CONFLICTING_VALUES",
@@ -2100,14 +2268,23 @@ async def _answer(
         missing = _merge_missing(plan.missing_fields, field_missing)
         units = list(evidence.units)
         if not facts:
-            text = "资料中未记录：" + "、".join(missing) + "。" if missing else "资料中未找到与问题相符的内容。"
+            if missing:
+                text = copy_module.field_not_recorded_text(
+                    "：" + "、".join(missing)
+                )
+            else:
+                text = copy_module.text("LEGACY_NO_EVIDENCE")
             return _Result(kind="not_found", text=text, revision=revision, missing_fields=missing)
     else:
         units = _rank_document_units(question, list(evidence.units), extra_terms=extra_terms)
         facts = []
         missing = list(plan.missing_fields)
         if not units:
-            return _Result(kind="not_found", text="资料中未找到与问题相符的内容。", revision=revision)
+            return _Result(
+                kind="not_found",
+                text=copy_module.text("LEGACY_NO_EVIDENCE"),
+                revision=revision,
+            )
 
     if model is None:
         return _service_error(
@@ -2160,10 +2337,10 @@ async def _answer(
                 text = _record_answer_text(validated, missing_rows, record_rows, subject_label=subject)
                 source_ids = [item for item in source_ids if item in cited]
             validate_span.annotate(mode=plan.mode, cited=len(source_ids), missing=len(missing_rows))
-    except ModelOutputInvalid:
-        return _service_error("MODEL_OUTPUT_INVALID", _model_error_text("MODEL_OUTPUT_INVALID"), True, revision)
     except ModelError as exc:
-        return _service_error(exc.code, _model_error_text(exc.code), exc.retryable, revision)
+        return _model_failure_result(exc, revision)
+    except Exception:  # noqa: BLE001 - T104：本地校验/编排异常按“内部”透传
+        return _internal_failure_result(revision)
 
     return _Result(
         kind="answer",

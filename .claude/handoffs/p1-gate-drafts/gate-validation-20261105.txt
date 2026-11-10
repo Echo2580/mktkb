@@ -1,0 +1,93 @@
+# P1-PRE-2 只读验签证据（2026-11-05）
+
+## 文件哈希
+- budget.json sha256 = 084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+- S2-LIVE-GO.json sha256 = 39070de56f97a4e9a7d70364716580237811ac1316feff34a094294785961df4
+- live-ledger 验签前 sha256 = ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+
+## 1) load_live_authorization(stage=P1-RETRIEVAL, service=rag)
+{
+ "document": "S2-LIVE-GO",
+ "stage": "P1-RETRIEVAL",
+ "service": "rag",
+ "issued_by": "主人（签发依据：2026-11-05 主人指示；记录见 .claude/handoffs/2026-11-05-p1-kickoff-gate.md）",
+ "nonce_len": 32,
+ "issued_utc": "2026-11-05T21:39:22.890216+08:00",
+ "expires_utc": "2026-11-30T23:59:59+08:00",
+ "stage_limit_cny": 3.0,
+ "max_requests": 1000,
+ "max_request_cny": 0.05,
+ "ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+ "source_path": "docs/evidence/LOCAL-R1-20261101/PM/S2-LIVE-GO.json",
+ "bindings": {
+  "rag": {
+   "plan_version": "s2j2-controlled-plan-v1",
+   "settlement_version": "usage-conservative-v1",
+   "request_plan_sha256": "11b0218d23d4f0d8b51387ad387d485aaaecab13853423c408a7c40cee5ae52a",
+   "serial": true,
+   "embedding_requests": 7,
+   "rerank_requests": 4,
+   "ocr_text_requests": 1,
+   "ocr_table_requests": 1,
+   "ocr_max_calls": 2,
+   "ocr_max_tiles_per_page": 1,
+   "ocr_max_attempts": 1,
+   "embedding_total_tokens_cap": 4096,
+   "rerank_total_tokens_cap": 6000,
+   "ocr_text_price_cny": 0.5,
+   "ocr_table_price_cny": 0.15,
+   "ocr_provider": "tencent",
+   "ocr_host": "ocr.tencentcloudapi.com",
+   "ocr_region": "ap-guangzhou",
+   "ocr_text_model": "GeneralAccurateOCR",
+   "ocr_table_model": "RecognizeTableAccurateOCR",
+   "ocr_pricing_source": "official-list-price/tencent-ocr-postpaid-highest-v1",
+   "embedding_provider": "bailian",
+   "embedding_model": "text-embedding-v4",
+   "embedding_host": "dashscope.aliyuncs.com",
+   "embedding_region": "cn-beijing",
+   "rerank_provider": "bailian",
+   "rerank_model": "gte-rerank-v2",
+   "rerank_host": "dashscope.aliyuncs.com",
+   "rerank_region": "cn-beijing",
+   "base_url_host": "dashscope.aliyuncs.com",
+   "embedding_dimensions": 1024,
+   "region": "beijing"
+  }
+ }
+}
+
+## 2) resolve_live_gate(requested_stage_limit_cny=3.0, requested_max_requests=1000)
+{
+ "stage": "P1-RETRIEVAL",
+ "service": "rag",
+ "stage_limit_cny": 3.0,
+ "max_requests": 1000,
+ "max_request_cny": 0.05,
+ "total_limit_cny": 20.0
+}
+
+## 3) 账本只读汇总
+{
+ "total_limit_cny": 20.0,
+ "accounted_cny": 15.05662959999999,
+ "remaining_cny": 4.94337040000001,
+ "historical_conservative_cny": 0.03,
+ "stage_accounted_cny": 0.0,
+ "stage_limit_cny": 3.0,
+ "stage_remaining_cny": 3.0,
+ "reservation_count": 381,
+ "result_count": 381
+}
+
+## 4) 负例（应当被拒绝）
+- OK 已拒绝 service=chat: GO 未授权服务 chat
+- OK 已拒绝 stage=S2-DEV: GO stage 'P1-RETRIEVAL' 与请求阶段 'S2-DEV' 不一致
+
+## 5) budget.json 一致性
+- stages = {"S1-DEV": 0.0, "S1-IA": 0.0, "S2-DEV": 15.4, "P1-RETRIEVAL": 3.0, "later_shared_reserve": 1.57}
+- sum(stages) + historical = 20.0
+
+## 6) 零账本写入
+- 验签后 sha256 = ca48b09ac77e998f79e1783c462a4ddd077fea460a5bf380f86b8ad6e0a7deb1
+- unchanged = True

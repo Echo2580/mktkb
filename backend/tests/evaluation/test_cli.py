@@ -168,13 +168,20 @@ def test_unknown_option_is_nonzero_without_traceback(capsys) -> None:
     assert "Traceback" not in captured.err
 
 
-def test_allow_holdout_details_is_not_a_p0_option(capsys) -> None:
+def test_allow_holdout_details_is_a_holdout_only_option(capsys) -> None:
+    """P1 T108：flag 只在 ``run`` 子命令上存在，且只对 holdout 生效。"""
+    parser = cli.build_parser()
+    args = parser.parse_args(
+        ["run", "--suite", "holdout", "--mode", "local", "--allow-holdout-details"]
+    )
+    assert args.allow_holdout_details is True
+
     code = cli.main(
         ["run", "--suite", "b0", "--mode", "local", "--allow-holdout-details"]
     )
     captured = capsys.readouterr()
     assert code != 0
-    assert "--allow-holdout-details" in captured.err
+    assert "只用于 --suite holdout" in captured.err
     assert "Traceback" not in captured.err
 
 
@@ -283,6 +290,9 @@ def test_run_local_delegates_options_and_returns_zero(monkeypatch, tmp_path) -> 
         "replay_from": None,
         "dataset_path": None,
         "scope": "end_to_end",
+        # P1 T108：holdout 开关总是显式透传（非 holdout suite 由 runner 拒绝）。
+        "holdout_labels": None,
+        "allow_holdout_details": False,
     }
 
 

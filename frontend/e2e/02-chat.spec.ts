@@ -90,7 +90,7 @@ test.describe('员工问答、来源与会话', () => {
     await page.getByRole('button', { name: '发送', exact: true }).click();
 
     const answer = page.locator('.message-assistant').last();
-    await expect(answer.getByText('服务暂不可用', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(answer.getByText('服务调用失败', { exact: true })).toBeVisible({ timeout: 15_000 });
     await expect(answer).toContainText('不是资料中没有答案');
     await expect(answer).toContainText('MODEL_UNAVAILABLE');
     await expect(answer.getByText('无匹配资料')).toHaveCount(0);
