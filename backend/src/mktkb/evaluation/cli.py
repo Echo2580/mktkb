@@ -18,6 +18,14 @@
 
 P1 T108（holdout 防污染）：
 
+P2 T203（新增子命令，不改旧命令行为）：
+
+- ``p2-run``：产品端到端**空跑**（隔离目录 + Mock provider，零真实调用）。它先做
+  T201 的离线预检，再用 ``build_dry_run_authorization`` 造一个 ``production_ready=False``
+  的空跑授权；没有真实 GO 时不会、也不能发送真实请求，不会写共享账本；
+- 计划/快照/题目/语料都由参数显式给出；holdout 只能通过 ``--holdout-manifest``
+  经 T202 的受限加载器解封，逐题产物不落盘。
+
 - ``run --suite holdout`` 默认只出聚合；``--allow-holdout-details`` 才写逐题 +
   ``holdout_audit.json``，且在 CI/门禁环境（``CI`` / ``GITHUB_ACTIONS`` / ``MKTKB_CI``）
   硬失败（非零退出）；
@@ -519,6 +527,115 @@ def _add_run_selector(parser: argparse.ArgumentParser, *, with_comparison: bool)
         )
 
 
+def _cmd_p2_run(args: argparse.Namespace) -> int:
+    """P2-T203 产品端到端空跑：预检 -> 空跑授权 -> 隔离应用 -> 产物（零真实调用）。
+
+    真实 GO 与共享账本只由 T206 在固定路径签发；本命令只走 ``production_ready=False``
+    的空跑授权，因此 ``run_p2`` 的发送门不会、也不允许发真实请求。
+    """
+    import asyncio
+
+    from .dataset import CaseSpec, validate_case
+    from .p2_authorization import preflight_p2, read_ledger_snapshot
+    from .p2_contracts import P2LedgerSnapshot, P2RunPlan
+    from .p2_runner import build_dry_run_authorization, run_p2
+    from .product_adapter import (
+        IngestSource,
+        MockChatBackend,
+        P2IngestPlan,
+        P2RunDataset,
+        ProductEvalAdapter,
+    )
+
+    plan = P2RunPlan.from_dict(_read_json(Path(args.plan)))
+    snapshot = (
+        P2LedgerSnapshot.from_dict(_read_json(Path(args.snapshot)))
+        if args.snapshot
+        else read_ledger_snapshot()
+    )
+    preflight = preflight_p2(plan, snapshot)
+    if not preflight.ok:
+        print(
+            json.dumps(
+                {"ok": False, "reasons": list(preflight.reasons), "stage": preflight.stage},
+                ensure_ascii=False,
+            )
+        )
+        return EXIT_DATA
+
+    if args.visibility == "holdout":
+        from .p2_dataset import load_p2_dataset
+
+        if not args.holdout_manifest:
+            raise CliError("--visibility holdout 需要 --holdout-manifest（T202 受限加载器）")
+        dataset = P2RunDataset.from_p2_dataset(
+            load_p2_dataset(Path(args.holdout_manifest), visibility="holdout")
+        )
+        purge_traces = True
+    else:
+        cases = []
+        manifest_sha = hashlib.sha256(b"").hexdigest()
+        if args.cases:
+            raw = Path(args.cases).read_bytes()
+            for line in raw.decode("utf-8").splitlines():
+                if line.strip():
+                    case = CaseSpec.from_dict(json.loads(line))
+                    validate_case(case)
+                    cases.append(case)
+            manifest_sha = hashlib.sha256(raw).hexdigest()
+        dataset = P2RunDataset(
+            visibility="public",
+            cases=tuple(cases),
+            identity={
+                "dataset_version": str(args.dataset_version),
+                "label_version": str(args.label_version),
+                "suite": "p2-cli",
+                "manifest_sha256": manifest_sha,
+                "case_count": len(cases),
+            },
+        )
+        purge_traces = False
+
+    ingest = None
+    if args.ingest:
+        ingest = P2IngestPlan(
+            sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
+            label="cli-p2-run",
+        )
+    authorization = build_dry_run_authorization(
+        plan, preflight, issued_by="cli:p2-run-dry-run"
+    )
+    adapter = ProductEvalAdapter(
+        Path(args.out),
+        chat=MockChatBackend(),
+        dataset=dataset,
+        ingest_plan=ingest,
+        purge_traces_on_close=purge_traces,
+    )
+
+    async def _run():
+        try:
+            return await run_p2(plan, adapter=adapter, authorization=authorization)
+        finally:
+            await adapter.close()
+
+    if not args.ingest and dataset.cases:
+        raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
+    result = asyncio.run(_run())
+    payload = {
+        "ok": result.status == "succeeded",
+        "status": result.status,
+        "stop_code": result.stop_code,
+        "requests_planned": result.requests_planned,
+        "requests_sent": result.requests_sent,
+        "production_ready": result.production_ready,
+        "execution": "dry_run",
+        "out_dir": str(adapter.paths.run_dir),
+    }
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0 if result.status == "succeeded" else EXIT_DATA
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="rag_eval",
@@ -640,6 +757,36 @@ def build_parser() -> argparse.ArgumentParser:
     export = sub.add_parser("export", help="只导出 report.md / report.html（非门禁层）")
     _add_run_selector(export, with_comparison=True)
     export.set_defaults(handler=_cmd_export)
+
+    p2_run = sub.add_parser(
+        "p2-run",
+        help="P2 产品端到端空跑（隔离目录 + Mock provider；零真实调用、不写共享账本）",
+    )
+    p2_run.add_argument("--plan", required=True, help="P2 运行计划 JSON（p2-run-plan/v0.1）")
+    p2_run.add_argument(
+        "--snapshot",
+        default=None,
+        help="内存账本快照 JSON（默认只读固定共享路径，不写）",
+    )
+    p2_run.add_argument("--out", required=True, help="隔离输出目录（新目录，不覆盖旧 run）")
+    p2_run.add_argument(
+        "--cases", default=None, help="公开题目 JSONL（CaseSpec 规范行）；holdout 不要给"
+    )
+    p2_run.add_argument(
+        "--visibility",
+        choices=("public", "holdout"),
+        default="public",
+        help="holdout 只写聚合（需 --holdout-manifest，经 T202 受限加载器）",
+    )
+    p2_run.add_argument(
+        "--holdout-manifest", default=None, help="H2 manifest 路径（visibility=holdout 时必填）"
+    )
+    p2_run.add_argument(
+        "--ingest", action="append", default=[], help="要经产品上传/解析/发布路径灌库的本地文件（可重复）"
+    )
+    p2_run.add_argument("--dataset-version", default="p2-cli-local", help="公开 run 的 dataset_version")
+    p2_run.add_argument("--label-version", default="p2-cli-local", help="公开 run 的 label_version")
+    p2_run.set_defaults(handler=_cmd_p2_run)
     return parser
 
 

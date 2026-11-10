@@ -1,0 +1,829 @@
+{
+  "blocked_without_production_ready": {
+    "gate": {
+      "authorization": {
+        "budget_sha256": "62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21",
+        "center_remaining_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "cost_center_limits_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "expires_utc": "2026-11-10T12:15:00+00:00",
+        "go_document": "P2-DRY-RUN",
+        "go_nonce_len": 32,
+        "go_sha256": "b3e5d894241ad819bccd1c17b7866f2a688f715d1a8f1ccc96b425d94b5769dc",
+        "issued_by": "p2-t203-dry-run",
+        "issued_utc": "2026-11-10T12:00:00+00:00",
+        "ledger_path": "in-memory:dry-run",
+        "ledger_sha256": "62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21",
+        "max_request_cny": 0.018688,
+        "max_requests": 1000,
+        "operations": [
+          "answer"
+        ],
+        "plan_id": "p2-t203-unit",
+        "plan_sha256": "62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21",
+        "production_ready": false,
+        "requests_remaining": 999,
+        "requests_used": 0,
+        "schema_version": "p2-authorization/v0.1",
+        "stage": "P2-LIVE",
+        "stage_limit_cny": 20.0,
+        "stage_remaining_cny": 20.0
+      },
+      "checks": [
+        {
+          "detail": "authorization 必须绑定本次 plan",
+          "name": "plan_identity",
+          "ok": true
+        },
+        {
+          "detail": "authorization.stage 必须是 P2-LIVE",
+          "name": "stage",
+          "ok": true
+        },
+        {
+          "detail": "授权已过期",
+          "name": "not_expired",
+          "ok": true
+        },
+        {
+          "detail": "授权尚未生效",
+          "name": "not_before_issue",
+          "ok": true
+        },
+        {
+          "detail": "",
+          "name": "operations",
+          "ok": true
+        },
+        {
+          "detail": "计划请求数超出授权剩余",
+          "name": "request_cap",
+          "ok": true
+        },
+        {
+          "detail": "authorization.production_ready=False，拒绝真实发送",
+          "name": "production_ready",
+          "ok": false
+        }
+      ],
+      "execution": "live",
+      "gate_notes": [],
+      "production_ready": false,
+      "quality_gate": "deferred-to-T205",
+      "real_sends_allowed": false,
+      "run_id": "p2run-df5ff0fb173d4cdb",
+      "schema_version": "p2-run-gate/v0.1",
+      "stage": "P2-LIVE",
+      "status": "blocked",
+      "stop_code": "production_not_ready"
+    },
+    "run_result": {
+      "by_center_cny": {
+        "answer_retrieval": 0.0,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "by_operation": {},
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21",
+      "production_ready": false,
+      "requests_planned": 1,
+      "requests_reserved": 0,
+      "requests_sent": 0,
+      "reserved_cny": 0.0,
+      "run_id": "p2run-df5ff0fb173d4cdb",
+      "schema_version": "p2-run-result/v0.1",
+      "settled_cny": 0.0,
+      "status": "blocked",
+      "stop_code": "production_not_ready"
+    },
+    "summary": {
+      "branches": {},
+      "cases": {
+        "executed": 0,
+        "not_executed": 1,
+        "planned": 1,
+        "with_error": 0
+      },
+      "duration_ms": 0,
+      "execution": "live",
+      "failure": {
+        "case_id": null,
+        "error_code": "production_not_ready",
+        "item_id": null,
+        "stage": "authorization",
+        "stop_code": "production_not_ready",
+        "ticket": null,
+        "turn": null
+      },
+      "holdout": {
+        "aggregate_only": false,
+        "trace_retention": "kept-in-isolated-dir"
+      },
+      "kinds": {},
+      "network": {
+        "outbound_attempts": 0,
+        "policy": "offline embedding/rerank + httpx.MockTransport chat（真实出站 0）"
+      },
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "62b67f64d4d5f16a24fc0e25d7384932ca1ee3ecf43b433021c6a7ca546d9d21",
+      "providers": {
+        "chat": {
+          "calls": 0
+        },
+        "embedding": {
+          "calls": 0
+        },
+        "rerank": {
+          "calls": 0
+        }
+      },
+      "requests": {
+        "attempted": 0,
+        "billed_cny": 0.0,
+        "planned": 1,
+        "real_requests": 0,
+        "reserved": 0,
+        "settled_failure": 0,
+        "settled_success": 0
+      },
+      "run_id": "p2run-df5ff0fb173d4cdb",
+      "schema_version": "p2-run-summary/v0.1",
+      "status": "blocked",
+      "stop_code": "production_not_ready",
+      "turns": {
+        "executed": 0,
+        "planned": 1,
+        "with_product_result": 0
+      },
+      "visibility": "public"
+    }
+  },
+  "dry_run": {
+    "gate": {
+      "authorization": {
+        "budget_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+        "center_remaining_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "cost_center_limits_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "expires_utc": "2026-11-10T12:15:00+00:00",
+        "go_document": "P2-DRY-RUN",
+        "go_nonce_len": 32,
+        "go_sha256": "d0b39a91e790fd485be42447362e732e70a6e2881a06423fd933792af6e9208c",
+        "issued_by": "p2-t203-dry-run",
+        "issued_utc": "2026-11-10T12:00:00+00:00",
+        "ledger_path": "in-memory:dry-run",
+        "ledger_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+        "max_request_cny": 0.018688,
+        "max_requests": 1000,
+        "operations": [
+          "answer"
+        ],
+        "plan_id": "p2-t203-unit",
+        "plan_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+        "production_ready": false,
+        "requests_remaining": 995,
+        "requests_used": 0,
+        "schema_version": "p2-authorization/v0.1",
+        "stage": "P2-LIVE",
+        "stage_limit_cny": 20.0,
+        "stage_remaining_cny": 20.0
+      },
+      "checks": [
+        {
+          "detail": "authorization 必须绑定本次 plan",
+          "name": "plan_identity",
+          "ok": true
+        },
+        {
+          "detail": "authorization.stage 必须是 P2-LIVE",
+          "name": "stage",
+          "ok": true
+        },
+        {
+          "detail": "授权已过期",
+          "name": "not_expired",
+          "ok": true
+        },
+        {
+          "detail": "授权尚未生效",
+          "name": "not_before_issue",
+          "ok": true
+        },
+        {
+          "detail": "",
+          "name": "operations",
+          "ok": true
+        },
+        {
+          "detail": "计划请求数超出授权剩余",
+          "name": "request_cap",
+          "ok": true
+        },
+        {
+          "detail": "dry-run 只接受 Mock 适配器（真实适配器必须配门，否则等于无账发送）",
+          "name": "adapter_mock",
+          "ok": true
+        },
+        {
+          "detail": "gate=None -> dry-run：不预留、不结算、真实请求 0 次",
+          "name": "dry_run",
+          "ok": true
+        }
+      ],
+      "execution": "dry_run",
+      "gate_notes": [],
+      "production_ready": false,
+      "quality_gate": "deferred-to-T205",
+      "real_sends_allowed": false,
+      "run_id": "p2run-f1974f9db6f84534",
+      "schema_version": "p2-run-gate/v0.1",
+      "stage": "P2-LIVE",
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "manifest": {
+      "authorization": {
+        "expires_utc": "2026-11-10T12:15:00+00:00",
+        "go_document": "P2-DRY-RUN",
+        "go_nonce_len": 32,
+        "go_sha256": "d0b39a91e790fd485be42447362e732e70a6e2881a06423fd933792af6e9208c",
+        "issued_by": "p2-t203-dry-run",
+        "issued_utc": "2026-11-10T12:00:00+00:00",
+        "ledger_path": "in-memory:dry-run",
+        "max_requests": 1000,
+        "operations": [
+          "answer"
+        ],
+        "production_ready": false,
+        "requests_remaining": 995,
+        "schema_version": "p2-authorization/v0.1",
+        "stage": "P2-LIVE"
+      },
+      "dataset": {
+        "case_count": 4,
+        "case_count_loaded": 4,
+        "dataset_version": "p2-synthetic-v1",
+        "declared_case_count": 4,
+        "label_version": "synthetic-v1",
+        "manifest_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "strata": {
+          "multi_turn": 1,
+          "negative": 1,
+          "paraphrase": 2
+        },
+        "suite": "p2-holdout",
+        "visibility": "public"
+      },
+      "execution": "dry_run",
+      "pipeline": {
+        "code_sha256": {
+          "p2_runner.py": "dd90e8cc49d1286d60cab8fa30e86c4a5b1989836480357be53ef919f22d045e",
+          "product_adapter.py": "b7d3f372d65a3f70da4e1d0aa10662efe4bd4e5b98d0d12d09f8c7ce7c4262ef"
+        },
+        "entrypoint": "POST /api/v1/conversations/{id}/messages -> conversations.ask",
+        "index": {
+          "chunks": 11,
+          "documents": 2,
+          "engine_version": "s2-a-2",
+          "provider_mode": "offline",
+          "units": 16
+        },
+        "package": "mktkb-evaluation-p2",
+        "package_schema_version": "p2-product-adapter/v0.1",
+        "trace": {
+          "content_mode": "hash",
+          "enabled": true,
+          "mode": "local",
+          "scope": "end_to_end"
+        },
+        "turn_timeout_seconds": 60.0
+      },
+      "plan": {
+        "by_operation": {
+          "answer": 5
+        },
+        "estimated_success_cny": 0.005,
+        "operations": [
+          "answer"
+        ],
+        "plan_id": "p2-t203-unit",
+        "plan_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+        "plan_version": "v1",
+        "reserve_peak_cny": 0.018688,
+        "stage": "P2-LIVE",
+        "total_requests": 5,
+        "worst_case_cny": 0.09344
+      },
+      "providers": {
+        "chat": {
+          "by_purpose": {
+            "answer": 1
+          },
+          "calls": 1,
+          "model": "mock-chat",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "transport": "httpx.MockTransport"
+        },
+        "embedding": {
+          "calls": 8,
+          "model": "text-embedding-v4",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "texts": 17
+        },
+        "ocr": {
+          "calls": 0,
+          "state": "T203 不执行 OCR（T204）"
+        },
+        "outbound_network": 0,
+        "rerank": {
+          "calls": 4,
+          "documents": 26,
+          "model": "gte-rerank-v2",
+          "outbound_network": 0,
+          "provider": "p2-mock"
+        }
+      },
+      "run_id": "p2run-f1974f9db6f84534",
+      "schema_version": "p2-run-manifest/v0.1",
+      "scope": "end_to_end"
+    },
+    "run_result": {
+      "by_center_cny": {
+        "answer_retrieval": 0.0,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "by_operation": {},
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+      "production_ready": false,
+      "requests_planned": 5,
+      "requests_reserved": 0,
+      "requests_sent": 0,
+      "reserved_cny": 0.0,
+      "run_id": "p2run-f1974f9db6f84534",
+      "schema_version": "p2-run-result/v0.1",
+      "settled_cny": 0.0,
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "summary": {
+      "branches": {
+        "legacy": 1,
+        "legacy_with_rag_candidates": 2,
+        "rag": 2
+      },
+      "cases": {
+        "executed": 4,
+        "not_executed": 0,
+        "planned": 4,
+        "with_error": 0
+      },
+      "duration_ms": 1260,
+      "execution": "dry_run",
+      "failure": null,
+      "holdout": {
+        "aggregate_only": false,
+        "trace_retention": "kept-in-isolated-dir"
+      },
+      "kinds": {
+        "answer": 3,
+        "not_found": 2
+      },
+      "network": {
+        "outbound_attempts": 0,
+        "policy": "offline embedding/rerank + httpx.MockTransport chat（真实出站 0）"
+      },
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "cfd82b062a5acf41c24bb9d92d5c4edb61332fa56948c4b2d739ff33d9448cf4",
+      "providers": {
+        "chat": {
+          "by_purpose": {
+            "answer": 1
+          },
+          "calls": 1,
+          "model": "mock-chat",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "transport": "httpx.MockTransport"
+        },
+        "embedding": {
+          "calls": 8,
+          "model": "text-embedding-v4",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "texts": 17
+        },
+        "ocr": {
+          "calls": 0,
+          "state": "T203 不执行 OCR（T204）"
+        },
+        "outbound_network": 0,
+        "rerank": {
+          "calls": 4,
+          "documents": 26,
+          "model": "gte-rerank-v2",
+          "outbound_network": 0,
+          "provider": "p2-mock"
+        }
+      },
+      "requests": {
+        "attempted": 5,
+        "billed_cny": 0.0,
+        "planned": 5,
+        "real_requests": 0,
+        "reserved": 0,
+        "settled_failure": 0,
+        "settled_success": 0
+      },
+      "run_id": "p2run-f1974f9db6f84534",
+      "schema_version": "p2-run-summary/v0.1",
+      "status": "succeeded",
+      "stop_code": null,
+      "turns": {
+        "executed": 5,
+        "planned": 5,
+        "with_product_result": 5
+      },
+      "visibility": "public"
+    }
+  },
+  "files_sha256": {
+    "cli.py": "1e5fab3faee815a962325de2ca83e2942df69c437c3bf04466afe1997615af30",
+    "p2-runner-contract-v0_1.md": "36de5bc2e5a8d4fa94c20dc329f183ecb96068628183b9d26b048ab7ccfa1c73",
+    "p2_authorization.py": "f2cc2f09c7f51ac79dc73090d52906ce7c364d1dc1a3531c33b0f2f6a8be00d4",
+    "p2_runner.py": "dd90e8cc49d1286d60cab8fa30e86c4a5b1989836480357be53ef919f22d045e",
+    "product_adapter.py": "b7d3f372d65a3f70da4e1d0aa10662efe4bd4e5b98d0d12d09f8c7ce7c4262ef",
+    "report.md": "e3b872ad8877f07f2fd325b11e5e8d38c836b54fc9035333c562c0d0ec74d83f",
+    "test_p2_authorization.py": "dc6267ccc344ec5edf74c18105849cce37c3faf3dee57de5a38a0da25443f227",
+    "test_p2_product_e2e.py": "517885e9f6d23ada335dab32ecc48afc31546b2a3983971c73da5fd5c603151d",
+    "test_p2_runner.py": "ac75b860c3b734fefe6e98a10fa02019da560b6b45cfa03cb54700fffeadce9e"
+  },
+  "generated_from": "backend/.pytest-tmp/p2-t203（本包 pytest 实际产物，只读汇总）",
+  "holdout_aggregate_only": {
+    "aggregate": {
+      "branches": {
+        "legacy": 1,
+        "rag": 1
+      },
+      "cases": {
+        "executed": 2,
+        "planned": 2,
+        "with_error": 0
+      },
+      "dataset": {
+        "dataset_version": "p2-synthetic-v1",
+        "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "visibility": "holdout"
+      },
+      "detail_export": false,
+      "failure": null,
+      "kinds": {
+        "answer": 2
+      },
+      "plan_id": "p2-t203-unit",
+      "run_id": "p2run-33e66d220a3948d4",
+      "schema_version": "p2-holdout-aggregate/v0.1",
+      "stop_code": null,
+      "strata_executed": {
+        "multi_turn": 1,
+        "paraphrase": 1
+      },
+      "turns": {
+        "executed": 2,
+        "with_product_result": 2
+      }
+    },
+    "files_present": [
+      "gate.json",
+      "holdout_aggregate.json",
+      "run_manifest.json",
+      "run_result.json",
+      "summary.json"
+    ],
+    "summary": {
+      "branches": {
+        "legacy": 1,
+        "rag": 1
+      },
+      "holdout": {
+        "aggregate_only": true,
+        "trace_retention": "purged-at-close"
+      },
+      "status": "succeeded",
+      "visibility": "holdout"
+    }
+  },
+  "mock_gate": {
+    "gate": {
+      "authorization": {
+        "budget_sha256": "3f63ebd835d37b3f57870cce21008639511bda87fbf843df06ce5522020db112",
+        "center_remaining_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "cost_center_limits_cny": {
+          "answer_retrieval": 12.0,
+          "independent": 2.0,
+          "judge": 3.0,
+          "ocr": 3.0
+        },
+        "expires_utc": "2026-11-10T12:15:00+00:00",
+        "go_document": "P2-DRY-RUN",
+        "go_nonce_len": 32,
+        "go_sha256": "130401aa6d0a67407386fa976cb8645bc75d747b8bc40ba2a227897a6128b3c1",
+        "issued_by": "p2-t203-dry-run",
+        "issued_utc": "2026-11-10T12:00:00+00:00",
+        "ledger_path": "in-memory:dry-run",
+        "ledger_sha256": "3f63ebd835d37b3f57870cce21008639511bda87fbf843df06ce5522020db112",
+        "max_request_cny": 0.018688,
+        "max_requests": 1000,
+        "operations": [
+          "answer"
+        ],
+        "plan_id": "p2-t203-unit",
+        "plan_sha256": "3f63ebd835d37b3f57870cce21008639511bda87fbf843df06ce5522020db112",
+        "production_ready": false,
+        "requests_remaining": 999,
+        "requests_used": 0,
+        "schema_version": "p2-authorization/v0.1",
+        "stage": "P2-LIVE",
+        "stage_limit_cny": 20.0,
+        "stage_remaining_cny": 20.0
+      },
+      "checks": [
+        {
+          "detail": "authorization 必须绑定本次 plan",
+          "name": "plan_identity",
+          "ok": true
+        },
+        {
+          "detail": "authorization.stage 必须是 P2-LIVE",
+          "name": "stage",
+          "ok": true
+        },
+        {
+          "detail": "授权已过期",
+          "name": "not_expired",
+          "ok": true
+        },
+        {
+          "detail": "授权尚未生效",
+          "name": "not_before_issue",
+          "ok": true
+        },
+        {
+          "detail": "",
+          "name": "operations",
+          "ok": true
+        },
+        {
+          "detail": "计划请求数超出授权剩余",
+          "name": "request_cap",
+          "ok": true
+        },
+        {
+          "detail": "Mock 适配器只允许配桩门（is_mock_gate=True）；真实 P2Gate 必须配真实 provider",
+          "name": "stub_gate",
+          "ok": true
+        },
+        {
+          "detail": "mock_gate：只验证门序，不产生资金事实",
+          "name": "mock_gate",
+          "ok": true
+        }
+      ],
+      "execution": "mock_gate",
+      "gate_notes": [],
+      "production_ready": false,
+      "quality_gate": "deferred-to-T205",
+      "real_sends_allowed": false,
+      "run_id": "p2run-80a0676cf2234a2b",
+      "schema_version": "p2-run-gate/v0.1",
+      "stage": "P2-LIVE",
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "run_result": {
+      "by_center_cny": {
+        "answer_retrieval": 0.018688,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "by_operation": {
+        "answer": 1
+      },
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "3f63ebd835d37b3f57870cce21008639511bda87fbf843df06ce5522020db112",
+      "production_ready": false,
+      "requests_planned": 1,
+      "requests_reserved": 1,
+      "requests_sent": 1,
+      "reserved_cny": 0.018688,
+      "run_id": "p2run-80a0676cf2234a2b",
+      "schema_version": "p2-run-result/v0.1",
+      "settled_cny": 0.0,
+      "status": "succeeded",
+      "stop_code": null
+    },
+    "summary": {
+      "execution": "mock_gate",
+      "requests": {
+        "attempted": 1,
+        "billed_cny": 0.0,
+        "planned": 1,
+        "real_requests": 0,
+        "reserved": 1,
+        "settled_failure": 0,
+        "settled_success": 1
+      },
+      "status": "succeeded"
+    }
+  },
+  "real_calls_zero": {
+    "chat_outbound_network": 0,
+    "chat_transport": "httpx.MockTransport",
+    "embedding": {
+      "calls": 8,
+      "model": "text-embedding-v4",
+      "outbound_network": 0,
+      "provider": "p2-mock",
+      "texts": 17
+    },
+    "production_ready": false,
+    "rerank": {
+      "calls": 4,
+      "documents": 26,
+      "model": "gte-rerank-v2",
+      "outbound_network": 0,
+      "provider": "p2-mock"
+    },
+    "run_result_sent": 0,
+    "summary_network": {
+      "outbound_attempts": 0,
+      "policy": "offline embedding/rerank + httpx.MockTransport chat（真实出站 0）"
+    },
+    "summary_requests": {
+      "attempted": 5,
+      "billed_cny": 0.0,
+      "planned": 5,
+      "real_requests": 0,
+      "reserved": 0,
+      "settled_failure": 0,
+      "settled_success": 0
+    }
+  },
+  "schema_version": "p2-t203-evidence/v0.1",
+  "timeout_stop": {
+    "run_result": {
+      "by_center_cny": {
+        "answer_retrieval": 0.0,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "by_operation": {},
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "1f4499c88c8b9b962951a916487f9e546e9cd5aeb4f658d44407c19b36b77b35",
+      "production_ready": false,
+      "requests_planned": 2,
+      "requests_reserved": 0,
+      "requests_sent": 0,
+      "reserved_cny": 0.0,
+      "run_id": "p2run-c8b931ae9d694308",
+      "schema_version": "p2-run-result/v0.1",
+      "settled_cny": 0.0,
+      "status": "aborted",
+      "stop_code": "turn_timeout"
+    },
+    "summary": {
+      "branches": {
+        "none": 1
+      },
+      "cases": {
+        "executed": 1,
+        "not_executed": 1,
+        "planned": 2,
+        "with_error": 1
+      },
+      "duration_ms": 1035,
+      "execution": "dry_run",
+      "failure": {
+        "case_id": "P03",
+        "error_code": "TURN_TIMEOUT",
+        "item_id": "P03:turn1:answer",
+        "stage": "product_wait",
+        "stop_code": "turn_timeout",
+        "ticket": {
+          "bound_cny": 0.018688,
+          "case_id": "P03",
+          "cost_center": "answer_retrieval",
+          "dry_run": true,
+          "item_id": "P03:turn1:answer",
+          "kind": "chat",
+          "model": "deepseek-flash",
+          "nonce_len": 0,
+          "operation": "answer",
+          "page": 0,
+          "plan_id": null,
+          "plan_sha256": null,
+          "provider": "deepseek",
+          "request_id": "p2dry-98864a2d029dae49acbc84bf",
+          "reservation_id": null,
+          "turn": 1
+        },
+        "timeout_seconds": 0.2,
+        "turn": 1
+      },
+      "holdout": {
+        "aggregate_only": false,
+        "trace_retention": "kept-in-isolated-dir"
+      },
+      "kinds": {
+        "timeout": 1
+      },
+      "network": {
+        "outbound_attempts": 0,
+        "policy": "offline embedding/rerank + httpx.MockTransport chat（真实出站 0）"
+      },
+      "plan_id": "p2-t203-unit",
+      "plan_sha256": "1f4499c88c8b9b962951a916487f9e546e9cd5aeb4f658d44407c19b36b77b35",
+      "providers": {
+        "chat": {
+          "by_purpose": {
+            "answer": 1
+          },
+          "calls": 1,
+          "model": "mock-chat",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "transport": "httpx.MockTransport"
+        },
+        "embedding": {
+          "calls": 2,
+          "model": "text-embedding-v4",
+          "outbound_network": 0,
+          "provider": "p2-mock",
+          "texts": 11
+        },
+        "ocr": {
+          "calls": 0,
+          "state": "T203 不执行 OCR（T204）"
+        },
+        "outbound_network": 0,
+        "rerank": {
+          "calls": 0,
+          "documents": 0,
+          "model": "gte-rerank-v2",
+          "outbound_network": 0,
+          "provider": "p2-mock"
+        }
+      },
+      "requests": {
+        "attempted": 1,
+        "billed_cny": 0.0,
+        "planned": 2,
+        "real_requests": 0,
+        "reserved": 0,
+        "settled_failure": 0,
+        "settled_success": 0
+      },
+      "run_id": "p2run-c8b931ae9d694308",
+      "schema_version": "p2-run-summary/v0.1",
+      "status": "aborted",
+      "stop_code": "turn_timeout",
+      "turns": {
+        "executed": 1,
+        "planned": 2,
+        "with_product_result": 1
+      },
+      "visibility": "public"
+    }
+  }
+}

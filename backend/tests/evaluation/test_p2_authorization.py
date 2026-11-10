@@ -1191,6 +1191,21 @@ def test_gate_refuses_unattributed_stage_spend(p2_env: SimpleNamespace) -> None:
     assert _reserved_count(p2_env.ledger) == 1
 
 
+def test_gate_refuses_unregistered_center_label(p2_env: SimpleNamespace) -> None:
+    """T203 小加固（T201 遗留 ②）：账本事实里的中心标签必须 ⊆ COST_CENTERS。
+
+    未注册标签既不能领额度，也不能靠"合计相等"混过归属检查——否则拼错/伪造的中心可以
+    绕开四个中心各自的硬顶。
+    """
+    gate = _open_gate(p2_env)
+    with pytest.raises(p2a.P2GateError) as excinfo:
+        gate._assert_center_accounting(
+            {"center_accounted": {"rogue_center": 0.1}, "stage_accounted": 0.1}
+        )
+    assert excinfo.value.reason == "cost_center_unregistered"
+    assert _reserved_count(p2_env.ledger) == 0
+
+
 def test_gate_rejects_budget_file_that_differs_from_authorized_payload(p2_env: SimpleNamespace) -> None:
     """固定预算文件与授权用的预算对象必须是同一份，否则“授权额度”和“真账额度”会分叉。"""
     payload = {"limit_cny": TOTAL_LIMIT_CNY, "stages": {P2_STAGE: 19.0}}

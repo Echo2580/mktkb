@@ -1,0 +1,1002 @@
+{
+  "schema_version": "p2-t203-verify-probes/v1",
+  "generator": "P2-T203 独立验收助手：三个探针均为自写脚本（未 import 开发用例，断言独立）",
+  "head": "97fba10e8d2560b0370d2ef7b1297606025c0314",
+  "branch": "codex/p2-e2e",
+  "probes": {
+    "probe1_product_entry_netguard": {
+      "probe": "product_entry_netguard",
+      "ok": true,
+      "checks": [
+        {
+          "name": "ingest_via_product_upload",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "ingest_worker_and_publish",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "rag_turn_answered",
+          "ok": true,
+          "detail": {
+            "question_sha256": "1e95716dd63c2090fd74a1f78fe1a689baa05444aafeaa56b0e09d4ddc58f052",
+            "question_chars": 19,
+            "client_request_id": "aaaaaaaa-1111-4111-8111-000000000001",
+            "http_status": 200,
+            "kind": "answer",
+            "message_id": "d8e20ad3-5c75-409f-8299-9ba135e10aa3",
+            "request_id": "4f729011-663a-49a3-a205-26ae9f7fd501",
+            "revision": 2,
+            "error_code": null,
+            "retryable": false,
+            "source_ids": [
+              "834cf2b6-dd19-486b-96ed-68f7c6f81e43",
+              "3d618436-6b6b-4715-bdca-6d79f1d2f2f0"
+            ],
+            "sources": [
+              {
+                "source_id": "834cf2b6-dd19-486b-96ed-68f7c6f81e43",
+                "document_name": "D01_物品位置表.xlsx",
+                "version_number": 1,
+                "status": "active",
+                "locator": {
+                  "sheet": "物品位置",
+                  "row": 8,
+                  "header_row": 7,
+                  "cells": [
+                    {
+                      "column": "A",
+                      "column_index": 1,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "P01",
+                      "header": "标识"
+                    },
+                    {
+                      "column": "B",
+                      "column_index": 2,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "城东店",
+                      "header": "门店"
+                    },
+                    {
+                      "column": "C",
+                      "column_index": 3,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "宣传海报",
+                      "header": "物品"
+                    },
+                    {
+                      "column": "D",
+                      "column_index": 4,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "海报",
+                      "header": "别名"
+                    },
+                    {
+                      "column": "E",
+                      "column_index": 5,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "B区1号货架第二层",
+                      "header": "位置"
+                    }
+                  ],
+                  "cell_types": {
+                    "标识": "s",
+                    "门店": "s",
+                    "物品": "s",
+                    "别名": "s",
+                    "位置": "s"
+                  }
+                },
+                "published_at": "2026-11-10T11:59:27.289089"
+              },
+              {
+                "source_id": "3d618436-6b6b-4715-bdca-6d79f1d2f2f0",
+                "document_name": "D01_物品位置表.xlsx",
+                "version_number": 1,
+                "status": "active",
+                "locator": {
+                  "sheet": "物品位置",
+                  "row": 9,
+                  "header_row": 7,
+                  "cells": [
+                    {
+                      "column": "A",
+                      "column_index": 1,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "P02",
+                      "header": "标识"
+                    },
+                    {
+                      "column": "B",
+                      "column_index": 2,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "城西店",
+                      "header": "门店"
+                    },
+                    {
+                      "column": "C",
+                      "column_index": 3,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "宣传海报",
+                      "header": "物品"
+                    },
+                    {
+                      "column": "D",
+                      "column_index": 4,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "海报",
+                      "header": "别名"
+                    },
+                    {
+                      "column": "E",
+                      "column_index": 5,
+                      "raw_type": "s",
+                      "number_format": "General",
+                      "display": "C区2号货架第一层",
+                      "header": "位置"
+                    }
+                  ],
+                  "cell_types": {
+                    "标识": "s",
+                    "门店": "s",
+                    "物品": "s",
+                    "别名": "s",
+                    "位置": "s"
+                  }
+                },
+                "published_at": "2026-11-10T11:59:27.289089"
+              }
+            ],
+            "missing_fields": [],
+            "candidates": 0,
+            "trace_id": "5f1559952d5c4d10b878c3e60b98281e",
+            "trace_path": "rag",
+            "trace_outcome": "answer",
+            "trace_status": "ok",
+            "trace_spans": [
+              "parse",
+              "recall",
+              "exact_recall",
+              "lexical_recall",
+              "vector_recall",
+              "embedding_query",
+              "fuse",
+              "hard_filter",
+              "rerank",
+              "answer",
+              "fact_validate",
+              "commit"
+            ],
+            "replayed": false,
+            "elapsed_ms": 74
+          }
+        },
+        {
+          "name": "legacy_turn_answered",
+          "ok": true,
+          "detail": {
+            "question_sha256": "1ad5c1cabbbb24cbd1ca014466d763b673f37733ad29189007d1eab7b315d109",
+            "question_chars": 11,
+            "client_request_id": "aaaaaaaa-1111-4111-8111-000000000002",
+            "http_status": 200,
+            "kind": "answer",
+            "message_id": "45334416-e390-4327-a73f-332a18032ac0",
+            "request_id": "5c04a672-d2f1-4154-b713-e0d9819c454c",
+            "revision": 2,
+            "error_code": null,
+            "retryable": false,
+            "source_ids": [
+              "22bfe5d5-f0f0-4f39-b98d-242f784ae05c",
+              "eb7bb25f-02cb-4e1f-82a8-f9aff0c1679c"
+            ],
+            "sources": [
+              {
+                "source_id": "22bfe5d5-f0f0-4f39-b98d-242f784ae05c",
+                "document_name": "D04_活动策划流程.docx",
+                "version_number": 1,
+                "status": "active",
+                "locator": {
+                  "paragraph": 1,
+                  "style": "Title"
+                },
+                "published_at": "2026-11-10T11:59:27.445994"
+              },
+              {
+                "source_id": "eb7bb25f-02cb-4e1f-82a8-f9aff0c1679c",
+                "document_name": "D04_活动策划流程.docx",
+                "version_number": 1,
+                "status": "active",
+                "locator": {
+                  "paragraph": 4,
+                  "style": "Normal",
+                  "heading": "3.1 活动申请"
+                },
+                "published_at": "2026-11-10T11:59:27.445994"
+              }
+            ],
+            "missing_fields": [],
+            "candidates": 0,
+            "trace_id": "8263bb219ef6479a9203defe59f545a1",
+            "trace_path": "legacy",
+            "trace_outcome": "answer",
+            "trace_status": "ok",
+            "trace_spans": [
+              "intent_parse",
+              "retrieve",
+              "model_answer",
+              "answer_validate",
+              "commit"
+            ],
+            "replayed": false,
+            "elapsed_ms": 55
+          }
+        },
+        {
+          "name": "http_message_route_used",
+          "ok": true,
+          "detail": [
+            "/api/v1/documents",
+            "/api/v1/documents/2af3907f-687e-4cce-b789-03daab8f8284/versions/96085ed9-21be-465d-97d0-244d174f9c59/publish",
+            "/api/v1/documents",
+            "/api/v1/documents/d6d3bc25-10b9-4e62-aeaf-b9229e59a69c/versions/3d901560-bec3-45d3-9982-753b25522462/publish",
+            "/api/v1/conversations",
+            "/api/v1/conversations/a1040d13-f116-4c98-bfb4-312901d133a0/messages",
+            "/api/v1/conversations/a1040d13-f116-4c98-bfb4-312901d133a0/messages"
+          ]
+        },
+        {
+          "name": "http_upload_and_publish_used",
+          "ok": true,
+          "detail": [
+            "/api/v1/documents",
+            "/api/v1/documents/2af3907f-687e-4cce-b789-03daab8f8284/versions/96085ed9-21be-465d-97d0-244d174f9c59/publish",
+            "/api/v1/documents",
+            "/api/v1/documents/d6d3bc25-10b9-4e62-aeaf-b9229e59a69c/versions/3d901560-bec3-45d3-9982-753b25522462/publish",
+            "/api/v1/conversations",
+            "/api/v1/conversations/a1040d13-f116-4c98-bfb4-312901d133a0/messages",
+            "/api/v1/conversations/a1040d13-f116-4c98-bfb4-312901d133a0/messages"
+          ]
+        },
+        {
+          "name": "rag_ask_only_from_product",
+          "ok": true,
+          "detail": [
+            "mktkb.qa.service"
+          ]
+        },
+        {
+          "name": "no_evaluation_module_in_rag_callers",
+          "ok": true,
+          "detail": [
+            "mktkb.qa.service"
+          ]
+        },
+        {
+          "name": "qa_answer_only_from_product",
+          "ok": true,
+          "detail": [
+            "mktkb.conversations.service"
+          ]
+        },
+        {
+          "name": "messages_persisted",
+          "ok": true,
+          "detail": {
+            "code": 200,
+            "total": 4
+          }
+        },
+        {
+          "name": "citation_converted",
+          "ok": true,
+          "detail": {
+            "status": "active",
+            "document_name": "D01_物品位置表.xlsx",
+            "version_number": 1
+          }
+        },
+        {
+          "name": "source_detail_owner_200",
+          "ok": true,
+          "detail": 200
+        },
+        {
+          "name": "source_detail_other_403",
+          "ok": true,
+          "detail": 403
+        },
+        {
+          "name": "v2_published",
+          "ok": true,
+          "detail": {
+            "name": "D01_verify.xlsx",
+            "sha256": "ab5ad2e90c9f4d5cd5817b650fea35d24630bace0f92c889ee8da307b94edb1c",
+            "document_id": "2af3907f-687e-4cce-b789-03daab8f8284",
+            "version_id": "d23a1cf6-e3b2-48d4-bcf6-8d8facc89a2b",
+            "job_state": "succeeded",
+            "published": true,
+            "revision": 3,
+            "upload_status": 202,
+            "publish_status": 200,
+            "units": 9
+          }
+        },
+        {
+          "name": "old_version_410_superseded",
+          "ok": true,
+          "detail": {
+            "code": 410,
+            "details": {
+              "status": "superseded",
+              "document_name": "D01_物品位置表.xlsx",
+              "version_number": 1
+            }
+          }
+        },
+        {
+          "name": "refreshed_uses_current_version",
+          "ok": true,
+          "detail": [
+            2,
+            2
+          ]
+        },
+        {
+          "name": "no_candidate_refusal_not_found",
+          "ok": true,
+          "detail": {
+            "question_sha256": "e771cffda0cf53a8258bad2ac118f9f6816d59cec0457f51b950dfa47d47d342",
+            "question_chars": 12,
+            "client_request_id": "aaaaaaaa-1111-4111-8111-000000000004",
+            "http_status": 200,
+            "kind": "not_found",
+            "message_id": "c7aeaf68-ede6-4dc7-b91a-a74b968537e1",
+            "request_id": "f4bed752-4042-4417-a651-d63dd98f6a98",
+            "revision": 3,
+            "error_code": null,
+            "retryable": false,
+            "source_ids": [],
+            "sources": [],
+            "missing_fields": [],
+            "candidates": 0,
+            "trace_id": "05f63af8f7e64c84b836c274f23edaa1",
+            "trace_path": "legacy_with_rag_candidates",
+            "trace_outcome": "not_found",
+            "trace_status": "ok",
+            "trace_spans": [
+              "intent_parse",
+              "recall",
+              "exact_recall",
+              "lexical_recall",
+              "vector_recall",
+              "embedding_query",
+              "fuse",
+              "hard_filter",
+              "recall",
+              "lexical_recall",
+              "vector_recall",
+              "embedding_query",
+              "fuse",
+              "hard_filter",
+              "rerank",
+              "retrieve",
+              "commit"
+            ],
+            "replayed": false,
+            "elapsed_ms": 84
+          }
+        },
+        {
+          "name": "no_candidate_refusal_zero_chat",
+          "ok": true,
+          "detail": {
+            "before": 1,
+            "after": 1
+          }
+        },
+        {
+          "name": "replay_same_message",
+          "ok": true,
+          "detail": {
+            "first": "d8e20ad3-5c75-409f-8299-9ba135e10aa3",
+            "replay": "d8e20ad3-5c75-409f-8299-9ba135e10aa3"
+          }
+        },
+        {
+          "name": "replay_no_new_messages",
+          "ok": true,
+          "detail": 8
+        },
+        {
+          "name": "replay_no_new_chat",
+          "ok": true,
+          "detail": {
+            "before": 1,
+            "after": 1
+          }
+        },
+        {
+          "name": "branches_rag_and_legacy",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "provider_outbound_zero",
+          "ok": true,
+          "detail": {
+            "provider": "p2-mock",
+            "model": "mock-chat",
+            "transport": "httpx.MockTransport",
+            "calls": 1,
+            "by_purpose": {
+              "answer": 1
+            },
+            "outbound_network": 0
+          }
+        },
+        {
+          "name": "rag_vendor_post_counters_zero",
+          "ok": true,
+          "detail": {
+            "attempts": {},
+            "outcomes": {}
+          }
+        },
+        {
+          "name": "external_outbound_zero",
+          "ok": true,
+          "detail": []
+        }
+      ],
+      "scratch_root": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2t203-probe1-kbbdz51a",
+      "chat_calls": 1,
+      "http_calls": 18,
+      "external_attempts": [],
+      "local_attempts": 1,
+      "rag_ask_callers": [
+        "mktkb.qa.service"
+      ],
+      "qa_answer_callers": [
+        "mktkb.conversations.service"
+      ]
+    },
+    "probe2_stop_semantics": {
+      "probe": "stop_semantics",
+      "ok": true,
+      "checks": [
+        {
+          "name": "preflight_ok",
+          "ok": true,
+          "detail": []
+        },
+        {
+          "name": "real_adapter_without_gate_blocked",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-5c4e01a0f3594681",
+            "plan_id": "verify-probe2",
+            "plan_sha256": "bed0014816251fb1c385072549d5d27374094a7328ef165c397c6b361ba485e9",
+            "status": "blocked",
+            "stop_code": "adapter_must_be_mock",
+            "requests_planned": 2,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "real_adapter_without_gate_never_asked",
+          "ok": true,
+          "detail": []
+        },
+        {
+          "name": "midturn_failure_stops",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-7c120efc7bea4488",
+            "plan_id": "verify-probe2",
+            "plan_sha256": "4c9ee86813739a6a142737abc91e3c9bc74bb9a04e2769ac1490d351461c9b6a",
+            "status": "aborted",
+            "stop_code": "product_service_error",
+            "requests_planned": 3,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "midturn_failure_identity",
+          "ok": true,
+          "detail": {
+            "stage": "product_answer",
+            "case_id": "V03",
+            "turn": 2,
+            "item_id": "V03:turn2:answer"
+          }
+        },
+        {
+          "name": "midturn_failure_keeps_ticket",
+          "ok": true,
+          "detail": {
+            "bound_cny": 0.018688,
+            "case_id": "V03",
+            "cost_center": "answer_retrieval",
+            "dry_run": true,
+            "item_id": "V03:turn2:answer",
+            "kind": "chat",
+            "model": "deepseek-flash",
+            "nonce_len": 0,
+            "operation": "answer",
+            "page": 0,
+            "plan_id": null,
+            "plan_sha256": null,
+            "provider": "deepseek",
+            "request_id": "p2dry-74eb2b4b05c4972f8f92a095",
+            "reservation_id": null,
+            "turn": 2
+          }
+        },
+        {
+          "name": "midturn_turn1_recorded",
+          "ok": true,
+          "detail": [
+            "ok",
+            "error"
+          ]
+        },
+        {
+          "name": "midturn_next_case_not_executed",
+          "ok": true,
+          "detail": {
+            "executed": 1,
+            "not_executed": 1,
+            "planned": 2,
+            "with_error": 1
+          }
+        },
+        {
+          "name": "midturn_no_extra_chat",
+          "ok": true,
+          "detail": 2
+        },
+        {
+          "name": "budget_seconds_is_60",
+          "ok": true,
+          "detail": 60
+        },
+        {
+          "name": "adapter_default_timeout_is_budget",
+          "ok": true,
+          "detail": 60
+        },
+        {
+          "name": "default_timeout_on_fresh_adapter",
+          "ok": true,
+          "detail": null
+        },
+        {
+          "name": "timeout_status_aborted",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-848b30d21bee45b2",
+            "plan_id": "verify-probe2",
+            "plan_sha256": "bed0014816251fb1c385072549d5d27374094a7328ef165c397c6b361ba485e9",
+            "status": "aborted",
+            "stop_code": "turn_timeout",
+            "requests_planned": 2,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "timeout_stop_code",
+          "ok": true,
+          "detail": "turn_timeout"
+        },
+        {
+          "name": "timeout_zero_sent",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-848b30d21bee45b2",
+            "plan_id": "verify-probe2",
+            "plan_sha256": "bed0014816251fb1c385072549d5d27374094a7328ef165c397c6b361ba485e9",
+            "status": "aborted",
+            "stop_code": "turn_timeout",
+            "requests_planned": 2,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "timeout_failure_stage",
+          "ok": true,
+          "detail": {
+            "case_id": "V01",
+            "error_code": "TURN_TIMEOUT",
+            "item_id": "V01:turn1:answer",
+            "stage": "product_wait",
+            "stop_code": "turn_timeout",
+            "ticket": {
+              "bound_cny": 0.018688,
+              "case_id": "V01",
+              "cost_center": "answer_retrieval",
+              "dry_run": true,
+              "item_id": "V01:turn1:answer",
+              "kind": "chat",
+              "model": "deepseek-flash",
+              "nonce_len": 0,
+              "operation": "answer",
+              "page": 0,
+              "plan_id": null,
+              "plan_sha256": null,
+              "provider": "deepseek",
+              "request_id": "p2dry-9e831f16906d9bcd7cfafaad",
+              "reservation_id": null,
+              "turn": 1
+            },
+            "timeout_seconds": 0.2,
+            "turn": 1
+          }
+        },
+        {
+          "name": "timeout_failure_seconds",
+          "ok": true,
+          "detail": {
+            "case_id": "V01",
+            "error_code": "TURN_TIMEOUT",
+            "item_id": "V01:turn1:answer",
+            "stage": "product_wait",
+            "stop_code": "turn_timeout",
+            "ticket": {
+              "bound_cny": 0.018688,
+              "case_id": "V01",
+              "cost_center": "answer_retrieval",
+              "dry_run": true,
+              "item_id": "V01:turn1:answer",
+              "kind": "chat",
+              "model": "deepseek-flash",
+              "nonce_len": 0,
+              "operation": "answer",
+              "page": 0,
+              "plan_id": null,
+              "plan_sha256": null,
+              "provider": "deepseek",
+              "request_id": "p2dry-9e831f16906d9bcd7cfafaad",
+              "reservation_id": null,
+              "turn": 1
+            },
+            "timeout_seconds": 0.2,
+            "turn": 1
+          }
+        },
+        {
+          "name": "timeout_manifest_matches",
+          "ok": true,
+          "detail": 0.2
+        },
+        {
+          "name": "timeout_no_retry_one_chat",
+          "ok": true,
+          "detail": 1
+        },
+        {
+          "name": "timeout_second_case_not_executed",
+          "ok": true,
+          "detail": {
+            "executed": 1,
+            "not_executed": 1,
+            "planned": 2,
+            "with_error": 1
+          }
+        },
+        {
+          "name": "timeout_request_row_single",
+          "ok": true,
+          "detail": 1
+        },
+        {
+          "name": "service_error_aborted",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-29dc25f3042b4d77",
+            "plan_id": "verify-probe2",
+            "plan_sha256": "bed0014816251fb1c385072549d5d27374094a7328ef165c397c6b361ba485e9",
+            "status": "aborted",
+            "stop_code": "product_service_error",
+            "requests_planned": 2,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "service_error_failure_stage",
+          "ok": true,
+          "detail": {
+            "case_id": "V01",
+            "error_code": "MODEL_UNAVAILABLE",
+            "http_status": 200,
+            "item_id": "V01:turn1:answer",
+            "stage": "product_answer",
+            "stop_code": "product_service_error",
+            "ticket": {
+              "bound_cny": 0.018688,
+              "case_id": "V01",
+              "cost_center": "answer_retrieval",
+              "dry_run": true,
+              "item_id": "V01:turn1:answer",
+              "kind": "chat",
+              "model": "deepseek-flash",
+              "nonce_len": 0,
+              "operation": "answer",
+              "page": 0,
+              "plan_id": null,
+              "plan_sha256": null,
+              "provider": "deepseek",
+              "request_id": "p2dry-04fd015f68d7d4c41a920d6c",
+              "reservation_id": null,
+              "turn": 1
+            },
+            "turn": 1
+          }
+        },
+        {
+          "name": "service_error_no_retry",
+          "ok": true,
+          "detail": 1
+        },
+        {
+          "name": "service_error_second_case_not_executed",
+          "ok": true,
+          "detail": {
+            "executed": 1,
+            "not_executed": 1,
+            "planned": 2,
+            "with_error": 1
+          }
+        }
+      ],
+      "scratch_root": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2t203-probe2-p_k1wd8i",
+      "live_with_stub_gate": {
+        "execution": "live",
+        "real_sends_allowed": true,
+        "stop_code": "adapter_error",
+        "stub_gate_calls": [
+          [
+            "begin",
+            "V01:turn1:answer"
+          ],
+          [
+            "confirm",
+            "V01:turn1:answer"
+          ],
+          [
+            "settle_failure",
+            "V01:turn1:answer"
+          ]
+        ]
+      }
+    },
+    "probe3_holdout_sealing": {
+      "probe": "holdout_sealing",
+      "ok": true,
+      "checks": [
+        {
+          "name": "holdout_run_not_failed_by_authorization",
+          "ok": true,
+          "detail": {
+            "schema_version": "p2-run-result/v0.1",
+            "run_id": "p2run-82afe6b2988644bd",
+            "plan_id": "verify-probe3",
+            "plan_sha256": "26e91173834a98cbe37451d2c2594e5079f473b40dcb53aa5382a8eeabaf4eca",
+            "status": "succeeded",
+            "stop_code": null,
+            "requests_planned": 1,
+            "requests_reserved": 0,
+            "requests_sent": 0,
+            "reserved_cny": 0,
+            "settled_cny": 0,
+            "by_operation": {},
+            "by_center_cny": {
+              "answer_retrieval": 0,
+              "ocr": 0,
+              "judge": 0,
+              "independent": 0
+            },
+            "production_ready": false
+          }
+        },
+        {
+          "name": "holdout_no_cases_file",
+          "ok": true,
+          "detail": [
+            "gate.json",
+            "holdout_aggregate.json",
+            "run_manifest.json",
+            "run_result.json",
+            "summary.json"
+          ]
+        },
+        {
+          "name": "holdout_no_requests_file",
+          "ok": true,
+          "detail": [
+            "gate.json",
+            "holdout_aggregate.json",
+            "run_manifest.json",
+            "run_result.json",
+            "summary.json"
+          ]
+        },
+        {
+          "name": "holdout_aggregate_present",
+          "ok": true,
+          "detail": [
+            "gate.json",
+            "holdout_aggregate.json",
+            "run_manifest.json",
+            "run_result.json",
+            "summary.json"
+          ]
+        },
+        {
+          "name": "holdout_detail_export_false",
+          "ok": true,
+          "detail": false
+        },
+        {
+          "name": "holdout_no_case_id_in_aggregate",
+          "ok": true,
+          "detail": "case_id 出现在聚合里"
+        },
+        {
+          "name": "holdout_no_question_in_aggregate",
+          "ok": true,
+          "detail": "题干出现在聚合里"
+        },
+        {
+          "name": "holdout_trace_purged",
+          "ok": true,
+          "detail": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2t203-probe3-wtpxg23p\\holdout\\data\\observability\\qa-traces.sqlite3"
+        },
+        {
+          "name": "holdout_summary_policy",
+          "ok": true,
+          "detail": {
+            "aggregate_only": true,
+            "trace_retention": "purged-at-close"
+          }
+        },
+        {
+          "name": "holdout_artifacts_no_question",
+          "ok": true,
+          "detail": []
+        },
+        {
+          "name": "trace_db_exists_without_purge",
+          "ok": true,
+          "detail": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2t203-probe3-wtpxg23p\\keep-trace\\data\\observability\\qa-traces.sqlite3"
+        },
+        {
+          "name": "trace_db_has_no_plaintext_question",
+          "ok": true,
+          "detail": [
+            "data\\mktkb.sqlite3-wal"
+          ]
+        }
+      ],
+      "scratch_root": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2t203-probe3-wtpxg23p",
+      "question_text_found_in_files": [
+        "holdout\\data\\mktkb.sqlite3",
+        "keep-trace\\data\\mktkb.sqlite3"
+      ],
+      "product_data_files_with_question": [
+        "holdout\\data\\mktkb.sqlite3",
+        "keep-trace\\data\\mktkb.sqlite3"
+      ]
+    }
+  },
+  "summary": {
+    "probe1_checks": 25,
+    "probe1_ok": true,
+    "probe2_checks": 25,
+    "probe2_ok": true,
+    "probe3_checks": 12,
+    "probe3_ok": true,
+    "external_outbound_attempts": 0,
+    "rag_ask_callers": [
+      "mktkb.qa.service"
+    ],
+    "qa_answer_callers": [
+      "mktkb.conversations.service"
+    ],
+    "live_with_stub_gate": {
+      "execution": "live",
+      "real_sends_allowed": true,
+      "stop_code": "adapter_error",
+      "stub_gate_calls": [
+        [
+          "begin",
+          "V01:turn1:answer"
+        ],
+        [
+          "confirm",
+          "V01:turn1:answer"
+        ],
+        [
+          "settle_failure",
+          "V01:turn1:answer"
+        ]
+      ]
+    },
+    "question_text_found_in_files": [
+      "holdout\\data\\mktkb.sqlite3",
+      "keep-trace\\data\\mktkb.sqlite3"
+    ]
+  }
+}

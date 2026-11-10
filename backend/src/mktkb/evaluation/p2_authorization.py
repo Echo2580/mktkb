@@ -953,6 +953,10 @@ class P2Gate:
         centers = facts.get("center_accounted")
         if not isinstance(centers, Mapping):
             raise P2GateError("center_accounting_invalid", "账本未给出成本中心事实")
+        # T203 小加固（T201 遗留 ②）：标签必须 ⊆ COST_CENTERS，别让拼错/伪造的中心既躲开
+        # 中心额度、又靠"合计相等"混过归属检查。
+        if set(centers) - set(COST_CENTERS):
+            raise P2GateError("cost_center_unregistered", "账本含未注册成本中心")
         stage_accounted = float(facts.get("stage_accounted") or 0.0)
         if abs(sum(float(value) for value in centers.values()) - stage_accounted) > _EPS:
             raise P2GateError(

@@ -1,0 +1,31 @@
+# T203 验收复跑（verifier 亲自执行）
+
+## 1) 两测试文件
+cmd: .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/integration/test_p2_product_e2e.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t203-verify
+started: 2026-11-10T11:54:20.246Z elapsed_ms: 20907
+
+..................                                                       [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+18 passed, 1 warning in 17.24s
+
+EXIT=0
+
+## 2) T201 授权套件（含 T203 加固用例）
+cmd: .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t203-verify-auth
+started: 2026-11-10T11:54:45.076Z elapsed_ms: 3415
+
+......................................................................   [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 passed, 1 warning in 1.35s
+
+EXIT=0
