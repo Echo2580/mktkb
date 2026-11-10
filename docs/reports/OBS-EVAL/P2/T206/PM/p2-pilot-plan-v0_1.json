@@ -1,0 +1,563 @@
+{
+  "schema_version": "p2-run-plan/v0.1",
+  "plan_id": "P2-T206-PILOT-20261111",
+  "plan_version": "v0.1",
+  "mode": "end_to_end",
+  "stage": "P2-LIVE",
+  "created_utc": "2026-11-11T00:00:00+08:00",
+  "project_total_limit_cny": 40.0,
+  "stage_limit_cny": 20.0,
+  "max_requests": 560,
+  "cost_centers_cny": {
+    "answer_retrieval": 9.0,
+    "ocr": 6.0,
+    "judge": 3.0,
+    "independent": 2.0
+  },
+  "items": [
+    {
+      "item_id": "ingest-index-embedding",
+      "operation": "index_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "INGEST",
+      "turn": 1,
+      "page": 0,
+      "requests": 30,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "embed-Q01-t1",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q01",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-Q01-t1",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q01",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-Q01-t1",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q01",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-Q01-t1",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q01",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "embed-Q25-t1",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q25",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-Q25-t1",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q25",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-Q25-t1",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q25",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-Q25-t1",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q25",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "embed-RG005-t1",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG005",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-RG005-t1",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG005",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-RG005-t1",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG005",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-RG005-t1",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG005",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "embed-RG006-t1",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-RG006-t1",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-RG006-t1",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-RG006-t1",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "embed-RG006-t2",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 2,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-RG006-t2",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 2,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-RG006-t2",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 2,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-RG006-t2",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "RG006",
+      "turn": 2,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "embed-Q37-t1",
+      "operation": "query_embedding",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q37",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-text-embedding-v4-v1",
+        "unit_price_per_million_cny": 0.5,
+        "total_tokens_cap": 4096
+      },
+      "expected_success_cny": 0.0003
+    },
+    {
+      "item_id": "rerank-Q37-t1",
+      "operation": "rerank",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q37",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "provider": "bailian",
+        "host": "dashscope.aliyuncs.com",
+        "region": "cn-beijing",
+        "pricing_source": "official-list-price/bailian-gte-rerank-v2-v1",
+        "unit_price_per_million_cny": 0.8,
+        "total_tokens_cap": 6000
+      },
+      "expected_success_cny": 0.001
+    },
+    {
+      "item_id": "expand-Q37-t1",
+      "operation": "query_expansion",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q37",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "answer-Q37-t1",
+      "operation": "answer",
+      "cost_center": "answer_retrieval",
+      "case_id": "Q37",
+      "turn": 1,
+      "page": 0,
+      "requests": 1,
+      "price_profile": {
+        "kind": "chat",
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "host": "api.deepseek.com",
+        "region": "global",
+        "pricing_source": "official-list-price/deepseek-chat-cache-miss-v1",
+        "input_price_per_million_cny": 2.0,
+        "output_price_per_million_cny": 8.0,
+        "prompt_tokens_cap": 6144,
+        "completion_tokens_cap": 800
+      },
+      "expected_success_cny": 0.004
+    },
+    {
+      "item_id": "ocr-Q37-p1",
+      "operation": "ocr",
+      "cost_center": "ocr",
+      "case_id": "Q37",
+      "turn": 1,
+      "page": 1,
+      "requests": 1,
+      "price_profile": {
+        "kind": "ocr",
+        "model": "GeneralAccurateOCR",
+        "provider": "tencent",
+        "host": "ocr.tencentcloudapi.com",
+        "region": "ap-guangzhou",
+        "pricing_source": "official-list-price/tencent-ocr-postpaid-highest-v1",
+        "price_cny_per_page": 0.5,
+        "pages_per_request": 1
+      },
+      "expected_success_cny": 0.5
+    }
+  ]
+}
