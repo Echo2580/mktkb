@@ -1,0 +1,88 @@
+# P2-T205 独立验收：来源事实与复现细节（验收助手亲核）
+
+## 1. 公开语料事实（只读 corpus/enterprise-20261101，未读 H1/H2 题干）
+
+```
+E10 row 79 ['2026-07', '陈列达标率', '检核合格门店数 ÷ 抽检门店数 ×100%', '90%', '100.1%', '111.2%', '-13.4%', '蒋博']
+E10 row 80 ['2026-07', '物料覆盖率', '在架本品物料门店数 ÷ 在售门店数 ×100%', '95%', '81.3%', '85.6%', '+26.7%', '赵磊']
+E10 row 103 ['2026-09', '陈列达标率', '检核合格门店数 ÷ 抽检门店数 ×100%', '90%', '100.6%', '111.8%', '+20.9%', '许洋']
+E10 row 104 ['2026-09', '物料覆盖率', '在架本品物料门店数 ÷ 在售门店数 ×100%', '95%', '98.7%', '103.9%', '-8.7%', '王岚']
+E10 row 123 ['2026-10', '核销及时率', '按期上交结案报告笔数 ÷ 应结案笔数 ×100%', '98%', '100.9%', '103.0%', '+23.2%', '王平']
+E03 NKA row 7 ['PX-0001', 'SKU-QF-LEMON500', '启沣柠檬茶（500ml PET） 500ml×15瓶/箱', '档期特价', 2.99, '2026-10-01', '2026-10-21', '生效中']
+E03 NKA row 14 ['PX-0020', 'SKU-QF-LEMON500', '启沣柠檬茶（500ml PET） 500ml×15瓶/箱', '档期特价', 2.5, '2025-10-01', '2025-12-31', '已失效']
+E03 咸味饼干 出现次数: 0
+E03 含 饼干 的行: []
+W03 第三章 审批权限 -> 第三章 审批权限
+W03 第六条 -> 第六条 审批权限按单场预算分档：5000 元（含）以内由通路行销主管审批；5000 元至 20000 元由市场部经理审批；20000 元至 100000 元由事业部总经理审批；100000 元以上须经财务部与总经理联签。
+W03 第二章 申请与时限 -> 第二章 申请与时限
+W03 第四条 -> 第四条 活动变更（时间、机制、门店范围）须提前 3 个工作日以书面或系统方式重新提交，未按期变更的一律不予核销。
+W03 第五章 结案与稽核 -> 第五章 结案与稽核
+W03 第十二条 -> 第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。
+```
+
+结论：E10 陈列达标率目标 90%（同表物料覆盖率 95% 为其他指标诱饵）；E03 NKA row7=2.99（PX-0001，2026-10-01~10-21），row14=2.5（PX-0020，2025 已失效）；
+E03 无“咸味饼干”SKU（他实体诱饵为真）；W03 第六条分档 8000→市场部经理，第十二条 6 个自然日，第四条活动变更提前 3 个工作日。
+
+## 2. H2 只读元数据（不读题干/答案）
+
+```
+case_count = 30
+strata = {"paraphrase":10,"multi_turn":5,"negative":5,"stale_conflict":5,"cross_doc_security":5}
+suite = p2-holdout; dataset_version = P2-HOLDOUT-v2; schema_version = p2-holdout-manifest/v0.1
+questions_ciphertext_sha256 = 36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07
+labels_ciphertext_sha256 = d51478fdc28960cfe99034e1e97919681ca32c3c89c2224e24e04c1101082e09
+turn_stats = {"total_turns":36,"max_turns_per_case":3,"turn_histogram":{"1":25,"2":4,"3":1}}
+```
+
+## 3. 真实 P2 产品 trace 的身份字段（实测一次 Mock 产品问答）
+
+```
+trace_id b1e575b897f84cb8ae9c34f0a2b3acf8
+span_names ['intent_parse','retrieve','model_answer','answer_validate','commit']
+trace.dataset_version = None
+trace.pipeline_version = None
+trace.run_id = None
+trace.index_revision = None
+trace.manifest_sha256 = None
+trace.config_hash = None
+trace.mode = 'local'; trace.scope = 'end_to_end'; trace.path = 'legacy'; trace.outcome_kind = 'answer'
+```
+→ gate._gate_trace_integrity 的 _TRACE_BINDING 要求上述 6 个身份字段；P2 产品 trace 全空 ⇒ 真实 P2 产物必然 version_binding 硬失败（fail-closed，与 report 限制 1 一致）。
+
+## 4. report 与复跑的一致性（sha256 前 16 / 行数）
+
+| 文件 | 行数 | sha256(16) | report 声明 |
+|---|---|---|---|
+| backend/src/mktkb/evaluation/p2_scoring.py | 1798 | 67f297eb74ea6768 | 1798 / 67f297eb74ea6768 |
+| docs/evaluation/gate_v0_3.json | 215 | 3af301dba2d4dbd1 | 215 / 3af301dba2d4dbd1 |
+| backend/tests/evaluation/test_p2_scoring.py | 577 | ba63d1300d38740c | 577 / ba63d1300d38740c |
+| backend/tests/evaluation/test_p2_gate.py | 837 | d98aff20f8294be0 | 837 / d98aff20f8294be0 |
+| backend/tests/integration/test_p2_public_controls.py | 509 | 63bc6349df976cc7 | 509 / 63bc6349df976cc7 |
+| backend/src/mktkb/evaluation/gate.py | 3722 | 7e54fbf672cbc1c0 | +22/-5 / 7e54fbf672cbc1c0 |
+
+结论：六个文件的 sha256 前缀与行数与 report §1 完全一致；gate.py 的 +22/-5 与 git diff 一致。
+
+## 5. evidence/02-reproduction.txt 的编码缺陷（可复现）
+
+```
+bytes = 4978
+前 80 字符（UTF-8 解码）: "{\r\n \"ingest\": [\r\n  {\r\n   \"document\": \"E10_�г���KPI�±�.xlsx\",\r\n   \"job_state\": \"s"
+GBK 解码样本: "{\r\n \"ingest\": [\r\n  {\r\n   \"document\": \"E10_锟叫筹拷锟斤拷KPI锟铰憋拷.xlsx\",\r\n   \"job_state\":"
+```
+→ 中文已不可逆损坏（“锟斤拷” 形态）。内容仍可复现（本目录 02-output-probe.txt 为同 4 反例 + 2 正向的 UTF-8 版本），但该证据文件本身不能作为可读审计材料。
+最小修复：`set PYTHONIOENCODING=utf-8` 或 `python -X utf8 probe_t205.py > 02-reproduction.txt`（probe 只在第 232 行 print，未指定 encoding）。
+
+## 6. 新公开用例 F01 的标签陷阱（不阻断本次，但会卡住 T207）
+
+```
+'陈列达标率的年度目标是 90%。'                                  -> ('pass', [])
+'陈列达标率年度目标 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。' -> ('fail', ['value_no_fabricated'])
+'陈列达标率年度目标 90%；2026 年 9 月实测 100.6%。'                -> ('fail', ['value_no_fabricated'])
+```
+→ 问题问“计算口径和年度目标”，但照实给出“×100%”会被 _value_checks.value_no_fabricated 判为编造数字（100 不在 _gold_number_keys：只含 business_date/question/reference_answer/expected_values）。
+F01 是新标签（非冻结），最小修复：给 CaseSpec.reference_answer 写入口径或把问题收窄为“年度目标是多少”，否则 T207 修好产品也会被判 fail，且 test_p2_public_controls.py 第 383-387 行的 “90% 存在则必须 PASS” 分支会失败。
+
+## 7. 环境与零真实调用
+
+- 本目录所有运行：`outbound_network = 0`、`rag_provider_posts = 0`、chat 全部 MockTransport（probe E 实测 chat_calls=6）。
+- 未读 .env / H1 / H2 题干；未联网；未装依赖；未改源码/测试/报告/gate 文件。

@@ -1,0 +1,214 @@
+{
+  "schema_version": "mktkb.gate.config.v0.3",
+  "gate_version": "mktkb.gate.v0.3",
+  "status": "unapproved",
+  "approval": null,
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "hard_gate_min_sample": {
+    "b0": 32,
+    "badcase": 8,
+    "boundary": 6,
+    "update_delete": 10,
+    "regression": 7,
+    "p2-holdout": 30
+  },
+  "suites": [
+    "b0",
+    "badcase",
+    "boundary",
+    "update_delete",
+    "regression",
+    "p2-holdout"
+  ],
+  "sensitive_patterns": [],
+  "p2_standards": {
+    "status": "approved_targets_not_gate_thresholds",
+    "approver": "主人",
+    "approved_at": "2026-11-10",
+    "basis": "docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md §5（主人 2026-11-10 明确答复）",
+    "b0": {
+      "total": 40,
+      "min_pass": 36,
+      "exact_total": 24,
+      "exact_ids": "Q01-Q24",
+      "exact_min_pass": 24,
+      "text_total": 8,
+      "ocr_total": 8
+    },
+    "negative": {
+      "total": 8,
+      "ids": "N01-N08",
+      "min_pass": 8
+    },
+    "boundary": {
+      "total": 6,
+      "ids": "C01-C06",
+      "min_pass": 6
+    },
+    "update_delete": {
+      "total": 10,
+      "ids": "U01-U10",
+      "min_pass": 10
+    },
+    "holdout": {
+      "total": 30,
+      "min_pass": 24,
+      "hard_failures_max": 0,
+      "strata": {
+        "paraphrase": 10,
+        "multi_turn": 5,
+        "negative": 5,
+        "stale_conflict": 5,
+        "cross_doc_security": 5
+      }
+    },
+    "denominators": "b0 全 40 执行（含 8 道 OCR 题）；精确 Q01-Q24 24/24；N/C/U 单独矩阵；H2 30 题只出聚合。error/未执行不计入正确数，OCR 不得静默跳过。"
+  },
+  "metrics": [
+    {
+      "name": "Recall@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "MRR@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "nDCG@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "hard_filter_violation_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "empty_recall_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "value_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "source_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "kind_correct",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_precision",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_recall",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_recall",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "false_refusal_rate",
+      "group": "refusal",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_precision",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "p95_latency_ms",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "cost_per_case_cny",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    }
+  ],
+  "notes": "T205 初始版本：status=unapproved（未审批，不得放行）。8 项硬门禁与 v0.2 相同；质量指标 15 项全部 null（未批准阈值）。p2_standards 只登记主人 2026-11-10 已批准的质量目标（B0≥36/40、精确24/24、N8/C6/U10 全通过、H2≥24/30 且硬失败0），它们是评测口径，不是已批准的 gate 阈值；quality 层阈值审批仍属 T209，本文件不提前 certified。denominators 见 p2_standards.denominators：error/未执行不计入正确数，OCR 不得静默跳过。"
+}

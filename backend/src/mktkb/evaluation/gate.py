@@ -188,6 +188,10 @@ CONFIG_SCHEMA_VERSION = "mktkb.gate.config.v0.1"
 #: 校准提案 + 主人书面批准后另派 R1 落盘，本模块从不自行审批。
 CONFIG_SCHEMA_VERSION_V0_2 = "mktkb.gate.config.v0.2"
 GATE_VERSION_V0_2 = "mktkb.gate.v0.2"
+#: T205：P2 门禁配置（初始 unapproved；阈值只能经人工门审批后手写，本模块从不自行审批）。
+#: 与 v0.2 用同一套结构校验（suites 含 regression、检索 5 指标齐全），只多一个版本号。
+CONFIG_SCHEMA_VERSION_V0_3 = "mktkb.gate.config.v0.3"
+GATE_VERSION_V0_3 = "mktkb.gate.v0.3"
 #: P1 retrieval-only 评测的作用域（与 ``live.LIVE_SCOPE`` 同值；gate 不反向依赖 live）。
 RETRIEVAL_ONLY_SCOPE = "retrieval_only"
 #: 初版配置骨架（只有硬门禁 ID / min_sample / 指标方向 / 空阈值占位）。
@@ -196,6 +200,8 @@ DEFAULT_GATE_CONFIG_PATH = (
 )
 #: P1 配置路径；``write_gate_proposal`` 同样拒绝覆盖它（提案只落 run 目录/证据）。
 P1_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_2.json"
+#: P2 配置路径（初始 unapproved）；同样拒绝被校准提案覆盖。
+P2_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_3.json"
 #: design §8.2 检索 5 指标（v0.2 必须全部声明，方向固定）。
 RETRIEVAL_METRIC_DIRECTIONS: Mapping[str, str] = {
     "Recall@10": "higher_is_better",
@@ -394,14 +400,20 @@ def load_gate_config(path: Path | str) -> GateConfig:
     schema_version = _require_text(payload.get("schema_version"), "schema_version")
     if schema_version == CONFIG_SCHEMA_VERSION:
         expected_gate_version = GATE_SCHEMA_VERSION
+        structured = False
     elif schema_version == CONFIG_SCHEMA_VERSION_V0_2:
         expected_gate_version = GATE_VERSION_V0_2
+        structured = True
+    elif schema_version == CONFIG_SCHEMA_VERSION_V0_3:
+        # T205：v0.3 与 v0.2 共用结构化校验（只多一个 gate_version 绑定）。
+        expected_gate_version = GATE_VERSION_V0_3
+        structured = True
     else:
         raise ValueError(
             f"schema_version 不兼容：{schema_version!r}；只允许 "
-            f"{CONFIG_SCHEMA_VERSION!r} / {CONFIG_SCHEMA_VERSION_V0_2!r}"
+            f"{CONFIG_SCHEMA_VERSION!r} / {CONFIG_SCHEMA_VERSION_V0_2!r} / "
+            f"{CONFIG_SCHEMA_VERSION_V0_3!r}"
         )
-    is_v0_2 = schema_version == CONFIG_SCHEMA_VERSION_V0_2
     gate_version = _require_text(payload.get("gate_version"), "gate_version")
     if gate_version != expected_gate_version:
         raise ValueError(
@@ -442,7 +454,7 @@ def load_gate_config(path: Path | str) -> GateConfig:
     metrics: list[MetricSpec] = []
     for index, item in enumerate(raw_metrics):
         item = _require_mapping(item, f"metrics[{index}]")
-        if is_v0_2:
+        if structured:
             missing_fields = [name for name in V0_2_METRIC_FIELDS if name not in item]
             if missing_fields:
                 raise ValueError(
@@ -475,7 +487,7 @@ def load_gate_config(path: Path | str) -> GateConfig:
         )
 
     suites: tuple[str, ...] = ()
-    if is_v0_2:
+    if structured:
         raw_suites = payload.get("suites")
         if isinstance(raw_suites, (str, bytes)) or not isinstance(raw_suites, Sequence):
             raise ValueError("v0.2 suites 必须是字符串数组且包含 'regression'")
@@ -3178,7 +3190,7 @@ def write_gate_proposal(
     if not isinstance(proposal, GateProposal):
         raise TypeError("write_gate_proposal 需要 GateProposal")
     target = Path(path)
-    for protected in (DEFAULT_GATE_CONFIG_PATH, P1_GATE_CONFIG_PATH):
+    for protected in (DEFAULT_GATE_CONFIG_PATH, P1_GATE_CONFIG_PATH, P2_GATE_CONFIG_PATH):
         if target.resolve() == protected.resolve():
             raise ValueError(
                 f"不得用校准提案覆盖 {protected.name}：阈值必须经人工门审批后手写"

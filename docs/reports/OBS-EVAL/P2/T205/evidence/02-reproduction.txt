@@ -1,0 +1,164 @@
+{
+ "ingest": [
+  {
+   "document": "E10_�г���KPI�±�.xlsx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  },
+  {
+   "document": "W03_���������������᰸���̹����취.docx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  },
+  {
+   "document": "E03_2026��Q4������Ŀ��.xlsx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  }
+ ],
+ "rows": [
+  {
+   "case_id": "F01",
+   "question": "���д���ʵļ���ھ������Ŀ����ʲô��",
+   "kind": "answer",
+   "text": "�·ݣ�2026-09��ָ�꣺���д���ʣ�����ھ�����˺ϸ��ŵ��� �� ����ŵ��� ��100%",
+   "sources": [
+    {
+     "document_name": "E10_�г���KPI�±�.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI�±�",
+      "row": 103
+     }
+    },
+    {
+     "document_name": "E10_�г���KPI�±�.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI�±�",
+      "row": 79
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_hit",
+    "value_no_fabricated"
+   ]
+  },
+  {
+   "case_id": "F02",
+   "question": "����Ԥ�� 8000 Ԫ�Ļ��˭������",
+   "kind": "answer",
+   "text": "������ ����Ȩ�ް�����Ԥ��ֵ���5000 Ԫ������������ͨ·��������������5000 Ԫ�� 20000 Ԫ���г�������������20000 Ԫ�� 100000 Ԫ����ҵ���ܾ���������100000 Ԫ�����뾭�������ܾ�����ǩ��",
+   "sources": [
+    {
+     "document_name": "W03_���������������᰸���̹����취.docx",
+     "status": "active",
+     "locator": {
+      "heading": "������ ����Ȩ��"
+     }
+    },
+    {
+     "document_name": "W03_���������������᰸���̹����취.docx",
+     "status": "active",
+     "locator": {
+      "heading": "������ �᰸�����"
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_forbidden",
+    "value_no_fabricated"
+   ]
+  },
+  {
+   "case_id": "F03",
+   "question": "2026��Q4 �������ʲ裨500ml PET����NKA�����ĵ����ؼ��Ƕ��٣�",
+   "kind": "answer",
+   "text": "�۸񵥺ţ�PX-0001��SKU���룺SKU-QF-LEMON500��Ʒ������������ʲ裨500ml PET�� 500ml��15ƿ/��",
+   "sources": [
+    {
+     "document_name": "E03_2026��Q4������Ŀ��.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA����",
+      "row": 7
+     }
+    },
+    {
+     "document_name": "E03_2026��Q4������Ŀ��.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA����",
+      "row": 14
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_hit",
+    "value_no_fabricated"
+   ]
+  },
+  {
+   "case_id": "F04",
+   "question": "2026��Q4������Ŀ���� ��ζ���� 120g ���������Ƕ��٣�",
+   "kind": "answer",
+   "text": "�۸񵥺ţ�PX-0001��SKU���룺SKU-QF-LEMON500��Ʒ������������ʲ裨500ml PET�� 500ml��15ƿ/��",
+   "sources": [
+    {
+     "document_name": "E03_2026��Q4������Ŀ��.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA����",
+      "row": 7
+     }
+    },
+    {
+     "document_name": "E03_2026��Q4������Ŀ��.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "LKA����",
+      "row": 9
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "kind_correct"
+   ]
+  },
+  {
+   "case_id": "F05",
+   "question": "������������Ͻ��᰸���棿",
+   "kind": "answer",
+   "text": "��ʮ���� ������� 6 ����Ȼ�����Ͻ��᰸���棬���ڼ��������ʱ�ʿ۷֡�",
+   "sources": [
+    {
+     "document_name": "W03_���������������᰸���̹����취.docx",
+     "status": "active",
+     "locator": {
+      "heading": "������ �᰸�����"
+     }
+    },
+    {
+     "document_name": "E10_�г���KPI�±�.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI�±�",
+      "row": 123
+     }
+    }
+   ],
+   "verdict": "pass",
+   "failed_checks": []
+  }
+ ],
+ "provider_calls": {
+  "outbound_network": 0,
+  "chat_calls": 5
+ },
+ "rag_provider_attempts": 0
+}
