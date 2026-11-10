@@ -90,3 +90,39 @@ scorecard 异 config_hash 各自命中对应 unknown 码且不放行。
 3. `evidence/03-scope-hashes.txt`：逐文件增删行/行数/sha256[:16]、禁改面零 diff、账本/预算 hash、
    GO 不存在、零真实调用。
 4. `evidence/probe_t206_pre.py`：可复跑生成器（stdout；复用 T203 测试夹具，不复制实现、不写仓库）。
+
+## R1（T206-PRE-R1，2026-11-11；HEAD `1e422e9`；未 commit/push；全 Mock/离线，真实调用 0）
+
+- 边界：只改 `p2_scoring.py`/`product_adapter.py` + 两测试 + 绑定契约 + 本段与 3 份 R1 证据；
+  `gate.py`/`p2_ingestion.py`/fixtures/业务 API/.env/H1/H2 零 diff（`06-r1-scope-and-probe.txt` §3）。
+- **R-1（config_hash fail-closed）**：`evaluate_p2_gate` 原先对 `card.config_hash is None` 直接 `continue`；
+  现改为 **manifest 有绑定摘要而 scorecard 未声明 → `config_hash_unbound`（unknown，不放行）**，
+  两侧各自判（只补一侧仍阻断）；声明了但与 manifest 不同仍 `config_hash_binding_mismatch`。
+  用例：`test_scorecard_without_config_hash_is_fail_closed`（2 侧各 1 条 + 半套仍阻断）。
+- **R-2（gate 行 retrieved 接真实检索候选，pilot 前必须）**：产品没有"本轮候选集合"API，适配器改为
+  **用产品自己的检索代码在同一 revision/上下文上只读重放**：发送前快照产品 revision + rag 持久状态；
+  `trace_path == "rag"` → `parse_query`+`QaEngine.candidate_unit_ids`；`legacy`/`legacy_with_rag_candidates`
+  → 产品同一 `intent.parse_question`（含 `_load_context`）+ `conversations.service._retrieve`（记录型带 rag 上界）。
+  结果写该轮 `product.retrieved`（`{document_name,unit_ids,unit_key,locator}`，排序稳定）；
+  `normalize_product_outcome` 用它填 `outcome.retrieved`（显式夹具候选优先）→ gate 行不再是空候选。
+  判定**未放宽**：`citation_required` 仍要求 citation ⊆ retrieved；非作答轮不采集（保持空，gate 不要求引用）；
+  路径未知/任一步失败 → 空 → `citation_not_in_evidence` fail（不是 unknown、不是 pass）。
+  用例：`test_gate_rows_use_real_retrieval_candidates_and_fail_closed`（正例：P01 rag 2/2、P03 legacy 4 候选
+  含 2 条引用、P04 not_found 0 候选；**反例 drop/foreign 均 `fail`+`citation_not_in_evidence`**）+
+  `test_mock_dry_run_binds_identity_and_passes_trace_integrity` 追加 `citation_required == "pass"` 与
+  "候选 ⊇ 引用、且候选多于引用（不是把引用抄成候选）"两条断言 + `test_product_retrieved_candidates_fill_gate_outcome`。
+- **R-3（契约措辞）**：`p2-live-binding-v0_1.md` §8 首行改为"先 `build_gate_run` 的 `run_manifest_incomplete`，
+  清单补全后 trace 未绑才 `version_binding`"；同步 §2b（候选来源/诚实边界）、§3（scorecard 缺 hash）、§7、§8 新增两行。
+- 验证（`04-r1-regressions.txt`）：T203 35（原 34，+1）、T201 70、T204 18、T205 56（原 54，+2）、gate 109
+  —— 全 `exit=0`；未跑全仓。探针（`05-r1-retrieval-probe.py`）：正例 `citation_required=pass`、
+  `config_hash=58caf4a2…b01e`（与 T206-PRE 两次 run 相同）、`real_requests=0`、`billed_cny=0.0`。
+- **需经理确认的偏差**：R-1 的 fail-closed 使 T205 的 3 个 gate 用例（`test_p2_gate.py`：两个"可放行"用例 +
+  1 个"退出码 2"用例）的期望与新行为冲突——它们用的是不声明 `config_hash` 的 scorecard。已按"最小一致方案"
+  只做**夹具对齐**（`public_card`/`holdout_card` 增加 `config_hash` 参数，3 个用例传入 manifest 的摘要；
+  断言强度未降），该文件**不在 R1 允许清单**，故单列。若要求零越界，则 R-1 只能退回"scorecard 缺 hash 不阻断"，
+  即 R-1 不修——两者不能同时满足。
+- 残留/限制：①候选是"重放"而非产品内部那次返回值（产品无对应 API），重放更窄只会 fail-closed；多轮继承
+  上下文按产品 `_load_context` 还原，若产品内部另有状态推进，可能误判"引用不在候选内"（不放宽）；
+  ②H2 run 不写逐题行 → 不落候选（该路径不产生 gate 行，候选口径不适用）；③R-2 未覆盖 live 链（零真实调用约束）；
+  ④T205/R2 历史 verify 探针里 `evaluate_p2_gate` 的旧期望（未声明 hash 的 scorecard）未回改——历史证据，
+  与 T206-PRE 处理 verify-r1 过时断言同口径。

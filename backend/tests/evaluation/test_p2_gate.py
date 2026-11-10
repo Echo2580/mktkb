@@ -323,6 +323,7 @@ def public_card(
     run_id: str | None = None,
     execution_mode: str | None = None,
     real_calls: int = 0,
+    config_hash: str | None = None,
 ) -> object:
     scores = []
     for case_id in P2_B0_IDS:
@@ -354,7 +355,7 @@ def public_card(
             dataclasses.replace(item, execution_mode=execution_mode, real_calls=real_calls)
             for item in scores
         ]
-    return score_public_suites(scores, run_id=run_id)
+    return score_public_suites(scores, run_id=run_id, config_hash=config_hash)
 
 
 def holdout_card(
@@ -363,6 +364,7 @@ def holdout_card(
     run_id: str | None = None,
     execution_mode: str = "local_mock",
     real_calls: int = 0,
+    config_hash: str | None = None,
 ):
     items = []
     for index, (stratum, count) in enumerate(P2_HOLDOUT_STRATA.items()):
@@ -380,6 +382,7 @@ def holdout_card(
         execution_mode=execution_mode,
         real_calls=real_calls,
         run_id=run_id,
+        config_hash=config_hash,
     )
 
 
@@ -626,8 +629,8 @@ def test_approved_config_can_release_only_with_complete_evidence(tmp_path: Path)
         run_manifest=manifest_map,
         run_summary=summary,
         hard_gate=gate_result,
-        public=public_card(),
-        holdout=holdout_card(approved=True),
+        public=public_card(config_hash=manifest_map["config_hash"]),
+        holdout=holdout_card(approved=True, config_hash=manifest_map["config_hash"]),
         citation_evidence_complete=True,
     )
     assert decision.release_allowed is True, decision.to_dict()
@@ -658,8 +661,8 @@ def test_decision_binds_run_id_and_execution_mode(tmp_path: Path) -> None:
         run_manifest=manifest_map,
         run_summary=summary,
         hard_gate=gate_result,
-        public=public_card(run_id=run_id),
-        holdout=holdout_card(approved=True, run_id=run_id),
+        public=public_card(run_id=run_id, config_hash=manifest_map["config_hash"]),
+        holdout=holdout_card(approved=True, run_id=run_id, config_hash=manifest_map["config_hash"]),
         citation_evidence_complete=True,
     )
     payload = json.loads(json.dumps(decision.to_dict(), ensure_ascii=False))
@@ -847,7 +850,8 @@ def test_quality_failure_maps_to_exit_two_not_hard(tmp_path: Path) -> None:
                 executed_turns=1,
             )
             for case_id in P2_NEGATIVE_IDS + P2_BOUNDARY_IDS + P2_UPDATE_DELETE_IDS
-        ]
+        ],
+        config_hash=manifest_map["config_hash"],
     )
     decision = evaluate_p2_gate(
         config=config_for(status="approved"),
@@ -855,7 +859,7 @@ def test_quality_failure_maps_to_exit_two_not_hard(tmp_path: Path) -> None:
         run_summary=summary,
         hard_gate=gate_result,
         public=failing_public,
-        holdout=holdout_card(approved=True),
+        holdout=holdout_card(approved=True, config_hash=manifest_map["config_hash"]),
         citation_evidence_complete=True,
     )
     assert decision.release_allowed is False

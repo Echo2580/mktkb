@@ -1,0 +1,96 @@
+# P2-T206-PRE-R1 范围/哈希/探针（2026-11-11；HEAD 1e422e9；未 commit/push）
+
+## 1. 本次改动（git diff --stat，仅交付面）
+$ git diff --stat -- <源码/测试/契约/报告>
+ backend/src/mktkb/evaluation/p2_scoring.py      |  35 +++-
+ backend/src/mktkb/evaluation/product_adapter.py | 204 +++++++++++++++++++++++-
+ backend/tests/evaluation/test_p2_gate.py        |  18 ++-
+ backend/tests/evaluation/test_p2_runner.py      | 125 +++++++++++++++
+ backend/tests/evaluation/test_p2_scoring.py     |  74 +++++++++
+ docs/evaluation/p2-live-binding-v0_1.md         |  48 ++++--
+ docs/reports/OBS-EVAL/P2/T206-PRE/report.md     |  36 +++++
+ 7 files changed, 519 insertions(+), 21 deletions(-)
+
+## 2. 逐文件行数/sha256[:16]
+backend/src/mktkb/evaluation/p2_scoring.py  lines=2203  sha256=d515d9e0a9bcd277
+backend/src/mktkb/evaluation/product_adapter.py  lines=1700  sha256=b4aae839f17db7ce
+backend/tests/evaluation/test_p2_gate.py  lines=939  sha256=fd87eb30d05f60d2
+backend/tests/evaluation/test_p2_runner.py  lines=1683  sha256=2391a5bd9a7b73b9
+backend/tests/evaluation/test_p2_scoring.py  lines=919  sha256=30af816501282a69
+docs/evaluation/p2-live-binding-v0_1.md  lines=182  sha256=e77dcdc4c0b6126d
+docs/reports/OBS-EVAL/P2/T206-PRE/report.md  lines=129  sha256=2cb95569eaf6a2a3
+docs/reports/OBS-EVAL/P2/T206-PRE/evidence/04-r1-regressions.txt  lines=38  sha256=d077153e15ddfb4e
+docs/reports/OBS-EVAL/P2/T206-PRE/evidence/05-r1-retrieval-probe.py  lines=151  sha256=72713cf9cba73576
+
+## 3. 禁改面零 diff（fixtures / gate.py / p2_ingestion.py / 业务 API / .env / H1 / H2）
+$ git status --porcelain -- fixtures backend/src/mktkb/evaluation/gate.py backend/src/mktkb/evaluation/p2_ingestion.py backend/src/mktkb/conversations backend/src/mktkb/main.py .env .env.example
+(空)
+（空 = 零改动）
+
+## 4. 工作树里不属于本包的文件（本包未触碰）
+- `.claude/handoffs/_index.md`：会话开始前已是 modified（经理簿记）；
+- 其余 `??` 为会话开始前就存在的协调/任务书/提示词文件；本包新增仅 `evidence/04,05`（+本文件 06）。
+
+## 5. 探针复跑（05-r1-retrieval-probe.py，stdout；全 Mock，出站 0）
+$ .venv\Scripts\python.exe -B -X utf8 docs/reports/OBS-EVAL/P2/T206-PRE/evidence/05-r1-retrieval-probe.py
+{
+  "run_status": "succeeded",
+  "run_id": "p2run-b9e7ff7580a441df",
+  "config_hash": "58caf4a2d24117f0a8a153e148722763f56727dd2e268a1e060f75d9ab1fb01e",
+  "turns": [
+    {
+      "case_id": "P01",
+      "path": "rag",
+      "kind": "answer",
+      "citations": 2,
+      "retrieved": 2,
+      "cited_subset_of_retrieved": true
+    },
+    {
+      "case_id": "P03",
+      "path": "legacy",
+      "kind": "answer",
+      "citations": 2,
+      "retrieved": 4,
+      "cited_subset_of_retrieved": true
+    },
+    {
+      "case_id": "P04",
+      "path": "legacy_with_rag_candidates",
+      "kind": "not_found",
+      "citations": 0,
+      "retrieved": 0,
+      "cited_subset_of_retrieved": true
+    }
+  ],
+  "gate_status_positive": {
+    "security_leak": "not_applicable",
+    "cross_entity": "not_applicable",
+    "stale_bypass": "not_applicable",
+    "conflict_not_rejected": "not_applicable",
+    "exact_value_contract": "not_applicable",
+    "pagination_contract": "not_applicable",
+    "citation_required": "pass",
+    "trace_integrity": "pass"
+  },
+  "citation_required_positive": "pass",
+  "negative_cases": {
+    "drop": {
+      "citation_required": "fail",
+      "hard_failure_listed": true,
+      "check_ids": [
+        "citation_not_in_evidence"
+      ]
+    },
+    "foreign": {
+      "citation_required": "fail",
+      "hard_failure_listed": true,
+      "check_ids": [
+        "citation_not_in_evidence"
+      ]
+    }
+  },
+  "real_requests": 0,
+  "billed_cny": 0.0
+}
+

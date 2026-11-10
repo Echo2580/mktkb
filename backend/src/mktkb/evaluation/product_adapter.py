@@ -29,7 +29,7 @@ import uuid
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Awaitable, Callable, Mapping, Sequence
+from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
 
 import httpx
 
@@ -671,6 +671,9 @@ class ProductTurn:
     #: T206-PRE：本轮引用解析出的**稳定证据身份**（unit_id/locator/文档/版本）。
     #: 只来自产品库的只读解析；解析不到的项 ``verified=False``，不猜默认值。
     evidence: tuple[Mapping[str, Any], ...] = ()
+    #: T206-PRE-R1：本轮**真实检索候选单元**（产品自己的检索结果，**不是引用**）。
+    #: 只在作答轮采集；取不到就留空——gate 的 ``citation_required`` 因此判 fail，不放宽。
+    retrieved: tuple[Mapping[str, Any], ...] = ()
 
     def as_dict(self, *, include_text: bool) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -696,6 +699,7 @@ class ProductTurn:
             "replayed": bool(self.replayed),
             "elapsed_ms": int(self.elapsed_ms),
             "evidence": [dict(item) for item in self.evidence],
+            "retrieved": [dict(item) for item in self.retrieved],
         }
         if include_text:
             payload["text"] = self.text
@@ -1178,6 +1182,185 @@ class ProductEvalAdapter:
             db.close()
         return tuple(records)
 
+    # ---------------------------------------------------------------- 检索候选单元（R1）
+    def _safe_product_revision(self) -> int | None:
+        """发送前取一次产品 revision；取不到就记 None（候选为空、gate 不放宽）。"""
+        try:
+            return int(self.product_revision())
+        except Exception:  # noqa: BLE001 - 观测面失败不改变产品结论
+            return None
+
+    def _safe_query_state(self, user_id: str, conversation_id: str) -> Any:
+        """发送前快照 rag 查询状态（本轮会推进它，事后无法还原）。"""
+        if self._qa is None:
+            return None
+        try:
+            return self._qa.load_state(str(user_id), str(conversation_id))
+        except Exception:  # noqa: BLE001 - 索引未就绪等一律记"没有状态"
+            return None
+
+    def retrieval_candidates(
+        self,
+        question: str,
+        *,
+        conversation_id: str,
+        client_request_id: str,
+        trace_path: str | None,
+        revision: int | None,
+        state: Any,
+    ) -> tuple[dict[str, Any], ...]:
+        """只读取本轮**检索候选单元**（产品自己的检索结果，**不是引用**）。
+
+        - ``trace_path == "rag"``：按产品 rag 内核同一口径（发送前的持久状态 + 同一
+          lexicon/business_date/page_size）再做一次只读 ``search``；
+        - ``legacy`` / ``legacy_with_rag_candidates``：走产品 legacy 检索入口
+          （``conversations.service._retrieve``，记录型问题同样带 rag 候选上界）；
+        - 路径未知、revision 缺失或任一步失败 → 返回空：gate 的 ``citation_required``
+          因此判 fail，**不当通过**。
+
+        诚实边界：产品没有暴露"这一轮实际返回给模型的候选集合"的 API，这里是**用产品
+        自己的检索代码在同一 revision/上下文上重放一次**。重放比产品内部那次更窄时只会
+        fail-closed（引用被判不在候选内），不会更宽地放过引用。
+        """
+        if self._app is None or revision is None:
+            return ()
+        path = str(trace_path or "")
+        try:
+            if path == "rag":
+                ids = self._rag_candidate_ids(question, state=state)
+            elif path in {"legacy", "legacy_with_rag_candidates"}:
+                ids = self._legacy_candidate_ids(
+                    question,
+                    conversation_id=conversation_id,
+                    client_request_id=client_request_id,
+                    revision=int(revision),
+                )
+            else:
+                return ()
+        except Exception:  # noqa: BLE001 - 采集失败只让候选为空，不改产品结论
+            return ()
+        return self._resolve_retrieved_units(ids)
+
+    def _rag_candidate_ids(self, question: str, *, state: Any) -> set[str]:
+        """rag 内核路径：用同一查询状态/词典重算本轮计划，再取只读检索候选。"""
+        if self._qa is None or state is None:
+            return set()
+        from ..rag.query import build_lexicon, parse_query
+
+        index = self._qa.index()
+        plan = parse_query(
+            str(question),
+            previous=state,
+            lexicon=build_lexicon(index.lexicon_data()),
+            business_date=self._qa.config.business_date,
+            page_size=self._qa.config.page_size,
+        )
+        return {str(item) for item in self._qa.candidate_unit_ids(plan) if str(item)}
+
+    def _legacy_candidate_ids(
+        self,
+        question: str,
+        *,
+        conversation_id: str,
+        client_request_id: str,
+        revision: int,
+    ) -> set[str]:
+        """legacy 路径：用产品同一意图解析 + 同一检索入口重放候选（含 rag 候选上界）。"""
+        from sqlalchemy import select
+
+        from ..conversations import intent as intent_module
+        from ..conversations import service as conversations_service
+        from ..conversations.models import Conversation, ConversationMessage, ConversationRequest
+
+        db_factory = getattr(self._app.state, "db", None) if self._app is not None else None
+        if db_factory is None:
+            return set()
+        db = db_factory.session()
+        try:
+            conversation = db.get(Conversation, uuid.UUID(str(conversation_id)))
+            if conversation is None:
+                return set()
+            request_row = db.scalar(
+                select(ConversationRequest).where(
+                    ConversationRequest.conversation_id == conversation.id,
+                    ConversationRequest.client_request_id == uuid.UUID(str(client_request_id)),
+                )
+            )
+            user_message = (
+                db.get(ConversationMessage, request_row.user_message_id)
+                if request_row is not None and request_row.user_message_id is not None
+                else None
+            )
+            if user_message is None:
+                return set()
+            questions, entities = conversations_service._load_context(
+                db, conversation, user_message.seq
+            )
+            lexicon = intent_module.load_lexicon(db)
+            plan = intent_module.parse_question(
+                str(question),
+                lexicon=lexicon,
+                context_entities=entities,
+                context_questions=questions,
+            )
+            if plan.intent is None:
+                return set()
+            candidate_ids: set[str] | None = None
+            if self._qa is not None and str(plan.intent.mode) == "record":
+                try:
+                    candidate_ids = self._qa.candidate_unit_ids_for_intent(
+                        mode="record",
+                        terms=plan.intent.terms,
+                        entity_filters=plan.intent.entity_filters,
+                    )
+                except Exception:  # noqa: BLE001 - 没有上界时按产品自身的"无候选上界"处理
+                    candidate_ids = None
+            evidence = conversations_service._retrieve(
+                db_factory,
+                plan.intent,
+                int(revision),
+                limit=100,
+                candidate_ids=candidate_ids,
+            )
+        finally:
+            db.close()
+        return {str(unit.id) for unit in evidence.units if getattr(unit, "id", None) is not None}
+
+    def _resolve_retrieved_units(self, ids: Iterable[str]) -> tuple[dict[str, Any], ...]:
+        """把候选 unit id 解析成稳定身份（文档名/unit_key/locator）；解析不到的丢掉。"""
+        wanted: list[uuid.UUID] = []
+        for raw in ids:
+            try:
+                wanted.append(uuid.UUID(str(raw)))
+            except (ValueError, AttributeError, TypeError):
+                continue
+        if not wanted or self._app is None:
+            return ()
+        from sqlalchemy import select
+
+        from ..documents.models import Document, SourceUnit
+
+        db = self._app.state.db.session()
+        try:
+            rows = db.execute(
+                select(SourceUnit, Document)
+                .join(Document, SourceUnit.document_id == Document.id)
+                .where(SourceUnit.id.in_(wanted))
+            ).all()
+        finally:
+            db.close()
+        items = [
+            {
+                "document_name": str(document.name),
+                "unit_ids": [str(unit.id)],
+                "unit_key": str(unit.unit_key),
+                "locator": dict(unit.locator or {}),
+            }
+            for unit, document in rows
+        ]
+        items.sort(key=lambda item: (item["document_name"], item["unit_key"], item["unit_ids"][0]))
+        return tuple(items)
+
     def trace_of(self, trace_id: str | None) -> tuple[Any, list[Any]] | None:
         repo = getattr(self._app.state, "trace_repo", None) if self._app is not None else None
         if repo is None or not trace_id:
@@ -1346,6 +1529,10 @@ class ProductEvalAdapter:
         """走用户同一产品入口提问一次；超时/异常都转成可记录的产品回合结果。"""
         await self.start()
         session = self._session(user_id)
+        # T206-PRE-R1：检索候选只能在**发送前**取基线（产品 revision + rag 查询状态）——
+        # 本轮会把状态推进，事后重算就不是这一轮的检索了。
+        pre_revision = self._safe_product_revision()
+        pre_state = self._safe_query_state(user_id, conversation_id)
         started = time.perf_counter()
         timed_out = False
         response: httpx.Response | None = None
@@ -1414,6 +1601,20 @@ class ProductEvalAdapter:
         evidence = (
             self.citation_evidence(source_ids) if kind == "answer" and source_ids else ()
         )
+        # T206-PRE-R1：作答轮采集**本轮真实检索候选**（产品检索结果，不是引用）。
+        # 非作答轮保持空（gate 不要求引用，也不允许拿"没检索"冒充通过）。
+        retrieved = (
+            self.retrieval_candidates(
+                str(question),
+                conversation_id=str(conversation_id),
+                client_request_id=str(client_request_id),
+                trace_path=trace_path,
+                revision=pre_revision,
+                state=pre_state,
+            )
+            if kind == "answer"
+            else ()
+        )
         return ProductTurn(
             question_sha256=_sha256_text(question),
             question_chars=len(question),
@@ -1438,6 +1639,7 @@ class ProductEvalAdapter:
             replayed=bool(payload.get("replayed", False)),
             elapsed_ms=elapsed_ms,
             evidence=evidence,
+            retrieved=retrieved,
         )
 
     @staticmethod

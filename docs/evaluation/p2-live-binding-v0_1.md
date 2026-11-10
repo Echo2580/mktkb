@@ -60,11 +60,32 @@ T205 review §3 的两条限制（trace 无评测身份、产物无检索证据 
   `evaluate_p2_gate`；判定默认值仍是 `False`；
 - H2 聚合路径用 `include_case_ids=False` 输出（不含 case_id，符合"只出聚合"）。
 
-**能力边界（如实）**：本项证明的是「引用落在本轮灌入的、当前有效的来源单元上，且带稳定
-unit/locator/版本身份」，不是「引用 ⊆ 模型本轮检索候选集」——后者由产品自身的
-`_validate_answer`（引用必须在允许集合内）与 gate 的 `citation_evidence` 硬门禁
-（在提供 `retrieved` 时）负责。本包**不新增 API 字段**：`SourceSummary`/`SourceView`
-未改，解析在产品库侧只读完成。
+**能力边界（如实）**：上表证明的是「引用落在本轮灌入的、当前有效的来源单元上，且带稳定
+unit/locator/版本身份」。**「引用 ⊆ 本轮检索候选」由 R1 的检索候选接线负责**（见 §2b），
+两者互不替代：证据 id 证明引用可核对，候选集合证明引用确实检索得到。本包**不新增 API
+字段**：`SourceSummary`/`SourceView` 未改，解析在产品库侧只读完成。
+
+## 2b. 检索候选（retrieved，R1）
+
+产品没有暴露「这一轮返回给模型的候选集合」的 API。适配器因此**用产品自己的检索代码在同一
+revision / 同一查询状态下重放一次**，把候选单元写进该轮的 `product.retrieved`
+（`{document_name, unit_ids, unit_key, locator}`，按文档名/unit_key/unit_id 排序）：
+
+| 轮次路径（trace `path`） | 候选来源 |
+|---|---|
+| `rag` | 发送前快照的持久查询状态 + 同一 lexicon/business_date/page_size → `parse_query` → `QaEngine.candidate_unit_ids`（只读） |
+| `legacy` / `legacy_with_rag_candidates` | 产品同一意图解析（`conversations.intent.parse_question`，含 `_load_context` 上下文）+ 同一检索入口 `conversations.service._retrieve`（记录型问题带 rag 候选上界） |
+| 非作答轮 / 路径未知 / 任一步失败 | 空（不猜、不补） |
+
+判定（既有 gate `citation_required`，**未放宽**）：引用 unit 必须 ⊆ 该轮候选；候选为空或缺项
+→ `citation_not_in_evidence`（fail）；非作答轮不要求引用。评分侧
+`normalize_product_outcome` 只用 `product.retrieved` 填 `outcome.retrieved`（显式传入的
+评测夹具候选优先）。
+
+**诚实边界**：这是"重放"，不是产品内部那次调用的返回值（产品无该 API）。重放比产品内部更窄时
+只会 fail-closed（引用被判不在候选内），不会更宽地放过引用；因此 pilot 若出现
+`citation_not_in_evidence` 而人工复核认为引用合法，应按"候选重放口径不覆盖该轮上下文"处理，
+不得改成"缺候选也算通过"。
 
 ## 3. config_hash（确定性绑定摘要）
 
@@ -85,7 +106,12 @@ config_hash = sha256(canonical_json({
   `gate.json.binding`；`P2GateDecision.binding_config_hash` 记录判定所依据的摘要
   （与 `P2GateDecision.config_hash`＝gate 配置摘要语义不同，不混用）；
 - 门禁核对（`evaluate_p2_gate`）：`run_manifest.config_hash` 缺失 → `config_hash_unbound`；
-  scorecard 声明的 `config_hash` 与之不一致 → `config_hash_binding_mismatch`（均 unknown 不放行）。
+  scorecard 声明的 `config_hash` 与之不一致 → `config_hash_binding_mismatch`；
+  **scorecard 未声明 `config_hash`（manifest 有）→ `config_hash_unbound`**（R1：缺 ≠ 跳过核对，
+  否则"不声明"就能绕过同源证明）；以上均 unknown 不放行；
+- 因此**打分驱动（pilot）构造 scorecard 时必须显式传 `config_hash=run_manifest["config_hash"]`**
+  （`score_public_suites(..., config_hash=...)` / `aggregate_holdout(..., config_hash=...)`），
+  不传即被上面的门禁阻断——不是提示，是放行前提。
 
 ## 4. 失败也写产物
 
@@ -126,7 +152,8 @@ runner 的产物写入改为「先校验、后落盘，校验失败也落盘」�
   `business_dates`、`binding`、`pipeline.trace.identity_bound`、公开 run 额外写 `dataset.jsonl`；
 - `summary.json`：`binding`、`citation_evidence`、`network.available/code`；
 - `gate.json`：`binding`、`citation_evidence`、`artifact_validation`、`failure`；
-- `cases.jsonl`：每轮 `product.evidence`（仅公开 run；H2 不写逐题行）。
+- `cases.jsonl`：每轮 `product.evidence`（引用证据 id）与 `product.retrieved`
+  （本轮检索候选，R1；仅公开 run，H2 不写逐题行）。
 
 **版本策略**：不升既有 `schema_version`（`p2-run-manifest/v0.1` 等）——只是**新增键**，
 旧键名与语义一律不变（additionalProperties 兼容）；依赖新键的消费方必须同时校验
@@ -137,10 +164,13 @@ runner 的产物写入改为「先校验、后落盘，校验失败也落盘」�
 
 | 缺失/不一致 | 结果 |
 |---|---|
-| 未绑 trace 身份 | `trace_integrity` = `version_binding` 硬失败 |
-| 只绑部分身份 | 整体不绑（`bind_trace_identity` 拒绝），同上 |
+| 未绑 trace 身份（run 原生清单不全） | 先被 `build_gate_run` 以 `run_manifest_incomplete` 拒绝（fail-closed，构建期） |
+| 清单补全但 trace 未绑（或六字段为 None） | `trace_integrity` = `version_binding` 硬失败 |
+| 只绑部分身份 | 整体不绑（`bind_trace_identity` 拒绝）；效果同前两行：先 `run_manifest_incomplete`，补全清单后 `version_binding` 失败 |
 | 缺 `gate_version`/`gate_config_hash` | `binding.complete=false`、`trace_identity_bound=false`，门禁 `config_hash_unbound`/`gate_config_unbound` |
 | 引用无 unit/locator/未核实 | `citation_evidence_status.complete=false` → `citation_evidence_unavailable` |
+| 引用不在本轮检索候选内 / 没有候选 | `citation_required` = fail（`citation_not_in_evidence`），非 unknown、不放过 |
+| scorecard 未声明 `config_hash`（manifest 有） | `config_hash_unbound`（unknown），不放行 |
 | manifest 缺 `run_id` | `run_binding_missing`（unknown） |
 | 网络分解不一致 | `provider_network_detail_mismatch`（抛错 + 失败产物） |
 

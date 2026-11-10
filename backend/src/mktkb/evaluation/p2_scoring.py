@@ -512,16 +512,29 @@ def normalize_product_outcome(
             _source_identity(item, document_codes=document_codes, source_index=source_index)
         )
 
+    # T206-PRE-R1：候选集合优先用调用方显式给的（评测夹具），否则用产品本轮
+    # **真实检索候选**（``product.retrieved``，不是引用）。两者都没有 = 空集，
+    # gate 的 citation_required 会因此判 fail —— 不静默当通过。
+    raw_retrieved: Sequence[Any] = evidence
+    if not raw_retrieved:
+        payload_retrieved = product.get("retrieved")
+        if isinstance(payload_retrieved, Sequence) and not isinstance(payload_retrieved, (str, bytes)):
+            raw_retrieved = payload_retrieved
     retrieved: list[EvalRetrieved] = []
-    for item in evidence:
+    for item in raw_retrieved:
         if not isinstance(item, Mapping):
             raise P2ScoringError("evidence_invalid", "evidence 的每项必须是对象")
         raw_ids = item.get("unit_ids") or ()
         if isinstance(raw_ids, (str, bytes)):
             raw_ids = (raw_ids,)
+        doc_code = str(item.get("doc_code") or "")
+        if not doc_code:
+            # 产品只回文档名：按调用方给的显式映射换算代号；映射不到就留空，
+            # 让引用子集判定按 unit_id 进行（不猜文档代号、也不因此放宽）。
+            doc_code = _lookup_document_code(str(item.get("document_name") or ""), document_codes) or ""
         retrieved.append(
             EvalRetrieved(
-                doc_code=str(item.get("doc_code") or ""),
+                doc_code=doc_code,
                 unit_ids=tuple(str(value) for value in raw_ids if str(value)),
                 unit_key=item.get("unit_key"),
                 locator=dict(item.get("locator") or {}),
@@ -1946,9 +1959,23 @@ def evaluate_p2_gate(
                 )
             )
 
-    # 5c) T206-PRE：scorecard 声明的绑定摘要必须与本 run 的 config_hash 一致
+    # 5c) T206-PRE + R1：scorecard 声明的绑定摘要必须与本 run 的 config_hash 一致；
+    #     **未声明也算不通过**（fail-closed）——manifest 有绑定摘要、scorecard 却没有，
+    #     就无法证明这张分母/阈值出自同一份 dataset/pipeline/索引/provider/gate。
+    #     manifest 自己也缺摘要时已在上文记 config_hash_unbound，这里不重复记。
     for name, card in cards:
-        if card is None or card.config_hash is None:
+        if card is None:
+            continue
+        if card.config_hash is None:
+            if manifest_binding_hash:
+                blocks.append(
+                    P2Block(
+                        "config_hash_unbound",
+                        SEVERITY_UNKNOWN,
+                        f"{name} scorecard 未声明 config_hash：无法证明与本次 run 同一份绑定配置",
+                        {"manifest_config_hash": manifest_binding_hash},
+                    )
+                )
             continue
         declared = str(card.config_hash).strip()
         if not manifest_binding_hash:

@@ -1,0 +1,37 @@
+# P2-T206-PRE-R1 定向复跑（2026-11-11；全 Mock / 离线；零真实调用；PYTHONIOENCODING=utf-8）
+
+## T203 runner+e2e (原 34)
+$ .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/integration/test_p2_product_e2e.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t206r1-ev-runner
+exit=0 elapsed=17.3s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+35 passed, 1 warning in 15.34s
+
+## T201 auth (原 70)
+$ .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t206r1-ev-auth
+exit=0 elapsed=2.5s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 passed, 1 warning in 0.94s
+
+## T204 OCR (原 18)
+$ .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_ocr_ingestion.py backend/tests/integration/test_p2_ocr_source_identity.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t206r1-ev-ocr
+exit=0 elapsed=16.9s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+18 passed, 1 warning in 15.21s
+
+## T205 scoring+gate+controls (原 54)
+$ .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_scoring.py backend/tests/evaluation/test_p2_gate.py backend/tests/integration/test_p2_public_controls.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t206r1-ev-scoring
+exit=0 elapsed=5.8s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+56 passed, 1 warning in 4.10s
+
+## gate 109
+$ .venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_gate.py backend/tests/evaluation/test_gate_quality.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t206r1-ev-gate
+exit=0 elapsed=3.5s
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+109 passed, 1 warning in 1.87s
+

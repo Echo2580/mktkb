@@ -1458,6 +1458,131 @@ async def test_mock_dry_run_binds_identity_and_passes_trace_integrity(tmp_path: 
         assert not [
             item for item in hard.hard_failures if item == "trace_integrity"
         ], hard.to_dict()
+
+        # 5) R1：gate 行的 retrieved 是产品本轮**真实检索候选**（不是引用），citation_required 真 PASS
+        assert hard.gate_status["citation_required"] == "pass", hard.to_dict()
+        for case_row, row in zip(case_rows, rows):
+            outcome = row["outcome"] or {}
+            cited = {unit for item in outcome.get("citations") or () for unit in item.get("unit_ids") or ()}
+            candidates = {unit for item in outcome.get("retrieved") or () for unit in item.get("unit_ids") or ()}
+            if outcome.get("kind") == "answer":
+                assert candidates, (case_row["case_id"], outcome)
+                assert cited <= candidates, (case_row["case_id"], cited - candidates)
+        products = [case_row["turns"][0]["product"] for case_row in case_rows]
+        assert all(product["retrieved"] for product in products)
+        # 候选多于引用：证明不是把引用抄进 retrieved
+        assert any(len(product["retrieved"]) > len(product["sources"]) for product in products)
+    finally:
+        await adapter.close()
+
+
+FOREIGN_UNIT = "99999999-9999-4999-8999-999999999999"
+
+
+def _tampered_rows(rows, *, mode: str) -> tuple[dict[str, Any], ...]:
+    """反例：把作答行的检索候选删掉（drop）或换成无关单元（foreign）。"""
+    out: list[dict[str, Any]] = []
+    for row in rows:
+        copy = dict(row)
+        outcome = copy.get("outcome")
+        if isinstance(outcome, Mapping) and outcome.get("kind") == "answer":
+            outcome = dict(outcome)
+            if mode == "drop":
+                outcome["retrieved"] = []
+            else:
+                outcome["retrieved"] = [
+                    {
+                        "doc_code": "D01",
+                        "unit_ids": [FOREIGN_UNIT],
+                        "unit_key": "sheet:无关:row:99",
+                        "locator": {"sheet": "无关", "row": 99},
+                        "chunk_id": None,
+                        "hard_filter_violation": None,
+                    }
+                ]
+            copy["outcome"] = outcome
+        out.append(copy)
+    return tuple(out)
+
+
+@asyncio_test
+async def test_gate_rows_use_real_retrieval_candidates_and_fail_closed(tmp_path: Path) -> None:
+    """R1：gate 行的 retrieved = 产品本轮真实检索候选；缺候选/引用不在候选内 → fail（不放宽）。"""
+    cases = (
+        make_case("P01", RAG_QUESTION),
+        make_case("P03", LEGACY_QUESTION),
+        make_case("P04", UNKNOWN_QUESTION, stratum="negative"),
+    )
+    plan = make_plan(cases)
+    adapter = ProductEvalAdapter(
+        tmp_path / "candidates",
+        chat=MockChatBackend(),
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    config = load_p2_gate_config()
+    try:
+        result = await run_p2(
+            plan,
+            adapter=adapter,
+            authorization=dry_run_authorization(plan),
+            now=NOW,
+            gate_config=config,
+        )
+        assert result.status == "succeeded", result.as_dict()
+        run_dir = adapter.paths.run_dir
+        manifest = read_json(run_dir / "run_manifest.json")
+        summary = read_json(run_dir / "summary.json")
+        case_rows = read_jsonl(run_dir / "cases.jsonl")
+        by_id = {row["case_id"]: row for row in case_rows}
+
+        # 1) 产品逐轮记的是检索候选：包含被引用的单元、带稳定身份，且不只是引用的副本
+        for case_id in ("P01", "P03"):
+            product = by_id[case_id]["turns"][0]["product"]
+            cited = {str(item["source_id"]) for item in product["sources"]}
+            candidates = {unit for item in product["retrieved"] for unit in item["unit_ids"]}
+            assert cited and cited <= candidates, case_id
+            for item in product["retrieved"]:
+                assert item["unit_key"] and item["locator"], item
+        assert any(
+            len(by_id[case_id]["turns"][0]["product"]["retrieved"])
+            > len(by_id[case_id]["turns"][0]["product"]["sources"])
+            for case_id in ("P01", "P03")
+        )
+        # 2) 非作答轮不造候选（gate 也不要求引用）
+        assert by_id["P04"]["turns"][0]["product"]["kind"] == "not_found"
+        assert by_id["P04"]["turns"][0]["product"]["retrieved"] == []
+
+        scored = [
+            score_p2_public_case(
+                case,
+                by_id[case.case_id],
+                document_codes=DOCUMENT_CODES,
+                allowed_doc_codes=set(DOCUMENT_CODES.values()),
+            )
+            for case in cases
+        ]
+        rows = build_gate_rows(cases, scored)
+        gate_run = build_gate_run(
+            run_dir=run_dir, manifest=manifest, cases=cases, rows=rows, summary=summary
+        )
+        positive = evaluate_p2_hard_gates(gate_run, config=config, require_trace=True)
+        assert positive.gate_status["citation_required"] == "pass", positive.to_dict()
+        assert "citation_required" not in positive.hard_failures
+
+        # 3) 反例：候选缺失 / 引用不在候选内 → fail（不是 unknown、不是 pass）
+        for mode in ("drop", "foreign"):
+            tampered = build_gate_run(
+                run_dir=run_dir,
+                manifest=manifest,
+                cases=cases,
+                rows=_tampered_rows(rows, mode=mode),
+                summary=summary,
+            )
+            hard = evaluate_p2_hard_gates(tampered, config=config, require_trace=True)
+            assert hard.gate_status["citation_required"] == "fail", (mode, hard.to_dict())
+            assert "citation_required" in hard.hard_failures, mode
+            assert any(item.check_id == "citation_not_in_evidence" for item in hard.failures), mode
     finally:
         await adapter.close()
 

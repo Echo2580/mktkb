@@ -842,3 +842,77 @@ def test_gate_blocks_missing_run_id_and_config_binding() -> None:
     )
     assert "config_hash_binding_mismatch" in {block.code for block in decision.blocks}
     assert decision.release_allowed is False
+
+
+def test_scorecard_without_config_hash_is_fail_closed() -> None:
+    """R1：manifest 有绑定摘要、scorecard 没声明 → 必须阻断（"缺"不等于"跳过核对"）。"""
+    config, manifest, _, _ = _gate_inputs()
+    public = score_public_suites([], run_id="p2run-bind")
+    holdout = aggregate_holdout([], thresholds_approved=False, run_id="p2run-bind")
+    assert public.config_hash is None and holdout.config_hash is None
+
+    decision = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=public,
+        holdout=holdout,
+        citation_evidence_complete=True,
+    )
+    codes = [block.code for block in decision.blocks]
+    assert codes.count("config_hash_unbound") == 2, decision.to_dict()
+    assert decision.release_allowed is False
+    assert decision.quality_exit_code != 0  # 质量侧不可放行（分母/阈值在此夹具里另有阻断）
+    # 只补一侧仍然不通过：缺的那一侧照样阻断（不是"有一侧够就行"）
+    half = evaluate_p2_gate(
+        config=config,
+        run_manifest=manifest,
+        run_summary={"status": "succeeded", "stop_code": None, "cases": {}},
+        hard_gate=None,
+        public=score_public_suites([], run_id="p2run-bind", config_hash="a" * 64),
+        holdout=holdout,
+        citation_evidence_complete=True,
+    )
+    assert "config_hash_unbound" in {block.code for block in half.blocks}
+    assert half.release_allowed is False
+
+
+def test_product_retrieved_candidates_fill_gate_outcome() -> None:
+    """R1：产品本轮**检索候选**进 outcome.retrieved（不是把引用抄成候选）。"""
+    second_unit = "22222222-2222-4222-8222-222222222222"
+    turn = {
+        "turn": 1,
+        "status": "ok",
+        "product": {
+            **product(),
+            "retrieved": [
+                {
+                    "document_name": DOC_NAME,
+                    "unit_ids": [UNIT_ID],
+                    "unit_key": UNIT_KEY,
+                    "locator": {"sheet": "物品位置", "row": 8},
+                },
+                {
+                    "document_name": "D02_合作店家信息.xlsx",
+                    "unit_ids": [second_unit],
+                    "unit_key": "sheet:合作店家:row:2",
+                    "locator": {"sheet": "合作店家", "row": 2},
+                },
+            ],
+        },
+    }
+    outcome = normalize_product_outcome(turn, document_codes=DOCUMENT_CODES)
+    assert [item.unit_ids for item in outcome.retrieved] == [(UNIT_ID,), (second_unit,)]
+    # 只在显式映射里有代号时才换算；映射不到留空（不猜文档代号）
+    assert [item.doc_code for item in outcome.retrieved] == ["D01", ""]
+
+    # 显式候选（评测夹具）优先，产品字段不会覆盖它
+    explicit = normalize_product_outcome(
+        turn, document_codes=DOCUMENT_CODES, evidence=[{"doc_code": "D01", "unit_ids": [UNIT_ID]}]
+    )
+    assert [item.unit_ids for item in explicit.retrieved] == [(UNIT_ID,)]
+
+    # 既没有显式候选、产品也没给候选 → 空集：gate 只能判 fail，不当通过
+    bare = normalize_product_outcome({"product": product()}, document_codes=DOCUMENT_CODES)
+    assert bare.retrieved == ()
