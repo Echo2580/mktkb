@@ -1,0 +1,205 @@
+{
+ "fixture_shapes": {
+  "D09_物料领用通知.png": {
+   "size": [
+    1200,
+    700
+   ],
+   "looks_like_rule_table": false,
+   "near_blank": false
+  },
+  "D10_盘点通知.jpg": {
+   "size": [
+    1240,
+    620
+   ],
+   "looks_like_rule_table": true,
+   "near_blank": false
+  },
+  "D07_活动申请扫描件.pdf": {
+   "pages": 8,
+   "text_layer_chars": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "D08_仓库安全须知扫描件.pdf": {
+   "pages": 2,
+   "text_layer_chars": [
+    0,
+    0
+   ]
+  }
+ },
+ "planned_calls_recomputed": {
+  "D07": 8,
+  "D08": 2,
+  "D09": 1,
+  "D10": 1,
+  "total": 12,
+  "price": {
+   "text": 0.5,
+   "table": 0.15
+  },
+  "if_D10_table": 5.65,
+  "if_all_text": 6.0
+ },
+ "shared_ledger": {
+  "reserved": 505,
+  "result": 505,
+  "centers": {
+   "embedding": 259,
+   "ocr": 4,
+   "rerank": 164,
+   "chat": 78
+  }
+ },
+ "cache_matrix": {
+  "same_identity": {
+   "status": "hit",
+   "reason": null,
+   "has_entry": true
+  },
+  "other_document_page1_same_bytes": {
+   "status": "rejected",
+   "reason": "cache_source_identity_mismatch",
+   "has_entry": false
+  },
+  "same_document_new_version_same_bytes": {
+   "status": "rejected",
+   "reason": "cache_source_identity_mismatch",
+   "has_entry": false
+  },
+  "same_page_other_tile_bytes": {
+   "status": "rejected",
+   "reason": "cache_input_hash_mismatch",
+   "has_entry": false
+  },
+  "same_document_page2": {
+   "status": "miss",
+   "reason": null,
+   "has_entry": false
+  },
+  "same_page_table_mode": {
+   "status": "miss",
+   "reason": null,
+   "has_entry": false
+  }
+ },
+ "identity_guards": {
+  "forged_provider": "rejected:ValueError",
+  "forged_model": "rejected:ValueError",
+  "forged_region": "rejected:ValueError",
+  "page_zero": "rejected:ValueError"
+ },
+ "restored_payloads": {
+  "forged_provider": {
+   "quarantined": [
+    "cache_payload_invalid"
+   ],
+   "usable_entries": 0,
+   "lookup_status": "miss",
+   "lookup_reason": null
+  },
+  "expired": {
+   "quarantined": [],
+   "usable_entries": 1,
+   "lookup_status": "rejected",
+   "lookup_reason": "cache_expired"
+  },
+  "simulated": {
+   "quarantined": [],
+   "usable_entries": 1,
+   "lookup_status": "rejected",
+   "lookup_reason": "cache_simulated"
+  }
+ },
+ "probe_ledger_recon": {
+  "A_single_document_12": {
+   "reserved": 12,
+   "result": 12,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 11,
+    "RecognizeTableAccurateOCR": 1
+   },
+   "charged_sum_cny": 5.65,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 12
+  },
+  "B_product_chain_12": {
+   "reserved": 12,
+   "result": 12,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 11,
+    "RecognizeTableAccurateOCR": 1
+   },
+   "charged_sum_cny": 5.65,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 12
+  },
+  "C_cross_use_3": {
+   "reserved": 3,
+   "result": 3,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 3
+   },
+   "charged_sum_cny": 1.5,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 3
+  },
+  "C_retry_9": {
+   "reserved": 9,
+   "result": 9,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 9
+   },
+   "charged_sum_cny": 4.5,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 8
+  },
+  "C_cancel_3": {
+   "reserved": 3,
+   "result": 3,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 3
+   },
+   "charged_sum_cny": 1.5,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 3
+  },
+  "C_delete_3": {
+   "reserved": 3,
+   "result": 3,
+   "centers": [
+    "ocr"
+   ],
+   "models": {
+    "GeneralAccurateOCR": 3
+   },
+   "charged_sum_cny": 1.5,
+   "unmatched_reservations": 0,
+   "distinct_request_sha256": 3
+  }
+ }
+}
