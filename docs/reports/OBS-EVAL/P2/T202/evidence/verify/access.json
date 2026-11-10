@@ -1,0 +1,101 @@
+{
+ "task": "P2-T202 verify / item1 access & visibility (independent sys.addaudithook probe)",
+ "method": "sys.addaudithook records every open(); paths normalized+abspath; runs after imports so module pyc opens are excluded from the counts below except where noted",
+ "env_used": {
+  "MKTKB_P2_HOLDOUT_ROOT": "D:/mktkb-p2-holdout/v2",
+  "MKTKB_P2_HOLDOUT_KEY_FILE": "D:/mktkb-p2-holdout/keys/v2.key"
+ },
+ "results": {
+  "public_with_env_pointing_at_sealed_root": {
+   "expected": "1 open (repo manifest), 0 under sealed root",
+   "observed": {
+    "total_opens": 1,
+    "opens": [
+     "docs/evaluation/p2-holdout-v2.manifest.json"
+    ],
+    "under_sealed_root": 0
+   },
+   "pass": true
+  },
+  "public_with_sealed_manifest_path": {
+   "expected": "visibility_root_violation, 0 opens",
+   "observed": {
+    "reason": "visibility_root_violation",
+    "total_opens": 0,
+    "under_sealed_root": 0
+   },
+   "pass": true
+  },
+  "public_no_env_with_sealed_manifest_path": {
+   "expected": "metadata-only read of the manifest file (documented limitation)",
+   "observed": {
+    "ok": true,
+    "opens": [
+     "manifest.json"
+    ],
+    "returned_keys": "P2Manifest metadata only; cases=() labels={}"
+   },
+   "pass": true,
+   "note": "no questions/answers returned; disclosed as limitation #6 in dev report"
+  },
+  "holdout_with_env": {
+   "expected": "manifest + key + 2 ciphertexts only",
+   "observed": {
+    "under_sealed_root": [
+     "manifest.json",
+     "questions.jsonl.fernet",
+     "labels.jsonl.fernet"
+    ],
+    "key_file_opens": 1,
+    "other_opens": [
+     "cryptography fernet/hashes/padding/hmac .pyc under .venv"
+    ],
+    "extra_data_file_opens": 0
+   },
+   "pass": true
+  },
+  "holdout_without_env": {
+   "expected": "holdout_env_missing, 0 opens",
+   "observed": {
+    "reason": "holdout_env_missing",
+    "total_opens": 0
+   },
+   "pass": true
+  },
+  "visibility_strictness": {
+   "observed": [
+    {
+     "call": "load_p2_dataset(path) (no visibility)",
+     "result": "TypeError (missing keyword-only argument)"
+    },
+    {
+     "call": "visibility=\"Public\"",
+     "result": "P2DatasetError visibility_invalid"
+    },
+    {
+     "call": "visibility=None",
+     "result": "P2DatasetError visibility_invalid"
+    },
+    {
+     "call": "visibility=\"\"",
+     "result": "P2DatasetError visibility_invalid"
+    }
+   ],
+   "pass": true
+  }
+ },
+ "repo_manifest_public_load": {
+  "ok": true,
+  "case_count": 30,
+  "strata": "10/5/5/5/5",
+  "turn_stats": {
+   "1": 25,
+   "2": 4,
+   "3": 1
+  },
+  "total_turns": 36,
+  "cases_empty": true,
+  "labels_empty": true
+ },
+ "notes": "No findings that contradict the frozen contract. public never touched the sealed root in any probe, including when the env var was set."
+}

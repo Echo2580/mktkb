@@ -1,0 +1,153 @@
+{
+  "task": "P2-T202",
+  "note": "需求 → 测试函数映射（任务书 §8 T202 + 开发提示词测试清单）。测试名均可在 test_p2_dataset.py 中检索。",
+  "requirements": [
+    {
+      "id": "public-never-opens-sealed-root",
+      "text": "public 不打开封存文件（monkeypatch 读探针证明）；封存 root 内 manifest 直接拒绝且零读取",
+      "tests": [
+        "test_public_reads_only_the_manifest_and_never_opens_the_sealed_root",
+        "test_public_refuses_manifest_inside_sealed_root_without_reading_it",
+        "test_public_works_without_sealed_env_or_with_a_stale_root",
+        "test_public_metadata_matches_the_sealed_manifest",
+        "test_public_dataset_cannot_carry_rows",
+        "test_public_view_has_no_labels"
+      ]
+    },
+    {
+      "id": "holdout-decrypt-merge",
+      "text": "holdout 正常解密 + 合并；只读 4 个文件；不落盘明文；确定性",
+      "tests": [
+        "test_holdout_decrypts_and_merges",
+        "test_holdout_manifest_round_trips",
+        "test_holdout_reads_exactly_four_files",
+        "test_holdout_writes_no_plaintext_to_disk",
+        "test_holdout_is_deterministic",
+        "test_metadata_mismatch_is_counted_not_fatal",
+        "test_holdout_dataset_is_frozen",
+        "test_three_turn_multi_case_is_accepted"
+      ]
+    },
+    {
+      "id": "missing-env-key-files",
+      "text": "缺 env / root 非法 / manifest 越界或缺失 / 缺 key / 缺密文 / 空密文",
+      "tests": [
+        "test_visibility_is_required_and_strict",
+        "test_missing_or_blank_env_is_rejected",
+        "test_root_must_be_an_existing_directory",
+        "test_manifest_must_live_inside_root",
+        "test_manifest_missing_in_root",
+        "test_manifest_must_be_a_file",
+        "test_key_file_missing",
+        "test_ciphertext_files_must_exist",
+        "test_labels_ciphertext_must_exist",
+        "test_blank_ciphertext_is_rejected"
+      ]
+    },
+    {
+      "id": "bad-key-crypto",
+      "text": "坏 key / 非 UTF-8 key / 错 key 解封失败 / 缺 cryptography",
+      "tests": [
+        "test_key_must_be_a_valid_fernet_key",
+        "test_key_file_must_be_utf8",
+        "test_wrong_key_cannot_decrypt",
+        "test_missing_cryptography_fails_closed"
+      ]
+    },
+    {
+      "id": "sha-mismatch",
+      "text": "密文 sha 不符（两文件）/ 明文 sha 不符 / 公开 manifest 的 sha 字段非法",
+      "tests": [
+        "test_ciphertext_tamper_is_rejected",
+        "test_labels_ciphertext_tamper_is_rejected",
+        "test_plaintext_sha_mismatch_is_rejected",
+        "test_manifest_sha256_fields_are_hex"
+      ]
+    },
+    {
+      "id": "count-strata-version",
+      "text": "case_count 冻结 30 / strata 冻结 / 数据分层不符 / label_version 不符（questions 与 labels 两侧）",
+      "tests": [
+        "test_manifest_case_count_is_frozen",
+        "test_manifest_strata_is_frozen",
+        "test_question_row_count_mismatch",
+        "test_label_row_count_mismatch",
+        "test_data_strata_mismatch",
+        "test_label_version_mismatch",
+        "test_manifest_label_version_is_a_token"
+      ]
+    },
+    {
+      "id": "case-id-uniqueness-and-set",
+      "text": "重复 case_id（questions/labels）/ questions 与 labels 集合不相等（只报计数）",
+      "tests": [
+        "test_duplicate_case_id_in_questions",
+        "test_duplicate_case_id_in_labels",
+        "test_label_set_must_equal_question_set"
+      ]
+    },
+    {
+      "id": "answer-field-leak",
+      "text": "questions 含任一答案字段即拒绝（6 个白名单字段逐个覆盖）",
+      "tests": [
+        "test_questions_must_not_carry_answer_fields"
+      ]
+    },
+    {
+      "id": "turns-locator",
+      "text": "multi_turn 缺轮 / 非 multi_turn 声明多轮 / 单轮空 question / 空 turn 文本 / turn_stats 与数据不符 / labels locator 与不透明 id 非法",
+      "tests": [
+        "test_multi_turn_stratum_needs_two_turns",
+        "test_single_turn_strata_cannot_declare_multi_turn",
+        "test_blank_turn_text_is_rejected",
+        "test_turn_stats_must_match_the_data",
+        "test_manifest_turn_stats_must_be_internally_consistent",
+        "test_label_rows_reject_bad_locator_and_opaque_ids"
+      ]
+    },
+    {
+      "id": "strict-schema",
+      "text": "manifest 多/缺字段、encryption 块、日期/UTC、author 换行、JSON 形态、行级多/缺字段",
+      "tests": [
+        "test_manifest_field_missing_and_unknown",
+        "test_manifest_schema_dataset_version_and_suite",
+        "test_manifest_business_date_and_created_utc",
+        "test_manifest_author_cannot_contain_newlines",
+        "test_manifest_encryption_block_is_strict",
+        "test_manifest_json_forms_are_rejected",
+        "test_question_rows_reject_missing_and_extra_fields",
+        "test_question_rows_keep_the_holdout_suite_contract",
+        "test_label_rows_reject_missing_and_extra_fields",
+        "test_public_manifest_uses_the_same_strict_validation"
+      ]
+    },
+    {
+      "id": "merged-case-validation",
+      "text": "合并后 validate_case 失败（拒答缺原因）→ holdout_case_invalid",
+      "tests": [
+        "test_refusal_without_reason_fails_after_merge"
+      ]
+    },
+    {
+      "id": "no-question-or-answer-in-errors",
+      "text": "所有失败路径的 str/detail/repr 不含合成题干与答案；dataset/manifest 的 repr/as_dict 也不含",
+      "tests": [
+        "test_errors_never_contain_question_or_answer_text",
+        "test_repr_of_loaded_dataset_has_no_question_or_answer"
+      ]
+    },
+    {
+      "id": "contract-doc-and-codes",
+      "text": "46 个稳定原因码全部写入 docs/evaluation/p2-dataset-v0_1.md；错误类型/族码稳定",
+      "tests": [
+        "test_every_reason_is_documented",
+        "test_error_type_is_stable"
+      ]
+    }
+  ],
+  "not_covered_on_purpose": [
+    "真实 H2 解封（无权限、也不允许）：由 T206 受控进程与保管方数据执行",
+    "加密封存工具（key 生成/加密/写 manifest）：数据保管角色职责，本包不做",
+    "symlink 检测：Windows 权限限制，部署侧由 T206 核路径；内容安全由 sha256 保证"
+  ]
+}

@@ -1,0 +1,38 @@
+{
+  "description": "T202 合成夹具形状（全部在 tmp_path 现生成；不是真实 H2 内容）",
+  "case_count": 30,
+  "strata": {
+    "paraphrase": 10,
+    "multi_turn": 5,
+    "negative": 5,
+    "stale_conflict": 5,
+    "cross_doc_security": 5
+  },
+  "turns": {
+    "total_turns": 35,
+    "max_turns_per_case": 2,
+    "turn_histogram": {
+      "1": 25,
+      "2": 5
+    }
+  },
+  "turn_rule": "每条 case 的声明轮数 = len(turns)（turns 非空）否则 1",
+  "markers": {
+    "question": "SYNTHETIC-QUESTION-TOKEN-7f3a",
+    "followup": "SYNTHETIC-FOLLOWUP-TOKEN-b1c2",
+    "answer": "SYNTHETIC-ANSWER-TOKEN-c41d"
+  },
+  "sealed_layout": [
+    "<root>/manifest.json",
+    "<root>/questions.jsonl.fernet",
+    "<root>/labels.jsonl.fernet",
+    "<key file>（44 位 url-safe base64，可带行尾换行）"
+  ],
+  "post_load_root_entries": [
+    "manifest.json",
+    "questions.jsonl.fernet",
+    "labels.jsonl.fernet"
+  ],
+  "plaintext_written_to_disk": false,
+  "ciphertext_and_key": "Fernet.generate_key() 与 encrypt() 在测试运行时生成，仅在 tmp_path 内使用"
+}

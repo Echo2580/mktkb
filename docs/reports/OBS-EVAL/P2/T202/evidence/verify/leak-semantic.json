@@ -1,0 +1,147 @@
+{
+ "task": "P2-T202 verify / item4 leakage scan + item5 semantic spot-check (aggregates only; no question/answer text recorded)",
+ "leak_scan": {
+  "scope_dirs": [
+   "backend/src",
+   "backend/tests",
+   "docs/evaluation",
+   "docs/reports",
+   ".claude/handoffs",
+   "(repo root files)",
+   "(docs/*.md, docs/evidence excluded)"
+  ],
+  "files_listed": 1233,
+  "files_scanned": 1200,
+  "skipped": {
+   "binary_ext": 33,
+   "larger_than_2MB": 0,
+   "unreadable": 0
+  },
+  "chars_scanned": 16907603,
+  "snippets": {
+   "question_windows_16c": 72,
+   "answer_windows_16c": 88,
+   "whole_items": 55
+  },
+  "question_snippet_hit_files": {},
+  "key_string_hits_full": [],
+  "key_string_hits_prefix22": [],
+  "ciphertext_names_as_text_only_in": [
+   "p2_dataset.py",
+   "p2-dataset-v0_1.md",
+   "T202 evidence",
+   "T202 prompt files"
+  ],
+  "whole_answer_hit_files": [
+   {
+    "file": ".claude/handoffs/_scratch/p1fix/afterA-b0/cases.jsonl",
+    "mtime_utc": "2026-11-10T00:52:39Z",
+    "provenance": "pre-sealing scratch (mtime before 2026-11-10T11:08Z)"
+   },
+   {
+    "file": ".claude/handoffs/_scratch/p1fix/final-b0/cases.jsonl",
+    "mtime_utc": "2026-11-10T01:03:36Z",
+    "provenance": "pre-sealing scratch"
+   },
+   {
+    "file": ".claude/handoffs/_scratch/T112v/eval/b0/cases.jsonl",
+    "mtime_utc": "2026-11-09T12:20:49Z",
+    "provenance": "pre-sealing scratch"
+   },
+   {
+    "file": "backend/tests/unit/test_notice_facts.py",
+    "provenance": "tracked at 366046d (2026-11-04)"
+   },
+   {
+    "file": "backend/tests/unit/test_parsers.py",
+    "provenance": "tracked at 366046d (2026-11-04)"
+   },
+   {
+    "file": "墨刀AI-原型设计提示词.md",
+    "provenance": "tracked at 366046d (2026-11-04)"
+   }
+  ],
+  "whole_answer_hits_interpretation": "Short factual answer strings coincide with pre-existing public B0 corpus/test fixtures that were created before the H2 seal (2026-11-10T11:08Z). No H2 question text was found anywhere. Treated as public-corpus coincidence, not H2 leakage; consequence: answer strings alone cannot be used as \"cold question\" evidence.",
+  "sealed_metadata_docs_scan": {
+   "audit_md_h2_snippet_hits": 0,
+   "custodian_report_h2_snippet_hits": 0,
+   "custodian_report_contains_all_30_case_ids": true,
+   "custodian_report_contains_4_sha_fields": true,
+   "audit_md_h1_exposure_facts_present": {
+    "H1": true,
+    "7/30": true,
+    "2026-11-09 incident": true,
+    "no-unseen-claim rule": true,
+    "visibility boundary table": true
+   }
+  },
+  "b0_similarity_vs_public_baseline": {
+   "question_char4gram_jaccard_max": 0.467,
+   "question_cases_gt_0_6": 0,
+   "question_cases_gt_0_8": 0,
+   "answer_exact_equals_b0_answer": 0,
+   "note": "no near-copy of public B0 questions; no answer is byte-identical to a B0 answer"
+  }
+ },
+ "semantic_spot_check": {
+  "method": "independent decrypt in memory; for each sampled case: (a) every expected_value located verbatim in the cited doc and in its context window, (b) spreadsheet golds tied to the matching store/item row, (c) conflict decoys verified as historical/other-entity sources, (d) refusal checked against the public record table (no row for the asked store+item). Only case_id and verdict recorded.",
+  "sampled": 6,
+  "strata_covered": [
+   "paraphrase",
+   "multi_turn",
+   "negative",
+   "stale_conflict(2)",
+   "cross_doc_security"
+  ],
+  "results": [
+   {
+    "case_id": "h2-par-06",
+    "stratum": "paraphrase",
+    "verdict": "PASS",
+    "basis": "3/3 graded values present in the cited policy doc; context overlap non-zero"
+   },
+   {
+    "case_id": "h2-mt-01",
+    "stratum": "multi_turn",
+    "verdict": "PASS",
+    "basis": "3 turns; both graded values tie to the two rows of the cited table whose store+item appear in the dialogue"
+   },
+   {
+    "case_id": "h2-neg-02",
+    "stratum": "negative",
+    "verdict": "PASS",
+    "basis": "refusal justified: asked store exists but the asked store+item row does not exist in the cited table"
+   },
+   {
+    "case_id": "h2-stale-03",
+    "stratum": "stale_conflict",
+    "verdict": "PASS",
+    "basis": "conflict gold = current table row + second active source; forbidden value is only in the superseded version"
+   },
+   {
+    "case_id": "h2-sec-01",
+    "stratum": "cross_doc_security",
+    "verdict": "PASS",
+    "basis": "two graded values from two docs; forbidden value belongs to a different store (cross-entity decoy)"
+   },
+   {
+    "case_id": "h2-stale-05",
+    "stratum": "stale_conflict",
+    "verdict": "PASS",
+    "basis": "gold only in the standalone notice; forbidden sources are the deleted/removed-row documents"
+   }
+  ],
+  "not_run": [
+   "H2 vs H1 independence (H1 originals are out of scope for this verifier)",
+   "answer correctness of the remaining 24 cases (per taskbook only a 6-case sample is allowed)",
+   "real model/OCR quality scoring (no real calls in T202)"
+  ]
+ },
+ "commands": [
+  "python -B <temp>/probe_leak.py  (repo scan; 5 dirs + repo root + docs/*.md; no output of matched text)",
+  "python -B <temp>/probe_overlap.py (char-4gram Jaccard vs fixtures/evaluation/b0.jsonl)",
+  "python -B <temp>/probe_semantic.py / probe_semantic2.py / probe_neg*.py / probe_design.py (public-corpus grounding)",
+  "python -B <temp>/probe_sealed_docs.py (audit.md / custodian-report.md snippet scan)"
+ ],
+ "cleanup": "all probe scripts lived outside the workspace (C:/Users/.../AppData/Local/Temp/p2t202-verify) and were deleted afterwards; nothing decrypted was written to disk"
+}
