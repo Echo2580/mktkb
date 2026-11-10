@@ -1,0 +1,68 @@
+{
+  "schema": "p2-t206-pilot-record/v0.1",
+  "run_id": "p2-t206-pilot-20261111-01",
+  "executed_utc": "2026-11-10T17:31:24.515Z",
+  "plan": {
+    "path": "docs/reports/OBS-EVAL/P2/T206/PM/p2-pilot-plan-v0_2.json",
+    "sha256": "02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80"
+  },
+  "authorization": {
+    "go_path": "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json",
+    "go_sha256": "79a5f318e007bf71f38fa2379949096f018030b4fcacbf196de676a29c19070e",
+    "budget_path": "docs/evidence/LOCAL-R1-20261101/budget/budget.json",
+    "budget_sha256": "736b4d2b4faf0a32f1550d0dc73ed471eb95f0d15b0e747d8f21287985565ace",
+    "production_ready": true
+  },
+  "ledger_before": {
+    "sha256": "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390",
+    "bytes": 958277,
+    "lines": 1011
+  },
+  "ledger_after": {
+    "sha256": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+    "bytes": 1050298,
+    "lines": 1095,
+    "delta_lines": 84
+  },
+  "totals": {
+    "reserved_cny": 0.689312,
+    "settled_charge_cny": 0.5713583,
+    "requests_reserved": 42,
+    "planned_requests": 61,
+    "global_requests_after": 547
+  },
+  "centers": {
+    "ocr": 0.5,
+    "answer_retrieval": 0.0713583,
+    "judge": 0,
+    "independent": 0
+  },
+  "network_outbound": {
+    "total": 39,
+    "chat": 3,
+    "embedding": 33,
+    "ocr": 1,
+    "rerank": 2,
+    "rag_provider_posts": 35
+  },
+  "cases": {
+    "planned": 5,
+    "executed": 5,
+    "turns": 6,
+    "kinds": {
+      "answer": 4,
+      "conflict": 1,
+      "not_found": 1
+    },
+    "branches": {
+      "legacy": 4,
+      "legacy_with_rag_candidates": 1,
+      "rag": 1
+    }
+  },
+  "artifacts_out_dir": "D:\\mktkb-p2-run\\pilot-20261111-01\\p2-run",
+  "budget_metadata_fix": {
+    "after_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "reason": "pilot 后仅修正 remaining_conservative_cny_at_start 与 stage_revision.revised_at 元数据；limit/stages/history 未变"
+  }
+}

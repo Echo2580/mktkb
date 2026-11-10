@@ -1,0 +1,564 @@
+{
+ "schema": "p2-t206-pilot-verify/v0.1",
+ "read_only": true,
+ "identity": {
+  "ledger_pre_pilot_sha256": "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390",
+  "ledger_pre_pilot_lines": 1011,
+  "ledger_pre_pilot_bytes": 958277,
+  "ledger_now_sha256": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+  "ledger_now_lines": 1095,
+  "ledger_now_bytes": 1050298,
+  "historical_prefix_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+  "budget_raw_sha256": "736b4d2b4faf0a32f1550d0dc73ed471eb95f0d15b0e747d8f21287985565ace",
+  "budget_canonical_sha256": "3a1efa3ba9bb2328c6ec16f90f49a175f551d852d9d0735e3b606b6442a39083",
+  "go_raw_sha256": "79a5f318e007bf71f38fa2379949096f018030b4fcacbf196de676a29c19070e",
+  "go_canonical_sha256": "b08493269745391c6853fcc7cd57e1d3806c73bcdb5a67b6adeaf400a845128b",
+  "plan_raw_sha256": "daafa15ff8d72eb6899465656e9b91fbe8d355156235cdfcab4043cc7a7a3531"
+ },
+ "plan": {
+  "plan_sha256_recomputed": "02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80",
+  "matches_go_scope": true,
+  "items": 26,
+  "requests_total": 61,
+  "by_operation": {
+   "index_embedding": 36,
+   "query_embedding": 6,
+   "rerank": 6,
+   "query_expansion": 6,
+   "answer": 6,
+   "ocr": 1
+  },
+  "max_requests": 566,
+  "worst_case_cny_recomputed": 0.839072,
+  "reserve_peak_cny_recomputed": 0.5,
+  "over_go_max_request_cny": []
+ },
+ "go": {
+  "missing_fields": [],
+  "is_draft": false,
+  "document": "P2-LIVE-GO",
+  "stage": "P2-LIVE",
+  "nonce_len": 32,
+  "validity_days": 13.0,
+  "budget_total_limit_cny": 40,
+  "max_requests": 566,
+  "max_requests_ok": true,
+  "max_request_cny": 0.5,
+  "operations": [
+   "answer",
+   "index_embedding",
+   "ocr",
+   "query_embedding",
+   "query_expansion",
+   "rerank"
+  ],
+  "operations_cover_plan": true,
+  "cost_centers_cny": {
+   "answer_retrieval": 9,
+   "ocr": 6,
+   "judge": 3,
+   "independent": 2
+  },
+  "cost_centers_cover_plan": true,
+  "cost_centers_sum": 20,
+  "stage_limits_cny": {
+   "P2-LIVE": 20
+  },
+  "ledger_binding_matches_prefix": true,
+  "ledger_binding_matches_pre_pilot_file": false,
+  "ledger_path_matches_fixed": true
+ },
+ "budget": {
+  "limit_cny": 40,
+  "p2_live_allocation_cny": 20,
+  "stage_allocation_sum": 39.97,
+  "arithmetic_closes": true,
+  "historical_conservative_accounted_cny": 0.03,
+  "historical_success_estimated_list_price_cny": 3.52e-05,
+  "remaining_conservative_cny_at_start": 19.97,
+  "remaining_matches_limit_minus_historical": 39.97,
+  "stage_revision_present": true,
+  "stage_revision_revised_at": "2026-11-11T01:45:00+08:00",
+  "budget_mtime_utc": "2026-11-10T17:28:42.424087Z"
+ },
+ "ledger_delta": {
+  "events": 84,
+  "reserved": 42,
+  "results": 42,
+  "contiguous_block": true,
+  "stages": [
+   "P2-LIVE"
+  ],
+  "reserve_cny_sum": 0.689312,
+  "charge_cny_sum": 0.5713583,
+  "center_reserve": {
+   "answer_retrieval": 0.189312,
+   "ocr": 0.5
+  },
+  "center_charge": {
+   "answer_retrieval": 0.0713583,
+   "ocr": 0.5
+  },
+  "by_operation": {
+   "index_embedding": 31,
+   "ocr": 1,
+   "answer": 6,
+   "query_embedding": 2,
+   "rerank": 2
+  },
+  "by_kind": {
+   "embedding": 33,
+   "ocr": 1,
+   "chat": 6,
+   "rerank": 2
+  },
+  "reservations_without_result": [],
+  "results_without_reservation": [],
+  "statuses": {
+   "failed": 3,
+   "succeeded": 39
+  },
+  "settlement_rejected": 0,
+  "boundary_anomaly": 0,
+  "global_reservations": 547,
+  "p2_live_reservations_total": 42,
+  "accounted_total_recomputed": 15.6423028,
+  "accounted_before_pilot": 15.0709445,
+  "recorded_prior_accounted_first": 15.0709445,
+  "recorded_stage_limit": 20.0,
+  "recorded_total_limit": 40.0,
+  "unpaid_refusal_charge_cny": 0.056064,
+  "paid_charge_cny": 0.5152943,
+  "failed_error_codes": [
+   "P2_NO_PAID_ATTEMPT:answer",
+   "P2_NO_PAID_ATTEMPT:conflict",
+   "P2_NO_PAID_ATTEMPT:not_found"
+  ]
+ },
+ "reconciliation": {
+  "gate_expected_reservations": 42,
+  "gate_reserved": 42,
+  "gate_reservations_non_answer": 36,
+  "gate_answer_reserved": 6,
+  "gate_receipt_count": 72,
+  "gate_center_stage_total_cny": 0.5095523,
+  "gate_center_total_with_answers_cny": 0.5713583,
+  "gate_by_center": {
+   "answer_retrieval": 0.0095523,
+   "independent": 0.0,
+   "judge": 0.0,
+   "ocr": 0.5
+  },
+  "gate_answer_by_center": {
+   "answer_retrieval": 0.061806,
+   "independent": 0.0,
+   "judge": 0.0,
+   "ocr": 0.0
+  },
+  "receipts_reserve_sum_cny": 0.577184,
+  "receipts_charged_sum_cny": 0.5095523,
+  "receipt_reservation_ids_match_ledger": false,
+  "ledger_nonanswer_charge_cny": 0.5095523,
+  "run_result_reserved_cny": 0.11212799999999999,
+  "run_result_settled_cny": 0.061806,
+  "run_result_requests_reserved": 6,
+  "run_result_requests_sent": 3,
+  "summary_requests": {
+   "attempted": 6,
+   "billed_cny": 0.043118,
+   "planned": 61,
+   "real_requests": 5,
+   "reserved": 6,
+   "settled_failure": 0,
+   "settled_success": 3,
+   "unused_no_paid_attempt": 3
+  },
+  "summary_network_outbound": 39,
+  "summary_transport_outbound": {
+   "chat": 3,
+   "embedding": 33,
+   "ocr": 1,
+   "rerank": 2
+  },
+  "ledger_outbound_recomputed": {
+   "index_embedding": 31,
+   "ocr": 1,
+   "answer": 6,
+   "query_embedding": 2,
+   "rerank": 2
+  },
+  "record_totals": {
+   "reserved_cny": 0.689312,
+   "settled_charge_cny": 0.5713583,
+   "requests_reserved": 42,
+   "planned_requests": 61,
+   "global_requests_after": 547
+  },
+  "record_centers": {
+   "ocr": 0.5,
+   "answer_retrieval": 0.0713583,
+   "judge": 0,
+   "independent": 0
+  },
+  "record_ledger_before": {
+   "sha256": "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390",
+   "bytes": 958277,
+   "lines": 1011
+  },
+  "record_ledger_after": {
+   "sha256": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+   "bytes": 1050298,
+   "lines": 1095,
+   "delta_lines": 84
+  },
+  "record_go_sha256_matches_file": true,
+  "record_budget_sha256_matches_file": true,
+  "record_ledger_before_sha_matches": true,
+  "record_ledger_after_sha_matches": true,
+  "gate_go_canonical_sha256": true,
+  "gate_budget_canonical_sha256": true,
+  "gate_ledger_binding_is_prefix": true,
+  "gate_plan_sha256_matches": true,
+  "gate_max_requests": 566,
+  "gate_requests_used_pre_run": 505,
+  "gate_requests_remaining_pre_run": 61,
+  "pilot_record_requests": 42,
+  "pilot_record_planned": 61,
+  "receipts_subset_of_ledger_ids": true,
+  "answer_reservations_absent_from_receipts": 6
+ },
+ "binding": {
+  "dataset_lf_bytes": 4712,
+  "dataset_lf_sha256": "a3878212fa1c114eb5a8c280bcf01c74d0131744c6aa568a2edfd36302652c79",
+  "binding_complete": true,
+  "binding_missing": [],
+  "binding_dataset_sha256_is_lf_digest": true,
+  "dataset_lines_match_frozen_fixtures": {
+   "Q01": true,
+   "Q25": true,
+   "RG005": true,
+   "RG006": true,
+   "Q37": true
+  },
+  "index_revision": 5,
+  "trace_identity_bound": true,
+  "manifest_ingest_documents": 5,
+  "manifest_index": {
+   "chunks": 142,
+   "documents": 5,
+   "engine_version": "s2-a-2",
+   "provider_mode": "live",
+   "units": 148
+  },
+  "manifest_ingest_separate_document_ids": 5
+ },
+ "citations": {
+  "answered_turns": 4,
+  "turns_total": 6,
+  "citations": 6,
+  "verified": 6,
+  "active": 6,
+  "in_run": 6,
+  "gate_citation_evidence": {
+   "answered_turns": 4,
+   "citations": 6,
+   "complete": true,
+   "issues": [],
+   "turns_with_evidence": 4,
+   "verified_citations": 6
+  },
+  "citation_complete": true
+ },
+ "quality_signals": {
+  "gate_status": "succeeded",
+  "quality_gate": "deferred-to-T205",
+  "failure": null,
+  "stop_code": null,
+  "cases": {
+   "Q01": {
+    "status": "ok",
+    "stratum": "exact",
+    "outcomes": [
+     [
+      1,
+      "conflict",
+      false,
+      0
+     ]
+    ]
+   },
+   "Q25": {
+    "status": "ok",
+    "stratum": "text",
+    "outcomes": [
+     [
+      1,
+      "answer",
+      false,
+      3
+     ]
+    ]
+   },
+   "RG005": {
+    "status": "ok",
+    "stratum": "defect-t104",
+    "outcomes": [
+     [
+      1,
+      "not_found",
+      false,
+      0
+     ]
+    ]
+   },
+   "RG006": {
+    "status": "ok",
+    "stratum": "defect-t105",
+    "outcomes": [
+     [
+      1,
+      "answer",
+      false,
+      1
+     ],
+     [
+      2,
+      "answer",
+      false,
+      1
+     ]
+    ]
+   },
+   "Q37": {
+    "status": "ok",
+    "stratum": "ocr",
+    "outcomes": [
+     [
+      1,
+      "answer",
+      false,
+      1
+     ]
+    ]
+   }
+  },
+  "expected_kind_per_case": {
+   "Q01": "answer",
+   "Q25": "answer",
+   "RG005": "no_answer",
+   "RG006": "answer",
+   "Q37": "answer"
+  }
+ },
+ "charge_recompute": {
+  "results_with_recomputed_field": 38,
+  "results_recomputed_mismatch": [],
+  "chat_reproduced_from_usage": 3,
+  "chat_mismatch": [],
+  "embedding_rerank_reproduced_from_usage": 35,
+  "embedding_rerank_mismatch": [],
+  "ocr_charges": [
+   {
+    "charge": 0.5,
+    "usage": {
+     "pages": 1
+    }
+   }
+  ],
+  "failed_results_charged_full_bound": [
+   {
+    "item_id": "answer-Q01-t1",
+    "charge": 0.018688,
+    "reserve": 0.018688
+   },
+   {
+    "item_id": "answer-RG005-t1",
+    "charge": 0.018688,
+    "reserve": 0.018688
+   },
+   {
+    "item_id": "answer-RG006-t2",
+    "charge": 0.018688,
+    "reserve": 0.018688
+   }
+  ]
+ },
+ "evidence_nits": {
+  "paid_attempt_key_only_on_refusals": {
+   "Q01-t1": [
+    true,
+    false
+   ],
+   "Q25-t1": [
+    false,
+    null
+   ],
+   "RG005-t1": [
+    true,
+    false
+   ],
+   "RG006-t1": [
+    false,
+    null
+   ],
+   "RG006-t2": [
+    true,
+    false
+   ],
+   "Q37-t1": [
+    false,
+    null
+   ]
+  },
+  "requests_billed_true_with_zero_chat": [
+   {
+    "item_id": "answer-Q01-t1",
+    "billed": true,
+    "charged_cny": 0.018688,
+    "provider_calls": {
+     "chat": 0,
+     "embedding": 1,
+     "outbound": 2,
+     "rerank": 1
+    }
+   },
+   {
+    "item_id": "answer-RG005-t1",
+    "billed": true,
+    "charged_cny": 0.018688,
+    "provider_calls": {
+     "chat": 0,
+     "embedding": 0,
+     "outbound": 0,
+     "rerank": 0
+    }
+   },
+   {
+    "item_id": "answer-RG006-t2",
+    "billed": true,
+    "charged_cny": 0.018688,
+    "provider_calls": {
+     "chat": 0,
+     "embedding": 1,
+     "outbound": 2,
+     "rerank": 1
+    }
+   }
+  ],
+  "summary_settled_failure": 0,
+  "ledger_failed_result_events": 3,
+  "summary_billed_cny": 0.043118,
+  "summary_billed_recomputed": 0.043118,
+  "run_result_scope": "answer-only (6 chat reservations)",
+  "ledger_scope": "all P2-LIVE operations (42 reservations)",
+  "settlement_output_valid_false_on_chat": 3,
+  "note_output_valid": "build_chat_evidence() never sets output_valid -> dataclass default False (not a quality signal)"
+ },
+ "quality_label_check": {
+  "Q01": {
+   "expected_kind": "answer",
+   "expected_values": [
+    "B区1号货架第二层"
+   ],
+   "forbidden_values": [],
+   "turns": [
+    {
+     "turn": 1,
+     "outcome": "conflict",
+     "expected_value_hits": [],
+     "forbidden_hits": [],
+     "evidence": 0
+    }
+   ]
+  },
+  "Q25": {
+   "expected_kind": "answer",
+   "expected_values": [
+    "填写登记表",
+    "负责人确认",
+    "领取时登记数量"
+   ],
+   "forbidden_values": [],
+   "turns": [
+    {
+     "turn": 1,
+     "outcome": "answer",
+     "expected_value_hits": [
+      "填写登记表",
+      "负责人确认"
+     ],
+     "forbidden_hits": [],
+     "evidence": 3
+    }
+   ]
+  },
+  "RG005": {
+   "expected_kind": "no_answer",
+   "expected_values": [],
+   "forbidden_values": [
+    "MODEL_UNAVAILABLE",
+    "服务暂不可用"
+   ],
+   "turns": [
+    {
+     "turn": 1,
+     "outcome": "not_found",
+     "expected_value_hits": [],
+     "forbidden_hits": [],
+     "evidence": 0
+    }
+   ]
+  },
+  "RG006": {
+   "expected_kind": "answer",
+   "expected_values": [
+    "40"
+   ],
+   "forbidden_values": [
+    "店内外侧",
+    "QF01"
+   ],
+   "turns": [
+    {
+     "turn": 1,
+     "outcome": "answer",
+     "expected_value_hits": [
+      "40"
+     ],
+     "forbidden_hits": [
+      "店内外侧",
+      "QF01"
+     ],
+     "evidence": 1
+    },
+    {
+     "turn": 2,
+     "outcome": "answer",
+     "expected_value_hits": [
+      "40"
+     ],
+     "forbidden_hits": [],
+     "evidence": 1
+    }
+   ]
+  },
+  "Q37": {
+   "expected_kind": "answer",
+   "expected_values": [
+    "领用登记表"
+   ],
+   "forbidden_values": [],
+   "turns": [
+    {
+     "turn": 1,
+     "outcome": "answer",
+     "expected_value_hits": [
+      "领用登记表"
+     ],
+     "forbidden_hits": [],
+     "evidence": 1
+    }
+   ]
+  }
+ }
+}
