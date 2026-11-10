@@ -195,3 +195,81 @@
    `go_plan_sha256_mismatch`、`legacy_go_document`、`go_plan_id_mismatch`。
 6. 5 题行 `CaseSpec`+`validate_case` 全部通过；`case_questions` 合计 **6 轮**；
    pilot cases 字节（5 行原样拼接）4,712 B、SHA-256 `a3878212fa1c114eb5a8c280bcf01c74d0131744c6aa568a2edfd36302652c79`。
+
+## 13 PLAN-R1（2026-11-11，批级配额下的计划/GO 修订；零真实调用）
+
+- 角色：PLAN-R1 计划修订助手（全新上下文）。真实调用 **0**；未读 `.env`/H1/H2；未联网；未写真实
+  budget/GO/账本；未改代码/测试；未 commit。账本 `1f46d1b9…`/958,277 B、预算 `084ba9ac…`/1,444 B、
+  固定路径 `P2-LIVE-GO.json` 仍**不存在**（本包只写 `PM/` 下的 DRAFT 候选）。
+- 起因：T206-LIVE-R1 把计划项配额改为「每次真实 POST/批」（`product_adapter.py:1016` `embedding_batch_size=5`；
+  `rag/providers.py:293` 按 batch 拆 POST；`rag/index.py:_embed_chunks` 每文档一次 `embed()`），
+  于是 `ingest-index-embedding.requests` 的语义从「embed 调用数」变成「**批数**（每批 ≤5 条文本）」。
+  v0.1 的 30 在新口径下**只覆盖 4 份非 OCR 资料**，D09 的批数没算进去。
+
+### 13.1 离线清点（可复跑：`PLAN-R1/estimate.py`，输出 `PLAN-R1/estimate-out.txt`）
+
+分块参数取产品 live 装配的 `RagConfig`（`product_adapter.py:_start_live` 只覆盖检索参数，分块用默认
+`chunk_max_chars=900 / chunk_max_units=6 / chunk_overlap_units=1`），批大小 5，逐文档独立分批。
+
+| 资料 | 解析单元 | 块（去重后嵌入文本） | 批 | 备注 |
+|---|---|---|---|---|
+| `D01_物品位置表.xlsx` | 9 `table_row` | 9 | **2** | 一行一块 |
+| `V03_物品位置表_历史V1.xlsx` | 9 `table_row` | 9 | **2** | 版本槽 V1；发布后同步一次，D01 发布时旧版被删 |
+| `D03_市场部工作指南.docx` | 8 `paragraph` | 2 | **1** | 6 段/块 + 1 段重叠 |
+| `E11_终端物料位置表_当前V2.xlsx` | 121 `table_row` | 121 | **25** | 24×5+1 |
+| 小计（4 份实测） | 147 | 141 | **30** | 与 v0.1 的 30 数值相同、口径不同 |
+| `D09_物料领用通知.png`（OCR 1 页） | 1 `image_text` | ≤26（上界） | **≤6** | 见 13.2 |
+
+独立旁证：T206-prep 的空跑实测「3 份文档 → 3 次 embed()、20 个文本」= `D01` 9 + `V03` 9 + `D03` 2，
+逐份与本次清点一致（那次在 D09 处 `OCR_NOT_CONFIGURED` 停下，E11 未灌库）。所以 141 块/30 批不是纸面推算。
+
+### 13.2 D09 的保守上界（结果未知，不用低值）
+
+- 结构（实测、无需 OCR）：1200×700 px、非近空白、`looks_like_rule_table=False` → **text 模式**、
+  `prepare_ocr_tiles` 单 tile（42,389 B < 4 MB 上限）→ `parse_image` 只产 1 个 `image_text` 单元，
+  整页文本落在这一个单元里；块数 = `ceil(OCR 文本长度 / 900)`（`_split_text`）。
+  → 也顺带证明计划项 `GeneralAccurateOCR`（text/0.5）与运行时 mode 一致，F5 的 `ocr_mode_plan_mismatch` 不会被触发。
+- 长度上界假设：1200×700 像素在 6×6 px 字形、零行距下的字数上界 `floor(1200/6)×floor(700/6)` = **23,200 字**
+  （实际不可达）→ 26 块 → **6 批**；敏感性（`estimate-out.txt`）：≤4,500 字 = 1 批、≤9,000 字 = 2 批、
+  ≤13,200 字 = 3 批、23,200 字 = 6 批。计划**取 6 批 = 上界**，实际预期 1 批。
+- 该假设只影响「灌库时 embedding 配额」，不影响 OCR 费用：OCR 仍是 1 页 0.5 元、重试 0。
+
+### 13.3 修订后的数（`PM/p2-pilot-plan-v0_2.json`）
+
+| 指标 | v0.1 | **v0.2** |
+|---|---|---|
+| `plan_version` / `plan_sha256` | v0.1 / `d2baaa9c…73c2` | **v0.2 / `02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80`** |
+| `ingest-index-embedding.requests` | 30 | **36**（30 实测 + D09 上界 6） |
+| 计划请求总数 | 55 | **61**（36+6+6+6+6+1） |
+| `plan.max_requests` | 560 | **566**（505+61） |
+| worst-case | 0.826784 | **0.839072** 元（≤2 元） |
+| 串行峰值 / 成功估价 | 0.5 / 0.5648 | 0.5 / **0.5666** |
+| 中心需要 | 0.326784 / 0.5 / 0 / 0 | **0.339072 / 0.5 / 0 / 0**（额度 9/6/3/2 不变） |
+| 条目 / case 数 | 26 / 6 | 26 / 6（题目、轮次、价格画像、OCR 页一律未改） |
+
+唯一改动是 3 行：`plan_version`、`ingest-index-embedding.requests 30→36`、`max_requests 560→566`。
+
+### 13.4 与「≤560」信封的冲突（需经理裁决）
+
+- 505（账本已用）+ 61 = **566 > 560**。560 来自旧算术「505+55」，不是主人约束（任务书 §4.2 的约束是
+  累计硬顶 1000、账本余 495；主人预授权不允许本包提高硬顶）。批级口径下**诚实下界**已是：
+  30（4 份实测）+1（D09 最省）+24（6 轮×4）+1（OCR）= **56 > 55**，因此「≤560」在 v0.1 语义下才成立。
+- 压回 560 的**唯一**配方（已机械验证）：删 V03（−2 批，失去「同槽 V1→V2」覆盖）+ 把 D09 声明压到 2 批
+  （≤9,000 字）→ 55 请求 / `max_requests=560` / worst-case 0.826784。代价：D09 文本若 >9,000 字，第 3 批在
+  **发送前**被 `attempt_quota_exhausted` 拒 → `ingest_failed`（fail-closed、不多发一分钱，但 0.5 元 OCR 与
+  已发批次已花掉，且重跑要新计划+新 GO）。
+- 建议：**接受 566**（仍在 1000 硬顶内、只多 6 次空配额，worst-case 多 0.012288 元），保留 V03 与 D09 上界；
+  若经理坚持 560，须明确下令走上面的缩量配方并接受 D09 发送前拒绝的风险。本包不擅自改低 D09 上界。
+
+### 13.5 校验（零真实调用，可复跑：`PLAN-R1/validate-plan.py`，输出 `PLAN-R1/validate-plan-out.txt`）
+
+1. `P2RunPlan.from_dict(v0_2)` 严格通过：26 项、`total_requests=61`、`worst_case=0.839072`、`reserve_peak=0.5`。
+2. 预检 vs **现状预算**（limit 20、无 P2-LIVE）仍拒：`budget_total_mismatch`/`stage_allocation_missing`/
+   `stage_budget_insufficient`；vs **候选预算**（40 / P2-LIVE 20）`ok=true`、`requests_remaining=61`、
+   `total_remaining=24.9290555`、中心余 9/6/3/2。
+3. `authorize_p2`（候选 GO v0_2 + 候选预算 + 内存快照）成立但 `production_ready=false`（`go_sha256=f2c16793…`）
+   ⇒ 候选 GO 仍**不可用**；`scope.plan_sha256` 绑定 v0_2、`expires-issued=13 天`、账本前缀 `f4710b18…`。
+4. 负例：v0.1 计划 + v0.2 GO → `go_plan_sha256_mismatch`；GO `max_requests=560`（< 计划 566）→
+   `go_max_requests_below_plan`；GO 过期 → `go_expired`；计划 `max_requests=560` + 61 请求 → 预检
+   `request_budget_insufficient`（机械证明 560 装不下）。
+5. 快照全部**内存构造**（不调 `read_ledger_snapshot()`、不建 `.lock`、不追加事件）；校前后账本/预算 SHA 与 §1 一致。

@@ -14,6 +14,11 @@
 | `PM/runbook.md` | §1 只读检查、§2 签发、§3 空跑（已实测）、§4 真实执行（BLOCKED）、§5 停止、§6 核对、§7 回滚 |
 | `report.md` | 本文件 |
 
+> **2026-11-11 PLAN-R1 后**：签发用的计划与候选 GO 一律以 **v0_2**（`PM/p2-pilot-plan-v0_2.json`、
+> `PM/P2-LIVE-GO.CANDIDATE-DRAFT-v0_2.json`，61 请求 / 566 / 0.839072 元）为准；v0_1 的 55 / 560 /
+> 0.826784 是**旧口径**（`requests` 按 `embed()` 调用计），批级配额下会低估 D09 的 embedding 批次。
+> 差异、依据与「≤560 信封」冲突见文末 `## PLAN-R1` 与 readiness §13。
+
 ## 2 5 题选择（全部来自公开冻结集合；原样行，无改写、无新标签）
 
 | 类别 | case_id | 来源文件 | suite/stratum | 轮 | 必要导入 | 单题 worst-case |
@@ -80,3 +85,46 @@
 # 空跑（只证明计划/门序/产物，不是 pilot 证据）
 .\.venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --snapshot <快照.json> --out <仓库外目录> --cases <pilot-cases.jsonl> --ingest <5 文件>
 ```
+
+## 9 T206-LIVE 后续（2026-11-11）
+
+G1–G6 的**代码入口**已在 T206-LIVE 包补齐：`mode="live"` 适配器、固定路径真实门 +
+`p2-run --mode live`、真实 OCR 传输、真实 usage 证据（缺 usage fail-closed）、逐次尝试的
+成本中心与请求计数（`P2Gate.begin_attempt`）。**pilot 仍不可执行**：正式 GO 未签发、预算未修订；
+且 live 不重放检索候选（需新计划+新 GO 才能让 `citation_required` 通过）。
+详见 `docs/reports/OBS-EVAL/P2/T206-LIVE/{report.md,evidence/}`。
+
+## PLAN-R1（2026-11-11，按批级配额把 plan/GO 修订为 v0.2；零真实调用）
+
+- 角色：PLAN-R1 计划修订助手（全新上下文）。真实调用 0；未读 `.env`/H1/H2；未写真实 budget/GO/账本；未 commit。
+- 起因：T206-LIVE-R1 把 `item.requests` 改成「真实 POST/批」（batch=5）。v0.1 的 `ingest-index-embedding.requests=30`
+  在新口径下是「30 批」——把 D09 算进去就不够，而 v0.1 的 30 恰好只覆盖 4 份非 OCR 资料。
+- 离线清点（产品解析器 + chunker + live 分块默认 900/6/1；证据 `PLAN-R1/estimate.py`/`estimate-out.txt`）：
+  `D01` 9 块/2 批、`V03` 9 块/2 批、`D03` 8 段→2 块/1 批、`E11` 121 行→121 块/25 批（4 份合计 141 块 = **30 批**，
+  与 T206-prep 空跑实测「3 份文档 20 个文本」= 9+9+2 逐份吻合）；
+  `D09` 1200×700 px、非规则表格 → **text 模式、单 tile → 1 个 unit**，批数只由 OCR 文本长度决定。
+- D09 假设（结果未知，不猜低）：几何上界 `floor(1200/6)×floor(700/6)` = **23,200 字**（6×6 px 字形、零行距）
+  → 26 块 → **6 批**；实际预期 1 批（≤4,500 字）。计划取 6 批 = 上界。
+- 新值：`index_embedding` **36** 批；总请求 **61**（36+6+6+6+6+1）；`max_requests=566`（505+61）；
+  worst-case **0.839072 元**（≤2 元）；串行峰值 0.5（OCR 一页）；成功估价 0.5666。
+- **超出「≤560」信封 6 次请求**（如实报告）：560 是旧算术 505+55；批级口径下的诚实下界已是 30（4 份实测）
+  +1（D09 最省）+24+1 = **56 > 55**。压回 560 的唯一办法 = 删 V03（−2 批）且把 D09 声明压到 2 批（≤9,000 字）
+  → 55 请求 / 560 / 0.826784（`validate-plan-out.txt` 已机械验证）；代价：D09 OCR 文本若 >9,000 字，第 3 批在
+  **发送前**被 `attempt_quota_exhausted` 拒（fail-closed，但那时 0.5 元 OCR 与已发批次已花掉）。
+  → 建议经理接受 566（仍 ≤1000 硬顶、账本余量 495），或明确下令走该缩量配方。
+- 产出：`PM/p2-pilot-plan-v0_2.json`（26 项、`plan_sha256=02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80`）
+  `+ PM/P2-LIVE-GO.CANDIDATE-DRAFT-v0_2.json`（DRAFT、绑 v0_2 sha、账本前缀 `f4710b18…`、13 天、`production_ready=false`）
+  `+ PM/P2-LIVE-readiness.md` §13、`PM/runbook.md` 批级更新与 §4.5、`PLAN-R1/{estimate,validate-plan}.py` 与两份输出。
+- 校验（零真实调用）：`P2RunPlan` 严格通过；预检 vs 现状预算仍拒（`budget_total_mismatch`/`stage_allocation_missing`/
+  `stage_budget_insufficient`）、vs 候选预算 `ok` 且 `requests_remaining=61`；`authorize_p2` 成立但 `production_ready=false`
+  （`go_sha256=f2c16793…`）；负例：v0.1 计划 + v0.2 GO → `go_plan_sha256_mismatch`、GO `max_requests=560` →
+  `go_max_requests_below_plan`、过期 GO → `go_expired`、`max_requests=560` + 61 请求 → 预检 `request_budget_insufficient`。
+- 未做：真实调用/OCR/H2/全仓测试；pilot 仍不可执行（正式 GO 未签发、预算未修订）。
+
+## 更正（2026-11-11，pilot 后经理记录）
+
+1. **作废**「Q01 覆盖同槽 V1→V2」：独立复核表明 V03 与 D01 被导入为两个独立 active 文档（各 version=1），B0 同槽 V1→V2 未复现；Q01 返回 conflict 属播种/导入配方问题，不代表版本串值已覆盖。要取得版本槽证据需 T207 新计划+新 GO 重新播种。
+2. pilot 的 `run_result` 是 **answer 单侧范围**（6 次 answer 预留）；全部底层尝试为 42 次（见 gate.json.attempts/receipts）。
+3. 结算口径：settled=0.5713583、reserve=0.6893120；其中 0.056064 为 3 笔零 chat 拒答的全额保守留账（清单价真实约 0.5152943）；`summary.settled_failure` 与账本 status=failed / requests.jsonl billed 的字段口径待统一（T207 前）。
+4. 预算元数据两字段已修（remaining_at_start 39.97、revised_at 实际签发时刻）；limit/stages/history 未变，签署版另存。
+5. `output_valid=false` 是 dataclass 默认（非质量信号）；`paid_attempt` 仅拒付/拒答轮出现。
