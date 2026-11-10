@@ -210,3 +210,85 @@ reserved_cny / settled_cny / by_operation / by_center_cny / production_ready`；
 不签发 GO、不写原 budget/GO/账本、不建 P2 阶段、不启动 runner、不跑真实发送、不读 .env/H2、
 不提高 `MAX_GO_REQUESTS`、不设 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=40` 到任何全局配置。
 候选文件在 `docs/reports/OBS-EVAL/P2/T201/candidates/`，全部标 DRAFT。
+
+## 11. T206-LIVE 增补：live 执行入口与逐次尝试（additive，不改 §1–§10）
+
+本节只**新增**，不改任何已冻结字段/阈值/路径语义。实现见
+`backend/src/mktkb/evaluation/p2_live.py`（接线）、`product_adapter.py`（`mode="live"`）、
+`p2_runner.py`（`--mode live` 的逐次核对）。
+
+### 11.1 两段式 live 入口
+
+| 段 | 入口 | 发送前硬门 |
+|---|---|---|
+| 计划/环境/门 | `open_live_gate(plan, run_id=...)` | `P2Gate.open`（固定路径 GO/预算/账本）+ `authorization.production_ready=True` |
+| 执行 | `run_live_p2(plan, *, run_id, out_dir, dataset, ingest_plan, gate=...)` | 逐轮 `begin/confirm_before_send/settle_*`；每次底层尝试 `begin_attempt` |
+
+CLI：`python -m mktkb.evaluation.cli p2-run --plan <p> --out <dir> --mode live --run-id <id> ...`；
+**默认仍是 `--mode dry-run`**（现状行为零变化）。`--mode live` 缺 `--run-id`、缺 GO、
+预算未修订（`limit/阶段` 算术不符）、缺 `MKTKB_PROJECT_TOTAL_LIMIT_CNY`、GO/预算不是固定路径、
+账本快照不是 `fixed-paths`、或 GO 未授权 `answer/index_embedding/query_embedding/rerank/ocr`
+之一，一律在建应用/首个发送前拒绝（`live_requires_production_ready` / `live_env_missing:<NAME>` / `live_go_*` / `go_*` /
+`budget_*` / `env_total_limit_*`）。
+
+### 11.2 每次底层尝试 = 一条预留（G5/G6）
+
+`P2Gate.begin_attempt(item_id)` 是 `begin` 的**从属**版本：
+
+- 允许在主请求（`answer` 轮）在飞期间登记：产品一次问答内部会先 query embedding、再 rerank、
+  再 chat；灌库时还有 index embedding，OCR 在灌库/解析时发生；
+- 不复用主 ticket：`reservation_id` 独立、成本中心来自该计划项、`reservation_count`
+  照常 +1（累计请求口径不变，仍受 `max_requests` 约束）；
+- 预留/复核/结算与主请求同锁同门：`confirm_before_send` 失败即 `P2_PRE_SEND_REFUSED:<code>`
+  保守留账并停止，HTTP=0；
+- 计划项级配额：同一计划项最多 `item.requests` 次尝试；用尽即**发送前**拒绝
+  （`attempt_quota_exhausted`），不做"多发一次再解释"。
+  **"一次尝试" = 一次真实 HTTP 请求/批**（T206-LIVE-R1/F2 对齐）：embedding 一次 `embed()`
+  会按 `embedding_batch_size` 拆成多个 POST，每个 POST 各自预留并各扣 1 次配额
+  （例：12 条、批 5 → 3 次；计划只给 2 时第 3 批在发送前停住）；rerank/OCR/`query_expansion`
+  每次调用恒为 1 次。预留数与配额扣减数因此逐条一致（回执 `attempts.by_operation` 可核对）。
+- `query_expansion` 是**独立**的从属尝试（T206-LIVE-R1/F1）：计划项 `expand-*`
+  （`operation=query_expansion`、`cost_center=answer_retrieval`、kind=chat），
+  预留/复核/usage 结算/回执全部按该项，**不得**记到 `answer-*`；计划缺该项时该轮在发送前
+  失败（不借用 answer 的钱）。产品一次回合内若真的多次扩展，就按实际次数逐次预留。
+
+runner 在 `gate.json.attempts` / `summary.json.attempts` 落盘逐次回执（`operation/item_id/
+cost_center/kind/reservation_id/usage/charged_cny/phase`）并核对：计划项存在、
+成本中心 == 计划项、`gate.result().requests_reserved == answer 轮 + 从属尝试`；
+不一致 → `attempt_accounting_mismatch`（产物照写、状态 aborted）。
+
+### 11.3 usage 证据（G4）与三种结算结果
+
+`settle_evidence(ticket, product)` 由 live 接线注入，返回三种值：
+
+| 返回 | 含义 | runner 行为 |
+|---|---|---|
+| `UsageEvidence` | 本轮确有一次真实 chat 发送，且响应带官方 usage（prompt/completion/total + cache hit/miss） | `settle_success(evidence=...)`，按 J1 重算释放未用预留 |
+| `NO_PAID_ATTEMPT` | 本轮零付费发送（合法拒答/澄清/未找到/知识变更） | `close_unused`：写 `status=failed` + `P2_NO_PAID_ATTEMPT:<reason>`，保守占用该笔上界，**不停止**后续 |
+| `None` | 声称作答却拿不到 usage | `settle_failure(error_code=usage_evidence_missing)` + `stop_code=usage_evidence_missing`（保守留账、不伪造金额） |
+
+`close_unused` 只用于"预留后没有发生任何发送"：J1 不允许无证据释放预留，因此仍按上界保守占用；
+它与 `settle_failure` 的区别是**不置 stopped**（一次合法拒答不是付费失败）。
+
+### 11.4 OCR（G3）
+
+live 下 OCR 走 `build_ocr_gateway(settings, transport=<真实传输>)` 构造的
+`TencentOCRClient`（真实签名/真实端点解析），由 `GatedOcrGateway` 在每页调用前后
+`begin_attempt('ocr-...')/confirm_before_send/settle_success(estimated_cny=固定页价)`；
+每页一次调用，**重试 0**（`ocr_options.max_attempts=1`）。Mock 链仍注入 `_NoOcrGateway`
+（行为不变）。
+
+页价口径（T206-LIVE-R1/F5，与实现逐字对齐）：价格**只由计划项声明的模型**决定，并冻结在
+`p2_contracts`（`GeneralAccurateOCR`=0.5 元/页 = text；`RecognizeTableAccurateOCR`
+=0.15 元/页 = table；`P2RequestItem` 构造期已强制"该项模型 ↔ 该项页价"相等）。
+运行时由产品判定 `mode`（`ingest/parsers` 的 `looks_like_rule_table`），它**必须**与计划项
+模型一致；不一致或 mode 未注册，一律在**预留与发送之前**拒绝
+（`ocr_mode_plan_mismatch` / `ocr_mode_invalid`），绝不按"另一个模型的价格"结算，
+也不做隐式换模型。
+
+### 11.5 网络分解（additive 键）
+
+`providers.network` 新增可选 `ocr_outbound_attempts`；分解恒等式变为
+`outbound_attempts == chat_outbound_attempts + rag_provider_posts + ocr_outbound_attempts`。
+Mock 链不给该键（视为 0），旧断言不变。live 链四个真实传输各自被计量包装，
+"0 出站"是测量结果而不是声明。

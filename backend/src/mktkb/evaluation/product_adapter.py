@@ -26,7 +26,7 @@ import hashlib
 import json
 import time
 import uuid
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
@@ -116,13 +116,25 @@ def _sha256_text(text: str) -> str:
 class NetworkMeter:
     """一次 run 的网络边界实测：区分「真实出站尝试」与「本地 Mock 拦截」。
 
-    真实出站由注入给 ``DeepSeekClient`` 的**传输层**计数（MockTransport 一律记拦截，不出网）；
-    RAG 供应商 POST 用既有机器计数 ``rag.providers.post_counters()`` 的进程内增量。
-    本地替身（embedding/rerank）没有传输层，其出站恒为 0 由实现保证，而不是声明。
+    真实出站由注入给**传输层**的计数包装测量（MockTransport 一律记拦截，不出网）：
+    chat 是 httpx.AsyncBaseTransport，embedding/rerank/OCR 是 httpx.BaseTransport。
+    Mock 链上 embedding/rerank 是离线替身（没有传输层，结构性 0 由实现保证）；
+    live 链上三者都有真实传输，因此**必须**逐次计数，不能靠"没配传输"来声明 0。
     """
 
     outbound_attempts: int = 0
     mock_intercepted: int = 0
+    by_kind: dict[str, int] = field(default_factory=dict)
+
+    def record(self, kind: str, *, intercepted: bool) -> None:
+        if intercepted:
+            self.mock_intercepted += 1
+        else:
+            self.outbound_attempts += 1
+            self.by_kind[str(kind)] = self.by_kind.get(str(kind), 0) + 1
+
+    def outbound(self, kind: str) -> int:
+        return int(self.by_kind.get(str(kind), 0))
 
     def as_dict(self) -> dict[str, int]:
         return {
@@ -132,23 +144,41 @@ class NetworkMeter:
 
 
 class _MeteredTransport(httpx.AsyncBaseTransport):
-    """包住注入的传输：``MockTransport`` 记「拦截」，其余一律记「真实出站尝试」。"""
+    """包住注入的**异步**传输（chat）：MockTransport 记「拦截」，其余记「真实出站尝试」。"""
 
-    def __init__(self, inner: httpx.AsyncBaseTransport, meter: NetworkMeter) -> None:
+    def __init__(
+        self, inner: httpx.AsyncBaseTransport, meter: NetworkMeter, *, kind: str = "chat"
+    ) -> None:
         self._inner = inner
         self._meter = meter
+        self._kind = str(kind)
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        if isinstance(self._inner, httpx.MockTransport):
-            self._meter.mock_intercepted += 1
-        else:
-            self._meter.outbound_attempts += 1
+        self._meter.record(self._kind, intercepted=isinstance(self._inner, httpx.MockTransport))
         return await self._inner.handle_async_request(request)
 
     async def aclose(self) -> None:
         closer = getattr(self._inner, "aclose", None)
         if closer is not None:
             await closer()
+
+
+class _MeteredSyncTransport(httpx.BaseTransport):
+    """包住注入的**同步**传输（embedding/rerank/OCR）：同上口径，逐次计数。"""
+
+    def __init__(self, inner: httpx.BaseTransport, meter: NetworkMeter, *, kind: str) -> None:
+        self._inner = inner
+        self._meter = meter
+        self._kind = str(kind)
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        self._meter.record(self._kind, intercepted=isinstance(self._inner, httpx.MockTransport))
+        return self._inner.handle_request(request)
+
+    def close(self) -> None:
+        closer = getattr(self._inner, "close", None)
+        if closer is not None:
+            closer()
 
 
 def _rag_provider_posts() -> int:
@@ -436,6 +466,12 @@ class MockChatBackend:
                     "url": f"{request.url.scheme}://{request.url.host}{request.url.path}",
                     "question_sha256": _sha256_text(str(body.get("question", ""))),
                     "evidence": len(body.get("evidence") or ()),
+                    # 本轮**实际交给模型**的来源 id（F6 证据：retrieved 应等于它，而不是引用副本）
+                    "evidence_ids": tuple(
+                        str(item.get("source_id"))
+                        for item in body.get("evidence") or ()
+                        if isinstance(item, Mapping) and item.get("source_id")
+                    ),
                 }
             )
         behavior = self.behaviors[index] if index < len(self.behaviors) else ChatBehavior()
@@ -755,7 +791,17 @@ class ProductEvalAdapter:
         purge_traces_on_close: bool = False,
         label: str = "",
         trace_identity: Mapping[str, Any] | None = None,
+        mode: str = "mock",
+        live_wiring: Any | None = None,
     ) -> None:
+        if mode not in ("mock", "live"):
+            raise ValueError("adapter.mode 只允许 mock/live")
+        if mode == "live" and live_wiring is None:
+            raise ValueError("mode='live' 必须提供 live_wiring（p2_live.build_live_adapter 装配）")
+        if mode == "mock" and live_wiring is not None:
+            raise ValueError("mock 模式不接受 live_wiring（默认必须零真实调用）")
+        self._mode = str(mode)
+        self._wiring = live_wiring
         self.paths = ProductPaths.of(out_dir)
         self.ingest_plan = ingest_plan
         self.dataset = dataset
@@ -780,6 +826,9 @@ class ProductEvalAdapter:
         self._closed = False
         self.ingest_receipts: list[IngestReceipt] = []
         self.real_provider_built = False
+        # T206-LIVE：live 模式下 embedding/rerank/OCR 也都是**真实** provider（默认 None）。
+        self._ocr_gateway: Any = None
+        self._live_closers: list[Any] = []
         # F1：网络边界必须实测；F6：holdout run 的题干明文在 close 时封存删除。
         self._meter = NetworkMeter()
         # 构造时先取一次基线：即使 run 在发送前被拒（adapter 从未 start），
@@ -802,8 +851,12 @@ class ProductEvalAdapter:
 
     @property
     def is_mock(self) -> bool:
-        """本适配器只提供 Mock（接入真实 provider 属 T206）。"""
-        return True
+        """live 适配器必须显式构造；默认仍是 Mock（零真实调用）。"""
+        return self._mode != "live"
+
+    @property
+    def mode(self) -> str:
+        return str(self._mode)
 
     async def start(self) -> "ProductEvalAdapter":
         if self._started:
@@ -813,6 +866,11 @@ class ProductEvalAdapter:
         # 出站基线：RAG 供应商 POST 计数是进程级机器计数，取增量才是本 run 的事实。
         self._rag_posts_baseline = _rag_provider_posts()
         self.paths.data_dir.mkdir(parents=True, exist_ok=True)
+        if self._mode == "live":
+            return await self._start_live()
+        return await self._start_mock()
+
+    async def _start_mock(self) -> "ProductEvalAdapter":
         database_url = f"sqlite:///{self.paths.business_db.as_posix()}"
         self._settings = Settings(
             _env_file=None,
@@ -893,6 +951,164 @@ class ProductEvalAdapter:
         self._started = True
         return self
 
+    async def _start_live(self) -> "ProductEvalAdapter":
+        """构造**真实**产品应用：真实 chat/embedding/rerank provider + 真实 OCR 传输。
+
+        与 Mock 路径的差别只在装配：所有动作仍走产品 HTTP 入口，预算/结算仍只由 P2Gate
+        与共享账本决定。凭据只来自 live_wiring（进程环境），不读 .env、不落盘、不进产物。
+        """
+        from ..providers import build_ocr_gateway
+        from ..providers.deepseek import DeepSeekClient
+        from ..rag.providers import BailianEmbeddingProvider, BailianRerankProvider
+        from ..rag.settlement_policy import build_policy
+        from .p2_live import (
+            GatedChatGateway,
+            GatedEmbeddingProvider,
+            GatedOcrGateway,
+            GatedRerankProvider,
+        )
+
+        wiring = self._wiring
+        if wiring is None:  # pragma: no cover - __init__ 已拒绝
+            raise RuntimeError("live 模式缺少 live_wiring")
+        env = wiring.env
+        transports = dict(wiring.transports or {})
+        database_url = f"sqlite:///{self.paths.business_db.as_posix()}"
+        self._settings = Settings(
+            _env_file=None,
+            data_dir=self.paths.data_dir,
+            database_url=database_url,
+            cookie_secure=False,
+            csrf_secret="p2-eval-csrf-secret-0123456789",
+            bcrypt_rounds=4,
+            session_ttl_seconds=3600,
+            trusted_origins=[ORIGIN],
+            log_level="WARNING",
+            storage_dir=self.paths.storage,
+            rag_index_path=self.paths.index_db,
+            rag_provider_mode="live",
+            rag_sync_on_startup=False,
+            ocr_disabled=False,
+            ocr_secret_id=env.ocr_secret_id,
+            ocr_secret_key=env.ocr_secret_key,
+            ocr_region=env.ocr_region,
+            trace_enabled=self.trace_enabled,
+            trace_db_path=self.paths.trace_db,
+            trace_content_mode=self.trace_content_mode,
+            admin_password=self._users_spec[0][1],
+            employee_password=self._users_spec[-1][1],
+        )
+        # 单请求上界取计划里的串行峰值（OCR 一页 0.5），不是 provider 自己的猜测值。
+        max_request_cny = float(wiring.plan.reserve_peak_cny)
+        rag_config = RagConfig(
+            provider_mode="live",
+            data_dir=self.paths.data_dir,
+            business_date=None,
+            top_k=8,
+            page_size=10,
+            vector_candidate_limit=50,
+            rerank_top_n=20,
+            embedding_base_url=env.dashscope_base_url,
+            rerank_base_url=env.dashscope_base_url,
+            embedding_api_key=env.dashscope_api_key,
+            rerank_api_key=env.dashscope_api_key,
+            # 与 P1 live 同一理由：批 5 降低单请求 token，避免撞 4096 的结算 cap。
+            embedding_batch_size=5,
+            embedding_timeout_seconds=30.0,
+            rerank_timeout_seconds=30.0,
+            max_request_cny=max_request_cny,
+            max_retries=0,
+            require_zero_retries=True,
+            chat_model="",
+            chat_base_url="",
+            chat_api_key="",
+        )
+        embedding_inner = BailianEmbeddingProvider(
+            rag_config,
+            budget=wiring.ledger,
+            require_budget=True,
+            settlement_policy=build_policy("embedding", model=rag_config.embedding_model),
+            transport=_MeteredSyncTransport(
+                transports.get("embedding") or httpx.HTTPTransport(),
+                self._meter,
+                kind="embedding",
+            ),
+        )
+        rerank_inner = BailianRerankProvider(
+            rag_config,
+            budget=wiring.ledger,
+            require_budget=True,
+            settlement_policy=build_policy("rerank", model=rag_config.rerank_model),
+            transport=_MeteredSyncTransport(
+                transports.get("rerank") or httpx.HTTPTransport(),
+                self._meter,
+                kind="rerank",
+            ),
+        )
+        self._embedder = GatedEmbeddingProvider(embedding_inner, wiring=wiring)
+        self._reranker = GatedRerankProvider(rerank_inner, wiring=wiring)
+        self._live_closers.extend([self._embedder, self._reranker])
+        chat_transport = _MeteredTransport(
+            transports.get("chat") or httpx.AsyncHTTPTransport(),
+            self._meter,
+            kind="chat",
+        )
+        chat_client = DeepSeekClient(
+            base_url=env.chat_base_url,
+            model=env.chat_model,
+            api_key=env.chat_api_key,
+            timeout_seconds=float(self._settings.model_request_timeout_seconds),
+            transport=chat_transport,
+        )
+        gateway = GatedChatGateway(chat_client, wiring=wiring)
+        self.real_provider_built = True
+        ocr_inner = build_ocr_gateway(
+            self._settings,
+            transport=_MeteredSyncTransport(
+                transports.get("ocr") or httpx.HTTPTransport(),
+                self._meter,
+                kind="ocr",
+            ),
+        )
+        if ocr_inner is None:  # pragma: no cover - live 环境变量已校验
+            raise RuntimeError("live 模式必须配置真实 OCR 传输")
+        ocr_gateway = GatedOcrGateway(ocr_inner, wiring=wiring)
+        self._ocr_gateway = ocr_gateway
+        self._live_closers.append(ocr_gateway)
+        self._qa = QaEngine(
+            None,
+            self.paths.index_db,
+            config=rag_config,
+            embedder=self._embedder,
+            reranker=self._reranker,
+        )
+        self._app = create_app(
+            self._settings,
+            model_gateway=gateway,
+            ocr_gateway=ocr_gateway,
+            qa_engine=self._qa,
+        )
+
+        @self._app.middleware("http")
+        async def _p2_trace_identity(request: Any, call_next: Any) -> Any:
+            with trace_identity_scope(**self._trace_identity):
+                return await call_next(request)
+
+        self._qa.db_factory = self._app.state.db
+        self._qa.ensure_ready()
+        transport = httpx.ASGITransport(app=self._app, raise_app_exceptions=False)
+        for username, password in self._users_spec:
+            client = httpx.AsyncClient(transport=transport, base_url=ORIGIN, timeout=120.0)
+            session = _UserSession(username, password, client)
+            try:
+                await session.login()
+            except RuntimeError:
+                self._create_account(username, password)
+                await session.login()
+            self._sessions[username] = session
+        self._started = True
+        return self
+
     def _create_account(self, username: str, password: str) -> None:
         from ..auth.service import create_account
 
@@ -920,6 +1136,11 @@ class ProductEvalAdapter:
         closer = getattr(gateway, "aclose", None)
         if closer is not None:
             await closer()
+        for closer in self._live_closers:
+            close = getattr(closer, "close", None)
+            if callable(close):
+                close()
+        self._live_closers.clear()
         if self._qa is not None:
             self._qa.close()
         repo = getattr(self._app.state, "trace_repo", None) if self._app is not None else None
@@ -981,11 +1202,34 @@ class ProductEvalAdapter:
 
     # ---------------------------------------------------------------- 观测面
     def network_stats(self) -> dict[str, Any]:
-        """本轮**实测**网络边界：出站尝试 = 注入传输的真实出站 + RAG 供应商 POST 增量。
+        """本轮**实测**网络边界：出站尝试只来自传输层计数（不是常量、也不是声明）。
 
-        ``outbound_network`` 不再是常量：Mock 链上由传输层计到 0（调用被 MockTransport 接住，
-        计入 ``mock_intercepted``）；换成真实传输时同一个计数器就会>0，产物如实反映。
+        - Mock 链：chat 由注入的 MockTransport 接住（``mock_intercepted``），embedding/rerank
+          是离线替身（没有传输层，结构性 0）；``rag_provider_posts`` 用机器计数旁证；
+        - live 链（T206-LIVE）：chat/embedding/rerank/OCR 四个真实传输**各自**被计量包装，
+          顶层出站 = 四者之和；因此"0 出站"是测量结果，换真传输后同一个计数器就会>0。
         """
+        if self._mode == "live":
+            chat = self._meter.outbound("chat")
+            embedding = self._meter.outbound("embedding")
+            rerank = self._meter.outbound("rerank")
+            ocr = self._meter.outbound("ocr")
+            return {
+                "outbound_attempts": int(self._meter.outbound_attempts),
+                "chat_outbound_attempts": int(chat),
+                "rag_provider_posts": int(embedding + rerank),
+                "ocr_outbound_attempts": int(ocr),
+                "transport_outbound": {
+                    "chat": int(chat),
+                    "embedding": int(embedding),
+                    "rerank": int(rerank),
+                    "ocr": int(ocr),
+                },
+                "mock_intercepted": int(self._meter.mock_intercepted),
+                "embedding_provider": "bailian text-embedding-v4（真实传输）",
+                "rerank_provider": "bailian gte-rerank-v2（真实传输）",
+                "ocr_provider": "tencent OCR（真实传输）",
+            }
         rag_posts = max(0, _rag_provider_posts() - int(self._rag_posts_baseline))
         return {
             "outbound_attempts": int(self._meter.outbound_attempts + rag_posts),
@@ -1011,6 +1255,27 @@ class ProductEvalAdapter:
           embedding/rerank 是离线替身、没有传输层，故结构性为 0，而不是"运行时测出来的 0"。
         """
         network = self.network_stats()
+        if self._mode == "live":
+            return {
+                "chat": {**self._gateway_dict(), "outbound_network": int(network["chat_outbound_attempts"])},
+                "embedding": {
+                    **self._embedder.as_dict(),
+                    "outbound_network": int(network["transport_outbound"]["embedding"]),
+                },
+                "rerank": {
+                    **self._reranker.as_dict(),
+                    "outbound_network": int(network["transport_outbound"]["rerank"]),
+                },
+                "ocr": {
+                    **self._ocr_dict(),
+                    "outbound_network": int(network["ocr_outbound_attempts"]),
+                },
+                "outbound_network": int(network["outbound_attempts"]),
+                "network": network,
+                # T206-LIVE：逐次尝试的真实回执（计划项/成本中心/usage/reservation_id）。
+                "live": self._wiring.as_dict() if self._wiring is not None else {"mode": "live"},
+                "attempts": self.attempt_receipts(),
+            }
         chat = (
             self.chat.as_dict()
             if self.chat is not None
@@ -1028,6 +1293,33 @@ class ProductEvalAdapter:
             "outbound_network": int(network["outbound_attempts"]),
             "network": network,
         }
+
+    # ---------------------------------------------------------------- live 观测面（T206-LIVE）
+    def _gateway_dict(self) -> dict[str, Any]:
+        gateway = getattr(self._app.state, "model_gateway", None) if self._app is not None else None
+        as_dict = getattr(gateway, "as_dict", None)
+        if callable(as_dict):
+            return dict(as_dict())
+        return {"calls": 0, "provider": None, "transport": None}
+
+    def _ocr_dict(self) -> dict[str, Any]:
+        ocr = self._ocr_gateway
+        as_dict = getattr(ocr, "as_dict", None)
+        if callable(as_dict):
+            return dict(as_dict())
+        return {"calls": 0, "state": "not_configured"}
+
+    def turn_usage(self) -> dict[str, Any] | None:
+        """本轮 chat 的实际 usage（供 runner 的 settle_evidence 构造 UsageEvidence）。"""
+        if self._wiring is None:
+            return None
+        return self._wiring.turn_usage()
+
+    def attempt_receipts(self) -> list[dict[str, Any]]:
+        """live 逐次底层尝试回执（Mock 链为空：Mock 没有真实尝试）。"""
+        if self._wiring is None:
+            return []
+        return self._wiring.receipt_payload()
 
     # ---------------------------------------------------------------- 评测身份（T206-PRE）
     def bind_trace_identity(self, identity: Mapping[str, Any]) -> dict[str, str]:
@@ -1080,6 +1372,35 @@ class ProductEvalAdapter:
         # 否则同一份配置每跑一次都变 hash。
         embedding = self._embedder.as_dict()
         rerank = self._reranker.as_dict()
+        if self._mode == "live":
+            return {
+                "dataset_version": str(identity.get("dataset_version") or ""),
+                "manifest_sha256": str(identity.get("manifest_sha256") or ""),
+                "label_version": str(identity.get("label_version") or ""),
+                "suite": str(identity.get("suite") or ""),
+                "pipeline_version": str(product_pipeline_version()),
+                "index_revision": int(self.product_revision()),
+                "provider": {
+                    "chat": {
+                        "provider": "deepseek",
+                        "model": str(self._wiring.env.chat_model) if self._wiring else "none",
+                        "transport": type(
+                            getattr(getattr(self._app.state, "model_gateway", None), "_inner", None)
+                        ).__name__ if self._app is not None else "none",
+                    },
+                    "embedding": {
+                        "impl": str(embedding.get("impl") or type(self._embedder).__name__),
+                        "provider": embedding.get("provider"),
+                        "model": embedding.get("model"),
+                    },
+                    "rerank": {
+                        "impl": str(rerank.get("impl") or type(self._reranker).__name__),
+                        "provider": rerank.get("provider"),
+                        "model": rerank.get("model"),
+                    },
+                    "ocr": "tencent:GeneralAccurateOCR（真实传输）",
+                },
+            }
         return {
             "dataset_version": str(identity.get("dataset_version") or ""),
             "manifest_sha256": str(identity.get("manifest_sha256") or ""),
@@ -1222,6 +1543,12 @@ class ProductEvalAdapter:
         自己的检索代码在同一 revision/上下文上重放一次**。重放比产品内部那次更窄时只会
         fail-closed（引用被判不在候选内），不会更宽地放过引用。
         """
+        if self._mode == "live":
+            # 结构性闸门：live 的重放会真的再发一次 embedding/rerank（付费 + 占计划项配额）。
+            # 要这么做必须先补 replay 计划项 + 新 GO；在那之前一律不允许从这条路径取候选。
+            raise RuntimeError(
+                "live 模式不允许重放检索候选（会再发一次真实 embedding/rerank；需新计划+新GO）"
+            )
         if self._app is None or revision is None:
             return ()
         path = str(trace_path or "")
@@ -1240,6 +1567,23 @@ class ProductEvalAdapter:
         except Exception:  # noqa: BLE001 - 采集失败只让候选为空，不改产品结论
             return ()
         return self._resolve_retrieved_units(ids)
+
+    # ---------------------------------------------------------------- live 检索候选（F6）
+    def _live_retrieved(self) -> tuple[dict[str, Any], ...]:
+        """live：把**产品本轮真正交给模型**的证据集合解析成稳定身份（零额外调用）。
+
+        来源是 answer 请求的 CompletionInput.evidence（产品检索结果的直接产物，不是在评测器里
+        重跑一次检索）；解析失败/没有捕获到一律返回空，让 gate fail-closed。
+        """
+        if self._wiring is None:
+            return ()
+        ids = self._wiring.retrieved_ids()
+        if not ids:
+            return ()
+        try:
+            return self._resolve_retrieved_units(ids)
+        except Exception:  # noqa: BLE001 - 观测面失败只让候选为空，不改产品结论
+            return ()
 
     def _rag_candidate_ids(self, question: str, *, state: Any) -> set[str]:
         """rag 内核路径：用同一查询状态/词典重算本轮计划，再取只读检索候选。"""
@@ -1447,7 +1791,13 @@ class ProductEvalAdapter:
         version_id = str(record["version"]["id"])
         db = self._app.state.db.session()
         try:
-            job = run_one_job(db, self._app.state.store)
+            job = run_one_job(
+                db,
+                self._app.state.store,
+                # live：把真实 OCR 网关交给 worker，并强制零自动重试（每页一次调用）。
+                ocr=(self._app.state.ocr_gateway if self._mode == "live" else None),
+                ocr_options={"max_attempts": 1} if self._mode == "live" else None,
+            )
             revision = int(get_revision(db))
         finally:
             db.close()
@@ -1529,6 +1879,32 @@ class ProductEvalAdapter:
         """走用户同一产品入口提问一次；超时/异常都转成可记录的产品回合结果。"""
         await self.start()
         session = self._session(user_id)
+        if self._mode == "live":
+            # 进入本轮 live 上下文：只有本 run 的 answer 计划项能开真实发送；退出时必须清空，
+            # 防止下一轮（或回合外调用）借用上一轮的预算身份。
+            if self._wiring is None:  # pragma: no cover - __init__ 已拒绝
+                raise RuntimeError("live 模式缺少 live_wiring")
+            self._wiring.enter_turn(str(client_request_id))
+        try:
+            return await self._ask_turn_inner(
+                question,
+                user_id=user_id,
+                conversation_id=conversation_id,
+                client_request_id=client_request_id,
+            )
+        finally:
+            if self._mode == "live" and self._wiring is not None:
+                self._wiring.leave_turn()
+
+    async def _ask_turn_inner(
+        self,
+        question: str,
+        *,
+        user_id: str,
+        conversation_id: str,
+        client_request_id: str,
+    ) -> ProductTurn:
+        session = self._session(user_id)
         # T206-PRE-R1：检索候选只能在**发送前**取基线（产品 revision + rag 查询状态）——
         # 本轮会把状态推进，事后重算就不是这一轮的检索了。
         pre_revision = self._safe_product_revision()
@@ -1603,18 +1979,25 @@ class ProductEvalAdapter:
         )
         # T206-PRE-R1：作答轮采集**本轮真实检索候选**（产品检索结果，不是引用）。
         # 非作答轮保持空（gate 不要求引用，也不允许拿"没检索"冒充通过）。
-        retrieved = (
-            self.retrieval_candidates(
-                str(question),
-                conversation_id=str(conversation_id),
-                client_request_id=str(client_request_id),
-                trace_path=trace_path,
-                revision=pre_revision,
-                state=pre_state,
+        # T206-LIVE-R1（F6）：live 的候选取自产品 answer 请求里**实际交给模型的证据集合**
+        # （GatedChatGateway 捕获，零额外调用/零额外付费）；捕获不到就留空 → gate 的
+        # citation_required fail-closed。live **不做**付费重放：重放会再发一次真实
+        # embedding/rerank，而计划只给了本轮各 1 次（已用于产品自己的检索）。
+        if self._mode == "live":
+            retrieved = self._live_retrieved() if kind == "answer" else ()
+        else:
+            retrieved = (
+                self.retrieval_candidates(
+                    str(question),
+                    conversation_id=str(conversation_id),
+                    client_request_id=str(client_request_id),
+                    trace_path=trace_path,
+                    revision=pre_revision,
+                    state=pre_state,
+                )
+                if kind == "answer"
+                else ()
             )
-            if kind == "answer"
-            else ()
-        )
         return ProductTurn(
             question_sha256=_sha256_text(question),
             question_chars=len(question),

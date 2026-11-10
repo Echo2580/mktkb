@@ -1,0 +1,42 @@
+# P2-T206-LIVE 证据 02：live 入口在**发送前**拒绝（真实固定路径，零发送）
+# 现场：codex/p2-e2e @ 9a8272a（未 commit）；时间 2026-11-11
+# 说明：A–F 都是真实 CLI 调用；凭据值是 evidence-fake（非真实凭据、不进产品）；
+#       固定路径 P2-LIVE-GO.json 当前不存在、预算未修订，因此只可能走拒绝路径；
+#       拒绝发生在构造隔离应用之前（输出目录从未创建，见 04-scope.txt）。
+
+## A 无 live 环境变量
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx --run-id p2-live-evidence-a
+exit=3
+stdout: {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_env_missing", "detail": "缺少 MKTKB_MODEL_API_KEY", "requests_sent": 0, "real_requests": 0}
+stderr: (empty)
+
+## B 环境齐备但固定路径无正式 GO
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx --run-id p2-live-evidence-b
+exit=3
+stdout: {"ok": false, "mode": "live", "status": "blocked", "error_code": "path_missing", "detail": "P2 GO 不存在", "requests_sent": 0, "real_requests": 0}
+stderr: (empty)
+
+## C 缺 --run-id
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx
+exit=3
+stdout: 
+stderr: ERROR: --mode live 需要显式 --run-id（身份必填，不自动生成）
+
+## D OCR_DISABLED=1
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx --run-id p2-live-evidence-d
+exit=3
+stdout: {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_ocr_disabled", "detail": "MKTKB_OCR_DISABLED=1 时不能执行真实 OCR", "requests_sent": 0, "real_requests": 0}
+stderr: (empty)
+
+## E 缺 DASHSCOPE_API_KEY
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx --run-id p2-live-evidence-e
+exit=3
+stdout: {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_env_missing", "detail": "缺少 DASHSCOPE_API_KEY", "requests_sent": 0, "real_requests": 0}
+stderr: (empty)
+
+## F 非白名单 chat 模型
+$ .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run --plan docs\reports\OBS-EVAL\P2\T206\PM\p2-pilot-plan-v0_1.json --out backend\.pytest-tmp\t206live-cli-out --mode live --ingest fixtures\acceptance\normal\D01_物品位置表.xlsx --run-id p2-live-evidence-f
+exit=3
+stdout: {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_chat_model_not_authorized", "detail": "chat 模型必须是已核模型 deepseek-flash", "requests_sent": 0, "real_requests": 0}
+stderr: (empty)
+

@@ -1,0 +1,61 @@
+# 证据 02：独立复现「--mode live 发送前拒绝」6 类 + 回归用例有效性检查
+# 现场：codex/p2-e2e @ 9a8272a；时间 2026-11-11
+# 方法：真实 CLI 子进程（python -m mktkb.evaluation.cli p2-run --mode live），
+#       计划用仓库真实 pilot 计划；环境变量值是 evidence-fake（不是真实凭据）；
+#       固定路径 P2-LIVE-GO.json 当前不存在，因此只可能走拒绝路径；
+#       每次拒绝前把 --out 目录清空，拒绝后断言目录从未被创建。
+# 说明：本段由 evidence/verify-t206-live/probe.py 的 G/H 段生成（自写探针，不复用开发助手断言）。
+
+## G CLI 在**发送前**拒绝（真实固定路径；GO 不存在、预算未修订）
+## A 无 live 环境变量
+   exit = 3
+   stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_env_missing", "detail": "缺少 MKTKB_MODEL_API_KEY", "requests_sent": 0, "real_requests": 0}
+   stderr = (empty)
+   out_dir 创建?  False (data: False )
+
+## B 环境齐备但固定路径无 GO
+   exit = 3
+   stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "path_missing", "detail": "P2 GO 不存在", "requests_sent": 0, "real_requests": 0}
+   stderr = (empty)
+   out_dir 创建?  False (data: False )
+
+## C 缺 --run-id
+   exit = 3
+   stdout = 
+   stderr = ERROR: --mode live 需要显式 --run-id（身份必填，不自动生成）
+   out_dir 创建?  False (data: False )
+
+## D OCR_DISABLED=1
+   exit = 3
+   stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_ocr_disabled", "detail": "MKTKB_OCR_DISABLED=1 时不能执行真实 OCR", "requests_sent": 0, "real_requests": 0}
+   stderr = (empty)
+   out_dir 创建?  False (data: False )
+
+## E 缺 DASHSCOPE_API_KEY
+   exit = 3
+   stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_env_missing", "detail": "缺少 DASHSCOPE_API_KEY", "requests_sent": 0, "real_requests": 0}
+   stderr = (empty)
+   out_dir 创建?  False (data: False )
+
+## F 非白名单 chat 模型
+   exit = 3
+   stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_chat_model_not_authorized", "detail": "chat 模型必须是已核模型 deepseek-flash", "requests_sent": 0, "real_requests": 0}
+   stderr = (empty)
+   out_dir 创建?  False (data: False )
+
+## H 回归用例 test_cli_live_refuses_without_go_before_building_adapter 是否真的测到拒绝原因
+用例源码里的 --plan 路径（tmp_path/plan.json）从未被写入 ->
+  backend/tests/evaluation/test_p2_live_wiring.py: test_cli_live_refuses_without_go_before_building_adapter
+  缺失 plan 文件：exit = 3 | stderr = ERROR: FileNotFoundError: [Errno 2] No such file or directory: 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\verify-t206-live-f9d4l0wh\\h\\plan.json'
+  断言 exit==EXIT_DATA(3) 与 out 目录不存在都会通过，但根本没有走到 live/GO 分支
+  换成真实 plan 文件：exit = 3 | stdout = {"ok": false, "mode": "live", "status": "blocked", "error_code": "live_env_missing", "detail": "缺少 MKTKB_MODEL_API_KEY", "requests_sent": 0, "real_requests": 0}
+  （这才是用例声称覆盖的 path_missing；缺这一步用例等于没测）
+
+## 结论（02）
+- 6 类拒绝全部 exit=3、requests_sent=0、real_requests=0、--out 目录从未创建：
+  live_env_missing(MKTKB_MODEL_API_KEY) / path_missing(P2 GO) / 缺 --run-id /
+  live_ocr_disabled / live_env_missing(DASHSCOPE_API_KEY) / live_chat_model_not_authorized。
+- H：开发助手的 `test_cli_live_refuses_without_go_before_building_adapter` 是**空转**用例
+  （它传的 tmp_path/plan.json 从未写入 -> 在读取计划时就以 FileNotFoundError 退出 3，
+  根本没走到 live/GO 分支）。同一条用例换成真实计划文件才会命中 `path_missing`。
+  产品行为本身正确（见上 G-B），缺陷在用例证据。

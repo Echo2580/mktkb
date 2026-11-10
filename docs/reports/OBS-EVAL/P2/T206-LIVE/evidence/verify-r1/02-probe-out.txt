@@ -1,0 +1,48 @@
+======================================================================
+T206-LIVE-R1 独立复验探针（verify-r1）
+tmp= C:\Users\dell1712\AppData\Local\Temp\t206-r1-verify-4kznzufy
+======================================================================
+
+--- F1: query_expansion 真实归属 / answer-* 不被顶账 / 同轮第二次 answer 拒绝 ---
+[F1] retrieved_captured= ('11111111-1111-1111-1111-111111111111',)
+[F1] answer_posts_after_first= 1 second_answer_code= chat_attempt_exceeds_plan posts_after_second= 1 posts_after_expansion= 2
+[F1] budget_used= {'expand-Q01-t1': 1} answer_item_used= 0 chat_calls= {'chat': 1, 'expansion': 1, 'embedding': 0, 'rerank': 0, 'ocr': 0}
+[F1] expansion_receipts= [('reserve', 'expand-Q01-t1', 'query_expansion', 'reserved', 0.0), ('settle', 'expand-Q01-t1', 'query_expansion', 'succeeded', 0.000384)]
+[F1] ledger_chat_reservations= 2 centers= ['answer_retrieval', 'answer_retrieval'] results= [('succeeded', None)]
+[F1] no_expand_item_code= attempt_item_unknown posts= 0 reservations= 0
+[F1] product_status= succeeded stop= None purposes= {'query_expansion': 1} quota= {'expand-Q25-t1': 1} calls= {'chat': 0, 'expansion': 1, 'embedding': 0, 'rerank': 0, 'ocr': 0}
+[F1] product_receipts= [('reserve', 'expand-Q25-t1', 'reserved', 0.0), ('settle', 'expand-Q25-t1', 'succeeded', 0.000384)]
+[F1] product_results= [('chat', 'succeeded', None, 0.000384), ('chat', 'failed', 'P2_NO_PAID_ATTEMPT:not_found', 0.018688)]
+
+--- F2: 计划项配额按真实 POST/批 ---
+[F2] vectors= 12 posts= 3 batch_sizes= [5, 5, 2]
+[F2] quota_used= 3 ledger_attempts= 3 reservations= 3 results= 3 as_dict= {'calls': 3, 'embed_calls': 1, 'provider': 'bailian', 'model': 'text-embedding-v4', 'impl': 'BailianEmbeddingProvider', 'transport': 'NoneType'}
+[F2] tight_posts= 2 tight_quota= 2 tight_reservations= 2 tight_error= P2 计划项配额拒绝：attempt_quota_exhausted ingest-index 已用 2/2 次
+
+--- F6: live retrieved 从 CompletionInput.evidence 捕获（零额外付费） ---
+[F6] status= succeeded stop= None requests_sent= 1 chat_calls= 1 by_purpose= {'answer': 1}
+[F6] kind= answer cited= 1 retrieved= 1 cited_subset= True retrieved_eq_evidence_ids= True retrieved_eq_cited= True
+[F6] outbound= 0 embedding_calls= {'calls': 3, 'embed_calls': 3, 'provider': 'bailian', 'model': 'text-embedding-v4', 'impl': 'BailianEmbeddingProvider', 'transport': 'NoneType', 'outbound_network': 0} rerank_calls= {'calls': 1, 'rerank_calls': 1, 'provider': 'bailian', 'model': 'gte-rerank-v2', 'impl': 'BailianRerankProvider', 'transport': 'NoneType', 'outbound_network': 0}
+[F6] citation_required(with retrieved)= pass
+[F6] citation_required(without retrieved)= fail hard_failures= ['citation_required']
+[F6] live_replay_guard= RuntimeError:live 模式不允许重放检索候选（会再发一次真实 embedding/rerank；需新计划+新
+[F6] attempts= {'available': True, 'receipt_count': 8, 'reservations': 4, 'gate_reserved': 5, 'expected_reservations': 5, 'by_operation': {'index_embedding': 2, 'query_embedding': 1, 'rerank': 1}}
+[F6] network= 0 unused= 0
+
+--- F3: CLI live 真测试（先写计划 + 置齐 env）---
+[F3] exit= 3 stdout_last= {"ok": false, "mode": "live", "status": "blocked", "error_code": "path_missing", "detail": "P2 GO 不存在", "requests_sent": 0, "real_requests": 0} stderr=  out_dir_created= False
+[F3] absent_plan_exit= 3 stderr= ERROR: plan_unreadable: FileNotFoundError
+[F3] bad_json_exit= 3 stderr= ERROR: plan_json_invalid: JSONDecodeError
+[F3] draft_go_exit= 3 stdout= {"ok": false, "mode": "live", "status": "blocked", "error_code": "go_plan_id_mismatch", "detail": "GO 绑定的 plan_id 与计划不一致", "requests_sent": 0, "real_requests": 0}
+
+--- F4/F5: runbook 码名 / OCR 模式门 ---
+[F4] codes_in_runbook_missing_in_code= [] go_missing_lines= ['—— 旧版 runbook 写的 `go_missing` 并不存在，实际码是 `path_missing`（T206-LIVE-R1/F4）。']
+[F5] first_page_text= 领取活动物料需先填写物料 ocr_posts= 1 table_on_text_item= ocr_mode_plan_mismatch ocr_reservations= 1 receipts= [('reserve', 'ocr-Q01-p1', 0.0), ('settle', 'ocr-Q01-p1', 0.5)]
+
+--- 安全面：出站 / 共享文件 ---
+[SAFE] ledger size= 958277 sha256= 1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390
+[SAFE] budget size= 1444 sha256= 084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+[SAFE] go absent= True
+[SAFE] external_outbound_attempts= 0 detail= [] loopback_attempts= 6
+
+DONE

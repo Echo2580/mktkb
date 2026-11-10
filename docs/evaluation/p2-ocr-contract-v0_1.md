@@ -89,6 +89,13 @@ executor(OcrExecutor) → P2OcrIngestion.recognize（身份/计划/缓存/回执
 | `provider_request_id` | 供应商 RequestId（经安全收敛），缺失即 `OCR_USAGE_MISSING` |
 | `elapsed_ms` / `tiles` | 单次耗时、该次分片数（本计划恒为 1） |
 
+页价 vs 运行时模式（T206-LIVE-R1/F5）：`bound_cny` 的 text 0.5 / table 0.15 只由**计划项声明的
+模型**决定（`GeneralAccurateOCR` / `RecognizeTableAccurateOCR`；`p2_contracts` 冻结并在
+`P2RequestItem` 构造期强校验"该项模型 ↔ 该项页价"）。live 装配（`p2_live.GatedOcrGateway`）
+额外要求产品运行时判定的 `mode` 与计划项模型一致；不一致或 mode 未注册，一律在**预留与发送之前**
+拒绝（`ocr_mode_plan_mismatch` / `ocr_mode_invalid`）。因此不存在"按另一个模型的价格结算"的
+空间，也不做隐式换模型。
+
 硬规则（任一触发即**停止**，不写成功、不静默重试）：
 
 1. 缺 usage（无 RequestId）→ `OCR_USAGE_MISSING`；

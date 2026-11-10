@@ -1,0 +1,109 @@
+# P2-T206-LIVE 证据 03：live 端到端（fake transport + 真实 provider + 真实 P2Gate）
+# 现场：codex/p2-e2e @ 9a8272a（未 commit）；时间 2026-11-11
+# 脚本在 %TEMP%（不入库），用仓库测试模块的同一套夹具/假传输；socket 闸门包住全程。
+# 命令：
+$ .venv\Scripts\python.exe -X utf8 -B %TEMP%\p2-t206-live\evidence_live.py
+exit=0
+
+{
+  "result": {
+    "status": "succeeded",
+    "stop_code": null,
+    "production_ready": true,
+    "requests_planned": 12,
+    "requests_reserved": 1,
+    "requests_sent": 1,
+    "by_center_cny": {
+      "answer_retrieval": 0.000384,
+      "ocr": 0.0,
+      "judge": 0.0,
+      "independent": 0.0
+    }
+  },
+  "ledger": {
+    "reserved": 5,
+    "results": 5,
+    "reserved_without_center": 0,
+    "centers": [
+      "answer_retrieval"
+    ],
+    "result_charges": [
+      2e-05,
+      2e-05,
+      2e-05,
+      6.4e-05,
+      0.000384
+    ]
+  },
+  "artifacts": {
+    "execution": "live",
+    "requests": {
+      "attempted": 1,
+      "billed_cny": 0.0,
+      "planned": 12,
+      "real_requests": 0,
+      "reserved": 1,
+      "settled_failure": 0,
+      "settled_success": 1,
+      "unused_no_paid_attempt": 0
+    },
+    "attempts": {
+      "answer_by_center_cny": {
+        "answer_retrieval": 0.000384,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "answer_reserved": 1,
+      "available": true,
+      "by_center_cny": {
+        "answer_retrieval": 0.000124,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "by_operation": {
+        "index_embedding": 2,
+        "query_embedding": 1,
+        "rerank": 1
+      },
+      "center_stage_total_cny": 0.000124,
+      "center_total_with_answers_cny": 0.000508,
+      "expected_reservations": 5,
+      "gate_reserved": 5,
+      "receipt_count": 8,
+      "reservations": 4
+    },
+    "network": {
+      "available": true,
+      "outbound_attempts": 0,
+      "detail": {
+        "chat_outbound_attempts": 0,
+        "embedding_provider": "bailian text-embedding-v4（真实传输）",
+        "mock_intercepted": 5,
+        "ocr_outbound_attempts": 0,
+        "ocr_provider": "tencent OCR（真实传输）",
+        "outbound_attempts": 0,
+        "rag_provider_posts": 0,
+        "rerank_provider": "bailian gte-rerank-v2（真实传输）",
+        "transport_outbound": {
+          "chat": 0,
+          "embedding": 0,
+          "ocr": 0,
+          "rerank": 0
+        }
+      }
+    },
+    "providers_outbound": 0
+  },
+  "attempt_operations": [
+    "index_embedding",
+    "query_embedding",
+    "rerank"
+  ],
+  "receipt_centers_ok": true,
+  "socket_attempts": {
+    "external": 0,
+    "local": 1
+  }
+}

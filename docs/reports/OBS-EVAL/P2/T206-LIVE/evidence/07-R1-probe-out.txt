@@ -1,0 +1,24 @@
+# T206-LIVE-R1 定向探针输出（06-R1-probe.py，零真实调用）
+
+脚本：`evidence/06-R1-probe.py`（复用 live 测试的 fake transport/计划/GO 写法；账本/预算/GO 全是 tmp 副本；
+不联网、不碰仓库共享账本）。命令与原始输出：
+
+```text
+$ .venv\Scripts\python.exe -X utf8 -B docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/06-R1-probe.py
+[env] tmp_root= C:\Users\dell1712\AppData\Local\Temp\t206-r1-5_uf4fmy
+(tmp 目录每次随机；下面从第二行起为原样输出)
+
+[F1] chat_by_purpose= {'query_expansion': 1}
+[F1] status= succeeded stop= None
+[F1] receipt {'operation': 'query_expansion', 'item_id': 'expand-Q25-t1', 'phase': 'reserve', 'cost_center': 'answer_retrieval', 'status': 'reserved', 'charged_cny': 0.0}
+[F1] receipt {'operation': 'query_expansion', 'item_id': 'expand-Q25-t1', 'phase': 'settle', 'cost_center': 'answer_retrieval', 'status': 'succeeded', 'charged_cny': 0.000384}
+[F1] quota_used= {'expand-Q25-t1': 1} calls= {'chat': 0, 'expansion': 1, 'embedding': 0, 'rerank': 0, 'ocr': 0}
+[F1] ledger_results= [{'kind': 'chat', 'status': 'succeeded', 'error_code': None, 'conservative_charge_cny': 0.000384}, {'kind': 'chat', 'status': 'failed', 'error_code': 'P2_NO_PAID_ATTEMPT:not_found', 'conservative_charge_cny': 0.018688}]
+[F2] texts=12 batch=5 posts= 3 quota_used= 3 ledger_attempts= 3 as_dict= {'calls': 3, 'embed_calls': 1}
+[F2] tight(requests=2) refused: BudgetLedgerInvalid P2 计划项配额拒绝：attempt_quota_exhausted ingest-index 已用 2/2 次
+[F2] tight posts= 2 quota_used= 2 ledger_attempts= 2
+[F6] status= succeeded kind= answer evidence_in_request= 1 evidence_ids= 1 retrieved= 1 cited= 1 cited_subset= True outbound= 0
+[F6] citation_required(with retrieved)= pass
+[F6] citation_required(without retrieved)= fail hard_failures= ['citation_required']
+[env] shared_paths_untouched: P2_GO_PATH/ledger/budget 全部是 tmp 副本
+```

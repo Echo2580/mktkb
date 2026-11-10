@@ -1,0 +1,45 @@
+# T206-LIVE-R1 复跑（本机亲跑，零真实调用；最终树）
+
+- 现场：`codex/p2-e2e` @ `9a8272a`（T206-LIVE/R1 均未提交）；解释器 `.venv\Scripts\python.exe`；pytest 带 `-p no:cacheprovider`（不写缓存）。
+- 零出站：live 用例全部挂 `t09_network_guard`（外部 socket 尝试 = 0）；provider 全在 httpx.MockTransport 上；账本/预算/GO 全是 tmp 副本。
+
+| 套件 | 结果 | 退出码 |
+|---|---|---|
+| live（T206-LIVE-R1 新增/修正） | 12 passed, 1 warning in 3.66s | 0 |
+| T203 | 105 passed, 1 warning in 19.75s | 0 |
+| T204 | 18 passed, 1 warning in 18.51s | 0 |
+| T205 | 56 passed, 1 warning in 5.82s | 0 |
+| gate | 109 passed, 1 warning in 5.46s | 0 |
+
+命令与尾行（原样）：
+
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_live_wiring.py -q --no-header -p no:cacheprovider
+from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+12 passed, 1 warning in 3.66s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/evaluation/test_p2_authorization.py backend/tests/integration/test_p2_product_e2e.py -q --no-header -p no:cacheprovider
+from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+105 passed, 1 warning in 19.75s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_ocr_ingestion.py backend/tests/integration/test_p2_ocr_source_identity.py -q --no-header -p no:cacheprovider
+from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+18 passed, 1 warning in 18.51s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_scoring.py backend/tests/evaluation/test_p2_gate.py backend/tests/integration/test_p2_public_controls.py -q --no-header -p no:cacheprovider
+from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+56 passed, 1 warning in 5.82s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_gate.py backend/tests/evaluation/test_gate_quality.py -q --no-header -p no:cacheprovider
+from starlette.testclient import TestClient as TestClient  # noqa
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+109 passed, 1 warning in 5.46s
+```

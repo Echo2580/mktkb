@@ -116,6 +116,16 @@ STOP_ADAPTER_ERROR = "adapter_error"
 STOP_OPEN_CONVERSATION_FAILED = "open_conversation_failed"
 #: T206-PRE：产物校验失败也要落盘并带稳定 stop_code（R2-F-R2-1）。
 STOP_ARTIFACT_VALIDATION_FAILED = "artifact_validation_failed"
+#: T206-LIVE：真实发送声明成功但拿不到 usage 证据 —— 不伪造金额，保守留账后停。
+STOP_USAGE_MISSING = "usage_evidence_missing"
+#: T206-LIVE：逐次底层尝试的回执与计划/成本中心/账本对不上 —— 事实不可信即停。
+STOP_ATTEMPT_ACCOUNTING = "attempt_accounting_mismatch"
+
+PAID_ATTEMPT_NOT_MADE = "no_paid_attempt"
+"""settle_evidence 返回值：本轮**零付费发送**（合法拒答/澄清/未找到/知识变更）。
+
+它与"缺 usage"（None）不同：零发送不伪造证据、也不当成付费失败，按保守占用留账并继续；
+缺 usage 则 fail closed（usage_evidence_missing）。"""
 
 
 class P2RunError(ValueError):
@@ -167,6 +177,19 @@ def is_real_p2_gate(gate: Any) -> bool:
     return isinstance(gate, P2Gate) and not bool(getattr(gate, "is_mock_gate", False))
 
 
+def _gate_reservation_count(gate: Any) -> int | None:
+    """真实 P2Gate 的 reservation 计数（answer + 从属尝试）；桩门/鸭子门返回 None。"""
+    if not is_real_p2_gate(gate):
+        return None
+    reader = getattr(gate, "result", None)
+    if not callable(reader):  # pragma: no cover - P2Gate 一定有 result
+        return None
+    try:
+        return int(reader(status="succeeded").requests_reserved)
+    except Exception:  # noqa: BLE001 - 读不到就不猜，交给回执核对
+        return None
+
+
 def _measured_outbound(providers: Mapping[str, Any]) -> int:
     """取适配器**实测**的出站次数；没有这个字段就报错，不用常量 0 兜底（F1）。"""
     if "outbound_network" not in providers:
@@ -179,6 +202,8 @@ NETWORK_DETAIL_MISMATCH = "provider_network_detail_mismatch"
 
 #: network.detail 必须给出的分解分量（之和 = 顶层出站）。
 _NETWORK_DETAIL_KEYS = ("outbound_attempts", "chat_outbound_attempts", "rag_provider_posts")
+#: T206-LIVE：live 链的 OCR 是第四个真实传输，单独的出站计数键（Mock 链不给=0）。
+_NETWORK_OPTIONAL_KEYS = ("ocr_outbound_attempts",)
 
 
 def _validated_network(providers: Mapping[str, Any]) -> tuple[int, dict[str, Any]]:
@@ -196,8 +221,10 @@ def _validated_network(providers: Mapping[str, Any]) -> tuple[int, dict[str, Any
         raise P2RunError(ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH, f"network detail 缺少 {missing}")
     top = _measured_outbound(providers)
     detail_total = max(0, int(detail["outbound_attempts"]))
-    parts = max(0, int(detail["chat_outbound_attempts"])) + max(
-        0, int(detail["rag_provider_posts"])
+    parts = (
+        max(0, int(detail["chat_outbound_attempts"]))
+        + max(0, int(detail["rag_provider_posts"]))
+        + sum(max(0, int(detail.get(key) or 0)) for key in _NETWORK_OPTIONAL_KEYS)
     )
     if parts != detail_total:
         raise P2RunError(
@@ -308,6 +335,8 @@ class P2RunLedger:
     settled_failure: int = 0
     reserved_cny: float = 0.0
     settled_cny: float = 0.0
+    #: T206-LIVE：预留了但**没有发生发送**的轮次（合法拒答），保守占用该笔上界。
+    unused: int = 0
     by_operation: dict[str, int] = field(default_factory=dict)
     by_center_cny: dict[str, float] = field(default_factory=dict)
     gate_notes: list[str] = field(default_factory=list)
@@ -748,6 +777,8 @@ async def run_p2(
     planned_turns = sum(len(case_questions(case)) for case in frozen_dataset.cases)
 
     status = "succeeded"
+    # T206-LIVE：逐次尝试回执核对（Mock 链没有回执 -> 空账，不改变旧语义）。
+    attempt_audit: dict[str, Any] = {"available": False, "reason": "not_executed"}
     binding: dict[str, Any] = _empty_binding(frozen_dataset, run_id)
     binding["missing"] = ["run_not_started"]
     if stop_code is not None:
@@ -800,6 +831,24 @@ async def run_p2(
                 run_id=run_id,
                 settle_evidence=settle_evidence,
             )
+        attempt_audit, attempt_code = _attempt_audit(plan, adapter, ledger)
+        gate_reserved = _gate_reservation_count(gate)
+        if gate_reserved is not None:
+            expected = int(attempt_audit.get("expected_reservations", ledger.reserved))
+            attempt_audit["gate_reserved"] = int(gate_reserved)
+            if gate_reserved != expected and attempt_code is None:
+                attempt_code = "gate_reservation_mismatch"
+        if attempt_code is not None and ledger.stop_code is None:
+            ledger.stop(STOP_ATTEMPT_ACCOUNTING)
+            ledger.failure = {
+                "stage": "attempt_accounting",
+                "stop_code": STOP_ATTEMPT_ACCOUNTING,
+                "error_code": attempt_code,
+                "case_id": None,
+                "turn": None,
+                "item_id": None,
+                "ticket": None,
+            }
         if ledger.stop_code is None and ledger.turns_executed() == 0:
             # 空跑 != 成功：没有真正执行任何一轮，必须是 blocked。
             ledger.stop(STOP_NO_CASE_EXECUTED)
@@ -851,6 +900,7 @@ async def run_p2(
             binding=binding,
             providers=None,
             network=None,
+            attempt_audit=attempt_audit,
             artifact_failure=exc,
         )
         raise
@@ -870,9 +920,95 @@ async def run_p2(
         binding=binding,
         providers=providers,
         network=network,
+        attempt_audit=attempt_audit,
         artifact_failure=None,
     )
     return result
+
+
+def _attempt_audit(plan: P2RunPlan, adapter: Any, ledger: P2RunLedger) -> tuple[dict[str, Any], str | None]:
+    """核对**逐次底层尝试**回执（G5/G6）：计划项、成本中心、预留身份、中心合计。
+
+    live 适配器每次真实发送都留一条回执（reserve/settle/pre_send）。这里只做算术与归属核对，
+    不重算金额：金额的事实来源仍是 P2Gate/账本。Mock 链没有回执，返回空账（available=True）。
+    """
+    getter = getattr(adapter, "attempt_receipts", None)
+    rows: Any = getter() if callable(getter) else []
+    if not isinstance(rows, list):
+        return ({"available": False, "reason": "receipts_not_list"}, STOP_ATTEMPT_ACCOUNTING)
+    if not rows:
+        return (
+            {
+                "available": True,
+                "receipts": [],
+                "reservations": 0,
+                "by_operation": {},
+                "by_center_cny": {},
+                "answer_reserved": int(ledger.reserved),
+            },
+            None,
+        )
+    by_operation: dict[str, int] = {}
+    by_center: dict[str, float] = {}
+    reservations: dict[str, dict[str, Any]] = {}
+    clean: list[dict[str, Any]] = []
+    code: str | None = None
+    for row in rows:
+        if not isinstance(row, Mapping):
+            code = code or "receipt_not_mapping"
+            continue
+        item_id = str(row.get("item_id") or "")
+        try:
+            item = plan.item(item_id)
+        except Exception:  # noqa: BLE001 - 未知计划项即不可信
+            code = code or f"receipt_item_unknown:{item_id}"
+            continue
+        center = str(row.get("cost_center") or "")
+        if center not in COST_CENTERS:
+            code = code or f"receipt_cost_center_unregistered:{center}"
+        elif center != item.cost_center:
+            code = code or f"receipt_cost_center_mismatch:{item_id}"
+        if str(row.get("operation") or "") != item.operation:
+            code = code or f"receipt_operation_mismatch:{item_id}"
+        if str(row.get("kind") or "") != item.price_profile.kind:
+            code = code or f"receipt_kind_mismatch:{item_id}"
+        reservation_id = row.get("reservation_id")
+        if isinstance(reservation_id, str) and reservation_id:
+            reservations[reservation_id] = dict(row)
+        clean.append(dict(row))
+        phase = str(row.get("phase") or "")
+        if phase in {"settle", "pre_send"}:
+            operation = str(row.get("operation") or "")
+            by_operation[operation] = by_operation.get(operation, 0) + 1
+            by_center[center] = by_center.get(center, 0.0) + float(row.get("charged_cny") or 0.0)
+    stage_total = sum(float(value) for value in by_center.values())
+    # 主请求（answer 轮）的 reservation 以逐轮回执为准：begin 后 confirm 被拒的轮次同样占一笔，
+    # 只数 _execute 的计数器会漏掉它，导致"门计数 > 回执计数"的假不一致。
+    main_reservations = {
+        str((row.get("ticket") or {}).get("reservation_id") or "")
+        for row in ledger.requests
+        if isinstance(row, Mapping)
+    } - {""}
+    audit = {
+        "available": True,
+        "receipts": clean,
+        "receipt_count": len(clean),
+        "reservations": len(reservations),
+        "by_operation": by_operation,
+        "by_center_cny": {center: round(by_center.get(center, 0.0), 8) for center in COST_CENTERS},
+        "center_stage_total_cny": round(stage_total, 8),
+        # answer 轮的中心归属（runner 逐轮 ticket）与从属尝试分列，避免同一笔被算两次。
+        "answer_by_center_cny": {
+            center: round(float(ledger.by_center_cny.get(center, 0.0)), 8) for center in COST_CENTERS
+        },
+        "center_total_with_answers_cny": round(
+            stage_total + sum(float(v) for v in ledger.by_center_cny.values()), 8
+        ),
+        # 账本口径的逐次计数：answer 轮 + 从属尝试，必须等于门控登记的唯一 reservation 数。
+        "answer_reserved": len(main_reservations),
+        "expected_reservations": len(main_reservations) + len(reservations),
+    }
+    return audit, code
 
 
 def _case_item_failure(
@@ -1172,21 +1308,61 @@ async def _execute(
                         # 失败结算按门的保守口径占用该笔上界（与 T201 P2Gate 一致）。
                         charged_cny = float(getattr(ticket, "bound_cny", 0.0))
                     else:
-                        evidence = (
-                            settle_evidence(ticket, product)
-                            if settle_evidence is not None and product is not None
-                            else None
-                        )
-                        settled = gate.settle_success(
-                            ticket,
-                            evidence=evidence,
-                            elapsed_seconds=elapsed_ms / 1000.0,
-                        )
-                        ledger.settled_success += 1
-                        charged_cny = _charged_cny(settled, ticket)
-                        # 成功路径过去不累计 settled_cny（只有失败才加），会表现成"成功却 0 元"；
-                        # 这里按门返回的实际金额记，与 P2Gate.settle_success 的口径一致。
-                        ledger.settled_cny += charged_cny
+                        # T206-LIVE：live 链由调用方注入 settle_evidence；它返回
+                        # NO_PAID_ATTEMPT（零发送）、UsageEvidence（真实 usage）或 None（缺证据）。
+                        paid_attempt_not_made = False
+                        evidence: Any = None
+                        if settle_evidence is not None and product is not None:
+                            evidence = settle_evidence(ticket, product)
+                            paid_attempt_not_made = (
+                                isinstance(evidence, str)
+                                and evidence == PAID_ATTEMPT_NOT_MADE
+                            )
+                        if paid_attempt_not_made:
+                            close_unused = getattr(gate, "close_unused", None)
+                            if not callable(close_unused):
+                                raise P2RunError(
+                                    STOP_USAGE_MISSING,
+                                    "本门不支持 close_unused，零发送轮次不能静默留账",
+                                )
+                            close_unused(ticket, reason=str(product.kind or "no_paid_attempt"))
+                            ledger.unused += 1
+                            charged_cny = float(getattr(ticket, "bound_cny", 0.0))
+                            ledger.settled_cny += charged_cny
+                            turn_row["paid_attempt"] = False
+                        elif settle_evidence is not None and evidence is None and product is not None:
+                            # 声明"作答"却没有 usage：绝不伪造花费，也不释放预留，保守留账后停。
+                            gate.settle_failure(
+                                ticket,
+                                error_code=STOP_USAGE_MISSING,
+                                elapsed_seconds=elapsed_ms / 1000.0,
+                            )
+                            ledger.settled_failure += 1
+                            charged_cny = float(getattr(ticket, "bound_cny", 0.0))
+                            ledger.settled_cny += charged_cny
+                            turn_row["status"] = "error"
+                            turn_row["error_code"] = STOP_USAGE_MISSING
+                            _case_item_failure(
+                                ledger,
+                                stop_code=STOP_USAGE_MISSING,
+                                stage="gate_settle",
+                                case_id=case.case_id,
+                                turn=turn,
+                                item_id=item_id,
+                                ticket=ticket_payload,
+                                error_code=STOP_USAGE_MISSING,
+                            )
+                        else:
+                            settled = gate.settle_success(
+                                ticket,
+                                evidence=evidence,
+                                elapsed_seconds=elapsed_ms / 1000.0,
+                            )
+                            ledger.settled_success += 1
+                            charged_cny = _charged_cny(settled, ticket)
+                            # 成功路径过去不累计 settled_cny（只有失败才加），会表现成"成功却 0 元"；
+                            # 这里按门返回的实际金额记，与 P2Gate.settle_success 的口径一致。
+                            ledger.settled_cny += charged_cny
                     billed = True
                     ledger.by_operation[item.operation] = (
                         ledger.by_operation.get(item.operation, 0) + 1
@@ -1352,6 +1528,7 @@ def _write_artifacts(
     binding: Mapping[str, Any],
     providers: Mapping[str, Any] | None,
     network: tuple[int, Mapping[str, Any]] | None,
+    attempt_audit: Mapping[str, Any] | None = None,
     artifact_failure: P2RunError | None = None,
 ) -> None:
     """写全部产物；**校验失败也要写**（R2-F-R2-1：不能"已发生请求但无产物"）。
@@ -1551,7 +1728,9 @@ def _write_artifacts(
             "settled_failure": int(ledger.settled_failure),
             "real_requests": int(real_requests),
             "billed_cny": float(billed_cny),
+            "unused_no_paid_attempt": int(getattr(ledger, "unused", 0)),
         },
+        "attempts": dict(attempt_audit or {"available": False}),
         "providers": providers_payload,
         "network": network_payload,
         "holdout": {
@@ -1589,6 +1768,7 @@ def _write_artifacts(
             "production_ready": bool(authorization.production_ready),
             "binding": binding_payload,
             "citation_evidence": evidence_status,
+            "attempts": dict(attempt_audit or {"available": False}),
             "artifact_validation": {
                 "ok": artifact_failure is None,
                 "code": None if artifact_failure is None else artifact_failure.code,

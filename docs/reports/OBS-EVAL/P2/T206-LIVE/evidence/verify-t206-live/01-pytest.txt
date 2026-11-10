@@ -1,0 +1,29 @@
+# 证据 01：独立验收复跑（5 套；零真实调用）
+# 现场：codex/p2-e2e @ 9a8272a（T206-LIVE 未提交）；时间 2026-11-11
+# 只跑任务指定的 5 个套件，不跑全仓；每套都用 -p no:cacheprovider + 独立 basetemp。
+
+## 新 live 接线
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_live_wiring.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/verify-t206live
+exit=0
+9 passed, 1 warning in 2.12s
+
+## T203 runner+auth+e2e
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/evaluation/test_p2_authorization.py backend/tests/integration/test_p2_product_e2e.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/verify-t206live
+exit=0
+105 passed, 1 warning in 18.01s
+
+## T204 OCR
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_ocr_ingestion.py backend/tests/integration/test_p2_ocr_source_identity.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/verify-t206live
+exit=0
+18 passed, 1 warning in 15.58s
+
+## T205 scoring+gate+controls
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_scoring.py backend/tests/evaluation/test_p2_gate.py backend/tests/integration/test_p2_public_controls.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/verify-t206live
+exit=0
+56 passed, 1 warning in 4.45s
+
+## gate
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_gate.py backend/tests/evaluation/test_gate_quality.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/verify-t206live
+exit=0
+109 passed, 1 warning in 1.88s
+

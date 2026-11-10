@@ -82,10 +82,25 @@ revision / 同一查询状态下重放一次**，把候选单元写进该轮的 
 `normalize_product_outcome` 只用 `product.retrieved` 填 `outcome.retrieved`（显式传入的
 评测夹具候选优先）。
 
-**诚实边界**：这是"重放"，不是产品内部那次调用的返回值（产品无该 API）。重放比产品内部更窄时
-只会 fail-closed（引用被判不在候选内），不会更宽地放过引用；因此 pilot 若出现
+**诚实边界（mock 链）**：这是"重放"，不是产品内部那次调用的返回值（产品无该 API）。重放比产品
+内部更窄时只会 fail-closed（引用被判不在候选内），不会更宽地放过引用；因此 pilot 若出现
 `citation_not_in_evidence` 而人工复核认为引用合法，应按"候选重放口径不覆盖该轮上下文"处理，
 不得改成"缺候选也算通过"。
+
+**live 链的候选来源（T206-LIVE-R1/F6，零额外付费）**：live **不重放**。适配器从产品 answer
+请求的 `CompletionInput.evidence`（产品本轮**实际交给模型**的证据集合，由
+`GatedChatGateway` 在发送时捕获）取 `source_id`，再经产品库只读解析成同一身份结构
+（`document_name/unit_ids/unit_key/locator`）。它既不是引用（引用取模型实际回的
+`source_ids`，通常更少），也不是评测器另跑一次检索：候选就是"模型拿到的证据"。
+
+| 轮次情形（live） | `product.retrieved` |
+|---|---|
+| legacy 作答轮（记录型/正文型，发生过 answer chat） | 该次 chat 请求的 `evidence`（捕获） |
+| rag 内核直答轮 / 零付费轮 / 未捕获到 | 空 → `citation_required` fail-closed |
+
+**live 不做付费重放**：任何"再检索一次"的重放都会真的再发一次 embedding/rerank（占计划项
+配额并计费）。要这么做必须先补 replay 计划项 + 新 GO；在那之前 `retrieval_candidates()`
+在 live 下直接拒绝（结构性闸门，`RuntimeError`），不会把付费调用静默记到旧计划项上。
 
 ## 3. config_hash（确定性绑定摘要）
 
@@ -179,3 +194,69 @@ runner 的产物写入改为「先校验、后落盘，校验失败也落盘」�
 本包全部为离线：Mock 产品应用 + Mock provider + 隔离目录；真实调用 **0**、未读 `.env`/H1/H2、
 未联网、未改 `fixtures/`/`gate.py`/`p2_ingestion.py`/业务 API。真实 live 链（`P2Gate` 预留与结算）
 仍归 T206 正式 pilot，不在本契约范围内。
+
+## 10. T206-LIVE 增补：live 装配的绑定与失败语义（additive）
+
+本节只新增；§1–§9 的字段/公式/阈值不变。
+
+### 10.0 显式模式
+
+- `ProductEvalAdapter(mode="live", live_wiring=...)` 才构造真实 provider/真实 OCR 传输；
+  **默认 `mode="mock"`**（T203 行为零变化：`is_mock=True`、离线替身、`_NoOcrGateway`）。
+- `mode="live"` 缺 `live_wiring` 或 `mode="mock"` 带 wiring 都在构造期拒绝（配置期 fail closed）。
+
+### 10.1 真实供应商身份（绑定摘要的 provider 段）
+
+live 的 `binding_components().provider` 只放**身份**（不含凭据/计数）：
+
+| 段 | 取值 |
+|---|---|
+| chat | `provider=deepseek / model=MKTKB_MODEL_NAME（必须等于已核 deepseek-flash）/ transport=<真实传输类名>` |
+| embedding | `impl=GatedEmbeddingProvider / provider=bailian / model=text-embedding-v4` |
+| rerank | `impl=GatedRerankProvider / provider=bailian / model=gte-rerank-v2` |
+| ocr | `tencent:GeneralAccurateOCR（真实传输）` |
+
+因此 live run 的 `config_hash` 与任何 Mock run 必然不同（provider 段不同），不会把两种链路
+当成同一份身份。
+
+### 10.2 环境变量（只列名字；值不进产物/日志/异常）
+
+`MKTKB_MODEL_API_KEY`、`MKTKB_MODEL_BASE_URL`、`MKTKB_MODEL_NAME`、
+`DASHSCOPE_API_KEY`、`DASHSCOPE_BASE_URL`（可选）、
+`MKTKB_OCR_SECRET_ID`、`MKTKB_OCR_SECRET_KEY`、`MKTKB_OCR_REGION`（可选）、
+`MKTKB_OCR_DISABLED`（必须不是 1）、`MKTKB_PROJECT_TOTAL_LIMIT_CNY`（门要求）。
+
+缺任一项：`live_env_missing:<NAME>`（只给变量名）；`MKTKB_OCR_DISABLED=1`：`live_ocr_disabled`；
+非白名单 chat 模型：`live_chat_model_not_authorized`。**不读 `.env`**：live 只认进程环境。
+
+### 10.3 逐次尝试的身份绑定
+
+每次底层发送（embedding/rerank/OCR/query_expansion）的 `UsageEvidence.request_sha256` 必须是
+**预留时的** `request_sha256`（计划项身份 `_request_sha(item, run_id)`）；provider 自己的
+payload 摘要另存进回执 `provider_request_sha256` 供审计。理由：资金身份是计划项，
+payload 摘要不能替代它，也不能让同一计划项的不同 payload 互相顶账。
+
+### 10.4 缺证据的失败语义
+
+| 场景 | 结果 |
+|---|---|
+| chat 200 + usage 齐全 | `settle_success`（J1 重算；未用预留释放） |
+| chat 200，但 usage 缺字段/缺 cache 拆分/超 cap | `usage_evidence_missing`（runner 停；该笔按上界保守占用，写 failed result） |
+| 产品零付费结局（拒答/澄清/未找到/知识变更） | `close_unused`（保守占用、**不**停止；不是失败） |
+| 从属尝试门拒绝 | `P2_PRE_SEND_REFUSED:<code>`（全额占用、门停止、HTTP=0） |
+| 计划项配额用尽 | `attempt_quota_exhausted`（**发送前**拒绝；不新增预留） |
+| 回执/中心/账本计数对不上 | `attempt_accounting_mismatch`（产物照写，状态 aborted） |
+
+### 10.5 两条旧限制的现状（R1 更新，如实）
+
+1. **不做付费的检索候选重放**：live 的 `retrieved` 改为从产品 answer 请求的 `evidence`
+   捕获（§2b，零额外调用/零额外付费）。rag 内核直答轮、零付费轮次或捕获失败时仍为
+   `retrieved=()`，gate 的 `citation_required` 照旧 fail-closed；要重放必须
+   **新计划 + 新 GO**（补 replay 计划项），不得把"缺候选"改成"通过"。
+2. **`query_expansion` 现在有独立资金身份（不再是"上界声明"）**：产品在
+   `evidence.kind=="none"` 且有问题词项时**真实**调用模型（`conversations.service`）。
+   live 把它接到计划项 `expand-*`（`operation=query_expansion`、
+   `cost_center=answer_retrieval`、kind=chat）：
+   `begin_attempt -> confirm_before_send -> 真实 POST -> settle_success(usage)`，
+   预留/结算/成本中心/回执都按该项；同一轮只允许 1 次 answer chat，`answer-*` 不再被
+   expansion 顶账。计划缺 `expand-*` 时该轮在发送前失败（不借用 answer 的钱）。

@@ -770,6 +770,9 @@ class P2Gate:
         self._now_hint: datetime | None = now
         self._pending_center: str | None = None
         self._inflight: P2RequestTicket | None = None
+        #: T206-LIVE：与主请求同时在飞/先于主请求的**从属尝试**（embedding/rerank/ocr）。
+        #: 每次底层尝试都必须单独预留并带成本中心，因此不能复用主 ticket。
+        self._attempts: dict[str, P2RequestTicket] = {}
         self._stopped: str | None = None
         self._last_guard_reason: str | None = None
         self._notes: list[str] = []
@@ -1008,77 +1011,114 @@ class P2Gate:
     # ------------------------------------------------------------ 预留
 
     def begin(self, item_id: str, *, now: datetime | None = None) -> P2RequestTicket:
+        """主请求预留（run 的逐轮请求）：串行，上一笔未结算不得开下一笔。"""
         with self._lock:
-            if self._stopped is not None:
-                raise P2GateError("gate_stopped", f"已停止（{self._stopped}），不发起新请求")
-            if self._inflight is not None:
-                raise P2GateError("request_inflight", "串行门控：上一笔尚未结算")
-            try:
-                item = self._plan.item(item_id)
-            except P2ContractError:
-                raise P2GateError("item_unknown", "计划中没有该 item_id") from None
-            moment = (now or self._clock()).astimezone(timezone.utc)
-            self._now_hint = moment
-            self._pending_center = item.cost_center
-            self._last_guard_reason = None
-            try:
-                self._assert_authorization_live(moment)
-                reservation = self._ledger.reserve(
-                    kind=_ledger_kind(item),
-                    provider=item.price_profile.provider,
-                    model=item.price_profile.model,
-                    max_cny=item.bound_cny,
-                    request_sha256=_request_sha(item, self._run_id),
-                    settlement_policy=item.price_profile.settlement_policy(),
-                    metadata={
-                        "plan_id": self._plan.plan_id,
-                        "plan_sha256": self._plan.plan_sha256,
-                        "item_id": item.item_id,
-                        "operation": item.operation,
-                        "cost_center": item.cost_center,
-                    },
-                    cost_center=item.cost_center,
-                    stage_limit_cny=self._authorization.stage_limit_cny,
-                    max_requests=self._authorization.max_requests,
-                )
-            except BudgetError as exc:
-                reason = self._last_guard_reason or _ledger_reason(exc)
-                raise P2GateError(reason, type(exc).__name__) from None
-            finally:
-                self._pending_center = None
-            ticket = P2RequestTicket(
-                reservation=reservation,
-                request_id="p2req-" + hashlib.sha256(
-                    (self._run_id + ":" + item.item_id).encode("utf-8")
-                ).hexdigest()[:24],
-                plan_id=self._plan.plan_id,
-                plan_sha256=self._plan.plan_sha256,
-                item_id=item.item_id,
-                operation=item.operation,
-                cost_center=item.cost_center,
+            return self._begin_locked(item_id, now=now, nested=False)
+
+    def begin_attempt(self, item_id: str, *, now: datetime | None = None) -> P2RequestTicket:
+        """从属尝试预留（T206-LIVE）：embedding / rerank / OCR 每次底层发送各自一笔。
+
+        与 :meth:`begin` 的差别只有三点：①允许在主请求在飞期间登记（产品一次问答内部会
+        先查向量/重排、再调模型）；②不占用 ``_inflight`` 槽位，按 reservation_id 单独跟踪；
+        ③从属尝试失败同样让整门停止（保守）。成本中心仍来自计划项 —— 计划项不存在或
+        成本中心缺失都在预留前拒绝，不会出现"无归属预留"。
+        """
+        with self._lock:
+            return self._begin_locked(item_id, now=now, nested=True)
+
+    def _begin_locked(
+        self, item_id: str, *, now: datetime | None, nested: bool
+    ) -> P2RequestTicket:
+        if self._stopped is not None:
+            raise P2GateError("gate_stopped", f"已停止（{self._stopped}），不发起新请求")
+        if self._inflight is not None and not nested:
+            raise P2GateError("request_inflight", "串行门控：上一笔尚未结算")
+        if not isinstance(item_id, str) or not item_id.strip():
+            raise P2GateError("item_unknown", "item_id 必须是非空字符串")
+        try:
+            item = self._plan.item(item_id)
+        except P2ContractError:
+            raise P2GateError("item_unknown", "计划中没有该 item_id") from None
+        moment = (now or self._clock()).astimezone(timezone.utc)
+        self._now_hint = moment
+        self._pending_center = item.cost_center
+        self._last_guard_reason = None
+        try:
+            self._assert_authorization_live(moment)
+            reservation = self._ledger.reserve(
                 kind=_ledger_kind(item),
                 provider=item.price_profile.provider,
                 model=item.price_profile.model,
-                bound_cny=float(item.bound_cny),
-                case_id=item.case_id,
-                turn=item.turn,
-                page=item.page,
-                nonce_len=self._authorization.go_nonce_len,
+                max_cny=item.bound_cny,
+                request_sha256=_request_sha(item, self._run_id),
+                settlement_policy=item.price_profile.settlement_policy(),
+                metadata={
+                    "plan_id": self._plan.plan_id,
+                    "plan_sha256": self._plan.plan_sha256,
+                    "item_id": item.item_id,
+                    "operation": item.operation,
+                    "cost_center": item.cost_center,
+                },
+                cost_center=item.cost_center,
+                stage_limit_cny=self._authorization.stage_limit_cny,
+                max_requests=self._authorization.max_requests,
             )
+        except BudgetError as exc:
+            reason = self._last_guard_reason or _ledger_reason(exc)
+            raise P2GateError(reason, type(exc).__name__) from None
+        finally:
+            self._pending_center = None
+        ticket = P2RequestTicket(
+            reservation=reservation,
+            request_id="p2req-" + hashlib.sha256(
+                (self._run_id + ":" + item.item_id).encode("utf-8")
+            ).hexdigest()[:24],
+            plan_id=self._plan.plan_id,
+            plan_sha256=self._plan.plan_sha256,
+            item_id=item.item_id,
+            operation=item.operation,
+            cost_center=item.cost_center,
+            kind=_ledger_kind(item),
+            provider=item.price_profile.provider,
+            model=item.price_profile.model,
+            bound_cny=float(item.bound_cny),
+            case_id=item.case_id,
+            turn=item.turn,
+            page=item.page,
+            nonce_len=self._authorization.go_nonce_len,
+        )
+        if nested:
+            self._attempts[ticket.reservation_id] = ticket
+        else:
             self._inflight = ticket
-            self._reserved += 1
-            self._reserved_cny += float(ticket.bound_cny)
-            return ticket
+        self._reserved += 1
+        self._reserved_cny += float(ticket.bound_cny)
+        return ticket
 
     # ------------------------------------------------------------ 发送前后
 
-    def _require_inflight(self, ticket: Any) -> None:
+    def _require_inflight(self, ticket: Any) -> bool:
+        """校验 ticket 属于本门控，并返回它是否为**从属尝试**（T206-LIVE）。
+
+        主请求在 ``_inflight`` 槽位；从属尝试（embedding/rerank/ocr）按 reservation_id
+        记在 ``_attempts`` 里，二者都必须是本门开出的真实预留。
+        """
         if not isinstance(ticket, P2RequestTicket):
             raise P2GateError("ticket_invalid", "需要 P2RequestTicket")
-        if self._inflight is None or self._inflight.reservation_id != ticket.reservation_id:
-            raise P2GateError("ticket_not_inflight", "该预留在本门控中不处于在飞状态")
+        reservation_id = ticket.reservation_id
+        if reservation_id in self._attempts:
+            return True
+        if self._inflight is not None and self._inflight.reservation_id == reservation_id:
+            return False
+        raise P2GateError("ticket_not_inflight", "该预留在本门控中不处于在飞状态")
 
-    def _refuse_before_send(self, ticket: P2RequestTicket, code: str) -> None:
+    def _release_slot(self, ticket: P2RequestTicket, *, nested: bool) -> None:
+        if nested:
+            self._attempts.pop(ticket.reservation_id, None)
+        else:
+            self._inflight = None
+
+    def _refuse_before_send(self, ticket: P2RequestTicket, code: str, *, nested: bool = False) -> None:
         """预留已发生但发送前失效：保守留账（status=failed，全额占用），保留请求身份。"""
         try:
             self._ledger.settle(
@@ -1096,12 +1136,12 @@ class P2Gate:
         self._by_center_cny[ticket.cost_center] = (
             self._by_center_cny.get(ticket.cost_center, 0.0) + float(ticket.bound_cny)
         )
-        self._inflight = None
+        self._release_slot(ticket, nested=nested)
         self._stopped = code
 
     def confirm_before_send(self, ticket: P2RequestTicket, *, now: datetime | None = None) -> P2RequestTicket:
         with self._lock:
-            self._require_inflight(ticket)
+            nested = self._require_inflight(ticket)
             moment = (now or self._clock()).astimezone(timezone.utc)
             self._now_hint = moment
             self._pending_center = None
@@ -1109,11 +1149,11 @@ class P2Gate:
                 self._assert_authorization_live(moment)
                 self._ledger.recheck_reservation(ticket.reservation)
             except P2GateError as exc:
-                self._refuse_before_send(ticket, exc.reason)
+                self._refuse_before_send(ticket, exc.reason, nested=nested)
                 raise P2SendRefused(exc.reason, ticket=ticket) from None
             except BudgetError as exc:
                 code = "pre_send_" + _ledger_reason(exc)
-                self._refuse_before_send(ticket, code)
+                self._refuse_before_send(ticket, code, nested=nested)
                 raise P2SendRefused(code, ticket=ticket) from None
             finally:
                 self._pending_center = None
@@ -1130,7 +1170,7 @@ class P2Gate:
     ) -> float:
         """成功结算：按 J1 版本化 usage 释放未用预留；OCR 按固定价结算。"""
         with self._lock:
-            self._require_inflight(ticket)
+            nested = self._require_inflight(ticket)
             item = self._plan.item(ticket.item_id)
             policy = item.price_profile.settlement_policy()
             try:
@@ -1166,7 +1206,7 @@ class P2Gate:
             except BudgetError as exc:
                 self._stopped = _ledger_reason(exc)
                 raise P2GateError(self._stopped, type(exc).__name__) from None
-            self._inflight = None
+            self._release_slot(ticket, nested=nested)
             self._sent += 1
             self._settled_cny += charge
             self._by_operation[ticket.operation] = self._by_operation.get(ticket.operation, 0) + 1
@@ -1186,7 +1226,7 @@ class P2Gate:
     ) -> None:
         """失败/超时/未知：保守留账并**停止**后续付费（自动重试恒为 0）。"""
         with self._lock:
-            self._require_inflight(ticket)
+            nested = self._require_inflight(ticket)
             try:
                 self._ledger.settle(
                     ticket.reservation,
@@ -1198,13 +1238,41 @@ class P2Gate:
                 )
             except BudgetError:
                 self._notes.append("failure_settle_failed")
-            self._inflight = None
+            self._release_slot(ticket, nested=nested)
             self._sent += 1
             self._settled_cny += float(ticket.bound_cny)
             self._by_center_cny[ticket.cost_center] = (
                 self._by_center_cny.get(ticket.cost_center, 0.0) + float(ticket.bound_cny)
             )
             self._stopped = error_code
+
+    def close_unused(self, ticket: P2RequestTicket, *, reason: str = "no_paid_attempt") -> None:
+        """预留后**没有发生任何发送**：保守留账、保留请求身份，但**不停止**后续请求。
+
+        唯一允许的零发送场景是产品自己给出零付费结局（合法拒答/澄清/未找到/知识变更）：
+        此时既不能伪造 usage 去"释放"预留（J1 禁止），也不该把一次合法拒答当成付费失败。
+        因此写一条 ``status=failed`` + ``P2_NO_PAID_ATTEMPT:<reason>`` 的 result，全额保守
+        占用该笔上界（不回 0、不释放），后续请求继续走同一门控；失败/超时仍用
+        :meth:`settle_failure` 并停止。
+        """
+        with self._lock:
+            nested = self._require_inflight(ticket)
+            try:
+                self._ledger.settle(
+                    ticket.reservation,
+                    status="failed",
+                    error_code=f"P2_NO_PAID_ATTEMPT:{reason}",
+                    http_status=None,
+                    request_id=ticket.request_id,
+                    elapsed_seconds=0.0,
+                )
+            except BudgetError:
+                self._notes.append("unused_settle_failed")
+            self._release_slot(ticket, nested=nested)
+            self._settled_cny += float(ticket.bound_cny)
+            self._by_center_cny[ticket.cost_center] = (
+                self._by_center_cny.get(ticket.cost_center, 0.0) + float(ticket.bound_cny)
+            )
 
     def abort(self, code: str) -> None:
         with self._lock:

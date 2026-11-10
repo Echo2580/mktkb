@@ -547,22 +547,18 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         ProductEvalAdapter,
     )
 
-    plan = P2RunPlan.from_dict(_read_json(Path(args.plan)))
-    snapshot = (
-        P2LedgerSnapshot.from_dict(_read_json(Path(args.snapshot)))
-        if args.snapshot
-        else read_ledger_snapshot()
-    )
-    preflight = preflight_p2(plan, snapshot)
-    if not preflight.ok:
-        print(
-            json.dumps(
-                {"ok": False, "reasons": list(preflight.reasons), "stage": preflight.stage},
-                ensure_ascii=False,
-            )
-        )
-        return EXIT_DATA
-
+    # 计划文件读不到不是"退出码 3 就算了"：给稳定码，避免把 FileNotFoundError 当成
+    # "门拒绝"的证据（T206-LIVE 验收 F3 的空转用例就是这么假通过的）。
+    try:
+        plan_document = _read_json(Path(args.plan))
+    except OSError as exc:
+        raise CliError(f"plan_unreadable: {type(exc).__name__}") from None
+    except ValueError as exc:
+        raise CliError(f"plan_json_invalid: {type(exc).__name__}") from None
+    try:
+        plan = P2RunPlan.from_dict(plan_document)
+    except ValueError as exc:
+        raise CliError(f"plan_invalid: {type(exc).__name__}") from None
     if args.visibility == "holdout":
         from .p2_dataset import load_p2_dataset
 
@@ -596,12 +592,48 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         )
         purge_traces = False
 
+    if args.mode == "live":
+        # live 自己开真实门（GO/预算/账本/环境），不先用内存快照做预检：
+        # 预检通过也不等于可发送，真正的准入只有 authorize_p2 + production_ready。
+        ingest_live = None
+        if args.ingest:
+            ingest_live = P2IngestPlan(
+                sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
+                label="cli-p2-run-live",
+            )
+        if not args.ingest and dataset.cases:
+            raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
+        return _run_p2_live(
+            args, plan=plan, dataset=dataset, ingest=ingest_live, purge_traces=purge_traces
+        )
+
     ingest = None
     if args.ingest:
         ingest = P2IngestPlan(
             sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
             label="cli-p2-run",
         )
+    if not args.ingest and dataset.cases:
+        raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
+
+
+    # dry-run 才做只读预检：live 的准入由真实门（固定路径 GO/预算/账本）自己判定，
+    # 不能用"预检通过"冒充"可以发送"。
+    snapshot = (
+        P2LedgerSnapshot.from_dict(_read_json(Path(args.snapshot)))
+        if args.snapshot
+        else read_ledger_snapshot()
+    )
+    preflight = preflight_p2(plan, snapshot)
+    if not preflight.ok:
+        print(
+            json.dumps(
+                {"ok": False, "reasons": list(preflight.reasons), "stage": preflight.stage},
+                ensure_ascii=False,
+            )
+        )
+        return EXIT_DATA
+
     authorization = build_dry_run_authorization(
         plan, preflight, issued_by="cli:p2-run-dry-run"
     )
@@ -619,8 +651,6 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         finally:
             await adapter.close()
 
-    if not args.ingest and dataset.cases:
-        raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
     result = asyncio.run(_run())
     payload = {
         "ok": result.status == "succeeded",
@@ -631,6 +661,85 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         "production_ready": result.production_ready,
         "execution": "dry_run",
         "out_dir": str(adapter.paths.run_dir),
+    }
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0 if result.status == "succeeded" else EXIT_DATA
+
+
+def _run_p2_live(
+    args: argparse.Namespace,
+    *,
+    plan: Any,
+    dataset: Any,
+    ingest: Any,
+    purge_traces: bool,
+) -> int:
+    """``--mode live``：真实门 + 真实 provider/OCR + usage 证据（零隐式调用）。
+
+    与空跑的差别只有装配：GO/预算/账本仍来自固定路径，缺任一项都在**首个发送之前**拒绝。
+    本命令自己不做 preflight 结论：真正的准入由 ``P2Gate.open`` + ``authorize_p2`` 决定，
+    因此缺少 GO/预算修订/``MKTKB_PROJECT_TOTAL_LIMIT_CNY`` 时不会构造适配器。
+    """
+    import asyncio
+
+    from .p2_authorization import P2AuthorizationError, P2GateError
+    from .p2_live import P2LiveConfigError, run_live_p2
+    from .p2_scoring import P2ScoringError, load_p2_gate_config
+
+    if not str(args.run_id or "").strip():
+        raise CliError("--mode live 需要显式 --run-id（身份必填，不自动生成）")
+    try:
+        gate_config = load_p2_gate_config()
+    except (P2ScoringError, ValueError) as exc:
+        print(
+            json.dumps(
+                {"ok": False, "mode": "live", "error_code": "gate_config_unreadable", "detail": str(exc)},
+                ensure_ascii=False,
+            )
+        )
+        return EXIT_DATA
+
+    async def _run():
+        return await run_live_p2(
+            plan,
+            run_id=str(args.run_id).strip(),
+            out_dir=Path(args.out),
+            dataset=dataset,
+            ingest_plan=ingest,
+            gate_config=gate_config,
+        )
+
+    try:
+        result, build = asyncio.run(_run())
+    except (P2LiveConfigError, P2AuthorizationError, P2GateError) as exc:
+        # 发送前拒绝：适配器从未构造，真实出站 0。
+        print(
+            json.dumps(
+                {
+                    "ok": False,
+                    "mode": "live",
+                    "status": "blocked",
+                    "error_code": getattr(exc, "reason", None) or getattr(exc, "code", None) or type(exc).__name__,
+                    "detail": exc.detail,
+                    "requests_sent": 0,
+                    "real_requests": 0,
+                },
+                ensure_ascii=False,
+            )
+        )
+        return EXIT_DATA
+    payload = {
+        "ok": result.status == "succeeded",
+        "mode": "live",
+        "status": result.status,
+        "stop_code": result.stop_code,
+        "requests_planned": result.requests_planned,
+        "requests_sent": result.requests_sent,
+        "production_ready": result.production_ready,
+        "execution": "live",
+        "attempts_reserved": len(build.wiring.receipts),
+        "by_center_cny": dict(result.by_center_cny),
+        "out_dir": str(build.adapter.paths.run_dir),
     }
     print(json.dumps(payload, ensure_ascii=False))
     return 0 if result.status == "succeeded" else EXIT_DATA
@@ -786,6 +895,17 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p2_run.add_argument("--dataset-version", default="p2-cli-local", help="公开 run 的 dataset_version")
     p2_run.add_argument("--label-version", default="p2-cli-local", help="公开 run 的 label_version")
+    p2_run.add_argument(
+        "--mode",
+        choices=("dry-run", "live"),
+        default="dry-run",
+        help="dry-run（默认，零真实调用）/ live（真实 GO+预算+账本，必须显式给出）",
+    )
+    p2_run.add_argument(
+        "--run-id",
+        default=None,
+        help="--mode live 必填：本次 run 的身份（写进 trace/manifest/账本）",
+    )
     p2_run.set_defaults(handler=_cmd_p2_run)
     return parser
 

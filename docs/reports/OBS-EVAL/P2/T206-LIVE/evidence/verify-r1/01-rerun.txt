@@ -1,0 +1,46 @@
+# T206-LIVE-R1 独立复验：5 套回归复跑（verify-r1）
+
+- 解释器：`.venv\Scripts\python.exe`（Windows）；参数 `-X utf8 -B -m pytest <paths> -q --no-header -p no:cacheprovider`。
+- 现场：`codex/p2-e2e` @ `9a8272a`，R1 未提交。零真实调用：live 用例挂 `t09_network_guard`（用例结束时断言 external==[]）。
+- 复跑时间：本复验窗口（2026-11-11）；每条均记录退出码与 pytest 尾行（原样）。
+
+| 套件 | 结果 | 退出码 |
+|---|---|---|
+| live（新增/修正） | 12 passed, 1 warning in 3.50s | 0 |
+| T203 | 105 passed, 1 warning in 19.60s | 0 |
+| T204 | 18 passed, 1 warning in 17.16s | 0 |
+| T205 | 56 passed, 1 warning in 5.02s | 0 |
+| gate | 109 passed, 1 warning in 2.69s | 0 |
+
+## 命令与尾行（原样）
+
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_live_wiring.py -q --no-header -p no:cacheprovider
+12 passed, 1 warning in 3.50s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/evaluation/test_p2_authorization.py backend/tests/integration/test_p2_product_e2e.py -q --no-header -p no:cacheprovider
+105 passed, 1 warning in 19.60s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_ocr_ingestion.py backend/tests/integration/test_p2_ocr_source_identity.py -q --no-header -p no:cacheprovider
+18 passed, 1 warning in 17.16s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_p2_scoring.py backend/tests/evaluation/test_p2_gate.py backend/tests/integration/test_p2_public_controls.py -q --no-header -p no:cacheprovider
+56 passed, 1 warning in 5.02s
+```
+```text
+$ .venv\Scripts\python.exe -X utf8 -B -m pytest backend/tests/evaluation/test_gate.py backend/tests/evaluation/test_gate_quality.py -q --no-header -p no:cacheprovider
+109 passed, 1 warning in 2.69s
+```
+
+## skip/xfail 扫描
+
+`findstr skip/xfail backend/tests/evaluation/test_p2_live_wiring.py`：
+
+```text
+(none)
+```
+
+用例数：12 个 `def test_`（含 R1 新增 F1/F2/F6 三条），无 skip/xfail 标记。

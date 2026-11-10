@@ -1,0 +1,89 @@
+# T206-LIVE-R1 独立复验：范围 / 资金面 / 出站（verify-r1）
+
+现场：`9a8272a docs(p2-t206): live-readiness, 5-case pilot plan, draft GO, runbook`（`codex/p2-e2e`，R1 未提交）。本文件全部为**复验后**重新测得的现场事实。
+
+## 1 受保护文件未被动过
+
+`git status --porcelain -- fixtures backend/src/mktkb/evaluation/gate.py backend/src/mktkb/evaluation/p2_ingestion.py backend/src/mktkb/{rag,conversations,providers,api}`：
+
+```text
+(empty：无改动)
+```
+
+## 2 R1 改动面（tracked 修改）
+
+```text
+M .claude/handoffs/_index.md
+ M backend/src/mktkb/evaluation/cli.py
+ M backend/src/mktkb/evaluation/p2_authorization.py
+ M backend/src/mktkb/evaluation/p2_runner.py
+ M backend/src/mktkb/evaluation/product_adapter.py
+ M docs/evaluation/p2-live-binding-v0_1.md
+ M docs/evaluation/p2-ocr-contract-v0_1.md
+ M docs/evaluation/p2-run-contract-v0_1.md
+ M docs/reports/OBS-EVAL/P2/T206/PM/runbook.md
+ M docs/reports/OBS-EVAL/P2/T206/report.md
+```
+
+新增（untracked，本包产物）：
+
+```text
+?? backend/src/mktkb/evaluation/p2_live.py
+?? backend/tests/evaluation/test_p2_live_wiring.py
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/01-pytest.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/02-cli-refusals.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/03-live-fake-run.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/04-scope.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/05-R1-pytest.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/06-R1-probe.py
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/07-R1-probe-out.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-t206-live/01-pytest.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-t206-live/02-cli-refusals.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-t206-live/03-live-probes.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-t206-live/probe.py
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/report.md
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/review-T206-LIVE.md
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-r1/01-rerun.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-r1/02-probe-out.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-r1/03-scope-hashes.txt
+?? docs/reports/OBS-EVAL/P2/T206-LIVE/evidence/verify-r1/probe_r1.py
+```
+
+判定：
+- 源码/测试/契约/runbook/report 全部落在 R1 交付清单内（`p2_live.py`(新)、`product_adapter.py`、`cli.py`、
+  `p2_authorization.py`、`p2_runner.py`、`test_p2_live_wiring.py`(新)、三契约、runbook、T206 report）。
+- `.claude/handoffs/_index.md` 被修改：内容是**经理协调区状态行**（含 "经理印核…PLAN-R1 4b33df68…"），
+  不是开发助手的源码/文档改动；按角色归属经理，不计入 R1 范围。
+- `fixtures/`、`gate.py`、`p2_ingestion.py`、业务 API/schema 无改动。
+
+## 3 资金面（复验前后一致）
+
+```text
+ledger: size=958277 sha256=1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390
+budget: size=1444 sha256=084ba9acb4ee90379fd51fab8878f6dd4bab1bd481bff2a14c83057ffbc1cc58
+go: ABSENT
+```
+
+与 T206 基线一致：账本 958,277 B / `1f46d1b9…`、预算 1,444 B / `084ba9ac…`、`P2-LIVE-GO.json` 不存在。
+本复验全部使用 tmp 副本（monkeypatch `P2_GO_PATH/P2_BUDGET_PATH/P2_LEDGER_PATH`），未写共享文件。
+
+## 4 出站
+
+- 探针（`probe_r1.py`）进程内装 socket 闸门（同仓库 `t09_network_guard` 口径：回环放行并单独记账，
+  外部目标拦截并记账）＋拦截 `httpx.HTTPTransport/AsyncHTTPTransport`：
+  复验全程 **external=0**（loopback=6，全部来自 Windows asyncio self-pipe）。
+- 5 套回归均挂 `t09_network_guard`，用例结束时断言 `external == []` 并通过。
+
+## 5 复验期间的并发改动（不属于本包，也不是复验助手所写）
+
+测量过程中（同一共享工作区）检测到 **PLAN-R1** 助手并行改动，出现时间晚于本文件 §2 的快照：
+
+```text
+ M docs/reports/OBS-EVAL/P2/T206/PM/P2-LIVE-readiness.md        (新增 §13 PLAN-R1)
+?? docs/reports/OBS-EVAL/P2/T206/PM/p2-pilot-plan-v0_2.json
+?? docs/reports/OBS-EVAL/P2/T206/PM/P2-LIVE-GO.CANDIDATE-DRAFT-v0_2.json
+```
+
+- 这些改动与 T206-LIVE-R1 开发交付无关，**本复验助手未写**（我只写 `review-R1.md` 与 `evidence/verify-r1/`）。
+- 该并发任务不在本复验范围：v0_2 计划/GO 候选与 §13 批数清点**未被我验证**（仅记录其存在）。
+- §3 的资金面哈希在并发改动前后均为同一值（账本/预算/GO 未被任何一方写）。
