@@ -1,0 +1,33 @@
+# unit
+# cmd: python -m pytest tests/unit -q
+
+[exit 1]
+........................................................................ [ 19%]
+........................................................................ [ 39%]
+........................................................................ [ 59%]
+........................................................................ [ 79%]
+.......F................................................................ [ 99%]
+..                                                                       [100%]
+================================== FAILURES ===================================
+__ test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 ___
+src\mktkb\qa\service.py:606: in resolve_rag_config
+    gate = resolve_live_gate(
+src\mktkb\live_authorization.py:627: in resolve_live_gate
+    raise LiveGateError(
+E   mktkb.live_authorization.LiveGateError: 共享预算总上限必须等于当前项目上限 10.0 元（当前 40.0，拒绝替换/放大预算）
+
+The above exception was the direct cause of the following exception:
+tests\unit\test_s2h_r3_official_profile.py:302: in test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552
+    config, _budget = resolve_rag_config(
+src\mktkb\qa\service.py:614: in resolve_rag_config
+    raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+E   ValueError: rag live 授权闸门拒绝：共享预算总上限必须等于当前项目上限 10.0 元（当前 40.0，拒绝替换/放大预算）
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552
+1 failed, 361 passed, 1 warning in 6.51s

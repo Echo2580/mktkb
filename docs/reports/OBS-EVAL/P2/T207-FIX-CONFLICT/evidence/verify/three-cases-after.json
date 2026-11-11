@@ -1,0 +1,677 @@
+{
+  "src": "D:/GPT项目/市场部AI知识库/backend/src",
+  "cases": {
+    "C05_narrow": {
+      "question": "城东店的宣传海报现在放在哪里？",
+      "narrow_candidates": true,
+      "kind": "conflict",
+      "text": "资料中对位置记录了多个有效值，请以下列来源为准核对。系统不会按上传时间自动裁决；请核对各来源或联系管理员核实。",
+      "sources": [
+        {
+          "document_name": "V03_物品位置表_历史V1.xlsx",
+          "version_number": 2
+        },
+        {
+          "document_name": "V01_临时物料位置通知.pdf",
+          "version_number": 1
+        }
+      ],
+      "source_ids": [
+        "cfd45627-a68a-40ce-b0e4-c3731a7a2b50",
+        "a93ab418-0888-4e53-9097-3832d15017f5"
+      ],
+      "conflicts": [
+        {
+          "field": "位置",
+          "entries": [
+            {
+              "value": "B区1号货架第二层",
+              "source_id": "cfd45627-a68a-40ce-b0e4-c3731a7a2b50"
+            },
+            {
+              "value": "D区暂存柜",
+              "source_id": "a93ab418-0888-4e53-9097-3832d15017f5"
+            }
+          ]
+        }
+      ],
+      "candidates": [],
+      "model_calls": 0,
+      "model_call_purposes": [],
+      "model_evidence_counts": [],
+      "candidate_calls": [
+        {
+          "mode": "record",
+          "terms": [],
+          "candidates": 14,
+          "kept_table_rows": 9
+        }
+      ],
+      "write_diff": {
+        "conversation_message_sources": [
+          0,
+          2
+        ],
+        "conversation_messages": [
+          0,
+          2
+        ],
+        "conversation_requests": [
+          0,
+          1
+        ],
+        "conversations": [
+          0,
+          1
+        ]
+      },
+      "trace_id": null,
+      "trace_outcome_kind": null,
+      "trace_spans": [],
+      "source_units": [
+        {
+          "unit_id": "a93ab418-0888-4e53-9097-3832d15017f5",
+          "kind": "paragraph",
+          "document_id": "52b13490-3992-4cc4-a2f8-3a1377401b4b",
+          "ordinal": 3
+        },
+        {
+          "unit_id": "cfd45627-a68a-40ce-b0e4-c3731a7a2b50",
+          "kind": "table_row",
+          "document_id": "1e8fa9cb-fa85-4356-8078-9627b781ed24",
+          "ordinal": 0
+        }
+      ]
+    },
+    "C05_ungated": {
+      "question": "城东店的宣传海报现在放在哪里？",
+      "narrow_candidates": false,
+      "kind": "conflict",
+      "text": "资料中对位置记录了多个有效值，请以下列来源为准核对。系统不会按上传时间自动裁决；请核对各来源或联系管理员核实。",
+      "sources": [
+        {
+          "document_name": "V03_物品位置表_历史V1.xlsx",
+          "version_number": 2
+        },
+        {
+          "document_name": "V01_临时物料位置通知.pdf",
+          "version_number": 1
+        }
+      ],
+      "source_ids": [
+        "fc0ff3ff-0e49-4f88-a67b-56790229d2d0",
+        "a5c6e76f-970d-4767-a675-ed4d45049ec5"
+      ],
+      "conflicts": [
+        {
+          "field": "位置",
+          "entries": [
+            {
+              "value": "B区1号货架第二层",
+              "source_id": "fc0ff3ff-0e49-4f88-a67b-56790229d2d0"
+            },
+            {
+              "value": "D区暂存柜",
+              "source_id": "a5c6e76f-970d-4767-a675-ed4d45049ec5"
+            }
+          ]
+        }
+      ],
+      "candidates": [],
+      "model_calls": 0,
+      "model_call_purposes": [],
+      "model_evidence_counts": [],
+      "candidate_calls": [],
+      "write_diff": {
+        "conversation_message_sources": [
+          0,
+          2
+        ],
+        "conversation_messages": [
+          0,
+          2
+        ],
+        "conversation_requests": [
+          0,
+          1
+        ],
+        "conversations": [
+          0,
+          1
+        ]
+      },
+      "trace_id": null,
+      "trace_outcome_kind": null,
+      "trace_spans": [],
+      "source_units": [
+        {
+          "unit_id": "a5c6e76f-970d-4767-a675-ed4d45049ec5",
+          "kind": "paragraph",
+          "document_id": "5975bbfc-f46c-42cd-8e43-0dcae2d5b496",
+          "ordinal": 3
+        },
+        {
+          "unit_id": "fc0ff3ff-0e49-4f88-a67b-56790229d2d0",
+          "kind": "table_row",
+          "document_id": "76e46c7d-29d8-48e8-b79f-5458b3bc3d07",
+          "ordinal": 0
+        }
+      ]
+    },
+    "C06_narrow": {
+      "question": "城东店的联系电话是什么？",
+      "narrow_candidates": true,
+      "kind": "conflict",
+      "text": "资料中对电话记录了多个有效值，请以下列来源为准核对。系统不会按上传时间自动裁决；请核对各来源或联系管理员核实。",
+      "sources": [
+        {
+          "document_name": "D02_合作店家信息.xlsx",
+          "version_number": 1
+        },
+        {
+          "document_name": "V02_店家联系方式变更通知.pdf",
+          "version_number": 1
+        }
+      ],
+      "source_ids": [
+        "a0ac8283-3e1b-4745-92a7-f8711dcd56be",
+        "f476db0e-542b-4772-b0c8-85336b24095b"
+      ],
+      "conflicts": [
+        {
+          "field": "电话",
+          "entries": [
+            {
+              "value": "010-00000001",
+              "source_id": "a0ac8283-3e1b-4745-92a7-f8711dcd56be"
+            },
+            {
+              "value": "010-00000099",
+              "source_id": "f476db0e-542b-4772-b0c8-85336b24095b"
+            }
+          ]
+        }
+      ],
+      "candidates": [],
+      "model_calls": 0,
+      "model_call_purposes": [],
+      "model_evidence_counts": [],
+      "candidate_calls": [
+        {
+          "mode": "record",
+          "terms": [],
+          "candidates": 9,
+          "kept_table_rows": 4
+        }
+      ],
+      "write_diff": {
+        "conversation_message_sources": [
+          0,
+          2
+        ],
+        "conversation_messages": [
+          0,
+          2
+        ],
+        "conversation_requests": [
+          0,
+          1
+        ],
+        "conversations": [
+          0,
+          1
+        ]
+      },
+      "trace_id": null,
+      "trace_outcome_kind": null,
+      "trace_spans": [],
+      "source_units": [
+        {
+          "unit_id": "a0ac8283-3e1b-4745-92a7-f8711dcd56be",
+          "kind": "table_row",
+          "document_id": "1bbe2980-8456-453a-a8fa-4e404daaca3d",
+          "ordinal": 0
+        },
+        {
+          "unit_id": "f476db0e-542b-4772-b0c8-85336b24095b",
+          "kind": "paragraph",
+          "document_id": "aab9fd67-bdf7-4951-8605-2b0af5435b5e",
+          "ordinal": 3
+        }
+      ]
+    },
+    "C06_ungated": {
+      "question": "城东店的联系电话是什么？",
+      "narrow_candidates": false,
+      "kind": "conflict",
+      "text": "资料中对电话记录了多个有效值，请以下列来源为准核对。系统不会按上传时间自动裁决；请核对各来源或联系管理员核实。",
+      "sources": [
+        {
+          "document_name": "D02_合作店家信息.xlsx",
+          "version_number": 1
+        },
+        {
+          "document_name": "V02_店家联系方式变更通知.pdf",
+          "version_number": 1
+        }
+      ],
+      "source_ids": [
+        "dbd28c60-6d16-4d61-9205-fe1018d0ad33",
+        "e2bd042f-80f4-40f4-ade8-95af9a6e71a3"
+      ],
+      "conflicts": [
+        {
+          "field": "电话",
+          "entries": [
+            {
+              "value": "010-00000001",
+              "source_id": "dbd28c60-6d16-4d61-9205-fe1018d0ad33"
+            },
+            {
+              "value": "010-00000099",
+              "source_id": "e2bd042f-80f4-40f4-ade8-95af9a6e71a3"
+            }
+          ]
+        }
+      ],
+      "candidates": [],
+      "model_calls": 0,
+      "model_call_purposes": [],
+      "model_evidence_counts": [],
+      "candidate_calls": [],
+      "write_diff": {
+        "conversation_message_sources": [
+          0,
+          2
+        ],
+        "conversation_messages": [
+          0,
+          2
+        ],
+        "conversation_requests": [
+          0,
+          1
+        ],
+        "conversations": [
+          0,
+          1
+        ]
+      },
+      "trace_id": null,
+      "trace_outcome_kind": null,
+      "trace_spans": [],
+      "source_units": [
+        {
+          "unit_id": "dbd28c60-6d16-4d61-9205-fe1018d0ad33",
+          "kind": "table_row",
+          "document_id": "65abb5c1-68d3-4de5-aa4f-151abfe3b4cf",
+          "ordinal": 0
+        },
+        {
+          "unit_id": "e2bd042f-80f4-40f4-ade8-95af9a6e71a3",
+          "kind": "paragraph",
+          "document_id": "24e0cb99-ae53-4e86-8ef1-3e467a104c3b",
+          "ordinal": 3
+        }
+      ]
+    },
+    "N08": {
+      "question": "根据货架照片告诉我没有标记物品的位置",
+      "narrow_candidates": false,
+      "kind": "not_found",
+      "text": "照片、图片不做实物识别：系统只读取已发布的文字与表格资料，不读取用户提供的照片，也不能识别照片里的实物；该问题属于首版范围外，无法据此判断物品的位置。这不是资料中没有答案；请改用文字说明门店与物品名称后重新提问。",
+      "sources": [],
+      "source_ids": [],
+      "conflicts": [],
+      "candidates": [],
+      "model_calls": 0,
+      "model_call_purposes": [],
+      "model_evidence_counts": [],
+      "candidate_calls": [],
+      "write_diff": {
+        "conversation_messages": [
+          0,
+          2
+        ],
+        "conversation_requests": [
+          0,
+          1
+        ],
+        "conversations": [
+          0,
+          1
+        ]
+      },
+      "trace_id": null,
+      "trace_outcome_kind": null,
+      "trace_spans": [],
+      "source_units": []
+    }
+  },
+  "image_pattern": {
+    "available": true,
+    "corpus_hits": [
+      "N08"
+    ],
+    "corpus": {
+      "Q01": {
+        "question": "城东店的宣传海报在哪里？",
+        "hit": false
+      },
+      "Q02": {
+        "question": "城西店的宣传海报在哪里？",
+        "hit": false
+      },
+      "Q03": {
+        "question": "城东店的展架在哪里？",
+        "hit": false
+      },
+      "Q04": {
+        "question": "城西店的展架在哪里？",
+        "hit": false
+      },
+      "Q05": {
+        "question": "城东店的易拉宝在哪里？",
+        "hit": false
+      },
+      "Q06": {
+        "question": "城西店的易拉宝在哪里？",
+        "hit": false
+      },
+      "Q07": {
+        "question": "城东店的促销贴纸在哪里？",
+        "hit": false
+      },
+      "Q08": {
+        "question": "城西店的价签卡纸在哪里？",
+        "hit": false
+      },
+      "Q09": {
+        "question": "城东店的联系人是谁？",
+        "hit": false
+      },
+      "Q10": {
+        "question": "城西店的联系人是谁？",
+        "hit": false
+      },
+      "Q11": {
+        "question": "城北店的联系人是谁？",
+        "hit": false
+      },
+      "Q12": {
+        "question": "滨河店的联系人是谁？",
+        "hit": false
+      },
+      "Q13": {
+        "question": "城东店的联系电话是什么？",
+        "hit": false
+      },
+      "Q14": {
+        "question": "城西店的联系电话是什么？",
+        "hit": false
+      },
+      "Q15": {
+        "question": "城北店的联系电话是什么？",
+        "hit": false
+      },
+      "Q16": {
+        "question": "滨河店的联系电话是什么？",
+        "hit": false
+      },
+      "Q17": {
+        "question": "城东店的地址是什么？",
+        "hit": false
+      },
+      "Q18": {
+        "question": "城西店的地址是什么？",
+        "hit": false
+      },
+      "Q19": {
+        "question": "城北店的地址是什么？",
+        "hit": false
+      },
+      "Q20": {
+        "question": "滨河店的地址是什么？",
+        "hit": false
+      },
+      "Q21": {
+        "question": "城东店现在是什么合作状态？",
+        "hit": false
+      },
+      "Q22": {
+        "question": "城西店现在是什么合作状态？",
+        "hit": false
+      },
+      "Q23": {
+        "question": "城北店现在是什么合作状态？",
+        "hit": false
+      },
+      "Q24": {
+        "question": "滨河店现在是什么合作状态？",
+        "hit": false
+      },
+      "Q25": {
+        "question": "领取活动物料需要哪些步骤？",
+        "hit": false
+      },
+      "Q26": {
+        "question": "物料归还后还需要登记什么？",
+        "hit": false
+      },
+      "Q27": {
+        "question": "活动申请至少提前多久？",
+        "hit": false
+      },
+      "Q28": {
+        "question": "活动方案需要包含哪些内容？",
+        "hit": false
+      },
+      "Q29": {
+        "question": "跨店调拨物料需要谁确认？",
+        "hit": false
+      },
+      "Q30": {
+        "question": "物料归还时需要核对什么？",
+        "hit": false
+      },
+      "Q31": {
+        "question": "发现店家信息变化后，应何时联系谁？",
+        "hit": false
+      },
+      "Q32": {
+        "question": "店家资料修改时需要记录什么？",
+        "hit": false
+      },
+      "Q33": {
+        "question": "扫描的活动申请中，申请部门是什么？",
+        "hit": false
+      },
+      "Q34": {
+        "question": "扫描的活动申请中，活动日期是什么？",
+        "hit": false
+      },
+      "Q35": {
+        "question": "仓库安全须知对物料通道有什么要求？",
+        "hit": false
+      },
+      "Q36": {
+        "question": "仓库安全须知要求向谁报告异常？",
+        "hit": false
+      },
+      "Q37": {
+        "question": "物料领用通知图片要求先填写什么？",
+        "hit": false
+      },
+      "Q38": {
+        "question": "物料领用通知图片要求谁确认？",
+        "hit": false
+      },
+      "Q39": {
+        "question": "盘点通知中城东店海报的盘点时间是什么？",
+        "hit": false
+      },
+      "Q40": {
+        "question": "盘点通知中城东店海报的盘点地点是什么？",
+        "hit": false
+      },
+      "N01": {
+        "question": "城南店联系人是谁？",
+        "hit": false
+      },
+      "N02": {
+        "question": "城东店几点营业？",
+        "hit": false
+      },
+      "N03": {
+        "question": "城东店宣传海报的负责人是谁？",
+        "hit": false
+      },
+      "N04": {
+        "question": "城东店海报现在剩余多少张？",
+        "hit": false
+      },
+      "N05": {
+        "question": "城西店本月销售额是多少？",
+        "hit": false
+      },
+      "N06": {
+        "question": "宣传海报的采购价格是多少？",
+        "hit": false
+      },
+      "N07": {
+        "question": "滨河店营业执照号是多少？",
+        "hit": false
+      },
+      "N08": {
+        "question": "根据货架照片告诉我没有标记物品的位置",
+        "hit": true
+      },
+      "C01": {
+        "question": "宣传海报在哪里？",
+        "hit": false
+      },
+      "C02": {
+        "question": "展架在哪里？",
+        "hit": false
+      },
+      "C03": {
+        "question": "请给我联系人电话",
+        "hit": false
+      },
+      "C04": {
+        "question": "它在哪？",
+        "hit": false
+      },
+      "C05": {
+        "question": "城东店的宣传海报现在放在哪里？",
+        "hit": false
+      },
+      "C06": {
+        "question": "城东店的联系电话是什么？",
+        "hit": false
+      },
+      "U01": {
+        "question": "P01 位置改版未发布时，城东店宣传海报在哪？",
+        "hit": false
+      },
+      "U02": {
+        "question": "发布 P01 新位置后，新旧会话都问城东店宣传海报在哪？",
+        "hit": false
+      },
+      "U03": {
+        "question": "改为新电话 010-00000088 并发布后，城东店联系电话是什么？",
+        "hit": false
+      },
+      "U04": {
+        "question": "新版删除 P01 整行后，城东店宣传海报在哪？",
+        "hit": false
+      },
+      "U05": {
+        "question": "删除唯一含滨河店的资料后，滨河店联系人是谁？",
+        "hit": false
+      },
+      "U06": {
+        "question": "删除 D01 后，城东店宣传海报在哪？",
+        "hit": false
+      },
+      "U07": {
+        "question": "模型生成期间发布新版或删除来源，结果如何？",
+        "hit": false
+      },
+      "U08": {
+        "question": "两个不同候选基于同一旧版本并发发布，结果如何？",
+        "hit": false
+      },
+      "U09": {
+        "question": "worker 处理扫描件时删除、取消或租约失效，迟到结果如何处理？",
+        "hit": false
+      },
+      "U10": {
+        "question": "同一 client_request_id 重复提交问答，结果如何？",
+        "hit": false
+      }
+    },
+    "adversarial": [
+      {
+        "question": "根据物料领用通知图片要求先填写什么？",
+        "hit": true
+      },
+      {
+        "question": "根据物料领用通知图片，需要谁确认？",
+        "hit": true
+      },
+      {
+        "question": "根据活动申请扫描件里的图片内容，申请部门是什么？",
+        "hit": true
+      },
+      {
+        "question": "从物料位置表截图里能看出城东店海报的位置吗？",
+        "hit": true
+      },
+      {
+        "question": "组织架构图中市场部向谁汇报？",
+        "hit": true
+      },
+      {
+        "question": "流程图里第三步是谁审批？",
+        "hit": true
+      },
+      {
+        "question": "参照仓库安全须知图片，物料通道要求是什么？",
+        "hit": true
+      },
+      {
+        "question": "看图说城东店的海报在哪",
+        "hit": true
+      },
+      {
+        "question": "物料领用通知图片要求先填写什么？",
+        "hit": false
+      },
+      {
+        "question": "巡检照片重复使用或者跨店套用，会被认定成什么？",
+        "hit": false
+      },
+      {
+        "question": "照片里没有标记的物品放在哪",
+        "hit": true
+      },
+      {
+        "question": "依据图片资料，物料领用需要哪些步骤？",
+        "hit": true
+      },
+      {
+        "question": "根据资料里的示意图，活动申请要提前多久？",
+        "hit": false
+      },
+      {
+        "question": "海报的照片有没有？",
+        "hit": false
+      },
+      {
+        "question": "城东店海报的图片能发我吗？",
+        "hit": false
+      }
+    ]
+  }
+}

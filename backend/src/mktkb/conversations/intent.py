@@ -121,6 +121,34 @@ _FOLLOWUP_FILLERS: tuple[str, ...] = (
 _FOLLOWUP_PUNCTUATION = " \t，,。.？?！!、；;：:　\"'“”‘’（）()【】[]"
 MAX_FOLLOWUP_CHARS = 16
 IDENTIFIER_MARKERS: tuple[str, ...] = ("标识", "编号")
+# T207-FIX-CONFLICT/N08：用户把照片/图片当成**事实来源**的句式（"根据…照片…"、"从图片看"、
+# "看图…"、"照片里…"）。首版没有图片输入通道，也不做实物识别，这类问题不能退化成
+# "请补充门店或物品"的澄清（那会暗示补槽后就能识别图片），必须按范围外拒答处理。
+# 这里只做句式识别，不含任何题号、文件名或期望答案。
+#
+# R1 收窄：图名必须是**短修饰**的引用（"货架照片""这张图""照片里"）。图名若是"资料名 +
+# 图名"复合名词的尾词（"物料位置表截图""物料领用通知图片"），问的是**已发布资料**，
+# 属于正常问答范围；裸"图里/图中"（"组织架构图中""流程图里"）同理，都不得误拒。
+_IMAGE_NOUNS: tuple[str, ...] = ("照片", "相片", "图片", "图像", "截图", "影像")
+_IMAGE_NOUN_ALTERNATION = "|".join(_IMAGE_NOUNS)
+_IMAGE_NOUN_PATTERN = re.compile(_IMAGE_NOUN_ALTERNATION)
+#: 图名前允许的短修饰宽度（"这张""货架""这张货架"）；超过它按"资料名 + 图名"处理。
+_IMAGE_MODIFIER_CHARS = 4
+#: 子句边界：图名之前的修饰只在同一子句内计数。
+_IMAGE_CLAUSE_BREAKS = "，。；！？、,.;!?：: \t\n“”\"'（）()【】[]"
+_IMAGE_SOURCE_MARKERS: tuple[str, ...] = ("根据", "依据", "按照", "参照", "照着", "凭", "据", "从")
+_IMAGE_SOURCE_PATTERN = re.compile(
+    "(?:%s)[^，。；！？,.;!?\n]{0,%d}?(?:%s)"
+    % ("|".join(_IMAGE_SOURCE_MARKERS), _IMAGE_MODIFIER_CHARS, _IMAGE_NOUN_ALTERNATION)
+)
+# "看这张图/看图告诉我"：把图片当作待看内容的祈使句（确定词紧跟图名）。
+_IMAGE_VIEW_PATTERN = re.compile(r"看(?:这|那)?(?:一)?(?:张|幅|个)?(?:图|%s)" % _IMAGE_NOUN_ALTERNATION)
+# "看看货架照片/看一下这张截图"：祈使动词 + 短修饰图名。
+_IMAGE_VIEW_GAP_PATTERN = re.compile(
+    "看(?:看|一下|下)?[^，。；！？,.;!?\n]{0,%d}?(?:%s)" % (_IMAGE_MODIFIER_CHARS, _IMAGE_NOUN_ALTERNATION)
+)
+# "照片里/图片中/截图上"：把图片内部当成事实出处（裸"图里/图中"不再算）。
+_IMAGE_INSIDE_PATTERN = re.compile(r"(?:里|中|上)")
 
 
 @dataclass(frozen=True)
@@ -153,6 +181,9 @@ class IntentPlan:
     #: P1-FIX/A：问题在问公司级经营/财务指标（营收/利润率等）。
     #: 这里只标记“问的是哪类指标”；是否拒答由 service 层在检索后做资料支持判定。
     out_of_scope: str | None = None
+    #: T207-FIX-CONFLICT/N08：问题以照片/图片为事实来源。首版无图片输入通道，
+    #: 也不做实物识别；service 层在检索后按范围外拒答（不得退化成澄清）。
+    image_not_supported: bool = False
 
 
 def load_lexicon(db: Session) -> EntityLexicon:
@@ -388,6 +419,37 @@ def _candidate_questions(
     return tuple(candidates)
 
 
+def _short_image_reference(text: str, start: int) -> bool:
+    """图名是否在子句内以短修饰出现（自成短语），而不是"资料名 + 图名"的复合名词尾词。"""
+    index = start
+    while index > 0 and text[index - 1] not in _IMAGE_CLAUSE_BREAKS:
+        index -= 1
+    return start - index <= _IMAGE_MODIFIER_CHARS
+
+
+def image_source_question(question: str) -> bool:
+    """问题是否把照片/图片当成事实来源（首版无法读取图片，也不做实物识别）。
+
+    只认"依据图片作答"的通用句式：来源介词/祈使动词 + **短修饰**图名（"根据货架照片…"、
+    "看这张图…"），或子句内的图名 + 方位词（"照片里…"）。资料名后跟图名
+    （"物料领用通知图片要求…""物料位置表截图…"）与裸"图里/图中"属于对已发布资料的提问，
+    不是图片输入，不在此列。
+    """
+    text = normalize(question)
+    if not text:
+        return False
+    if (
+        _IMAGE_SOURCE_PATTERN.search(text)
+        or _IMAGE_VIEW_PATTERN.search(text)
+        or _IMAGE_VIEW_GAP_PATTERN.search(text)
+    ):
+        return True
+    return any(
+        _IMAGE_INSIDE_PATTERN.match(text, match.end()) and _short_image_reference(text, match.start())
+        for match in _IMAGE_NOUN_PATTERN.finditer(text)
+    )
+
+
 def parse_question(
     question: str,
     *,
@@ -411,6 +473,14 @@ def parse_question(
             mode="document",
             intent=QueryIntent(mode="document", terms=_document_terms(question)),
             out_of_scope=out_of_scope,
+        )
+    # T207-FIX-CONFLICT/N08：图片/实物识别题先按范围外标记，仍走一次正文检索
+    # （保持 retrieve 的真实执行事实与既有 Span 契约），由 service 层给出拒答文案。
+    if image_source_question(question):
+        return IntentPlan(
+            mode="document",
+            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
+            image_not_supported=True,
         )
     stores = _match_labels(question, lexicon.store_labels)
     item_labels = _match_labels(question, lexicon.item_labels)

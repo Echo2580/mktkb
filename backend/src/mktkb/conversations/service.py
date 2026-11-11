@@ -623,6 +623,48 @@ def _entity_labels(units: Iterable[SourceUnit]) -> tuple[str | None, str | None]
     return store, item
 
 
+def _entity_filters(units: Iterable[SourceUnit]) -> dict[str, str]:
+    """本轮已选单元的业务实体条件（门店 / 门店+物品），用于同实体再核对。
+
+    只取字段原值，不猜实体：没有门店条件的记录（纯标识行等）返回空字典，调用方据此跳过。
+    """
+    store, item = _entity_labels(units)
+    filters: dict[str, str] = {}
+    if store:
+        filters["store"] = store
+    if item:
+        filters["item"] = item
+    return filters
+
+
+def _same_entity_evidence(
+    db_factory, plan: intent_module.IntentPlan, units: Iterable[SourceUnit], revision: int
+) -> EvidenceSet | None:
+    """同一实体的全部可见记录（不受 rag 候选窗口限制），供冲突复核。
+
+    T207-FIX-CONFLICT：记录型证据的候选上界来自 rag 本轮召回（candidate_ids），那只是
+    "作答用的排序窗口"。同一实体、同一字段的另一个有效来源可能排在窗口之外（例如正文
+    通知段落），冲突就永远看不见。这里只用产品自己的检索索引、按已选单元的门店/物品条件
+    再取一次同实体记录（SQL 只读，不调用任何供应商），把同实体多有效值补回来；
+    调用方只在返回 conflict 时采用；冲突视图只披露本问字段的原值，不产出作答值。
+    """
+    filters = _entity_filters(units)
+    if not filters or not plan.requested_fields:
+        return None
+    probe = QueryIntent(
+        mode="record",
+        entity_filters=filters,
+        requested_fields=tuple(plan.requested_fields),
+    )
+    try:
+        return _retrieve(db_factory, probe, revision, limit=20, candidate_ids=None)
+    except (KnowledgeRevisionChanged, IndexNotReady, QueryRejected, OperationalError):
+        # 复核失败不改变既有结论：原证据仍然有效，不把复核异常升级成用户可见错误。
+        # OperationalError 与同文件其它 DB 入口同口径：只放弃本次复核（fail-closed，不披露冲突），
+        # 由既有路径给出结论；不捕获其它异常，安全类错误照旧冒泡。
+        return None
+
+
 def _facts(units: list[SourceUnit], requested_fields: tuple[str, ...]) -> tuple[list[tuple[str, str]], list[str]]:
     facts: list[tuple[str, str]] = []
     missing: list[str] = []
@@ -2173,6 +2215,34 @@ async def _answer(
         return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
     except QueryRejected:
         return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+
+    # T207-FIX-CONFLICT/N08：图片/实物识别题（无图片输入通道）按范围外拒答。
+    # 检索已真实执行（Span 事实保留），这里只决定用户可见结论，不调用模型、不编造。
+    if plan.image_not_supported:
+        return _Result(
+            kind="not_found",
+            text=copy_module.text("IMAGE_NOT_SUPPORTED"),
+            revision=revision,
+            reason="IMAGE_NOT_SUPPORTED",
+        )
+
+    # T207-FIX-CONFLICT：单实体记录命中时，用同实体的全部可见记录复核冲突。
+    # 候选窗口（rag top-k）只决定“作答用哪些行”，不能决定“这个字段是否只有一个有效值”。
+    if (
+        evidence.kind == "matches"
+        and rag_candidates is not None
+        and plan.intent is not None
+        and plan.intent.mode == "record"
+        and plan.requested_fields
+    ):
+        with trace_attrs.span("entity_conflict_check") as check_span:
+            widened = _same_entity_evidence(db_factory, plan, evidence.units, revision)
+            check_span.annotate(
+                kind=None if widened is None else widened.kind,
+                units=0 if widened is None else len(widened.units),
+            )
+        if widened is not None and widened.kind == "conflict":
+            evidence = widened
 
     # P1-FIX/A：公司级经营/财务指标的资料支持判定。必须在 query_expansion/答案生成等
     # 任何模型调用之前完成；证据（含正文候选）里确有该指标数值时继续原有路径，不一律拒答。

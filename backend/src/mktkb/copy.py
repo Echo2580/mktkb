@@ -420,6 +420,18 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         requires_user_input=True,
     ),
     _entry(
+        # T207-FIX-CONFLICT/N08：首版没有图片输入通道，也不做实物识别。用户以照片/图片为
+        # 事实来源提问时按范围外明确拒答：不得退化成"请补充门店或物品"（会暗示补槽后能识别
+        # 图片），也不得声称完成实物定位。
+        "IMAGE_NOT_SUPPORTED",
+        "照片、图片不做实物识别：系统只读取已发布的文字与表格资料，不读取用户提供的照片，"
+        "也不能识别照片里的实物；该问题属于首版范围外，无法据此判断物品的位置。"
+        "这不是资料中没有答案；请改用文字说明门店与物品名称后重新提问。",
+        retryable=True,
+        material_related=False,
+        requires_user_input=True,
+    ),
+    _entry(
         # P1-FIX/B：指代追问里的制度/流程话题（如“报销规则”）进入正文查询后，
         # 证据里没有可支撑该话题的正文；如实说明“找到的资料里没有”，不拿无关正文冒充。
         "POLICY_TOPIC_NOT_FOUND",

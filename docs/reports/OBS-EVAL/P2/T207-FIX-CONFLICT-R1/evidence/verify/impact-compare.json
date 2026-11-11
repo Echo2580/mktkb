@@ -1,0 +1,895 @@
+{
+  "comparison": "独立两臂：arm_before = 当前 backend/src 仅替换 intent.py/service.py 为 R1 前版本；arm_after = 当前 backend/src",
+  "arm_before": {
+    "src": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2vfy-r1conflict\\arm-before\\src",
+    "notes": "R1 前文件 sha256 前 16：intent.py=76123b492ae7c294、service.py=51f481062e40f416（与上一轮独立验收记录值一致）；两臂逐文件比对只差这两个文件"
+  },
+  "arm_after": {
+    "src": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2vfy-r1conflict\\arm-after\\src",
+    "mktkb_file": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2vfy-r1conflict\\arm-after\\src\\mktkb\\__init__.py"
+  },
+  "case_count": 54,
+  "compared_fields": [
+    "kind",
+    "text",
+    "sources",
+    "conflicts",
+    "candidates",
+    "status",
+    "strict_status",
+    "problems"
+  ],
+  "changed_ids": [],
+  "rows": [
+    {
+      "id": "C01",
+      "question": "宣传海报在哪里？",
+      "before_kind": "clarification",
+      "after_kind": "clarification",
+      "same": true,
+      "status": "pass",
+      "strict_status": "fail",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "C02",
+      "question": "展架在哪里？",
+      "before_kind": "clarification",
+      "after_kind": "clarification",
+      "same": true,
+      "status": "pass",
+      "strict_status": "fail",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "C03",
+      "question": "请给我联系人电话",
+      "before_kind": "clarification",
+      "after_kind": "clarification",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "C04",
+      "question": "它在哪？",
+      "before_kind": "clarification",
+      "after_kind": "clarification",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "C05",
+      "question": "城东店的宣传海报现在放在哪里？",
+      "before_kind": "conflict",
+      "after_kind": "conflict",
+      "same": true,
+      "status": "pass",
+      "strict_status": "fail",
+      "conflicts": [
+        {
+          "field": "位置",
+          "values": [
+            "B区1号货架第二层",
+            "D区暂存柜"
+          ]
+        }
+      ],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active",
+        "V01_临时物料位置通知.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "C06",
+      "question": "城东店的联系电话是什么？",
+      "before_kind": "conflict",
+      "after_kind": "conflict",
+      "same": true,
+      "status": "pass",
+      "strict_status": "fail",
+      "conflicts": [
+        {
+          "field": "电话",
+          "values": [
+            "010-00000001",
+            "010-00000099"
+          ]
+        }
+      ],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active",
+        "V02_店家联系方式变更通知.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "N01",
+      "question": "城南店联系人是谁？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N02",
+      "question": "城东店几点营业？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N03",
+      "question": "城东店宣传海报的负责人是谁？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N04",
+      "question": "城东店海报现在剩余多少张？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N05",
+      "question": "城西店本月销售额是多少？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N06",
+      "question": "宣传海报的采购价格是多少？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N07",
+      "question": "滨河店营业执照号是多少？",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "N08",
+      "question": "根据货架照片告诉我没有标记物品的位置",
+      "before_kind": "not_found",
+      "after_kind": "not_found",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": []
+    },
+    {
+      "id": "Q01",
+      "question": "城东店的宣传海报在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q02",
+      "question": "城西店的宣传海报在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q03",
+      "question": "城东店的展架在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q04",
+      "question": "城西店的展架在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q05",
+      "question": "城东店的易拉宝在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q06",
+      "question": "城西店的易拉宝在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q07",
+      "question": "城东店的促销贴纸在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q08",
+      "question": "城西店的价签卡纸在哪里？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q09",
+      "question": "城东店的联系人是谁？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q10",
+      "question": "城西店的联系人是谁？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q11",
+      "question": "城北店的联系人是谁？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q12",
+      "question": "滨河店的联系人是谁？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q13",
+      "question": "城东店的联系电话是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q14",
+      "question": "城西店的联系电话是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q15",
+      "question": "城北店的联系电话是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q16",
+      "question": "滨河店的联系电话是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q17",
+      "question": "城东店的地址是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q18",
+      "question": "城西店的地址是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q19",
+      "question": "城北店的地址是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q20",
+      "question": "滨河店的地址是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q21",
+      "question": "城东店现在是什么合作状态？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q22",
+      "question": "城西店现在是什么合作状态？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q23",
+      "question": "城北店现在是什么合作状态？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q24",
+      "question": "滨河店现在是什么合作状态？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D02_合作店家信息.xlsx#v1/active"
+      ]
+    },
+    {
+      "id": "Q25",
+      "question": "领取活动物料需要哪些步骤？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D09_物料领用通知.png#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D04_活动策划流程.docx#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q26",
+      "question": "物料归还后还需要登记什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D09_物料领用通知.png#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q27",
+      "question": "活动申请至少提前多久？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D04_活动策划流程.docx#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q28",
+      "question": "活动方案需要包含哪些内容？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D04_活动策划流程.docx#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q29",
+      "question": "跨店调拨物料需要谁确认？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D05_物料领用规范.pdf#v1/active",
+        "D09_物料领用通知.png#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D10_盘点通知.jpg#v1/active"
+      ]
+    },
+    {
+      "id": "Q30",
+      "question": "物料归还时需要核对什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D05_物料领用规范.pdf#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D09_物料领用通知.png#v1/active"
+      ]
+    },
+    {
+      "id": "Q31",
+      "question": "发现店家信息变化后，应何时联系谁？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D06_店家资料维护说明.pdf#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D06_店家资料维护说明.pdf#v1/active",
+        "D06_店家资料维护说明.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q32",
+      "question": "店家资料修改时需要记录什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D06_店家资料维护说明.pdf#v1/active",
+        "D06_店家资料维护说明.pdf#v1/active",
+        "D06_店家资料维护说明.pdf#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D02_合作店家信息.xlsx#v1/active",
+        "D03_市场部工作指南.docx#v1/active"
+      ]
+    },
+    {
+      "id": "Q33",
+      "question": "扫描的活动申请中，申请部门是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q34",
+      "question": "扫描的活动申请中，活动日期是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q35",
+      "question": "仓库安全须知对物料通道有什么要求？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D09_物料领用通知.png#v1/active",
+        "D10_盘点通知.jpg#v1/active",
+        "D10_盘点通知.jpg#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active"
+      ]
+    },
+    {
+      "id": "Q36",
+      "question": "仓库安全须知要求向谁报告异常？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D10_盘点通知.jpg#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D06_店家资料维护说明.pdf#v1/active"
+      ]
+    },
+    {
+      "id": "Q37",
+      "question": "物料领用通知图片要求先填写什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D09_物料领用通知.png#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D10_盘点通知.jpg#v1/active",
+        "D04_活动策划流程.docx#v1/active"
+      ]
+    },
+    {
+      "id": "Q38",
+      "question": "物料领用通知图片要求谁确认？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D09_物料领用通知.png#v1/active",
+        "D03_市场部工作指南.docx#v1/active",
+        "D05_物料领用规范.pdf#v1/active",
+        "D07_活动申请扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D08_仓库安全须知扫描件.pdf#v1/active",
+        "D10_盘点通知.jpg#v1/active",
+        "D03_市场部工作指南.docx#v1/active"
+      ]
+    },
+    {
+      "id": "Q39",
+      "question": "盘点通知中城东店海报的盘点时间是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D10_盘点通知.jpg#v1/active",
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    },
+    {
+      "id": "Q40",
+      "question": "盘点通知中城东店海报的盘点地点是什么？",
+      "before_kind": "answer",
+      "after_kind": "answer",
+      "same": true,
+      "status": "pass",
+      "strict_status": "pass",
+      "conflicts": [],
+      "sources": [
+        "D10_盘点通知.jpg#v1/active",
+        "V03_物品位置表_历史V1.xlsx#v2/active"
+      ]
+    }
+  ],
+  "key_cases": {
+    "N08": {
+      "kind": "not_found",
+      "status": "pass",
+      "strict_status": "pass",
+      "text_identical_before_after": true,
+      "text": "照片、图片不做实物识别：系统只读取已发布的文字与表格资料，不读取用户提供的照片，也不能识别照片里的实物；该问题属于首版范围外，无法据此判断物品的位置。这不是资料中没有答案；请改用文字说明门店与物品名称后重新提问。"
+    },
+    "C05": {
+      "before": [
+        {
+          "field": "位置",
+          "values": [
+            "B区1号货架第二层",
+            "D区暂存柜"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "field": "位置",
+          "values": [
+            "B区1号货架第二层",
+            "D区暂存柜"
+          ]
+        }
+      ],
+      "sources_after": [
+        "V03_物品位置表_历史V1.xlsx#v2/active",
+        "V01_临时物料位置通知.pdf#v1/active"
+      ]
+    },
+    "C06": {
+      "before": [
+        {
+          "field": "电话",
+          "values": [
+            "010-00000001",
+            "010-00000099"
+          ]
+        }
+      ],
+      "after": [
+        {
+          "field": "电话",
+          "values": [
+            "010-00000001",
+            "010-00000099"
+          ]
+        }
+      ],
+      "sources_after": [
+        "D02_合作店家信息.xlsx#v1/active",
+        "V02_店家联系方式变更通知.pdf#v1/active"
+      ]
+    },
+    "Q39": "answer",
+    "Q40": "answer"
+  },
+  "cross_check_dev_impact_file": {
+    "differing_ids": [],
+    "dev_changed_ids": [],
+    "note": "dev 的 after_sources 已按文档去重；本验收的 payload sources 按来源单元逐条（同一文档可重复），比较时去重。Q25–Q38 的差异仅为重复条目。"
+  },
+  "cross_check_prior_review_impact_after": {
+    "differing_ids": []
+  },
+  "outbound": {
+    "after": {
+      "blocked": [],
+      "loopback": 221
+    },
+    "before": {
+      "blocked": [],
+      "loopback": 221
+    }
+  }
+}

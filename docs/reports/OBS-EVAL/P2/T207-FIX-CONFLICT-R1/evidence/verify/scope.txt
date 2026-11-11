@@ -1,0 +1,30 @@
+## 范围检查（复查时点 HEAD b4b9b72）
+[fixtures/ledger status above; empty=clean]
+
+[staged above; empty=none]
+3bc8347 feat(p2-t207-fix-h2score): in-process holdout aggregate scorecard with leak audit (R1: text retained in memory, structural issues not passed)
+
+.gitignore:10:docs/evidence/	docs/evidence/LOCAL-R1-20261101/budget/budget.json
+40
+0
+
+diff --git a/.claude/handoffs/_index.md b/.claude/handoffs/_index.md
+index 22d0a30..b514960 100644
+--- a/.claude/handoffs/_index.md
++++ b/.claude/handoffs/_index.md
+@@ -1,5 +1,11 @@
+ # 协调区索引（_index.md）
+ 
++> **最新T206 pilot接收（2026-11-11 02:5x）**：**真实 pilot 独立复核 PASS（授权/账本/回执/额度四面）并已接收执行面**：账本 1011→1095（+42/+42 全 P2-LIVE、逐笔复算一致），settled **0.5713583**（OCR 0.5 + answer_retrieval 0.0713583）、reserve 0.6893120，请求 547/566/1000，gate real_sends_allowed=true、citation 6 verified、binding/trace 完整、出站 39。**更正**：作废「Q01 覆盖同槽 V1→V2」（V03/D01 被导入为两个独立文档，属播种配方；T207 需新计划+新 GO 重新播种）；质量不作达标（gate_v0_3 unapproved）。5 项返工转 T207；pilot 证据 commit `fe9d4ae`、PLAN-R1 文档 `9a740ce`。**下一步：T207 计划/GO（P2 余 ~19.43 元、全局请求 547/1000）→ 正式矩阵。** 详见[任务书](../../docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md)与[推进记录](2026-11-10-p2-progress.md)。
++
++> **最新经理交接授权（2026-11-10）**：主人要求可直接复制的交接提示词，明确新的AI项目经理**可以派遣子智能体逐步推进P2**。交接见 [`2026-11-10-154731-p2-project-manager.md`](2026-11-10-154731-p2-project-manager.md)；任务书/进度已注明自动串行派发授权，覆盖早先仅手动转交提示词的方式。核现场时T201仍READY未派发，无P2正式开发报告；本窗口只交接，未创建助手或启动测试/付费调用。
++
++> **最新P2规划与预算（2026-11-10）**：主人委托经理拆解、保存并逐步指导P2，明确**P2新增预算20元、H2至少24/30通过且安全相关硬失败0**。主任务书：[P2任务书](../../docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md)；推进记录 [`2026-11-10-p2-progress.md`](2026-11-10-p2-progress.md)。基线 `main@59107fc`，P1保留通过且PR#2已合并。T200经理准备完成，**T201 READY、未派发**；首包开发/独立验收提示词已备。当前仅文档与只读核对，未跑测试/改产品/启用真实调用/改原预算GO。新增20元与旧余额分开；候选项目上限40、P2-LIVE阶段20，实际GO未签发。直接提交/合并不自行追加全量测试。
++
+ > **最新合并授权与验证（2026-11-10，主人「行，先合并，你来合并」）**：按主人指令将 P1FIX 与保留通过记录提交到现有 PR #2 并合并至 `main`。本次直接运行标准全量 **2023 passed**、前端 typecheck/build 通过，修复文件与受保护文件哈希核对完成；P1 保留项不变、不进入 P2。验证及授权见 [`2026-11-10-p1-merge.md`](2026-11-10-p1-merge.md)；最终合并状态与 SHA 以 [PR #2](https://github.com/Echo2580/mktkb/pull/2) 审计为准。下文“未获合并授权”为此前历史。
+ 
+ > **最新人工验收决定（主人 2026-11-10「P1保留通过」）**：**P1 正式记为保留通过**。P1FIX 开发交付按主人决定接收；Holdout 7/30、防污染事件待核、新 pipeline 发布基线未建、前端 e2e 与本次独立复验未做等保留项如实保留，不升级为已验证。决定见 [`2026-11-10-p1-owner-acceptance.md`](2026-11-10-p1-owner-acceptance.md)。修复仍为本地未提交工作区（HEAD `3eec866`）；本次未提交/推送/合并 PR、未派发后续任务或进入 P2。以下“待主人最终决定”为此前历史状态，以本条为准。
+
+3
+[no skip/xfail]
+

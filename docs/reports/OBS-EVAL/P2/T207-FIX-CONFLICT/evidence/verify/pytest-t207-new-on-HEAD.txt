@@ -1,0 +1,49 @@
+# t207-new-on-HEAD
+# cmd: python -m pytest tests/integration/test_t207_fix_conflict.py -o pythonpath=C:/Users/dell1712/AppData/Local/Temp/t207v-conflict/before/backend/src
+# elapsed: 4.8s
+
+[exit 1]
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_____________ test_conflict_survives_narrow_rag_candidate_window ______________
+tests\integration\test_t207_fix_conflict.py:103: in test_conflict_survives_narrow_rag_candidate_window
+    assert payload["kind"] == "conflict", payload
+E   AssertionError: {'request_id': '82365adc-6431-47e1-a402-3a3690c76a5e', 'message_id': '7679f81a-2579-4eb4-9115-14362985de4a', 'kind': 'answer', 'text': '城东店的宣传海报的位置：B区1号货架第二层；门店：城东店；物品：宣传海报；别名：海报。', ...}
+E   assert 'answer' == 'conflict'
+E     
+E     - conflict
+E     + answer
+__________ test_phone_conflict_survives_narrow_rag_candidate_window ___________
+tests\integration\test_t207_fix_conflict.py:127: in test_phone_conflict_survives_narrow_rag_candidate_window
+    assert payload["kind"] == "conflict", payload
+E   AssertionError: {'request_id': '21aab99f-c6ae-40c0-a0fc-9310bcd5d104', 'message_id': 'ef739ac4-48b0-4f4c-a584-10f7ad424869', 'kind': 'answer', 'text': '城东店的电话：010-00000001；店家：城东店；联系人：模拟联系人·陈宁；地址：示例市示例路18号（模拟）；合作状态：合作中。', ...}
+E   assert 'answer' == 'conflict'
+E     
+E     - conflict
+E     + answer
+________________ test_image_question_is_refused_not_clarified _________________
+tests\integration\test_t207_fix_conflict.py:136: in test_image_question_is_refused_not_clarified
+    assert payload["kind"] == "not_found", payload
+E   AssertionError: {'request_id': '1c5bacd5-d460-4452-a89a-ee39655625e2', 'message_id': '74c39207-7a87-456f-ba66-90d1dd70d7e6', 'kind': 'clarification', 'text': '请补充要查询的门店或物品。', ...}
+E   assert 'clarification' == 'not_found'
+E     
+E     - not_found
+E     + clarification
+_______ test_image_words_on_published_document_are_not_image_questions ________
+tests\integration\test_t207_fix_conflict.py:152: in test_image_words_on_published_document_are_not_image_questions
+    assert intent_module.image_source_question(question) is False, question
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: module 'mktkb.conversations.intent' has no attribute 'image_source_question'
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_t207_fix_conflict.py::test_conflict_survives_narrow_rag_candidate_window
+FAILED tests/integration/test_t207_fix_conflict.py::test_phone_conflict_survives_narrow_rag_candidate_window
+FAILED tests/integration/test_t207_fix_conflict.py::test_image_question_is_refused_not_clarified
+FAILED tests/integration/test_t207_fix_conflict.py::test_image_words_on_published_document_are_not_image_questions
+4 failed, 1 warning in 2.88s
+

@@ -1,0 +1,87 @@
+{
+ "arm": "L 层离线（真实解析/worker/HTTP/检索；模型 EvidenceEchoGateway；D07/D09 受控 OCR 转录；零真实出站）",
+ "published": [
+  "D01_物品位置表.xlsx",
+  "D03_市场部工作指南.docx",
+  "D07_活动申请扫描件.pdf",
+  "D09_物料领用通知.png"
+ ],
+ "note": "rule = intent.image_source_question()；kind/sources 为同一产品 HTTP 入口（POST …/messages）的实测返回",
+ "questions": [
+  {
+   "question": "组织架构图中市场部向谁汇报？",
+   "before": {
+    "rule": true,
+    "kind": "not_found",
+    "sources": []
+   },
+   "after": {
+    "rule": false,
+    "kind": "answer",
+    "sources": [
+     "D07_活动申请扫描件.pdf"
+    ]
+   }
+  },
+  {
+   "question": "流程图里第三步是谁审批？",
+   "before": {
+    "rule": true,
+    "kind": "not_found",
+    "sources": []
+   },
+   "after": {
+    "rule": false,
+    "kind": "answer",
+    "sources": [
+     "D07_活动申请扫描件.pdf"
+    ]
+   }
+  },
+  {
+   "question": "根据物料领用通知图片要求先填写什么？",
+   "before": {
+    "rule": true,
+    "kind": "not_found",
+    "sources": []
+   },
+   "after": {
+    "rule": false,
+    "kind": "answer",
+    "sources": [
+     "D03_市场部工作指南.docx",
+     "D07_活动申请扫描件.pdf",
+     "D09_物料领用通知.png"
+    ]
+   }
+  },
+  {
+   "question": "从物料位置表截图中能看出城东店的宣传海报放在哪？",
+   "before": {
+    "rule": true,
+    "kind": "not_found",
+    "sources": []
+   },
+   "after": {
+    "rule": false,
+    "kind": "answer",
+    "sources": [
+     "D01_物品位置表.xlsx"
+    ]
+   }
+  },
+  {
+   "question": "从物料位置表截图里能看出什么？",
+   "before": {
+    "rule": true,
+    "kind": "not_found",
+    "sources": []
+   },
+   "after": {
+    "rule": false,
+    "kind": "clarification",
+    "sources": []
+   }
+  }
+ ]
+}
