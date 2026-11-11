@@ -36,3 +36,34 @@
 ## 6. 文件
 - 本记录：`docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md`
 - 准备交付：`docs/reports/OBS-EVAL/P2/T207/**`
+
+## 7. T207-FIX-P 验收与裁量（2026-11-11 09:3x）
+- 独立验收 `8e7999d6-58a5-4ae1-a70d-9e8aaf463265` 判 **接收（阻断 0）**：真实缺陷成立（F02/F03/F04 修复前 service_error/MODEL_OUTPUT_INVALID → 修复后 answer/200；F01/F05 不变）；未弱化（编造值 1.88、未引用来源值 2.5 新旧皆拒；记录型 5 样本新旧输出逐字相同）；回归 210/7/13/4 passed，probe 出站 0。
+- **裁量 1（4 个公开财务反例重定性）**：独立复核 5/5 成立——F01-F05 意图全为 mode=document（记录型分支不执行）；「缺 90%/2.99」来自 Mock 适配器首条证据前 3 字段渲染（product_adapter.py:531/545）；F02 金标数字 {2026,10,28,8000} 使 E-2 仍 fail；F04 标签自相矛盾（expected_kind=not_found + should_refuse=False）。**结论：不是产品规则路径缺陷**；除已修真实缺陷外不做产品改写（避免绕过模型陈述→产品校验不变式）；T205 评测控制继续有效（4 诱饵 fail/2 正向 pass）。F04 标签矛盾与 E-2 正向控制需求记录为 T209/T205 文档清理项，非阻断。
+- **裁量 2（唯一放宽）**：问题前提值可出现在答案值位置（旧口径拒、新口径收）。判定为合理且必要，但须钉边界并转 T209 知悉。已派 **T207-FIX-P-R1**（只加显式边界单测 + 报告补充，不改产品语义）。
+- 瑕疵：report 写新单测 82 行、实测 89 行（sha 一致，笔误），不阻断。
+- 经理接收：本地 commit `ffc9fe5`（12 文件，未 push；仅 service.py + 新单测 + FIX-P 报告/证据/review）。
+- **T207-FIX-P-R1（边界单测）**：独立验收 `9aec8bfc-…` **接收（阻断 0）**；8 passed；旧口径下 (a)/(d) 在旧代码 TypeError/REJECT、新口径 ACCEPT，(b) 1.88 REJECT，(c) 记录型三样本逐字相同；报告数字（89/195 行、sha16）实测一致。经理接收 commit `405491c`（8 文件，未 push）。
+- P-R1 验收备注：①(c) 的 3 样本中仅样本1 逐字取自既有测试；②所谓“值位置”实为 token 全局匹配（(a)/(d) 同路径）；③report 末行出处措辞小误；④**全角数字（８０００）在新旧口径都放行**（`_VALUE_TOKEN` 只认 ASCII，属既有口子，非本包引入）→ 列入 T209 阈值/校验收口清单。均非阻断。
+- 清洁项：工作区出现未跟踪 `undefined/`（多代理临时目录解析产物，含 edit*.py 等）；A 包运行中暂不删除，A 收口后确认无引用即清理，禁止入 commit。
+
+## 8. T207-FIX-B-R1 验收与接收（2026-11-11 10:0x）
+- 独立验收 `dd620b46-…` 判 **接收（阻断 0）**：C1 闭环（修复前 summary 0.000124 vs 账本 0.018812；修复后 0.018812=账本合计、rejected_rounds=1、settled_cny=0.018688、正常轮不变）；混合轮不双重计数（0.000384+0.018688=0.019072）；契约 §7.2 十项逐值一致；范围合规、三份固定 SHA 未变、无 skip/xfail。
+- 经理接收：commit `b1bfa60`（14 文件，未 push）；`test_p2_live_wiring.py` 与并行包 FIX-A 同文件，本包 1 个 +63 块延后随 A 提交（已记录，不重复计）。
+- 非阻断跟进（记入收口清单，不阻塞执行）：R1 except-Exception 假定门已写 result 的边界（正常 run_live_p2 不触发）；R2/R3 `_money_split` 关系句未含拒绝轮、report 的 venv 路径/HEAD 标注过时。
+
+## 9. T207-FIX-A 验收中发现的问题（2026-11-11 10:1x，待 A-R1 闭环）
+核心机制（计划/GO 重建、拆 run 242/15/6 与 263/8.145808、授权窗口 801/807/822、R3→R2→R1 反证、ingest 12/4/2、cases 52/2/1、wrapper、版本槽 e2e）已由独立验收通过；以下为需闭环项：
+1. **FIX-S 集成**：A 的 `test_p2_score_run.py` 冻结「Q39 必 fail / b0 39」；FIX-S 修复后 Q39 pass（实际 40），该测试红 → A 不能按“套件全绿”接收。A-R1 需把期望改 40，并同步 A report §6.1（Q39 缺口已被 FIX-S 修好，不再是待决项）。
+2. **H2 候选 GO 与 runbook 命令 plan_id 不一致**：GO scope.plan_id=`P2-T207-H2-20261111`，runbook §8.1 命令 `--plan-id P2-H2-20261111` → 会 `go_plan_id_mismatch` 拒（fail-closed 但跑不通）。统一为一个值并同步文档。
+3. **p2-score holdout 缺输入码**：文档承诺 `holdout_input_missing` 但代码不存在；既无 `--holdout-cases` 也无 `--verdicts` 时 TypeError。A-R1 补显式稳定码 + 测试（不改输出聚合口径）。
+4. **旧 GO 拒绝原因文档写错**：实际为 `go_plan_id_mismatch`（非 `go_plan_sha256_mismatch`）；同步 runbook/report。
+5. **文档数值**：cost §1 仍写硬顶 1000/余 453（应为 1600/653）；§6 写“公开矩阵 255/小计 1281”与 §3 的 263 矛盾；§5 H2 worst 6.368256 系 4 倍误算（36×0.044224=1.592064；计划实测 1.731328）。A-R1 全部更正并给复算。
+6. 待补 **H2 灌库方案**（D01–D06+V01–V07、五条 stale_conflict 假设、批数 B）——并入 A-R1（零真实、离线状态验证）。
+- 经理决定：A-R1 完成后重新独立验收（可复用同一验收线新上下文），通过后再接收 commit；FIX-S 验收独立推进。
+
+## 10. T207-FIX-S 验收与接收（2026-11-11 10:2x）
+- 独立验收 `07f387e8-…` 判 **接收（阻断 0）**：opt-in 默认行为与 HEAD 逐值一致（check_value 30,912 对 / _value_pattern 69 条 / score_case 230 个 CaseResult 均 0 分歧；Q39 默认仍 fail）；Q39 P2 路径 24 变体 0 判定错误（正确写法含空格/Tab/换行/全角 pass；错日期/错年份/错时间/缺时间/1 6:00/顺序颠倒/12026 全 fail）；P1 183 passed、gate+quality 109、exact 只覆盖 stratum=exact；范围合规、无 skip/xfail、零真实。
+- 经理接收（未 commit，待 A 先提交）：**提交次序约束**——S 的新测试从 FIX-A 未跟踪的 `p2_public_cases.load_b0_cases` 导入，必须 A 先落盘再提交 S；否则干净检出会 collection error。
+- 集成影响：A 的 `test_p2_score_run.py` 冻结 b0 39/1 现应改 40/0（已并入 A-R1）。
+- 小瑕疵（收口清单）：S 报告 HEAD 标注 @405491c 已过时（现 b1bfa60）；§3「无空格命中」措辞需注明 case 仍 fail（value_no_fabricated）。
