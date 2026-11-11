@@ -1,0 +1,175 @@
+# T207-FIX-P-R1 独立验收证据 01：范围、基线、行数 / sha16
+
+- 验收角色：独立验收助手（全新上下文）；只读复核 + 自建探针；未改工作区任何代码/测试/报告/验收件，未 commit。
+- 现场：分支 codex/p2-e2e；HEAD 仍为 T207-FIX-P 开发提交（P-R1 未产生新 commit，见 §A）。
+- 工作树同时含并行包改动（`evaluation/**`=T207-FIX-A、`p2_runner.py` 等=T207-FIX-B-R1），本证据**不**验证其内容，只在下方清单中排除。
+- 零真实调用：本证据全部为 git/文件哈希/单元级调用；未打开 `.env`、H1/H2。
+
+## A. 提交与 reflog（证明无 commit）
+
+```text
+$ git branch --show-current
+```
+```text
+codex/p2-e2e
+```
+```text
+$ git log -3 --format="%h %ad %s" --date=short
+```
+```text
+ffc9fe5 2026-11-11 fix(p2-t207-fix-p): allow question-premise echo in answer validation; reclassify public decoys
+96fede3 2026-11-11 docs(p2-t207): matrix plan/GO drafts, import recipe, cost/quota, fix scope, runbook, PM decisions
+18159a1 2026-11-11 fix(p2-t207-fix-b): request hard cap 1600, attempts accounting, summary three-way split, output_valid settlement
+```
+```text
+$ git reflog -5
+```
+```text
+ffc9fe5 HEAD@{0}: commit: fix(p2-t207-fix-p): allow question-premise echo in answer validation; reclassify public decoys
+96fede3 HEAD@{1}: commit: docs(p2-t207): matrix plan/GO drafts, import recipe, cost/quota, fix scope, runbook, PM decisions
+18159a1 HEAD@{2}: commit: fix(p2-t207-fix-b): request hard cap 1600, attempts accounting, summary three-way split, output_valid settlement
+9a740ce HEAD@{3}: commit: docs(p2-t206): batch-quota pilot plan v0_2 and PLAN-R1 evidence
+fe9d4ae HEAD@{4}: commit: docs(p2-t206): real pilot artifacts, independent review, manager acceptance
+```
+判定：reflog 顶端与 HEAD 均为 ffc9fe5（T207-FIX-P 开发提交），P-R1 全程**无 commit**。
+
+## B. 工作树改动清单（本包 vs 并行包）
+
+```text
+$ git status --porcelain
+```
+```text
+M .claude/handoffs/_index.md
+ M backend/src/mktkb/evaluation/cli.py
+ M backend/src/mktkb/evaluation/p2_runner.py
+ M backend/src/mktkb/evaluation/product_adapter.py
+ M backend/tests/evaluation/test_p2_live_wiring.py
+ M backend/tests/evaluation/test_p2_runner.py
+ M backend/tests/integration/test_p2_product_e2e.py
+ M backend/tests/unit/test_p2_t207_fix_p.py
+ M docs/evaluation/p2-runner-contract-v0_1.md
+ M docs/reports/OBS-EVAL/P2/T207-FIX-P/report.md
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md
+?? .claude/handoffs/2026-11-10-154731-p2-project-manager.md
+?? .claude/handoffs/2026-11-10-p2-progress.md
+?? .claude/handoffs/prompts/P2-R2-dev.md
+?? .claude/handoffs/prompts/P2-R2-verify.md
+?? .claude/handoffs/prompts/P2-T201-dev.md
+?? .claude/handoffs/prompts/P2-T201-verify.md
+?? .claude/handoffs/prompts/P2-T202-custodian.md
+?? .claude/handoffs/prompts/P2-T202-dev.md
+?? .claude/handoffs/prompts/P2-T202-verify.md
+?? .claude/handoffs/prompts/P2-T203-R1-dev.md
+?? .claude/handoffs/prompts/P2-T203-R1-verify.md
+?? .claude/handoffs/prompts/P2-T203-dev.md
+?? .claude/handoffs/prompts/P2-T203-verify.md
+?? .claude/handoffs/prompts/P2-T204-dev.md
+?? .claude/handoffs/prompts/P2-T204-verify.md
+?? .claude/handoffs/prompts/P2-T205-dev.md
+?? .claude/handoffs/prompts/P2-T205-verify.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-dev.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-verify.md
+?? .claude/handoffs/prompts/P2-T206-PLAN-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T206-PRE-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-verify.md
+?? .claude/handoffs/prompts/P2-T206-pilot-verify.md
+?? .claude/handoffs/prompts/P2-T206-prep-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-verify.md
+?? .claude/handoffs/prompts/P2-T207-prep-dev.md
+?? backend/src/mktkb/evaluation/p2_holdout_plan.py
+?? backend/src/mktkb/evaluation/p2_public_cases.py
+?? backend/src/mktkb/evaluation/p2_score_run.py
+?? backend/tests/evaluation/test_p2_holdout_plan.py
+?? backend/tests/evaluation/test_p2_public_cases.py
+?? backend/tests/evaluation/test_p2_score_run.py
+?? docs/reports/OBS-EVAL/P2/T207-FIX-B-R1/
+?? docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/05-p-r1-pytest.txt
+?? docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/verify-r1/
+?? docs/reports/OBS-EVAL/P2/T207/cases/
+?? docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md
+?? docs/面试/
+?? tools/p2_live_execute.py
+?? undefined/
+```
+本包（P-R1 交付声明）3 个路径：
+- `M backend/tests/unit/test_p2_t207_fix_p.py`
+- `M docs/reports/OBS-EVAL/P2/T207-FIX-P/report.md`
+- `?? docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/05-p-r1-pytest.txt`
+
+其余条目均属并行包/经理记录，不在本包范围：
+- `backend/src/mktkb/evaluation/{cli.py,p2_runner.py,product_adapter.py}`、`backend/src/mktkb/evaluation/p2_{holdout_plan,public_cases,score_run}.py`、`backend/tests/evaluation/{test_p2_live_wiring,test_p2_runner}.py`、`docs/evaluation/p2-runner-contract-v0_1.md`、`docs/reports/OBS-EVAL/P2/T207-FIX-B-R1/` → T207-FIX-A / T207-FIX-B-R1；
+- `.claude/handoffs/**`、`docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md`、`docs/reports/OBS-EVAL/P2/T207/cases/` → 经理/前置任务记录。
+
+```text
+$ git diff --numstat HEAD -- backend/tests/unit/test_p2_t207_fix_p.py docs/reports/OBS-EVAL/P2/T207-FIX-P/report.md
+```
+```text
+108	2	backend/tests/unit/test_p2_t207_fix_p.py
+17	1	docs/reports/OBS-EVAL/P2/T207-FIX-P/report.md
+```
+（测试文件新增 108 行、删 2 行 —— 删的 2 行是模块 docstring 的一句说明与列表项改写，不是既有断言；report 新增 17 行、删 1 行 —— 删的是 §3 表中"82 行"那一格。）
+
+## C. `backend/src/**` 零改动（本包）
+
+```text
+$ git status --porcelain -- backend/src/mktkb/conversations
+```
+```text
+(空)
+```
+```text
+$ git status --porcelain -- backend/src
+```
+```text
+M backend/src/mktkb/evaluation/cli.py
+ M backend/src/mktkb/evaluation/p2_runner.py
+ M backend/src/mktkb/evaluation/product_adapter.py
+?? backend/src/mktkb/evaluation/p2_holdout_plan.py
+?? backend/src/mktkb/evaluation/p2_public_cases.py
+?? backend/src/mktkb/evaluation/p2_score_run.py
+```
+```text
+sha256(16) backend/src/mktkb/conversations/service.py
+  工作树 = e9272b62492bafaf（2408 行 / 非空 2147）
+  HEAD   = e9272b62492bafaf  → 与工作树一致：true
+  修复前(HEAD~1) = 8b2dbc7539a4f62e（2398 行，无 question 形参）
+```
+判定：本包未改任何产品/评测代码；`backend/src` 下的改动全部落在 `evaluation/`（并行包）。
+
+## D. 无 skip / xfail
+
+```text
+$ git grep -n -E "skip|xfail|pytestmark" -- backend/tests/unit/test_p2_t207_fix_p.py
+```
+```text
+(无匹配，git grep 退出码 1)
+```
+用例全部被默认收集（8 条，见证据 02 的 collect-only 清单），未被 `-k`/`--deselect` 过滤。
+
+## E. 行数与 sha16（报告声明 vs 实测）
+
+| 对象 | 报告声明 | 实测 | 一致 |
+|---|---|---|---|
+| 单测（P-R1 后） | 195 行 / 非空 161 / sha16 `5c3e9c33d3a0a012` / 8 用例 | 195 / 161 / `5c3e9c33d3a0a012` / 8 | ✅ |
+| 单测（FIX-P 交付 @HEAD） | 89 行 / sha16 `d5ccc109e05b9e2a` | 89 / `d5ccc109e05b9e2a` | ✅ |
+| report.md | P-R1 追加后 116 行 | 116（非空 95） | ✅ |
+| report.md @HEAD（FIX-P 交付） | 100 行 | 100 / `ecc3115323603809` | ✅ |
+| service.py | 2408 行 / sha16 `e9272b62492bafaf` | 2408 / `e9272b62492bafaf` | ✅ |
+
+## F. report ≤100 行的性质
+
+- `report.md` 现 116 行 > FIX-P 包的 ≤100 行约定；该约定出自 **P2-T207-FIX-P 开发任务书「交付」**（"report.md ≤100 行"），P-R1 任务书未再设行数上限，只要求"追加短节 `## P-R1`"。
+- report 末行已注明：本节按 P-R1 任务书追加，≤100 行是 FIX-P 包上限。P-R1 节自身 15 行（102–116）。
+- 结论：属"追加节导致的包外约定失效"，不是偷塞内容；可接受，但 report 把该上限的出处写成"原 §1"不准确（§1 是结论表，未写该上限），实际出处是 FIX-P 开发任务书（review.md §1 条目 5 曾复述该上限）。

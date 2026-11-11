@@ -1,0 +1,188 @@
+# T207-FIX-P-R1 独立验收证据 03：边界用例方向复核（旧口径 vs 新口径，工作区外对照）
+
+- 目的：独立证明 P-R1 的 (a)/(d) **只在带 `question` 的新口径下成立**，(b)/(c) 的拒/不变方向正确；并顺带复核既有单测 #3 的"引用 A 行、用未引用 B 行值"方向。
+- 手法：`git show HEAD~1:.../service.py` 取**修复前**的 service.py，复制到**工作区以外**的临时目录整包加载（未改工作区一行）；同一探针分别对"新口径（工作树 backend/src）"和"旧口径（临时目录）"各跑一次，再让**当前测试文件**在旧口径下跑一遍。
+- 修复前 service.py：2408→2398 行，sha256(16)=`8b2dbc7539a4f62e`，`_validate_answer` 签名无 `question` 形参（探针 `signature=false`）。
+- 探针脚本：`docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/verify-r1/probe_r1.py`（零真实调用，只 import `service._validate_answer` 与 `providers.types`）。
+- 旧口径 pytest：`PYTHONPATH=<tmp>/src python -m pytest tests/test_p2_t207_fix_p.py -q`（测试文件为当前工作树版本的原样拷贝；`--basetemp` 在临时目录内）。
+
+## 1. 新旧口径对照矩阵（探针原始输出在 §2/§3）
+
+| P-R1 用例 | 场景 | 旧口径（修复前 service.py） | 新口径（工作树） | 说明 |
+|---|---|---|---|---|
+| (a) `..._moved_into_value_position_is_accepted` | 问题含 8000，答案"审批门槛为 8000 元…" | **不成立**：带 `question=` → `TypeError: unexpected keyword argument 'question'`；不带 → `REJECT`（来源里没有 8000） | `ACCEPT` | 放行只来自"问题原文 token 进白名单"；同文本不传 question 仍 REJECT（单测内已断言） |
+| (b) `..._fabricated_value_in_same_value_position_is_rejected` | 同句式换 1.88（问题/来源都没有） | 捕获不到（`TypeError`），语义为"旧口径也拒" | `REJECT`：回答包含引用来源中不存在的数据值 | 与 (a) 成对，证明放宽只认问题原文逐字 token |
+| (c) `..._record_path_without_question_keeps_three_samples_verbatim` | 记录型三样本（不带 question） | `ACCEPT`/`ACCEPT`/`REJECT`，与新版**逐字相同** | 同左 | 旧口径下该用例即**通过**（见 §4 的 2 passed），说明"不变"成立 |
+| (d) `..._adversarial_wrong_premise_is_accepted_as_known_widening` | 问题给错值 3000、答案照抄 | **不成立**：同 (a)，`TypeError`；不带 question → `REJECT` | `ACCEPT` | 已知放宽：只按"问题原文逐字出现"背书，不判前提真伪 |
+| 既有 #3（顺带复核） | 两行都在 allowed/evidence，只引用 A 行并用 B 行的 2.5 | — | 只引用 A 行 → `REJECT`；两行都引用 → `ACCEPT` | 证明"未引用来源不能背书"方向正确（`_cited_corpus` 只拼实际引用行） |
+
+结论：单测 (a)/(d) 的"接受"断言确实**钉住了本次放宽**（旧口径下不可能通过），(b) 钉住拒绝边界，(c) 钉住记录型不变。
+
+## 2. 新口径探针输出（工作树 backend/src）
+
+```json
+[
+ {
+  "signature": true,
+  "module": "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\__init__.py"
+ },
+ {
+  "case": "a_8000_value_position_with_question",
+  "result": "ACCEPT",
+  "value": "审批门槛为 8000 元，由市场部经理审批。",
+  "ids": [
+   "u-policy"
+  ]
+ },
+ {
+  "case": "a_8000_value_position_without_question",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "b_1.88_with_question",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "c1_record_facts",
+  "result": "ACCEPT",
+  "value": "位置是B区1号货架第二层。",
+  "ids": [
+   "u-row"
+  ]
+ },
+ {
+  "case": "c2_ok_verbatim",
+  "result": "ACCEPT",
+  "value": "价格单号：PX-0001；价格(元)：2.99",
+  "ids": [
+   "u-row"
+  ]
+ },
+ {
+  "case": "c3_extra_phone",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "d_wrong_premise_with_question",
+  "result": "ACCEPT",
+  "value": "单场预算 3000 元的活动由市场部经理审批。",
+  "ids": [
+   "u-policy"
+  ]
+ },
+ {
+  "case": "d_wrong_premise_without_question",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "x_uncited_row_cited_A_only",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "x_both_rows_cited",
+  "result": "ACCEPT",
+  "value": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价为 2.5 元/瓶。",
+  "ids": [
+   "u-row",
+   "u-other"
+  ]
+ }
+]
+```
+
+## 3. 旧口径探针输出（临时目录，修复前 service.py）
+
+```json
+[
+ {
+  "signature": false,
+  "module": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2fixp-r1-verify-mwbge9vp\\src\\mktkb\\__init__.py"
+ },
+ {
+  "case": "a_8000_value_position_with_question",
+  "result": "TYPE_ERROR",
+  "msg": "_validate_answer() got an unexpected keyword argument 'question'"
+ },
+ {
+  "case": "a_8000_value_position_without_question",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "b_1.88_with_question",
+  "result": "TYPE_ERROR",
+  "msg": "_validate_answer() got an unexpected keyword argument 'question'"
+ },
+ {
+  "case": "c1_record_facts",
+  "result": "ACCEPT",
+  "value": "位置是B区1号货架第二层。",
+  "ids": [
+   "u-row"
+  ]
+ },
+ {
+  "case": "c2_ok_verbatim",
+  "result": "ACCEPT",
+  "value": "价格单号：PX-0001；价格(元)：2.99",
+  "ids": [
+   "u-row"
+  ]
+ },
+ {
+  "case": "c3_extra_phone",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "d_wrong_premise_with_question",
+  "result": "TYPE_ERROR",
+  "msg": "_validate_answer() got an unexpected keyword argument 'question'"
+ },
+ {
+  "case": "d_wrong_premise_without_question",
+  "result": "REJECT",
+  "msg": "回答包含引用来源中不存在的数据值"
+ },
+ {
+  "case": "x_uncited_row_cited_A_only",
+  "result": "TYPE_ERROR",
+  "msg": "_validate_answer() got an unexpected keyword argument 'question'"
+ },
+ {
+  "case": "x_both_rows_cited",
+  "result": "TYPE_ERROR",
+  "msg": "_validate_answer() got an unexpected keyword argument 'question'"
+ }
+]
+```
+
+## 4. 当前测试文件在旧口径下的结果（证明 (a)/(d) 在旧代码下失败）
+
+```text
+$ PYTHONPATH=<tmp>/src python -m pytest tests/test_p2_t207_fix_p.py -q -p no:cacheprovider
+FFF.FF.F                                                                 [100%]
+================================== FAILURES ===================================
+```
+```text
+=========================== short test summary info ===========================
+FAILED tests/test_p2_t207_fix_p.py::test_question_premise_value_is_attested
+FAILED tests/test_p2_t207_fix_p.py::test_unknown_value_from_neither_question_nor_citation_is_rejected
+FAILED tests/test_p2_t207_fix_p.py::test_value_from_uncited_row_is_still_rejected
+FAILED tests/test_p2_t207_fix_p.py::test_question_premise_value_moved_into_value_position_is_accepted
+FAILED tests/test_p2_t207_fix_p.py::test_fabricated_value_in_same_value_position_is_rejected
+FAILED tests/test_p2_t207_fix_p.py::test_adversarial_wrong_premise_is_accepted_as_known_widening
+6 failed, 2 passed in 1.60s
+```
+- 6 failed / 2 passed：failed 全部是"用 `question=` 调旧签名"的 `TypeError`（含 (a)/(b)/(d) 与既有 3 条）；
+- 2 passed 恰为 `test_record_path_without_question_keeps_three_samples_verbatim` 与 `test_attestation_without_question_keeps_old_behaviour` ⇒ 这两条钉的是"旧口径逐字不变"，与"新口径放宽"互不冲突。
+
+## 5. 限制
+
+- 对照只覆盖 `_validate_answer` 单元级；端到端（网关/检索）未在本包复跑，属 FIX-P 既有 review 已覆盖内容，本包未改产品代码（service.py 工作树 == HEAD）。
+- "值位置"是叙述用语：实现上只做**token 级集合包含**，不区分答案里的位置；因此 (a) 与 (d) 走的是同一条代码路径，(d) 的价值在"标注已知放宽"，不新增覆盖。评测侧"问题数字进白名单"由 `scorers.py:556-563` 调 `_gold_number_keys`（含 `case.question`，:365）成立，但**本包单测未调用评测器**，该点只是文档声明。
