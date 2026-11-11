@@ -333,3 +333,43 @@ gate_v0_3 现值 `unapproved` 时两张卡都是 `false`、结论一致。**gate
 即不放行），并显式记录差异来源；`p2-score` 侧的读取口径统一留给后续 CLI 包（本包不改 `cli.py`）。
 `execution_mode`/`real_calls`/`run_id`/`config_hash` 两侧一致：`real_calls` 都取实测出站尝试数
 （`summary.network.outbound_attempts`）。
+
+### 10.10 live 单请求上限：provider 单次预留 vs 计划峰值（T207-FIX-LIVECAP，additive）
+
+R4PREP F-1：`product_adapter._start_live` 过去把 `RagConfig.max_request_cny` 直接设成
+`plan.reserve_peak_cny`（计划串行单次峰值）。这对含 OCR 的计划成立（一页 0.5 高于所有 provider
+单次预留），但对 `page_count=0` 的计划不成立：峰值只剩 chat 的 0.018688，而 embedding provider
+每次 POST 前**固定**按官方单请求 81,920 token 预留（`rag/providers.py:316-321`）。
+0.04096 > 0.018688 ⇒ 每一次 embed 都在发送前被拒，灌库降级为 `degraded=embedding_error`
+（不硬停），会产出「看似通过、向量层全灭」的证据。计划侧绕不过去：embedding 的
+`total_tokens_cap` 在 `p2_contracts` 里冻结为 4096（`cap_not_frozen`）。
+
+**规则（实现在 `p2_live.resolve_request_ceiling`，由 `_start_live` 在构建应用/首个发送之前调用）**
+
+1. `effective = max(计划峰值, 每个已接 provider 的单次请求预留上界)`；
+2. `effective` 不得超过 GO 的 `authorization.max_request_cny`；
+3. `effective` 若小于任一 provider 的单次预留（或小于计划峰值）一律**装配期**拒绝，
+   稳定码 `live_request_ceiling_insufficient`：不发送、不预留、不降级。
+   `p2_live.run_live_p2` 在 `run_p2` 之前显式 `adapter.start()`，因此该码直接抛给调用方，
+   不会被 runner 的 ingest 失败路径吞成 `ingest_failed`。
+
+**推导表（金额只由 provider 常量/公式与 GO 得出，不写魔法数）**
+
+| provider | 单次预留上界（元） | 来源 |
+|---|---|---|
+| embedding | 0.04096 | `MAX_EMBEDDING_REQUEST_TOKENS (81,920) × 0.5/M`，复用 `evaluation/live.embedding_reserve_cny` |
+| rerank | 0.024 | `RagConfig.rerank_max_request_tokens (30,000) × 0.8/M`，复用 `evaluation/live.rerank_reserve_cny` |
+| chat | 0.018688 | `settlement_policy.build_policy(chat)` 的冻结 cap 6144×2/M + 800×8/M（计划侧同一上界） |
+
+- 无 OCR 计划（峰值 0.018688）⇒ `effective = 0.04096`（= embedding），≤ GO 的 0.5；
+- 含 OCR 的公开计划（峰值 0.5）⇒ `effective = 0.5` 逐字等于计划峰值 ⇒ 行为/计数与修正前一致
+  （`_start_live` 只在 `effective != 计划峰值` 时才 `dataclasses.replace` 配置）。
+
+**可观测面**：`providers.live.request_ceiling`（`summary.json` / `run_manifest.json`）记录
+`plan_peak_cny` / `provider_single_request_cny` / `authorization_max_request_cny` /
+`effective_max_request_cny`；只含金额，不含凭据。
+
+**证据（零真实调用）**：`docs/reports/OBS-EVAL/P2/T207-FIX-LIVECAP/evidence/probe-livecap.*`
+（同一计划/transport，把 `resolve_request_ceiling` 退回旧语义对比：无 OCR 计划 0 → 3 个
+embedding POST、`degraded=embedding_error` → `degraded=[]`；GO 上限 0.02 时装配期拒绝且
+POST/预留均为 0），回归在 `backend/tests/evaluation/test_p2_live_request_ceiling.py`。

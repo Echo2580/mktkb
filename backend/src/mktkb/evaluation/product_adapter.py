@@ -26,7 +26,7 @@ import hashlib
 import json
 import time
 import uuid
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
@@ -898,6 +898,8 @@ class ProductEvalAdapter:
         #: 供 document_ref 解析与「同槽多版本」断言；只存身份，不存正文。
         self.ingest_documents: dict[str, dict[str, str | None]] = {}
         self.real_provider_built = False
+        #: T207-FIX-LIVECAP：live 装配时的单请求上限推导（金额/供应商上界，不含凭据）。
+        self.request_ceiling: dict[str, Any] | None = None
         # T206-LIVE：live 模式下 embedding/rerank/OCR 也都是**真实** provider（默认 None）。
         self._ocr_gateway: Any = None
         self._live_closers: list[Any] = []
@@ -1038,6 +1040,7 @@ class ProductEvalAdapter:
             GatedEmbeddingProvider,
             GatedOcrGateway,
             GatedRerankProvider,
+            resolve_request_ceiling,
         )
 
         wiring = self._wiring
@@ -1070,8 +1073,15 @@ class ProductEvalAdapter:
             admin_password=self._users_spec[0][1],
             employee_password=self._users_spec[-1][1],
         )
-        # 单请求上界取计划里的串行峰值（OCR 一页 0.5），不是 provider 自己的猜测值。
-        max_request_cny = float(wiring.plan.reserve_peak_cny)
+        # T207-FIX-LIVECAP（R4PREP F-1）：provider 预检用的单请求上限不能只看计划串行峰值。
+        # 无 OCR 计划的峰值只有 chat 的 0.018688，而 embedding 每次 POST 前固定按官方
+        # 81,920 token 预留 0.04096（rag/providers.py:316-321）；上限不足时 provider 在发送前
+        # 就拒绝，灌库降级成 degraded=embedding_error（不硬停），证据会"看似通过、向量层全灭"。
+        # 因此先按计划峰值构造配置，再由 resolve_request_ceiling 推导
+        # effective = max(计划峰值, 各已接 provider 单次预留) 且 <= GO 授权上限；不足即在此处
+        # （create_app / 任何发送之前）以 live_request_ceiling_insufficient fail closed。
+        plan_peak_cny = float(wiring.plan.reserve_peak_cny)
+        max_request_cny = plan_peak_cny
         rag_config = RagConfig(
             provider_mode="live",
             data_dir=self.paths.data_dir,
@@ -1095,6 +1105,15 @@ class ProductEvalAdapter:
             chat_base_url="",
             chat_api_key="",
         )
+        ceiling = resolve_request_ceiling(
+            rag_config,
+            plan_peak_cny=plan_peak_cny,
+            authorization_cny=float(wiring.gate.authorization.max_request_cny),
+        )
+        if ceiling.effective_cny != max_request_cny:
+            rag_config = replace(rag_config, max_request_cny=ceiling.effective_cny)
+        self.request_ceiling = ceiling.as_dict()
+        wiring.request_ceiling = self.request_ceiling
         embedding_inner = BailianEmbeddingProvider(
             rag_config,
             budget=wiring.ledger,

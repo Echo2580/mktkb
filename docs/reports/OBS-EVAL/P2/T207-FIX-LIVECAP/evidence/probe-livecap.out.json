@@ -1,0 +1,155 @@
+{
+  "schema": "t207-fix-livecap-probe/v1",
+  "real_calls": 0,
+  "cases": [
+    {
+      "plan": "no_ocr",
+      "go_max_request_cny": 0.5,
+      "wiring": "legacy(plan_peak)",
+      "refused": false,
+      "run_status": "aborted",
+      "stop_code": "product_service_error",
+      "requests_sent": 1,
+      "embedding_posts": 0,
+      "rerank_posts": 0,
+      "ocr_posts": 0,
+      "chat_posts": 0,
+      "rag_post_attempts": {},
+      "index_status": {
+        "ready": true,
+        "degraded": [
+          "embedding_error"
+        ],
+        "error_code": "EMBEDDING_UNAVAILABLE",
+        "documents": 1,
+        "chunks": 9
+      },
+      "request_ceiling": {
+        "plan_peak_cny": 0.018688,
+        "provider_single_request_cny": {},
+        "authorization_max_request_cny": 0.5,
+        "effective_max_request_cny": 0.018688
+      },
+      "effective_max_request_cny": 0.018688,
+      "go_authorization_cny": 0.5
+    },
+    {
+      "plan": "no_ocr",
+      "go_max_request_cny": 0.5,
+      "wiring": "fixed(effective)",
+      "refused": false,
+      "run_status": "succeeded",
+      "stop_code": null,
+      "requests_sent": 1,
+      "embedding_posts": 3,
+      "rerank_posts": 1,
+      "ocr_posts": 0,
+      "chat_posts": 1,
+      "rag_post_attempts": {
+        "embedding": 3,
+        "rerank": 1
+      },
+      "index_status": {
+        "ready": true,
+        "degraded": [],
+        "error_code": null,
+        "documents": 1,
+        "chunks": 9
+      },
+      "request_ceiling": {
+        "plan_peak_cny": 0.018688,
+        "provider_single_request_cny": {
+          "embedding": 0.04096,
+          "rerank": 0.024,
+          "chat": 0.018688
+        },
+        "authorization_max_request_cny": 0.5,
+        "effective_max_request_cny": 0.04096
+      },
+      "effective_max_request_cny": 0.04096,
+      "go_authorization_cny": 0.5
+    },
+    {
+      "plan": "no_ocr",
+      "go_max_request_cny": 0.02,
+      "wiring": "fixed(effective)",
+      "refused": true,
+      "refused_code": "live_request_ceiling_insufficient",
+      "refused_detail": "单请求上限 0.02000000 元覆盖不了 embedding 的单次预留 0.04096000 元（GO 授权上限 0.02000000，计划串行峰值 0.01868800）：拒绝装配，不发送、不降级",
+      "embedding_posts": 0,
+      "rerank_posts": 0,
+      "ocr_posts": 0,
+      "chat_posts": 0,
+      "ledger_reserved": 0,
+      "degraded": null
+    },
+    {
+      "plan": "with_ocr",
+      "go_max_request_cny": 0.5,
+      "wiring": "legacy(plan_peak)",
+      "refused": false,
+      "run_status": "succeeded",
+      "stop_code": null,
+      "requests_sent": 1,
+      "embedding_posts": 3,
+      "rerank_posts": 1,
+      "ocr_posts": 0,
+      "chat_posts": 1,
+      "rag_post_attempts": {
+        "embedding": 3,
+        "rerank": 1
+      },
+      "index_status": {
+        "ready": true,
+        "degraded": [],
+        "error_code": null,
+        "documents": 1,
+        "chunks": 9
+      },
+      "request_ceiling": {
+        "plan_peak_cny": 0.5,
+        "provider_single_request_cny": {},
+        "authorization_max_request_cny": 0.5,
+        "effective_max_request_cny": 0.5
+      },
+      "effective_max_request_cny": 0.5,
+      "go_authorization_cny": 0.5
+    },
+    {
+      "plan": "with_ocr",
+      "go_max_request_cny": 0.5,
+      "wiring": "fixed(effective)",
+      "refused": false,
+      "run_status": "succeeded",
+      "stop_code": null,
+      "requests_sent": 1,
+      "embedding_posts": 3,
+      "rerank_posts": 1,
+      "ocr_posts": 0,
+      "chat_posts": 1,
+      "rag_post_attempts": {
+        "embedding": 3,
+        "rerank": 1
+      },
+      "index_status": {
+        "ready": true,
+        "degraded": [],
+        "error_code": null,
+        "documents": 1,
+        "chunks": 9
+      },
+      "request_ceiling": {
+        "plan_peak_cny": 0.5,
+        "provider_single_request_cny": {
+          "embedding": 0.04096,
+          "rerank": 0.024,
+          "chat": 0.018688
+        },
+        "authorization_max_request_cny": 0.5,
+        "effective_max_request_cny": 0.5
+      },
+      "effective_max_request_cny": 0.5,
+      "go_authorization_cny": 0.5
+    }
+  ]
+}

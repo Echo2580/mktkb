@@ -27,6 +27,7 @@ from __future__ import annotations
 import dataclasses
 import os
 from dataclasses import dataclass, field
+from decimal import ROUND_CEILING, Decimal
 from pathlib import Path
 from typing import Any, Callable, Mapping, Sequence
 
@@ -61,6 +62,7 @@ __all__ = [
     "P2LiveConfigError",
     "P2LiveRefused",
     "PlanIndex",
+    "RequestCeiling",
     "TurnContext",
     "build_live_adapter",
     "chat_output_validity",
@@ -68,7 +70,9 @@ __all__ = [
     "load_live_env",
     "make_settle_evidence",
     "open_live_gate",
+    "provider_single_request_bounds",
     "required_live_operations",
+    "resolve_request_ceiling",
     "run_live_p2",
 ]
 
@@ -308,6 +312,121 @@ class AttemptBudget:
 
     def as_dict(self) -> dict[str, int]:
         return {item_id: int(count) for item_id, count in self._used.items() if count}
+
+
+# --------------------------------------------------------------------------- #
+# 2b. 单请求上限：必须覆盖**所有已接 provider** 的单次请求预留上界
+# --------------------------------------------------------------------------- #
+
+#: 金额比较容差（与 p2_authorization 的 _EPS 同量级）：只吸收浮点尾差，不放宽任何上界。
+_MONEY_EPS = 1e-12
+
+
+def _chat_single_request_reserve_cny() -> float:
+    """chat 单次请求的预留上界：冻结 token cap × 官方费率（与 J1 结算同一 policy）。
+
+    产品 live 的 chat 由 DeepSeekClient 直接发送，没有 provider 侧的自检上限；它的一次
+    预留上界由 P2Gate 按计划项的钱数决定。这里仍把「provider 口径的上界」算出来参与
+    effective 推导：GO 授权的单请求上界一旦低于它，P2Gate.begin_attempt 会在任何发送
+    之前以预算身份拒绝，而不是让 chat 真的发出去之后才发现超限。
+    """
+    policy = build_policy(KIND_CHAT, model=CHAT_MODEL)
+    amount = (
+        Decimal(int(policy.prompt_tokens_cap)) * policy.input_price_per_million_cny
+        + Decimal(int(policy.completion_tokens_cap)) * policy.output_price_per_million_cny
+    ) / Decimal(1_000_000)
+    return float(amount.quantize(Decimal("0.00000001"), rounding=ROUND_CEILING))
+
+
+def provider_single_request_bounds(rag_config: Any) -> dict[str, float]:
+    """每个**已接 provider** 单次请求的预留上界（元，按 kind 命名）。
+
+    embedding/rerank 直接复用 P1 live 已有的权威公式（evaluation/live.py 的
+    embedding_reserve_cny = 官方单请求 81,920 token × 费率、rerank_reserve_cny =
+    请求 token 上限 × 费率），与 rag/providers.py 里 provider 发送前那道自检**同源同式**；
+    本函数不另写一份常量，避免两处漂移。
+    """
+    from .live import embedding_reserve_cny, rerank_reserve_cny
+
+    return {
+        "embedding": float(embedding_reserve_cny(rag_config)),
+        "rerank": float(rerank_reserve_cny(rag_config)),
+        "chat": _chat_single_request_reserve_cny(),
+    }
+
+
+@dataclass(frozen=True)
+class RequestCeiling:
+    """一次 live 装配的单请求上限推导结果（只含金额，不含凭据）。"""
+
+    plan_peak_cny: float
+    provider_bounds_cny: Mapping[str, float]
+    authorization_cny: float
+    effective_cny: float
+
+    def as_dict(self) -> dict[str, Any]:
+        return {
+            "plan_peak_cny": round(float(self.plan_peak_cny), 8),
+            "provider_single_request_cny": {
+                str(name): round(float(value), 8)
+                for name, value in self.provider_bounds_cny.items()
+            },
+            "authorization_max_request_cny": round(float(self.authorization_cny), 8),
+            "effective_max_request_cny": round(float(self.effective_cny), 8),
+        }
+
+
+def resolve_request_ceiling(
+    rag_config: Any,
+    *,
+    plan_peak_cny: float,
+    authorization_cny: float,
+) -> RequestCeiling:
+    """推导 provider 预检用的单请求上限；不足即**发送前** fail closed。
+
+    T207-FIX-LIVECAP（R4PREP F-1）：产品过去把 RagConfig.max_request_cny 直接设成
+    plan.reserve_peak_cny（串行单次峰值）。这对含 OCR 的计划成立（一页 0.5 高于所有
+    provider 的单次预留），但对 page_count=0 的计划不成立：峰值只剩 chat 的 0.018688，
+    而 embedding provider 每次 POST 前固定按官方 81,920 token 预留 0.04096
+    （rag/providers.py:316-321）。0.04096 > 0.018688 ⇒ 每次 embed 都在发送前被拒，
+    灌库降级为 degraded=embedding_error（不硬停），产出「看似通过、向量层全灭」的证据。
+
+    规则（不写魔法数）：
+
+    - effective = max(计划峰值, 每个已接 provider 的单次预留上界)；
+    - effective 不得超过 GO 授权上限（authorization.max_request_cny）；
+    - effective 若小于任一 provider 的单次预留（或小于计划峰值）一律拒绝，稳定码
+      live_request_ceiling_insufficient，且发生在应用构建/provider 构造之前。
+
+    含 OCR 的公开计划若峰值 0.5 高于全部 provider 上界，effective 逐字等于计划峰值，
+    行为与修正前完全一致。
+    """
+    plan_peak = float(plan_peak_cny)
+    authorization = float(authorization_cny)
+    bounds = provider_single_request_bounds(rag_config)
+    required = max([plan_peak, *bounds.values()])
+    effective = min(required, authorization)
+    shortfalls = {
+        str(name): float(value)
+        for name, value in bounds.items()
+        if effective + _MONEY_EPS < float(value)
+    }
+    if effective + _MONEY_EPS < plan_peak:
+        shortfalls["plan_peak"] = plan_peak
+    if shortfalls:
+        worst_name, worst = max(shortfalls.items(), key=lambda pair: pair[1])
+        raise P2LiveConfigError(
+            "live_request_ceiling_insufficient",
+            f"单请求上限 {effective:.8f} 元覆盖不了 {worst_name} 的单次预留 "
+            f"{worst:.8f} 元（GO 授权上限 {authorization:.8f}，计划串行峰值 "
+            f"{plan_peak:.8f}）：拒绝装配，不发送、不降级",
+        )
+    return RequestCeiling(
+        plan_peak_cny=plan_peak,
+        provider_bounds_cny=bounds,
+        authorization_cny=authorization,
+        effective_cny=effective,
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -980,6 +1099,9 @@ class LiveWiring:
     attempt_budget: AttemptBudget
     plan_index: PlanIndex
     transports: Mapping[str, Any] = field(default_factory=dict)
+    #: T207-FIX-LIVECAP：本次装配的 provider 预检单请求上限推导（金额，不含凭据）。
+    #: 由 product_adapter 在构建应用之前写入；未装配完成时为 None。
+    request_ceiling: dict[str, Any] | None = None
     turn: TurnContext = field(default_factory=TurnContext)
     receipts: list[AttemptReceipt] = field(default_factory=list)
     #: answer 付费 chat 次数（query_expansion 单独计在 expansion_calls 并单独结算）。
@@ -1103,6 +1225,8 @@ class LiveWiring:
                 "rerank": "gte-rerank-v2",
                 "ocr": "tencent-ocr（真实传输）",
             },
+            # T207-FIX-LIVECAP：单请求上限的推导（计划峰值 / provider 单次预留 / GO 授权）。
+            "request_ceiling": dict(self.request_ceiling) if self.request_ceiling else None,
             "calls": {
                 # chat = answer 付费 chat；expansion = 独立结算的 query_expansion。
                 "chat": int(self.chat_calls),
@@ -1407,6 +1531,11 @@ async def run_live_p2(
         transports=transports,
     )
     try:
+        # T207-FIX-LIVECAP：装配期就把适配器 start 起来（start 幂等，runner 之后照旧调用）。
+        # 这样 provider 预检上限不足（live_request_ceiling_insufficient）这类**配置**拒绝
+        # 会以稳定码抛给调用方，而不是被 runner 的 ingest 失败路径吞成 ingest_failed
+        # （后者虽同样不发送，但会丢掉可机读的原因）。
+        await build.adapter.start()
         result = await run_p2(
             plan,
             adapter=build.adapter,
