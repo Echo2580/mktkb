@@ -1,0 +1,366 @@
+# P2-T207-FIX-B-R1 独立验收：C1 修复前后探针（自写，零真实出站）
+# 脚本：evidence/verify/probe_c1_independent.py（真实 P2Gate + MockTransport，tmp 账本/预算/GO）
+#       evidence/verify/probe_mixed_rounds.py（StubGate 两回合：第 1 轮成功、第 2 轮 J1 拒绝）
+# 对照方式：唯一差异是 p2_runner.py 的版本。修复前 = HEAD 13074b67…（通过临时 sitecustomize
+# 预置模块加载，不改工作区）；修复后 = 工作区 c1e336f0…。其余模块/TMP 脚手架相同。
+
+==================== [A] 真实门场景：J1 拒绝轮（usage total_mismatch）====================
+修复后（工作区 p2_runner.py）：
+{
+  "runner_file": "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_runner.py",
+  "j1_rejected": {
+    "status": "aborted",
+    "stop_code": "gate_error",
+    "requests_sent": 0,
+    "run_result_settled_cny": 0.018688,
+    "run_result_by_center_cny": {
+      "answer_retrieval": 0.018688,
+      "independent": 0,
+      "judge": 0,
+      "ocr": 0
+    },
+    "summary_requests": {
+      "attempted": 1,
+      "billed_cny": 0,
+      "conservative_held_cny": 0.018812,
+      "failed_rounds": 0,
+      "planned": 17,
+      "provider_billed_cny": 0.000124,
+      "real_requests": 0,
+      "rejected_rounds": 1,
+      "reserved": 1,
+      "scope": "answer_turns",
+      "settled_failure": 0,
+      "settled_success": 0,
+      "unpaid_rounds": 0,
+      "unused_no_paid_attempt": 0
+    },
+    "ledger_held_total_cny": 0.018812,
+    "ledger_answer_rows": [
+      {
+        "status": "unknown",
+        "error_code": "SETTLEMENT_NOT_RELEASABLE:total_mismatch",
+        "conservative_charge_cny": 0.018688
+      }
+    ],
+    "requests_jsonl": [
+      {
+        "status": "error",
+        "billed": false,
+        "error_code": "gate_error",
+        "charged_cny": 0.018688
+      }
+    ],
+    "outbound_attempts": 0,
+    "invariants": {
+      "mutually_exclusive_count_sum": 1,
+      "rejected_rounds": 1,
+      "rejected_rounds_key_present": true,
+      "rounds_reaching_settlement": 1,
+      "run_result_settled_equals_sum_by_center": true,
+      "summary_held_equals_ledger_total": true,
+      "summary_minus_ledger_gap_cny": 0
+    }
+  },
+  "normal_success": {
+    "status": "succeeded",
+    "stop_code": null,
+    "requests_sent": 1,
+    "run_result_settled_cny": 0.000384,
+    "run_result_by_center_cny": {
+      "answer_retrieval": 0.000384,
+      "independent": 0,
+      "judge": 0,
+      "ocr": 0
+    },
+    "summary_requests": {
+      "attempted": 1,
+      "billed_cny": 0,
+      "conservative_held_cny": 0.000508,
+      "failed_rounds": 0,
+      "planned": 17,
+      "provider_billed_cny": 0.000508,
+      "real_requests": 0,
+      "rejected_rounds": 0,
+      "reserved": 1,
+      "scope": "answer_turns",
+      "settled_failure": 0,
+      "settled_success": 1,
+      "unpaid_rounds": 0,
+      "unused_no_paid_attempt": 0
+    },
+    "ledger_held_total_cny": 0.000508,
+    "ledger_answer_rows": [
+      {
+        "status": "succeeded",
+        "error_code": null,
+        "conservative_charge_cny": 0.000384
+      }
+    ],
+    "requests_jsonl": [
+      {
+        "status": "ok",
+        "billed": true,
+        "error_code": null,
+        "charged_cny": 0.000384
+      }
+    ],
+    "outbound_attempts": 0,
+    "invariants": {
+      "mutually_exclusive_count_sum": 1,
+      "rejected_rounds": 0,
+      "rejected_rounds_key_present": true,
+      "rounds_reaching_settlement": 1,
+      "run_result_settled_equals_sum_by_center": true,
+      "summary_held_equals_ledger_total": true,
+      "summary_minus_ledger_gap_cny": 0
+    }
+  }
+}
+
+修复前（HEAD p2_runner.py）：
+{
+  "runner_file": "C:/Users/dell1712/AppData/Local/Temp/fixbr1-head2-1794361941861/p2_runner.py",
+  "j1_rejected": {
+    "status": "aborted",
+    "stop_code": "gate_error",
+    "requests_sent": 0,
+    "run_result_settled_cny": 0,
+    "run_result_by_center_cny": {
+      "answer_retrieval": 0,
+      "independent": 0,
+      "judge": 0,
+      "ocr": 0
+    },
+    "summary_requests": {
+      "attempted": 1,
+      "billed_cny": 0,
+      "conservative_held_cny": 0.000124,
+      "failed_rounds": 0,
+      "planned": 17,
+      "provider_billed_cny": 0.000124,
+      "real_requests": 0,
+      "reserved": 1,
+      "scope": "answer_turns",
+      "settled_failure": 0,
+      "settled_success": 0,
+      "unpaid_rounds": 0,
+      "unused_no_paid_attempt": 0
+    },
+    "ledger_held_total_cny": 0.018812,
+    "ledger_answer_rows": [
+      {
+        "status": "unknown",
+        "error_code": "SETTLEMENT_NOT_RELEASABLE:total_mismatch",
+        "conservative_charge_cny": 0.018688
+      }
+    ],
+    "requests_jsonl": [
+      {
+        "status": "error",
+        "billed": false,
+        "error_code": "gate_error",
+        "charged_cny": 0
+      }
+    ],
+    "outbound_attempts": 0,
+    "invariants": {
+      "mutually_exclusive_count_sum": 0,
+      "rejected_rounds": null,
+      "rejected_rounds_key_present": false,
+      "rounds_reaching_settlement": 1,
+      "run_result_settled_equals_sum_by_center": true,
+      "summary_held_equals_ledger_total": false,
+      "summary_minus_ledger_gap_cny": -0.018688
+    }
+  },
+  "normal_success": {
+    "status": "succeeded",
+    "stop_code": null,
+    "requests_sent": 1,
+    "run_result_settled_cny": 0.000384,
+    "run_result_by_center_cny": {
+      "answer_retrieval": 0.000384,
+      "independent": 0,
+      "judge": 0,
+      "ocr": 0
+    },
+    "summary_requests": {
+      "attempted": 1,
+      "billed_cny": 0,
+      "conservative_held_cny": 0.000508,
+      "failed_rounds": 0,
+      "planned": 17,
+      "provider_billed_cny": 0.000508,
+      "real_requests": 0,
+      "reserved": 1,
+      "scope": "answer_turns",
+      "settled_failure": 0,
+      "settled_success": 1,
+      "unpaid_rounds": 0,
+      "unused_no_paid_attempt": 0
+    },
+    "ledger_held_total_cny": 0.000508,
+    "ledger_answer_rows": [
+      {
+        "status": "succeeded",
+        "error_code": null,
+        "conservative_charge_cny": 0.000384
+      }
+    ],
+    "requests_jsonl": [
+      {
+        "status": "ok",
+        "billed": true,
+        "error_code": null,
+        "charged_cny": 0.000384
+      }
+    ],
+    "outbound_attempts": 0,
+    "invariants": {
+      "mutually_exclusive_count_sum": 1,
+      "rejected_rounds": null,
+      "rejected_rounds_key_present": false,
+      "rounds_reaching_settlement": 1,
+      "run_result_settled_equals_sum_by_center": true,
+      "summary_held_equals_ledger_total": true,
+      "summary_minus_ledger_gap_cny": 0
+    }
+  }
+}
+
+关键差额（修复前后，同一探针）：
+  summary.conservative_held_cny : 0.000124 -> 0.018812
+  summary.rejected_rounds      : 键不存在 -> 1
+  run_result.settled_cny       : 0.0 -> 0.018688
+  ledger result 保守合计        : 0.018812 -> 0.018812（不变）
+  差额（summary - ledger）      : -0.018688 -> 0.0
+  requests.jsonl[0].charged_cny: 0.0 -> 0.018688（billed=false, status=error, error_code=gate_error）
+  settled_success/failure/unpaid: 0/0/0 -> 0/0/0（互斥，未被算作成功或失败结算）
+  provider_billed_cny          : 0.000124 -> 0.000124（只含从属尝试，不含被拒 answer）
+  billed_cny / outbound_attempts: 0.0 / 0 -> 0.0 / 0；network.detail.mock_intercepted=5（零真实出站）
+正常轮对照（修复前后完全一致）：held 0.000508 = 账本合计；settled_cny 0.000384；
+  rejected_rounds 0（修复后键存在值 0，修复前键不存在）；requests_sent 1。
+
+==================== [B] 混合轮次：先成功后 J1 拒绝（不双重计数）====================
+修复后：
+{
+  "by_center_cny": {
+    "answer_retrieval": 0.019072,
+    "independent": 0,
+    "judge": 0,
+    "ocr": 0
+  },
+  "invariants": {
+    "charged_sum_rows": 0.019072,
+    "count_sum": 2,
+    "held_equals_charged_sum_rows": true,
+    "rejected_rounds": 1,
+    "rejected_rounds_key_present": true,
+    "requests_rows": 2,
+    "settled_equals_charged_sum_rows": true,
+    "settled_failure": 0,
+    "settled_success": 1,
+    "summary_held_cny": 0.019072,
+    "unpaid_rounds": 0
+  },
+  "requests_jsonl": [
+    {
+      "billed": true,
+      "charged_cny": 0.000384,
+      "error_code": null,
+      "status": "ok",
+      "turn": 1
+    },
+    {
+      "billed": false,
+      "charged_cny": 0.018688,
+      "error_code": "gate_error",
+      "status": "error",
+      "turn": 2
+    }
+  ],
+  "requests_sent": 1,
+  "settled_cny": 0.019072,
+  "status": "aborted",
+  "stop_code": "gate_error",
+  "summary_requests": {
+    "attempted": 2,
+    "billed_cny": 0,
+    "conservative_held_cny": 0.019072,
+    "failed_rounds": 0,
+    "planned": 2,
+    "provider_billed_cny": 0,
+    "real_requests": 0,
+    "rejected_rounds": 1,
+    "reserved": 2,
+    "scope": "answer_turns",
+    "settled_failure": 0,
+    "settled_success": 1,
+    "unpaid_rounds": 0,
+    "unused_no_paid_attempt": 0
+  }
+}
+
+修复前：
+{
+  "by_center_cny": {
+    "answer_retrieval": 0.000384,
+    "independent": 0,
+    "judge": 0,
+    "ocr": 0
+  },
+  "invariants": {
+    "charged_sum_rows": 0.000384,
+    "count_sum": 1,
+    "held_equals_charged_sum_rows": true,
+    "rejected_rounds": null,
+    "rejected_rounds_key_present": false,
+    "requests_rows": 2,
+    "settled_equals_charged_sum_rows": true,
+    "settled_failure": 0,
+    "settled_success": 1,
+    "summary_held_cny": 0.000384,
+    "unpaid_rounds": 0
+  },
+  "requests_jsonl": [
+    {
+      "billed": true,
+      "charged_cny": 0.000384,
+      "error_code": null,
+      "status": "ok",
+      "turn": 1
+    },
+    {
+      "billed": false,
+      "charged_cny": 0,
+      "error_code": "gate_error",
+      "status": "error",
+      "turn": 2
+    }
+  ],
+  "requests_sent": 1,
+  "settled_cny": 0.000384,
+  "status": "aborted",
+  "stop_code": "gate_error",
+  "summary_requests": {
+    "attempted": 2,
+    "billed_cny": 0,
+    "conservative_held_cny": 0.000384,
+    "failed_rounds": 0,
+    "planned": 2,
+    "provider_billed_cny": 0,
+    "real_requests": 0,
+    "reserved": 2,
+    "scope": "answer_turns",
+    "settled_failure": 0,
+    "settled_success": 1,
+    "unpaid_rounds": 0,
+    "unused_no_paid_attempt": 0
+  }
+}
+
+要点：修复后 settled_success=1（0.000384）+ rejected_rounds=1（0.018688）
+      = summary.conservative_held_cny 0.019072 = 两行 charged_cny 之和；
+      requests_sent 仍为 1（只有成功轮算 sent）；第 2 行 billed=false/error_code=gate_error。
+      修复前 summary 只 0.000384，第 2 行 charged_cny=0（漏记 0.018688），且 rejected 键不存在。

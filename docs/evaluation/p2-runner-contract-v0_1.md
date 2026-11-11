@@ -89,7 +89,7 @@ async def run_p2(
 | 文件 | 出现在 | 内容 |
 |---|---|---|
 | `run_manifest.json` | 全部 | run/plan/mode/scope、dataset 身份（version/label/suite/manifest_sha256/case_count/strata）、plan 摘要与预算、授权快照（go_sha256/nonce_len/production_ready）、pipeline（入口、turn 超时、trace 模式、索引统计、两个模块的 `code_sha256`）、provider 身份、隔离路径、ingest 回执 |
-| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（`scope="answer_turns"`；planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**，另有 `conservative_held_cny`/`provider_billed_cny`/`unpaid_rounds` 三段与 `failed_rounds` 别名，见 §7）、attempts（`scope="all_attempts"` + 逐次核对）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
+| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（`scope="answer_turns"`；planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**，另有 `conservative_held_cny`/`provider_billed_cny`/`unpaid_rounds` 三段与 `failed_rounds` 别名、`rejected_rounds`（J1 拒绝轮），见 §7）、attempts（`scope="all_attempts"` + 逐次核对）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
 | `run_result.json` | 全部 | `P2RunResult.as_dict()`（sent<=reserved<=planned） |
 | `gate.json` | 全部 | 门/授权检查逐项结果、`real_sends_allowed`、拒绝原因、`quality_gate="deferred-to-T205"` |
 | `cases.jsonl` | 仅 `visibility="public"` | 逐题行：会话 id、逐轮 kind/trace_id/trace_path/trace_outcome/http_status、产品来源、ticket、是否计费 |
@@ -194,14 +194,33 @@ gate 的唯一 reservation 数`（`test_p2_live_wiring.py`），旧产物缺这�
 
 | 键 | 含义 | 是否供应商账单 |
 |---|---|---|
-| `conservative_held_cny` | 本次 run 在门/账本里**已写 result** 的保守占用总额（answer + 从属；含失败与零付费轮的整笔上界） | 否（记账口径） |
+| `conservative_held_cny` | 本次 run 在门/账本里**已写 result** 的保守占用总额（answer + 从属；含失败、零付费轮与 J1 拒绝轮的整笔上界） | 否（记账口径） |
 | `provider_billed_cny` | 其中**带供应商证据**的金额：answer 轮里真的付过款并成功结算的笔 + 从属尝试里 settle 成功的笔（usage 结算或 OCR 固定页价） | 是"按官方 usage/页价重算"的金额，仍不是账单 |
 | `unpaid_rounds` | 预留了但**没有任何付费发送**的 answer 轮数（账本写 `status=failed` + `P2_NO_PAID_ATTEMPT:<reason>`，**不**停止） | 否 |
+| `rejected_rounds` | **J1 拒绝轮**：answer 轮在 `settle_success` 被拒（如 usage `total_mismatch`/`cache_split_mismatch`/`over_cap_*`、`SettlementNotReleasable`/`SettlementBoundaryAnomaly`），run 以 `stop_code=gate_error` 停止 | 否 |
 
 兼容键：`settled_failure` = `failed_rounds`（**真实失败结算**轮数，`settle_failure`）；
 `unused_no_paid_attempt` = `unpaid_rounds`；`billed_cny` = **真实出网**请求行的结算金额之和
 （实测口径，不是账单）。账本 schema 与 `status` 集合**不动**：`status=failed` 既可能是真实失败，
 也可能是"零付费轮按上界保守留账"，区分只看 `error_code` 前缀 `P2_NO_PAID_ATTEMPT:`。
+
+**J1 拒绝轮的归属与计数（T207-FIX-B-R1，additive）**：answer 轮在 `settle_success` 被拒时，
+门内账本**已经**按该笔预留上界写了一条保守 `result`（`status=unknown`，
+`conservative_charge_cny` = 上界，`error_code=SETTLEMENT_NOT_RELEASABLE:<reason>`），
+随后门把异常转成 `gate_error` 并停止。这类轮次：
+
+- **金额**按同一上界计入 `conservative_held_cny`（runner 的 `settled_cny` 与中心归属同时累加），
+  因此 `conservative_held_cny` == 本 run 账本 `result` 保守占用合计（含该笔）；
+- **计数**只进 `rejected_rounds`，与 `settled_success`/`settled_failure`（= `failed_rounds`）/
+  `unpaid_rounds` **互斥**：不算成功结算，也不算真实失败结算；
+- `requests_sent` 仍只数 `settled_success + settled_failure`（门没有把这笔计成 sent），
+  `provider_billed_cny` 也不含它（没有按官方 usage/页价重算的金额）；
+- `run_result.settled_cny`（answer 单侧旧键）同样含该笔上界；`requests.jsonl` 该行的
+  `charged_cny` 写该上界、`billed=false`、`status=error`、`error_code=gate_error`。
+
+`SettlementBoundaryAnomaly`（重算额高于预留的安全网）停在同一分支，但账本按**更高**重算额
+入账并标 `boundary_anomaly`：门不把异常金额暴露给 runner，因此 runner 侧仍按上界记
+（只可能少记、不会虚增），`rejected_rounds` 同样计 1；这是已知限制，不是静默吞掉。
 
 ### 7.3 `output_valid` / `paid_attempt` 的语义
 
@@ -213,3 +232,27 @@ gate 的唯一 reservation 数`（`test_p2_live_wiring.py`），旧产物缺这�
   调用方（`make_settle_evidence` / `query_expansion`）必须显式传判据；缺省 = 无效（fail closed）。
 - `paid_attempt=False` 是**轮次结局标签**（零付费：合法拒答/澄清/未找到/知识变更），不是"输出无效"；
   它对应账本的 `P2_NO_PAID_ATTEMPT:*` + 全额保守留账，且**不**停止后续请求。
+
+### 7.4 run 产物 -> 评分/决策/观测矩阵（T207-FIX-A additive）
+
+`p2-run` 只写产物；把它变成结论的是三个**只读**驱动（都在 `mktkb.evaluation`）：
+
+- `p2-score --run-dir <run> --cases <计划内 CaseSpec jsonl> --document-codes <json>`：
+  逐题 `score_public_case` → `score_public_suites` → `scorecard.json` / `case_scores.json`；
+  再走 `build_gate_rows` → `build_gate_run` → `evaluate_p2_hard_gates` → `evaluate_p2_gate` 产 `p2_decision.json`。
+  缺题/`error`/未执行一律如实出 block（`case_not_executed` / `case_error` / `missing_case`），不补不猜；
+- `p2-score --visibility holdout`：受控进程内 `load_p2_dataset(visibility="holdout")` 取 CaseSpec/分层，
+  再用**工作区外**的封存逐题行（`--holdout-cases`）或判定表（`--verdicts`）做 `aggregate_holdout`，
+  只写聚合（`holdout_scorecard.json`）；缺输入 → `holdout_input_missing`（不按计数编造 pass/fail）；
+- `p2-matrix --case-scores <R1/R2/R3 的 case_scores.json> --u-controls <json>`：合并逐题分数 + U 证据表，
+  写 `matrix_observation.json`（逐 case `run_id/index_revision/config_hash/basis`、B0/N/C/U tallies、
+  `composition=multi_run_scenario_isolated`、`release_decision=false`、`gate_config_unapproved`）。
+
+口径（不得混用）：
+
+- `scorecard.real_calls` 是**逐题可归属**的真实调用数；驱动不给逐题虚构归属，故逐题记 0，
+  run 级实测值写在 `RunScore.real_calls`（`summary.network.outbound_attempts`，缺失时退 `attempts.reserved`）；
+- `execution_mode` 来自 `run_manifest.execution`（`live` 才标 live），mock run 永远不会被标成真实；
+- 判定必然是 `gate_config_unapproved`（unknown）+ `holdout_missing`（公开 run）——观测值，不是放行结论；
+- `p2-u-controls` 只跑既有 `backend/tests/acceptance/test_t09_mutation.py` 并解析 junit XML 导出逐 U 判定
+  （basis=L，不改该测试、不新增 skip）；同一 U 的任一 parametrize 变体失败即该 U 判 fail。

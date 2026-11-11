@@ -1792,3 +1792,103 @@ def test_summary_money_split_replays_pilot_totals() -> None:
     assert split["conservative_held_cny"] - split["provider_billed_cny"] == pytest.approx(0.056064)
     # mock_gate / dry_run 没有供应商：即使有"结算金额"也不能声称已计费。
     assert _money_split(replace(ledger, execution="mock_gate"), audit)["provider_billed_cny"] == 0.0
+
+# --------------------------------------------------------------------------- #
+# T207-FIX-B-R1：J1 拒绝轮的保守占用记账（C1，零真实调用）
+# --------------------------------------------------------------------------- #
+
+
+@asyncio_test
+async def test_j1_rejected_settle_books_bound_without_counting_success_or_failure(
+    tmp_path: Path,
+) -> None:
+    """answer 轮 J1 结算被拒时，按账本 result 的保守占用入账（C1）。
+
+    门的 J1 拒绝口径是「账本已写 status=unknown + 保守上界，再抛错」（真实 P2Gate 的
+    端到端用例见 test_p2_live_wiring.py）。runner 必须把这一笔按同一上界计入
+    summary.conservative_held_cny，并用互斥的 rejected_rounds 计数：既不算成功结算，
+    也不算真实失败结算（settled_failure/failed_rounds）。
+    """
+    from mktkb.evaluation.p2_authorization import P2GateError
+
+    cases = (make_case("P03", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+
+    class _RejectingGate(StubGate):
+        """模拟 J1 拒绝：settle_success 抛错（账本侧已按上界写保守 result）。"""
+
+        def settle_success(self, ticket: "_StubTicket", **kwargs: Any) -> float:
+            self.calls.append("settle_success")
+            raise P2GateError("usage_total_mismatch", "SettlementNotReleasable")
+
+    chat = MockChatBackend()
+    adapter = ProductEvalAdapter(
+        tmp_path / "rejected",
+        chat=chat,
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    gate = _RejectingGate(is_mock_gate=True)
+    try:
+        result = await run_p2(
+            plan, adapter=adapter, authorization=authorization, gate=gate, now=NOW
+        )
+    finally:
+        await adapter.close()
+
+    assert result.status == "aborted"
+    assert result.stop_code == "gate_error"
+    # 门没有把这笔计成 sent/settled：不是「成功」，也不是「真实失败结算」。
+    assert result.requests_sent == 0
+    assert result.by_operation == {}
+    # 保守占用 = 该笔预留上界（= 账本 result 的保守额），不是 0。
+    assert result.settled_cny == pytest.approx(0.018688)
+    assert result.by_center_cny["answer_retrieval"] == pytest.approx(0.018688)
+
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    requests = summary["requests"]
+    assert requests["rejected_rounds"] == 1
+    assert requests["settled_success"] == 0
+    assert requests["settled_failure"] == requests["failed_rounds"] == 0
+    assert requests["unpaid_rounds"] == 0
+    assert requests["conservative_held_cny"] == pytest.approx(0.018688)
+    assert requests["provider_billed_cny"] == 0.0
+    assert requests["billed_cny"] == 0.0, "Mock 链零出站：不冒充真实出网计费"
+
+    request_row = read_jsonl(adapter.paths.run_dir / "requests.jsonl")[0]
+    assert request_row["status"] == "error" and request_row["billed"] is False
+    assert request_row["error_code"] == "gate_error"
+    assert request_row["charged_cny"] == pytest.approx(0.018688)
+    assert summary["failure"]["stage"] == "gate_settle"
+
+
+@asyncio_test
+async def test_normal_settle_does_not_count_a_rejected_round(tmp_path: Path) -> None:
+    """正常成功结算的轮次不得误计成 J1 拒绝轮（互斥计数、不重复记账）。"""
+    cases = (make_case("P03", LEGACY_QUESTION),)
+    plan = make_plan(cases)
+    authorization = dry_run_authorization(plan)
+    chat = MockChatBackend()
+    adapter = ProductEvalAdapter(
+        tmp_path / "normal",
+        chat=chat,
+        dataset=make_dataset(cases),
+        ingest_plan=make_ingest_plan(),
+    )
+    gate = StubGate(is_mock_gate=True)
+    try:
+        result = await run_p2(
+            plan, adapter=adapter, authorization=authorization, gate=gate, now=NOW
+        )
+    finally:
+        await adapter.close()
+
+    assert result.status == "succeeded", result.as_dict()
+    assert result.settled_cny == pytest.approx(0.018688)
+    summary = read_json(adapter.paths.run_dir / "summary.json")
+    requests = summary["requests"]
+    assert requests["rejected_rounds"] == 0, "正常结算不能被算成 J1 拒绝轮"
+    assert requests["settled_success"] == 1
+    assert requests["settled_failure"] == 0
+    assert requests["conservative_held_cny"] == pytest.approx(0.018688)

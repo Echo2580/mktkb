@@ -339,6 +339,9 @@ class P2RunLedger:
     settled_cny: float = 0.0
     #: T206-LIVE：预留了但**没有发生发送**的轮次（合法拒答），保守占用该笔上界。
     unused: int = 0
+    #: T207-FIX-B-R1：J1 结算被拒的 answer 轮（门内账本已写保守 result，门不把它计成 sent）。
+    #: 与 settled_success/settled_failure/unused 互斥；金额按该笔预留上界计入 settled_cny。
+    rejected_rounds: int = 0
     by_operation: dict[str, int] = field(default_factory=dict)
     by_center_cny: dict[str, float] = field(default_factory=dict)
     gate_notes: list[str] = field(default_factory=list)
@@ -1074,8 +1077,8 @@ def _money_split(
     """把「保守占用 / 供应商证据金额 / 零付费轮」三段分开，互不冒充（T207-FIX-B/B）。
 
     - ``conservative_held_cny``：本 run 在门/账本里**已写 result** 的保守占用总额
-      （answer 轮 + 从属尝试；含失败与零付费轮的整笔上界）。这是记账口径，不是供应商账单：
-      预留了但没结算的笔只出现在 ``reserved_cny``，不进这里。
+      （answer 轮 + 从属尝试；含失败、零付费轮与 **J1 拒绝轮**的整笔上界）。这是记账口径，
+      不是供应商账单：预留了但没结算的笔只出现在 ``reserved_cny``，不进这里。
     - ``provider_billed_cny``：其中**带供应商证据**的金额 —— answer 轮里真的付过款并成功
       结算的笔（``paid_attempt`` 不是 False 且 status=ok），加上从属尝试里 settle 成功
       的笔（usage 结算，或 OCR 固定页价）。零付费轮与失败/发送前拒绝的整笔上界**不计入**；
@@ -1399,6 +1402,12 @@ async def _execute(
                     turn_row["error_code"] = str(product.error_code or product.kind)
 
             charged_cny = 0.0
+            # T207-FIX-B-R1：这一轮的金额是否已入账（成功/失败/零付费都算）；只有"没入账"的
+            # 结算异常才按 J1 拒绝轮补记，避免重复计数。
+            settled_booked = False
+            # 只有 J1 成功结算（settle_success）阶段被拒才按"拒绝轮"补记；失败结算/零付费轮
+            # 自己的异常不套用这条口径（它们的 result 由各自路径写）。
+            j1_settle = False
             if gate is not None and ticket is not None:
                 try:
                     if turn_row["status"] == "error":
@@ -1408,7 +1417,6 @@ async def _execute(
                             elapsed_seconds=elapsed_ms / 1000.0,
                         )
                         ledger.settled_failure += 1
-                        ledger.settled_cny += float(getattr(ticket, "bound_cny", 0.0))
                         # 失败结算按门的保守口径占用该笔上界（与 T201 P2Gate 一致）。
                         charged_cny = float(getattr(ticket, "bound_cny", 0.0))
                     else:
@@ -1432,7 +1440,6 @@ async def _execute(
                             close_unused(ticket, reason=str(product.kind or "no_paid_attempt"))
                             ledger.unused += 1
                             charged_cny = float(getattr(ticket, "bound_cny", 0.0))
-                            ledger.settled_cny += charged_cny
                             turn_row["paid_attempt"] = False
                         elif settle_evidence is not None and evidence is None and product is not None:
                             # 声明"作答"却没有 usage：绝不伪造花费，也不释放预留，保守留账后停。
@@ -1443,7 +1450,6 @@ async def _execute(
                             )
                             ledger.settled_failure += 1
                             charged_cny = float(getattr(ticket, "bound_cny", 0.0))
-                            ledger.settled_cny += charged_cny
                             turn_row["status"] = "error"
                             turn_row["error_code"] = STOP_USAGE_MISSING
                             _case_item_failure(
@@ -1457,6 +1463,7 @@ async def _execute(
                                 error_code=STOP_USAGE_MISSING,
                             )
                         else:
+                            j1_settle = True
                             settled = gate.settle_success(
                                 ticket,
                                 evidence=evidence,
@@ -1464,9 +1471,11 @@ async def _execute(
                             )
                             ledger.settled_success += 1
                             charged_cny = _charged_cny(settled, ticket)
-                            # 成功路径过去不累计 settled_cny（只有失败才加），会表现成"成功却 0 元"；
-                            # 这里按门返回的实际金额记，与 P2Gate.settle_success 的口径一致。
-                            ledger.settled_cny += charged_cny
+                    # 各分支的实际入账金额统一累计一次：成功路径过去不累计 settled_cny（只有失败
+                    # 才加），会表现成"成功却 0 元"；这里按门返回的实际金额记，与
+                    # P2Gate.settle_success 的口径一致。
+                    ledger.settled_cny += charged_cny
+                    settled_booked = True
                     billed = True
                     ledger.by_operation[item.operation] = (
                         ledger.by_operation.get(item.operation, 0) + 1
@@ -1475,6 +1484,22 @@ async def _execute(
                         item.cost_center, 0.0
                     ) + float(charged_cny)
                 except Exception as exc:  # noqa: BLE001 - 结算失败同样停
+                    if j1_settle and not settled_booked:
+                        # T207-FIX-B-R1（C1）：J1 结算被拒（如 usage total_mismatch /
+                        # cache_split_mismatch / over_cap_*）时，门内账本**已经**按该笔预留上界
+                        # 写了一条保守 result（status=unknown），但门不会把它计成
+                        # sent/settled。这里按同一上界补记，否则 summary.conservative_held_cny
+                        # 会漏掉这一笔（契约 §7.2：已写 result 的保守占用总额）。
+                        # 计数用互斥的 rejected_rounds：既不算 settled_success，也不算
+                        # settled_failure（后者只表示真实失败结算 settle_failure）。
+                        rejected_cny = float(getattr(ticket, "bound_cny", 0.0))
+                        ledger.settled_cny += rejected_cny
+                        ledger.by_center_cny[item.cost_center] = (
+                            ledger.by_center_cny.get(item.cost_center, 0.0) + rejected_cny
+                        )
+                        ledger.rejected_rounds += 1
+                        charged_cny = rejected_cny
+                        settled_booked = True
                     _case_item_failure(
                         ledger,
                         stop_code=STOP_GATE_ERROR,
@@ -1843,6 +1868,9 @@ def _write_artifacts(
             "billed_cny": float(billed_cny),
             "unused_no_paid_attempt": int(getattr(ledger, "unused", 0)),
             "unpaid_rounds": int(money_split["unpaid_rounds"]),
+            # T207-FIX-B-R1：J1 结算被拒的 answer 轮数（与上面三个计数互斥；
+            # 金额已按该笔上界计入 conservative_held_cny）。
+            "rejected_rounds": int(ledger.rejected_rounds),
             "conservative_held_cny": float(money_split["conservative_held_cny"]),
             "provider_billed_cny": float(money_split["provider_billed_cny"]),
         },

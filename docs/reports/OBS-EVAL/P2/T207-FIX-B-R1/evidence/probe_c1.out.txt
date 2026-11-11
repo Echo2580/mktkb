@@ -1,0 +1,131 @@
+T207-FIX-B-R1 C1 复现与修复前后对照（探针 + 新用例）
+命令（仓库根目录）：.venv/Scripts/python.exe docs/reports/OBS-EVAL/P2/T207-FIX-B-R1/evidence/probe_c1.py
+说明：零真实调用（全部 httpx.MockTransport，outbound_network=0）；账本/预算/GO 均为 tmp 副本，
+不写仓库共享文件。场景 A=answer 轮 usage total_mismatch（J1 拒绝），场景 B=正常 usage 结算。
+
+================= [A] 修复前（p2_runner.py = HEAD 13074b67…）=================
+exit_code = 1
+=== j1-rejected ===
+status = aborted
+stop_code = gate_error
+requests_sent = 0
+run_result.settled_cny = 0.0
+summary.conservative_held_cny = 0.000124
+summary.provider_billed_cny = 0.000124
+summary.rejected_rounds = <key-absent>
+summary.settled_success = 0
+summary.settled_failure = 0
+summary.unpaid_rounds = 0
+summary.billed_cny = 0.0
+ledger.result_conservative_sum = 0.018812
+ledger.answer_result_conservative = [0.018688]
+ledger.answer_error_codes = ['SETTLEMENT_NOT_RELEASABLE:total_mismatch']
+ledger.answer_status = ['unknown']
+run_result.by_center_cny = {'answer_retrieval': 0.0, 'independent': 0.0, 'judge': 0.0, 'ocr': 0.0}
+run_result.attempts_by_center_sum = 0.000124
+outbound_network = 0
+held == ledger_sum = False
+attempts_by_center_sum == held = True
+
+=== normal ===
+status = succeeded
+stop_code = None
+requests_sent = 1
+run_result.settled_cny = 0.000384
+summary.conservative_held_cny = 0.000508
+summary.provider_billed_cny = 0.000508
+summary.rejected_rounds = <key-absent>
+summary.settled_success = 1
+summary.settled_failure = 0
+summary.unpaid_rounds = 0
+summary.billed_cny = 0.0
+ledger.result_conservative_sum = 0.000508
+ledger.answer_result_conservative = [0.000384]
+ledger.answer_error_codes = [None]
+ledger.answer_status = ['succeeded']
+run_result.by_center_cny = {'answer_retrieval': 0.000384, 'independent': 0.0, 'judge': 0.0, 'ocr': 0.0}
+run_result.attempts_by_center_sum = 0.000508
+outbound_network = 0
+held == ledger_sum = True
+attempts_by_center_sum == held = True
+
+bound_chat_cny = 0.018688
+C1 判定:
+  rejected.stop_code == gate_error -> True
+  rejected.answer_conservative == bound -> True
+  rejected.held == ledger_sum -> False
+  rejected.rejected_rounds == 1 -> False
+  rejected.settled_cny == bound -> False
+  normal.rejected_rounds == 0 -> False
+  normal.held == ledger_sum -> True
+  rejected.attempts_by_center_sum == held -> True
+  normal.attempts_by_center_sum == held -> True
+  -> C1 仍存在（J1 拒绝轮的保守占用未进 summary/run_result）
+
+================= [B] 修复后（本包工作区代码）=================
+exit_code = 0
+=== j1-rejected ===
+status = aborted
+stop_code = gate_error
+requests_sent = 0
+run_result.settled_cny = 0.018688
+summary.conservative_held_cny = 0.018812
+summary.provider_billed_cny = 0.000124
+summary.rejected_rounds = 1
+summary.settled_success = 0
+summary.settled_failure = 0
+summary.unpaid_rounds = 0
+summary.billed_cny = 0.0
+ledger.result_conservative_sum = 0.018812
+ledger.answer_result_conservative = [0.018688]
+ledger.answer_error_codes = ['SETTLEMENT_NOT_RELEASABLE:total_mismatch']
+ledger.answer_status = ['unknown']
+run_result.by_center_cny = {'answer_retrieval': 0.018688, 'independent': 0.0, 'judge': 0.0, 'ocr': 0.0}
+run_result.attempts_by_center_sum = 0.018812
+outbound_network = 0
+held == ledger_sum = True
+attempts_by_center_sum == held = True
+
+=== normal ===
+status = succeeded
+stop_code = None
+requests_sent = 1
+run_result.settled_cny = 0.000384
+summary.conservative_held_cny = 0.000508
+summary.provider_billed_cny = 0.000508
+summary.rejected_rounds = 0
+summary.settled_success = 1
+summary.settled_failure = 0
+summary.unpaid_rounds = 0
+summary.billed_cny = 0.0
+ledger.result_conservative_sum = 0.000508
+ledger.answer_result_conservative = [0.000384]
+ledger.answer_error_codes = [None]
+ledger.answer_status = ['succeeded']
+run_result.by_center_cny = {'answer_retrieval': 0.000384, 'independent': 0.0, 'judge': 0.0, 'ocr': 0.0}
+run_result.attempts_by_center_sum = 0.000508
+outbound_network = 0
+held == ledger_sum = True
+attempts_by_center_sum == held = True
+
+bound_chat_cny = 0.018688
+C1 判定:
+  rejected.stop_code == gate_error -> True
+  rejected.answer_conservative == bound -> True
+  rejected.held == ledger_sum -> True
+  rejected.rejected_rounds == 1 -> True
+  rejected.settled_cny == bound -> True
+  normal.rejected_rounds == 0 -> True
+  normal.held == ledger_sum -> True
+  rejected.attempts_by_center_sum == held -> True
+  normal.attempts_by_center_sum == held -> True
+  -> C1 已修复
+
+================= [C] 新增用例在两种代码上的表现 =================
+HEAD 代码（p2_runner.py 临时换回 HEAD，跑完即恢复；恢复后 sha256 与改前一致）：
+FAILED tests/evaluation/test_p2_runner.py::test_j1_rejected_settle_books_bound_without_counting_success_or_failure
+FAILED tests/evaluation/test_p2_runner.py::test_normal_settle_does_not_count_a_rejected_round
+FAILED tests/evaluation/test_p2_live_wiring.py::test_live_j1_rejected_settle_keeps_conservative_held_cny
+3 failed, 48 deselected, 1 warning in 3.74s
+
+本包代码：见 evidence/pytest.txt（51 passed）。

@@ -1,0 +1,112 @@
+# P2-T207-FIX-B-R1 独立验收：测试复跑（原始输出摘录）
+# 2026-11-11T~02:00Z；cwd=D:/GPT项目/市场部AI知识库/backend
+# 说明：仓库根 venv 实际在 ../.venv；report/evidence 里写的 "cd backend; .venv/Scripts/python.exe"
+# 相对路径不可直接执行（backend 下没有 .venv），下面用 ../.venv 等价复跑。
+# 并发提醒：test_p2_live_wiring.py 被并行包 T207-FIX-A 追加了 5 个用例（第 1250 行起，注释标 T207-FIX-A），
+# 因此当前两文件共 56 个用例；FIX-B-R1 报告时的 51 = 当前 56 减去这 5 个（--deselect）。
+# FIX-B-R1 新增的 3 个用例名：
+#   test_p2_runner.py::test_j1_rejected_settle_books_bound_without_counting_success_or_failure
+#   test_p2_runner.py::test_normal_settle_does_not_count_a_rejected_round
+#   test_p2_live_wiring.py::test_live_j1_rejected_settle_keeps_conservative_held_cny
+
+================================================================================
+[A] 修复后（当前工作区）51 用例口径 = 两文件 56 - FIX-A 5
+命令：
+  cd backend
+  ../.venv/Scripts/python.exe -m pytest tests/evaluation/test_p2_runner.py \
+    tests/evaluation/test_p2_live_wiring.py -q -p no:cacheprovider \
+    --deselect tests/evaluation/test_p2_live_wiring.py::test_two_runs_with_fresh_gates_keep_per_run_accounting \
+    --deselect tests/evaluation/test_p2_live_wiring.py::test_reusing_one_gate_for_a_second_run_is_refused_by_accounting \
+    --deselect tests/evaluation/test_p2_live_wiring.py::test_wrapper_reads_explicit_env_file_and_never_prints_values \
+    --deselect tests/evaluation/test_p2_live_wiring.py::test_wrapper_fails_closed_on_missing_or_foreign_names \
+    --deselect tests/evaluation/test_p2_live_wiring.py::test_wrapper_injects_into_child_process_env_only \
+    --basetemp C:/Users/dell1712/AppData/Local/Temp/bt-fixed51-<ts>
+结果：
+...................................................                      [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+51 passed, 5 deselected, 1 warning in 32.76s
+
+================================================================================
+[B] 当前工作区两文件全量（含并行包 FIX-A 的 5 个新增用例）
+结果：
+........................................................                 [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+56 passed, 1 warning in 23.85s
+
+================================================================================
+[C] 修复前（HEAD 的 p2_runner.py = 13074b67…；其余模块保持当前工作区）
+    只跑 FIX-B-R1 新增 3 用例
+实现方式：PYTHONPATH 指向临时目录的 sitecustomize，在 pytest 收集前把
+mktkb.evaluation.p2_runner 预置为 HEAD 源码（不改工作区文件；临时目录放置 p2_runner.py 与
+product_adapter.py 供 manifest code_sha256 计算）。PROBE 输出 runner_file 指向临时目录，
+证明 3 个失败不是"没加载到 HEAD"。
+命令：
+  cd backend
+  PYTHONPATH=<temp>/fixbr1-head2-... ../.venv/Scripts/python.exe -m pytest \
+    tests/evaluation/test_p2_runner.py::test_j1_rejected_settle_books_bound_without_counting_success_or_failure \
+    tests/evaluation/test_p2_runner.py::test_normal_settle_does_not_count_a_rejected_round \
+    tests/evaluation/test_p2_live_wiring.py::test_live_j1_rejected_settle_keeps_conservative_held_cny \
+    -q -p no:cacheprovider --basetemp <temp>
+结果：
+E         Expected: 0.018688 �� 1.9e-08
+
+tests\evaluation\test_p2_live_wiring.py:1219: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\_pytest\config\__init__.py:1345
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\_pytest\config\__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/evaluation/test_p2_runner.py::test_j1_rejected_settle_books_bound_without_counting_success_or_failure
+FAILED tests/evaluation/test_p2_runner.py::test_normal_settle_does_not_count_a_rejected_round
+FAILED tests/evaluation/test_p2_live_wiring.py::test_live_j1_rejected_settle_keeps_conservative_held_cny
+3 failed, 2 warnings in 4.25s
+
+================================================================================
+[D] 修复前（HEAD 的 p2_runner.py）48 个既有用例（两文件 56 - FIX-A 5 - FIX-B-R1 新增 3）
+结果：
+................................................                         [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\_pytest\config\__init__.py:1345
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\_pytest\config\__init__.py:1345: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; anyio
+    self._mark_plugins_for_rewrite(hook, disable_autoload)
+
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+48 passed, 8 deselected, 2 warnings in 32.75s
+
+================================================================================
+[E] 观察到的偶发失败（如实记录，不归因本包）
+  - 在 [C]+[D] 合并为 51 用例的一次 HEAD 运行中，
+    test_mock_dry_run_binds_identity_and_passes_trace_integrity 报
+    FileNotFoundError: .../bound/p2-run/dataset.jsonl；该用例单跑通过，[D] 的 48 用例整跑也通过。
+    判为并发工作区/文件系统瞬时现象，非 FIX-B-R1 代码路径（失败点是 _write_artifacts 建目录后写文件）。
+  - report/evidence/pytest.txt 记录的命令把 venv 写成 backend/.venv（实际是仓库根 .venv），
+    属报告可复现性瑕疵；用 ../.venv 等价复跑得到 51 passed。
+
+================================================================================
+[F] 离开前复跑（并行包 T207-FIX-S 在 02:03Z 改了 p2_scoring.py +5/-1 之后；非本包）
+结果：
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+51 passed, 5 deselected, 1 warning in 19.64s

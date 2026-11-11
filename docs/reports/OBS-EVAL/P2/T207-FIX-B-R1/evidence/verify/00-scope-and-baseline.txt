@@ -1,0 +1,109 @@
+# P2-T207-FIX-B-R1 独立验收：范围 / 基线 / 可复现性证据
+# 采集时间：2026-11-11T01:58Z（到达后第一轮）；工作区仍在被并行包 T207-FIX-A 修改。
+# 到达时 HEAD=ffc9fe5；采集时 HEAD=405491c（FIX-P R1 的提交，非本包）；分支 codex/p2-e2e。
+# 本包未 commit：405491c 的 --stat 只含 FIX-P R1 文件；p2_runner/契约/测试的 FIX-B-R1 改动仍为未提交。
+
+## 0 并发现场（先读）
+- 工作区同时存在 T207-FIX-A（cli.py/product_adapter.py、test_p2_*、T207 计划/GO draft/runbook、
+  新 evaluation 模块、tools/ 等）与已提交的 T207-FIX-P（405491c）。
+- FIX-A 在本验收期间又追加了 test_p2_live_wiring.py 的 5 个用例与契约 §7.4，并改动了
+  T207 的 plan/GO **candidate draft**（不是 docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json 真 GO）。
+- 因此"git diff 只含 4 个文件"的原始口径在当前共享工作区已不可直接复现；本文件按
+  "FIX-B-R1 归属 + 并行包归属"逐文件分辨，并用"去掉并行包追加后的重建 hash"复核 report 的 sha。
+
+## 1 已修改文件归属（git status --porcelain=v1，采集时）
+FIX-B-R1（本包，允许的 4 个文件）：
+  M backend/src/mktkb/evaluation/p2_runner.py                    (+36/-8；5 处 hunk，全部标 T207-FIX-B-R1)
+  M docs/evaluation/p2-runner-contract-v0_1.md                   (+45/-2 当前；其中 FIX-B-R1 +21/-2，
+                                                                   FIX-A 另加 §7.4 +24 行)
+  M backend/tests/evaluation/test_p2_runner.py                   (+100/-0；2 个新用例)
+  M backend/tests/evaluation/test_p2_live_wiring.py              (+282/-0 当前；FIX-B-R1 +63/-0 的
+                                                                   1 个新用例 + FIX-A 追加 219 行)
+  ?? docs/reports/OBS-EVAL/P2/T207-FIX-B-R1/                    （本包新目录）
+并行包 FIX-A（非本包，其任务书明确负责）：
+  M backend/src/mktkb/evaluation/cli.py
+  M backend/src/mktkb/evaluation/product_adapter.py
+  M backend/tests/evaluation/test_p2_authorization.py
+  M backend/tests/integration/test_p2_product_e2e.py
+  M docs/evaluation/p2-live-binding-v0_1.md
+  M docs/evaluation/p2-run-contract-v0_1.md
+  M docs/reports/OBS-EVAL/P2/T207/{report.md,PM/T207-*.json,PM/T207-runbook.md,PM/T207-cost-and-quota.md,evidence/*}
+  ?? backend/src/mktkb/evaluation/{p2_holdout_plan.py,p2_public_cases.py,p2_score_run.py}
+  ?? backend/tests/evaluation/{test_p2_holdout_plan.py,test_p2_public_cases.py,test_p2_score_run.py}
+  ?? tools/p2_live_execute.py、docs/reports/OBS-EVAL/P2/T207-FIX-A/ 等
+其他（PM / 仓库既有未跟踪物，非本包）：
+  M .claude/handoffs/_index.md；?? .claude/handoffs/*（PM 索引与历史提示词）；?? docs/面试/、?? undefined/
+FIX-P：已由 405491c/ffc9fe5 提交，当前无工作区 diff。
+
+## 2 禁止改动面（FIX-B-R1 未触碰）
+  backend/src/mktkb/evaluation/p2_contracts.py      clean（无工作区 diff）
+  backend/src/mktkb/evaluation/p2_live.py           clean
+  backend/src/mktkb/evaluation/p2_authorization.py  clean（test_p2_authorization.py 是测试文件，属 FIX-A）
+  backend/src/mktkb/evaluation/p2_scoring.py        01:58Z clean；02:03Z 出现 T207-FIX-S 的 +5/-1（非本包，见 §7）
+  backend/src/mktkb/rag/settlement_policy.py        clean
+  fixtures/                                          clean
+  backend/src/mktkb/conversations/service.py         clean
+  backend/src/mktkb/（其余业务代码）                  clean（git status 仅列上面 FIX-A 文件）
+  真实账本/预算/GO：三份 SHA 见 §4，与 FIX-B 验收基线一致。
+
+## 3 FIX-B-R1 文件 sha256（当前值 vs report 声明）
+  p2_runner.py             当前 c1e336f0b3bebf62…（87,317 B）  report c1e336f0b3bebf62  一致
+  test_p2_runner.py        当前 5141ff5e0937e235…（78,615 B）  report 5141ff5e0937e235  一致
+  p2-runner-contract.md    当前 5376b9d3…（21,310 B，含 FIX-A §7.4）
+                           重建（去掉 §7.4 段，含段前空行，第 235-259 行）= 90c49fccb191cbc1，19,243 B
+                           report 90c49fccb191cbc1                                 一致（重建后）
+  test_p2_live_wiring.py   当前 b4ccd71e…（61,744 B，含 FIX-A 追加 219 行）
+                           重建（HEAD 1186 行 + 当前第 1187-1249 行，即 FIX-B-R1 块）
+                           = c246bd274f099648…，51,686 B；report c246bd274f099648  一致（重建后）
+结论：report 的 4 个 sha 均可复现；两个共享文件现在的 hash 不同于 report，是 FIX-A 在报告之后
+追加内容所致（§7.4 / 5 个用例），FIX-B-R1 的原始 diff 与测试块逐字保留。
+
+## 4 固定账本/预算/GO（到达与离开复核）
+  docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl
+    6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c  1,050,298 B
+  docs/evidence/LOCAL-R1-20261101/budget/budget.json
+    79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e  1,738 B
+  docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json
+    79a5f318e007bf71f38fa2379949096f018030b4fcacbf196de676a29c19070e  1,232 B
+（与 FIX-B 验收任务书给的基线逐值一致；本包与我的探针/测试全部用 tmp 副本，零写入。）
+注意：docs/reports/OBS-EVAL/P2/T207/PM/T207-GO*.CANDIDATE-DRAFT.json 是 FIX-A 重建的候选稿，
+不是上述真 GO；改动归属 FIX-A（其任务书含"计划/GO/runbook 重建"）。
+
+## 5 无 skip/xfail、无 commit
+  git diff --check（4 文件）：clean。
+  新增测试行中 pytest.mark.skip/skipif/xfail、unittest skip：none（两测试文件逐行 grep）。
+  新增测试 def：共 8 个 = FIX-B-R1 3 个 + FIX-A 5 个（见 01 证据的 --deselect 名单）。
+  git log ffc9fe5..HEAD：仅 405491c（FIX-P R1）；FIX-B-R1 的改动未进入任何提交。
+
+## 6 report 可复现性小节
+  数字：0.018688/0.018812/0.000124/1/0 均可由独立 probe 复现（02 证据）。
+  测试：report 51 passed 可由"当前两文件 56 - FIX-A 5"复跑得到 51 passed（01 证据）。
+  命令瑕疵：report/evidence/pytest.txt 写 "cd backend; .venv/Scripts/python.exe"；backend 下
+  没有 .venv（venv 在仓库根，pytest 警告显示 ..\.venv），该字面命令不可执行；用 ../.venv
+  等价复跑得到同样结果。属报告可复现性小瑕，不影响结论。
+  HEAD 标注：report 写 @96fede3；到达时 HEAD 已是 ffc9fe5、采集时 405491c（并行包提交），
+  p2_runner 内容在 ffc9fe5..405491c 未变，故不影响复跑。
+
+## 7 离开时快照（2026-11-11T02:03:53.151Z）
+HEAD=405491c1c43b3cf5056bbb68cac8fcc337863f87
+FIX-B-R1 文件 hash:
+c1e336f0b3bebf62 87317 backend/src/mktkb/evaluation/p2_runner.py
+5376b9d33127bdff 21310 docs/evaluation/p2-runner-contract-v0_1.md
+5141ff5e0937e235 78615 backend/tests/evaluation/test_p2_runner.py
+b4ccd71e3963aa4b 61744 backend/tests/evaluation/test_p2_live_wiring.py
+三份固定文件:
+6b053520a2358f94 1050298 docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl
+79b21700b630be92 1738 docs/evidence/LOCAL-R1-20261101/budget/budget.json
+79a5f318e007bf71 1232 docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json
+git status 中与 FIX-B-R1 相关的行:
+ M backend/src/mktkb/evaluation/p2_runner.py
+ M backend/tests/evaluation/test_p2_live_wiring.py
+ M backend/tests/evaluation/test_p2_runner.py
+ M docs/evaluation/p2-runner-contract-v0_1.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-verify.md
+?? docs/reports/OBS-EVAL/P2/T207-FIX-B-R1/
+禁用面状态（离开时，git status 命中数）：p2_contracts.py:0 p2_live.py:0 src p2_authorization.py:0 p2_scoring.py:1（= T207-FIX-S 的并行改动，非本包）rag/settlement_policy.py:0 fixtures/:0
+
+注：p2_scoring.py 的 02:03Z 改动为并行包 T207-FIX-S（diff 注释 "T207-FIX-S"，+5/-1），
+FIX-B-R1 的 4 个文件内容/hash 未变；本包未改该文件。
