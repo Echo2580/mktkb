@@ -67,3 +67,19 @@
 - 经理接收（未 commit，待 A 先提交）：**提交次序约束**——S 的新测试从 FIX-A 未跟踪的 `p2_public_cases.load_b0_cases` 导入，必须 A 先落盘再提交 S；否则干净检出会 collection error。
 - 集成影响：A 的 `test_p2_score_run.py` 冻结 b0 39/1 现应改 40/0（已并入 A-R1）。
 - 小瑕疵（收口清单）：S 报告 HEAD 标注 @405491c 已过时（现 b1bfa60）；§3「无空格命中」措辞需注明 case 仍 fail（value_no_fabricated）。
+
+## 11. 正式执行阶段追加决定（2026-11-11 11:2x–12:2x）
+- **H2 首跑 fail-closed 两处**：①`--holdout-manifest` 必须用封存 root 内 manifest（repo 副本仅用于计划生成交叉校验）；②live 门曾无条件要求 ocr（已由 FIX-LIVEGATE 按「计划能力」修正，四项核心操作仍强制）。两次均 0 发送、账本未变。
+- **评分口径缺陷定性**：Q09–Q24 仅因 `value_no_fabricated` 失败且数字全部来自引用证据；`gate.py` 明确该检查是诊断字段（T004b）。定性为 P2 评分口径缺陷（非产品缺陷），由 FIX-SCORE 以「金标 ∪ 引用证据」opt-in 修复；R1 重评分 b0 38/40、exact 24/24。
+- **产品缺口定性**：N08（图片类问题应 not_found）、C05/C06（冲突披露）为真实产品行为缺口；根因含「live 计划每轮仅 1 次 query_embedding/rerank，而记录型问题做两路召回，第 2 次被配额拒后异常被吞 → document 面候选被裁」。由 FIX-CONFLICT 以产品最小修复（图片意图识别 + 同实体冲突复核只读 SQL）闭环；独立验收 7/7 PASS。
+- **MEDIUM-2 口径（冲突披露与候选窗口）**：冲突路径可读候选窗口外**同实体可见正文**（只披露冲突值、不再产出作答值），这是为覆盖「通知类文档被候选窗口裁掉」而做的产品级局部放宽；硬门禁 citation_required 只对 kind=answer，不判 conflict。**经理决定**：T207 接收该行为并在报告/观测矩阵明示；H2/T209 阈值与发布口径由后续审核方复核；若 R4 真实执行出现 gate 侧异常则停并回归。
+- **MEDIUM-1（图片拦截过宽）**：组织架构图/流程图/通知图片类提问不得误拒；已派 FIX-CONFLICT-R1 收窄并补反例。
+- **R4 定点重测范围**：N08/C05/C06 三例（受影响范围），新计划+新 GO、无 OCR 项；不重跑全量 B0（FIX-CONFLICT 54 例差分仅 N08 变化、FIX-SCORE 仅评分层）。最终 baseline 的完整同版本数据留 T209。
+- **H2 聚合缺口**：runner 原只写计数聚合；FIX-H2SCORE 在受限进程内算质量聚合（只写聚合），其首轮验收发现「逐题行缺 product.text → 答案题结构性 0 pass」，已派 R1 修复。
+
+## 12. R4/H2 执行前追加决定（2026-11-11 13:4x–14:2x）
+- **F-1 向量层静默降级（新 BLOCKER，已闭环）**：`product_adapter._start_live` 曾把产品 per-request 上限设为计划峰值；page_count=0 计划峰值为 chat 0.018688，而 embedding 单次 POST 预留 0.04096、rerank 0.024 → provider 发送前拒绝、灌库静默降级 `embedding_error`，会产出「看似通过、向量层全灭」的证据（R1–R3 因含 12 页 OCR 峰值 0.5 未触发）。FIX-LIVECAP（commit `1dca413`，独立验收接收）改为 effective=max(计划峰值, 各 provider 单次预留) 且必须 ≤ GO `max_request_cny`，不足则在装配期 `live_request_ceiling_insufficient` fail-closed（不发送/不预留/不降级）；含 OCR 公开计划行为逐值不变。**R4/H2 执行前置：GO max_request_cny ≥ 0.04096（候选 0.5 满足）**。
+- **F-3 裁定（文案-only 改动不需重签计划）**：产品输出文本修复不改变计划内容，`plan_sha` 是计划内容哈希 → R4 沿用原计划（`00b9fdef…`）与候选 GO 绑定，不重签计划；GO 仍按流程签发（绑定 plan_sha）。已写入 runbook §9 与 T207 report §9.5。
+- **R4PREP 独立验收**：计划/case/ingest/GO 候选逐值 PASS；因 F-1 判不可签，F-1 由 LIVECAP 闭环、F-2/F-3/F-4/F-6 由 R4PREP-R1 文档收口（只动 T207 文档；plan/case/ingest/GO 不改）。
+- **R2（commit `24f9cde`）**：冲突回答 text 披露双方取值（通用渲染、≤8 条/字段），C05/C06 冻结评分 fail→pass；54 例仅 C05/C06 变化；独立验收接收。
+- **H2 执行前置补充**：固定路径当前为 H2 GO（sha `3ed427f4…`）；R4 需先归档该 GO、签 R4 GO；H2 前再恢复/重签 H2 GO。

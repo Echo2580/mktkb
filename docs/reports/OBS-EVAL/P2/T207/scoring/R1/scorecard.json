@@ -1,0 +1,186 @@
+{
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "suites": {
+    "b0": {
+      "suite": "b0",
+      "planned": 40,
+      "executed": 40,
+      "scored": 40,
+      "passed": 22,
+      "failed": 18,
+      "errors": 0,
+      "not_executed": 0,
+      "skipped": 0,
+      "ocr_planned": 8,
+      "ocr_executed": 8,
+      "ocr_passed": 7,
+      "exact_planned": 24,
+      "exact_passed": 8,
+      "required_passed": false
+    },
+    "negative": {
+      "suite": "negative",
+      "planned": 8,
+      "executed": 8,
+      "scored": 8,
+      "passed": 7,
+      "failed": 1,
+      "errors": 0,
+      "not_executed": 0,
+      "skipped": 0,
+      "ocr_planned": 0,
+      "ocr_executed": 0,
+      "ocr_passed": 0,
+      "exact_planned": 0,
+      "exact_passed": 0,
+      "required_passed": false
+    },
+    "boundary": {
+      "suite": "boundary",
+      "planned": 6,
+      "executed": 4,
+      "scored": 4,
+      "passed": 4,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 2,
+      "skipped": 0,
+      "ocr_planned": 0,
+      "ocr_executed": 0,
+      "ocr_passed": 0,
+      "exact_planned": 0,
+      "exact_passed": 0,
+      "required_passed": false
+    },
+    "update_delete": {
+      "suite": "update_delete",
+      "planned": 10,
+      "executed": 0,
+      "scored": 0,
+      "passed": 0,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 10,
+      "skipped": 0,
+      "ocr_planned": 0,
+      "ocr_executed": 0,
+      "ocr_passed": 0,
+      "exact_planned": 0,
+      "exact_passed": 0,
+      "required_passed": false
+    }
+  },
+  "blocks": [
+    {
+      "code": "exact_below_24_of_24",
+      "severity": "hard",
+      "detail": "精确字段题必须 24/24（与 exact_value_contract 硬门禁同口径）",
+      "evidence": {
+        "suite": "b0",
+        "missing": [
+          "Q09",
+          "Q10",
+          "Q11",
+          "Q12",
+          "Q13",
+          "Q14",
+          "Q15",
+          "Q16",
+          "Q17",
+          "Q18"
+        ],
+        "passed": 8
+      }
+    },
+    {
+      "code": "suite_below_threshold",
+      "severity": "quality",
+      "detail": "b0 通过数 22 < 门槛 36",
+      "evidence": {
+        "suite": "b0",
+        "passed": 22,
+        "min_pass": 36,
+        "executed": 40
+      }
+    },
+    {
+      "code": "suite_below_threshold",
+      "severity": "quality",
+      "detail": "negative 通过数 7 < 门槛 8",
+      "evidence": {
+        "suite": "negative",
+        "passed": 7,
+        "min_pass": 8,
+        "executed": 8
+      }
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "boundary 缺少 2 条计划内 case",
+      "evidence": {
+        "suite": "boundary",
+        "missing": [
+          "C05",
+          "C06"
+        ],
+        "planned": 6
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "boundary 有 2 条 case 未执行",
+      "evidence": {
+        "suite": "boundary",
+        "not_executed": 2
+      }
+    },
+    {
+      "code": "suite_below_threshold",
+      "severity": "quality",
+      "detail": "boundary 通过数 4 < 门槛 6",
+      "evidence": {
+        "suite": "boundary",
+        "passed": 4,
+        "min_pass": 6,
+        "executed": 4
+      }
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "update_delete 缺少 10 条计划内 case",
+      "evidence": {
+        "suite": "update_delete",
+        "missing": [
+          "U01",
+          "U02",
+          "U03",
+          "U04",
+          "U05",
+          "U06",
+          "U07",
+          "U08",
+          "U09",
+          "U10"
+        ],
+        "planned": 10
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "update_delete 有 10 条 case 未执行",
+      "evidence": {
+        "suite": "update_delete",
+        "not_executed": 10
+      }
+    }
+  ],
+  "release_ready": false,
+  "execution_mode": "live",
+  "real_calls": 0,
+  "run_id": "p2-t207-r1-20261111-01",
+  "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b"
+}

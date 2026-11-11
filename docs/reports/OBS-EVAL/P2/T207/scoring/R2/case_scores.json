@@ -1,0 +1,236 @@
+{
+  "schema_version": "p2-score-bundle/v0.1",
+  "run_id": "p2-t207-r2-20261111-01",
+  "config_hash": "1370e34b4178c2cd162acb4260a101b96eca4cb7c1bb24a3722dea633b510c35",
+  "index_revision": 3,
+  "execution_mode": "live",
+  "real_calls": 9,
+  "case_scores": [
+    {
+      "case_id": "U01",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "status": "pass",
+      "requires_ocr": false,
+      "planned_turns": 1,
+      "executed_turns": 1,
+      "checks": [
+        {
+          "check_id": "value_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 1,
+            "missing": []
+          }
+        },
+        {
+          "check_id": "value_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_values"
+          }
+        },
+        {
+          "check_id": "value_no_fabricated",
+          "status": "pass",
+          "evidence": {
+            "checked": 1
+          }
+        },
+        {
+          "check_id": "source_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 1,
+            "matched": 1
+          }
+        },
+        {
+          "check_id": "source_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_sources"
+          }
+        },
+        {
+          "check_id": "kind_correct",
+          "status": "pass",
+          "evidence": {
+            "expected": "answer",
+            "actual": "answer"
+          }
+        },
+        {
+          "check_id": "refusal_expected",
+          "status": "skipped",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "answer"
+          }
+        },
+        {
+          "check_id": "refusal_unexpected",
+          "status": "pass",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "answer"
+          }
+        },
+        {
+          "check_id": "pagination_total",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_returned",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_has_more",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_next_page",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        }
+      ],
+      "issues": [],
+      "turn_kinds": [
+        "answer"
+      ],
+      "trace_ids": [
+        "edacbdb8d40040f7a1b27de9b72dd7ca"
+      ],
+      "execution_mode": "live",
+      "real_calls": 0
+    },
+    {
+      "case_id": "C05",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "status": "fail",
+      "requires_ocr": false,
+      "planned_turns": 1,
+      "executed_turns": 1,
+      "checks": [
+        {
+          "check_id": "value_hit",
+          "status": "fail",
+          "evidence": {
+            "expected": 2,
+            "missing": [
+              "D区暂存柜"
+            ]
+          }
+        },
+        {
+          "check_id": "value_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_values"
+          }
+        },
+        {
+          "check_id": "value_no_fabricated",
+          "status": "pass",
+          "evidence": {
+            "checked": 2
+          }
+        },
+        {
+          "check_id": "source_hit",
+          "status": "fail",
+          "evidence": {
+            "expected": 2,
+            "missing_index": [
+              1
+            ]
+          }
+        },
+        {
+          "check_id": "source_forbidden",
+          "status": "pass",
+          "evidence": {
+            "checked": 1
+          }
+        },
+        {
+          "check_id": "kind_correct",
+          "status": "fail",
+          "evidence": {
+            "expected": "conflict",
+            "actual": "answer"
+          }
+        },
+        {
+          "check_id": "refusal_expected",
+          "status": "skipped",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "answer"
+          }
+        },
+        {
+          "check_id": "refusal_unexpected",
+          "status": "pass",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "answer"
+          }
+        },
+        {
+          "check_id": "pagination_total",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_returned",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_has_more",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_next_page",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        }
+      ],
+      "issues": [],
+      "turn_kinds": [
+        "answer"
+      ],
+      "trace_ids": [
+        "9603ffb64b9d4274b8dc53c6f70c3b81"
+      ],
+      "execution_mode": "live",
+      "real_calls": 0
+    }
+  ]
+}

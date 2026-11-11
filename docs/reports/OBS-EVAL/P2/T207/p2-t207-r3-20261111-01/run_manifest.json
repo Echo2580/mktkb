@@ -1,0 +1,448 @@
+{
+  "authorization": {
+    "expires_utc": "2026-11-24T11:10:46+08:00",
+    "go_document": "P2-LIVE-GO",
+    "go_nonce_len": 32,
+    "go_sha256": "838e88bd4cc3079f154c6d7637ff7403d4a40c0c54b3d3fc7aa8127442234305",
+    "issued_by": "PM (lead) - owner pre-authorized; record T207-PM-decisions-01.md",
+    "issued_utc": "2026-11-11T11:10:46+08:00",
+    "ledger_path": "D:\\GPT项目\\市场部AI知识库\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl",
+    "max_requests": 1200,
+    "operations": [
+      "answer",
+      "index_embedding",
+      "ocr",
+      "query_embedding",
+      "query_expansion",
+      "rerank"
+    ],
+    "production_ready": true,
+    "requests_remaining": 653,
+    "schema_version": "p2-authorization/v0.1",
+    "stage": "P2-LIVE"
+  },
+  "binding": {
+    "binding_version": "p2-binding/v0.1",
+    "complete": true,
+    "config_hash": "39449b21434c47b0e800716cda641e9cc78479b9721604327e4eb5f9749c7ad0",
+    "dataset_sha256": "d72c6d54c3de7b75240c6c3c4fa20a4f8ad12652d72cfb55fde65e4034a71f18",
+    "dataset_version": "p2-t207-public-20261111-v0.1",
+    "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+    "gate_version": "mktkb.gate.v0.3",
+    "index_revision": 2,
+    "label_version": "p2-t207-public-20261111-v0.1",
+    "manifest_sha256": "d72c6d54c3de7b75240c6c3c4fa20a4f8ad12652d72cfb55fde65e4034a71f18",
+    "missing": [],
+    "pipeline_version": "d3ca88d2c515",
+    "provider": {
+      "chat": {
+        "model": "deepseek-flash",
+        "provider": "deepseek",
+        "transport": "DeepSeekClient"
+      },
+      "embedding": {
+        "impl": "BailianEmbeddingProvider",
+        "model": "text-embedding-v4",
+        "provider": "bailian"
+      },
+      "ocr": "tencent:GeneralAccurateOCR（真实传输）",
+      "rerank": {
+        "impl": "BailianRerankProvider",
+        "model": "gte-rerank-v2",
+        "provider": "bailian"
+      }
+    },
+    "trace_identity_bound": true
+  },
+  "business_date": "2026-10-28",
+  "business_dates": [
+    "2026-10-28"
+  ],
+  "case_count": 1,
+  "config_hash": "39449b21434c47b0e800716cda641e9cc78479b9721604327e4eb5f9749c7ad0",
+  "corpus_manifest_sha256": "d72c6d54c3de7b75240c6c3c4fa20a4f8ad12652d72cfb55fde65e4034a71f18",
+  "created_at": "2026-11-11T03:11:25.031880+00:00",
+  "dataset": {
+    "case_count": 1,
+    "case_count_loaded": 1,
+    "dataset_version": "p2-t207-public-20261111-v0.1",
+    "declared_case_count": 1,
+    "label_version": "p2-t207-public-20261111-v0.1",
+    "manifest_sha256": "d72c6d54c3de7b75240c6c3c4fa20a4f8ad12652d72cfb55fde65e4034a71f18",
+    "strata": {},
+    "suite": "p2-cli",
+    "visibility": "public"
+  },
+  "dataset_path": "D:\\mktkb-p2-run\\t207\\R3\\p2-run\\dataset.jsonl",
+  "dataset_sha256": "d72c6d54c3de7b75240c6c3c4fa20a4f8ad12652d72cfb55fde65e4034a71f18",
+  "dataset_version": "p2-t207-public-20261111-v0.1",
+  "duration_ms": 4896,
+  "execution": "live",
+  "finished_utc": "2026-11-11T03:11:29.936454+00:00",
+  "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+  "gate_version": "mktkb.gate.v0.3",
+  "index_revision": 2,
+  "ingest": [
+    {
+      "document_id": "722ea494-2d46-44fa-b2c8-597713d6d96d",
+      "job_state": "succeeded",
+      "name": "D02_合作店家信息.xlsx",
+      "publish_status": 200,
+      "published": true,
+      "revision": 1,
+      "sha256": "6a210e0629e5ccfd701c0e92fe10b51accf5528dc759bcb8480b0bd718603227",
+      "units": 4,
+      "upload_status": 202,
+      "version_id": "b010c80f-6079-4234-8ab4-c0caa00a003b"
+    },
+    {
+      "document_id": "da5497b9-a8ed-44c7-a321-2feb8589c0b4",
+      "job_state": "succeeded",
+      "name": "V02_店家联系方式变更通知.pdf",
+      "publish_status": 200,
+      "published": true,
+      "revision": 2,
+      "sha256": "829b9d54be941953dade7a973180899153f24fdc8a5018dc8cf3390ef3a1549f",
+      "units": 5,
+      "upload_status": 202,
+      "version_id": "38f52047-ba0b-4b53-b782-96024c5111f2"
+    }
+  ],
+  "label_version": "p2-t207-public-20261111-v0.1",
+  "mode": "end_to_end",
+  "paths": {
+    "business_db": "D:\\mktkb-p2-run\\t207\\R3\\data\\mktkb.sqlite3",
+    "data_dir": "D:\\mktkb-p2-run\\t207\\R3\\data",
+    "index_db": "D:\\mktkb-p2-run\\t207\\R3\\data\\rag-index.sqlite3",
+    "root": "D:\\mktkb-p2-run\\t207\\R3",
+    "run_dir": "D:\\mktkb-p2-run\\t207\\R3\\p2-run",
+    "storage": "D:\\mktkb-p2-run\\t207\\R3\\data\\storage",
+    "trace_db": "D:\\mktkb-p2-run\\t207\\R3\\data\\observability\\qa-traces.sqlite3"
+  },
+  "pipeline": {
+    "code_sha256": {
+      "p2_runner.py": "c1e336f0b3bebf621181c8a1cc08b94ca18c4b561ac5185b664efd2e010d01dc",
+      "product_adapter.py": "553e4ccf567653568d8b93812f75cc6ea440a33bc642bdbcfdedd8f69bb7d7eb"
+    },
+    "entrypoint": "POST /api/v1/conversations/{id}/messages -> conversations.ask",
+    "index": {
+      "chunks": 5,
+      "documents": 2,
+      "engine_version": "s2-a-2",
+      "provider_mode": "live",
+      "units": 9
+    },
+    "package": "mktkb-evaluation-p2",
+    "package_schema_version": "p2-product-adapter/v0.1",
+    "trace": {
+      "content_mode": "hash",
+      "enabled": true,
+      "identity_bound": true,
+      "identity_fields": [
+        "dataset_version",
+        "run_id",
+        "index_revision",
+        "manifest_sha256",
+        "pipeline_version",
+        "config_hash"
+      ],
+      "mode": "local",
+      "scope": "end_to_end"
+    },
+    "turn_timeout_seconds": 60.0
+  },
+  "pipeline_version": "d3ca88d2c515",
+  "plan": {
+    "by_operation": {
+      "answer": 55,
+      "index_embedding": 22,
+      "ocr": 12,
+      "query_embedding": 55,
+      "query_expansion": 55,
+      "rerank": 55
+    },
+    "estimated_success_cny": 6.1681,
+    "operations": [
+      "answer",
+      "index_embedding",
+      "ocr",
+      "query_embedding",
+      "query_expansion",
+      "rerank"
+    ],
+    "plan_id": "P2-T207-MATRIX-20261111",
+    "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+    "plan_version": "v0.1",
+    "reserve_peak_cny": 0.5,
+    "stage": "P2-LIVE",
+    "total_requests": 254,
+    "worst_case_cny": 8.127376
+  },
+  "providers": {
+    "attempts": [
+      {
+        "bound_cny": 0.002048,
+        "case_id": "INGEST",
+        "charged_cny": 0.0,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "ingest-index-embedding",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "index_embedding",
+        "page": 0,
+        "phase": "reserve",
+        "provider": "bailian",
+        "provider_request_sha256": "f6f1f8bf4880f5c71ec560dfff7293ae53f90e9a6d06835086b9df7639176969",
+        "request_id": "p2req-137c39cec657cf13081c5f11",
+        "reservation_id": "83ecbbd1cb9b45c4b6bc243486338105",
+        "status": "reserved",
+        "turn": 1,
+        "usage": {}
+      },
+      {
+        "bound_cny": 0.002048,
+        "case_id": "INGEST",
+        "charged_cny": 0.0002645,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "ingest-index-embedding",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "index_embedding",
+        "page": 0,
+        "phase": "settle",
+        "provider": "bailian",
+        "provider_request_sha256": null,
+        "request_id": "p2req-137c39cec657cf13081c5f11",
+        "reservation_id": "83ecbbd1cb9b45c4b6bc243486338105",
+        "status": "succeeded",
+        "turn": 1,
+        "usage": {
+          "prompt_tokens": 529,
+          "total_tokens": 529
+        }
+      },
+      {
+        "bound_cny": 0.002048,
+        "case_id": "INGEST",
+        "charged_cny": 0.0,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "ingest-index-embedding",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "index_embedding",
+        "page": 0,
+        "phase": "reserve",
+        "provider": "bailian",
+        "provider_request_sha256": "6455da4a80a0d58c1a2f3df1f4e8bbe55a25c3dbfb6b2a2e1cd95ea2c8a0b6b3",
+        "request_id": "p2req-137c39cec657cf13081c5f11",
+        "reservation_id": "6898aa73a32e490eb54d8f1d3ae5a156",
+        "status": "reserved",
+        "turn": 1,
+        "usage": {}
+      },
+      {
+        "bound_cny": 0.002048,
+        "case_id": "INGEST",
+        "charged_cny": 3.25e-05,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "ingest-index-embedding",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "index_embedding",
+        "page": 0,
+        "phase": "settle",
+        "provider": "bailian",
+        "provider_request_sha256": null,
+        "request_id": "p2req-137c39cec657cf13081c5f11",
+        "reservation_id": "6898aa73a32e490eb54d8f1d3ae5a156",
+        "status": "succeeded",
+        "turn": 1,
+        "usage": {
+          "prompt_tokens": 65,
+          "total_tokens": 65
+        }
+      },
+      {
+        "bound_cny": 0.002048,
+        "case_id": "C06",
+        "charged_cny": 0.0,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "embed-C06-t1",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "query_embedding",
+        "page": 0,
+        "phase": "reserve",
+        "provider": "bailian",
+        "provider_request_sha256": "5f575a2aff4de539d7f2ae52f573f135974e5e2e98ce674b21e763909abea651",
+        "request_id": "p2req-0d29198a9bde2e55a1b42f93",
+        "reservation_id": "2d611486dccc4bbcb84cfb5f0fea3275",
+        "status": "reserved",
+        "turn": 1,
+        "usage": {}
+      },
+      {
+        "bound_cny": 0.002048,
+        "case_id": "C06",
+        "charged_cny": 2e-06,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "embed-C06-t1",
+        "kind": "embedding",
+        "model": "text-embedding-v4",
+        "operation": "query_embedding",
+        "page": 0,
+        "phase": "settle",
+        "provider": "bailian",
+        "provider_request_sha256": null,
+        "request_id": "p2req-0d29198a9bde2e55a1b42f93",
+        "reservation_id": "2d611486dccc4bbcb84cfb5f0fea3275",
+        "status": "succeeded",
+        "turn": 1,
+        "usage": {
+          "prompt_tokens": 4,
+          "total_tokens": 4
+        }
+      },
+      {
+        "bound_cny": 0.0048,
+        "case_id": "C06",
+        "charged_cny": 0.0,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "rerank-C06-t1",
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "operation": "rerank",
+        "page": 0,
+        "phase": "reserve",
+        "provider": "bailian",
+        "provider_request_sha256": "9019e627750372f89db9942b8533ccd5d4f6d1d1e2246554fc5e7f6c0b05c079",
+        "request_id": "p2req-a46029e963bc32ff5b9404db",
+        "reservation_id": "144e723c82364bb8887afb69ed023a2b",
+        "status": "reserved",
+        "turn": 1,
+        "usage": {}
+      },
+      {
+        "bound_cny": 0.0048,
+        "case_id": "C06",
+        "charged_cny": 9.92e-05,
+        "cost_center": "answer_retrieval",
+        "error_code": null,
+        "item_id": "rerank-C06-t1",
+        "kind": "rerank",
+        "model": "gte-rerank-v2",
+        "operation": "rerank",
+        "page": 0,
+        "phase": "settle",
+        "provider": "bailian",
+        "provider_request_sha256": null,
+        "request_id": "p2req-a46029e963bc32ff5b9404db",
+        "reservation_id": "144e723c82364bb8887afb69ed023a2b",
+        "status": "succeeded",
+        "turn": 1,
+        "usage": {
+          "total_tokens": 124
+        }
+      }
+    ],
+    "chat": {
+      "calls": 1,
+      "expansion_calls": 0,
+      "impl": "DeepSeekClient",
+      "model": "",
+      "outbound_network": 1,
+      "provider": "deepseek",
+      "transport": "NoneType"
+    },
+    "embedding": {
+      "calls": 3,
+      "embed_calls": 4,
+      "impl": "BailianEmbeddingProvider",
+      "model": "text-embedding-v4",
+      "outbound_network": 3,
+      "provider": "bailian",
+      "transport": "NoneType"
+    },
+    "live": {
+      "attempts": {
+        "budget_used": {
+          "embed-C06-t1": 1,
+          "ingest-index-embedding": 2,
+          "rerank-C06-t1": 1
+        },
+        "by_operation": {
+          "index_embedding": 2,
+          "query_embedding": 1,
+          "rerank": 1
+        },
+        "planned_requests": 254,
+        "receipts": 8
+      },
+      "calls": {
+        "chat": 1,
+        "embedding": 3,
+        "expansion": 0,
+        "ocr": 0,
+        "rerank": 1
+      },
+      "logical_calls": {
+        "embedding": 4,
+        "rerank": 1
+      },
+      "mode": "live",
+      "provider": {
+        "chat_model": "deepseek-flash",
+        "embedding": "text-embedding-v4",
+        "ocr": "tencent-ocr（真实传输）",
+        "rerank": "gte-rerank-v2"
+      },
+      "run_id": "p2-t207-r3-20261111-01"
+    },
+    "network": {
+      "chat_outbound_attempts": 1,
+      "embedding_provider": "bailian text-embedding-v4（真实传输）",
+      "mock_intercepted": 0,
+      "ocr_outbound_attempts": 0,
+      "ocr_provider": "tencent OCR（真实传输）",
+      "outbound_attempts": 5,
+      "rag_provider_posts": 4,
+      "rerank_provider": "bailian gte-rerank-v2（真实传输）",
+      "transport_outbound": {
+        "chat": 1,
+        "embedding": 3,
+        "ocr": 0,
+        "rerank": 1
+      }
+    },
+    "ocr": {
+      "calls": 0,
+      "impl": "TencentOCRClient",
+      "outbound_network": 0,
+      "pages": 0,
+      "provider": "tencent"
+    },
+    "outbound_network": 5,
+    "rerank": {
+      "calls": 1,
+      "impl": "BailianRerankProvider",
+      "model": "gte-rerank-v2",
+      "outbound_network": 1,
+      "provider": "bailian",
+      "rerank_calls": 1,
+      "transport": "NoneType"
+    }
+  },
+  "run_id": "p2-t207-r3-20261111-01",
+  "schema_version": "p2-run-manifest/v0.1",
+  "scope": "end_to_end",
+  "started_utc": "2026-11-11T03:11:25.031880+00:00",
+  "suite": "p2-cli",
+  "trace_store": "D:\\mktkb-p2-run\\t207\\R3\\data\\observability\\qa-traces.sqlite3"
+}
