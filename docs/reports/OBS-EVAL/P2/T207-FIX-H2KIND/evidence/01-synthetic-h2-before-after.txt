@@ -1,0 +1,36 @@
+# T207-FIX-H2KIND 证据 01：合成 H2 30 题（answer 23 / conflict 1 / refusal 6）in-process 前后
+
+## 口径
+- 合成 30 题**只在内存构造**（test_p2_holdout_scorecard.py::_h2kind_specs/_h2kind_rows）：
+  stratum 按 P2_HOLDOUT_STRATA（10-5-5-5-5）；6 道 expected_kind=refusal（5 negative + 1 cross_doc_security）；
+  1 道 conflict；其余 23 道 answer。产品侧：拒答题回 not_found，answer 题回金标值 + D01 单位，冲突题回 conflict。
+- after 臂走**真实 H2 评分入口**：p2_score_run.holdout_case_scores_from_rows -> score_public_case ->
+  score_case(compat_refusal_kind=True) -> aggregate_holdout_bundle。
+- before 臂：同一批行、同一个 score_case，只把 compat_refusal_kind 关掉（= 修复前 P2 口径）。
+- 零真实调用：不跑产品、不建索引、不走封存加解密；30 题/逐题行都是内存对象。
+
+## 命令（临时脚本在 %TEMP%，不落仓库）
+set "PYTHONIOENCODING=utf-8" && .venv\Scripts\python.exe %TEMP%\<probe>\h2probe.py
+
+## 输出（原样）
+cases: 30
+expected_kind 分布: {'answer': 23, 'refusal': 6, 'conflict': 1}
+stratum 分布: {'paraphrase': 10, 'multi_turn': 5, 'negative': 5, 'stale_conflict': 5, 'cross_doc_security': 5}
+before: {'total': 30, 'passed': 24, 'failed': 6, 'errors': 0, 'threshold_met': True} blocks: ['holdout_threshold_unapproved']
+after : {'total': 30, 'passed': 30, 'failed': 0, 'errors': 0, 'threshold_met': True} blocks: ['holdout_threshold_unapproved']
+翻转题数: 6
+   P2HK-16 negative expected_kind=refusal before=fail after=pass
+   P2HK-17 negative expected_kind=refusal before=fail after=pass
+   P2HK-18 negative expected_kind=refusal before=fail after=pass
+   P2HK-19 negative expected_kind=refusal before=fail after=pass
+   P2HK-20 negative expected_kind=refusal before=fail after=pass
+   P2HK-26 cross_doc_security expected_kind=refusal before=fail after=pass
+单题示例 P2HK-16 product.kind=not_found -> pass kind_correct=pass pass
+对照臂（6 道 refusal 被作答）: {'total': 30, 'passed': 24, 'failed': 6, 'errors': 0, 'threshold_met': True} blocks: ['holdout_threshold_unapproved']
+
+## 说明
+1. before 24/30 恰好等于 P2_HOLDOUT_MIN_PASS=24：这 6 题是**结构性 fail**，上限封死在 24，任何
+   一题再失手即 holdout_below_threshold；after 30/30，阈值 24 不再是天花板。
+2. 翻转题数严格 = 6，且全部 expected_kind=refusal（P2HK-16..20 negative + P2HK-26 cross_doc_security）。
+3. 对照臂（把 6 道 refusal 题改成产品作答）→ 仍 24/6：开关只认**拒答结局**，不认"拒答题"。
+4. 两臂 blocks 都只有 holdout_threshold_unapproved（阈值未批 → unknown），本包**不**改阈值、不出放行结论。

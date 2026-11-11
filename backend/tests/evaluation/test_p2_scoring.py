@@ -1187,3 +1187,132 @@ def test_score_case_default_ignores_citation_numbers() -> None:
     # 允许集合只影响 value_no_fabricated：其余 check 逐个不变。
     for check_id in ("value_hit", "value_forbidden", "kind_correct", "refusal_expected"):
         assert strict.check(check_id).status == loose.check(check_id).status, check_id
+
+# --------------------------------------------------------------------------- #
+# 14. T207-FIX-H2KIND：expected_kind="refusal"（P1 兼容值）按任一拒答结局匹配
+# --------------------------------------------------------------------------- #
+
+def h2kind_case(
+    *, case_id: str = "N01", expected_kind: str = "refusal", should_refuse: bool = True
+) -> CaseSpec:
+    """P1 兼容形态的拒答题（expected_kind=refusal、无期望值/来源）；不是真实 H2 题目。"""
+    return CaseSpec(
+        case_id=case_id,
+        suite="badcase",
+        split="dev",
+        stratum="negative",
+        business_date="2026-10-28",
+        question="城南店的联系人是谁？",
+        expected_kind=expected_kind,
+        expected_values=(),
+        expected_sources=(),
+        reference_answer="",
+        labeler="lead",
+        label_version="dev-1",
+        should_refuse=should_refuse,
+    )
+
+
+def h2kind_gold(case: CaseSpec) -> ResolvedGold:
+    return ResolvedGold(
+        case_id=case.case_id,
+        requires_ocr=False,
+        skipped=False,
+        sources=(),
+        unit_ids=(),
+        relevant_unit_ids=(),
+    )
+
+
+@pytest.mark.parametrize("actual", ["not_found", "no_answer"])
+def test_expected_refusal_accepts_any_refusal_kind_when_opted_in(actual: str) -> None:
+    """产品只回 not_found/no_answer：opt-in 后 kind_correct 记 pass，case 判 pass。"""
+    case = h2kind_case()
+    gold = h2kind_gold(case)
+
+    strict = score_case(case, gold, EvalOutcome(kind=actual))
+    assert strict.check("kind_correct").status == "fail"  # 默认（P1）口径逐字不变
+    assert strict.status == "fail"
+
+    loose = score_case(case, gold, EvalOutcome(kind=actual), compat_refusal_kind=True)
+    assert loose.check("kind_correct").status == "pass"
+    assert loose.check("kind_correct").evidence["compat"] == "refusal"
+    assert loose.check("refusal_expected").status == "pass"
+    assert loose.status == "pass"
+
+
+def test_expected_refusal_literal_value_still_matches_by_equality() -> None:
+    """字面 refusal 本来就走相等分支：开关前后都 pass，且不带 compat 标记。"""
+    case = h2kind_case()
+    gold = h2kind_gold(case)
+    for result in (
+        score_case(case, gold, EvalOutcome(kind="refusal")),
+        score_case(case, gold, EvalOutcome(kind="refusal"), compat_refusal_kind=True),
+    ):
+        assert result.check("kind_correct").status == "pass"
+        assert "compat" not in result.check("kind_correct").evidence
+        assert result.status == "pass"
+
+
+def test_expected_refusal_but_answered_still_fails_when_opted_in() -> None:
+    """应该拒答却作答：opt-in 也不放过（kind_correct 与 refusal_expected 双 fail）。"""
+    case = h2kind_case()
+    result = score_case(
+        case,
+        h2kind_gold(case),
+        EvalOutcome(kind="answer", text="城南店的联系人是张三。"),
+        compat_refusal_kind=True,
+    )
+    assert result.check("kind_correct").status == "fail"
+    assert result.check("refusal_expected").status == "fail"
+    assert result.status == "fail"
+
+
+@pytest.mark.parametrize(
+    ("expected", "actual"),
+    [
+        ("not_found", "no_answer"),
+        ("no_answer", "not_found"),
+        ("not_found", "refusal"),
+        ("answer", "no_answer"),
+        ("conflict", "not_found"),
+        ("clarification", "not_found"),
+    ],
+)
+def test_explicit_kinds_stay_strict_when_opted_in(expected: str, actual: str) -> None:
+    """显式 kind（not_found/no_answer/answer/conflict/clarification）不享受放宽。"""
+    case = h2kind_case(expected_kind=expected, should_refuse=False)
+    result = score_case(
+        case, h2kind_gold(case), EvalOutcome(kind=actual), compat_refusal_kind=True
+    )
+    assert result.check("kind_correct").status == "fail"
+
+
+def h2kind_public_score(kind: str, *, text: str = "") -> P2ScoredCase:
+    """把一条拒答题送进 P2 评分路径（score_public_case -> score_case）。"""
+    case = h2kind_case()
+    row = case_row(case, [turn_row(product(kind=kind, text=text, sources=()))])
+    return score_public_case(case, row, document_codes={})
+
+
+def h2kind_public_checks(scored: P2ScoredCase) -> dict[str, str]:
+    return {check["check_id"]: check["status"] for check in scored.score.checks}
+
+
+@pytest.mark.parametrize("kind", ["not_found", "no_answer"])
+def test_p2_public_path_accepts_product_refusal_for_expected_refusal(kind: str) -> None:
+    """P2 路径显式打开开关：产品拒答（not_found/no_answer）即计 pass。"""
+    scored = h2kind_public_score(kind)
+    checks = h2kind_public_checks(scored)
+    assert checks["kind_correct"] == "pass", (kind, checks)
+    assert checks["refusal_expected"] == "pass", (kind, checks)
+    assert scored.score.status == CASE_STATUS_PASS, (kind, checks)
+    assert scored.result is not None
+    assert scored.result.check("kind_correct").evidence["compat"] == "refusal"
+
+
+def test_p2_public_path_still_fails_when_expected_refusal_but_answered() -> None:
+    scored = h2kind_public_score("answer", text="城南店的联系人是张三。")
+    checks = h2kind_public_checks(scored)
+    assert checks["kind_correct"] == "fail" and checks["refusal_expected"] == "fail", checks
+    assert scored.score.status == CASE_STATUS_FAIL

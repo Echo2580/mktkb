@@ -1,0 +1,51 @@
+# T207-FIX-H2KIND 独立验收证据 01：范围与合规（只读核对）
+
+## 分支与 HEAD（核验期间发生并行包提交）
+- 分支 codex/p2-e2e；开工 HEAD **3bc8347**；收工 HEAD **0260b7b**（并行包 FIX-CONFLICT 提交，非本包）。
+- `git diff --stat 3bc8347 0260b7b -- backend/src/mktkb/evaluation` = **空** → 评分源码基线未漂移，
+  本包差分仍以 3bc8347 的 scorers.py/p2_scoring.py 为基。
+- 本包四个文件**未提交**：`git grep compat_refusal_kind HEAD` 无匹配；HEAD 只含并行包改动。
+
+## 本包工作区改动（git diff --numstat）
+```
+34  2   backend/src/mktkb/evaluation/scorers.py
+9   0   backend/src/mktkb/evaluation/p2_scoring.py
+203 0   backend/tests/evaluation/test_p2_holdout_scorecard.py
+129 0   backend/tests/evaluation/test_p2_scoring.py
+```
+测试两文件删除行 = 0（只增）；源码净增 +41 行（+34/−2 与 +9/−0）。
+
+## 范围归属（非本包，未验/未改）
+- `backend/src/mktkb/conversations/{intent,service}.py`、`backend/src/mktkb/copy.py`：
+  注释标注 T207-FIX-CONFLICT/N08，且已随并行 commit 0260b7b 落盘。
+- `docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md`、`.claude/handoffs/_index.md`：经理/并行。
+（结论：本包改动面 = 上述 4 文件 + 本报告目录。）
+
+## 受保护路径
+- `git status --porcelain -- backend/src/mktkb/evaluation/{p2_runner,p2_live,runner}.py fixtures backend/src/mktkb/conversations` → **空**。
+- 账本/预算/GO 相关路径 `git status` → **空**（未改）。
+- 本包/本次验收无 commit、无 push、无 stash/切分支；HEAD 前移来自并行包 commit 0260b7b（非本包）。
+
+## 唯一显式打开点
+- 生产代码：`backend/src/mktkb/evaluation/p2_scoring.py:899`  `compat_refusal_kind=True`（仅此一处）。
+- `scorers.py` 内 `_kind_checks` 唯一调用点（:1189）透传参数；`score_case` 默认 `False`。
+- `runner.py` 五处 `score_case` 均不传该参数（P1 默认路径）。
+- 全仓 src 无其它 `compat_refusal_kind=True`；测试内仅用于构造对照臂。
+
+## 无 skip/xfail、零真实出站
+- 新增行无 `pytest.skip/xfail/mark.skip`（grep 命中仅为数据构造里的 `skipped=False`）。
+- 新增代码无 httpx/requests/http(s) 调用；H2 卡 `execution_mode=local_mock`、`real_calls=0`。
+- `.env` 未读；H2 封存 root 未打开；`fixtures/evaluation/holdout-questions.jsonl` 仅作为**不透明输入**
+  参与差分（只输出计数/sha，未打印题干）。
+
+## 报告自述 sha16 / 行数（独立复算一致）
+| 文件 | 行数 | sha256[0:16] |
+|---|---|---|
+| scorers.py | 1383 | 4036fc7625ea40b4 |
+| p2_scoring.py | 2225 | 4727689e3aea710e |
+| test_p2_scoring.py | 1319 | 734279a15c2f6ffc |
+| test_p2_holdout_scorecard.py | 1403 | 04e26d747456bfc8 |
+
+## 核验过程侧记（无残留）
+- 首次导出 HEAD 源码时，本机 `%TEMP%` 为空导致临时目录落在仓库内 `undefined/temp/`（181 个 HEAD 源文件 + pycache）。
+  已整体删除，`git status` 无该路径、无残留；随后改用绝对临时目录复跑全部探针。

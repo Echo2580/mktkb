@@ -772,6 +772,11 @@ def score_public_case(
     ``execution_mode``/``real_calls`` 由 run 上下文显式传入（C1）：默认保守地记
     ``local_mock``/0；真实链必须在构造时明确标 ``live`` 并给出实测出站次数，
     不允许"默认当成真实"或"mock 上顺手标真实"。
+
+    本函数是**全仓唯一**打开 ``compat_refusal_kind`` 的地方（T207-FIX-H2KIND）：P2 公开
+    评分与 H2 评分（``p2_score_run.holdout_case_scores_from_rows``）都经过这里，因此
+    ``expected_kind="refusal"`` 的题接受 ``no_answer``/``not_found``/``refusal`` 任一拒答
+    结局；P1（``runner.score_case``）不传该开关，口径逐字不变。
     """
     if not isinstance(case, CaseSpec):
         raise P2ScoringError("case_invalid", "score_public_case 只接受 CaseSpec")
@@ -882,12 +887,16 @@ def score_public_case(
     # 允许集合 = 问题/金标/参考答 ∪ **本轮引用证据里的数字**（引用 locator 的 cell
     # display 等）。B0 Q09-Q24 的答案会回显整行记录（电话/地址里的数字就在所引用的那一
     # 行），旧口径把它们当"编造"；默认路径（P1）不传这个参数，口径逐字不变。
+    # T207-FIX-H2KIND：expected_kind="refusal" 是 P1 兼容值（产品只回 not_found /
+    # no_answer），故 kind_correct 在这里按「任一拒答结局」判；显式 kind 仍严格相等。
+    # 默认路径（P1）不传这个参数，字面相等口径逐字不变。
     result = score_case(
         case,
         _resolved_without_index(case),
         outcome,
         cross_explicit_space=True,
         allowed_number_keys=citation_number_keys(outcome.citations),
+        compat_refusal_kind=True,
     )
     if result.status == STATUS_SKIPPED_OCR:
         issues.append(P2IsolationIssue("ocr_silently_skipped", case.case_id))

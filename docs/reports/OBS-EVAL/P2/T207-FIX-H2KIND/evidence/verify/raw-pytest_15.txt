@@ -1,0 +1,30 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 77 items / 62 deselected / 15 selected
+
+backend\tests\evaluation\test_p2_scoring.py::test_expected_refusal_accepts_any_refusal_kind_when_opted_in[not_found] PASSED [  6%]
+backend\tests\evaluation\test_p2_scoring.py::test_expected_refusal_accepts_any_refusal_kind_when_opted_in[no_answer] PASSED [ 13%]
+backend\tests\evaluation\test_p2_scoring.py::test_expected_refusal_literal_value_still_matches_by_equality PASSED [ 20%]
+backend\tests\evaluation\test_p2_scoring.py::test_expected_refusal_but_answered_still_fails_when_opted_in PASSED [ 26%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[not_found-no_answer] PASSED [ 33%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[no_answer-not_found] PASSED [ 40%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[not_found-refusal] PASSED [ 46%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[answer-no_answer] PASSED [ 53%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[conflict-not_found] PASSED [ 60%]
+backend\tests\evaluation\test_p2_scoring.py::test_explicit_kinds_stay_strict_when_opted_in[clarification-not_found] PASSED [ 66%]
+backend\tests\evaluation\test_p2_scoring.py::test_p2_public_path_accepts_product_refusal_for_expected_refusal[not_found] PASSED [ 73%]
+backend\tests\evaluation\test_p2_scoring.py::test_p2_public_path_accepts_product_refusal_for_expected_refusal[no_answer] PASSED [ 80%]
+backend\tests\evaluation\test_p2_scoring.py::test_p2_public_path_still_fails_when_expected_refusal_but_answered PASSED [ 86%]
+backend\tests\evaluation\test_p2_holdout_scorecard.py::test_h2_expected_refusal_is_no_longer_a_structural_failure PASSED [ 93%]
+backend\tests\evaluation\test_p2_holdout_scorecard.py::test_h2_expected_refusal_answered_wrongly_still_fails PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================ 15 passed, 62 deselected, 1 warning in 0.12s =================

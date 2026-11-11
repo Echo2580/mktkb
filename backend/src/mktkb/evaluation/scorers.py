@@ -27,6 +27,12 @@ provider、不访问数据库、不读环境变量、不依赖时钟/随机数�
 ``refusal`` 视为"拒答"；``clarification`` / ``conflict`` / ``ambiguous`` 是交互或
 冲突结局，不算拒答；``error`` / ``service_error`` 是执行失败（由 kind 正确率与门禁处理）。
 
+``kind_correct`` 默认按**字面相等**比较。``refusal`` 只是 P1 兼容值（设计
+``OutcomeKind`` 无该成员，产品实际只回 ``no_answer``/``not_found``），因此 P2 路径
+显式打开 ``score_case(..., compat_refusal_kind=True)``：``expected_kind == "refusal"``
+时接受任一拒答结局（``REFUSAL_KINDS``），显式 kind 仍严格相等；默认关闭 → P1 口径
+逐字不变（T207-FIX-H2KIND）。
+
 unit 级口径：引用/检索项以 ``unit_ids`` 展开后按 unit 去重，同一 unit 的多个
 chunk 只算一次。缺少 ``unit_ids`` 的引用项仍计入精确率分母（不可虚增），但无法
 命中 gold unit（fail closed）；检索项的 unit 身份同理。
@@ -72,6 +78,7 @@ __all__ = [
     "EvalOutcome",
     "EvalRetrieved",
     "PAGINATION_CHECK_IDS",
+    "REFUSAL_COMPAT_KIND",
     "REFUSAL_KINDS",
     "aggregate_metrics",
     "answer_metrics",
@@ -116,6 +123,10 @@ CHECK_IDS: tuple[str, ...] = (
 #: 视为"拒答"的结局；error/service_error 是失败，不是拒答。
 #: ``refusal`` 是归一化兼容值（设计 ``OutcomeKind`` 无此成员），同样按拒答计。
 REFUSAL_KINDS = frozenset({"no_answer", "not_found", "refusal"})
+
+#: ``expected_kind`` 里的 P1 兼容值：产品不产出字面 ``refusal``，故在 P2 路径上按
+#: "任一拒答结局"匹配（见 ``compat_refusal_kind``）。显式 kind 不享受这条放宽。
+REFUSAL_COMPAT_KIND = "refusal"
 
 _INVISIBLE = frozenset("\u200b\u200c\u200d\u2060\ufeff")
 _WHITESPACE_RE = re.compile(r"\s+")
@@ -724,11 +735,25 @@ def is_refusal(kind: Any) -> bool:
     return _kind_text(kind) in REFUSAL_KINDS
 
 
-def _kind_checks(case: CaseSpec, outcome: EvalOutcome) -> tuple[tuple[CaseCheck, ...], bool]:
+def _kind_checks(
+    case: CaseSpec, outcome: EvalOutcome, *, compat_refusal_kind: bool = False
+) -> tuple[tuple[CaseCheck, ...], bool]:
     expected_kind = _kind_text(case.expected_kind)
     actual_kind = _kind_text(outcome.kind)
     if actual_kind == expected_kind:
         kind_check = _pass("kind_correct", {"expected": expected_kind, "actual": actual_kind})
+    elif (
+        compat_refusal_kind
+        and expected_kind == REFUSAL_COMPAT_KIND
+        and actual_kind in REFUSAL_KINDS
+    ):
+        # T207-FIX-H2KIND（P2 专用 opt-in）：期望值是 P1 兼容值 ``refusal``，产品只回
+        # ``no_answer``/``not_found`` —— 按"任一拒答结局"计正确。显式 kind（answer /
+        # not_found / no_answer / conflict）不走这条分支，仍要求字面相等。
+        kind_check = _pass(
+            "kind_correct",
+            {"expected": expected_kind, "actual": actual_kind, "compat": REFUSAL_COMPAT_KIND},
+        )
     else:
         kind_check = _fail("kind_correct", {"expected": expected_kind, "actual": actual_kind})
 
@@ -1096,6 +1121,7 @@ def score_case(
     *,
     cross_explicit_space: bool = False,
     allowed_number_keys: Collection[str] | None = None,
+    compat_refusal_kind: bool = False,
 ) -> CaseResult:
     """对单条 case 做确定性打分，返回逐项 check + 可聚合指标 + 运行成本字段。
 
@@ -1110,6 +1136,10 @@ def score_case(
       与 ``_gold_number_keys(case)`` 取并集后才判"编造"。P2 传
       :func:`citation_number_keys`（本轮引用证据里的数字）；默认 ``None``/空 →
       只看问题/金标/参考答案/业务日期，P1 逐字不变（检查结果与 case 状态都不变）。
+    - ``compat_refusal_kind`` 是 ``kind_correct`` 的 P2 专用 opt-in（T207-FIX-H2KIND）：
+      打开后 ``expected_kind == "refusal"``（P1 兼容值）接受任一拒答结局
+      （``no_answer``/``not_found``/``refusal``），显式 kind 仍严格相等。默认 ``False`` →
+      P1 路径的字面相等口径与 ``refusal_expected``/``refusal_unexpected`` 语义逐字不变。
     """
     if not isinstance(case, CaseSpec):
         raise TypeError("score_case 只接受 CaseSpec")
@@ -1156,7 +1186,9 @@ def score_case(
         )
     )
     checks.extend(_source_checks(case, outcome, resolved))
-    kind_checks, refused = _kind_checks(case, outcome)
+    kind_checks, refused = _kind_checks(
+        case, outcome, compat_refusal_kind=compat_refusal_kind
+    )
     checks.extend(kind_checks)
     checks.extend(_pagination_checks(case, outcome))
 

@@ -84,9 +84,13 @@ from mktkb.evaluation.p2_scoring import (
     CASE_STATUS_ERROR,
     CASE_STATUS_FAIL,
     CASE_STATUS_PASS,
+    P2_HOLDOUT_STRATA,
     P2HoldoutCaseScore,
     load_p2_gate_config,
+    normalize_product_outcome,
 )
+from mktkb.evaluation.gold import ResolvedGold
+from mktkb.evaluation.scorers import citation_number_keys, score_case
 from mktkb.evaluation.product_adapter import (
     ChatBehavior,
     IngestSource,
@@ -1197,3 +1201,202 @@ async def test_public_run_never_writes_holdout_scorecard(tmp_path: Path) -> None
     assert (run_dir / "cases.jsonl").is_file()
     assert not (run_dir / "holdout_scorecard.json").exists()
     assert not (run_dir / "holdout_aggregate.json").exists()
+
+# --------------------------------------------------------------------------- #
+# T207-FIX-H2KIND：合成 H2 30 题（answer 23 / conflict 1 / refusal 6）
+# 只在内存里按逐题行打分（不跑产品、不走封存加解密、零真实调用）。
+# --------------------------------------------------------------------------- #
+
+H2KIND_CASE_PREFIX = "P2HK"
+#: 金标值：无数字、无内部空白 —— 与 value/metric 的其它 opt-in 无关，单变量只是拒答口径。
+H2KIND_VALUE = "合成命中答案甲"
+H2KIND_DOC_NAME = "D01_物品位置表.xlsx"
+H2KIND_UNIT_ID = "33333333-3333-4333-8333-333333333333"
+H2KIND_UNIT_KEY = "sheet:物品位置:row:8"
+H2KIND_DOCUMENT_CODES = {H2KIND_DOC_NAME: "D01"}
+H2KIND_SOURCE_INDEX = {
+    H2KIND_UNIT_ID: {"doc_code": "D01", "unit_key": H2KIND_UNIT_KEY, "locator": {}}
+}
+#: 冻结分层（本文件自己写一份；与 P2_HOLDOUT_STRATA 漂移即失败）。
+H2KIND_STRATA_PLAN: tuple[tuple[str, int], ...] = (
+    ("paraphrase", 10),
+    ("multi_turn", 5),
+    ("negative", 5),
+    ("stale_conflict", 5),
+    ("cross_doc_security", 5),
+)
+
+
+def _h2kind_specs() -> tuple[CaseSpec, ...]:
+    """30 题：5 负样本 + 1 越权安全题 = 6 道 refusal；1 道冲突题；其余 23 道 answer。"""
+    assert dict(H2KIND_STRATA_PLAN) == dict(P2_HOLDOUT_STRATA)
+    specs: list[CaseSpec] = []
+    index = 0
+    for stratum, count in H2KIND_STRATA_PLAN:
+        for offset in range(count):
+            index += 1
+            refusal = stratum == "negative" or (
+                stratum == "cross_doc_security" and offset == 0
+            )
+            conflict = stratum == "stale_conflict" and offset == 0
+            specs.append(
+                CaseSpec(
+                    case_id=f"{H2KIND_CASE_PREFIX}-{index:02d}",
+                    suite="p2-holdout",
+                    split="holdout",
+                    stratum=stratum,
+                    business_date=BUSINESS_DATE,
+                    question=f"{QUESTION_TOKEN} 合成问句 {index:02d}",
+                    expected_kind="refusal" if refusal else ("conflict" if conflict else "answer"),
+                    expected_values=() if (refusal or conflict) else (H2KIND_VALUE,),
+                    expected_sources=(
+                        ()
+                        if (refusal or conflict)
+                        else ({"doc_code": "D01", "unit_key": H2KIND_UNIT_KEY},)
+                    ),
+                    reference_answer="" if (refusal or conflict) else f"{H2KIND_VALUE}（合成）",
+                    labeler="data-custodian",
+                    label_version=LABEL_VERSION,
+                    should_refuse=refusal,
+                    refusal_reason="合成负样本：语料无答案" if refusal else None,
+                )
+            )
+    return tuple(specs)
+
+
+def _h2kind_rows(
+    specs: tuple[CaseSpec, ...], *, answered: bool = False
+) -> dict[str, dict[str, Any]]:
+    """逐题行：拒答题由产品回 not_found（真实形态；answered=True 时故意答 answer）。"""
+    rows: dict[str, dict[str, Any]] = {}
+    for spec in specs:
+        if spec.expected_kind == "refusal" and not answered:
+            product: dict[str, Any] = {"kind": "not_found", "text": "", "sources": []}
+        elif spec.expected_kind == "conflict":
+            product = {"kind": "conflict", "text": "两份资料不一致（合成）", "sources": []}
+        else:
+            product = {
+                "kind": "answer",
+                "text": f"资料写着：{H2KIND_VALUE}",
+                "sources": [
+                    {
+                        "source_id": H2KIND_UNIT_ID,
+                        "document_name": H2KIND_DOC_NAME,
+                        "version_number": 1,
+                        "status": "active",
+                        "locator": {"sheet": "物品位置", "row": 8},
+                    }
+                ],
+            }
+        rows[spec.case_id] = {
+            "case_id": spec.case_id,
+            "status": "ok",
+            "error_code": None,
+            "planned_turns": 1,
+            "turns": [
+                {
+                    "turn": 1,
+                    "status": "ok",
+                    "error_code": None,
+                    "product": {**product, "trace_id": f"trace-{spec.case_id}"},
+                }
+            ],
+        }
+    return rows
+
+
+def _h2kind_marks(
+    specs: tuple[CaseSpec, ...],
+    rows: dict[str, dict[str, Any]],
+    *,
+    compat_refusal_kind: bool,
+) -> tuple[P2HoldoutCaseScore, ...]:
+    """直接调共享 scorer 复现"改前/改后"口径：唯一变量就是 compat_refusal_kind。"""
+    marks: list[P2HoldoutCaseScore] = []
+    for spec in specs:
+        row = rows[spec.case_id]
+        outcome = normalize_product_outcome(
+            row["turns"][-1],
+            document_codes=H2KIND_DOCUMENT_CODES,
+            source_index=H2KIND_SOURCE_INDEX,
+        )
+        result = score_case(
+            spec,
+            ResolvedGold(
+                case_id=spec.case_id,
+                requires_ocr=False,
+                skipped=False,
+                sources=(),
+                unit_ids=(),
+                relevant_unit_ids=(),
+            ),
+            outcome,
+            cross_explicit_space=True,
+            allowed_number_keys=citation_number_keys(outcome.citations),
+            compat_refusal_kind=compat_refusal_kind,
+        )
+        marks.append(
+            P2HoldoutCaseScore(
+                case_id=spec.case_id,
+                stratum=str(spec.stratum),
+                status=CASE_STATUS_PASS if result.status == "pass" else CASE_STATUS_FAIL,
+            )
+        )
+    return tuple(marks)
+
+
+def _h2kind_production_marks(
+    specs: tuple[CaseSpec, ...], rows: dict[str, dict[str, Any]]
+) -> tuple[P2HoldoutCaseScore, ...]:
+    marks, unclassified = p2_score_run.holdout_case_scores_from_rows(
+        specs,
+        rows,
+        document_codes=H2KIND_DOCUMENT_CODES,
+        source_index=H2KIND_SOURCE_INDEX,
+    )
+    assert unclassified == []
+    return marks
+
+
+def test_h2_expected_refusal_is_no_longer_a_structural_failure() -> None:
+    """H2 上限不再是结构性 24/30：6 道 refusal 被产品拒答即计 pass（30/30）。"""
+    specs = _h2kind_specs()
+    rows = _h2kind_rows(specs)
+    marks = _h2kind_production_marks(specs, rows)
+    card = p2_score_run.aggregate_holdout_bundle(marks).to_dict()
+
+    assert (card["total"], card["executed"], card["errors"]) == (30, 30, 0)
+    assert (card["passed"], card["failed"]) == (30, 0)
+    assert card["threshold_met"] is True
+    assert "holdout_below_threshold" not in {block["code"] for block in card["blocks"]}
+
+    # 修复前口径（同一批行，只关掉新开关）：6 道 refusal 结构性 fail → 24/30 封顶。
+    before = _h2kind_marks(specs, rows, compat_refusal_kind=False)
+    before_card = p2_score_run.aggregate_holdout_bundle(before).to_dict()
+    assert (before_card["passed"], before_card["failed"]) == (24, 6)
+    # 生产入口与"手动复现"逐题一致（差异只来自那一个开关）。
+    assert [(item.case_id, item.status) for item in marks] == [
+        (item.case_id, item.status) for item in _h2kind_marks(specs, rows, compat_refusal_kind=True)
+    ]
+    # 前后差异严格等于 6 道 refusal（不是把 30 题一起放宽）。
+    before_by_id = {item.case_id: item.status for item in before}
+    flipped = {
+        item.case_id for item in marks if before_by_id[item.case_id] != item.status
+    }
+    refusal_ids = {spec.case_id for spec in specs if spec.expected_kind == "refusal"}
+    assert len(refusal_ids) == 6
+    assert flipped == refusal_ids
+    assert all(before_by_id[case_id] == CASE_STATUS_FAIL for case_id in flipped)
+
+
+def test_h2_expected_refusal_answered_wrongly_still_fails() -> None:
+    """同一开关：应该拒答却作答 → 6 题仍 fail（refusal_expected 语义不变，不是凡拒答题都放过）。"""
+    specs = _h2kind_specs()
+    rows = _h2kind_rows(specs, answered=True)
+    card = p2_score_run.aggregate_holdout_bundle(
+        _h2kind_production_marks(specs, rows)
+    ).to_dict()
+
+    assert (card["total"], card["errors"]) == (30, 0)
+    assert (card["passed"], card["failed"]) == (24, 6)
+    assert "holdout_below_threshold" not in {block["code"] for block in card["blocks"]}
