@@ -7,6 +7,9 @@
 
 ## 1 真实余量（2026-11-11 只读快照）
 
+> 本节是 **T207 准备时（跑前）** 的只读快照（已用 547 / 余 653）。R1–R3 执行后的最新读数见 §8.1
+> （691 请求 / 阶段 6.5409604 / 项目 21.6119049）；执行前按 runbook §1.1 重算，勿把本节当现状。
+
 | 项 | 值 |
 |---|---|
 | 账本 | `6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c`，1,050,298 B，1095 行 |
@@ -64,6 +67,9 @@
 | 1 | R3 | 547 | 801 ≤ 1200 | ocr 0.5 + 5.65 = 6.15 ≤ 6.5 | ok |
 | 2 | R2 | 553 | 807 ≤ 1200 | ocr 0.5 + 5.65 = 6.15 ≤ 6.5 | ok |
 | 3 | R1 | 568 | 822 ≤ 1200 | ocr 0.5 + 5.65 = 6.15 ≤ 6.5 | ok |
+
+> 表中「授权时已用请求」的 547 / 553 / 568 是 **R1–R3 跑前快照**；R1–R3 执行后的实测基数见 §8.1（已用 **691**），
+> 勿把本表当现状；执行前按 runbook §1.1 重算。
 
 **反证**（evidence/validate-plan-out.txt 的 reorder_control）：若 R1 先跑，它把 ocr 占到 6.15，
 之后任何一次授权都只剩 0.35 < 5.65 → center_budget_insufficient:ocr（请求窗口其实还够：411 ≥ 254）。
@@ -171,3 +177,83 @@ T207 准备时的基线是 `HARD_MAX_REQUESTS = 1000`（`p2_contracts.py:87`）�
 | 项目总上限 | 40.00 | 15.6423028（已含 P2 的 0.5713583）+ 公开 8.145808 = **23.7881108**；含 H2 ≈ **25.4088468** | 通过 |
 | 累计请求 | 1600（已落盘） | 公开 263（R1 的 242 是**计划上界**，见 runbook §5）、H2 144+14 | 通过；每计划自身 max_requests 是更早的闸 |
 | H2 阶段含 OCR | — | 10.3379023 + 5.65 = **15.99 ≤ 20**（旧文写 21.18 不可行，源自 H2 侧 4 倍误算；H2 语料包声明 requires_ocr 全 false，实际无 OCR 项） | 资金可行；请求侧另按 1600 累计 |
+
+## 8 R4 定点重测（N08/C05/C06）的请求、金额与结算口径（T207-R4PREP）
+
+> 本节数字全部可离线复算：`evidence/{build-r4.py,r4-ingest-probe.py,validate-r4.py}` 与其输出
+> `evidence/{build-r4-out.txt,r4-ingest-state.json,validate-r4-out.txt}`。真实账本/预算只被**只读**读过
+> （前后 SHA 一致，见 `validate-r4-out.txt` 的 `read_only_proof`）。
+
+### 8.1 已结算实测（R1/R2/R3 跑完后，账本口径）
+
+| 运行 | 请求 | 逐 operation（reservation） | 保守结算（元） |
+|---|---|---|---|
+| R1 | **129** | index_embedding 12 / ocr 12 / answer 52 / query_embedding 27 / rerank 26 | 5.9473320 |
+| R2 | **10** | index_embedding 4 / answer 2 / query_embedding 2 / rerank 2 | 0.0207119 |
+| R3 | **5** | index_embedding 2 / answer 1 / query_embedding 1 / rerank 1 | 0.0015582 |
+| **合计** | **144** | — | **5.9696021** |
+
+- 累计请求 **547 + 144 = 691**；阶段已占 **6.5409604** 元（= 5.9696021 + T206 pilot 的 0.5713583）；
+  项目总占用 21.6119049 元。
+- **口径更正（如实）**：§3 表的 242 / 15 / 6（累计 263 / 8.145808 元）是**计划上界**，不是实测；
+  实测更低有两个原因：① 产品只给当前有效版建索引、并按 content_sha256 复用 embedding 缓存
+  （R1 灌库实测 **12** 批 vs 计划声明 22）；② 不是每回合都发 query_embedding/rerank
+  （R1 52 回合只有 27 / 26 次）。核账一律以账本的 reservation 计数为准。
+
+### 8.2 R4 计划（`PM/T207-plan-R4-v0_1.json`，13 项 / 18 请求 / 无 OCR）
+
+| operation | 中心 | 请求 | 单次上界 | worst-case | 成功估价 |
+|---|---|---|---|---|---|
+| index_embedding（**B_r4 = 6 批**） | answer_retrieval | 6 | 0.002048 | 0.012288 | 0.0018 |
+| query_embedding（3 回合） | answer_retrieval | 3 | 0.002048 | 0.006144 | 0.0009 |
+| rerank（3） | answer_retrieval | 3 | 0.004800 | 0.014400 | 0.0030 |
+| query_expansion（3） | answer_retrieval | 3 | 0.018688 | 0.056064 | 0.0120 |
+| answer（3） | answer_retrieval | 3 | 0.018688 | 0.056064 | 0.0120 |
+| **合计** | — | **18** | — | **0.144960** | **0.0297** |
+
+- 串行单次峰值预留 `reserve_peak=0.018688` ≤ `max_request_cny=0.5` ✓；`page_count=0`（**无 OCR 项**）。
+- **B_r4 = 6** 的推导：`sum(ceil(每次 embed 的待嵌入文本数 / 5))`，逐次 = 9→2、1→1、1→1（V04 不发布、
+  不同步）、4→1、1→1 ⇒ **6**；上界口径（每版全量重嵌、无缓存）= 9；方法学自证：同一测法对
+  R2 计划给 **4**、R3 计划给 **2**，与 live 账本这两个 run 的 `ingest-index-embedding` 预留数**逐值相等**
+  （`evidence/r4-ingest-state.json` 的 `crosscheck_r2_r3`）。与 R2/R3 的异同：同（都含版本槽三步 + 不发布版），
+  异（R4 把 R2 的 4 步与 R3 的 2 步**合并成一库**，故 B_r4 = 4 + 2 = 6，一次灌库同时满足 C05/C06）。
+
+### 8.3 累计与授权窗口
+
+| 项 | R4 前（实测） | R4 后（worst 上界） | 上限 | 判定 |
+|---|---|---|---|---|
+| 累计请求 | 691 | **709** | 1600（硬顶） | 余 891 ✓ |
+| 阶段占用（元） | 6.5409604 | **6.6859204** | 20.00 | 余 13.3140796 ✓ |
+| 项目总占用（元） | 21.6119049 | **21.7568649** | 40.00 | 余 18.2431351 ✓ |
+| answer_retrieval 中心 | 0.3909604 | **0.5359204** | 8.50 | ✓ |
+| ocr 中心 | 6.15 | 6.15（R4 无 OCR） | 6.50 | ✓ |
+
+> 「判定」列的余量**全部按 R4 后（worst 上界）基准**：1600−709 = 891；20.00−6.6859204 = **13.3140796**；
+> 40.00−21.7568649 = **18.2431351**（旧文 13.4590 / 18.3880 是 R4 **前**余量，与请求列基准不一致，已统一）。
+
+- 请求窗口（计划自身口径）：`plan.total_requests(18) ≤ max_requests(760) − 已用(691) = 69` ✓
+  —— 760 = 691 + 余量，`validate-r4-out.txt` 的 `preflight_real_snapshot.ok=true`。
+- 负例（同一次校验运行，逐条按稳定码拒）：`go_operation_unauthorized`、`go_max_requests_below_plan`、
+  `go_plan_sha256_mismatch`、`go_plan_id_mismatch`、`go_cost_center_below_plan`、`go_max_request_cny_below_plan`、
+  `go_expired`、`request_budget_insufficient`（负例 case 名为 `requests_over_remaining`）、`center_budget_exceeded`、
+  `request_cap_over_hard_limit`、`plan_requests_over_cap`。
+- **12 条负例覆盖 11 个稳定码**（`go_max_requests_below_plan` 出现两次：打 600 与打 10，同一谓词）；
+  case 名与稳定码不同名（`center_below_plan_need` 实际在计划构造期就以 `center_budget_exceeded` 拒 ⇒
+  它**没有**覆盖 preflight 的中心窗口码 `center_budget_insufficient:<center>`；该谓词由 R4PREP 独立验收补测通过）。
+- **R4PREP-R1 复核**：本节数字与当前计划/窗口逐值一致（18 请求 / `max_requests=760` / worst `0.144960` /
+  累计 `709 ≤ 1600` / 阶段 `6.6859204 ≤ 20` / 项目 `21.7568649 ≤ 40`），无需改动。
+
+### 8.4 「可执行」≠「目标可达」——历史读数，已由 FIX-CONFLICT-R2 闭环
+
+R4 计划与候选 GO 的**算术**成立、可离线复算。以下是 **R4PREP 在 HEAD `489aadd` 上的读数**（历史）：
+C05/C06 能返回 `conflict` + 两个正确来源，但**冲突值只出现在 API 的 `conflicts` 负载里**，
+消息 `text` 只有"资料中对位置/电话记录了多个有效值…"，而冻结评分器的 `value_hit` 只读 `outcome.text`
+（`scorers.py:632` 未变；`product_adapter.py:2137` 与 `product_adapter.py:1999-2028` 是 `489aadd` 下的行号，
+LIVECAP `1dca413` 后 `text=` 引用移到 **2156**、`async def ask_turn` 起于 **2020**），两种运行形状
+（live 门控 / 不限 embedding）都 `value_hit fail`：`evidence/r4-ingest-state.json` 的
+`scoring_gated` / `scoring_ungated` 即该读数（**修复前**，不要当现状引用）。
+
+**现状（T207-R4PREP-R1 更正经）**：产品侧文案修复（FIX-CONFLICT-R2，`24f9cde`）落地后，冻结 CaseSpec 下
+C05/C06 `value_hit fail → pass`、N08/C05/C06 三例全 pass，且**请求形状与金额逐值不变**（冲突轮仍 0 次 chat）
+⇒ 本节 §8.1–8.3 的请求/金额读数继续有效，**R4 计划/case/灌库计划/GO 无需改动**。live 侧首次验证仍是
+R4 本身（R2/R3 的 live 读数早于修复，`actual=answer`），见 `report.md` §9.3/§9.5。

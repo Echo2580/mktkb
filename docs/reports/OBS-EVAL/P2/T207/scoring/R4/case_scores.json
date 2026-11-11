@@ -1,0 +1,343 @@
+{
+  "schema_version": "p2-score-bundle/v0.1",
+  "run_id": "p2-t207-r4-20261111-01",
+  "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+  "index_revision": 5,
+  "execution_mode": "live",
+  "real_calls": 10,
+  "case_scores": [
+    {
+      "case_id": "N08",
+      "suite": "negative",
+      "stratum": "negative",
+      "status": "pass",
+      "requires_ocr": false,
+      "planned_turns": 1,
+      "executed_turns": 1,
+      "checks": [
+        {
+          "check_id": "value_hit",
+          "status": "skipped",
+          "evidence": {
+            "reason": "should_refuse"
+          }
+        },
+        {
+          "check_id": "value_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_values"
+          }
+        },
+        {
+          "check_id": "value_no_fabricated",
+          "status": "skipped",
+          "evidence": {
+            "reason": "should_refuse"
+          }
+        },
+        {
+          "check_id": "source_hit",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_sources"
+          }
+        },
+        {
+          "check_id": "source_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_sources"
+          }
+        },
+        {
+          "check_id": "kind_correct",
+          "status": "pass",
+          "evidence": {
+            "expected": "not_found",
+            "actual": "not_found"
+          }
+        },
+        {
+          "check_id": "refusal_expected",
+          "status": "pass",
+          "evidence": {
+            "should_refuse": true,
+            "refused": true,
+            "kind": "not_found"
+          }
+        },
+        {
+          "check_id": "refusal_unexpected",
+          "status": "skipped",
+          "evidence": {
+            "should_refuse": true,
+            "refused": true,
+            "kind": "not_found"
+          }
+        },
+        {
+          "check_id": "pagination_total",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_returned",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_has_more",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_next_page",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        }
+      ],
+      "issues": [],
+      "turn_kinds": [
+        "not_found"
+      ],
+      "trace_ids": [
+        "480d78fbe4494920993f9a9034b40066"
+      ],
+      "execution_mode": "live",
+      "real_calls": 0
+    },
+    {
+      "case_id": "C05",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "status": "pass",
+      "requires_ocr": false,
+      "planned_turns": 1,
+      "executed_turns": 1,
+      "checks": [
+        {
+          "check_id": "value_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 2,
+            "missing": []
+          }
+        },
+        {
+          "check_id": "value_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_values"
+          }
+        },
+        {
+          "check_id": "value_no_fabricated",
+          "status": "pass",
+          "evidence": {
+            "checked": 2,
+            "evidence_numbers": 1
+          }
+        },
+        {
+          "check_id": "source_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 2,
+            "matched": 2
+          }
+        },
+        {
+          "check_id": "source_forbidden",
+          "status": "pass",
+          "evidence": {
+            "checked": 1
+          }
+        },
+        {
+          "check_id": "kind_correct",
+          "status": "pass",
+          "evidence": {
+            "expected": "conflict",
+            "actual": "conflict"
+          }
+        },
+        {
+          "check_id": "refusal_expected",
+          "status": "skipped",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "conflict"
+          }
+        },
+        {
+          "check_id": "refusal_unexpected",
+          "status": "pass",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "conflict"
+          }
+        },
+        {
+          "check_id": "pagination_total",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_returned",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_has_more",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_next_page",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        }
+      ],
+      "issues": [],
+      "turn_kinds": [
+        "conflict"
+      ],
+      "trace_ids": [
+        "321b0a5f378c41f49ac3e7c81e091c6a"
+      ],
+      "execution_mode": "live",
+      "real_calls": 0
+    },
+    {
+      "case_id": "C06",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "status": "pass",
+      "requires_ocr": false,
+      "planned_turns": 1,
+      "executed_turns": 1,
+      "checks": [
+        {
+          "check_id": "value_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 2,
+            "missing": []
+          }
+        },
+        {
+          "check_id": "value_forbidden",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_forbidden_values"
+          }
+        },
+        {
+          "check_id": "value_no_fabricated",
+          "status": "pass",
+          "evidence": {
+            "checked": 2,
+            "evidence_numbers": 3
+          }
+        },
+        {
+          "check_id": "source_hit",
+          "status": "pass",
+          "evidence": {
+            "expected": 2,
+            "matched": 2
+          }
+        },
+        {
+          "check_id": "source_forbidden",
+          "status": "pass",
+          "evidence": {
+            "checked": 1
+          }
+        },
+        {
+          "check_id": "kind_correct",
+          "status": "pass",
+          "evidence": {
+            "expected": "conflict",
+            "actual": "conflict"
+          }
+        },
+        {
+          "check_id": "refusal_expected",
+          "status": "skipped",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "conflict"
+          }
+        },
+        {
+          "check_id": "refusal_unexpected",
+          "status": "pass",
+          "evidence": {
+            "should_refuse": false,
+            "refused": false,
+            "kind": "conflict"
+          }
+        },
+        {
+          "check_id": "pagination_total",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_returned",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_has_more",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        },
+        {
+          "check_id": "pagination_next_page",
+          "status": "skipped",
+          "evidence": {
+            "reason": "no_expected_pagination"
+          }
+        }
+      ],
+      "issues": [],
+      "turn_kinds": [
+        "conflict"
+      ],
+      "trace_ids": [
+        "397a49ba242347539d1ed4901876ae52"
+      ],
+      "execution_mode": "live",
+      "real_calls": 0
+    }
+  ]
+}

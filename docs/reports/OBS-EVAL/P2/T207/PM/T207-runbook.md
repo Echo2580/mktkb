@@ -2,7 +2,7 @@
 
 - 适用：`PM/T207-plan-v0_1.json`（`plan_sha256=0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194`，254 请求 / worst-case 8.127376 元 / `max_requests=1200`）
   + 重发后的 `PM/T207-GO.CANDIDATE-DRAFT.json`（**不可用**，等经理落盘到固定路径）。
-- **当前状态（2026-11-11 T207-FIX-A 交付后）**：计划通过真实快照预检（`ok=true`、`stage_remaining=19.4286417`、
+- **当前状态（2026-11-11 T207-FIX-A 交付后；R4 另见第 4 项）**：计划通过真实快照预检（`ok=true`、`stage_remaining=19.4286417`、
   `requests_remaining=653`）；三处前置已解决：
   1. 请求硬顶已落盘 1600（T207-FIX-B），公开计划按经理决定重发为 `max_requests=1200`（sha 见上）；
   2. 驱动/生成器已交付：`--ingest-plan`（版本槽）、`cases/{R1,R2,R3}.jsonl`、`p2-h2-plan`、`p2-score`、
@@ -10,6 +10,11 @@
   3. 固定路径 `P2-LIVE-GO.json` 仍指向 T206 pilot 计划（`02725aa7…`）：经理必须按**新 sha** 重签，否则
      被 `go_plan_id_mismatch` 拒（T206 pilot 的 `plan_id` 不同；旧文写 `go_plan_sha256_mismatch` 已由
      T207-FIX-A 独立验收纠正——sha 不匹配只在 plan_id 相同时才会被先撞到）。fail-closed，符合预期。
+  4. **R4（N08/C05/C06 定点重测）备件齐全、前置已闭环**：计划 `PM/T207-plan-R4-v0_1.json`
+     （13 项 / 18 请求 / worst 0.144960 元 / `max_requests=760` / 无 OCR）+ 灌库计划 + `cases/R4.jsonl` + 候选 GO。
+     ① 冲突值口径已由 FIX-CONFLICT-R2（`24f9cde`）在产品侧闭合（冻结评分下 C05/C06 由 fail 变 pass）；
+     ② live 单请求上限已由 FIX-LIVECAP（`1dca413`）闭合（无 OCR 计划 effective = 0.04096）。
+     两条都不改计划内容 ⇒ `plan_sha` 不变、不重签计划（口径见 §9）。详见 §3.2 与 §9。
 - **顺序约束（务必按此顺序）**：R3 → R2 → R1。计划含 12 页 OCR（上界 5.65），ocr 中心只有 6.5；
   R1 跑完后 ocr 已占 6.15，再授权必然 `center_budget_insufficient:ocr`（请求窗口其实还够）。
   反证见 `evidence/validate-plan-out.txt` 的 `reorder_control` 与 `T207-cost-and-quota.md` §3.1。
@@ -21,10 +26,13 @@
 cd 'D:\GPT项目\市场部AI知识库'
 git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 
-# 1.1 账本/预算 SHA（本包基线；任何变化都说明有人写过，停）
+# 1.1 账本/预算 SHA（**先跑、把两个 sha 与账本字节/行数记进本次 run 记录**，见 §2 第 5 项（记录）；账本不预设断言值）
 .venv\Scripts\python.exe -B -X utf8 -c "import hashlib,pathlib;L=pathlib.Path('docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl');B=L.with_name('budget.json');print(hashlib.sha256(L.read_bytes()).hexdigest());print(hashlib.sha256(B.read_bytes()).hexdigest())"
-#   期望：6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c  (1,050,298 B)
-#        79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e
+#   账本**不写死期望值**：每次真实 run（R1/R2/R3、R4、H2）都会追加记录，照抄历史 sha 只会让执行在第一步停。
+#   参考快照（**R1–R3 后 / R4 前**，仅供对照，不得当断言值）：05b54d06…，1,354,211 B / 1383 行 / 691 reserved / 691 result。
+#     真实 run 之后这几项必然变（R4 已写入新 reservation 即属此列）⇒ 执行前一律重算、以当次输出为准。
+#   预算才是可断言的不变量：79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e（本阶段不改预算文件）。
+#   跨执行的账本变化不算异常；唯一的不变量判据 = 同一次执行内 §1.3 预检前后逐值相同（§1.4）。
 
 # 1.2 正式 GO 的 SHA（必须等于经理签发记录值）
 .venv\Scripts\python.exe -B -X utf8 -c "import hashlib,pathlib;p=pathlib.Path('docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json');print(p.exists() and hashlib.sha256(p.read_bytes()).hexdigest())"
@@ -32,11 +40,13 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 # 1.3 只读契约复核（真实快照；不预留、不发请求）
 .venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\validate-plan.py
 
-# 1.4 预检后立即复算 1.1（必须逐值相同，证明预检零写入）
+# 1.4 预检后立即复算 1.1（**必须逐值相同**，证明预检零写入；这是唯一可断言的判据，跨执行变化不算异常）
 ```
 
-预期读数：`preflight_real_snapshot.ok=true`、`requests_planned=254`、`requests_remaining=653`、
-`worst_case=8.127376`、`reserve_peak=0.5`、`production_ready=true`（快照来自固定路径）。
+预期读数（**T207-FIX-A 交付时的数，R1–R3 执行后不再成立**；一律以 §1.3 的当次输出为准）：
+`preflight_real_snapshot.ok=true`、`requests_planned=254`、`requests_remaining=653`、`worst_case=8.127376`、
+`reserve_peak=0.5`、`production_ready=true`（快照来自固定路径）。R4 的对应读数是 18 请求 / `max_requests=760` /
+worst `0.144960`（窗口 69，见 §3.2）；判据始终是 **`ok=true` + 计划自身窗口**，不是上面这几个历史数。
 若 `reasons` 出现 `budget_total_mismatch`/`stage_allocation_missing` → 预算还没按 40/20 落盘，停。
 
 ## 2 签发（经理做；本 runbook 不代签）
@@ -55,6 +65,8 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 5. 记录：GO SHA、预算 SHA、账本历史前缀、`plan_sha256`、三个 `run_id`（R1/R2/R3 各一）。
 
 ## 3 三次运行（顺序固定 R3 → R2 → R1；每次 run 新开一扇门）
+
+### 3.1 公开三 run（R3 → R2 → R1）
 
 三次 run 用**同一份计划文件**（sha 必须一致）与**同一张 GO**，但每次都是独立进程 + `open_live_gate` 新门；
 灌库用 `--ingest-plan`（同槽新版本 / 不发布），题集用 `cases/{R1,R2,R3}.jsonl`；
@@ -96,15 +108,59 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 - 每次 run 后按 §5 核对；三次 run 的产物分别落在 `<仓库外>\{R1,R2,R3}`，只把 §5 列的文件复制进仓库。
 - 请求/资金上限：单次 worst 8.127376（计划上界）≤ 19.4286417；累计 263 请求 / 8.145808 元。
 
+### 3.2 R4 定点重测（N08/C05/C06；1 run / 18 请求 / worst 0.144960 元 / 无 OCR）
+
+T207-R4PREP 新增。R4 是**独立重测**：不参与 R1/R2/R3 的三 run 观测矩阵，也不与它们拼结论。
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 tools\p2_live_execute.py ^
+  --env-file "<工作区外>\p2-live.env" -- p2-run ^
+  --plan   "docs\reports\OBS-EVAL\P2\T207\PM\T207-plan-R4-v0_1.json" ^
+  --out    "<仓库外新目录>\R4" ^
+  --cases  "docs\reports\OBS-EVAL\P2\T207\cases\R4.jsonl" ^
+  --ingest-plan "docs\reports\OBS-EVAL\P2\T207\PM\T207-ingest-plan-R4.json" ^
+  --mode live --run-id "p2-t207-r4-20261111-01" ^
+  --dataset-version p2-t207-r4-20261111-v0.1 --label-version p2-t207-labels-20261111-v0.1
+```
+
+- 计划 `plan_sha256=00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9`（13 项 / 18 请求 /
+  `max_requests=760` / `page_count=0`）；候选 GO `PM/T207-GO-R4.CANDIDATE-DRAFT.json` 绑该 sha、13 天、
+  中心 8.5/6.5/3/2、`max_request_cny=0.5`、操作 = answer/index_embedding/query_embedding/query_expansion/rerank（**无 ocr**）。
+- 灌库 6 步**同一库**（顺序即语义）：V03 建 D01 槽 → D01 当前版 → V04 处理**不发布** → V01 发布 → D02 → V02 发布。
+  终态实测：4 份资料 / D01 槽 3 版（v1 superseded、v2 active、v3 review_required）/ revision 5 /
+  索引 4 份 23 单元 / **B_r4 = 6 批**（上界 9）。证据：`evidence/r4-ingest-state.json`。
+- **前置 1（已闭环）**：冲突值口径已由 FIX-CONFLICT-R2（`24f9cde`，产品侧 1 处文案）闭合 —— 冲突轮 text 改为
+  通用披露「字段：[值1、值2]」，冻结 CaseSpec 下 N08/C05/C06 全 pass（`T207-FIX-CONFLICT-R2/review.md`）。
+  该改动**不改计划内容**：`plan_sha` 不变、R4 **不重签计划**（裁定见 §9），GO 仍按流程签发。
+  live 首验即本 run，仍存在产品仍回 `answer` 的可能（R2/R3 的 live 读数早于修复），出现即按 §4/§6 停并归因。
+- **前置 2（T207-FIX-LIVECAP，已修）**：live 的 `RagConfig.max_request_cny` 不再取 `plan.reserve_peak_cny`，
+  而是 `max(计划峰值, 各已接 provider 单次预留)` 且 ≤ GO 的 `authorization.max_request_cny`（推导见
+  `docs/evaluation/p2-live-binding-v0_1.md` §10.10）。本计划 `page_count=0`（峰值 0.018688）时
+  effective = **0.04096**（embedding 的 81,920 token 单次预留）⇒ **GO 的 `max_request_cny` 必须 ≥ 0.04096**
+  （候选 GO 的 0.5 满足；H2 同理，其计划也是 `page_count=0`）；不足则**装配期 fail-closed**：
+  `live_request_ceiling_insufficient`，零发送 / 零预留 / 零降级 / 无产物，停，不要改代码绕过。
+  未修之前的后果（历史读数，别照抄）：每次 embed 在发送前被拒；live 实参 `require_zero_retries=True` 下
+  **首回合即 `aborted(product_service_error)`**（账本只留 1 次 chat 预留，以 `failed`/`INDEX_NOT_READY` 结算），零答案。
+  跑后先看 `summary.json` 的 `providers.live.request_ceiling.effective_max_request_cny` = 0.04096
+  （同处还有 `authorization_max_request_cny` 0.5、`provider_single_request_cny.embedding` 0.04096）。
+  **索引健康度不要到 `summary.json`/`run_manifest.json` 的 `pipeline.index` 里找**——runner 只抄
+  `documents/units/chunks/engine_version/provider_mode` 五键（`p2_runner.py:2291-2296`）；`degraded` 是
+  `qa.status()`/`QaIndexStatus` 的**进程内**字段（`qa/service.py:272-284`），不入产物。判读改为：
+  `run_manifest.ingest` 逐 source 的 `upload_status`/`job_state`/`publish_status`（`product_adapter.ingest` 回执，
+  R4 产物即此形状）+ 失败码（`ingest_failed`、`OCR_NOT_CONFIGURED`、`EMBEDDING_DEGRADED_NO_RETRY`，见 §6）。
+- 产物落位：跑完只按 §5 复制到 `docs/reports/OBS-EVAL/P2/T207/<run_id>/`；trace 库与业务库留仓库外。
+
 ## 4 停止规则（触发即停；不重试、不补跑、不改计划续跑）
 
-1. §1 任一检查不符（SHA 变化、GO 缺失/过期、预检 `ok=false`）。
+1. §1 任一检查不符：**预算 sha 变**、**同一次执行内 §1.1 前后不一致**（§1.4）、GO 缺失/过期、预检 `ok=false`。
+   账本 sha 因**其它 run** 变化不算异常（见 §1.1），但必须在启动前把当次值记进记录。
 2. 门控拒绝（稳定码）：`path_missing`/`path_not_fixed`、`go_expired`、`go_plan_id_mismatch`（固定路径那张旧 GO
    首先是 plan_id 不同）、`go_plan_sha256_mismatch`、
    `go_max_requests_below_plan`、`go_cost_center_below_plan`、`go_operation_unauthorized`、`budget_stage_missing`、
    `budget_history_mismatch`、`env_total_limit_missing`/`env_total_limit_mismatch`、`live_requires_production_ready`、
    `live_requires_real_gate`、`center_budget_exceeded`、`request_limit`、`ledger_prefix_mismatch`、
-   `attempt_quota_exhausted`（计划低估，发送前）、`attempt_accounting_mismatch`、`usage_evidence_missing`。
+   `attempt_quota_exhausted`（计划低估，发送前）、`attempt_accounting_mismatch`、`usage_evidence_missing`、
+   `live_request_ceiling_insufficient`（GO 单请求上限 < provider 单次预留 0.04096，装配期拒；见 §3.2 前置 2）。
 3. 产品侧：首个 `product_service_error`、`turn_timeout`（60 s）、`adapter_error`、`ingest_failed`。
 4. OCR：任一页失败/空片段/缺 usage，或运行时 `mode` 与计划项模型不一致（`ocr_mode_plan_mismatch`）→ 停（**重试 0**）。
 5. 金额/请求即将越过计划上界（`requests_planned=254`、`worst_case=8.127376`、单次 0.5）→ 停并报告。
@@ -310,7 +366,29 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
 
 - 只重跑**失败与受影响范围**（同一 plan + 同一 GO 可以，但每次 run 会再消耗一次授权：见 §7）。
 - 不得拼接不同版本的结果过关（任务书 §5「结果身份」）：改了 pipeline/计划/GO → 新版本、新 run、新记录。
+  例外判据见 §9 下文「重签口径」（**注意**：不是相邻的下一条 bullet）：**只改产品输出文本、不改计划内容（计划项/请求形状/操作集合）不算 pipeline 变更**。
 - 不得因为"产品答错"挑题重跑；质量 fail 继续采集。
+
+- **R4 前置（T207-R4PREP / -R1）：已闭环**。历史（HEAD `489aadd`）：C05/C06 的冲突值只在 API 的 `conflicts`
+  负载里、消息 `text` 只有"资料中对位置/电话记录了多个有效值…"，而冻结评分器的 `value_hit` 只读
+  `outcome.text`（`scorers.py:632`；`product_adapter.py:2156` 只取 `payload["text"]`；行号为当前工作区，`489aadd` 时为 2137）⇒ 两种形状
+  （`evidence/r4-ingest-state.json` 的 `scoring_gated` / `scoring_ungated`，**修复前读数**）都 `value_hit fail`。
+  已按 a) 产品侧 1 处文案落地：FIX-CONFLICT-R2（`24f9cde`）让冲突轮通用披露「字段：[值1、值2]」
+  （值来自 `conflicts`；仍 0 次模型调用，`conflicts`/`sources` 结构不变），冻结 CaseSpec 下 N08/C05/C06 **全 pass**
+  （独立验收：`T207-FIX-CONFLICT-R2/review.md`）。⇒ 签 R4 GO **不再需要**先做口径决策，只剩 §3.2 两条前置（均已修）。
+- **重签口径（F-3 经理裁定，写死）**：**只改产品输出文本、不改计划内容时，`plan_sha` 不变，R4 不重签计划**；
+  GO 仍按流程签发（GO 绑定 `plan_sha`）。判据 = 「计划项 / 请求形状 / 操作集合 / 证据链有没有变」：没变就不算
+  pipeline 变更，照旧用同一份计划与候选 GO；一旦改到这些，才回到"新计划 + 新 GO"。FIX-CONFLICT-R2 与
+  FIX-LIVECAP 都属前者 —— R4 计划 `00b9fdef…`（13 项 / 18 请求 / `max_requests=760`）、`cases/R4.jsonl`、
+  灌库计划、候选 GO 逐字未变。
+- **R4 只重跑这 3 例**；因**计划/请求形状**变更而重跑 = **新计划 + 新 GO**（`plan_sha` 绑定），
+  计入同一 20 元与同一累计请求；不得把 R4 的读数拼进 R1/R2/R3 的矩阵产物（`release_decision=false` 不变）。
+- **接线面（T207-FIX-LIVECAP，已修，§3.2 前置 2）**：F-1 的「live 发不出 embedding POST」已在产品侧修掉：
+  R4/H2 这类 `page_count=0` 计划跑 live 时 effective 单请求上限 = 0.04096，**GO 的 `max_request_cny` 必须
+  ≥ 0.04096**（候选 GO 与 H2 候选 GO 都是 0.5，满足）；不足则装配期 `live_request_ceiling_insufficient`
+  fail-closed（零发送/零预留/零降级/无产物）。该修复不改计划内容，`plan_sha256`/GO 绑定字段/请求形状都不变。
+  未修之前的历史后果：live 下首回合即 `aborted(product_service_error)`（不是"静默降级"）；`page_count=0` 计划
+  的灌库降级为 `embedding_error` 只在 Mock/不限出站路径上可观测，别拿它当 live 风险形态。
 
 ## 10 现场保留 / 回滚
 

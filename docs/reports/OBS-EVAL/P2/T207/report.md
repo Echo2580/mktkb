@@ -81,3 +81,150 @@
   `center_budget_insufficient:ocr`（请求窗口仍够）。反证见 `evidence/validate-plan-out.txt` 的 `reorder_control`。
 - 已交付驱动/生成器：`--ingest-plan`（版本槽）、`cases/{R1,R2,R3}.jsonl`、`p2-h2-plan`、`p2-score`、`p2-matrix`、
   `p2-u-controls`、`tools/p2_live_execute.py`；详见 `docs/reports/OBS-EVAL/P2/T207-FIX-A/report.md`。
+
+## 9 R4 定点重测准备（P2-T207-R4PREP，2026-11-11）
+
+- 角色/边界：全新上下文的准备助手；**零真实调用**（ProductEvalAdapter Mock 路径）、零网络、零 commit；
+  未改源码/测试/fixtures/账本/预算/GO 固定路径；未读 `.env`/H1/H2。
+- **HEAD**：R4PREP 交付时为 **`489aadd`**（已含 FIX-CONFLICT-R1）。旧文写 `0260b7b` 是开工前的 HEAD，已过期。
+  **后续已提交**：`24f9cde`（FIX-CONFLICT-R2：冲突回答 text 披露双方取值）、`1dca413`（FIX-LIVECAP：live 单请求上限）。
+  本次文档收口（T207-R4PREP-R1）的基线 = **`1dca413`**。
+- 现场（只读复核，前后 SHA 一致）：账本 `05b54d06…`（1,354,211 B / 1383 行 / **691 reserved / 691 result**）、
+  预算 `79b21700…`；阶段已占 **6.5409604** 元、中心 `answer_retrieval 0.3909604 / ocr 6.15`。
+  （以上是 **R4 前快照**；任何真实 run 都会推进账本与占用，执行前按 runbook §1.1/§1.4 重算。）
+
+### 9.1 交付物
+
+| 文件 | 说明 |
+|---|---|
+| `cases/R4.jsonl` | N08 → C05 → C06 三个 CaseSpec（**既有只读转换器** `p2_public_cases.load_acceptance_cases(ids=…)` 生成，字段逐项回溯冻结题集），sha256 `c04b67c6…`；`document-codes.json` **沿用**（V03/V04 是 D01 槽的版本、产品文档名仍是 `D01_物品位置表.xlsx`，无需新增映射） |
+| `PM/T207-ingest-plan-R4.json` | `p2-ingest-plan/v0.1`，6 步**同一库**：V03 建槽 → D01 → V04（**不发布**）→ V01 → D02 → V02；sha256 `07c2694b…` |
+| `PM/T207-plan-R4-v0_1.json` | `P2RunPlan`：13 项 / 3 回合 ×4 + 1 个 `index_embedding`(requests=B_r4) / **18 请求** / **无 OCR 项** / `max_requests=760` / 中心 8.5-6.5-3-2；`plan_sha256=00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9` |
+| `PM/T207-GO-R4.CANDIDATE-DRAFT.json` | DRAFT 候选（`document=P2-LIVE-GO` + authorization 里写死 NOT USABLE）：绑 plan_sha、账本历史前缀 `f4710b18…`、五操作（无 ocr）、`max_requests=760`、中心同值、13 天（`2026-11-11T12:30Z+08` → `2026-11-24T12:30Z+08`） |
+| `evidence/build-r4.py` + `build-r4-out.txt` | 三段构造（inputs / plan / go），B 从实测状态文件读入，不估 |
+| `evidence/r4-ingest-probe.py` + `r4-ingest-state.json` | 灌库终态 + B_r4 实测 + 三例两种运行形状的逐题观测与**冻结评分器**判定（评分结论为**修复前**读数，见 §9.3） |
+| `evidence/validate-r4.py` + `validate-r4-out.txt` | 计划/候选 GO 的离线校验：预检、授权、12 条负例、只读证明 |
+| `evidence/r4-dryrun-out.json` | `p2-run` **dry_run**（Mock、零发送）把同一计划/case/灌库跑通：3/3 例执行、`requests_sent=0`、`production_ready=false`、灌库 revision 1→2→(V04 不发布不加 revision)→3→4→5 |
+
+### 9.2 关键读数
+
+- **灌库终态（实测）**：4 份资料；D01 槽 3 版（v1=V03 `superseded`、v2=D01 `published`+**active**、
+  v3=V04 `review_required`+未发布）；V01 / D02 / V02 各 v1 `published` 且 active（D02 与 V02 是两份独立资料）；
+  `product_revision=5`；索引 4 份 / 23 单元 / 15 chunk。九条断言全 hold（`state_checks.all_hold=true`）。
+- **逐 step 预期状态（顺序即语义；实测回执见 `r4-ingest-state.json` 的 `receipts`/`documents`）**：
+  `p2-ingest-plan/v0.1` 的 source 只接受 `path/name/document_ref/expected_active_version_id/publish`
+  （`product_adapter.py:381-425` 未知字段一律拒），所以**断言不能写进计划文件**，只能落在证据里：
+
+  | # | 上传 | 名/引用 | publish | 预期（→ 实测） |
+  |---|---|---|---|---|
+  | 1 | V03 历史V1 | `name=D01_物品位置表.xlsx`（建槽） | 是 | 新资料 v1 published+active（9 单元） |
+  | 2 | D01 | `document_ref=D01_物品位置表.xlsx` → v2 | 是 | v1→superseded，v2 published+**active**（9 单元） |
+  | 3 | V04 新版V3 | `document_ref` → v3 | **否** | v3 `review_required`、`published_at=null`、**不 active**；active 仍是 v2 |
+  | 4 | V01 临时位置通知 | 独立资料 | 是 | 新资料 v1 published+active（5 单元）→ 与 D01 槽**双有效**（C05 的冲突来源） |
+  | 5 | D02 合作店家信息 | 独立资料 | 是 | 新资料 v1 published+active（4 单元） |
+  | 6 | V02 联系方式变更通知 | 独立资料 | 是 | 新资料 v1 published+active（5 单元）→ 与 D02 **双有效**（C06 的冲突来源） |
+
+- **B_r4 = 6 批**（产品 chunker + `embedding_batch_size=5` 口径，离线实测；上界口径 9）。
+  推导：逐次 `embed()` 的待嵌入文本数 = 9 / 1 / 1 /（V04 不发布，不同步）/ 4 / 1 ⇒ `ceil` 求和 = **6**。
+  方法学自证：同一测法对 R2 计划给 **4**、R3 计划给 **2**，与 live 账本这两个 run 的 `ingest-index-embedding`
+  预留数**逐值相等** ⇒ 6 可信。与 R2/R3 的异同：同（版本槽 3 步 + 不发布语义）；异（R4 把 R2 的 4 步与
+  R3 的 2 步**合并成一库**，所以 B_r4 = 4 + 2，一次灌库同时满足 C05 与 C06 两个冲突）。
+  取舍（如实）：计划写**实测值 6**而不是上界 9 —— 多出 1 个 POST 就会在发送前 `attempt_quota_exhausted`
+  （零花费，但整轮 run 作废）；即"精确但无安全余量"。
+- **计划算术**：18 请求 / worst-case **0.144960** 元 / `reserve_peak=0.018688`（≤ `max_request_cny=0.5`）/
+  成功估价 0.0297 元 / `page_count=0`。请求窗口 `18 ≤ 760 − 691 = 69` ✓；预检 `ok=true`
+  （`stage_remaining=13.4590396`、`requests_remaining=69`、`center_remaining.answer_retrieval=8.1090396`）。
+- **候选 GO 授权链**：`authorize_p2` 通过且 `production_ready=false`（GO 来自内存，非固定路径）；
+  12 条负例全部按稳定码拒（覆盖 11 个稳定码，见下）：`go_operation_unauthorized` / `go_max_requests_below_plan` /
+  `go_plan_sha256_mismatch` / `go_plan_id_mismatch` / `go_cost_center_below_plan` /
+  `go_max_request_cny_below_plan` / `go_expired` / `request_budget_insufficient` /
+  `center_budget_exceeded` / `request_cap_over_hard_limit` / `plan_requests_over_cap`）。
+  - **12 条负例 = 11 个稳定码**：`go_max_requests_below_plan` 出现两次（打 600 与打 10，同一谓词）。
+  - **case 名 ≠ 稳定码**：`requests_over_remaining` 命中的码是 `request_budget_insufficient`；
+    `center_below_plan_need` 实际在**计划构造期**就以 `center_budget_exceeded` 拒，**没有**覆盖 preflight 的
+    中心窗口码 `center_budget_insufficient:<center>`。R4PREP 独立验收另补 `preflight_center_window_insufficient`
+    与 GO 账本绑定 `go_ledger_binding_mismatch` 两条谓词，均通过（`T207-R4PREP/review.md` §4）。
+  - **forbidden 两条是"不可命中"**：`C05.forbidden_sources=[V03]`、`C06.forbidden_sources=[V06]`，而
+    `cases/document-codes.json` 只按**产品文档名**映射（不含版本号）：V03 以 `name=D01_物品位置表.xlsx`
+    入槽、产品侧文档名仍是 D01；V06 不在 R4 灌库包里。⇒ 这两条 `source_forbidden` 判 pass 只说明"没有误报"，
+    **不证明检查有效**（R2/C05、R3/C06 同形，属既有口径，不是 R4 引入）。
+- **只读证明**：账本/预算 SHA 与字节数前后逐值相同；固定路径 `P2-LIVE-GO.json` 未被创建/修改。
+
+- **驱动接受性（dry_run 实测）**：`p2-run`（Mock，零发送，产物写仓库外）跑同一计划/case/灌库 →
+  `status=succeeded`、`cases 3/3 executed`、`requests.real_requests=0`、`gate.real_sends_allowed=false`、
+  `production_ready=false`、`plan_sha256` 与文件逐值相同。⇒ 文件本身能被真实驱动接受。
+  （旧文写"挡住 R4 的不是接线"，**不成立**：当时确有接线阻断 F-1；F-1 已由 FIX-LIVECAP 修掉，
+  见 §9.5。证据：`evidence/r4-dryrun-out.json`。）
+
+### 9.3 结论（R4PREP-R1 更正经：历史读数 + 修复后已可达）
+
+**历史读数（HEAD `489aadd`，未含 FIX-CONFLICT-R2）：当时不可达** —— 不是召回形状问题，是**观测口径**问题：
+
+- 三例在**同一 KB** 里都能被正确识别：N08 `not_found`（含"范围外/无法"，0 次模型调用）；
+  C05 `conflict` + 来源 D01/V01；C06 `conflict` + 来源 D02/V02；三者均 0 次模型调用（门控只拒第 2 次 query embedding）。
+- 但 C05/C06 的**冲突值只在 API 的 `conflicts` 负载里**，消息 `text` 是
+  「资料中对位置/电话记录了多个有效值，请以下列来源为准核对…」；而冻结评分器的 `value_hit` 只读 `outcome.text`
+  （`scorers.py:632`；adapter 只取 `payload["text"]`，`product_adapter.py:2156`（`489aadd` 时为 2137））。
+- 实测（两种形状都 fail）：`scoring_gated` = N08 `pass` / C05 `fail` / C06 `fail`，失败项都是 `value_hit`
+  （`kind_correct`、`source_hit`、`source_forbidden`、`value_no_fabricated` 全 pass）；`scoring_ungated` 同结论
+  ⇒ 与"单次召回形状"无关，改门控也不会让它过。当时的逐题读数见 §9.1 的 `r4-ingest-state.json`（**修复前读数**，不要当现状引用）。
+
+**FIX-CONFLICT-R2（`24f9cde`，产品侧 1 处文案）落地后：已闭环、目标可达（Mock 证据）**。冲突轮文本改为通用披露
+「字段：[值1、值2]」（值本就来自 `conflicts`；仍 0 次模型调用，`conflicts`/`sources` 结构不变）。
+冻结 CaseSpec 下 **N08 `pass` / C05 `pass` / C06 `pass`**（`value_hit fail → pass`），
+54 例差分只剩 {C05,C06} 的文本与 strict 判定；独立验收判**接收（阻断 0）**
+（`T207-FIX-CONFLICT-R2/report.md` §4、`review.md` §0/§2.3）。
+
+⇒ **R4 计划 / cases / 灌库计划 / 候选 GO 全部不变、无需改动**：`plan_sha256` 是计划内容哈希，文案改动不改请求形状
+（冲突轮 0 次 chat、1 次 rerank、1 次 query_embedding），GO 绑的 `plan_id/plan_sha256/operations/cost_centers` 都不变。
+裁定见 §9.5（F-3）。
+
+**仍未覆盖（如实）**：修复后可达性的直接证据**只有 Mock**；live 上还从未观测到 `conflict`
+（R2/R3 两次 live 的 `kind_correct` 都是 `expected=conflict, actual=answer`，且早于 `0260b7b` 与 R2 的文案修复）。
+⇒ live 首次验证即 R4 本身，仍存在"产品仍回 `answer`"的可能；出现即按 runbook §4/§6 停并归因。
+
+### 9.4 复跑入口（零真实调用）
+
+```powershell
+.venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\build-r4.py --step inputs
+.venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\r4-ingest-probe.py --out docs\reports\OBS-EVAL\P2\T207\evidence\r4-ingest-state.json
+.venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\build-r4.py --step plan
+.venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\build-r4.py --step go
+.venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207\evidence\validate-r4.py
+
+# 驱动接受性（Mock、零发送；--out 必须写仓库外，跑完即删）
+.venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run ^
+  --plan "docs\reports\OBS-EVAL\P2\T207\PM\T207-plan-R4-v0_1.json" ^
+  --out "<仓库外目录>\R4-dryrun" ^
+  --cases "docs\reports\OBS-EVAL\P2\T207\cases\R4.jsonl" ^
+  --ingest-plan "docs\reports\OBS-EVAL\P2\T207\PM\T207-ingest-plan-R4.json" ^
+  --run-id p2-t207-r4-dryrun-01 ^
+  --dataset-version p2-t207-r4-20261111-v0.1 --label-version p2-t207-labels-20261111-v0.1
+```
+
+预期：`batches_B=6`（`crosscheck_r2_r3.matches_live` 全 true）、`state_checks.all_hold=true`、
+`preflight_real_snapshot.ok=true`、`authorize_candidate.production_ready=false`、12 条负例（11 个稳定码）全拒、
+`read_only_proof.unchanged=true`。
+
+### 9.5 R4PREP 验收项闭环摘要（T207-R4PREP-R1 文档收口）
+
+| 验收项 | 原判定 | 现状 | 依据 |
+|---|---|---|---|
+| F-1 live 发不出 embedding POST（无 OCR 计划） | BLOCKER | **已闭环**（产品侧修） | `T207-FIX-LIVECAP`（`1dca413`）+ 其 `review.md`「接收（阻断 0）」 |
+| F-2 §9.3「目标不可达」过期 | FAIL | **已闭环**（§9.3 改写为历史读数 + 修复后可达） | `T207-FIX-CONFLICT-R2`（`24f9cde`）+ 其 `report.md` §4 / `review.md` §2.3 |
+| F-3 runbook §9 与 §9.3 重签口径冲突 | FAIL | **已裁定并写死** | 经理裁定（下条）+ runbook §9「重签口径」 |
+| F-4 HEAD 写错 | FAIL | **已闭环** | §9 首部（HEAD 更正）：交付时 `489aadd`、代码基线 `1dca413`；其后为文档/执行产物提交（不改代码） |
+| F-5 §9.2「不是接线」不成立 | FAIL | **已闭环** | §9.2 改口径；F-1 已修 |
+| F-6 口径小项（12 负例/forbidden/6 vs 9/case 名） | 建议 | **已补** | §9.2 三条子项 + B_r4 取舍 |
+
+- **F-3 经理裁定（写死，runbook §9 同文）**：**只改产品输出文本、不改计划内容时，`plan_sha` 不变，R4 不重签计划**；
+  GO 仍按流程签发（GO 绑定 `plan_sha`）。判据是「计划项 / 请求形状 / 操作集合 / 证据链有没有变」，没变就不算
+  pipeline 变更；改到这些才回到"新计划 + 新 GO"。FIX-CONFLICT-R2 与 FIX-LIVECAP 都属前者：R4 计划
+  `plan_sha256=00b9fdef…`（13 项 / 18 请求 / `max_requests=760`）、`cases/R4.jsonl`、灌库计划、候选 GO 逐字未变。
+- **前置（执行侧，已写进 runbook §3.2/§9）**：R4/H2 都是 `page_count=0` 计划 ⇒ live effective 单请求上限 = 0.04096，
+  **GO 的 `max_request_cny` 必须 ≥ 0.04096**（候选 0.5 满足）；不足则装配期 `live_request_ceiling_insufficient`
+  fail-closed（零发送/零预留/零降级/无产物）。
+- **归因（F-12）**：`PM/T207-PM-decisions-01.md` 在经理侧已追加 **§11/§12**（执行阶段与 R4/H2 执行前决定），
+  属**经理侧写入**、不是 R4PREP/R2 收口包的交付面；工作区 git 会把该 tracked 文件显示为已改，别误记成本包改动。
+- 本收口包：只改文档、**零真实调用、零网络、零 commit**；未重跑计划校验（`P2RunPlan` 内容未变），
+  只读引用既有证据（`T207-R4PREP/review.md`、R2/LIVECAP 报告与验收）。

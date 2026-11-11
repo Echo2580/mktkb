@@ -1,0 +1,132 @@
+##### build-r4.py --step inputs
+{
+ "step": "inputs",
+ "cases": {
+  "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\cases\\R4.jsonl",
+  "sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+  "case_ids": [
+   "N08",
+   "C05",
+   "C06"
+  ],
+  "suites": [
+   "negative",
+   "boundary",
+   "boundary"
+  ],
+  "label_version": "acceptance-B0-69bd0f8680c8",
+  "expected_kind": [
+   "not_found",
+   "conflict",
+   "conflict"
+  ]
+ },
+ "ingest_plan": {
+  "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-ingest-plan-R4.json",
+  "sha256": "07c2694ba7d41f9222457f142143bbecb25a42a046eb4b885d6ea8fe28c9b239",
+  "sources": 6,
+  "order": [
+   {
+    "path": "V03_物品位置表_历史V1.xlsx",
+    "name": "D01_物品位置表.xlsx",
+    "document_ref": null,
+    "publish": true
+   },
+   {
+    "path": "D01_物品位置表.xlsx",
+    "name": null,
+    "document_ref": "D01_物品位置表.xlsx",
+    "publish": true
+   },
+   {
+    "path": "V04_物品位置表_新版V3.xlsx",
+    "name": null,
+    "document_ref": "D01_物品位置表.xlsx",
+    "publish": false
+   },
+   {
+    "path": "V01_临时物料位置通知.pdf",
+    "name": null,
+    "document_ref": null,
+    "publish": true
+   },
+   {
+    "path": "D02_合作店家信息.xlsx",
+    "name": null,
+    "document_ref": null,
+    "publish": true
+   },
+   {
+    "path": "V02_店家联系方式变更通知.pdf",
+    "name": null,
+    "document_ref": null,
+    "publish": true
+   }
+  ]
+ }
+}
+
+##### build-r4.py --step plan
+{
+ "step": "plan",
+ "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-plan-R4-v0_1.json",
+ "file_sha256": "d68db2074f84f79b7b4b207dc369ae7c12ef65d622c768af42e095ac4efd0022",
+ "plan_id": "P2-T207-R4-20261111",
+ "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+ "items": 13,
+ "cases": 4,
+ "turns": 4,
+ "ocr_pages": 0,
+ "total_requests": 18,
+ "max_requests": 760,
+ "worst_case_cny": 0.14496,
+ "reserve_peak_cny": 0.018688,
+ "estimated_success_cny": 0.0297,
+ "by_operation": {
+  "index_embedding": 6,
+  "query_embedding": 3,
+  "rerank": 3,
+  "query_expansion": 3,
+  "answer": 3
+ },
+ "center_needs_cny": {
+  "answer_retrieval": 0.14496,
+  "ocr": 0.0,
+  "judge": 0.0,
+  "independent": 0.0
+ },
+ "center_limits_cny": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ }
+}
+
+##### build-r4.py --step go
+{
+ "step": "go",
+ "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-GO-R4.CANDIDATE-DRAFT.json",
+ "file_sha256": "7903dd661e0a2cc34722244bf80ee753b79a145cc72ed7f0f695a9490587e465",
+ "document": "P2-LIVE-GO",
+ "draft_marked": true,
+ "plan_sha_bound": true,
+ "ledger_sha_is_history_prefix": true,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "max_requests": 760,
+ "max_request_cny": 0.5,
+ "centers": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "validity_days": 13
+}
+

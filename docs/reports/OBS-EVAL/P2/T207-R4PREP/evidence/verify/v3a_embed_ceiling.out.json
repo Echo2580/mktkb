@@ -1,0 +1,59 @@
+{
+ "embedding_reserve_per_post_cny": 0.04096,
+ "max_embedding_request_tokens": 81920,
+ "wiring": "product_adapter.py:1074 max_request_cny = plan.reserve_peak_cny -> passed to RagConfig at product_adapter.py:1091 (_start_live only)",
+ "r4_plan_reserve_peak_cny": 0.018688,
+ "r123_plan_reserve_peak_cny": 0.5,
+ "with_r4_peak": {
+  "label": "r4_plan_peak",
+  "max_request_cny": 0.018688,
+  "calls": [],
+  "error_type": "EmbeddingUnavailable",
+  "error_code": "EMBEDDING_UNAVAILABLE",
+  "error_text": "单次 embedding 预留超过单请求上限",
+  "post_attempts": 0,
+  "expected_posts_if_allowed": 6
+ },
+ "with_r123_peak": {
+  "label": "r123_plan_peak",
+  "max_request_cny": 0.5,
+  "calls": [
+   {
+    "texts": 9,
+    "ok": true
+   },
+   {
+    "texts": 1,
+    "ok": true
+   },
+   {
+    "texts": 1,
+    "ok": true
+   },
+   {
+    "texts": 4,
+    "ok": true
+   },
+   {
+    "texts": 1,
+    "ok": true
+   }
+  ],
+  "post_attempts": 6,
+  "expected_posts_if_allowed": 6
+ },
+ "plan_side_fix_possible": {
+  "possible": false,
+  "error_type": "P2ContractError",
+  "error_code": "P2_CONTRACT_INVALID",
+  "error_text": "cap_not_frozen: embedding total_tokens_cap 必须冻结为 4096",
+  "why": "p2_contracts 把 embedding 的 total_tokens_cap 冻结为 4096（cap_not_frozen）"
+ },
+ "conclusion": {
+  "r4_peak_below_provider_reserve": true,
+  "r123_peak_above_provider_reserve": true,
+  "r4_peak_blocks_embedding_posts": true,
+  "r123_peak_allows_6_posts": true,
+  "batch_size_5_post_rule_holds": true
+ }
+}

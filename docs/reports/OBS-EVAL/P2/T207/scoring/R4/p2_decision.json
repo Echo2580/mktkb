@@ -1,0 +1,500 @@
+{
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "gate_version": "mktkb.gate.v0.3",
+  "config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+  "config_status": "unapproved",
+  "execution_exit_code": 0,
+  "quality_exit_code": 1,
+  "decision": "blocked",
+  "release_allowed": false,
+  "hard_gate_status": {
+    "security_leak": "pass",
+    "cross_entity": "not_applicable",
+    "stale_bypass": "not_applicable",
+    "conflict_not_rejected": "pass",
+    "exact_value_contract": "not_applicable",
+    "pagination_contract": "not_applicable",
+    "citation_required": "not_applicable",
+    "trace_integrity": "fail"
+  },
+  "hard_failures": [
+    "trace_integrity"
+  ],
+  "hard_gate_exit_code": 1,
+  "blocks": [
+    {
+      "code": "gate_config_unapproved",
+      "severity": "unknown",
+      "detail": "gate_v0_3 未审批：质量阈值未获批，不得放行",
+      "evidence": {
+        "status": "unapproved",
+        "config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8"
+      }
+    },
+    {
+      "code": "hard_gate_failed",
+      "severity": "hard",
+      "detail": "硬门禁失败（不可豁免）",
+      "evidence": {
+        "hard_failures": [
+          "trace_integrity"
+        ],
+        "exit_code": 1
+      }
+    },
+    {
+      "code": "hard_gate_unknown",
+      "severity": "unknown",
+      "detail": "硬门禁存在 unknown（数据/配置/gold 不可用或样本不足）",
+      "evidence": {
+        "unknowns": 3
+      }
+    },
+    {
+      "code": "citation_evidence_unavailable",
+      "severity": "unknown",
+      "detail": "P2 产物没有本轮检索证据 id，无法证明引用落在 evidence 内（T206 需补采集）",
+      "evidence": {}
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "b0 缺少 40 条计划内 case",
+      "evidence": {
+        "suite": "b0",
+        "missing": [
+          "Q01",
+          "Q02",
+          "Q03",
+          "Q04",
+          "Q05",
+          "Q06",
+          "Q07",
+          "Q08",
+          "Q09",
+          "Q10"
+        ],
+        "planned": 40
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "b0 有 40 条 case 未执行",
+      "evidence": {
+        "suite": "b0",
+        "not_executed": 40
+      }
+    },
+    {
+      "code": "ocr_not_executed",
+      "severity": "unknown",
+      "detail": "OCR 题必须真的执行；不得静默跳过并算通过",
+      "evidence": {
+        "suite": "b0",
+        "case_ids": [
+          "Q33",
+          "Q34",
+          "Q35",
+          "Q36",
+          "Q37",
+          "Q38",
+          "Q39",
+          "Q40"
+        ],
+        "planned": 8
+      }
+    },
+    {
+      "code": "exact_below_24_of_24",
+      "severity": "hard",
+      "detail": "精确字段题必须 24/24（与 exact_value_contract 硬门禁同口径）",
+      "evidence": {
+        "suite": "b0",
+        "missing": [
+          "Q01",
+          "Q02",
+          "Q03",
+          "Q04",
+          "Q05",
+          "Q06",
+          "Q07",
+          "Q08",
+          "Q09",
+          "Q10"
+        ],
+        "passed": 0
+      }
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "negative 缺少 7 条计划内 case",
+      "evidence": {
+        "suite": "negative",
+        "missing": [
+          "N01",
+          "N02",
+          "N03",
+          "N04",
+          "N05",
+          "N06",
+          "N07"
+        ],
+        "planned": 8
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "negative 有 7 条 case 未执行",
+      "evidence": {
+        "suite": "negative",
+        "not_executed": 7
+      }
+    },
+    {
+      "code": "suite_below_threshold",
+      "severity": "quality",
+      "detail": "negative 通过数 1 < 门槛 8",
+      "evidence": {
+        "suite": "negative",
+        "passed": 1,
+        "min_pass": 8,
+        "executed": 1
+      }
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "boundary 缺少 4 条计划内 case",
+      "evidence": {
+        "suite": "boundary",
+        "missing": [
+          "C01",
+          "C02",
+          "C03",
+          "C04"
+        ],
+        "planned": 6
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "boundary 有 4 条 case 未执行",
+      "evidence": {
+        "suite": "boundary",
+        "not_executed": 4
+      }
+    },
+    {
+      "code": "suite_below_threshold",
+      "severity": "quality",
+      "detail": "boundary 通过数 2 < 门槛 6",
+      "evidence": {
+        "suite": "boundary",
+        "passed": 2,
+        "min_pass": 6,
+        "executed": 2
+      }
+    },
+    {
+      "code": "missing_case",
+      "severity": "unknown",
+      "detail": "update_delete 缺少 10 条计划内 case",
+      "evidence": {
+        "suite": "update_delete",
+        "missing": [
+          "U01",
+          "U02",
+          "U03",
+          "U04",
+          "U05",
+          "U06",
+          "U07",
+          "U08",
+          "U09",
+          "U10"
+        ],
+        "planned": 10
+      }
+    },
+    {
+      "code": "case_not_executed",
+      "severity": "unknown",
+      "detail": "update_delete 有 10 条 case 未执行",
+      "evidence": {
+        "suite": "update_delete",
+        "not_executed": 10
+      }
+    },
+    {
+      "code": "holdout_missing",
+      "severity": "unknown",
+      "detail": "缺少 H2 聚合结果，不得放行",
+      "evidence": {}
+    }
+  ],
+  "public": {
+    "schema_version": "mktkb.p2.scoring.v0.1",
+    "suites": {
+      "b0": {
+        "suite": "b0",
+        "planned": 40,
+        "executed": 0,
+        "scored": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "not_executed": 40,
+        "skipped": 0,
+        "ocr_planned": 8,
+        "ocr_executed": 0,
+        "ocr_passed": 0,
+        "exact_planned": 24,
+        "exact_passed": 0,
+        "required_passed": false
+      },
+      "negative": {
+        "suite": "negative",
+        "planned": 8,
+        "executed": 1,
+        "scored": 1,
+        "passed": 1,
+        "failed": 0,
+        "errors": 0,
+        "not_executed": 7,
+        "skipped": 0,
+        "ocr_planned": 0,
+        "ocr_executed": 0,
+        "ocr_passed": 0,
+        "exact_planned": 0,
+        "exact_passed": 0,
+        "required_passed": false
+      },
+      "boundary": {
+        "suite": "boundary",
+        "planned": 6,
+        "executed": 2,
+        "scored": 2,
+        "passed": 2,
+        "failed": 0,
+        "errors": 0,
+        "not_executed": 4,
+        "skipped": 0,
+        "ocr_planned": 0,
+        "ocr_executed": 0,
+        "ocr_passed": 0,
+        "exact_planned": 0,
+        "exact_passed": 0,
+        "required_passed": false
+      },
+      "update_delete": {
+        "suite": "update_delete",
+        "planned": 10,
+        "executed": 0,
+        "scored": 0,
+        "passed": 0,
+        "failed": 0,
+        "errors": 0,
+        "not_executed": 10,
+        "skipped": 0,
+        "ocr_planned": 0,
+        "ocr_executed": 0,
+        "ocr_passed": 0,
+        "exact_planned": 0,
+        "exact_passed": 0,
+        "required_passed": false
+      }
+    },
+    "blocks": [
+      {
+        "code": "missing_case",
+        "severity": "unknown",
+        "detail": "b0 缺少 40 条计划内 case",
+        "evidence": {
+          "suite": "b0",
+          "missing": [
+            "Q01",
+            "Q02",
+            "Q03",
+            "Q04",
+            "Q05",
+            "Q06",
+            "Q07",
+            "Q08",
+            "Q09",
+            "Q10"
+          ],
+          "planned": 40
+        }
+      },
+      {
+        "code": "case_not_executed",
+        "severity": "unknown",
+        "detail": "b0 有 40 条 case 未执行",
+        "evidence": {
+          "suite": "b0",
+          "not_executed": 40
+        }
+      },
+      {
+        "code": "ocr_not_executed",
+        "severity": "unknown",
+        "detail": "OCR 题必须真的执行；不得静默跳过并算通过",
+        "evidence": {
+          "suite": "b0",
+          "case_ids": [
+            "Q33",
+            "Q34",
+            "Q35",
+            "Q36",
+            "Q37",
+            "Q38",
+            "Q39",
+            "Q40"
+          ],
+          "planned": 8
+        }
+      },
+      {
+        "code": "exact_below_24_of_24",
+        "severity": "hard",
+        "detail": "精确字段题必须 24/24（与 exact_value_contract 硬门禁同口径）",
+        "evidence": {
+          "suite": "b0",
+          "missing": [
+            "Q01",
+            "Q02",
+            "Q03",
+            "Q04",
+            "Q05",
+            "Q06",
+            "Q07",
+            "Q08",
+            "Q09",
+            "Q10"
+          ],
+          "passed": 0
+        }
+      },
+      {
+        "code": "missing_case",
+        "severity": "unknown",
+        "detail": "negative 缺少 7 条计划内 case",
+        "evidence": {
+          "suite": "negative",
+          "missing": [
+            "N01",
+            "N02",
+            "N03",
+            "N04",
+            "N05",
+            "N06",
+            "N07"
+          ],
+          "planned": 8
+        }
+      },
+      {
+        "code": "case_not_executed",
+        "severity": "unknown",
+        "detail": "negative 有 7 条 case 未执行",
+        "evidence": {
+          "suite": "negative",
+          "not_executed": 7
+        }
+      },
+      {
+        "code": "suite_below_threshold",
+        "severity": "quality",
+        "detail": "negative 通过数 1 < 门槛 8",
+        "evidence": {
+          "suite": "negative",
+          "passed": 1,
+          "min_pass": 8,
+          "executed": 1
+        }
+      },
+      {
+        "code": "missing_case",
+        "severity": "unknown",
+        "detail": "boundary 缺少 4 条计划内 case",
+        "evidence": {
+          "suite": "boundary",
+          "missing": [
+            "C01",
+            "C02",
+            "C03",
+            "C04"
+          ],
+          "planned": 6
+        }
+      },
+      {
+        "code": "case_not_executed",
+        "severity": "unknown",
+        "detail": "boundary 有 4 条 case 未执行",
+        "evidence": {
+          "suite": "boundary",
+          "not_executed": 4
+        }
+      },
+      {
+        "code": "suite_below_threshold",
+        "severity": "quality",
+        "detail": "boundary 通过数 2 < 门槛 6",
+        "evidence": {
+          "suite": "boundary",
+          "passed": 2,
+          "min_pass": 6,
+          "executed": 2
+        }
+      },
+      {
+        "code": "missing_case",
+        "severity": "unknown",
+        "detail": "update_delete 缺少 10 条计划内 case",
+        "evidence": {
+          "suite": "update_delete",
+          "missing": [
+            "U01",
+            "U02",
+            "U03",
+            "U04",
+            "U05",
+            "U06",
+            "U07",
+            "U08",
+            "U09",
+            "U10"
+          ],
+          "planned": 10
+        }
+      },
+      {
+        "code": "case_not_executed",
+        "severity": "unknown",
+        "detail": "update_delete 有 10 条 case 未执行",
+        "evidence": {
+          "suite": "update_delete",
+          "not_executed": 10
+        }
+      }
+    ],
+    "release_ready": false,
+    "execution_mode": "live",
+    "real_calls": 0,
+    "run_id": "p2-t207-r4-20261111-01",
+    "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94"
+  },
+  "holdout": null,
+  "notes": [
+    "gate_v0_3 初始 unapproved：本判定只报告观测值，不构成放行"
+  ],
+  "execution_mode": "live",
+  "real_calls": 0,
+  "run_id": "p2-t207-r4-20261111-01",
+  "binding_config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94"
+}

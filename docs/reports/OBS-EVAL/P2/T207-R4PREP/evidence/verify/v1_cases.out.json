@@ -1,0 +1,92 @@
+{
+ "cases_path": "docs\\reports\\OBS-EVAL\\P2\\T207\\cases\\R4.jsonl",
+ "cases_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+ "cases_sha256_expected": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+ "cases_sha256_match": true,
+ "line_count": 3,
+ "order_observed": [
+  "N08",
+  "C05",
+  "C06"
+ ],
+ "order_match": true,
+ "label_version": "acceptance-B0-69bd0f8680c8",
+ "questions_sha256": "69bd0f8680c84a24dd9e6ba61ddad8122952e4e31da71e367e962c196097657f",
+ "per_case": [
+  {
+   "case_id": "N08",
+   "matches_my_conversion": true,
+   "diff": {},
+   "extra_fields": [],
+   "frozen_question_equal": true,
+   "frozen_kind_equal": true,
+   "frozen_values_equal": true,
+   "label_version_equal": true
+  },
+  {
+   "case_id": "C05",
+   "matches_my_conversion": true,
+   "diff": {},
+   "extra_fields": [],
+   "frozen_question_equal": true,
+   "frozen_kind_equal": true,
+   "frozen_values_equal": true,
+   "label_version_equal": true
+  },
+  {
+   "case_id": "C06",
+   "matches_my_conversion": true,
+   "diff": {},
+   "extra_fields": [],
+   "frozen_question_equal": true,
+   "frozen_kind_equal": true,
+   "frozen_values_equal": true,
+   "label_version_equal": true
+  }
+ ],
+ "converter_rows_equal_file": true,
+ "converter_diff": [],
+ "document_codes": {
+  "needed": [
+   "D01",
+   "D02",
+   "V01",
+   "V02",
+   "V03",
+   "V06"
+  ],
+  "mapped_names": {
+   "D01_物品位置表.xlsx": "D01",
+   "D02_合作店家信息.xlsx": "D02",
+   "V01_临时物料位置通知.pdf": "V01",
+   "V02_店家联系方式变更通知.pdf": "V02"
+  },
+  "all_needed_mapped": false,
+  "version_codes_present": [
+   "V01",
+   "V02"
+  ]
+ },
+ "overlap_with_other_runs_informational": {
+  "R1.jsonl": [
+   "N08"
+  ],
+  "R2.jsonl": [
+   "C05"
+  ],
+  "R3.jsonl": [
+   "C06"
+  ]
+ },
+ "limitation_note": "forbidden_sources 里的 V03/V06 在 document-codes.json 中没有对应文档名：打分时 document_code 由产品文档名映射，版本号不进映射 ⇒ source_forbidden 对这两个代号是「不可命中」而不是「检查通过」；R2(C05)/R3(C06) 完全同形，属既有口径，不是本包引入。",
+ "checks": {
+  "sha256_matches": true,
+  "three_lines": true,
+  "order_is_N08_C05_C06": true,
+  "all_rows_match_my_conversion": true,
+  "forbidden_source_codes_map_to_document_names": false,
+  "converter_reproduces_file": true,
+  "label_version_traced_to_questions_json": true
+ },
+ "all_hold": false
+}

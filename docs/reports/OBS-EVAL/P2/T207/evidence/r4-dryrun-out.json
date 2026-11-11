@@ -1,0 +1,114 @@
+{
+ "note": "p2-run 的 dry_run（Mock，零真实发送）：证明 R4 的计划/case/灌库计划能被真实驱动接受；out 目录在仓库外，跑完即删。",
+ "command": [
+  ".venv/Scripts/python.exe -B -X utf8 -m mktkb.evaluation.cli p2-run",
+  "--plan docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-plan-R4-v0_1.json",
+  "--out <仓库外目录>\\R4-dryrun",
+  "--cases docs\\reports\\OBS-EVAL\\P2\\T207\\cases\\R4.jsonl",
+  "--ingest-plan docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-ingest-plan-R4.json",
+  "--run-id p2-t207-r4-dryrun-01",
+  "--dataset-version p2-t207-r4-20261111-v0.1",
+  "--label-version p2-t207-labels-20261111-v0.1"
+ ],
+ "stdout": "{\"ok\": true, \"status\": \"succeeded\", \"stop_code\": null, \"requests_planned\": 18, \"requests_sent\": 0, \"production_ready\": false, \"execution\": \"dry_run\", \"out_dir\": \"C:\\\\Users\\\\dell1712\\\\AppData\\\\Local\\\\Temp\\\\p2-t207-r4-dryrun-01\\\\p2-run\"}",
+ "status": "succeeded",
+ "plan_id": "P2-T207-R4-20261111",
+ "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+ "requests": {
+  "attempted": 3,
+  "billed_cny": 0,
+  "conservative_held_cny": 0,
+  "failed_rounds": 0,
+  "planned": 18,
+  "provider_billed_cny": 0,
+  "real_requests": 0,
+  "rejected_rounds": 0,
+  "reserved": 0,
+  "scope": "answer_turns",
+  "settled_failure": 0,
+  "settled_success": 0,
+  "unpaid_rounds": 0,
+  "unused_no_paid_attempt": 0
+ },
+ "cases": {
+  "executed": 3,
+  "not_executed": 0,
+  "planned": 3,
+  "with_error": 0
+ },
+ "execution": "dry_run",
+ "network": {
+  "outbound_attempts": 0,
+  "detail": {
+   "chat_outbound_attempts": 0,
+   "embedding_provider": "offline-fake（无传输层，不能出网）",
+   "mock_intercepted": 0,
+   "ocr_provider": "disabled（T204 前不构造）",
+   "outbound_attempts": 0,
+   "rag_provider_posts": 0,
+   "rerank_provider": "offline-fake（无传输层，不能出网）"
+  }
+ },
+ "gate": {
+  "real_sends_allowed": false,
+  "production_ready": false,
+  "attempts": {
+   "answer_reserved": 0,
+   "available": true,
+   "by_center_cny": {},
+   "by_operation": {},
+   "receipts": [],
+   "reservations": 0
+  }
+ },
+ "ingest": [
+  {
+   "name": "D01_物品位置表.xlsx",
+   "published": true,
+   "publish_status": 200,
+   "revision": 1,
+   "units": 9,
+   "sha256": "d1a7be2c1f64"
+  },
+  {
+   "name": "D01_物品位置表.xlsx",
+   "published": true,
+   "publish_status": 200,
+   "revision": 2,
+   "units": 9,
+   "sha256": "644604ccdb0b"
+  },
+  {
+   "name": "V04_物品位置表_新版V3.xlsx",
+   "published": false,
+   "publish_status": null,
+   "revision": 2,
+   "units": 9,
+   "sha256": "d27f4bc25376"
+  },
+  {
+   "name": "V01_临时物料位置通知.pdf",
+   "published": true,
+   "publish_status": 200,
+   "revision": 3,
+   "units": 5,
+   "sha256": "50e74141e2cf"
+  },
+  {
+   "name": "D02_合作店家信息.xlsx",
+   "published": true,
+   "publish_status": 200,
+   "revision": 4,
+   "units": 4,
+   "sha256": "6a210e0629e5"
+  },
+  {
+   "name": "V02_店家联系方式变更通知.pdf",
+   "published": true,
+   "publish_status": 200,
+   "revision": 5,
+   "units": 5,
+   "sha256": "829b9d54be94"
+  }
+ ]
+}

@@ -1,0 +1,215 @@
+﻿{
+ "step": "plan",
+ "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-plan-R4-v0_1.json",
+ "file_sha256": "d68db2074f84f79b7b4b207dc369ae7c12ef65d622c768af42e095ac4efd0022",
+ "plan_id": "P2-T207-R4-20261111",
+ "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+ "items": 13,
+ "cases": 4,
+ "turns": 4,
+ "ocr_pages": 0,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "total_requests": 18,
+ "max_requests": 760,
+ "worst_case_cny": 0.14496,
+ "reserve_peak_cny": 0.018688,
+ "estimated_success_cny": 0.0297,
+ "by_operation": {
+  "index_embedding": 6,
+  "query_embedding": 3,
+  "rerank": 3,
+  "query_expansion": 3,
+  "answer": 3
+ },
+ "center_needs_cny": {
+  "answer_retrieval": 0.14496,
+  "ocr": 0.0,
+  "judge": 0.0,
+  "independent": 0.0
+ },
+ "center_limits_cny": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "hard_max_requests": 1600,
+ "no_ocr_item": true,
+ "required_live_operations": [
+  "answer",
+  "index_embedding",
+  "query_embedding",
+  "rerank"
+ ],
+ "max_item_bound_cny": 0.018688,
+ "every_item_within_max_request_cny": true,
+ "max_requests_within_hard_cap": true,
+ "requests_headroom": {
+  "used": 691,
+  "plan_cap": 760,
+  "plan_total": 18,
+  "remaining_at_plan_cap": 69,
+  "remaining_at_hard_cap": 909
+ }
+}
+{
+ "step": "go_candidate",
+ "path": "docs\\reports\\OBS-EVAL\\P2\\T207\\PM\\T207-GO-R4.CANDIDATE-DRAFT.json",
+ "file_sha256": "7903dd661e0a2cc34722244bf80ee753b79a145cc72ed7f0f695a9490587e465",
+ "document": "P2-LIVE-GO",
+ "authorization": "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE; 仅覆盖 P2-T207 定点重测 R4（N08/C05/C06）；前置未闭环见 T207/report.md §9，签发前需经理决策",
+ "draft_marked_not_usable": true,
+ "plan_id_bound": true,
+ "plan_sha_bound": true,
+ "max_requests": 760,
+ "max_request_cny": 0.5,
+ "validity_days": 13,
+ "ledger_sha_is_history_prefix": true,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "operations_have_no_ocr": true,
+ "operations_cover_plan": true,
+ "centers": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "stage_limits": {
+  "P2-LIVE": 20.0
+ },
+ "go_path_untouched": true
+}
+{
+ "step": "preflight_real_snapshot",
+ "ok": true,
+ "reasons": [],
+ "stage_remaining": 13.459039599999993,
+ "total_remaining": 18.38809510000004,
+ "requests_used": 691,
+ "requests_remaining": 69,
+ "requests_planned": 18,
+ "worst_case": 0.14496,
+ "reserve_peak": 0.018688,
+ "center_remaining": {
+  "answer_retrieval": 8.109039600000001,
+  "ocr": 0.34999999999999964,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "production_ready": true
+}
+{
+ "step": "authorize_candidate",
+ "production_ready": false,
+ "go_sha256": "5195d0153b4c8589d09e2993c0fac1505f9196d049060d7dd1c3d170eaf2ccb2",
+ "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+ "stage_remaining_cny": 13.459039599999993,
+ "requests_used": 691,
+ "requests_remaining": 69,
+ "max_requests": 760,
+ "max_request_cny": 0.5,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "note": "production_ready=False ⇒ 候选 GO 不能发送；只有经理落盘的固定路径 GO 才可能为 True"
+}
+{
+ "step": "negatives",
+ "rows": [
+  {
+   "case": "go_missing_rerank_operation",
+   "kind": "authorize",
+   "reason": "go_operation_unauthorized"
+  },
+  {
+   "case": "go_max_requests_below_plan",
+   "kind": "authorize",
+   "reason": "go_max_requests_below_plan"
+  },
+  {
+   "case": "go_max_requests_below_total",
+   "kind": "authorize",
+   "reason": "go_max_requests_below_plan"
+  },
+  {
+   "case": "go_bound_to_stale_plan_sha",
+   "kind": "authorize",
+   "reason": "go_plan_sha256_mismatch"
+  },
+  {
+   "case": "go_plan_id_mismatch",
+   "kind": "authorize",
+   "reason": "go_plan_id_mismatch"
+  },
+  {
+   "case": "go_cost_center_below_plan",
+   "kind": "authorize",
+   "reason": "go_cost_center_below_plan"
+  },
+  {
+   "case": "go_max_request_cny_below_peak",
+   "kind": "authorize",
+   "reason": "go_max_request_cny_below_plan"
+  },
+  {
+   "case": "go_expired",
+   "kind": "authorize",
+   "reason": "go_expired"
+  },
+  {
+   "case": "requests_over_remaining",
+   "kind": "preflight",
+   "reasons": [
+    "request_budget_insufficient"
+   ]
+  },
+  {
+   "case": "center_below_plan_need",
+   "kind": "authorize",
+   "reason": "center_budget_exceeded"
+  },
+  {
+   "case": "hard_cap_over_1600",
+   "kind": "authorize",
+   "reason": "request_cap_over_hard_limit"
+  },
+  {
+   "case": "plan_requests_over_cap",
+   "kind": "authorize",
+   "reason": "plan_requests_over_cap"
+  }
+ ]
+}
+{
+ "step": "read_only_proof",
+ "before": {
+  "ledger_sha": "05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1354211,
+  "ledger_lines": 1383
+ },
+ "after": {
+  "ledger_sha": "05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1354211,
+  "ledger_lines": 1383
+ },
+ "unchanged": true,
+ "go_path_exists_after": true
+}

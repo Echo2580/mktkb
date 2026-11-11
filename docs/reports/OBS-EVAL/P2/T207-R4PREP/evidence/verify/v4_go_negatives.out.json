@@ -1,0 +1,196 @@
+{
+ "go_payload_checks": {
+  "document": true,
+  "draft_marked_not_usable": true,
+  "plan_sha_bound": true,
+  "plan_id_bound": true,
+  "ledger_sha_is_history_prefix": true,
+  "ledger_path_is_fixed": true,
+  "five_operations_no_ocr": true,
+  "max_requests_760": true,
+  "max_request_cny_0_5": true,
+  "centers_8_5_6_5_3_2": true,
+  "budget_total_limit_40": true,
+  "validity_days_13": true,
+  "stage_limit_20": true
+ },
+ "authorization": {
+  "production_ready": false,
+  "go_sha256_matches_candidate": true,
+  "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+  "max_requests": 760,
+  "max_request_cny": 0.5,
+  "stage_remaining_cny": 13.459039599999993,
+  "requests_remaining": 69,
+  "center_remaining_cny": {
+   "answer_retrieval": 8.109039600000001,
+   "ocr": 0.34999999999999964,
+   "judge": 3.0,
+   "independent": 2.0
+  },
+  "operations": [
+   "answer",
+   "index_embedding",
+   "query_embedding",
+   "query_expansion",
+   "rerank"
+  ]
+ },
+ "fixed_go": {
+  "sha256_before": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c",
+  "sha256_after": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c",
+  "document": "P2-LIVE-GO",
+  "authorization_text": "T207 H2 restricted run (30 cases/36 turns, aggregate-only); PM lead under owner pre-auth (P2<=50 CNY, requests<=2000); 1",
+  "attempt_with_payload_dict": {
+   "kind": "P2AuthorizationError",
+   "code": "go_plan_id_mismatch",
+   "message": "go_plan_id_mismatch: GO 绑定的 plan_id 与计划不一致"
+  },
+  "attempt_from_fixed_path": {
+   "kind": "P2AuthorizationError",
+   "code": "go_plan_id_mismatch",
+   "message": "go_plan_id_mismatch: GO 绑定的 plan_id 与计划不一致"
+  }
+ },
+ "negatives": [
+  {
+   "case": "go_missing_rerank_operation",
+   "expected": "go_operation_unauthorized",
+   "observed": "go_operation_unauthorized",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_operation_unauthorized: GO 未授权计划中的操作（如 OCR/judge）"
+  },
+  {
+   "case": "go_max_requests_below_plan_cap",
+   "expected": "go_max_requests_below_plan",
+   "observed": "go_max_requests_below_plan",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_max_requests_below_plan: 计划累计请求上限高于 GO"
+  },
+  {
+   "case": "go_max_requests_below_plan_total",
+   "expected": "go_max_requests_below_plan",
+   "observed": "go_max_requests_below_plan",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_max_requests_below_plan: GO 累计请求上限小于计划请求数"
+  },
+  {
+   "case": "go_bound_to_stale_plan_sha",
+   "expected": "go_plan_sha256_mismatch",
+   "observed": "go_plan_sha256_mismatch",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_plan_sha256_mismatch: GO 绑定的计划摘要与当前计划不一致（改计划/换 nonce 复用都拒绝）"
+  },
+  {
+   "case": "go_plan_id_mismatch",
+   "expected": "go_plan_id_mismatch",
+   "observed": "go_plan_id_mismatch",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_plan_id_mismatch: GO 绑定的 plan_id 与计划不一致"
+  },
+  {
+   "case": "go_cost_center_below_plan",
+   "expected": "go_cost_center_below_plan",
+   "observed": "go_cost_center_below_plan",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_cost_center_below_plan: GO 成本中心 answer_retrieval 额度低于计划分配"
+  },
+  {
+   "case": "go_max_request_cny_below_peak",
+   "expected": "go_max_request_cny_below_plan",
+   "observed": "go_max_request_cny_below_plan",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_max_request_cny_below_plan: GO 单请求上界小于计划单次峰值预留"
+  },
+  {
+   "case": "go_expired",
+   "expected": "go_expired",
+   "observed": "go_expired",
+   "pass": true,
+   "kind": "P2AuthorizationError",
+   "message": "go_expired: GO 已过期"
+  },
+  {
+   "case": "requests_over_remaining",
+   "expected": "request_budget_insufficient",
+   "observed": "request_budget_insufficient",
+   "pass": true,
+   "kind": "preflight",
+   "message": null
+  },
+  {
+   "case": "plan_max_requests_over_hard_cap",
+   "expected": "request_cap_over_hard_limit",
+   "observed": "request_cap_over_hard_limit",
+   "pass": true,
+   "kind": "P2ContractError",
+   "message": "request_cap_over_hard_limit: plan.max_requests 不得超过累计硬顶 1600"
+  },
+  {
+   "case": "plan_requests_over_cap",
+   "expected": "plan_requests_over_cap",
+   "observed": "plan_requests_over_cap",
+   "pass": true,
+   "kind": "P2ContractError",
+   "message": "plan_requests_over_cap: 计划请求总数超过 plan.max_requests"
+  },
+  {
+   "case": "plan_center_below_need",
+   "expected": "center_budget_exceeded",
+   "observed": "center_budget_exceeded",
+   "pass": true,
+   "kind": "P2ContractError",
+   "message": "center_budget_exceeded: 成本中心 answer_retrieval 的计划上界超过其额度 0.1 元"
+  }
+ ],
+ "extra_negatives": [
+  {
+   "case": "preflight_center_window_insufficient",
+   "expected": "center_budget_insufficient:answer_retrieval",
+   "observed": "center_budget_insufficient:answer_retrieval",
+   "pass": true,
+   "kind": "preflight"
+  },
+  {
+   "case": "go_ledger_binding_mismatch",
+   "expected": "go_ledger_binding_mismatch",
+   "observed": "go_ledger_binding_mismatch",
+   "pass": true,
+   "kind": "P2AuthorizationError"
+  }
+ ],
+ "before": {
+  "ledger": "05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41",
+  "budget": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "fixed_go": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c",
+  "plan": "d68db2074f84f79b7b4b207dc369ae7c12ef65d622c768af42e095ac4efd0022",
+  "go": "7903dd661e0a2cc34722244bf80ee753b79a145cc72ed7f0f695a9490587e465",
+  "cases": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+  "ingest": "07c2694ba7d41f9222457f142143bbecb25a42a046eb4b885d6ea8fe28c9b239"
+ },
+ "after": {
+  "ledger": "05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41",
+  "budget": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "fixed_go": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c",
+  "plan": "d68db2074f84f79b7b4b207dc369ae7c12ef65d622c768af42e095ac4efd0022",
+  "go": "7903dd661e0a2cc34722244bf80ee753b79a145cc72ed7f0f695a9490587e465",
+  "cases": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+  "ingest": "07c2694ba7d41f9222457f142143bbecb25a42a046eb4b885d6ea8fe28c9b239"
+ },
+ "checks": {
+  "go_payload_all_ok": true,
+  "authorize_passes_but_not_production_ready": true,
+  "fixed_path_go_rejected_for_r4": true,
+  "twelve_negatives_all_rejected_with_expected_code": true,
+  "extra_negatives_pass": true,
+  "files_unchanged": true
+ },
+ "all_hold": true
+}
