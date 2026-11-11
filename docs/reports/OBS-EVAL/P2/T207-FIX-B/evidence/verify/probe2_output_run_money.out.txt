@@ -1,0 +1,94 @@
+== A. chat 三判据 -> output_valid 与 J1 决定 ==
+chat 单次上界 bound_cny = 0.018688（= 6144*2e-6 + 800*8e-6）
+
+-- 合法 usage + 三判据齐（stop/非空/已解析）
+   evidence: finish_reason='stop' content_complete=True content_parse_ok=True output_valid=True
+   J1 accepted=True reason=None charge_cny=0.000384
+   ledger result: status='succeeded' error_code=None conservative_charge_cny=0.000384
+   ledger settlement block: output_valid=True content_complete=True content_parse_ok=True
+
+-- 空内容
+   evidence: finish_reason='stop' content_complete=False content_parse_ok=False output_valid=False
+   J1 accepted=False reason=content_incomplete charge_cny=0.018688
+   ledger result: status='unknown' error_code='SETTLEMENT_NOT_RELEASABLE:content_incomplete' conservative_charge_cny=0.018688
+   ledger settlement block: output_valid=None content_complete=None content_parse_ok=None
+
+-- 非 stop 完成态
+   evidence: finish_reason='length' content_complete=True content_parse_ok=True output_valid=False
+   J1 accepted=False reason=finish_reason_not_stop charge_cny=0.018688
+   ledger result: status='unknown' error_code='SETTLEMENT_NOT_RELEASABLE:finish_reason_not_stop' conservative_charge_cny=0.018688
+   ledger settlement block: output_valid=None content_complete=None content_parse_ok=None
+
+-- 未解析（无 answer/source_ids 结构）
+   evidence: finish_reason='stop' content_complete=True content_parse_ok=False output_valid=False
+   J1 accepted=False reason=content_not_parsed charge_cny=0.018688
+   ledger result: status='unknown' error_code='SETTLEMENT_NOT_RELEASABLE:content_not_parsed' conservative_charge_cny=0.018688
+   ledger settlement block: output_valid=None content_complete=None content_parse_ok=None
+
+-- 判据缺省（调用方不传）
+   evidence: finish_reason=None content_complete=False content_parse_ok=False output_valid=False
+   J1 accepted=False reason=finish_reason_not_stop charge_cny=0.018688
+   ledger result: status='unknown' error_code='SETTLEMENT_NOT_RELEASABLE:finish_reason_not_stop' conservative_charge_cny=0.018688
+   ledger settlement block: output_valid=None content_complete=None content_parse_ok=None
+
+-- usage 缺字段（判据齐）
+   evidence: finish_reason='stop' content_complete=True content_parse_ok=True output_valid=True
+   J1 accepted=False reason=usage_missing:prompt_tokens charge_cny=0.018688
+   ledger result: status='unknown' error_code='SETTLEMENT_NOT_RELEASABLE:usage_missing:prompt_tokens' conservative_charge_cny=0.018688
+   ledger settlement block: output_valid=None content_complete=None content_parse_ok=None
+
+== B. 更正核对：chat J1 不读 output_valid；只有 embedding/rerank 读 ==
+-- chat：三判据齐但强行 output_valid=False
+   evidence: finish_reason='stop' content_complete=True content_parse_ok=True output_valid=False
+   J1 accepted=True reason=None charge_cny=0.000384
+   ledger result: status='succeeded' error_code=None conservative_charge_cny=0.000384
+   ledger settlement block: output_valid=False content_complete=True content_parse_ok=True
+
+-- embedding output_valid=False: J1 REFUSED reason=output_invalid conservative=0.002048
+-- embedding output_valid=True: J1 accepted=True charge=2e-05
+
+== C. 代码位置（行号证据） ==
+   settlement_policy.py:672: if evidence.finish_reason != "stop":
+   settlement_policy.py:713: if evidence.output_valid is not True:
+   -> chat 校验段（_validate_chat_evidence）只看 finish_reason/content_complete/content_parse_ok；
+      output_valid 只在 _validate_total_evidence（embedding/rerank）被读。
+
+################ 第 2 部分：run_result additive（A）+ 三口径（B）+ 实跑观察 ################
+
+== A. 一次真实 mock 全链（1 案 Q01 + INGEST；零出网） ==
+run status=succeeded stop_code=None sent=1
+summary.requests = {"attempted": 1, "billed_cny": 0.0, "conservative_held_cny": 0.000508, "failed_rounds": 0, "planned": 13, "provider_billed_cny": 0.000508, "real_requests": 0, "reserved": 1, "scope": "answer_turns", "settled_failure": 0, "settled_success": 1, "unpaid_rounds": 0, "unused_no_paid_attempt": 0}
+summary.attempts.scope = all_attempts gate_reserved=5
+run_result keys = ['attempts_by_center_cny', 'attempts_by_operation', 'attempts_reserved', 'attempts_scope', 'by_center_cny', 'by_operation', 'plan_id', 'plan_sha256', 'production_ready', 'requests_planned', 'requests_reserved', 'requests_sent', 'reserved_cny', 'run_id', 'schema_version', 'settled_cny', 'status', 'stop_code']
+run_result.attempts_* = scope=all_attempts reserved=5 by_op={'answer': 1, 'index_embedding': 2, 'query_embedding': 1, 'rerank': 1}
+  by_center={'answer_retrieval': 0.000508, 'independent': 0.0, 'judge': 0.0, 'ocr': 0.0}
+len(ledger reservations) = 5
+attempts_reserved == 门登记 reservation 数 ? True
+attempts_reserved == result.attempts_reserved ? True
+sum(attempts_by_operation) == attempts_reserved ? True
+attempts_by_operation['answer'] == requests_reserved(1) ? True
+summary.conservative_held_cny=0.000508 账本 result 保守合计=0.000508 一致=True
+provider_billed_cny=0.000508 unpaid_rounds=0 failed_rounds=0 settled_failure=0
+chat result status=succeeded charged=0.000384 settlement.output_valid=True
+P2Gate.result(): attempts_scope=unavailable attempts_reserved=0（门只知道自己一侧）
+
+== B. 旧产物可读：T206/PILOT/run_result.json（无 attempts_*） ==
+from_dict 成功 scope=unavailable reserved=0 settled_cny=0.061806 requests_reserved=6
+as_dict 仍能写出 attempts_* 键: ['attempts_by_center_cny', 'attempts_by_operation', 'attempts_reserved', 'attempts_scope', 'by_center_cny', 'by_operation', 'plan_id', 'plan_sha256', 'production_ready', 'requests_planned', 'requests_reserved', 'requests_sent', 'reserved_cny', 'run_id', 'schema_version', 'settled_cny', 'status', 'stop_code']
+
+== C. 三口径用真实 pilot 账本 + 产物独立重算（不经 runner 代码） ==
+保守占用（全部 result 的 conservative_charge 合计） = 0.5713583
+带供应商证据的金额（status=succeeded 的合计数）     = 0.5152943
+零付费轮（P2_NO_PAID_ATTEMPT）                     = 3 笔 × 0.018688 = 0.056064
+差额 = 0.056064（= 零付费轮保守留账，不是供应商花费）
+
+== D. 实跑观察：usage 自身不一致（total != prompt+completion）时 J1 拒绝的整条链 ==
+run status=aborted stop_code=gate_error sent=0 settled_cny=0.0
+summary.requests = {"attempted": 1, "billed_cny": 0.0, "conservative_held_cny": 0.000124, "failed_rounds": 0, "planned": 13, "provider_billed_cny": 0.000124, "real_requests": 0, "reserved": 1, "scope": "answer_turns", "settled_failure": 0, "settled_success": 0, "unpaid_rounds": 0, "unused_no_paid_attempt": 0}
+账本 result 保守合计 = 0.018812
+summary.conservative_held_cny = 0.000124
+两者一致 ? False
+  chat result status=unknown error_code=SETTLEMENT_NOT_RELEASABLE:total_mismatch charged=0.018688
+== E. 零真实出站自证 ==
+外部 socket.connect 尝试 = 0（探针内置闸门）
+

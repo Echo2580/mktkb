@@ -52,7 +52,7 @@ from mktkb.evaluation.product_adapter import (
     P2IngestPlan,
     P2RunDataset,
 )
-from mktkb.providers.types import OCRInput
+from mktkb.providers.types import CompletionOutput, OCRInput
 
 pytestmark = pytest.mark.usefixtures("t09_network_guard")
 
@@ -1016,3 +1016,171 @@ def test_live_retrieved_from_product_evidence_and_gate_fails_closed(
     )
     assert hard_missing.gate_status["citation_required"] == "fail", hard_missing.to_dict()
     assert "citation_required" in hard_missing.hard_failures
+
+
+# --------------------------------------------------------------------------- #
+# 11. T207-FIX-B：output_valid 三判据、结算金额与两个口径（零真实调用）
+# --------------------------------------------------------------------------- #
+
+
+def test_chat_output_validity_requires_stop_nonempty_and_parsed_structure() -> None:
+    """三判据缺一即无效（不猜、不补造）；全成立才 output_valid=True。"""
+    good = CompletionOutput(text="位置：B区1号货架第二层", source_ids=("unit-1",))
+    assert p2_live.chat_output_validity(good) == {
+        "finish_reason": "stop",
+        "content_present": True,
+        "content_parsed": True,
+        "output_valid": True,
+    }
+    # 空内容：不成立。
+    empty = p2_live.chat_output_validity(CompletionOutput(text="   ", source_ids=("unit-1",)))
+    assert empty["content_present"] is False
+    assert empty["content_parsed"] is False
+    assert empty["output_valid"] is False
+    # 非 stop：输出对象自带该字段时按其值判定（不信"拿到了对象"）。
+    truncated = p2_live.chat_output_validity(
+        SimpleNamespace(finish_reason="length", text="位置", source_ids=("unit-1",))
+    )
+    assert truncated["finish_reason"] == "length"
+    assert truncated["output_valid"] is False
+    # JSON 未解析：没有 answer/terms 解析结构（例如把正文原样当文本返回的网关）。
+    raw_text = p2_live.chat_output_validity(SimpleNamespace(text="{\"answer\": \"x\"}"))
+    assert raw_text["content_present"] is True
+    assert raw_text["content_parsed"] is False
+    assert raw_text["output_valid"] is False
+    # query_expansion 用自己的 schema（terms）判定。
+    expansion = p2_live.chat_output_validity(
+        CompletionOutput(text="{\"terms\": [\"价目\"]}", query_terms=("价目",)),
+        purpose="query_expansion",
+    )
+    assert expansion["output_valid"] is True
+    assert (
+        p2_live.chat_output_validity(SimpleNamespace(text="正文"), purpose="query_expansion")[
+            "output_valid"
+        ]
+        is False
+    )
+
+
+def test_chat_usage_evidence_settles_by_usage_only_for_valid_output() -> None:
+    """合法输出 -> 按 usage 结算 0.000384（<< 上界 0.018688）；空内容/非 stop/缺判据 ->
+    J1 拒绝并保守上界（修复前这三类被硬编码成"有效内容"，等于把无效输出按真账入账）。"""
+    from mktkb.rag.settlement_policy import KIND_CHAT, build_policy, evaluate_settlement
+
+    policy = build_policy(KIND_CHAT, model="deepseek-flash")
+    usage = {
+        "prompt_tokens": 64,
+        "completion_tokens": 32,
+        "total_tokens": 96,
+        "prompt_cache_hit_tokens": 0,
+        "prompt_cache_miss_tokens": 64,
+    }
+    reserved = {
+        "kind": KIND_CHAT,
+        "provider": "deepseek",
+        "model": "deepseek-flash",
+        "request_sha256": "a" * 64,
+    }
+
+    def decide(**kwargs: Any):
+        evidence = p2_live.chat_usage_evidence(
+            request_sha256="a" * 64, usage=usage, **kwargs
+        )
+        assert evidence is not None
+        return evidence, evaluate_settlement(
+            policy, reserved=reserved, evidence=evidence, reserve_cny=0.018688
+        )
+
+    valid_evidence, valid = decide(
+        finish_reason="stop", content_present=True, content_parsed=True
+    )
+    assert valid_evidence.output_valid is True
+    assert valid.accepted is True
+    assert float(valid.charge_cny) == pytest.approx(0.000384)
+    assert float(valid.charge_cny) < 0.018688
+
+    empty_evidence, empty = decide(
+        finish_reason="stop", content_present=False, content_parsed=False
+    )
+    assert empty_evidence.output_valid is False
+    assert empty.accepted is False and empty.reason == "content_incomplete"
+    assert float(empty.charge_cny) == pytest.approx(0.018688)
+
+    _not_stop_evidence, not_stop = decide(
+        finish_reason="length", content_present=True, content_parsed=True
+    )
+    assert not_stop.accepted is False and not_stop.reason == "finish_reason_not_stop"
+    assert float(not_stop.charge_cny) == pytest.approx(0.018688)
+
+    unparsed_evidence, unparsed = decide(
+        finish_reason="stop", content_present=True, content_parsed=False
+    )
+    assert unparsed_evidence.output_valid is False
+    assert unparsed.accepted is False and unparsed.reason == "content_not_parsed"
+
+    # 调用方不给判据（缺省）-> fail closed，绝不为了"结算成功"恒置 True。
+    default_evidence, default = decide()
+    assert default_evidence.output_valid is False
+    assert default.accepted is False
+    assert float(default.charge_cny) == pytest.approx(0.018688)
+
+    # usage 缺字段：连证据都造不出来（None）-> runner 侧 usage_evidence_missing。
+    assert (
+        p2_live.chat_usage_evidence(
+            request_sha256="a" * 64,
+            usage={},
+            finish_reason="stop",
+            content_present=True,
+            content_parsed=True,
+        )
+        is None
+    )
+
+
+def test_live_run_separates_answer_scope_from_all_attempts_and_marks_output_valid(
+    live_env: SimpleNamespace, tmp_path: Path
+) -> None:
+    """A/B/C 三件事的联合回归（零真实调用）。"""
+    chat = _UsageChatBackend(behaviors=(ChatBehavior(answer="位置：B区1号货架第二层"),))
+    result, build, _gate = _run(live_env, tmp_path, chat=chat)
+
+    run_dir = build.adapter.paths.run_dir
+    summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    run_result = json.loads((run_dir / "run_result.json").read_text(encoding="utf-8"))
+    reservations = _reservations(live_env.ledger)
+    results = _results(live_env.ledger)
+
+    # A 返工②：answer 单侧与全量尝试两个口径都写出来，且 attempts_reserved 就是门计数。
+    assert summary["requests"]["scope"] == "answer_turns"
+    assert summary["attempts"]["scope"] == "all_attempts"
+    assert result.requests_reserved == summary["requests"]["reserved"] == 1
+    assert result.attempts_scope == "all_attempts"
+    assert result.attempts_reserved == len(reservations)
+    assert result.attempts_reserved == summary["attempts"]["gate_reserved"]
+    assert run_result["attempts_reserved"] == result.attempts_reserved
+    assert result.attempts_reserved > result.requests_reserved
+    assert sum(run_result["attempts_by_operation"].values()) == result.attempts_reserved
+    assert run_result["attempts_by_operation"]["answer"] == result.requests_reserved
+    assert sum(result.attempts_by_center_cny.values()) == pytest.approx(
+        summary["attempts"]["center_total_with_answers_cny"]
+    )
+
+    # B 返工③：保守占用与账本逐笔一致；三段互不冒充。
+    ledger_held = round(sum(float(row["conservative_charge_cny"]) for row in results), 8)
+    assert summary["requests"]["conservative_held_cny"] == pytest.approx(ledger_held)
+    assert summary["requests"]["unpaid_rounds"] == 0
+    assert summary["requests"]["failed_rounds"] == summary["requests"]["settled_failure"] == 0
+    assert summary["requests"]["provider_billed_cny"] == pytest.approx(
+        summary["requests"]["conservative_held_cny"]
+    )
+
+    # C 返工⑤：合法 usage 的 chat 轮按 usage 结算，账本证据块 settlement.output_valid=true。
+    chat_results = [row for row in results if row.get("kind") == "chat"]
+    assert len(chat_results) == 1, chat_results
+    chat_result = chat_results[0]
+    assert chat_result["status"] == "succeeded"
+    assert chat_result["settlement"]["output_valid"] is True
+    assert chat_result["settlement"]["content_complete"] is True
+    assert chat_result["settlement"]["content_parse_ok"] is True
+    assert chat_result["conservative_charge_cny"] == pytest.approx(0.000384)
+    assert chat_result["conservative_charge_cny"] < 0.018688

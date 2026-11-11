@@ -1347,3 +1347,37 @@ def test_candidate_snapshot_binds_the_real_shared_ledger() -> None:
     )
     assert snapshot["ledger_path"].endswith("live-ledger.jsonl")
     assert snapshot["reservation_count"] >= 505
+
+
+def test_hard_max_requests_is_the_manager_recorded_1600(p2_env: SimpleNamespace) -> None:
+    """D1（2026-11-11 经理落盘）：两处常量同值 1600；1600 可用、1601 拒绝。"""
+    # 纯常量一致性钉值：这两处必须永远相等（原不变式保留）。
+    assert c.HARD_MAX_REQUESTS == 1600
+    assert live_authorization.MAX_GO_REQUESTS == 1600
+    assert c.HARD_MAX_REQUESTS == live_authorization.MAX_GO_REQUESTS
+
+    # 计划层：恰好 1600 可建，多 1 次即拒（安全阈值不放宽）。
+    accepted_plan = P2RunPlan.from_dict(_plan_dict(max_requests=1600))
+    assert accepted_plan.max_requests == 1600
+    with pytest.raises(P2ContractError) as excinfo:
+        P2RunPlan.from_dict(_plan_dict(max_requests=c.HARD_MAX_REQUESTS + 1))
+    assert excinfo.value.reason == "request_cap_over_hard_limit"
+
+    # GO 层：1600 可授权；1601 被硬顶拒（go_max_requests_over_hard_cap）。
+    # 授权上限取 min(plan.max_requests, GO scope.max_requests)，所以两端都声明 1600。
+    plan_1600 = P2RunPlan.from_dict(_plan_dict(max_requests=1600, plan_id="P2-CAND-1600"))
+    go = _go_dict(
+        _prefix_sha(p2_env.ledger),
+        plan_1600,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": 1600},
+    )
+    assert _authorize(p2_env, plan=plan_1600, go_payload=go).max_requests == 1600
+    over = _go_dict(
+        _prefix_sha(p2_env.ledger),
+        p2_env.plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": 1601},
+    )
+    _refuse(p2_env, "go_max_requests_over_hard_cap", go_payload=over)
+

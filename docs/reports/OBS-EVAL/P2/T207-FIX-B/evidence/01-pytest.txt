@@ -1,0 +1,58 @@
+# T207-FIX-B 验证原始输出（零真实调用；全部 Mock/fake transport；PYTHONIOENCODING=utf-8）
+
+## 命令 1（本包三文件，任务书指定）
+$ .venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_runner.py backend/tests/evaluation/test_p2_live_wiring.py backend/tests/evaluation/test_p2_authorization.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t207-fix-b
+
+........................................................................ [ 60%]
+.............................................F.                          [100%]
+================================== FAILURES ===================================
+____________ test_candidate_snapshot_binds_the_real_shared_ledger _____________
+
+    def test_candidate_snapshot_binds_the_real_shared_ledger() -> None:
+        """候选快照必须绑定仓库真实的共享账本历史前缀（若本机没有该文件则跳过）。"""
+        if not REAL_LEDGER.is_file():
+            pytest.skip("本机没有共享账本文件")
+        snapshot = _load_candidate("p2-ledger-snapshot.CANDIDATE-DRAFT.json")
+        raw = REAL_LEDGER.read_bytes()
+>       assert snapshot["ledger_sha256"] == hashlib.sha256(raw).hexdigest()
+E       AssertionError: assert '1f46d1b9e846...f803f3fde7390' == '6b053520a235...2fce666ee345c'
+E         
+E         - 6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c
+E         + 1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390
+
+backend\tests\evaluation\test_p2_authorization.py:1344: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_authorization.py::test_candidate_snapshot_binds_the_real_shared_ledger
+1 failed, 118 passed, 1 warning in 28.73s
+
+（退出码 1）
+
+## 命令 2（受硬顶/结算影响的 P1 用例，grep 定位后明确点名）
+$ .venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_live_runner.py backend/tests/evaluation/test_live_request_accounting.py backend/tests/evaluation/test_t112_gate_baseline.py backend/tests/unit/test_s2b_live_gate.py backend/tests/rag/test_budget.py backend/tests/rag/test_budget_settlement.py backend/tests/rag/test_budget_settlement_rejection_echo.py backend/tests/rag/test_budget_settlement_rejection_leak.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/p2-t207-fix-b-p1
+
+........................................................................ [ 44%]
+........................................................................ [ 88%]
+...................                                                      [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+163 passed, 1 warning in 9.17s
+
+（退出码 0）
+
+## 附：命令 1 中唯一失败项的性质（既有失败，非本包引入）
+- `test_candidate_snapshot_binds_the_real_shared_ledger`（test_p2_authorization.py:1338-1349）只比较两处
+  **本包未改动**的文件：T201 候选快照（钉 pilot 前历史前缀 `1f46d1b9…`）与仓库共享账本当前全文摘要
+  （`6b053520…`，即 T206 pilot 追加 84 行后的 1095 行；见 `T207-PM-decisions-01.md` §1）。
+- 证据：`git status --porcelain -- docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl
+  docs/reports/OBS-EVAL/P2/T201/candidates/p2-ledger-snapshot.CANDIDATE-DRAFT.json` 输出为空（两文件均未被
+  本包修改）；该断言不含任何本包改动的常量或函数。重签候选快照属 A 包 / 经理范围。

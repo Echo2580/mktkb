@@ -34,6 +34,8 @@ from typing import Any, Callable, Iterable, Mapping, Sequence
 from ..observability import TRACE_IDENTITY_FIELDS as _TRACE_IDENTITY_FIELDS
 from .p2_authorization import P2Gate, P2SendRefused
 from .p2_contracts import (
+    ATTEMPTS_SCOPE_ALL,
+    ATTEMPTS_SCOPE_UNAVAILABLE,
     COST_CENTERS,
     P2_AUTHORIZATION_SCHEMA_VERSION,
     P2_STAGE,
@@ -418,7 +420,11 @@ class P2RunLedger:
     def turns_executed(self) -> int:
         return sum(len(case.get("turns") or ()) for case in self.cases)
 
-    def result(self, *, status: str) -> P2RunResult:
+    def result(
+        self, *, status: str, attempt_audit: Mapping[str, Any] | None = None
+    ) -> P2RunResult:
+        """answer 单侧口径照旧；attempts_* 由逐次尝试核对（``_attempt_audit``）填。"""
+        attempts = _attempt_result_fields(attempt_audit)
         return P2RunResult(
             schema_version=P2_RUN_RESULT_SCHEMA_VERSION,
             run_id=self.run_id,
@@ -436,6 +442,7 @@ class P2RunLedger:
                 center: float(self.by_center_cny.get(center, 0.0)) for center in COST_CENTERS
             },
             production_ready=bool(self.production_ready),
+            **attempts,
         )
 
 
@@ -864,7 +871,7 @@ async def run_p2(
         if ledger.stop_code is not None:
             status = "blocked" if ledger.stop_code == STOP_NO_CASE_EXECUTED or not ledger.cases else "aborted"
 
-    result = ledger.result(status=status)
+    result = ledger.result(status=status, attempt_audit=attempt_audit)
     # T206-PRE（R2-F-R2-1）：任何"发过请求 / 校验失败"都必须留下 run_result+summary+gate。
     # 校验先失败 → 先补失败现场（stop_code/error_code/stage），写完全部产物再抛出。
     try:
@@ -883,7 +890,7 @@ async def run_p2(
             "detail": exc.detail,
         }
         failed_status = "blocked" if not ledger.cases else "aborted"
-        result = ledger.result(status=failed_status)
+        result = ledger.result(status=failed_status, attempt_audit=attempt_audit)
         _write_artifacts(
             plan=plan,
             authorization=authorization,
@@ -1009,6 +1016,103 @@ def _attempt_audit(plan: P2RunPlan, adapter: Any, ledger: P2RunLedger) -> tuple[
         "expected_reservations": len(main_reservations) + len(reservations),
     }
     return audit, code
+
+
+def _attempt_result_fields(attempt_audit: Mapping[str, Any] | None) -> dict[str, Any]:
+    """把逐次尝试核对结果映射成 ``P2RunResult`` 的 additive 字段（T207-FIX-B/A）。
+
+    - ``attempts_reserved`` = 本 run 唯一 reservation 数（answer 轮 + 从属尝试），与
+      ``gate.json.attempts.gate_reserved`` 同口径、同值（runner 已在不一致时停）；
+    - ``attempts_by_operation`` = answer 轮（``answer_reserved``）与从属尝试
+      （``by_operation``）按 operation 相加，**不重复计**同一笔；
+    - ``attempts_by_center_cny`` = 两侧中心占用逐中心相加（= 账本 conservative 总额）。
+
+    没有可用核对结果（``available`` 非真、字段缺失或类型不对）时返回
+    ``attempts_scope="unavailable"`` + 全 0/空：**不**用 answer 口径冒充全量，也不猜。
+    """
+    unavailable = {
+        "attempts_scope": ATTEMPTS_SCOPE_UNAVAILABLE,
+        "attempts_reserved": 0,
+        "attempts_by_operation": {},
+        "attempts_by_center_cny": {},
+    }
+    if not isinstance(attempt_audit, Mapping) or not attempt_audit.get("available"):
+        return unavailable
+    try:
+        reserved = int(attempt_audit.get("expected_reservations") or 0)
+        answer_reserved = int(attempt_audit.get("answer_reserved") or 0)
+        by_operation = {
+            str(operation): int(count)
+            for operation, count in dict(attempt_audit.get("by_operation") or {}).items()
+        }
+        centers = {
+            center: float(attempt_audit.get("by_center_cny", {}).get(center) or 0.0)
+            for center in COST_CENTERS
+        }
+        answer_centers = attempt_audit.get("answer_by_center_cny") or {}
+        for center in COST_CENTERS:
+            centers[center] += float(answer_centers.get(center) or 0.0)
+    except (TypeError, ValueError, AttributeError):
+        return unavailable
+    if answer_reserved:
+        by_operation[ANSWER_OPERATION] = (
+            by_operation.get(ANSWER_OPERATION, 0) + int(answer_reserved)
+        )
+    return {
+        "attempts_scope": ATTEMPTS_SCOPE_ALL,
+        "attempts_reserved": int(reserved),
+        "attempts_by_operation": by_operation,
+        "attempts_by_center_cny": {
+            center: round(float(amount), 8) for center, amount in centers.items()
+        },
+    }
+
+
+def _money_split(
+    ledger: P2RunLedger, attempt_audit: Mapping[str, Any] | None
+) -> dict[str, Any]:
+    """把「保守占用 / 供应商证据金额 / 零付费轮」三段分开，互不冒充（T207-FIX-B/B）。
+
+    - ``conservative_held_cny``：本 run 在门/账本里**已写 result** 的保守占用总额
+      （answer 轮 + 从属尝试；含失败与零付费轮的整笔上界）。这是记账口径，不是供应商账单：
+      预留了但没结算的笔只出现在 ``reserved_cny``，不进这里。
+    - ``provider_billed_cny``：其中**带供应商证据**的金额 —— answer 轮里真的付过款并成功
+      结算的笔（``paid_attempt`` 不是 False 且 status=ok），加上从属尝试里 settle 成功
+      的笔（usage 结算，或 OCR 固定页价）。零付费轮与失败/发送前拒绝的整笔上界**不计入**；
+      ``execution != live`` 时恒为 0（mock_gate/dry_run 没有供应商，不能声称"已计费"）。
+    - ``unpaid_rounds``：预留了但**没有发生任何付费发送**的 answer 轮数（账本写
+      ``status=failed`` + ``P2_NO_PAID_ATTEMPT:<reason>``，且**不**停止后续请求）；
+      取值来自 runner 的唯一计数器 ``ledger.unused``（不另算第二份）。
+
+    三者关系：``conservative_held_cny - provider_billed_cny`` 就是"没有供应商证据的保守
+    留账"（零付费轮 + 失败轮），pilot 实测 0.5713583 − 0.5152943 = 0.056064 = 3×0.018688。
+    """
+    receipts = attempt_audit.get("receipts") if isinstance(attempt_audit, Mapping) else None
+    rows = receipts if isinstance(receipts, list) else []
+    held_sub = 0.0
+    billed_sub = 0.0
+    for row in rows:
+        if not isinstance(row, Mapping):
+            continue
+        phase = str(row.get("phase") or "")
+        charged = float(row.get("charged_cny") or 0.0)
+        if phase in {"settle", "pre_send"}:
+            held_sub += charged
+        if phase == "settle" and str(row.get("status") or "") == "succeeded":
+            billed_sub += charged
+    held_answer = float(ledger.settled_cny)
+    live = str(getattr(ledger, "execution", "")) == EXECUTION_LIVE
+    billed_answer = 0.0
+    for row in ledger.requests:
+        if not isinstance(row, Mapping) or row.get("paid_attempt") is False:
+            continue
+        if str(row.get("status") or "") == "ok":
+            billed_answer += float(row.get("charged_cny") or 0.0)
+    return {
+        "conservative_held_cny": round(held_answer + held_sub, 8),
+        "provider_billed_cny": (round(billed_answer + billed_sub, 8) if live else 0.0),
+        "unpaid_rounds": int(getattr(ledger, "unused", 0)),
+    }
 
 
 def _case_item_failure(
@@ -1540,6 +1644,8 @@ def _write_artifacts(
     measured = [row for row in ledger.requests if int((row.get("provider_calls") or {}).get("outbound", 0)) > 0]
     real_requests = len(measured)
     billed_cny = round(sum(float(row.get("charged_cny") or 0.0) for row in measured), 8)
+    # T207-FIX-B/B：保守占用 / 供应商证据金额 / 零付费轮 三段分开，互不冒充。
+    money_split = _money_split(ledger, attempt_audit)
     if network is None:
         network_payload: dict[str, Any] = {
             "available": False,
@@ -1720,17 +1826,34 @@ def _write_artifacts(
         },
         "kinds": ledger.counts("kind"),
         "branches": branches,
+        # T207-FIX-B/A：本组键只覆盖 **answer 轮**（scope 显式写出）；全量尝试见
+        # `attempts`/`attempts_scope` 与 `run_result.attempts_*`。
         "requests": {
+            "scope": "answer_turns",
             "planned": int(plan.total_requests),
             "attempted": len(ledger.requests),
             "reserved": int(ledger.reserved),
             "settled_success": int(ledger.settled_success),
+            # 兼容键：**真实失败结算**轮数（settle_failure）。它不是"供应商失败"，也**不含**
+            # 零付费轮（后者是 unpaid_rounds；账本里同样写 status=failed + P2_NO_PAID_ATTEMPT）。
             "settled_failure": int(ledger.settled_failure),
+            "failed_rounds": int(ledger.settled_failure),
             "real_requests": int(real_requests),
+            # 兼容键：**真实出网**请求行的结算金额之和（实测口径），不是供应商账单。
             "billed_cny": float(billed_cny),
             "unused_no_paid_attempt": int(getattr(ledger, "unused", 0)),
+            "unpaid_rounds": int(money_split["unpaid_rounds"]),
+            "conservative_held_cny": float(money_split["conservative_held_cny"]),
+            "provider_billed_cny": float(money_split["provider_billed_cny"]),
         },
-        "attempts": dict(attempt_audit or {"available": False}),
+        "attempts": {
+            **dict(attempt_audit or {"available": False}),
+            "scope": (
+                "all_attempts"
+                if isinstance(attempt_audit, Mapping) and attempt_audit.get("available")
+                else "unavailable"
+            ),
+        },
         "providers": providers_payload,
         "network": network_payload,
         "holdout": {

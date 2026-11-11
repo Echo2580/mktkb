@@ -240,7 +240,8 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
 
 | 场景 | 结果 |
 |---|---|
-| chat 200 + usage 齐全 | `settle_success`（J1 重算；未用预留释放） |
+| chat 200 + usage 齐全 + 输出三判据成立 | `settle_success`（J1 重算；未用预留释放） |
+| chat 200 + usage 齐全，但输出判据不成立（非 stop / 内容空 / 解析结构缺失） | J1 拒绝（`finish_reason_not_stop` / `content_incomplete` / `content_not_parsed`）→ 该笔按上界保守占用并**停止** |
 | chat 200，但 usage 缺字段/缺 cache 拆分/超 cap | `usage_evidence_missing`（runner 停；该笔按上界保守占用，写 failed result） |
 | 产品零付费结局（拒答/澄清/未找到/知识变更） | `close_unused`（保守占用、**不**停止；不是失败） |
 | 从属尝试门拒绝 | `P2_PRE_SEND_REFUSED:<code>`（全额占用、门停止、HTTP=0） |
@@ -260,3 +261,25 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
    `begin_attempt -> confirm_before_send -> 真实 POST -> settle_success(usage)`，
    预留/结算/成本中心/回执都按该项；同一轮只允许 1 次 answer chat，`answer-*` 不再被
    expansion 顶账。计划缺 `expand-*` 时该轮在发送前失败（不借用 answer 的钱）。
+
+### 10.6 `output_valid` / `paid_attempt`（T207-FIX-B/C，additive）
+
+`chat_usage_evidence(...)` 的 `output_valid` **不再是 dataclass 默认值**，而是由
+`p2_live.chat_output_validity(output, purpose=...)` 用**这一份真实输出**算出的三判据：
+
+| 判据 | 取值方式 | 不成立时 |
+|---|---|---|
+| `finish_reason == "stop"` | 输出对象自带该字段则按其值；不带时以客户端已受理为准（`DeepSeekClient._parse` 在返回前拒绝非 stop，`providers/deepseek.py:228`） | `finish_reason_not_stop` |
+| 内容非空 | `output.text` 非空 | `content_incomplete` |
+| JSON 解析成功 | purpose 对应的解析结构存在：answer=`source_ids`（字符串元组）、expansion=`query_terms`（字符串元组）——客户端解析 JSON 对象成功后才会构造它们（`providers/deepseek.py:240-273`） | `content_not_parsed` |
+
+- 三条全成立才 `output_valid=True`；缺任一条件 → `False`，且 `chat_usage_evidence` 把同一判据写进
+  `content_complete`/`content_parse_ok`，因此"输出不完整"不会按 usage 入账，而是保守留账并停止；
+- 调用方必须显式传判据（`make_settle_evidence` 从 `TurnContext` 取、`query_expansion` 从输出取）；
+  **缺省 = 无效**（fail closed），不存在"恒置 True 换结算"的路径；
+- `paid_attempt=False` 是**轮次结局标签**（零付费：合法拒答/澄清/未找到/知识变更），**不是**输出无效，
+  它对应 `close_unused`（`P2_NO_PAID_ATTEMPT:*`、全额保守留账、不停止）；
+- 口径影响（如实）：chat 结算的**金额**本来就由 `finish/content/cache/usage` 决定（J1 的 chat 校验
+  不读 `output_valid`，只有 embedding/rerank 的 `_validate_total_evidence` 读它），因此合法 usage 轮
+  的金额在修复前后相同；本次修复消除的是"内容标志被硬编码成有效"的记账缺口 —— 无效输出从
+  "按 usage 入账"改为"保守上界 + 停止"。

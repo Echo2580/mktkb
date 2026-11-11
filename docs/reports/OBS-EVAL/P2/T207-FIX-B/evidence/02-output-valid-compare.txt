@@ -1,0 +1,27 @@
+# 命令: .venv/Scripts/python.exe docs/reports/OBS-EVAL/P2/T207-FIX-B/evidence/output-valid-compare.py
+# 环境: PYTHONIOENCODING=utf-8；零真实调用（纯函数，无 HTTP/无 .env）
+# 脚本: docs/reports/OBS-EVAL/P2/T207-FIX-B/evidence/output-valid-compare.py
+
+chat 上界 = 0.018688 元；合法 usage 按 64*2/M + 32*8/M = 0.000384 元
+
+=== 每个场景两行：第 1 行=修复前，第 2 行=修复后 ===
+----------------------------------------------------------------------------------------------------
+合法输出 + 完整 usage             accept=True reason=- charge=0.00038400 output_valid=False
+                            accept=True reason=- charge=0.00038400 output_valid=True
+空内容                         accept=True reason=- charge=0.00038400 output_valid=False
+                            accept=False reason=content_incomplete charge=0.01868800 output_valid=False
+非 stop 完成态                  accept=True reason=- charge=0.00038400 output_valid=False
+                            accept=False reason=finish_reason_not_stop charge=0.01868800 output_valid=False
+JSON 未解析（无解析结构）             accept=True reason=- charge=0.00038400 output_valid=False
+                            accept=False reason=content_not_parsed charge=0.01868800 output_valid=False
+usage 缺字段（无 cache 拆分）       accept=False reason=usage_missing:prompt_cache_hit_tokens charge=0.01868800 output_valid=False
+                            accept=False reason=usage_missing:prompt_cache_hit_tokens charge=0.01868800 output_valid=True
+调用方未给判据（缺省）                 accept=True reason=- charge=0.00038400 output_valid=False
+                            accept=False reason=finish_reason_not_stop charge=0.01868800 output_valid=False
+
+pilot 口径复核（账本实测，非本脚本计算）：
+  conservative_held_cny = 0.061806 (answer) + 0.5095523 (从属) = 0.5713583
+  provider_billed_cny  = 0.005742 (3 笔 usage chat) + 0.5095523 = 0.5152943
+  零付费轮 3 × 0.018688 = 0.056064 = 两者之差（保守留账，不是供应商花费）
+
+（退出码 0）

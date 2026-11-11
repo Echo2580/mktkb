@@ -91,7 +91,14 @@ GO_REQUIRED_FIELDS: tuple[str, ...] = (
     "scope",
 )
 MAX_GO_BYTES = 65536
-MAX_GO_REQUESTS = 1000
+#: 全历史累计请求上限（= evaluation.p2_contracts.HARD_MAX_REQUESTS，两处必须同值）。
+#:
+#: 2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 <=2000、GO 在 P2<=50 元内
+#: 由经理拟定」落盘 1000 -> 1600（实算 1,241 + 20% ≈ 1,489，取整 1600）。
+#: 到值即停：累计到 1600 时任何发送前拒绝；各 GO 自身的 scope.max_requests 是更早的闸门
+#: （两侧取 min）。已签 GO 仍按它自己写的额度生效，本次只抬高共同天花板，**不构成**对
+#: 任何既往授权的追加授权；新增预算也不重置已用计数。
+MAX_GO_REQUESTS = 1600
 
 
 class LiveGateError(ValueError):

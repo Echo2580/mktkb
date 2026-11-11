@@ -62,6 +62,7 @@ __all__ = [
     "PlanIndex",
     "TurnContext",
     "build_live_adapter",
+    "chat_output_validity",
     "chat_usage_evidence",
     "load_live_env",
     "make_settle_evidence",
@@ -75,6 +76,9 @@ MODE_LIVE = "live"
 #: runner 的 settle_evidence 返回值：本轮**没有任何付费发送**（合法拒答/澄清/未找到）。
 #: 它不是"缺 usage"：缺 usage 一律返回 None 并按 fail-closed 处理。
 NO_PAID_ATTEMPT = "no_paid_attempt"
+
+#: chat 输出"完整结束"的唯一合法完成态（与 providers/deepseek.py 的解析条件同值）。
+CHAT_FINISH_STOP = "stop"
 
 #: 真实发送需要的环境变量**名字**（值不进任何产物/日志）。
 ENV_CHAT_API_KEY = "MKTKB_MODEL_API_KEY"
@@ -673,6 +677,11 @@ class TurnContext:
     expansion_calls: int = 0
     chat_usage: dict[str, Any] | None = None
     chat_request_id: str | None = None
+    #: T207-FIX-B/C：本轮 answer chat 输出的三段有效性判据（由 ``chat_output_validity`` 给）。
+    #: 缺省全为"无效"：没有真实输出就不许声明 output_valid。
+    chat_finish_reason: Any = None
+    chat_content_present: bool = False
+    chat_content_parsed: bool = False
     #: 本轮 answer chat 请求里**实际交给模型的检索候选**（source_id，即产品来源单元 id）。
     #: 零额外调用：直接从产品自己构造的 CompletionInput.evidence 取，不重放、不付费。
     retrieved_ids: tuple[str, ...] = ()
@@ -689,6 +698,9 @@ class TurnContext:
         self.expansion_calls = 0
         self.chat_usage = None
         self.chat_request_id = None
+        self.chat_finish_reason = None
+        self.chat_content_present = False
+        self.chat_content_parsed = False
         self.retrieved_ids = ()
         self.last_usage = None
         self.last_retrieved_ids = ()
@@ -727,6 +739,10 @@ class TurnContext:
             "usage": dict(self.chat_usage or {}),
             "raw_usage": dict(self.chat_usage or {}),
             "provider_request_id": self.chat_request_id,
+            # T207-FIX-B/C：结算有效性判据随 usage 一起交给 settle_evidence（同一轮、同一快照）。
+            "finish_reason": self.chat_finish_reason,
+            "content_present": bool(self.chat_content_present),
+            "content_parsed": bool(self.chat_content_parsed),
         }
 
 
@@ -853,13 +869,17 @@ class GatedChatGateway:
             wiring.ledger.settle_sync_failure(ticket, error_code=type(exc).__name__)
             raise
         usage = getattr(output, "raw_usage", None) or getattr(output, "usage", None)
+        validity = chat_output_validity(output, purpose="query_expansion")
         evidence = chat_usage_evidence(
             request_sha256=ticket.reservation.request_sha256,
             usage=dict(usage) if isinstance(usage, Mapping) else {},
             model=str(ticket.model or CHAT_MODEL),
+            finish_reason=validity["finish_reason"],
+            content_present=validity["content_present"],
+            content_parsed=validity["content_parsed"],
         )
-        if evidence is None:
-            # 声明"扩展"却拿不到官方 usage：不伪造金额，保守占满上界并停止后续付费。
+        if evidence is None or not validity["output_valid"]:
+            # 声明"扩展"却拿不到官方 usage / 输出不完整：不伪造金额，保守占满上界并停止后续付费。
             wiring.ledger.settle_sync_failure(ticket, error_code="usage_evidence_missing")
             raise P2LiveRefused(
                 "usage_evidence_missing", "query_expansion 响应缺少官方 usage（不伪造金额）"
@@ -1030,6 +1050,11 @@ class LiveWiring:
         usage = getattr(output, "raw_usage", None) or getattr(output, "usage", None)
         self.turn.chat_usage = dict(usage) if isinstance(usage, Mapping) else None
         self.turn.chat_request_id = getattr(output, "provider_request_id", None)
+        # T207-FIX-B/C：把**这一份输出**的有效性判据留到结算时用（缺省=无效）。
+        validity = chat_output_validity(output)
+        self.turn.chat_finish_reason = validity["finish_reason"]
+        self.turn.chat_content_present = bool(validity["content_present"])
+        self.turn.chat_content_parsed = bool(validity["content_parsed"])
 
     def expansion_before_send(self) -> None:
         if self.turn.request_id is None:
@@ -1143,28 +1168,88 @@ def open_live_gate(
     return gate
 
 
+
+def _parsed_purpose_schema(output: Any, purpose: str) -> bool:
+    """"JSON 解析成功"在 P2 层的凭据：客户端解析后才会产出的结构化字段。
+
+    ``DeepSeekClient._parse`` 先 ``_loads_json_object``（失败即抛 ModelOutputInvalid），再按
+    purpose 校验 schema 并构造 ``CompletionOutput``：answer 需要 ``answer`` 字符串 +
+    ``source_ids`` 字符串列表（providers/deepseek.py:261-273），query_expansion 需要
+    ``terms`` 字符串列表（:242-259）。这里复核该结构存在且类型正确 —— 拿得到它，说明 JSON
+    对象确实解析成功；拿不到（或类型不对）一律按"未解析"处理。
+    """
+    if purpose == "query_expansion":
+        terms = getattr(output, "query_terms", None)
+        return isinstance(terms, tuple) and all(isinstance(item, str) for item in terms)
+    sources = getattr(output, "source_ids", None)
+    return isinstance(sources, tuple) and all(isinstance(item, str) for item in sources)
+
+
+def chat_output_validity(output: Any, *, purpose: str = "answer") -> dict[str, Any]:
+    """从**已返回的**真实 chat 输出判定结算有效性（三条件，不猜、不补造）。
+
+    1. ``finish_reason``：输出对象自带该字段时必须 == ``stop``；不带时以客户端已受理为准
+       （``DeepSeekClient._parse`` 在返回前就拒绝非 stop：providers/deepseek.py:228）；
+    2. ``content_present``：输出 text 非空；
+    3. ``content_parsed``：purpose 对应的解析结构存在（见 ``_parsed_purpose_schema``）。
+
+    三条全成立才 ``output_valid=True``；缺任一条件 -> False（fail closed）：该笔结算证据会
+    在 J1 侧被拒（content_incomplete / content_not_parsed / finish_reason_not_stop），
+    按保守上界留账，绝不用假证据换"按 usage 结算"。
+    """
+    finish_reason = getattr(output, "finish_reason", CHAT_FINISH_STOP)
+    text = getattr(output, "text", None)
+    content_present = isinstance(text, str) and bool(text.strip())
+    content_parsed = bool(content_present) and _parsed_purpose_schema(output, purpose)
+    output_valid = bool(
+        finish_reason == CHAT_FINISH_STOP and content_present and content_parsed
+    )
+    return {
+        "finish_reason": finish_reason,
+        "content_present": bool(content_present),
+        "content_parsed": bool(content_parsed),
+        "output_valid": output_valid,
+    }
+
+
 def chat_usage_evidence(
     *,
     request_sha256: str,
     usage: Mapping[str, Any],
     model: str = CHAT_MODEL,
+    finish_reason: Any = None,
+    content_present: Any = None,
+    content_parsed: Any = None,
 ) -> UsageEvidence | None:
-    """由真实 chat 响应的 usage 构造 J1 证据；缺字段就返回 None（不补造）。"""
+    """由真实 chat 响应的 usage 构造 J1 证据；缺字段就返回 None（不补造）。
+
+    ``output_valid`` 必须由调用方用**这一份真实输出**的三判据显式给出
+    （``chat_output_validity``）：默认全部 None -> 一律按无效处理（fail closed），
+    绝不为了"结算成功"恒置 True。content/finish 三段也按同一判据填进证据，
+    因此"输出不完整"会在 J1 侧被拒，而不是被当成有效 usage 入账。
+    """
     if not usage:
         return None
+    valid = (
+        finish_reason == CHAT_FINISH_STOP
+        and content_present is True
+        and content_parsed is True
+    )
     policy = build_policy(KIND_CHAT, model=model)
     try:
-        return build_chat_evidence(
+        evidence = build_chat_evidence(
             policy,
             request_sha256=request_sha256,
             usage=dict(usage),
             http_status=200,
             streamed=False,
-            # DeepSeekClient._parse 已拒绝非 stop 完成态与非 JSON 内容，拿到 output 即成立。
-            finish_reason="stop",
-            content_complete=True,
-            content_parse_ok=True,
+            finish_reason=CHAT_FINISH_STOP if valid else finish_reason,
+            content_complete=content_present is True,
+            content_parse_ok=content_parsed is True,
         )
+        # build_chat_evidence 不接受 output_valid（J1 冻结签名），用等价 dataclass 替换补上；
+        # 判据本身仍来自上面三项，不是常量。
+        return dataclasses.replace(evidence, output_valid=bool(valid))
     except Exception:  # noqa: BLE001 - 任何证据构造失败都按"缺 usage"fail closed
         return None
 
@@ -1193,6 +1278,10 @@ def make_settle_evidence(adapter: Any) -> Callable[[Any, Any], Any]:
             request_sha256=ticket.reservation.request_sha256,
             usage=usage,
             model=str(getattr(ticket, "model", CHAT_MODEL) or CHAT_MODEL),
+            # T207-FIX-B/C：判据来自本轮**实际输出**（TurnContext 捕获），缺一项即无效。
+            finish_reason=meta.get("finish_reason"),
+            content_present=meta.get("content_present"),
+            content_parsed=meta.get("content_parsed"),
         )
 
     return settle

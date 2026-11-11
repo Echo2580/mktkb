@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
 from decimal import ROUND_CEILING, Decimal
 from typing import Any, Mapping
@@ -44,6 +44,9 @@ from ..rag.settlement_policy import (
 )
 
 __all__ = [
+    "ATTEMPTS_SCOPES",
+    "ATTEMPTS_SCOPE_ALL",
+    "ATTEMPTS_SCOPE_UNAVAILABLE",
     "COST_CENTERS",
     "HARD_MAX_REQUESTS",
     "OPERATIONS",
@@ -84,12 +87,34 @@ P2_RUN_MODES = frozenset({"end_to_end"})
 
 P2_RUN_STATUSES = frozenset({"succeeded", "blocked", "aborted"})
 
-HARD_MAX_REQUESTS = 1000
-"""累计请求硬顶（= 现有 MAX_GO_REQUESTS）。
+ATTEMPTS_SCOPE_ALL = "all_attempts"
+ATTEMPTS_SCOPE_UNAVAILABLE = "unavailable"
+ATTEMPTS_SCOPES = frozenset({ATTEMPTS_SCOPE_ALL, ATTEMPTS_SCOPE_UNAVAILABLE})
+"""run_result 里 attempts_* 字段的口径标签（T207-FIX-B/A，additive）。
 
-新增 20 元预算**不重置**已用 505 次，也**不自动提高**该值：候选计划与候选 GO 都不得超过
-它。主人 2026-11-10 增量授权里「T206 按实算 +20% 余量提至 <=2000」是**准入时经理落盘**
-的动作，T201 不开这个口子。
+- ``all_attempts``：attempts_* 由 runner 的逐次尝试核对（attempt_audit）填，覆盖
+  answer 轮 + 从属尝试（index/query embedding、rerank、query_expansion、OCR）；
+- ``unavailable``：本次结果没有逐次尝试账（如 ``P2Gate.result()`` 早于核对，或发送前就
+  被拒），此时 attempts_* 必须为空/0 —— 不用 answer 口径冒充全量。
+"""
+
+HARD_MAX_REQUESTS = 1600
+"""累计请求硬顶（= 现有 MAX_GO_REQUESTS，两处必须同值）。
+
+2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 <=2000，且 GO 在 P2<=50 元、
+累计请求<=2000 内由经理拟定」落盘：**1000 -> 1600**（记录见
+docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md 的 §3）。
+
+实算依据（逐项）：已用 547 + T207 公开 263 + H2 回合 144 + H2 灌库 <=20 +
+T208 judge <=160 + T900 独立复验 <=107 = 1,241；+20% 余量 ≈ 1,489 -> 取整 1600。
+
+**到值即停**：累计 reservation 到 1600 时，任何发送前的 request_limit（P2Gate）与
+go_max_requests_over_hard_cap（授权）都会拒绝；各计划自身的 max_requests 永远是更早的闸门。
+新增预算仍**不重置**已用计数。
+
+跨范围影响：MAX_GO_REQUESTS 同时是 P1 live_authorization 的天花板，本值只抬高「共同
+天花板」；P1 已签 GO 的 max_requests 仍各自生效（两侧取 min），因此**不构成**对 P1 的
+追加授权。
 """
 
 COST_CENTERS: tuple[str, ...] = ("answer_retrieval", "ocr", "judge", "independent")
@@ -327,6 +352,24 @@ def _exact_keys(data: Any, expected: tuple[str, ...] | frozenset[str], label: st
     keys = set(data)
     missing = sorted(set(expected) - keys)
     unknown = sorted(keys - set(expected))
+    if missing:
+        raise P2ContractError("field_missing", f"{label} 缺少字段 {missing}")
+    if unknown:
+        raise P2ContractError("field_unknown", f"{label} 含未声明字段 {unknown}")
+
+
+def _optional_exact_keys(
+    data: Any,
+    required: frozenset[str],
+    optional: frozenset[str],
+    label: str,
+) -> None:
+    """必填键必须齐、未知键一律拒绝；``optional`` 里的 additive 键允许缺席（旧产物可读）。"""
+    if not isinstance(data, Mapping):
+        raise P2ContractError("mapping_required", f"{label} 必须是对象")
+    keys = set(data)
+    missing = sorted(set(required) - keys)
+    unknown = sorted(keys - (set(required) | set(optional)))
     if missing:
         raise P2ContractError("field_missing", f"{label} 缺少字段 {missing}")
     if unknown:
@@ -824,7 +867,7 @@ class P2RunPlan:
         if self.max_requests > HARD_MAX_REQUESTS:
             raise P2ContractError(
                 "request_cap_over_hard_limit",
-                f"plan.max_requests 不得超过累计硬顶 {HARD_MAX_REQUESTS}（T201 不提高该值）",
+                f"plan.max_requests 不得超过累计硬顶 {HARD_MAX_REQUESTS}",
             )
         if not isinstance(self.cost_centers_cny, Mapping):
             raise P2ContractError("mapping_required", "cost_centers_cny 必须是对象")
@@ -1354,6 +1397,7 @@ class P2Authorization:
 # ---------------------------------------------------------------- 运行结果
 
 
+#: p2-run-result/v0.1 的必填键（answer 单侧口径；**语义不变**）。
 _RESULT_KEYS = frozenset(
     {
         "schema_version",
@@ -1373,10 +1417,33 @@ _RESULT_KEYS = frozenset(
     }
 )
 
+#: T207-FIX-B/A 的 additive 键：全量尝试口径，旧产物没有它们也能读（缺省=unavailable）。
+_RESULT_ATTEMPT_KEYS = frozenset(
+    {
+        "attempts_scope",
+        "attempts_reserved",
+        "attempts_by_operation",
+        "attempts_by_center_cny",
+    }
+)
+
 
 @dataclass(frozen=True)
 class P2RunResult:
-    """一次 P2 运行的资金/请求回执（T203 统一填写，T209 归档）。"""
+    """一次 P2 运行的资金/请求回执（T203 统一填写，T209 归档）。
+
+    两组口径**互不冒充**（T207-FIX-B/A，additive，不改旧键语义）：
+
+    - ``requests_*`` / ``by_operation`` / ``by_center_cny``：**answer 轮单侧**（runner 逐轮
+      的 answer 预留与结算；旧键语义逐字不变）；
+    - ``attempts_*``：**全量底层尝试**（answer 轮 + 从属尝试），由 runner 的逐次尝试核对
+      （``attempt_audit``）填；等价于门控登记的唯一 reservation 数，也是「同一 run 的规模」
+      唯一可与 ``gate.json.attempts`` 对齐的口径。
+
+    ``attempts_scope == "unavailable"`` 表示本结果没有全量尝试账（例如 ``P2Gate.result()``
+    只知道自己那一侧，或发送前就停），此时 attempts_* 必须为空/0，**不得**用 answer 口径
+    冒充全量。
+    """
 
     schema_version: str
     run_id: str
@@ -1392,6 +1459,10 @@ class P2RunResult:
     by_operation: Mapping[str, int]
     by_center_cny: Mapping[str, float]
     production_ready: bool
+    attempts_scope: str = ATTEMPTS_SCOPE_UNAVAILABLE
+    attempts_reserved: int = 0
+    attempts_by_operation: Mapping[str, int] = field(default_factory=dict)
+    attempts_by_center_cny: Mapping[str, float] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
         if self.schema_version != P2_RUN_RESULT_SCHEMA_VERSION:
@@ -1427,6 +1498,36 @@ class P2RunResult:
             _non_negative_money(amount, f"by_center_cny.{center}")
         if not isinstance(self.production_ready, bool):
             raise P2ContractError("bool_invalid", "result.production_ready 必须是布尔")
+        self._validate_attempts()
+
+    def _validate_attempts(self) -> None:
+        if self.attempts_scope not in ATTEMPTS_SCOPES:
+            raise P2ContractError("attempts_scope_invalid", f"attempts_scope 必须是 {sorted(ATTEMPTS_SCOPES)}")
+        _plain_int(self.attempts_reserved, "attempts_reserved", minimum=0)
+        if not isinstance(self.attempts_by_operation, Mapping):
+            raise P2ContractError("mapping_required", "result.attempts_by_operation 必须是对象")
+        for operation, count in self.attempts_by_operation.items():
+            if operation not in OPERATIONS:
+                raise P2ContractError(
+                    "operation_unregistered", "result.attempts_by_operation 含未注册操作"
+                )
+            _plain_int(count, f"attempts_by_operation.{operation}", minimum=0)
+        if not isinstance(self.attempts_by_center_cny, Mapping):
+            raise P2ContractError("mapping_required", "result.attempts_by_center_cny 必须是对象")
+        for center, amount in self.attempts_by_center_cny.items():
+            if center not in COST_CENTERS:
+                raise P2ContractError(
+                    "cost_center_unregistered", "result.attempts_by_center_cny 含未注册中心"
+                )
+            _non_negative_money(amount, f"attempts_by_center_cny.{center}")
+        if self.attempts_scope == ATTEMPTS_SCOPE_UNAVAILABLE and (
+            int(self.attempts_reserved)
+            or dict(self.attempts_by_operation)
+            or dict(self.attempts_by_center_cny)
+        ):
+            raise P2ContractError(
+                "result_inconsistent", "attempts_scope=unavailable 时 attempts_* 必须为空/0"
+            )
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -1446,17 +1547,34 @@ class P2RunResult:
                 str(key): float(value) for key, value in self.by_center_cny.items()
             },
             "production_ready": bool(self.production_ready),
+            "attempts_scope": str(self.attempts_scope),
+            "attempts_reserved": int(self.attempts_reserved),
+            "attempts_by_operation": {
+                str(key): int(value) for key, value in self.attempts_by_operation.items()
+            },
+            "attempts_by_center_cny": {
+                str(key): float(value) for key, value in self.attempts_by_center_cny.items()
+            },
         }
 
     @classmethod
     def from_dict(cls, data: Any) -> "P2RunResult":
-        _exact_keys(data, _RESULT_KEYS, "run_result")
+        # 旧产物（没有 attempts_* 键）仍然可读：缺省 = unavailable + 0/空。
+        _optional_exact_keys(data, _RESULT_KEYS, _RESULT_ATTEMPT_KEYS, "run_result")
         stop_code = data["stop_code"]
         if stop_code is not None:
             stop_code = _text(stop_code, "stop_code", maximum=96)
         by_operation = data["by_operation"]
         by_center = data["by_center_cny"]
-        for label, value in (("by_operation", by_operation), ("by_center_cny", by_center)):
+        attempts_by_operation = data.get("attempts_by_operation", {})
+        attempts_by_center = data.get("attempts_by_center_cny", {})
+        attempts_scope = data.get("attempts_scope", ATTEMPTS_SCOPE_UNAVAILABLE)
+        for label, value in (
+            ("by_operation", by_operation),
+            ("by_center_cny", by_center),
+            ("attempts_by_operation", attempts_by_operation),
+            ("attempts_by_center_cny", attempts_by_center),
+        ):
             if not isinstance(value, Mapping):
                 raise P2ContractError("mapping_required", f"run_result.{label} 必须是对象")
         return cls(
@@ -1480,4 +1598,16 @@ class P2RunResult:
                 for key, value in by_center.items()
             },
             production_ready=bool(data["production_ready"]),
+            attempts_scope=_plain_text(attempts_scope, "attempts_scope", maximum=32),
+            attempts_reserved=_plain_int(
+                data.get("attempts_reserved", 0), "attempts_reserved", minimum=0
+            ),
+            attempts_by_operation={
+                str(key): _plain_int(value, f"attempts_by_operation.{key}", minimum=0)
+                for key, value in attempts_by_operation.items()
+            },
+            attempts_by_center_cny={
+                str(key): _plain_float(value, f"attempts_by_center_cny.{key}")
+                for key, value in attempts_by_center.items()
+            },
         )

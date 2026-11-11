@@ -12,7 +12,17 @@
    `answer_retrieval / ocr / judge / independent`（候选 12 / 3 / 3 / 2）各自限额，合计**必须等于**
    阶段额度。不存在「每个中心各花 20 元」。
 3. 请求上限是**累计**口径：直接取账本里的 reservation 计数（历史 505 次照旧计入），
-   硬顶 `HARD_MAX_REQUESTS = 1000`。新增预算不重置、T201 不提高该值。
+   硬顶 `HARD_MAX_REQUESTS = 1600`（= `live_authorization.MAX_GO_REQUESTS`，两处同值）。
+   新增预算**不重置**已用计数。
+   - 变更记录：2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 ≤2000，且 GO 在
+     P2≤50 元、累计请求≤2000 内由经理拟定」落盘 **1000 → 1600**（`T207-PM-decisions-01.md` §3）。
+   - 实算依据：已用 547 + T207 公开 263 + H2 回合 144 + H2 灌库 ≤20 + T208 judge ≤160 +
+     T900 独立复验 ≤107 = 1,241；+20% 余量 ≈ 1,489 → 取整 1600。
+   - **到值即停**：累计到 1600 时，发送前的 `request_limit`（`P2Gate`）与
+     `go_max_requests_over_hard_cap`（授权）一律拒绝；各计划自身的 `max_requests` 是更早的闸门。
+   - 跨范围影响（如实）：`MAX_GO_REQUESTS` 同时是 **P1 `live_authorization`** 的天花板。本值只
+     抬高"共同天花板"；P1 已签 GO 的 `scope.max_requests` 仍各自生效（引擎两侧取 `min`），
+     因此**不构成**对 P1 的追加授权，也不改任何既有门槛。
 4. 串行、自动重试 **0**：一次只有一个在飞请求；失败即停，后续请求在发送前被拒。
 5. 旧 P1 GO 默认拒绝 P2，P2 GO 不能反过来给 P1 授权：
    - P2 只认 `document = P2-LIVE-GO`；`S2-LIVE-GO` → 稳定码 `legacy_go_document`；
@@ -53,7 +63,7 @@
 | `created_utc` | 带时区 ISO |
 | `project_total_limit_cny` | 有限正数，≥ 阶段额度 |
 | `stage_limit_cny` | 有限正数 |
-| `max_requests` | 正整数，≤ 1000；≥ 计划请求总数 |
+| `max_requests` | 正整数，≤ 1600（= `HARD_MAX_REQUESTS`）；≥ 计划请求总数 |
 | `cost_centers_cny` | 恰好四个已注册中心，各自为正，合计 == `stage_limit_cny` |
 | `items` | 非空、`item_id` 唯一 |
 
@@ -186,6 +196,13 @@ nonce_len`。
 reserved_cny / settled_cny / by_operation / by_center_cny / production_ready`；
 不变量 `sent ≤ reserved ≤ planned`。
 
+**T207-FIX-B/A（additive，旧键语义逐字不变）**：`requests_* / by_operation / by_center_cny` 是
+**answer 轮单侧**口径；另增四个键描述**全量底层尝试**：`attempts_scope`
+（`all_attempts` | `unavailable`）、`attempts_reserved`（= 本 run 唯一 reservation 数，与
+`gate.json.attempts.gate_reserved` 同值）、`attempts_by_operation`、`attempts_by_center_cny`。
+`attempts_scope=unavailable` 时三者必须为空/0（**不得**用 answer 口径冒充全量）；旧产物缺这些
+键仍可读（按 `unavailable` 解释），新增键不升 `schema_version`（同 `p2-live-binding-v0_1.md` §7 的版本策略）。
+
 ## 8. 兼容接线（本次唯一改动的旧组件）
 
 | 文件 | 改动 | 调用者与影响 |
@@ -208,7 +225,8 @@ reserved_cny / settled_cny / by_operation / by_center_cny / production_ready`；
 ## 10. T201 明确未做的事
 
 不签发 GO、不写原 budget/GO/账本、不建 P2 阶段、不启动 runner、不跑真实发送、不读 .env/H2、
-不提高 `MAX_GO_REQUESTS`、不设 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=40` 到任何全局配置。
+不提高 `MAX_GO_REQUESTS`（T201 当时的值；T207-FIX-B 于 2026-11-11 按经理落盘提至 1600，见 §1.3）、
+不设 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=40` 到任何全局配置。
 候选文件在 `docs/reports/OBS-EVAL/P2/T201/candidates/`，全部标 DRAFT。
 
 ## 11. T206-LIVE 增补：live 执行入口与逐次尝试（additive，不改 §1–§10）

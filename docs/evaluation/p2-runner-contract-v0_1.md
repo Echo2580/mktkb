@@ -89,7 +89,7 @@ async def run_p2(
 | 文件 | 出现在 | 内容 |
 |---|---|---|
 | `run_manifest.json` | 全部 | run/plan/mode/scope、dataset 身份（version/label/suite/manifest_sha256/case_count/strata）、plan 摘要与预算、授权快照（go_sha256/nonce_len/production_ready）、pipeline（入口、turn 超时、trace 模式、索引统计、两个模块的 `code_sha256`）、provider 身份、隔离路径、ingest 回执 |
-| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
+| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（`scope="answer_turns"`；planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**，另有 `conservative_held_cny`/`provider_billed_cny`/`unpaid_rounds` 三段与 `failed_rounds` 别名，见 §7）、attempts（`scope="all_attempts"` + 逐次核对）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
 | `run_result.json` | 全部 | `P2RunResult.as_dict()`（sent<=reserved<=planned） |
 | `gate.json` | 全部 | 门/授权检查逐项结果、`real_sends_allowed`、拒绝原因、`quality_gate="deferred-to-T205"` |
 | `cases.jsonl` | 仅 `visibility="public"` | 逐题行：会话 id、逐轮 kind/trace_id/trace_path/trace_outcome/http_status、产品来源、ticket、是否计费 |
@@ -174,3 +174,42 @@ holdout 额外约束：
 - **run_id 必填**：`run_p2(run_id=...)` 传空/非 str → 发送前 `P2RunError("run_id_missing")`。
 - 完整口径（确定性 config_hash、错误码表、fail-closed 矩阵）见
   `docs/evaluation/p2-live-binding-v0_1.md`。
+
+## 7. T207-FIX-B 增补：answer 单侧 / 全量尝试 / 三段金额（additive）
+
+本节只**新增口径**，不改 §1–§6 的字段语义、判定与阈值。
+
+### 7.1 两个"规模"口径必须同时写出来
+
+| 位置 | 口径 | 含义 |
+|---|---|---|
+| `summary.requests.scope` = `answer_turns`；`run_result.requests_*`/`by_operation`/`by_center_cny` | answer 轮单侧 | runner 逐轮的 answer 预留与结算（旧键语义不变） |
+| `summary.attempts.scope` = `all_attempts`；`run_result.attempts_*` | 全量底层尝试 | answer 轮 + 从属尝试；`attempts_reserved` 与 `gate.json.attempts.gate_reserved` 同值 |
+
+`run_result.attempts_scope=unavailable` 表示没有逐次尝试账（发送前停、或 `P2Gate.result()` 那一侧），
+此时 `attempts_*` 为空/0，**不**用 answer 口径冒充。新增断言：`run_result.attempts_reserved ==
+gate 的唯一 reservation 数`（`test_p2_live_wiring.py`），旧产物缺这些键仍可读。
+
+### 7.2 `summary.requests` 的三段（互不冒充）
+
+| 键 | 含义 | 是否供应商账单 |
+|---|---|---|
+| `conservative_held_cny` | 本次 run 在门/账本里**已写 result** 的保守占用总额（answer + 从属；含失败与零付费轮的整笔上界） | 否（记账口径） |
+| `provider_billed_cny` | 其中**带供应商证据**的金额：answer 轮里真的付过款并成功结算的笔 + 从属尝试里 settle 成功的笔（usage 结算或 OCR 固定页价） | 是"按官方 usage/页价重算"的金额，仍不是账单 |
+| `unpaid_rounds` | 预留了但**没有任何付费发送**的 answer 轮数（账本写 `status=failed` + `P2_NO_PAID_ATTEMPT:<reason>`，**不**停止） | 否 |
+
+兼容键：`settled_failure` = `failed_rounds`（**真实失败结算**轮数，`settle_failure`）；
+`unused_no_paid_attempt` = `unpaid_rounds`；`billed_cny` = **真实出网**请求行的结算金额之和
+（实测口径，不是账单）。账本 schema 与 `status` 集合**不动**：`status=failed` 既可能是真实失败，
+也可能是"零付费轮按上界保守留账"，区分只看 `error_code` 前缀 `P2_NO_PAID_ATTEMPT:`。
+
+### 7.3 `output_valid` / `paid_attempt` 的语义
+
+- `output_valid` 由 `p2_live.chat_output_validity` 用**这一份真实输出**的三判据算出：
+  `finish_reason == "stop"` + 内容非空 + purpose 对应的解析结构存在（answer=`source_ids`、
+  expansion=`query_terms`，客户端只在 JSON 对象解析成功后才构造这些字段）。缺一项即
+  `output_valid=False`，并同时把 `content_complete`/`content_parse_ok` 置 False —— 该笔在 J1 侧
+  被拒（`content_incomplete`/`content_not_parsed`/`finish_reason_not_stop`），按保守上界留账。
+  调用方（`make_settle_evidence` / `query_expansion`）必须显式传判据；缺省 = 无效（fail closed）。
+- `paid_attempt=False` 是**轮次结局标签**（零付费：合法拒答/澄清/未找到/知识变更），不是"输出无效"；
+  它对应账本的 `P2_NO_PAID_ATTEMPT:*` + 全额保守留账，且**不**停止后续请求。

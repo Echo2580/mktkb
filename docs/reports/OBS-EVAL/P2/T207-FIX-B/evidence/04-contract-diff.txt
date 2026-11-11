@@ -1,0 +1,173 @@
+# T207-FIX-B / 契约文本 diff 摘要（仅 docs/evaluation 三份契约）
+
+## 0 变更面（git diff --stat，含源码与测试，供核对改动规模）
+注：`backend/src/mktkb/conversations/service.py` 与 `.claude/handoffs/_index.md` **不是本包写入**
+（前者属并行包 T207-FIX-P，后者在本包开始前已存在）。本包只写 10 个文件（见 report §1）。
+
+ .claude/handoffs/_index.md                        |   6 +
+ backend/src/mktkb/conversations/service.py        |  12 +-
+ backend/src/mktkb/evaluation/p2_contracts.py      | 150 +++++++++++++++++--
+ backend/src/mktkb/evaluation/p2_live.py           | 105 ++++++++++++-
+ backend/src/mktkb/evaluation/p2_runner.py         | 131 ++++++++++++++++-
+ backend/src/mktkb/live_authorization.py           |   9 +-
+ backend/tests/evaluation/test_p2_authorization.py |  34 +++++
+ backend/tests/evaluation/test_p2_live_wiring.py   | 170 +++++++++++++++++++++-
+ backend/tests/evaluation/test_p2_runner.py        | 114 ++++++++++++++-
+ docs/evaluation/p2-live-binding-v0_1.md           |  25 +++-
+ docs/evaluation/p2-run-contract-v0_1.md           |  24 ++-
+ docs/evaluation/p2-runner-contract-v0_1.md        |  41 +++++-
+ 12 files changed, 790 insertions(+), 31 deletions(-)
+
+## 1 契约 diff（逐行）
+diff --git a/docs/evaluation/p2-live-binding-v0_1.md b/docs/evaluation/p2-live-binding-v0_1.md
+index 5d48790..681860b 100644
+--- a/docs/evaluation/p2-live-binding-v0_1.md
++++ b/docs/evaluation/p2-live-binding-v0_1.md
+@@ -240,7 +240,8 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
+ 
+ | 场景 | 结果 |
+ |---|---|
+-| chat 200 + usage 齐全 | `settle_success`（J1 重算；未用预留释放） |
++| chat 200 + usage 齐全 + 输出三判据成立 | `settle_success`（J1 重算；未用预留释放） |
++| chat 200 + usage 齐全，但输出判据不成立（非 stop / 内容空 / 解析结构缺失） | J1 拒绝（`finish_reason_not_stop` / `content_incomplete` / `content_not_parsed`）→ 该笔按上界保守占用并**停止** |
+ | chat 200，但 usage 缺字段/缺 cache 拆分/超 cap | `usage_evidence_missing`（runner 停；该笔按上界保守占用，写 failed result） |
+ | 产品零付费结局（拒答/澄清/未找到/知识变更） | `close_unused`（保守占用、**不**停止；不是失败） |
+ | 从属尝试门拒绝 | `P2_PRE_SEND_REFUSED:<code>`（全额占用、门停止、HTTP=0） |
+@@ -260,3 +261,25 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
+    `begin_attempt -> confirm_before_send -> 真实 POST -> settle_success(usage)`，
+    预留/结算/成本中心/回执都按该项；同一轮只允许 1 次 answer chat，`answer-*` 不再被
+    expansion 顶账。计划缺 `expand-*` 时该轮在发送前失败（不借用 answer 的钱）。
++
++### 10.6 `output_valid` / `paid_attempt`（T207-FIX-B/C，additive）
++
++`chat_usage_evidence(...)` 的 `output_valid` **不再是 dataclass 默认值**，而是由
++`p2_live.chat_output_validity(output, purpose=...)` 用**这一份真实输出**算出的三判据：
++
++| 判据 | 取值方式 | 不成立时 |
++|---|---|---|
++| `finish_reason == "stop"` | 输出对象自带该字段则按其值；不带时以客户端已受理为准（`DeepSeekClient._parse` 在返回前拒绝非 stop，`providers/deepseek.py:228`） | `finish_reason_not_stop` |
++| 内容非空 | `output.text` 非空 | `content_incomplete` |
++| JSON 解析成功 | purpose 对应的解析结构存在：answer=`source_ids`（字符串元组）、expansion=`query_terms`（字符串元组）——客户端解析 JSON 对象成功后才会构造它们（`providers/deepseek.py:240-273`） | `content_not_parsed` |
++
++- 三条全成立才 `output_valid=True`；缺任一条件 → `False`，且 `chat_usage_evidence` 把同一判据写进
++  `content_complete`/`content_parse_ok`，因此"输出不完整"不会按 usage 入账，而是保守留账并停止；
++- 调用方必须显式传判据（`make_settle_evidence` 从 `TurnContext` 取、`query_expansion` 从输出取）；
++  **缺省 = 无效**（fail closed），不存在"恒置 True 换结算"的路径；
++- `paid_attempt=False` 是**轮次结局标签**（零付费：合法拒答/澄清/未找到/知识变更），**不是**输出无效，
++  它对应 `close_unused`（`P2_NO_PAID_ATTEMPT:*`、全额保守留账、不停止）；
++- 口径影响（如实）：chat 结算的**金额**本来就由 `finish/content/cache/usage` 决定（J1 的 chat 校验
++  不读 `output_valid`，只有 embedding/rerank 的 `_validate_total_evidence` 读它），因此合法 usage 轮
++  的金额在修复前后相同；本次修复消除的是"内容标志被硬编码成有效"的记账缺口 —— 无效输出从
++  "按 usage 入账"改为"保守上界 + 停止"。
+diff --git a/docs/evaluation/p2-run-contract-v0_1.md b/docs/evaluation/p2-run-contract-v0_1.md
+index c31a1bc..2224c15 100644
+--- a/docs/evaluation/p2-run-contract-v0_1.md
++++ b/docs/evaluation/p2-run-contract-v0_1.md
+@@ -12,7 +12,17 @@
+    `answer_retrieval / ocr / judge / independent`（候选 12 / 3 / 3 / 2）各自限额，合计**必须等于**
+    阶段额度。不存在「每个中心各花 20 元」。
+ 3. 请求上限是**累计**口径：直接取账本里的 reservation 计数（历史 505 次照旧计入），
+-   硬顶 `HARD_MAX_REQUESTS = 1000`。新增预算不重置、T201 不提高该值。
++   硬顶 `HARD_MAX_REQUESTS = 1600`（= `live_authorization.MAX_GO_REQUESTS`，两处同值）。
++   新增预算**不重置**已用计数。
++   - 变更记录：2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 ≤2000，且 GO 在
++     P2≤50 元、累计请求≤2000 内由经理拟定」落盘 **1000 → 1600**（`T207-PM-decisions-01.md` §3）。
++   - 实算依据：已用 547 + T207 公开 263 + H2 回合 144 + H2 灌库 ≤20 + T208 judge ≤160 +
++     T900 独立复验 ≤107 = 1,241；+20% 余量 ≈ 1,489 → 取整 1600。
++   - **到值即停**：累计到 1600 时，发送前的 `request_limit`（`P2Gate`）与
++     `go_max_requests_over_hard_cap`（授权）一律拒绝；各计划自身的 `max_requests` 是更早的闸门。
++   - 跨范围影响（如实）：`MAX_GO_REQUESTS` 同时是 **P1 `live_authorization`** 的天花板。本值只
++     抬高"共同天花板"；P1 已签 GO 的 `scope.max_requests` 仍各自生效（引擎两侧取 `min`），
++     因此**不构成**对 P1 的追加授权，也不改任何既有门槛。
+ 4. 串行、自动重试 **0**：一次只有一个在飞请求；失败即停，后续请求在发送前被拒。
+ 5. 旧 P1 GO 默认拒绝 P2，P2 GO 不能反过来给 P1 授权：
+    - P2 只认 `document = P2-LIVE-GO`；`S2-LIVE-GO` → 稳定码 `legacy_go_document`；
+@@ -53,7 +63,7 @@
+ | `created_utc` | 带时区 ISO |
+ | `project_total_limit_cny` | 有限正数，≥ 阶段额度 |
+ | `stage_limit_cny` | 有限正数 |
+-| `max_requests` | 正整数，≤ 1000；≥ 计划请求总数 |
++| `max_requests` | 正整数，≤ 1600（= `HARD_MAX_REQUESTS`）；≥ 计划请求总数 |
+ | `cost_centers_cny` | 恰好四个已注册中心，各自为正，合计 == `stage_limit_cny` |
+ | `items` | 非空、`item_id` 唯一 |
+ 
+@@ -186,6 +196,13 @@ nonce_len`。
+ reserved_cny / settled_cny / by_operation / by_center_cny / production_ready`；
+ 不变量 `sent ≤ reserved ≤ planned`。
+ 
++**T207-FIX-B/A（additive，旧键语义逐字不变）**：`requests_* / by_operation / by_center_cny` 是
++**answer 轮单侧**口径；另增四个键描述**全量底层尝试**：`attempts_scope`
++（`all_attempts` | `unavailable`）、`attempts_reserved`（= 本 run 唯一 reservation 数，与
++`gate.json.attempts.gate_reserved` 同值）、`attempts_by_operation`、`attempts_by_center_cny`。
++`attempts_scope=unavailable` 时三者必须为空/0（**不得**用 answer 口径冒充全量）；旧产物缺这些
++键仍可读（按 `unavailable` 解释），新增键不升 `schema_version`（同 `p2-live-binding-v0_1.md` §7 的版本策略）。
++
+ ## 8. 兼容接线（本次唯一改动的旧组件）
+ 
+ | 文件 | 改动 | 调用者与影响 |
+@@ -208,7 +225,8 @@ reserved_cny / settled_cny / by_operation / by_center_cny / production_ready`；
+ ## 10. T201 明确未做的事
+ 
+ 不签发 GO、不写原 budget/GO/账本、不建 P2 阶段、不启动 runner、不跑真实发送、不读 .env/H2、
+-不提高 `MAX_GO_REQUESTS`、不设 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=40` 到任何全局配置。
++不提高 `MAX_GO_REQUESTS`（T201 当时的值；T207-FIX-B 于 2026-11-11 按经理落盘提至 1600，见 §1.3）、
++不设 `MKTKB_PROJECT_TOTAL_LIMIT_CNY=40` 到任何全局配置。
+ 候选文件在 `docs/reports/OBS-EVAL/P2/T201/candidates/`，全部标 DRAFT。
+ 
+ ## 11. T206-LIVE 增补：live 执行入口与逐次尝试（additive，不改 §1–§10）
+diff --git a/docs/evaluation/p2-runner-contract-v0_1.md b/docs/evaluation/p2-runner-contract-v0_1.md
+index 2b6e9b5..d5611dc 100644
+--- a/docs/evaluation/p2-runner-contract-v0_1.md
++++ b/docs/evaluation/p2-runner-contract-v0_1.md
+@@ -89,7 +89,7 @@ async def run_p2(
+ | 文件 | 出现在 | 内容 |
+ |---|---|---|
+ | `run_manifest.json` | 全部 | run/plan/mode/scope、dataset 身份（version/label/suite/manifest_sha256/case_count/strata）、plan 摘要与预算、授权快照（go_sha256/nonce_len/production_ready）、pipeline（入口、turn 超时、trace 模式、索引统计、两个模块的 `code_sha256`）、provider 身份、隔离路径、ingest 回执 |
+-| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
++| `summary.json` | 全部 | status/stop_code、execution、cases/turns 计数、kinds、branches（`rag`/`legacy`/`legacy_with_rag_candidates`/`none`）、requests（`scope="answer_turns"`；planned/attempted/reserved/settled/**real_requests、billed_cny 均为实测**，另有 `conservative_held_cny`/`provider_billed_cny`/`unpaid_rounds` 三段与 `failed_rounds` 别名，见 §7）、attempts（`scope="all_attempts"` + 逐次核对）、providers、network（**outbound_attempts 实测** + `detail` = 该值的分解，见 §5）、failure（含 stage 与在飞 ticket）、holdout 策略（`question_store` 是**策略标签** `policy:*`，不是"已删"的测量结论） |
+ | `run_result.json` | 全部 | `P2RunResult.as_dict()`（sent<=reserved<=planned） |
+ | `gate.json` | 全部 | 门/授权检查逐项结果、`real_sends_allowed`、拒绝原因、`quality_gate="deferred-to-T205"` |
+ | `cases.jsonl` | 仅 `visibility="public"` | 逐题行：会话 id、逐轮 kind/trace_id/trace_path/trace_outcome/http_status、产品来源、ticket、是否计费 |
+@@ -174,3 +174,42 @@ holdout 额外约束：
+ - **run_id 必填**：`run_p2(run_id=...)` 传空/非 str → 发送前 `P2RunError("run_id_missing")`。
+ - 完整口径（确定性 config_hash、错误码表、fail-closed 矩阵）见
+   `docs/evaluation/p2-live-binding-v0_1.md`。
++
++## 7. T207-FIX-B 增补：answer 单侧 / 全量尝试 / 三段金额（additive）
++
++本节只**新增口径**，不改 §1–§6 的字段语义、判定与阈值。
++
++### 7.1 两个"规模"口径必须同时写出来
++
++| 位置 | 口径 | 含义 |
++|---|---|---|
++| `summary.requests.scope` = `answer_turns`；`run_result.requests_*`/`by_operation`/`by_center_cny` | answer 轮单侧 | runner 逐轮的 answer 预留与结算（旧键语义不变） |
++| `summary.attempts.scope` = `all_attempts`；`run_result.attempts_*` | 全量底层尝试 | answer 轮 + 从属尝试；`attempts_reserved` 与 `gate.json.attempts.gate_reserved` 同值 |
++
++`run_result.attempts_scope=unavailable` 表示没有逐次尝试账（发送前停、或 `P2Gate.result()` 那一侧），
++此时 `attempts_*` 为空/0，**不**用 answer 口径冒充。新增断言：`run_result.attempts_reserved ==
++gate 的唯一 reservation 数`（`test_p2_live_wiring.py`），旧产物缺这些键仍可读。
++
++### 7.2 `summary.requests` 的三段（互不冒充）
++
++| 键 | 含义 | 是否供应商账单 |
++|---|---|---|
++| `conservative_held_cny` | 本次 run 在门/账本里**已写 result** 的保守占用总额（answer + 从属；含失败与零付费轮的整笔上界） | 否（记账口径） |
++| `provider_billed_cny` | 其中**带供应商证据**的金额：answer 轮里真的付过款并成功结算的笔 + 从属尝试里 settle 成功的笔（usage 结算或 OCR 固定页价） | 是"按官方 usage/页价重算"的金额，仍不是账单 |
++| `unpaid_rounds` | 预留了但**没有任何付费发送**的 answer 轮数（账本写 `status=failed` + `P2_NO_PAID_ATTEMPT:<reason>`，**不**停止） | 否 |
++
++兼容键：`settled_failure` = `failed_rounds`（**真实失败结算**轮数，`settle_failure`）；
++`unused_no_paid_attempt` = `unpaid_rounds`；`billed_cny` = **真实出网**请求行的结算金额之和
++（实测口径，不是账单）。账本 schema 与 `status` 集合**不动**：`status=failed` 既可能是真实失败，
++也可能是"零付费轮按上界保守留账"，区分只看 `error_code` 前缀 `P2_NO_PAID_ATTEMPT:`。
++
++### 7.3 `output_valid` / `paid_attempt` 的语义
++
++- `output_valid` 由 `p2_live.chat_output_validity` 用**这一份真实输出**的三判据算出：
++  `finish_reason == "stop"` + 内容非空 + purpose 对应的解析结构存在（answer=`source_ids`、
++  expansion=`query_terms`，客户端只在 JSON 对象解析成功后才构造这些字段）。缺一项即
++  `output_valid=False`，并同时把 `content_complete`/`content_parse_ok` 置 False —— 该笔在 J1 侧
++  被拒（`content_incomplete`/`content_not_parsed`/`finish_reason_not_stop`），按保守上界留账。
++  调用方（`make_settle_evidence` / `query_expansion`）必须显式传判据；缺省 = 无效（fail closed）。
++- `paid_attempt=False` 是**轮次结局标签**（零付费：合法拒答/澄清/未找到/知识变更），不是"输出无效"；
++  它对应账本的 `P2_NO_PAID_ATTEMPT:*` + 全额保守留账，且**不**停止后续请求。

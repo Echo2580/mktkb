@@ -1,0 +1,27 @@
+== 1. 两处常量 ==
+HARD_MAX_REQUESTS            = 1600
+live_authorization.MAX_GO_REQUESTS = 1600
+equal(invariant)             = True
+
+== 2. 计划层：1600 可用 / 1601 拒绝（base=T201 候选计划原件，只改 max_requests） ==
+plan(max_requests=1600).max_requests = 1600  total_requests=30
+plan(max_requests=1601) -> REFUSED reason=request_cap_over_hard_limit
+plan(max_requests=2000) -> REFUSED reason=request_cap_over_hard_limit
+plan(max_requests=2001) -> REFUSED reason=request_cap_over_hard_limit
+
+== 3. GO 层：_check_go_payload 直接调用（1600 通过 / 1601 因硬顶拒绝） ==
+GO scope.max_requests=1600 -> ACCEPTED issued=2026-11-11T00:00:00+00:00
+GO scope.max_requests=1601 -> REFUSED reason=go_max_requests_over_hard_cap msg=go_max_requests_over_hard_cap: GO 累计请求上限不得超过 1600
+
+== 4. P1 已签 GO 的自身额度不被追授权（读真实文件，只读） ==
+P1 GO scope.max_requests = 1000
+P1 GO 文件 sha256 未变（见 review 的到达/离开哈希）
+MAX_GO_REQUESTS 只做 _gate_int(... maximum=) 的**合法性上限**，闸门实际额度取自 GO 自身 scope.max_requests；
+因此已签 GO 仍是它自己写的数（见源码 live_authorization.py:167/207/574/717）。
+
+== 5. 事实交代：P1 侧**新开** GO 的合法性上限也从 1000 抬到 1600（经理落盘的共同天花板） ==
+_gate_int(max_requests=1000, maximum=MAX_GO_REQUESTS) -> ACCEPTED
+_gate_int(max_requests=1001, maximum=MAX_GO_REQUESTS) -> ACCEPTED
+_gate_int(max_requests=1600, maximum=MAX_GO_REQUESTS) -> ACCEPTED
+_gate_int(max_requests=1601, maximum=MAX_GO_REQUESTS) -> REFUSED LiveGateError: GO 累计请求上限 不得超过 1600
+（HEAD 的 maximum=1000：1001 会被拒；现在 1001..1600 可过格式校验，但仍受该 GO 自身额度与预算约束）

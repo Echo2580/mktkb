@@ -41,14 +41,19 @@ from mktkb.evaluation.p2_contracts import (
     CHAT_PROVIDER,
     CHAT_REGION,
     COST_CENTERS,
+    P2_LEDGER_SNAPSHOT_SCHEMA_VERSION,
+    P2_RUN_RESULT_SCHEMA_VERSION,
+    P2ContractError,
     P2LedgerSnapshot,
     P2PriceProfile,
     P2RequestItem,
     P2RunPlan,
-    P2_LEDGER_SNAPSHOT_SCHEMA_VERSION,
+    P2RunResult,
 )
 from mktkb.evaluation.p2_runner import (
     P2RunError,
+    P2RunLedger,
+    _money_split,
     build_dry_run_authorization,
     is_real_p2_gate,
     run_p2,
@@ -1680,3 +1685,110 @@ async def test_missing_run_id_is_refused_before_any_send(tmp_path: Path) -> None
             await adapter.close()
         assert excinfo.value.code == "run_id_missing"
         assert not adapter.paths.run_dir.exists(), "拒绝必须在建 run 目录/发送之前"
+
+
+# --------------------------------------------------------------------------- #
+# T207-FIX-B：run_result 的 additive 尝试口径 + summary 三段金额（零真实调用）
+# --------------------------------------------------------------------------- #
+
+
+def _legacy_run_result_payload() -> dict[str, Any]:
+    """pilot 的 run_result.json 形状（answer 单侧，没有 attempts_* 键）。"""
+    return {
+        "schema_version": P2_RUN_RESULT_SCHEMA_VERSION,
+        "run_id": "p2-t206-pilot-20261111-01",
+        "plan_id": "P2-T206-PILOT-20261111",
+        "plan_sha256": "02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80",
+        "status": "succeeded",
+        "stop_code": None,
+        "requests_planned": 61,
+        "requests_reserved": 6,
+        "requests_sent": 3,
+        "reserved_cny": 0.11212799999999999,
+        "settled_cny": 0.061806,
+        "by_operation": {"answer": 6},
+        "by_center_cny": {
+            "answer_retrieval": 0.061806,
+            "independent": 0.0,
+            "judge": 0.0,
+            "ocr": 0.0,
+        },
+        "production_ready": True,
+    }
+
+
+def test_run_result_attempts_keys_are_additive_and_old_artifacts_still_load() -> None:
+    """旧产物缺 attempts_* 仍可读（=unavailable/0）；新键补上后往返一致；未知键仍拒。"""
+    legacy = _legacy_run_result_payload()
+    loaded = P2RunResult.from_dict(legacy)
+    assert loaded.attempts_scope == "unavailable"
+    assert loaded.attempts_reserved == 0
+    assert dict(loaded.attempts_by_operation) == {}
+    assert dict(loaded.attempts_by_center_cny) == {}
+    # answer 单侧旧键语义逐字不变。
+    assert loaded.requests_reserved == 6 and loaded.settled_cny == pytest.approx(0.061806)
+    assert loaded.as_dict()["attempts_scope"] == "unavailable"
+
+    full = P2RunResult(
+        **legacy,
+        attempts_scope="all_attempts",
+        attempts_reserved=42,
+        attempts_by_operation={"answer": 6, "index_embedding": 31, "ocr": 1, "query_embedding": 2, "rerank": 2},
+        attempts_by_center_cny={
+            "answer_retrieval": 0.0713583,
+            "ocr": 0.5,
+            "judge": 0.0,
+            "independent": 0.0,
+        },
+    )
+    assert P2RunResult.from_dict(full.as_dict()).as_dict() == full.as_dict()
+
+    # unavailable 不得带计数（不用 answer 口径冒充全量）；未知键仍拒绝。
+    with pytest.raises(P2ContractError) as excinfo:
+        P2RunResult(**legacy, attempts_scope="unavailable", attempts_reserved=42)
+    assert excinfo.value.reason == "result_inconsistent"
+    with pytest.raises(P2ContractError) as excinfo:
+        P2RunResult.from_dict({**legacy, "attempts_typo": 1})
+    assert excinfo.value.reason == "field_unknown"
+
+
+def test_summary_money_split_replays_pilot_totals() -> None:
+    """回放 pilot 实测：保守 0.5713583 / 供应商证据 0.5152943 / 零付费轮 3（差 0.056064）。"""
+    ledger = P2RunLedger(
+        run_id="p2-t206-pilot-20261111-01",
+        plan_id="P2-T206-PILOT-20261111",
+        plan_sha256="02725aa7309fe2ca3a5bb05cf4d450cc276f361c80b11c3ac22df54ac6375d80",
+        execution="live",
+        production_ready=True,
+    )
+    # 3 笔按 usage 结算的 answer 轮（合计 0.005742）+ 3 笔零付费轮（各按上界 0.018688）。
+    ledger.settled_cny = 0.061806
+    ledger.unused = 3  # runner 的唯一零付费轮计数器（不另算第二份）
+    ledger.requests.extend(
+        [
+            {"status": "ok", "charged_cny": 0.001914},
+            {"status": "ok", "charged_cny": 0.001838},
+            {"status": "ok", "charged_cny": 0.001990},
+            {"status": "not_found", "paid_attempt": False, "charged_cny": 0.018688},
+            {"status": "conflict", "paid_attempt": False, "charged_cny": 0.018688},
+            {"status": "answer", "paid_attempt": False, "charged_cny": 0.018688},
+        ]
+    )
+    audit = {
+        "available": True,
+        "receipts": [
+            {"phase": "reserve", "status": "reserved", "charged_cny": 0.0},
+            {"phase": "settle", "status": "succeeded", "charged_cny": 0.004},
+            {"phase": "settle", "status": "succeeded", "charged_cny": 0.004},
+            {"phase": "settle", "status": "succeeded", "charged_cny": 0.0015523},
+            {"phase": "settle", "status": "succeeded", "charged_cny": 0.5},
+        ],
+    }
+    split = _money_split(ledger, audit)
+    assert split["conservative_held_cny"] == pytest.approx(0.5713583)
+    assert split["provider_billed_cny"] == pytest.approx(0.5152943)
+    assert split["unpaid_rounds"] == 3
+    # 差额 = 3 笔零付费轮的整笔上界（不是供应商花费）。
+    assert split["conservative_held_cny"] - split["provider_billed_cny"] == pytest.approx(0.056064)
+    # mock_gate / dry_run 没有供应商：即使有"结算金额"也不能声称已计费。
+    assert _money_split(replace(ledger, execution="mock_gate"), audit)["provider_billed_cny"] == 0.0
