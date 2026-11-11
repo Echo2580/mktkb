@@ -1,0 +1,54 @@
+﻿# T207-FIX-P 证据 02：根因定位（离线、全 Mock、零真实调用）
+# 生成脚本：backend/.pytest-tmp/t207_fix_p_rootcause.py（本包 scratch，不属交付文件）
+# 命令：.venv/Scripts/python.exe -B -X utf8 backend/.pytest-tmp/t207_fix_p_rootcause.py
+# 段落：1) 产品实际回答  2) 意图层 mode=document + 行字段顺序  3) 事实准入旧/新口径
+#       3b) 端到端"正确回答"输入的判定  4) 冻结标签可行性  5) 零真实调用
+
+== 1) 产品实际回答（Mock 固定答案）==
+{"case": "F01", "question": "陈列达标率的计算口径和年度目标是什么？", "kind": "answer", "text": "月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%", "trace_path": "legacy", "sources": [103, 79]}
+{"case": "F02", "question": "单场预算 8000 元的活动由谁审批？", "kind": "answer", "text": "第六条 审批权限按单场预算分档：5000 元（含）以内由通路行销主管审批；5000 元至 20000 元由市场部经理审批；20000 元至 100000 元由事业部总经理审批；100000 元以上须经财务部与总经理联签。", "trace_path": "legacy", "sources": ["第三章 审批权限", "第五章 结案与稽核"]}
+{"case": "F03", "question": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价是多少？", "kind": "answer", "text": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱", "trace_path": "legacy", "sources": [7, 14]}
+{"case": "F04", "question": "2026年Q4渠道价目表中 咸味饼干 120g 的批发价是多少？", "kind": "answer", "text": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱", "trace_path": "legacy", "sources": [7, 9]}
+{"case": "F05", "question": "活动结束后几日内上交结案报告？", "kind": "answer", "text": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。", "trace_path": "legacy", "sources": ["第五章 结案与稽核", 123]}
+
+== 2) 意图层口径：4+1 题全部 mode=document（记录型分支不被执行）==
+lexicon stores= () items= ()
+F01: mode=document requested_fields=() entities={} missing=()
+F02: mode=document requested_fields=() entities={} missing=()
+F03: mode=document requested_fields=() entities={} missing=()
+F04: mode=document requested_fields=() entities={} missing=()
+F05: mode=document requested_fields=() entities={} missing=()
+E10 row103 fields 顺序: ['月份', '指标', '计算口径', '目标', '实际', '达成率', '同比', '负责人']
+E03 NKA row7 fields 顺序: ['价格单号', 'SKU编码', '品名规格', '适用渠道', '适用区域', '价格类型', '价格(元)', '计价单位', '搭赠/限购规则', '生效日期', '失效日期', '审批编号', '状态']
+
+== 3) 事实准入口径：旧口径（不传问题）vs 新口径（question=）==
+F01 旧口径: ACCEPT
+F01 新口径(question=): ACCEPT
+F02 旧口径: REJECT: 回答包含引用来源中不存在的数据值
+F02 新口径(question=): ACCEPT
+F03 旧口径: REJECT: 回答包含引用来源中不存在的数据值
+F03 新口径(question=): ACCEPT
+F04 旧口径: REJECT: 回答包含引用来源中不存在的数据值
+F04 新口径(question=): ACCEPT
+
+== 3b) 产品端到端：同一条'正确回答'交给产品 -> 评测判定 ==
+（每个 case 单独起一个隔离应用，Mock 只回一条预先给好的正确回答）
+F01: kind=answer error_code=None p2 verdict=pass failed=[]
+     产品回答: 陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。
+F02: kind=answer error_code=None p2 verdict=pass failed=[]
+     产品回答: 单场预算 8000 元的活动由市场部经理审批。
+F03: kind=answer error_code=None p2 verdict=pass failed=[]
+     产品回答: 2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价为 2.99 元/瓶。
+F04: kind=answer error_code=None p2 verdict=fail failed=['kind_correct']
+     产品回答: 资料中未记录咸味饼干 120g 的批发价。
+
+== 4) 冻结标签的可行性探针（不动标签，只问能不能过）==
+F02 仅保留命中分档子句（fix-scope §E 方向3）: ('fail', ['value_no_fabricated'])
+F02 只答审批人: ('pass', [])
+F02 合成句（只带问题里的 8000）: ('pass', [])
+F04 拒答(not_found): ('fail', ['refusal_unexpected'])
+F04 作答(answer): ('fail', ['kind_correct'])
+
+== 5) 零真实调用 ==
+provider_calls= {'chat': {'provider': 'p2-mock', 'model': 'mock-chat', 'transport': 'httpx.MockTransport', 'calls': 5, 'by_purpose': {'answer': 5}, 'outbound_network': 0}, 'embedding': {'provider': 'p2-mock', 'model': 'text-embedding-v4', 'calls': 3, 'texts': 164, 'transport': 'offline-fake（无传输层，不能出网）', 'outbound_network': 0}, 'rerank': {'provider': 'p2-mock', 'model': 'gte-rerank-v2', 'calls': 0, 'documents': 0, 'transport': 'offline-fake（无传输层，不能出网）', 'outbound_network': 0}, 'ocr': {'calls': 0, 'state': 'T203 不执行 OCR（T204）', 'outbound_network': 0}, 'outbound_network': 0, 'network': {'outbound_attempts': 0, 'chat_outbound_attempts': 0, 'rag_provider_posts': 0, 'mock_intercepted': 5, 'embedding_provider': 'offline-fake（无传输层，不能出网）', 'rerank_provider': 'offline-fake（无传输层，不能出网）', 'ocr_provider': 'disabled（T204 前不构造）'}}
+rag_provider_attempts= 0

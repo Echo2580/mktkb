@@ -1,0 +1,507 @@
+# P2-T207-FIX-P 独立验收证据 01：修复前/后对照 + 未弱化 + 记录型不变 + 根因重定性（零真实调用）
+# 脚本：docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/verify/probe_verify_p.py（验收助手自写，未用开发脚本）
+# 命令：.venv/Scripts/python.exe -B -X utf8 docs/reports/OBS-EVAL/P2/T207-FIX-P/evidence/verify/probe_verify_p.py
+# 现场：codex/p2-e2e；旧代码 = git show HEAD:backend/src/mktkb/conversations/service.py 复制到工作区外临时目录加载
+#      （HEAD 版无 question 形参，已断言）；新代码 = 工作树 service.py（sha16 e9272b62492bafaf）
+# 契约：A=修复前后端到端对照  B=未弱化  C=记录型不变  D=根因重定性  E=零出站计数
+# 读法：JSON 主体从首个 "{" 开始，可直接 python -m json.tool 校验
+
+{
+ "A_fix_before_after": {
+  "after(worktree)": [
+   {
+    "case_id": "F01",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。",
+    "sources": 2
+   },
+   {
+    "case_id": "F02",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "单场预算 8000 元的活动由市场部经理审批。",
+    "sources": 2
+   },
+   {
+    "case_id": "F03",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价为 2.99 元/瓶。",
+    "sources": 2
+   },
+   {
+    "case_id": "F04",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "资料中未记录咸味饼干 120g 的批发价。",
+    "sources": 2
+   },
+   {
+    "case_id": "F05",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。",
+    "sources": 2
+   }
+  ],
+  "before(HEAD semantics)": [
+   {
+    "case_id": "F01",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。",
+    "sources": 2
+   },
+   {
+    "case_id": "F02",
+    "kind": "service_error",
+    "error_code": "MODEL_OUTPUT_INVALID",
+    "http_status": 200,
+    "text": "模型输出未通过来源与字段校验，已拒绝本次回答。这是服务调用失败，不是资料中没有答案；可稍后重新提问。服务端不会因重试而重复保存同一条回答。",
+    "sources": 0
+   },
+   {
+    "case_id": "F03",
+    "kind": "service_error",
+    "error_code": "MODEL_OUTPUT_INVALID",
+    "http_status": 200,
+    "text": "模型输出未通过来源与字段校验，已拒绝本次回答。这是服务调用失败，不是资料中没有答案；可稍后重新提问。服务端不会因重试而重复保存同一条回答。",
+    "sources": 0
+   },
+   {
+    "case_id": "F04",
+    "kind": "service_error",
+    "error_code": "MODEL_OUTPUT_INVALID",
+    "http_status": 200,
+    "text": "模型输出未通过来源与字段校验，已拒绝本次回答。这是服务调用失败，不是资料中没有答案；可稍后重新提问。服务端不会因重试而重复保存同一条回答。",
+    "sources": 0
+   },
+   {
+    "case_id": "F05",
+    "kind": "answer",
+    "error_code": null,
+    "http_status": 200,
+    "text": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。",
+    "sources": 2
+   }
+  ],
+  "unit_level_same_evidence": [
+   {
+    "case_id": "F01",
+    "question": "陈列达标率的计算口径和年度目标是什么？",
+    "answer": "陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。",
+    "evidence_units": 8,
+    "source_ids_used": [
+     "a33d1cc2-7e46-4ffc-a907-732295eb6ca8",
+     "52ec409b-0a8a-464b-8fab-db263e5119cb"
+    ],
+    "evidence_first_fields": [
+     "月份",
+     "指标",
+     "计算口径",
+     "目标",
+     "实际",
+     "达成率",
+     "同比",
+     "负责人"
+    ],
+    "old(HEAD)": "ACCEPT",
+    "new(worktree)": "ACCEPT"
+   },
+   {
+    "case_id": "F02",
+    "question": "单场预算 8000 元的活动由谁审批？",
+    "answer": "单场预算 8000 元的活动由市场部经理审批。",
+    "evidence_units": 8,
+    "source_ids_used": [
+     "85abf3a2-3e7e-4336-bb04-ee7a57f7261e",
+     "ab35f170-aef6-42ec-9d2b-cdcb1503a1da"
+    ],
+    "evidence_first_fields": [],
+    "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+    "new(worktree)": "ACCEPT"
+   },
+   {
+    "case_id": "F03",
+    "question": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价是多少？",
+    "answer": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价为 2.99 元/瓶。",
+    "evidence_units": 8,
+    "source_ids_used": [
+     "e6348b1f-54b8-4fa9-b5d0-c2ff271dbaa7",
+     "7e395fe9-e76d-4b0e-8588-f5182c4d0309"
+    ],
+    "evidence_first_fields": [
+     "价格单号",
+     "SKU编码",
+     "品名规格",
+     "适用渠道",
+     "适用区域",
+     "价格类型",
+     "价格(元)",
+     "计价单位",
+     "搭赠/限购规则",
+     "生效日期",
+     "失效日期",
+     "审批编号",
+     "状态"
+    ],
+    "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+    "new(worktree)": "ACCEPT"
+   },
+   {
+    "case_id": "F04",
+    "question": "2026年Q4渠道价目表中 咸味饼干 120g 的批发价是多少？",
+    "answer": "资料中未记录咸味饼干 120g 的批发价。",
+    "evidence_units": 8,
+    "source_ids_used": [
+     "e6348b1f-54b8-4fa9-b5d0-c2ff271dbaa7",
+     "654d9464-c5cf-4df8-a184-32d6294eeff0"
+    ],
+    "evidence_first_fields": [
+     "价格单号",
+     "SKU编码",
+     "品名规格",
+     "适用渠道",
+     "适用区域",
+     "价格类型",
+     "价格(元)",
+     "计价单位",
+     "搭赠/限购规则",
+     "生效日期",
+     "失效日期",
+     "审批编号",
+     "状态"
+    ],
+    "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+    "new(worktree)": "ACCEPT"
+   },
+   {
+    "case_id": "F05",
+    "question": "活动结束后几日内上交结案报告？",
+    "answer": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。",
+    "evidence_units": 8,
+    "source_ids_used": [
+     "37a3b530-9a30-4ce5-891f-07bfa12ef1e0",
+     "bddf9ff2-c0a6-44da-bd3a-72e523b9a74f"
+    ],
+    "evidence_first_fields": [],
+    "old(HEAD)": "ACCEPT",
+    "new(worktree)": "ACCEPT"
+   }
+  ]
+ },
+ "B_not_weakened": [
+  {
+   "case": "fabricated_not_in_question_nor_citation",
+   "text": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价为 1.88 元/瓶。",
+   "cited": 2,
+   "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+   "new(worktree)": "REJECT: 回答包含引用来源中不存在的数据值"
+  },
+  {
+   "case": "uncited_row_value",
+   "text": "价格单号：2.5；档期特价为 2.99 元/瓶。",
+   "cited": 1,
+   "stolen_token_from_uncited_unit": "2.5",
+   "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+   "new(worktree)": "REJECT: 回答包含引用来源中不存在的数据值"
+  },
+  {
+   "case": "question_token_moved_to_value_position",
+   "text": "审批门槛为 8000 元，由市场部经理审批。",
+   "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+   "new(worktree)": "ACCEPT",
+   "scorer": {
+    "status": "pass",
+    "failed": [],
+    "skipped": [
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   }
+  }
+ ],
+ "C_record_path_invariance": {
+  "samples": [
+   {
+    "case": "accepted_baseline",
+    "old(HEAD)": "ACCEPT",
+    "new(worktree, question 缺省)": "ACCEPT"
+   },
+   {
+    "case": "facts_binding_ok",
+    "old(HEAD)": "ACCEPT",
+    "new(worktree, question 缺省)": "ACCEPT"
+   },
+   {
+    "case": "unsourced_value",
+    "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+    "new(worktree, question 缺省)": "REJECT: 回答包含引用来源中不存在的数据值"
+   },
+   {
+    "case": "question_like_year_value",
+    "old(HEAD)": "REJECT: 回答包含引用来源中不存在的数据值",
+    "new(worktree, question 缺省)": "REJECT: 回答包含引用来源中不存在的数据值"
+   },
+   {
+    "case": "facts_mismatch",
+    "old(HEAD)": "REJECT: 回答未保留精确字段原值",
+    "new(worktree, question 缺省)": "REJECT: 回答未保留精确字段原值"
+   }
+  ],
+  "all_samples_identical": true,
+  "record_call_site_head": true,
+  "record_call_site_worktree": true,
+  "head_signature_has_question": false,
+  "worktree_signature_has_question": true,
+  "question_call_sites_worktree": 3,
+  "head_service_sha256": "8b2dbc7539a4f62e",
+  "worktree_service_sha256": "6a2791e383cb0dc0"
+ },
+ "D_root_cause": {
+  "intent_modes": {
+   "lexicon": {
+    "stores": 0,
+    "items": 0,
+    "identifiers": 0
+   },
+   "plans": [
+    {
+     "case_id": "F01",
+     "mode": "document",
+     "requested_fields": [],
+     "entities": {},
+     "missing_fields": [],
+     "clarification": null
+    },
+    {
+     "case_id": "F02",
+     "mode": "document",
+     "requested_fields": [],
+     "entities": {},
+     "missing_fields": [],
+     "clarification": null
+    },
+    {
+     "case_id": "F03",
+     "mode": "document",
+     "requested_fields": [],
+     "entities": {},
+     "missing_fields": [],
+     "clarification": null
+    },
+    {
+     "case_id": "F04",
+     "mode": "document",
+     "requested_fields": [],
+     "entities": {},
+     "missing_fields": [],
+     "clarification": null
+    },
+    {
+     "case_id": "F05",
+     "mode": "document",
+     "requested_fields": [],
+     "entities": {},
+     "missing_fields": [],
+     "clarification": null
+    }
+   ]
+  },
+  "mock_truncation": [
+   {
+    "case_id": "F01",
+    "first_unit_fields": [
+     "月份",
+     "指标",
+     "计算口径",
+     "目标",
+     "实际",
+     "达成率",
+     "同比",
+     "负责人"
+    ],
+    "mock_first_three": "月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%"
+   },
+   {
+    "case_id": "F02",
+    "first_unit_fields": [],
+    "mock_first_three": "第六条 审批权限按单场预算分档：5000 元（含）以内由通路行销主管审批；5000 元至 20000 元由市场部经理审批；20000 元至 100000 元由事业部总经理审批；100000 元以上须经财务部与总经理联签。"
+   },
+   {
+    "case_id": "F03",
+    "first_unit_fields": [
+     "价格单号",
+     "SKU编码",
+     "品名规格",
+     "适用渠道",
+     "适用区域",
+     "价格类型",
+     "价格(元)",
+     "计价单位",
+     "搭赠/限购规则",
+     "生效日期",
+     "失效日期",
+     "审批编号",
+     "状态"
+    ],
+    "mock_first_three": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱"
+   },
+   {
+    "case_id": "F04",
+    "first_unit_fields": [
+     "价格单号",
+     "SKU编码",
+     "品名规格",
+     "适用渠道",
+     "适用区域",
+     "价格类型",
+     "价格(元)",
+     "计价单位",
+     "搭赠/限购规则",
+     "生效日期",
+     "失效日期",
+     "审批编号",
+     "状态"
+    ],
+    "mock_first_three": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱"
+   },
+   {
+    "case_id": "F05",
+    "first_unit_fields": [],
+    "mock_first_three": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。"
+   }
+  ],
+  "labels": {
+   "F02_gold_number_keys": [
+    "10",
+    "2026",
+    "28",
+    "8000"
+   ],
+   "F02_only_matching_tier_clause": {
+    "status": "fail",
+    "failed": [
+     "value_no_fabricated"
+    ],
+    "skipped": [
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   },
+   "F02_approver_only": {
+    "status": "pass",
+    "failed": [],
+    "skipped": [
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   },
+   "F02_full_sixth_article": {
+    "status": "fail",
+    "failed": [
+     "value_forbidden",
+     "value_no_fabricated"
+    ],
+    "skipped": [
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   },
+   "F04_should_refuse": false,
+   "F04_expected_kind": "not_found",
+   "F04_correct_refusal(not_found)": {
+    "status": "fail",
+    "failed": [
+     "refusal_unexpected"
+    ],
+    "skipped": [
+     "value_hit",
+     "value_forbidden",
+     "value_no_fabricated",
+     "source_hit",
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   },
+   "F04_answer_like(answer)": {
+    "status": "fail",
+    "failed": [
+     "kind_correct"
+    ],
+    "skipped": [
+     "value_hit",
+     "value_forbidden",
+     "value_no_fabricated",
+     "source_hit",
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   },
+   "F03_stale_2025_row": {
+    "status": "fail",
+    "failed": [
+     "value_hit",
+     "value_forbidden",
+     "value_no_fabricated",
+     "source_hit"
+    ],
+    "skipped": [
+     "source_forbidden",
+     "refusal_expected",
+     "pagination_total",
+     "pagination_returned",
+     "pagination_has_more",
+     "pagination_next_page"
+    ]
+   }
+  }
+ },
+ "E_zero_outbound": {
+  "after": {
+   "outbound_network": 0,
+   "chat_calls": 5,
+   "rag_provider_posts": 0
+  },
+  "before": {
+   "outbound_network": 0,
+   "chat_calls": 5,
+   "rag_provider_posts": 0
+  }
+ },
+ "meta": {
+  "head_service_copy_dir_outside_workspace": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2-t207-fix-p-head-y4af8ik2",
+  "repo_head": "96fede36e17200ed9d9c84ef345d1f5fdf344a1d"
+ }
+}

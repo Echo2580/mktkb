@@ -801,6 +801,7 @@ def _validate_answer(
     evidence: Iterable[object] | None = None,
     other_store_labels: Iterable[str] = (),
     store_scope: tuple[object, object] | None = None,
+    question: str = "",
 ) -> tuple[str, list[str]]:
     text_value = (output.text or "").strip()
     if not text_value or len(text_value) > MAX_ANSWER_CHARS:
@@ -823,10 +824,17 @@ def _validate_answer(
     # 事实准入（PM06-01）：只要求"正确值出现"不足以防夹带。回答里每个数据型 token
     # （电话/编号/门牌/数量等）都必须出现在本次回答实际引用的来源正文或原值字段中；
     # 未引用来源不能为任何值背书，因此"引用子集 + 别处取值"同样被拒绝。
+    #
+    # T207-FIX-P：用户问题本身也是数据值的合法出处。价目/指标类问题会把待查值写进问题
+    # （"2026年Q4 的档期特价""单场预算 8000 元""咸味饼干 120g"），而资料只给结论、
+    # 不含用户的前提值；旧口径要求这些值也必须在引用正文里出现，于是照实回答会被判成
+    # "引用来源中不存在的数据值"（MODEL_OUTPUT_INVALID）——把正确回答整轮作废。
+    # 这里只把"问题里逐字出现"的 token 也计入已背书；引用来源仍必须为其它任何数值背书，
+    # "引用 A 行却用未引用 B 行的值"照旧拒绝，问题也没有为任何字段关系背书。
     if evidence is not None:
         evidence_units = tuple(evidence)
         cited_corpus = _cited_corpus(evidence_units, set(ids))
-        attested = _value_tokens(cited_corpus)
+        attested = _value_tokens(cited_corpus) | _value_tokens(question)
         unattested = sorted(token for token in _value_tokens(text_value) if token not in attested)
         if unattested:
             raise ModelOutputInvalid("回答包含引用来源中不存在的数据值")
@@ -2311,6 +2319,8 @@ async def _answer(
                     evidence=units,
                     # CD-F1-R1：门店豁免集延后到 ids 校验后按实际引用计算，不再按全部候选。
                     store_scope=(plan, lexicon),
+                    # T207-FIX-P：问题中的前提值（年月/季度/金额）同样可用于回答复述。
+                    question=question,
                 )
             missing_rows: list[str] = []
             if plan.mode == "record":

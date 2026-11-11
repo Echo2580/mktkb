@@ -1,0 +1,171 @@
+﻿# T207-FIX-P 证据 01：改动前的 4+2 公开财务反例复现（全 Mock，零真实调用）
+# 采集：2026-11-11 08:52，HEAD 9a740ce + 本包未改动任何源码
+# 命令：.venv/Scripts/python.exe -B -X utf8 docs/reports/OBS-EVAL/P2/T205/evidence/probe_t205.py
+# 结论：F01 fail(value_hit) / F02 fail(value_forbidden+value_no_fabricated) /
+#       F03 fail(value_hit+value_no_fabricated) / F04 fail(kind_correct) / F05 pass
+# 零真实调用：outbound_network=0，chat 全部 MockTransport，rag_provider_attempts=0
+# 注：本文件与 04（修复后复跑）的 JSON 主体逐字一致（164 行，diff 为空），仅证据文件头不同；本包改动不触及 Mock 的答案文本。
+
+{
+ "ingest": [
+  {
+   "document": "E10_市场部KPI月报.xlsx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  },
+  {
+   "document": "W03_促销活动申请审批与结案流程管理办法.docx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  },
+  {
+   "document": "E03_2026年Q4渠道价目表.xlsx",
+   "job_state": "succeeded",
+   "publish_status": 200
+  }
+ ],
+ "rows": [
+  {
+   "case_id": "F01",
+   "question": "陈列达标率的计算口径和年度目标是什么？",
+   "kind": "answer",
+   "text": "月份：2026-09；指标：陈列达标率；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%",
+   "sources": [
+    {
+     "document_name": "E10_市场部KPI月报.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI月报",
+      "row": 103
+     }
+    },
+    {
+     "document_name": "E10_市场部KPI月报.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI月报",
+      "row": 79
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_hit"
+   ]
+  },
+  {
+   "case_id": "F02",
+   "question": "单场预算 8000 元的活动由谁审批？",
+   "kind": "answer",
+   "text": "第六条 审批权限按单场预算分档：5000 元（含）以内由通路行销主管审批；5000 元至 20000 元由市场部经理审批；20000 元至 100000 元由事业部总经理审批；100000 元以上须经财务部与总经理联签。",
+   "sources": [
+    {
+     "document_name": "W03_促销活动申请审批与结案流程管理办法.docx",
+     "status": "active",
+     "locator": {
+      "heading": "第三章 审批权限"
+     }
+    },
+    {
+     "document_name": "W03_促销活动申请审批与结案流程管理办法.docx",
+     "status": "active",
+     "locator": {
+      "heading": "第五章 结案与稽核"
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_forbidden",
+    "value_no_fabricated"
+   ]
+  },
+  {
+   "case_id": "F03",
+   "question": "2026年Q4 启沣柠檬茶（500ml PET）在NKA卖场的档期特价是多少？",
+   "kind": "answer",
+   "text": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱",
+   "sources": [
+    {
+     "document_name": "E03_2026年Q4渠道价目表.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA卖场",
+      "row": 7
+     }
+    },
+    {
+     "document_name": "E03_2026年Q4渠道价目表.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA卖场",
+      "row": 14
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "value_hit",
+    "value_no_fabricated"
+   ]
+  },
+  {
+   "case_id": "F04",
+   "question": "2026年Q4渠道价目表中 咸味饼干 120g 的批发价是多少？",
+   "kind": "answer",
+   "text": "价格单号：PX-0001；SKU编码：SKU-QF-LEMON500；品名规格：启沣柠檬茶（500ml PET） 500ml×15瓶/箱",
+   "sources": [
+    {
+     "document_name": "E03_2026年Q4渠道价目表.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "NKA卖场",
+      "row": 7
+     }
+    },
+    {
+     "document_name": "E03_2026年Q4渠道价目表.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "LKA连锁",
+      "row": 9
+     }
+    }
+   ],
+   "verdict": "fail",
+   "failed_checks": [
+    "kind_correct"
+   ]
+  },
+  {
+   "case_id": "F05",
+   "question": "活动结束后几日内上交结案报告？",
+   "kind": "answer",
+   "text": "第十二条 活动结束后 6 个自然日内上交结案报告，逾期计入核销及时率扣分。",
+   "sources": [
+    {
+     "document_name": "W03_促销活动申请审批与结案流程管理办法.docx",
+     "status": "active",
+     "locator": {
+      "heading": "第五章 结案与稽核"
+     }
+    },
+    {
+     "document_name": "E10_市场部KPI月报.xlsx",
+     "status": "active",
+     "locator": {
+      "sheet": "KPI月报",
+      "row": 123
+     }
+    }
+   ],
+   "verdict": "pass",
+   "failed_checks": []
+  }
+ ],
+ "provider_calls": {
+  "outbound_network": 0,
+  "chat_calls": 5
+ },
+ "rag_provider_attempts": 0
+}
