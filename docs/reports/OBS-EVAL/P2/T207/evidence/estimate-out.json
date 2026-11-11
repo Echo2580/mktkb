@@ -1,0 +1,961 @@
+{
+ "batch_size": 5,
+ "chunk_config": {
+  "chunk_max_chars": 900,
+  "chunk_max_units": 6,
+  "chunk_overlap_units": 1
+ },
+ "b0_ingest_documents": [
+  {
+   "code": "D01",
+   "file": "fixtures/acceptance/normal/D01_物品位置表.xlsx",
+   "bytes": 6758,
+   "units": 9,
+   "chunks": 9,
+   "unique_chunk_texts": 9,
+   "max_chunk_chars": 120,
+   "batches": 2
+  },
+  {
+   "code": "D02",
+   "file": "fixtures/acceptance/normal/D02_合作店家信息.xlsx",
+   "bytes": 5392,
+   "units": 4,
+   "chunks": 4,
+   "unique_chunk_texts": 4,
+   "max_chunk_chars": 157,
+   "batches": 1
+  },
+  {
+   "code": "D03",
+   "file": "fixtures/acceptance/normal/D03_市场部工作指南.docx",
+   "bytes": 37107,
+   "units": 8,
+   "chunks": 2,
+   "unique_chunk_texts": 2,
+   "max_chunk_chars": 160,
+   "batches": 1
+  },
+  {
+   "code": "D04",
+   "file": "fixtures/acceptance/normal/D04_活动策划流程.docx",
+   "bytes": 37032,
+   "units": 7,
+   "chunks": 2,
+   "unique_chunk_texts": 2,
+   "max_chunk_chars": 123,
+   "batches": 1
+  },
+  {
+   "code": "D05",
+   "file": "fixtures/acceptance/normal/D05_物料领用规范.pdf",
+   "bytes": 36604,
+   "units": 8,
+   "chunks": 2,
+   "unique_chunk_texts": 2,
+   "max_chunk_chars": 94,
+   "batches": 1
+  },
+  {
+   "code": "D06",
+   "file": "fixtures/acceptance/normal/D06_店家资料维护说明.pdf",
+   "bytes": 33032,
+   "units": 6,
+   "chunks": 1,
+   "unique_chunk_texts": 1,
+   "max_chunk_chars": 100,
+   "batches": 1
+  },
+  {
+   "code": "V03",
+   "file": "fixtures/acceptance/variants/V03_物品位置表_历史V1.xlsx",
+   "bytes": 6759,
+   "units": 9,
+   "chunks": 9,
+   "unique_chunk_texts": 9,
+   "max_chunk_chars": 125,
+   "batches": 2
+  },
+  {
+   "code": "V04",
+   "file": "fixtures/acceptance/variants/V04_物品位置表_新版V3.xlsx",
+   "bytes": 6768,
+   "units": 9,
+   "chunks": 9,
+   "unique_chunk_texts": 9,
+   "max_chunk_chars": 125,
+   "batches": 2
+  }
+ ],
+ "b0_ingest_batches_non_ocr": 11,
+ "extra_variant_documents": [
+  {
+   "code": "V01",
+   "file": "fixtures/acceptance/variants/V01_临时物料位置通知.pdf",
+   "bytes": 32110,
+   "units": 5,
+   "chunks": 1,
+   "unique_chunk_texts": 1,
+   "max_chunk_chars": 90,
+   "batches": 1
+  },
+  {
+   "code": "V02",
+   "file": "fixtures/acceptance/variants/V02_店家联系方式变更通知.pdf",
+   "bytes": 30142,
+   "units": 5,
+   "chunks": 1,
+   "unique_chunk_texts": 1,
+   "max_chunk_chars": 91,
+   "batches": 1
+  },
+  {
+   "code": "V05",
+   "file": "fixtures/acceptance/variants/V05_物品位置表_新版V3_移除P01.xlsx",
+   "bytes": 6730,
+   "units": 8,
+   "chunks": 8,
+   "unique_chunk_texts": 8,
+   "max_chunk_chars": 131,
+   "batches": 2
+  },
+  {
+   "code": "V06",
+   "file": "fixtures/acceptance/variants/V06_合作店家信息_新电话.xlsx",
+   "bytes": 5393,
+   "units": 4,
+   "chunks": 4,
+   "unique_chunk_texts": 4,
+   "max_chunk_chars": 161,
+   "batches": 1
+  },
+  {
+   "code": "V07",
+   "file": "fixtures/acceptance/variants/V07_物料位置独立通知.pdf",
+   "bytes": 31396,
+   "units": 5,
+   "chunks": 1,
+   "unique_chunk_texts": 1,
+   "max_chunk_chars": 81,
+   "batches": 1
+  }
+ ],
+ "ocr_scenarios": {
+  "transcript_anchored": [
+   {
+    "code": "D07",
+    "pages": 8,
+    "chars": 640,
+    "units": 8,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "batches": 1
+   },
+   {
+    "code": "D08",
+    "pages": 2,
+    "chars": 125,
+    "units": 2,
+    "chunks": 1,
+    "unique_chunk_texts": 1,
+    "batches": 1
+   },
+   {
+    "code": "D09",
+    "pages": 1,
+    "chars": 56,
+    "units": 1,
+    "chunks": 1,
+    "unique_chunk_texts": 1,
+    "batches": 1
+   },
+   {
+    "code": "D10",
+    "pages": 1,
+    "chars": 138,
+    "units": 1,
+    "chunks": 1,
+    "unique_chunk_texts": 1,
+    "batches": 1
+   }
+  ],
+  "transcript_total_chars": 959,
+  "transcript_total_batches": 4,
+  "cap_900_chars_per_page": [
+   {
+    "code": "D07",
+    "pages": 8,
+    "chars": 8128,
+    "units": 8,
+    "chunks": 16,
+    "unique_chunk_texts": 16,
+    "batches": 4
+   },
+   {
+    "code": "D08",
+    "pages": 2,
+    "chars": 2032,
+    "units": 2,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "batches": 1
+   },
+   {
+    "code": "D09",
+    "pages": 1,
+    "chars": 1016,
+    "units": 1,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "batches": 1
+   },
+   {
+    "code": "D10",
+    "pages": 1,
+    "chars": 1016,
+    "units": 1,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "batches": 1
+   }
+  ],
+  "cap_900_total_batches": 7,
+  "cap_1800_chars_per_page": [
+   {
+    "code": "D07",
+    "pages": 8,
+    "chars": 16264,
+    "units": 8,
+    "chunks": 24,
+    "unique_chunk_texts": 24,
+    "batches": 5
+   },
+   {
+    "code": "D08",
+    "pages": 2,
+    "chars": 4066,
+    "units": 2,
+    "chunks": 6,
+    "unique_chunk_texts": 6,
+    "batches": 2
+   },
+   {
+    "code": "D09",
+    "pages": 1,
+    "chars": 2033,
+    "units": 1,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "batches": 1
+   },
+   {
+    "code": "D10",
+    "pages": 1,
+    "chars": 2033,
+    "units": 1,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "batches": 1
+   }
+  ],
+  "cap_1800_total_batches": 9,
+  "cap_2700_chars_per_page": [
+   {
+    "code": "D07",
+    "pages": 8,
+    "chars": 24328,
+    "units": 8,
+    "chunks": 32,
+    "unique_chunk_texts": 32,
+    "batches": 7
+   },
+   {
+    "code": "D08",
+    "pages": 2,
+    "chars": 6082,
+    "units": 2,
+    "chunks": 8,
+    "unique_chunk_texts": 8,
+    "batches": 2
+   },
+   {
+    "code": "D09",
+    "pages": 1,
+    "chars": 3041,
+    "units": 1,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "batches": 1
+   },
+   {
+    "code": "D10",
+    "pages": 1,
+    "chars": 3041,
+    "units": 1,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "batches": 1
+   }
+  ],
+  "cap_2700_total_batches": 11
+ },
+ "plan_ingest_batches": {
+  "non_ocr": 11,
+  "ocr_at_cap_1800": 9,
+  "ocr_at_cap_2700": 11,
+  "declared_in_plan": 22,
+  "formula": "11（fixtures 非 OCR） + 11（12 页 OCR，按 2,700 字/页上限 = 7+2+1+1）"
+ },
+ "corpus_envelope": {
+  "files": [
+   {
+    "code": "B01",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B02",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B03",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B04",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B05",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B06",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B07",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B08",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B09",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B10",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "B11",
+    "skipped": "boundary-sample"
+   },
+   {
+    "code": "C01",
+    "skipped": "ocr-page-sample",
+    "pages": 2
+   },
+   {
+    "code": "C02",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "C03",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "C04",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "C05",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "C06",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "C07",
+    "skipped": "ocr-page-sample",
+    "pages": 3
+   },
+   {
+    "code": "C08",
+    "skipped": "ocr-page-sample",
+    "pages": 1
+   },
+   {
+    "code": "E01",
+    "file": "corpus/enterprise-20261101/excel/E01_物料主数据表.xlsx",
+    "bytes": 10410,
+    "units": 45,
+    "chunks": 45,
+    "unique_chunk_texts": 45,
+    "max_chunk_chars": 391,
+    "batches": 9
+   },
+   {
+    "code": "E02",
+    "file": "corpus/enterprise-20261101/excel/E02_覆盖门店台账.xlsx",
+    "bytes": 11893,
+    "units": 63,
+    "chunks": 63,
+    "unique_chunk_texts": 63,
+    "max_chunk_chars": 323,
+    "batches": 13
+   },
+   {
+    "code": "E03",
+    "file": "corpus/enterprise-20261101/excel/E03_2026年Q4渠道价目表.xlsx",
+    "bytes": 14924,
+    "units": 39,
+    "chunks": 39,
+    "unique_chunk_texts": 39,
+    "max_chunk_chars": 358,
+    "batches": 8
+   },
+   {
+    "code": "E04",
+    "file": "corpus/enterprise-20261101/excel/E04_陈列位配置与考核标准表.xlsx",
+    "bytes": 13742,
+    "units": 108,
+    "chunks": 108,
+    "unique_chunk_texts": 108,
+    "max_chunk_chars": 348,
+    "batches": 22
+   },
+   {
+    "code": "E05",
+    "file": "corpus/enterprise-20261101/excel/E05_领用核销台账_1200行.xlsx",
+    "bytes": 155823,
+    "units": 1201,
+    "chunks": 1201,
+    "unique_chunk_texts": 1201,
+    "max_chunk_chars": 414,
+    "batches": 241
+   },
+   {
+    "code": "E06",
+    "file": "corpus/enterprise-20261101/excel/E06_促销活动排期与结案台账.xlsx",
+    "bytes": 12758,
+    "units": 80,
+    "chunks": 80,
+    "unique_chunk_texts": 80,
+    "max_chunk_chars": 340,
+    "batches": 16
+   },
+   {
+    "code": "E07",
+    "file": "corpus/enterprise-20261101/excel/E07_巡检评分明细_2000行.xlsx",
+    "bytes": 204672,
+    "units": 2000,
+    "chunks": 2000,
+    "unique_chunk_texts": 2000,
+    "max_chunk_chars": 357,
+    "batches": 400
+   },
+   {
+    "code": "E08",
+    "file": "corpus/enterprise-20261101/excel/E08_赠品核销明细_800行.xlsx",
+    "bytes": 66455,
+    "units": 800,
+    "chunks": 800,
+    "unique_chunk_texts": 800,
+    "max_chunk_chars": 329,
+    "batches": 160
+   },
+   {
+    "code": "E09",
+    "file": "corpus/enterprise-20261101/excel/E09_经销商与通路覆盖名录.xlsx",
+    "bytes": 6475,
+    "units": 12,
+    "chunks": 12,
+    "unique_chunk_texts": 12,
+    "max_chunk_chars": 281,
+    "batches": 3
+   },
+   {
+    "code": "E10",
+    "file": "corpus/enterprise-20261101/excel/E10_市场部KPI月报.xlsx",
+    "bytes": 11279,
+    "units": 120,
+    "chunks": 120,
+    "unique_chunk_texts": 120,
+    "max_chunk_chars": 209,
+    "batches": 24
+   },
+   {
+    "code": "E11",
+    "file": "corpus/enterprise-20261101/excel/E11_终端物料位置表_当前V2.xlsx",
+    "bytes": 11946,
+    "units": 121,
+    "chunks": 121,
+    "unique_chunk_texts": 121,
+    "max_chunk_chars": 179,
+    "batches": 25
+   },
+   {
+    "code": "E12",
+    "file": "corpus/enterprise-20261101/excel/E12_门店信息变更历史表.xlsx",
+    "bytes": 7045,
+    "units": 22,
+    "chunks": 22,
+    "unique_chunk_texts": 22,
+    "max_chunk_chars": 253,
+    "batches": 5
+   },
+   {
+    "code": "L01",
+    "file": "corpus/enterprise-20261101/legal/规范促销行为暂行规定（国家市场监督管理总局令第32号）.docx",
+    "bytes": 40588,
+    "units": 43,
+    "chunks": 9,
+    "unique_chunk_texts": 9,
+    "max_chunk_chars": 822,
+    "batches": 2
+   },
+   {
+    "code": "L02",
+    "file": "corpus/enterprise-20261101/legal/明码标价和禁止价格欺诈规定（国家市场监督管理总局令第56号）.docx",
+    "bytes": 40629,
+    "units": 39,
+    "chunks": 8,
+    "unique_chunk_texts": 8,
+    "max_chunk_chars": 860,
+    "batches": 2
+   },
+   {
+    "code": "L03",
+    "file": "corpus/enterprise-20261101/legal/中华人民共和国反不正当竞争法（2025年修订）.docx",
+    "bytes": 42391,
+    "units": 47,
+    "chunks": 12,
+    "unique_chunk_texts": 12,
+    "max_chunk_chars": 880,
+    "batches": 3
+   },
+   {
+    "code": "P01",
+    "file": "corpus/enterprise-20261101/pdf/P01_关于启用2026年Q4渠道价目表的通知.pdf",
+    "bytes": 57373,
+    "units": 20,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 287,
+    "batches": 1
+   },
+   {
+    "code": "P02",
+    "file": "corpus/enterprise-20261101/pdf/P02_市场周例会纪要_20261012.pdf",
+    "bytes": 65505,
+    "units": 19,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 235,
+    "batches": 1
+   },
+   {
+    "code": "P03",
+    "file": "corpus/enterprise-20261101/pdf/P03_关于部分门店物料临时调整存放位置的通知.pdf",
+    "bytes": 59391,
+    "units": 17,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 244,
+    "batches": 1
+   },
+   {
+    "code": "P04",
+    "file": "corpus/enterprise-20261101/pdf/P04_国庆档期执行检查通报.pdf",
+    "bytes": 59088,
+    "units": 16,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 200,
+    "batches": 1
+   },
+   {
+    "code": "P05",
+    "file": "corpus/enterprise-20261101/pdf/P05_经销商合作协议要点.pdf",
+    "bytes": 58128,
+    "units": 17,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 231,
+    "batches": 1
+   },
+   {
+    "code": "P06",
+    "file": "corpus/enterprise-20261101/pdf/P06_关于机构更名与部分文件作废的通知.pdf",
+    "bytes": 47623,
+    "units": 14,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 260,
+    "batches": 1
+   },
+   {
+    "code": "P07",
+    "file": "corpus/enterprise-20261101/pdf/P07_2026年Q3市场复盘报告.pdf",
+    "bytes": 72592,
+    "units": 25,
+    "chunks": 5,
+    "unique_chunk_texts": 5,
+    "max_chunk_chars": 223,
+    "batches": 1
+   },
+   {
+    "code": "P08",
+    "file": "corpus/enterprise-20261101/pdf/P08_新员工资料查阅指引与常见问题.pdf",
+    "bytes": 61756,
+    "units": 16,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 195,
+    "batches": 1
+   },
+   {
+    "code": "P09",
+    "file": "corpus/enterprise-20261101/pdf/P09_试饮路演活动安全与报备要求.pdf",
+    "bytes": 61598,
+    "units": 16,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 231,
+    "batches": 1
+   },
+   {
+    "code": "P10",
+    "file": "corpus/enterprise-20261101/pdf/P10_关于暂停合作门店清单的通知.pdf",
+    "bytes": 50879,
+    "units": 14,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 174,
+    "batches": 1
+   },
+   {
+    "code": "V01",
+    "file": "corpus/enterprise-20261101/variants/V01_终端物料位置表_历史V1.xlsx",
+    "bytes": 5785,
+    "units": 7,
+    "chunks": 7,
+    "unique_chunk_texts": 7,
+    "max_chunk_chars": 168,
+    "batches": 2
+   },
+   {
+    "code": "V02",
+    "file": "corpus/enterprise-20261101/variants/V02_终端物料位置表_新版V3.xlsx",
+    "bytes": 5758,
+    "units": 6,
+    "chunks": 6,
+    "unique_chunk_texts": 6,
+    "max_chunk_chars": 168,
+    "batches": 2
+   },
+   {
+    "code": "V03",
+    "file": "corpus/enterprise-20261101/variants/V03_2025年Q4渠道价目表_已失效.pdf",
+    "bytes": 39850,
+    "units": 13,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 231,
+    "batches": 1
+   },
+   {
+    "code": "V04",
+    "file": "corpus/enterprise-20261101/variants/a22_same_name/关于物料临时存放的通知.pdf",
+    "bytes": 38152,
+    "units": 8,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 104,
+    "batches": 1
+   },
+   {
+    "code": "V05",
+    "file": "corpus/enterprise-20261101/variants/a22_new_version/关于物料临时存放的通知.pdf",
+    "bytes": 39966,
+    "units": 8,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 111,
+    "batches": 1
+   },
+   {
+    "code": "V06",
+    "file": "corpus/enterprise-20261101/variants/关于物料临时存放的通知_同字节副本.pdf",
+    "bytes": 39966,
+    "units": 8,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 111,
+    "batches": 1
+   },
+   {
+    "code": "V07",
+    "file": "corpus/enterprise-20261101/variants/V07_物品位置表_移除QF21马克杯.xlsx",
+    "bytes": 11662,
+    "units": 119,
+    "chunks": 119,
+    "unique_chunk_texts": 119,
+    "max_chunk_chars": 182,
+    "batches": 24
+   },
+   {
+    "code": "V08",
+    "file": "corpus/enterprise-20261101/variants/V08_门店联系人变更通知.pdf",
+    "bytes": 43129,
+    "units": 12,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 164,
+    "batches": 1
+   },
+   {
+    "code": "W01",
+    "file": "corpus/enterprise-20261101/word/W01_终端陈列与生动化管理制度_V2.1.docx",
+    "bytes": 39380,
+    "units": 39,
+    "chunks": 8,
+    "unique_chunk_texts": 8,
+    "max_chunk_chars": 357,
+    "batches": 2
+   },
+   {
+    "code": "W02",
+    "file": "corpus/enterprise-20261101/word/W02_广宣物料与道具管理办法.docx",
+    "bytes": 38257,
+    "units": 24,
+    "chunks": 5,
+    "unique_chunk_texts": 5,
+    "max_chunk_chars": 390,
+    "batches": 1
+   },
+   {
+    "code": "W03",
+    "file": "corpus/enterprise-20261101/word/W03_促销活动申请审批与结案流程管理办法.docx",
+    "bytes": 38351,
+    "units": 26,
+    "chunks": 5,
+    "unique_chunk_texts": 5,
+    "max_chunk_chars": 247,
+    "batches": 1
+   },
+   {
+    "code": "W04",
+    "file": "corpus/enterprise-20261101/word/W04_KA费用申请及核销管理细则.docx",
+    "bytes": 37878,
+    "units": 17,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 299,
+    "batches": 1
+   },
+   {
+    "code": "W05",
+    "file": "corpus/enterprise-20261101/word/W05_导购员管理规范.docx",
+    "bytes": 37957,
+    "units": 19,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 265,
+    "batches": 1
+   },
+   {
+    "code": "W06",
+    "file": "corpus/enterprise-20261101/word/W06_业务代表终端拜访八步法作业标准.docx",
+    "bytes": 37786,
+    "units": 17,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 226,
+    "batches": 1
+   },
+   {
+    "code": "W07",
+    "file": "corpus/enterprise-20261101/word/W07_商品效期与临期处理规定.docx",
+    "bytes": 37689,
+    "units": 15,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 239,
+    "batches": 1
+   },
+   {
+    "code": "W08",
+    "file": "corpus/enterprise-20261101/word/W08_市场督察与费用稽核规定.docx",
+    "bytes": 37664,
+    "units": 14,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 268,
+    "batches": 1
+   },
+   {
+    "code": "W09",
+    "file": "corpus/enterprise-20261101/word/W09_新品上市30天终端执行手册.docx",
+    "bytes": 37648,
+    "units": 15,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 255,
+    "batches": 1
+   },
+   {
+    "code": "W10",
+    "file": "corpus/enterprise-20261101/word/W10_品牌视觉与物料印制规范.docx",
+    "bytes": 37866,
+    "units": 16,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 348,
+    "batches": 1
+   },
+   {
+    "code": "W11",
+    "file": "corpus/enterprise-20261101/word/W11_2026年Q4端架堆头陈列活动执行通知.docx",
+    "bytes": 37885,
+    "units": 22,
+    "chunks": 5,
+    "unique_chunk_texts": 5,
+    "max_chunk_chars": 264,
+    "batches": 1
+   },
+   {
+    "code": "W12",
+    "file": "corpus/enterprise-20261101/word/W12_市场部岗位职责与查阅权限说明.docx",
+    "bytes": 37772,
+    "units": 18,
+    "chunks": 4,
+    "unique_chunk_texts": 4,
+    "max_chunk_chars": 202,
+    "batches": 1
+   },
+   {
+    "code": "X01",
+    "file": "corpus/enterprise-20261101/safety/X01_关于数据口径调整的说明（含注入文本）.pdf",
+    "bytes": 50653,
+    "units": 12,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 165,
+    "batches": 1
+   },
+   {
+    "code": "X02",
+    "file": "corpus/enterprise-20261101/safety/X02_关于申领备用金的通知（伪造依据）.pdf",
+    "bytes": 44216,
+    "units": 9,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 146,
+    "batches": 1
+   },
+   {
+    "code": "X03",
+    "file": "corpus/enterprise-20261101/safety/X03_未登记门店与物料说明.pdf",
+    "bytes": 41658,
+    "units": 8,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 123,
+    "batches": 1
+   },
+   {
+    "code": "X04",
+    "file": "corpus/enterprise-20261101/safety/X04_导购薪酬与个人手机号清单（敏感样本）.docx",
+    "bytes": 37277,
+    "units": 10,
+    "chunks": 2,
+    "unique_chunk_texts": 2,
+    "max_chunk_chars": 218,
+    "batches": 1
+   },
+   {
+    "code": "X05",
+    "file": "corpus/enterprise-20261101/safety/X05_关于跨区串货处罚的通报.pdf",
+    "bytes": 50051,
+    "units": 14,
+    "chunks": 3,
+    "unique_chunk_texts": 3,
+    "max_chunk_chars": 216,
+    "batches": 1
+   }
+  ],
+  "parsed_documents": 50,
+  "unique_chunk_texts": 4883,
+  "batches": 994,
+  "batches_by_code": {
+   "E01": 9,
+   "E02": 13,
+   "E03": 8,
+   "E04": 22,
+   "E05": 241,
+   "E06": 16,
+   "E07": 400,
+   "E08": 160,
+   "E09": 3,
+   "E10": 24,
+   "E11": 25,
+   "E12": 5,
+   "L01": 2,
+   "L02": 2,
+   "L03": 3,
+   "P01": 1,
+   "P02": 1,
+   "P03": 1,
+   "P04": 1,
+   "P05": 1,
+   "P06": 1,
+   "P07": 1,
+   "P08": 1,
+   "P09": 1,
+   "P10": 1,
+   "V01": 2,
+   "V02": 2,
+   "V03": 1,
+   "V04": 1,
+   "V05": 1,
+   "V06": 1,
+   "V07": 24,
+   "V08": 1,
+   "W01": 2,
+   "W02": 1,
+   "W03": 1,
+   "W04": 1,
+   "W05": 1,
+   "W06": 1,
+   "W07": 1,
+   "W08": 1,
+   "W09": 1,
+   "W10": 1,
+   "W11": 1,
+   "W12": 1,
+   "X01": 1,
+   "X02": 1,
+   "X03": 1,
+   "X04": 1,
+   "X05": 1
+  },
+  "batches_by_group": {
+   "E": 926,
+   "W": 13,
+   "P": 10,
+   "L": 7,
+   "X": 5,
+   "V": 33
+  },
+  "note": "不含 11 份 boundary 预期失败样本；12 页 OCR（C01–C08）另计，见 ocr_scenarios 的上限口径"
+ }
+}

@@ -1,0 +1,32 @@
+{
+  "document": "p2-h2-plan-template/v0.1",
+  "NOT_A_P2RunPlan": true,
+  "why": "H2 逐题 case_id 只存在于封存密文里；计划项按 (operation, case_id, turn) 解析，因此 H2 计划必须在封存进程内由 load_p2_dataset(visibility=holdout) 的 36 个真实回合生成，再对生成物取 plan_sha256 交给 GO 绑定。本模板只冻结口径与规模，不含任何 case_id/题干。",
+  "generator_contract": {
+    "input": "P2Dataset(visibility='holdout')（30 题 / 36 回合；不落盘题干）",
+    "output": "P2RunPlan（schema_version=p2-run-plan/v0.1，stage=P2-LIVE，mode=end_to_end）",
+    "case_id_rule": "原始 case_id 只写进计划文件（封存目录内），仓库内任何文件都不得出现",
+    "item_rule": "每个 (case_id, turn) 生成 4 项：query_embedding/rerank/query_expansion/answer，各 requests=1",
+    "index_embedding_rule": "1 项，requests = 声明的 H2 语料包批数 B（上限见 cost-and-quota §5）",
+    "ocr_rule": "语料包含 OCR 页时按页生成 ocr 项；不含则 GO 不授权 ocr 操作"
+  },
+  "scale": {
+    "cases": 30,
+    "total_turns": 36,
+    "turn_derived_items": 144,
+    "request_count_without_ingest": 144
+  },
+  "cost_centers_cny": {
+    "answer_retrieval": 8.5,
+    "ocr": 6.5,
+    "judge": 3.0,
+    "independent": 2.0
+  },
+  "stage_limit_cny": 20.0,
+  "project_total_limit_cny": 40.0,
+  "max_requests": 1100,
+  "forbidden": [
+    "把本模板当成计划直接授权（没有 case_id/turn 项，runner 会在第一个 case 处 plan_item_missing 停）",
+    "把封存 case_id、题干或标签写进仓库内任何文件/日志/报告"
+  ]
+}

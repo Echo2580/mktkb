@@ -1,0 +1,529 @@
+{
+  "schema_version": "t207-import-recipe/v0.1",
+  "matrix": "B0（fixtures/acceptance 的 D01–D10 + B0 版 V01–V07）",
+  "source_set": "fixtures/acceptance/normal + fixtures/acceptance/variants",
+  "product_paths": {
+    "upload_new_document": "POST /api/v1/documents（multipart file=…；allow_same_name 缺省）",
+    "upload_new_version": "POST /api/v1/documents/{document_id}/versions（multipart file=…，expected_active_version_id 可选）",
+    "publish_version": "POST /api/v1/documents/{document_id}/versions/{version_id}/publish（JSON expected_active_version_id + expected_revision）",
+    "process": "ingestion.worker.run_one_job(db, store, ocr=…, ocr_options={\"max_attempts\": 1}) —— 适配器在进程内驱动，不走 HTTP",
+    "adapter_entry": "product_adapter.ProductEvalAdapter.ingest(P2IngestPlan) -> [IngestReceipt]（IngestSource.document_id / publish 已是既有入参）"
+  },
+  "gaps_in_current_driver": [
+    "cli.py 的 p2-run 只有 --ingest <path>：构造 IngestSource(path=…) 时 document_id=None、publish=True，V03 与 D01 因此各自成为独立 active 文档（各 version=1）——这就是 T206 Q01 conflict 的原因",
+    "没有表达「第 3 版不发布」的入口（IngestSource.publish=False 存在，但 CLI 传不进去）",
+    "document_id 由第一次上传返回，静态参数没法预填（必须传符号引用，由 ingest() 回填）"
+  ],
+  "minimal_driver_delta": {
+    "files": [
+      "backend/src/mktkb/evaluation/product_adapter.py",
+      "backend/src/mktkb/evaluation/cli.py"
+    ],
+    "shape": [
+      "IngestSource 新增可选 document_ref: str | None，指向更早一条 source 的 name（链式同文档）",
+      "ProductEvalAdapter.ingest()：每次上传成功后把 name -> document_id 记进本次 ingest 的本地表；遇到 document_ref 就解析成 document_id 走「新版本」上传",
+      "cli.py p2-run 新增 --ingest-plan <json>（与 --ingest 互斥；--ingest 行为不变），json 里可写 document_ref 与 publish=false"
+    ],
+    "refuses": "引用未定义 / 自引用 / 引用尚未上传成功的 source -> 上传前拒绝（不建文档、不计费）"
+  },
+  "steps": [
+    {
+      "op": "upload_document",
+      "source": "V03",
+      "upload_name": "D01_物品位置表.xlsx",
+      "expect": {
+        "http": 202,
+        "document_name": "D01_物品位置表.xlsx",
+        "version_number": 1,
+        "version_state": "queued",
+        "doc_count_delta": 1
+      },
+      "step": 1
+    },
+    {
+      "op": "process",
+      "source": "V03",
+      "expect": {
+        "job_state": "succeeded",
+        "version_state": "review_required"
+      },
+      "step": 2
+    },
+    {
+      "op": "publish",
+      "source": "V03",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1,
+        "version_state": "published",
+        "revision_delta": 1
+      },
+      "step": 3
+    },
+    {
+      "op": "upload_new_version",
+      "source": "D01",
+      "document_ref": "D01_物品位置表.xlsx",
+      "expected_active_version_number": 1,
+      "expect": {
+        "http": 202,
+        "same_document": true,
+        "version_number": 2,
+        "doc_count_delta": 0
+      },
+      "step": 4
+    },
+    {
+      "op": "process",
+      "source": "D01",
+      "expect": {
+        "job_state": "succeeded",
+        "version_state": "review_required"
+      },
+      "step": 5
+    },
+    {
+      "op": "publish",
+      "source": "D01",
+      "expect": {
+        "http": 200,
+        "active_version_number": 2,
+        "previous_version_state": "superseded",
+        "revision_delta": 1
+      },
+      "step": 6
+    },
+    {
+      "op": "upload_new_version",
+      "source": "V04",
+      "document_ref": "D01_物品位置表.xlsx",
+      "expected_active_version_number": 2,
+      "expect": {
+        "http": 202,
+        "same_document": true,
+        "version_number": 3,
+        "doc_count_delta": 0
+      },
+      "step": 7
+    },
+    {
+      "op": "process",
+      "source": "V04",
+      "expect": {
+        "job_state": "succeeded",
+        "version_state": "review_required"
+      },
+      "step": 8
+    },
+    {
+      "op": "skip_publish",
+      "source": "V04",
+      "expect": {
+        "active_version_number": 2,
+        "active_version_state": "published",
+        "latest_version_number": 3,
+        "revision_unchanged": true
+      },
+      "step": 9
+    },
+    {
+      "op": "upload_document",
+      "source": "D02",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 10
+    },
+    {
+      "op": "process",
+      "source": "D02",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 11
+    },
+    {
+      "op": "publish",
+      "source": "D02",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 12
+    },
+    {
+      "op": "upload_document",
+      "source": "D03",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 13
+    },
+    {
+      "op": "process",
+      "source": "D03",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 14
+    },
+    {
+      "op": "publish",
+      "source": "D03",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 15
+    },
+    {
+      "op": "upload_document",
+      "source": "D04",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 16
+    },
+    {
+      "op": "process",
+      "source": "D04",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 17
+    },
+    {
+      "op": "publish",
+      "source": "D04",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 18
+    },
+    {
+      "op": "upload_document",
+      "source": "D05",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 19
+    },
+    {
+      "op": "process",
+      "source": "D05",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 20
+    },
+    {
+      "op": "publish",
+      "source": "D05",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 21
+    },
+    {
+      "op": "upload_document",
+      "source": "D06",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 22
+    },
+    {
+      "op": "process",
+      "source": "D06",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 23
+    },
+    {
+      "op": "publish",
+      "source": "D06",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 24
+    },
+    {
+      "op": "upload_document",
+      "source": "D07",
+      "expect": {
+        "http": 202,
+        "version_number": 1,
+        "ocr_pages": 8
+      },
+      "step": 25
+    },
+    {
+      "op": "process",
+      "source": "D07",
+      "expect": {
+        "job_state": "succeeded",
+        "ocr_calls": 8,
+        "ocr_mode": "text"
+      },
+      "step": 26
+    },
+    {
+      "op": "publish",
+      "source": "D07",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 27
+    },
+    {
+      "op": "upload_document",
+      "source": "D08",
+      "expect": {
+        "http": 202,
+        "version_number": 1,
+        "ocr_pages": 2
+      },
+      "step": 28
+    },
+    {
+      "op": "process",
+      "source": "D08",
+      "expect": {
+        "job_state": "succeeded",
+        "ocr_calls": 2,
+        "ocr_mode": "text"
+      },
+      "step": 29
+    },
+    {
+      "op": "publish",
+      "source": "D08",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 30
+    },
+    {
+      "op": "upload_document",
+      "source": "D09",
+      "expect": {
+        "http": 202,
+        "version_number": 1,
+        "ocr_pages": 1
+      },
+      "step": 31
+    },
+    {
+      "op": "process",
+      "source": "D09",
+      "expect": {
+        "job_state": "succeeded",
+        "ocr_calls": 1,
+        "ocr_mode": "text"
+      },
+      "step": 32
+    },
+    {
+      "op": "publish",
+      "source": "D09",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 33
+    },
+    {
+      "op": "upload_document",
+      "source": "D10",
+      "expect": {
+        "http": 202,
+        "version_number": 1,
+        "ocr_pages": 1
+      },
+      "step": 34
+    },
+    {
+      "op": "process",
+      "source": "D10",
+      "expect": {
+        "job_state": "succeeded",
+        "ocr_calls": 1,
+        "ocr_mode": "table"
+      },
+      "step": 35
+    },
+    {
+      "op": "publish",
+      "source": "D10",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 36
+    },
+    {
+      "op": "upload_document",
+      "source": "V01",
+      "matrix_run": "R2",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 37
+    },
+    {
+      "op": "process",
+      "source": "V01",
+      "matrix_run": "R2",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 38
+    },
+    {
+      "op": "publish",
+      "source": "V01",
+      "matrix_run": "R2",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 39
+    },
+    {
+      "op": "upload_document",
+      "source": "V02",
+      "matrix_run": "R3",
+      "expect": {
+        "http": 202,
+        "version_number": 1
+      },
+      "step": 40
+    },
+    {
+      "op": "process",
+      "source": "V02",
+      "matrix_run": "R3",
+      "expect": {
+        "job_state": "succeeded"
+      },
+      "step": 41
+    },
+    {
+      "op": "publish",
+      "source": "V02",
+      "matrix_run": "R3",
+      "expect": {
+        "http": 200,
+        "active_version_number": 1
+      },
+      "step": 42
+    }
+  ],
+  "assertions_after_ingest": [
+    "documents 总数 = 12（D01 槽 + D02..D10 共 9 份 + V01/V02 只在 R2/R3 出现时应另算）",
+    "doc-positions 槽：latest_version_number=3、active_version_number=2、三版 sha256 = {V03, D01, V04}",
+    "第 3 版 state=review_required 且不是 active；被替换的第 1 版 state=superseded",
+    "knowledge revision 只随发布递增（本运行 10 次发布 = +10；V04 处理不入 revision）",
+    "Q01 回答 = B区1号货架第二层，来源 unit_key=sheet:物品位置:row:8、status=active、version_number=2",
+    "Q01 来源不得是 V03 的 A区3号货架第二层，也不得是未生效版 V04 的 D 区位置"
+  ],
+  "failure_determination": [
+    "step4 若返回 409 same_name_requires_action 或新建了第二份文档 -> 版本槽未复现（T206 失败模式），停",
+    "step9 之后 active_version_number==3 或 revision 变化 -> 未生效版被当成生效，停",
+    "process 阶段 12 页 OCR 的 mode 与计划项模型不一致 -> ocr_mode_plan_mismatch，发送前停",
+    "上传 409 DUPLICATE_CONTENT（V03/D01/V04 字节碰撞）-> 数据面异常，停（不重试）"
+  ],
+  "embedding_batches": {
+    "batch_size": 5,
+    "documents": {
+      "D01": {
+        "chunks": 9,
+        "batches": 2
+      },
+      "V03": {
+        "chunks": 9,
+        "batches": 2
+      },
+      "V04": {
+        "chunks": 9,
+        "batches": 2
+      },
+      "D02": {
+        "chunks": 4,
+        "batches": 1
+      },
+      "D03": {
+        "chunks": 2,
+        "batches": 1
+      },
+      "D04": {
+        "chunks": 2,
+        "batches": 1
+      },
+      "D05": {
+        "chunks": 2,
+        "batches": 1
+      },
+      "D06": {
+        "chunks": 1,
+        "batches": 1
+      },
+      "V01": {
+        "chunks": 1,
+        "batches": 1
+      },
+      "V02": {
+        "chunks": 1,
+        "batches": 1
+      }
+    },
+    "non_ocr_total_batches": 11,
+    "ocr_text_batches": {
+      "transcript_anchored": 4,
+      "cap_1800_chars_per_page": 9,
+      "cap_2700_chars_per_page": 11
+    },
+    "declared_in_plan": 22,
+    "ocr_pages": {
+      "D07": 8,
+      "D08": 2,
+      "D09": 1,
+      "D10": 1
+    },
+    "ocr_cost_cny": {
+      "text_pages": 11,
+      "text_price": 0.5,
+      "table_pages": 1,
+      "table_price": 0.15,
+      "total": 5.65
+    }
+  },
+  "corpus_relationship": {
+    "note": "两套变体编号同号不同义、字节不同，不得灌进同一索引（hash/身份会串）",
+    "mapping_by_role": {
+      "fixture V03 物品位置表_历史V1.xlsx": "corpus V01 终端物料位置表_历史V1.xlsx（B0 历史版槽）",
+      "fixture V04 物品位置表_新版V3.xlsx": "corpus V02 终端物料位置表_新版V3.xlsx（新版 / 未生效候选）",
+      "fixture V05 新版V3_移除P01.xlsx": "corpus V07 物品位置表_移除QF21马克杯.xlsx（删行）",
+      "fixture V06 合作店家信息_新电话.xlsx": "corpus V08 门店联系人变更通知.pdf（联系人变更）",
+      "fixture V01 临时物料位置通知.pdf": "corpus 侧无对应（corpus V03 是已失效价目表）",
+      "fixture V02 店家联系方式变更通知.pdf": "corpus 侧无对应（corpus V04/V05 是同名不同字节对照）"
+    },
+    "only_in_corpus": [
+      "V04/V05 同名不同字节（409 + 替换流程）",
+      "V06 与 V05 字节相同（409 DUPLICATE_CONTENT）"
+    ],
+    "rule": "公开矩阵（B0/N/C/U）只用 fixtures 版；H2 只用声明过的 corpus 子集；两套永不混灌"
+  }
+}

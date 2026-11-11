@@ -1,0 +1,168 @@
+{
+ "step": "plan",
+ "plan_id": "P2-T207-MATRIX-20261111",
+ "plan_sha256": "d788a83b3b27ff4e4aa43cb89b2230012d4f89eeecd232e2ac489e398cb3a947",
+ "items": 233,
+ "cases": 60,
+ "turns": 60,
+ "ocr_pages": 12,
+ "total_requests": 254,
+ "max_requests": 1000,
+ "worst_case_cny": 8.127376,
+ "reserve_peak_cny": 0.5,
+ "estimated_success_cny": 6.1681,
+ "by_operation": {
+  "index_embedding": 22,
+  "query_embedding": 55,
+  "rerank": 55,
+  "query_expansion": 55,
+  "answer": 55,
+  "ocr": 12
+ },
+ "center_needs_cny": {
+  "answer_retrieval": 2.477376,
+  "ocr": 5.65,
+  "judge": 0.0,
+  "independent": 0.0
+ },
+ "center_limits_cny": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "hard_max_requests": 1000
+}
+{
+ "step": "go_candidate",
+ "document": "P2-LIVE-GO",
+ "authorization": "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE / production_ready=false; the only usable GO is written by the manager to the fixed P2_GO_PATH",
+ "plan_id_bound": true,
+ "plan_sha_bound": true,
+ "max_requests": 1000,
+ "max_request_cny": 0.5,
+ "validity_days": 13,
+ "ledger_sha_is_history_prefix": true,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "ocr",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "centers": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ }
+}
+{
+ "step": "preflight_real_snapshot",
+ "ok": true,
+ "reasons": [],
+ "stage_remaining": 19.4286417,
+ "total_remaining": 24.35769720000002,
+ "requests_used": 547,
+ "requests_remaining": 453,
+ "requests_planned": 254,
+ "worst_case": 8.127376,
+ "reserve_peak": 0.5,
+ "center_remaining": {
+  "answer_retrieval": 8.4286417,
+  "ocr": 6.0,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "production_ready": true,
+ "go_path_exists": true
+}
+{
+ "step": "authorize_candidate",
+ "production_ready": false,
+ "go_sha256": "90e3ac9d811a4244f7ad806b35a41612c10f21ed8fb1be505e63ae808014e4a3",
+ "plan_sha256": "d788a83b3b27ff4e4aa43cb89b2230012d4f89eeecd232e2ac489e398cb3a947",
+ "stage_remaining_cny": 19.4286417,
+ "requests_used": 547,
+ "requests_remaining": 453,
+ "max_requests": 1000,
+ "operation_count": 6,
+ "note": "production_ready=False ⇒ 候选 GO 不可发送；只有经理落盘的固定路径 GO 才可能为 True"
+}
+{
+ "step": "negatives",
+ "rows": [
+  {
+   "case": "legacy_p1_go",
+   "kind": "authorize",
+   "reason": "legacy_go_document"
+  },
+  {
+   "case": "plan_sha_mismatch",
+   "kind": "authorize",
+   "reason": "go_plan_id_mismatch"
+  },
+  {
+   "case": "plan_sha_mismatch_only",
+   "kind": "authorize",
+   "reason": "go_plan_sha256_mismatch"
+  },
+  {
+   "case": "ocr_center_6_0_below_usage",
+   "kind": "preflight",
+   "reasons": [
+    "center_budget_insufficient:ocr"
+   ]
+  },
+  {
+   "case": "requests_over_remaining",
+   "kind": "preflight",
+   "reasons": [
+    "request_budget_insufficient"
+   ]
+  },
+  {
+   "case": "hard_cap_over_1000",
+   "kind": "authorize",
+   "reason": "request_cap_over_hard_limit"
+  },
+  {
+   "case": "go_expired",
+   "kind": "authorize",
+   "reason": "go_expired"
+  },
+  {
+   "case": "go_max_requests_below_plan",
+   "kind": "authorize",
+   "reason": "go_max_requests_below_plan"
+  },
+  {
+   "case": "go_max_request_cny_below_peak",
+   "kind": "authorize",
+   "reason": "go_max_request_cny_below_plan"
+  },
+  {
+   "case": "go_operation_unauthorized_ocr",
+   "kind": "authorize",
+   "reason": "go_operation_unauthorized"
+  }
+ ]
+}
+{
+ "step": "read_only_proof",
+ "before": {
+  "ledger_sha": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1050298,
+  "ledger_lines": 1095
+ },
+ "after": {
+  "ledger_sha": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1050298,
+  "ledger_lines": 1095
+ },
+ "unchanged": true,
+ "go_path_exists_after": true
+}
