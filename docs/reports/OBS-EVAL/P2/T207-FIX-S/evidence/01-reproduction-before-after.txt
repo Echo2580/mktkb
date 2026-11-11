@@ -1,0 +1,154 @@
+# T207-FIX-S 证据 01：Q39 误判复现（修复前 / 修复后）
+#
+# 方法：把 backend/src 整树复制到临时目录，再用 `git show HEAD:...` 覆盖
+#   evaluation/scorers.py、evaluation/p2_scoring.py，得到「修复前」源码（与 HEAD 逐字一致）；
+#   同一份 probe 分别以 PYTHONPATH=<HEAD 副本> 与 PYTHONPATH=backend/src 各跑一次。
+# 零真实调用：不建索引、不连库、不读 .env、不调用任何 provider（纯函数 + 冻结夹具）。
+# 夹具：fixtures/evaluation/b0.jsonl 的 Q39（stratum=ocr，expected_values=["2026-10-30 16:00"]）。
+
+===== probe（两次运行共用，未改动）=====
+
+import inspect
+import sys
+from pathlib import Path
+
+import mktkb.evaluation.p2_scoring as p2
+import mktkb.evaluation.scorers as sc
+from mktkb.evaluation.dataset import load_cases
+from mktkb.evaluation.scorers import check_value, normalize_text, _value_pattern
+
+ROOT = Path(sys.argv[1])
+case = {c.case_id: c for c in load_cases(ROOT / "fixtures/evaluation/b0.jsonl")}["Q39"]
+VALUE = case.expected_values[0]
+DOCUMENT_CODES = {"D10_盘点通知.docx": "D10"}
+SRC = {"source_id": "11111111-1111-4111-8111-111111111111",
+       "document_name": "D10_盘点通知.docx", "version_number": 1,
+       "status": "active", "locator": {"page": 1}}
+
+def score(text):
+    row = {"case_id": case.case_id, "suite": case.suite, "stratum": case.stratum,
+           "conversation_id": "conv-q39", "status": "ok", "error_code": None,
+           "planned_turns": 1, "turns_executed": 1,
+           "turns": [{"turn": 1, "status": "ok", "error_code": None,
+                      "product": {"kind": "answer", "text": text, "trace_id": "trace-q39",
+                                  "trace_path": "rag", "sources": [dict(SRC)],
+                                  "http_status": 200}}]}
+    scored = p2.score_public_case(case, row, document_codes=DOCUMENT_CODES,
+                                  allowed_doc_codes={"D10"})
+    checks = {c["check_id"]: c["status"] for c in scored.score.checks}
+    return scored.score.status, checks
+
+try:
+    check_value("x", "x", cross_explicit_space=True)
+    HAS_OPT_IN = True
+except TypeError:
+    HAS_OPT_IN = False
+
+print("Q39 expected_values =", case.expected_values, "| requires_ocr =", case.requires_ocr,
+      "| stratum =", case.stratum)
+print("normalize_text(expected)      =", repr(normalize_text(VALUE)))
+print("去空格后的 needle             =", repr(normalize_text(VALUE).replace(" ", "")))
+print("_value_pattern(needle)        =", _value_pattern(normalize_text(VALUE).replace(" ", "")).pattern)
+print("check_value 是否有 opt-in 参数 =", HAS_OPT_IN)
+print()
+
+texts = [
+    ("正确(单空格)",   "城东店海报的盘点时间为 2026-10-30 16:00，请提前准备。"),
+    ("正确(多余空白)", "城东店海报的盘点时间为 2026-10-30   16:00。"),
+    ("错误日期",       "城东店海报的盘点时间为 2026-11-30 16:00。"),
+    ("错误时间",       "城东店海报的盘点时间为 2026-10-30 15:00。"),
+    ("缺时间(仅日期)", "城东店海报的盘点时间为 2026-10-30。"),
+]
+print("== P2 评分路径：score_public_case -> score_case -> _value_checks -> check_value ==")
+for name, text in texts:
+    status, checks = score(text)
+    print(f"  {name:14s} status={status:5s} value_hit={checks['value_hit']:8s} "
+          f"source_hit={checks['source_hit']:4s} kind={checks['kind_correct']:4s} | {text}")
+print()
+print("== 直接 check_value 对照 ==")
+for name, text in texts:
+    strict = check_value(text, VALUE)
+    opt = check_value(text, VALUE, cross_explicit_space=True) if HAS_OPT_IN else "N/A(无该参数)"
+    print(f"  {name:14s} default={strict!s:5s} opt_in={opt}")
+print()
+print("== 调用链（行号由 inspect 定位当前文件）==")
+def show(func, needle_text):
+    try:
+        lines, start = inspect.getsourcelines(func)
+    except OSError:
+        return
+    for i, line in enumerate(lines):
+        if needle_text in line:
+            print(f"  {Path(inspect.getsourcefile(func)).name}:{start + i}: {line.strip()}")
+show(sc.check_value, "_value_pattern(needle")
+show(sc._value_checks, "check_value(text, value")
+show(sc.score_case, "_value_checks(case, outcome")
+show(p2.score_public_case, "_resolved_without_index(case)")
+
+===== BEFORE（HEAD 源码）=====
+Q39 expected_values = ('2026-10-30 16:00',) | requires_ocr = True | stratum = ocr
+normalize_text(expected)      = '2026-10-30 16:00'
+去空格后的 needle             = '2026-10-3016:00'
+_value_pattern(needle)        = 2026\s*\-\s*10\s*\-\s*3016\s*:\s*00
+check_value 是否有 opt-in 参数 = False
+
+== P2 评分路径：score_public_case -> score_case -> _value_checks -> check_value ==
+  正确(单空格)        status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30 16:00，请提前准备。
+  正确(多余空白)       status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30   16:00。
+  错误日期           status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-11-30 16:00。
+  错误时间           status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30 15:00。
+  缺时间(仅日期)       status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30。
+
+== 直接 check_value 对照 ==
+  正确(单空格)        default=False opt_in=N/A(无该参数)
+  正确(多余空白)       default=False opt_in=N/A(无该参数)
+  错误日期           default=False opt_in=N/A(无该参数)
+  错误时间           default=False opt_in=N/A(无该参数)
+  缺时间(仅日期)       default=False opt_in=N/A(无该参数)
+
+== 调用链（行号由 inspect 定位当前文件）==
+  scorers.py:329: pattern = _value_pattern(needle)
+  scorers.py:535: missing = [value for value in expected if not check_value(text, value)]
+  scorers.py:545: leaked = [value for value in forbidden if check_value(text, value)]
+  scorers.py:1033: checks.extend(_value_checks(case, outcome))
+  p2_scoring.py:878: result = score_case(case, _resolved_without_index(case), outcome)
+
+===== AFTER（本包改动后）=====
+Q39 expected_values = ('2026-10-30 16:00',) | requires_ocr = True | stratum = ocr
+normalize_text(expected)      = '2026-10-30 16:00'
+去空格后的 needle             = '2026-10-3016:00'
+_value_pattern(needle)        = 2026\s*\-\s*10\s*\-\s*3016\s*:\s*00
+check_value 是否有 opt-in 参数 = True
+
+== P2 评分路径：score_public_case -> score_case -> _value_checks -> check_value ==
+  正确(单空格)        status=pass  value_hit=pass     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30 16:00，请提前准备。
+  正确(多余空白)       status=pass  value_hit=pass     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30   16:00。
+  错误日期           status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-11-30 16:00。
+  错误时间           status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30 15:00。
+  缺时间(仅日期)       status=fail  value_hit=fail     source_hit=pass kind=pass | 城东店海报的盘点时间为 2026-10-30。
+
+== 直接 check_value 对照 ==
+  正确(单空格)        default=False opt_in=True
+  正确(多余空白)       default=False opt_in=True
+  错误日期           default=False opt_in=False
+  错误时间           default=False opt_in=False
+  缺时间(仅日期)       default=False opt_in=False
+
+== 调用链（行号由 inspect 定位当前文件）==
+  scorers.py:369: pattern = _value_pattern(needle, cross_space_at=explicit_gaps)
+  scorers.py:580: if not check_value(text, value, cross_explicit_space=cross_explicit_space)
+  scorers.py:591: leaked = [value for value in forbidden if check_value(text, value)]
+  scorers.py:1083: checks.extend(_value_checks(case, outcome, cross_explicit_space=cross_explicit_space))
+  p2_scoring.py:881: case, _resolved_without_index(case), outcome, cross_explicit_space=True
+
+===== 读法 =====
+1) 根因：normalize_text 把期望值内部的空格折叠后，check_value 又 replace(" ","") 成
+   `2026-10-3016:00`；_value_pattern 对「数字-数字相邻」不再插入 \s*，于是正文里的
+   `2026-10-30 16:00` 永远匹配不上 —— 与答案对错无关。
+2) 精确调用链（行号由 inspect 定位，非手写）：
+   p2_scoring.score_public_case:878(前)/881(后)  -> scorers.score_case:1033(前)/1083(后)
+   -> scorers._value_checks:535(前)/580(后) -> scorers.check_value:329(前)/369(后)
+   即：把期望值送进 check_value 的是 _value_checks 的 value_hit 推导；P1 走的是同一条链，
+   只是从不传 opt-in 参数。
+3) BEFORE 里 5 条回答全 fail（含两条正确回答）；AFTER 里两条正确回答 pass、三条错误回答
+   仍 fail；默认 check_value（P1 路径）对正确回答依然是 False —— 说明放宽只发生在 P2 显式打开时。

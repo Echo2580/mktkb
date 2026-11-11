@@ -19,6 +19,8 @@ from typing import Any
 import pytest
 
 from mktkb.evaluation.dataset import CaseSpec
+from mktkb.evaluation.gold import ResolvedGold
+from mktkb.evaluation.p2_public_cases import load_b0_cases
 from mktkb.evaluation.p2_scoring import (
     P2_B0_EXACT_IDS,
     P2_B0_EXACT_TOTAL,
@@ -45,6 +47,7 @@ from mktkb.evaluation.p2_scoring import (
     EXECUTION_MODE_LIVE,
     EXECUTION_MODE_LOCAL_MOCK,
     P2CaseScore,
+    P2ScoredCase,
     P2HoldoutCaseScore,
     P2HoldoutScorecard,
     P2ScoringError,
@@ -62,6 +65,7 @@ from mktkb.evaluation.p2_scoring import (
     score_public_case,
     score_public_suites,
 )
+from mktkb.evaluation.scorers import EvalOutcome, check_value, score_case
 
 UNIT_KEY = "sheet:物品位置:row:8"
 UNIT_ID = "11111111-1111-4111-8111-111111111111"
@@ -916,3 +920,111 @@ def test_product_retrieved_candidates_fill_gate_outcome() -> None:
     # 既没有显式候选、产品也没给候选 → 空集：gate 只能判 fail，不当通过
     bare = normalize_product_outcome({"product": product()}, document_codes=DOCUMENT_CODES)
     assert bare.retrieved == ()
+
+
+# --------------------------------------------------------------------------- #
+# 12. T207-FIX-S：期望值内部显式空白（B0 Q39「日期 + 时间」）的 P2 专用口径
+# --------------------------------------------------------------------------- #
+
+Q39_VALUE = "2026-10-30 16:00"
+Q39_DOCUMENT_CODES = {"D10_盘点通知.docx": "D10"}
+Q39_SOURCE = {
+    "source_id": "11111111-1111-4111-8111-111111111111",
+    "document_name": "D10_盘点通知.docx",
+    "version_number": 1,
+    "status": "active",
+    "locator": {"page": 1},
+}
+
+
+def q39_case() -> CaseSpec:
+    """真实冻结题 Q39（stratum=ocr，expected_values 含内部空白），不用手搓样本。"""
+    return {case.case_id: case for case in load_b0_cases()}["Q39"]
+
+
+def q39_score(text: str) -> P2ScoredCase:
+    """把一条 Q39 回答送进 P2 评分路径（末轮 -> EvalOutcome -> score_case）。"""
+    case = q39_case()
+    row = case_row(case, [turn_row(product(text=text, sources=(Q39_SOURCE,)))])
+    return score_public_case(
+        case,
+        row,
+        document_codes=Q39_DOCUMENT_CODES,
+        allowed_doc_codes={"D10"},
+    )
+
+
+def q39_checks(scored: P2ScoredCase) -> dict[str, str]:
+    return {check["check_id"]: check["status"] for check in scored.score.checks}
+
+
+def test_explicit_space_value_is_p2_opt_in_only() -> None:
+    """默认口径（P1 冻结）不变：去空格后数字-数字不跨空白；opt-in 只放开显式空白处。"""
+    text = "盘点通知：城东店海报的盘点时间为 2026-10-30 16:00。"
+    assert check_value(text, Q39_VALUE) is False
+    assert check_value(text, Q39_VALUE, cross_explicit_space=True) is True
+
+
+def test_q39_correct_answer_passes_public_case_score() -> None:
+    """修复前必 fail(value_hit)；修复后正确回答判 pass，且不再有 value_hit fail。"""
+    for text in (
+        "城东店海报的盘点时间为 2026-10-30 16:00，请提前准备。",
+        "城东店海报的盘点时间为 2026-10-30   16:00。",  # 多余空白
+        "城东店海报的盘点时间为 ２０２６－１０－３０ １６：００。",  # 全角
+    ):
+        scored = q39_score(text)
+        checks = q39_checks(scored)
+        assert checks["value_hit"] == "pass", (text, checks)
+        assert scored.score.status == CASE_STATUS_PASS, (text, checks)
+        assert scored.result is not None and scored.result.status == "pass"
+
+
+@pytest.mark.parametrize(
+    "text",
+    [
+        "城东店海报的盘点时间为 2026-11-30 16:00。",  # 错日期
+        "城东店海报的盘点时间为 2025-10-30 16:00。",  # 错年份
+        "城东店海报的盘点时间为 2026-10-30 15:00。",  # 错时间
+        "城东店海报的盘点时间为 2026-10-30。",  # 缺时间
+        "城东店海报的盘点时间为 2026-10-30 1 6:00。",  # 只有显式空白那一处可跨空白
+    ],
+)
+def test_q39_wrong_date_time_or_missing_part_still_fail(text: str) -> None:
+    scored = q39_score(text)
+    assert q39_checks(scored)["value_hit"] == "fail", text
+    assert scored.score.status == CASE_STATUS_FAIL, text
+
+
+@pytest.mark.parametrize(
+    ("text", "expected", "hit"),
+    [
+        ("共12件，另加13件，合计25件", "12", True),  # 既有纯数值样本
+        ("B区12号货架", "B区1号", False),  # 既有混合文本样本：不得被更大数字包住
+        ("预计 3 个工作日完成", "3 个工作日", True),  # B0 Q27：空白两侧非数字，旧口径已命中
+    ],
+)
+def test_optin_keeps_samples_without_digit_gap_unchanged(
+    text: str, expected: str, hit: bool
+) -> None:
+    """3 个既有样本：opt-in 开关前后判定完全一致（证明没有顺带放宽）。"""
+    strict = check_value(text, expected)
+    assert strict is hit, (text, expected)
+    assert check_value(text, expected, cross_explicit_space=True) is hit
+
+
+def test_score_case_default_still_rejects_q39_value() -> None:
+    """共享 scorer 默认关闭：不显式打开时 Q39 仍按 P1 旧口径判 fail。"""
+    case = q39_case()
+    gold = ResolvedGold(
+        case_id=case.case_id,
+        requires_ocr=True,
+        skipped=False,
+        sources=(),
+        unit_ids=(),
+        relevant_unit_ids=(),
+    )
+    outcome = EvalOutcome(kind="answer", text="盘点时间为 2026-10-30 16:00。")
+    strict = score_case(case, gold, outcome)
+    assert strict.check("value_hit").status == "fail"
+    loose = score_case(case, gold, outcome, cross_explicit_space=True)
+    assert loose.check("value_hit").status == "pass"

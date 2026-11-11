@@ -875,7 +875,11 @@ def score_public_case(
             forbidden_doc_codes=forbidden_doc_codes,
         )
     )
-    result = score_case(case, _resolved_without_index(case), outcome)
+    # T207-FIX-S：scorers 默认口径不变，这里显式打开「期望值内部本来就有空白」的
+    # 跨空白匹配——否则 Q39 这类「日期 + 时间」期望值即使答对也必然 value_hit fail。
+    result = score_case(
+        case, _resolved_without_index(case), outcome, cross_explicit_space=True
+    )
     if result.status == STATUS_SKIPPED_OCR:
         issues.append(P2IsolationIssue("ocr_silently_skipped", case.case_id))
         return P2ScoredCase(

@@ -57,7 +57,7 @@ import re
 import unicodedata
 from dataclasses import dataclass, field
 from decimal import Decimal, InvalidOperation
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any, Collection, Iterable, Mapping, Sequence
 
 from ..observability.contracts import TraceRecord
 from .dataset import CaseSpec
@@ -258,12 +258,42 @@ def normalize_text(value: str) -> str:
     return _WHITESPACE_RE.sub(" ", text).strip()
 
 
-def _value_pattern(needle: str) -> re.Pattern[str]:
-    """把期望值编译为"字符间允许空白"的模式；数字与数字之间不允许跨空白。"""
+def _explicit_space_needle(value: str) -> tuple[str, tuple[int, ...]]:
+    """折叠期望值内部空白，并记下空白原本所在的位置（T207-FIX-S opt-in 用）。
+
+    ``needle`` 与 ``normalize_text(value).replace(" ", "")`` 逐字相同；``gaps`` 里
+    的 ``index`` 表示期望值原本在 ``needle[index - 1]`` 与 ``needle[index]`` 之间
+    有空白（``normalize_text`` 已折叠连续空白并去掉首尾，不产生越界 index）。
+    """
+    parts: list[str] = []
+    gaps: list[int] = []
+    pending_gap = False
+    for character in normalize_text(value):
+        if character == " ":
+            pending_gap = True  # 连续空白已折叠，只在下一个字符前记一次
+            continue
+        if parts and pending_gap:
+            gaps.append(len(parts))
+        pending_gap = False
+        parts.append(character)
+    return "".join(parts), tuple(gaps)
+
+
+def _value_pattern(
+    needle: str, *, cross_space_at: Collection[int] = ()
+) -> re.Pattern[str]:
+    """把期望值编译为"字符间允许空白"的模式；数字与数字之间默认不允许跨空白。
+
+    ``cross_space_at`` 只放开调用方**显式**点名的位置（期望值内部本来就有空白
+    处），其余数字-数字相邻处保持原口径：``2026-10-30 16:00`` 折叠成
+    ``2026-10-3016:00`` 后不得凭空跨空白匹配。默认空集 = P1 冻结口径逐字不变。
+    """
+    gaps = frozenset(cross_space_at)
     parts: list[str] = []
     previous = ""
-    for character in needle:
-        if previous and not (previous.isdigit() and character.isdigit()):
+    for index, character in enumerate(needle):
+        digit_gap = previous.isdigit() and character.isdigit()
+        if previous and (index in gaps or not digit_gap):
             parts.append(r"\s*")
         parts.append(re.escape(character))
         previous = character
@@ -292,18 +322,28 @@ def _minus_before(text: str, index: int) -> bool:
     return cursor >= 0 and text[cursor] == "-"
 
 
-def check_value(text: str, expected: str) -> bool:
+def check_value(
+    text: str, expected: str, *, cross_explicit_space: bool = False
+) -> bool:
     """判断 ``expected`` 是否作为**完整数值/子串**出现在 ``text`` 中（归一化后）。
 
     - 全角/半角、大小写、多余空白不敏感；
     - 纯数值期望按数值 token 比较：``12`` 不命中 ``120`` / ``12.5``，但命中 ``012``；
     - 混合文本期望不允许数字被更大数字包住：``B区1号`` 不命中 ``B区12号``；
     - 期望值带 ``%`` 时要求文本中对应数字后（允许空格）紧跟 ``%``。
+
+    ``cross_explicit_space`` 是 T207-FIX-S 的 **P2 专用 opt-in**，默认关闭：关闭
+    时口径逐字不变（去空格后数字-数字之间不跨空白）；打开后只对「期望值内部本来
+    就有显式空白」的位置允许跨空白，使 ``2026-10-30 16:00`` 这类日期+时间不再天然
+    不命中，而 ``B区1号`` / ``12`` 等无内部空白的期望值口径完全不变。
     """
     if not isinstance(text, str) or not isinstance(expected, str):
         raise TypeError("check_value 只接受字符串")
     haystack = normalize_text(text)
-    needle = normalize_text(expected).replace(" ", "")
+    if cross_explicit_space:
+        needle, explicit_gaps = _explicit_space_needle(expected)
+    else:  # P1 冻结口径：逐字保留原实现（去空格 + 数字间不跨空白）
+        needle, explicit_gaps = normalize_text(expected).replace(" ", ""), ()
     if not needle:
         return False
 
@@ -326,7 +366,7 @@ def check_value(text: str, expected: str) -> bool:
                 continue
         return False
 
-    pattern = _value_pattern(needle)
+    pattern = _value_pattern(needle, cross_space_at=explicit_gaps)
     for match in pattern.finditer(haystack):
         start, end = match.start(), match.end()
         if needle[0].isdigit() and start > 0 and haystack[start - 1].isdigit():
@@ -522,7 +562,9 @@ def _safe(value: Any) -> Any:
     return repr(value)
 
 
-def _value_checks(case: CaseSpec, outcome: EvalOutcome) -> tuple[CaseCheck, ...]:
+def _value_checks(
+    case: CaseSpec, outcome: EvalOutcome, *, cross_explicit_space: bool = False
+) -> tuple[CaseCheck, ...]:
     text = outcome.text
     expected = tuple(case.expected_values)
     checks: list[CaseCheck] = []
@@ -532,7 +574,11 @@ def _value_checks(case: CaseSpec, outcome: EvalOutcome) -> tuple[CaseCheck, ...]
     elif not expected:
         checks.append(_skipped("value_hit", {"reason": "no_expected_values"}))
     else:
-        missing = [value for value in expected if not check_value(text, value)]
+        missing = [
+            value
+            for value in expected
+            if not check_value(text, value, cross_explicit_space=cross_explicit_space)
+        ]
         if missing:
             checks.append(_fail("value_hit", {"expected": len(expected), "missing": missing}))
         else:
@@ -985,6 +1031,8 @@ def score_case(
     resolved: ResolvedGold,
     outcome: EvalOutcome,
     trace: TraceRecord | None = None,
+    *,
+    cross_explicit_space: bool = False,
 ) -> CaseResult:
     """对单条 case 做确定性打分，返回逐项 check + 可聚合指标 + 运行成本字段。
 
@@ -992,7 +1040,9 @@ def score_case(
       ``scored`` check，不参与任何指标分母；
     - 否则固定输出 :data:`CHECK_IDS` 的 12 个 check；
     - ``status`` 为 ``fail`` 当且仅当有 check 为 ``fail``；``skipped`` 不算失败；
-    - 延迟 / Token / 成本从 ``trace`` 读取（非法/负值忽略为 ``None``，不编造）。
+    - 延迟 / Token / 成本从 ``trace`` 读取（非法/负值忽略为 ``None``，不编造）；
+    - ``cross_explicit_space`` 只透传给 ``check_value`` 的下述 opt-in（P2 值匹配
+      缺口），默认 ``False``：P1 路径的值命中口径逐字不变。
     """
     if not isinstance(case, CaseSpec):
         raise TypeError("score_case 只接受 CaseSpec")
@@ -1030,7 +1080,7 @@ def score_case(
         )
 
     checks: list[CaseCheck] = []
-    checks.extend(_value_checks(case, outcome))
+    checks.extend(_value_checks(case, outcome, cross_explicit_space=cross_explicit_space))
     checks.extend(_source_checks(case, outcome, resolved))
     kind_checks, refused = _kind_checks(case, outcome)
     checks.extend(kind_checks)
