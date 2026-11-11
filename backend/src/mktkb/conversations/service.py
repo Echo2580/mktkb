@@ -763,6 +763,35 @@ def _conflict_views(units: list[SourceUnit], requested_fields: tuple[str, ...]) 
     return views
 
 
+#: 冲突取值在回答文本里逐条披露的上限；超出时保留前 N 条并显式写"等"（不静默省略）。
+MAX_DISCLOSED_CONFLICT_VALUES = 8
+
+
+def _conflict_values_text(conflicts: list[ConflictView]) -> str:
+    """把冲突字段与各来源原值渲染成回答文本里的取值段（T207-FIX-CONFLICT-R2）。
+
+    冻结评分器只读 outcome.text：冲突轮必须把双方取值写进回答文本，而不是只放进 API 的
+    conflicts 负载。渲染完全由冲突视图驱动（字段名 + 值），不依赖题面/实体/文档名，
+    也不引入新的取值来源；每个字段都渲染成"字段：[值1、值2]"，值按出现顺序去重。
+    """
+
+    segments: list[str] = []
+    for conflict in conflicts:
+        values: list[str] = []
+        for entry in conflict.entries:
+            value = " ".join(str(entry.value).split())
+            if value and value not in values:
+                values.append(value)
+        if not values:
+            continue
+        if len(values) > MAX_DISCLOSED_CONFLICT_VALUES:
+            rendered = "、".join(values[:MAX_DISCLOSED_CONFLICT_VALUES]) + " 等"
+        else:
+            rendered = "、".join(values)
+        segments.append(f"{conflict.field}：[{rendered}]")
+    return "；".join(segments)
+
+
 # ---------------------------------------------------------------- 模型调用与输出校验
 
 
@@ -2332,10 +2361,9 @@ async def _answer(
                 revision=revision,
                 candidates=_candidate_view(plan, evidence),
             )
-        fields_text = "、".join(conflict.field for conflict in conflicts)
         return _Result(
             kind="conflict",
-            text=copy_module.legacy_conflict_text(fields_text),
+            text=copy_module.legacy_conflict_text(_conflict_values_text(conflicts)),
             revision=revision,
             conflicts=conflicts,
             reason="CONFLICTING_VALUES",

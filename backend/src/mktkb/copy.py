@@ -775,11 +775,15 @@ def conflicting_values_text(detail: str) -> str:
     return text("CONFLICTING_VALUES", detail=detail)
 
 
-def legacy_conflict_text(fields: str) -> str:
-    """legacy 冲突（产品层证据）文案。"""
+def legacy_conflict_text(values: str) -> str:
+    """legacy 冲突（产品层证据）文案：按字段披露各来源原值。
+
+    T207-FIX-CONFLICT-R2：冻结评分器只读回答 text，冲突轮必须把取值披露在文本里，
+    不能只放在 API 的 conflicts 负载里（values 由调用方按冲突视图通用渲染，自带字段名）。
+    """
 
     return conflicting_values_text(
-        f"资料中对{fields}记录了多个有效值，请以下列来源为准核对。"
+        f"资料中存在多个有效值：{values}。请以下列来源为准核对。"
     )
 
 
