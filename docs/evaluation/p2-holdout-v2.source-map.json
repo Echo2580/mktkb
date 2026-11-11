@@ -1,0 +1,15 @@
+{
+  "schema_version": "p2-holdout-source-map/v0.1",
+  "sources": {
+    "V03": {"base_doc_code": "D01", "version_number": 1},
+    "V04": {"base_doc_code": "D01", "version_number": 3},
+    "V05": {"base_doc_code": "D01", "version_number": 4},
+    "V06": {"base_doc_code": "D02", "version_number": 2}
+  },
+  "basis": [
+    "fixtures/acceptance/manifest.json b0_initialization: D01 slot imports V03 as v1, then D01 as v2; D02 starts at v1.",
+    "docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-H2.json: ordered uploads V03,D01,V04,V05 in D01 slot; D02,V06 in D02 slot. Version identity follows upload order, including unpublished uploads.",
+    "T207-runbook.md section 8 custodian assumptions: V04 published as v3; V05 subsequently published as v4; V06 replaces D02 as v2. Mapping is historical identity, not an active-version assertion.",
+    "corpus/enterprise-20261101/manifest.json import_recipe belongs to a separate corpus (V04/V05 same name with different bytes, V06 duplicates V05); its codes must not be used for acceptance/H2 version slots."
+  ]
+}

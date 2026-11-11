@@ -76,6 +76,7 @@ MATRIX_SCHEMA_VERSION = "p2-matrix-observation/v0.1"
 U_CONTROLS_SCHEMA_VERSION = "p2-u-local-controls/v0.1"
 HOLDOUT_VERDICTS_SCHEMA_VERSION = "p2-holdout-verdicts/v0.1"
 DEFAULT_HOLDOUT_MANIFEST = PROJECT_ROOT / "docs" / "evaluation" / "p2-holdout-v2.manifest.json"
+DEFAULT_HOLDOUT_SOURCE_MAP = PROJECT_ROOT / "docs" / "evaluation" / "p2-holdout-v2.source-map.json"
 DEFAULT_U_CONTROLS_TEST = PROJECT_ROOT / "backend" / "tests" / "acceptance" / "test_t09_mutation.py"
 #: U 行在 test_t09_mutation.py 里的命名约定：test_uNN_*（逐题一一对应）。
 U_TEST_NAME_RE = re.compile(r"^test_u(?P<number>\d{2})_")
@@ -481,6 +482,67 @@ HOLDOUT_STRUCTURAL_ISSUE_CODES = frozenset(
 )
 
 
+def load_holdout_source_map(path: Path | str | None = None) -> dict[str, dict[str, Any]]:
+    """Read the repository's H2 version identities; invalid/ambiguous maps fail closed."""
+    def unique_object(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+        result: dict[str, Any] = {}
+        for key, value in pairs:
+            if key in result:
+                raise ValueError("duplicate key")
+            result[key] = value
+        return result
+
+    try:
+        payload = json.loads(Path(path or DEFAULT_HOLDOUT_SOURCE_MAP).read_text(encoding="utf-8"),
+                             object_pairs_hook=unique_object)
+        if (not isinstance(payload, dict) or set(payload) != {"schema_version", "sources", "basis"}
+                or payload["schema_version"] != "p2-holdout-source-map/v0.1"
+                or not isinstance(payload["basis"], list) or not payload["basis"]
+                or not all(isinstance(item, str) and item.strip() for item in payload["basis"])):
+            raise ValueError("schema")
+        sources = payload["sources"]
+        if not isinstance(sources, dict) or not {"V03", "V04", "V05", "V06"} <= set(sources):
+            raise ValueError("sources")
+        identities: set[tuple[str, int]] = set()
+        for code, item in sources.items():
+            if (not re.fullmatch(r"V[0-9]{2}", code) or not isinstance(item, dict)
+                    or set(item) != {"base_doc_code", "version_number"}
+                    or not isinstance(item["base_doc_code"], str)
+                    or not re.fullmatch(r"D[0-9]{2}", item["base_doc_code"])
+                    or type(item["version_number"]) is not int or item["version_number"] < 1):
+                raise ValueError("source schema")
+            identity = (item["base_doc_code"], item["version_number"])
+            if identity in identities:
+                raise ValueError("conflicting identity")
+            identities.add(identity)
+        return sources
+    except (OSError, UnicodeError, ValueError, TypeError):
+        raise RunScoreError("holdout_document_code_unmapped", "H2 source map missing, invalid or conflicting") from None
+
+
+def remap_holdout_case(case: CaseSpec, source_map: Mapping[str, Mapping[str, Any]]) -> CaseSpec:
+    """Copy source refs in memory; sealed labels and ordinary source refs stay untouched."""
+    def refs(values: Sequence[Mapping[str, Any]]) -> tuple[Mapping[str, Any], ...]:
+        result = []
+        for ref in values:
+            mapped = source_map.get(str(ref.get("doc_code") or ""))
+            if mapped is None:
+                result.append(ref)
+                continue
+            locator = dict(ref.get("locator") or {})
+            version = mapped["version_number"]
+            if "version_number" in locator and (type(locator["version_number"]) is not int
+                                                or locator["version_number"] != version):
+                raise RunScoreError("holdout_document_code_unmapped", "H2 source version conflicts with locator")
+            locator["version_number"] = version
+            result.append({**ref, "doc_code": mapped["base_doc_code"], "locator": locator})
+        return tuple(result)
+
+    return dataclasses.replace(case, expected_sources=refs(case.expected_sources),
+                               relevant_units=refs(case.relevant_units),
+                               forbidden_sources=refs(case.forbidden_sources))
+
+
 def holdout_case_scores_from_rows(
     cases: Sequence[CaseSpec],
     rows: Mapping[str, Mapping[str, Any]],
@@ -499,6 +561,13 @@ def holdout_case_scores_from_rows(
     与"答对了"不能同时成立；而硬失败**类别**的判定权在封存标注方，驱动层不替它分类
     （``hard_failure`` 因此保持 ``None`，``hard_failures` 恒 0 只表示"未分类"，不表示"无硬失败"）。
     """
+    source_map = load_holdout_source_map()
+    cases = tuple(remap_holdout_case(case, source_map) for case in cases)
+    available = set(document_codes.values())
+    if any(str(ref.get("doc_code") or "") not in available for case in cases
+           for name in ("expected_sources", "relevant_units")
+           for ref in getattr(case, name)):
+        raise RunScoreError("holdout_document_code_unmapped", "H2 source map does not cover source refs")
     scores: list[P2HoldoutCaseScore] = []
     unclassified: list[str] = []
     for case in cases:
@@ -511,6 +580,7 @@ def holdout_case_scores_from_rows(
             allowed_doc_codes=allowed_doc_codes,
             execution_mode=execution_mode,
             real_calls=real_calls,
+            include_source_version=True,
         )
         structural = [
             issue.code

@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import hashlib
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from types import MappingProxyType
 from typing import Any, Iterable, Mapping, Sequence
@@ -57,10 +57,12 @@ from .scorers import (
     STATUS_PASS,
     STATUS_SKIPPED_OCR,
     CaseResult,
+    CaseCheck,
     EvalCitation,
     EvalOutcome,
     EvalRetrieved,
     citation_number_keys,
+    match_source_ref,
     score_case,
 )
 
@@ -442,6 +444,7 @@ def _source_identity(
     *,
     document_codes: Mapping[str, str],
     source_index: Mapping[str, Mapping[str, Any]] | None,
+    include_source_version: bool = False,
 ) -> EvalCitation:
     source_id = str(item.get("source_id") or "").strip()
     if not source_id:
@@ -470,6 +473,26 @@ def _source_identity(
             locator = dict(raw_locator)
     if unit_key is not None and not isinstance(unit_key, str):
         raise P2ScoringError("source_identity_invalid", "source_index.unit_key 必须是字符串或 None")
+    if include_source_version:
+        # Version is a product field, never a locator/index assertion supplied by the caller.
+        version = item.get("version_number")
+        valid_version = type(version) is int and version > 0
+        product_locator = item.get("locator")
+        # Index selection must not hide assertions explicitly supplied by the product.
+        for declared in (product_locator, locator):
+            if isinstance(declared, Mapping) and "version_number" in declared:
+                declared_version = declared["version_number"]
+                if (type(declared_version) is not int or declared_version <= 0
+                        or (valid_version and declared_version != version)):
+                    raise P2ScoringError("source_version_conflict", "Product and source locator versions conflict")
+        if isinstance(product_locator, Mapping):
+            for key, value in product_locator.items():
+                if key in locator and value != locator[key]:
+                    code = "source_version_conflict" if key == "version_number" else "source_locator_conflict"
+                    raise P2ScoringError(code, "Product and source index locators conflict")
+        locator = {key: value for key, value in locator.items() if key != "version_number"}
+        if valid_version:
+            locator["version_number"] = version
     return EvalCitation(
         doc_code=doc_code,
         unit_key=unit_key,
@@ -486,6 +509,7 @@ def normalize_product_outcome(
     document_codes: Mapping[str, str],
     source_index: Mapping[str, Mapping[str, Any]] | None = None,
     evidence: Sequence[Mapping[str, Any]] = (),
+    include_source_version: bool = False,
 ) -> EvalOutcome:
     """把一轮产品观测规范化为 EvalOutcome；任何身份不清都抛错（fail closed）。
 
@@ -510,7 +534,8 @@ def normalize_product_outcome(
         if not isinstance(item, Mapping):
             raise P2ScoringError("product_sources_invalid", "product.sources 的每项必须是对象")
         citations.append(
-            _source_identity(item, document_codes=document_codes, source_index=source_index)
+            _source_identity(item, document_codes=document_codes, source_index=source_index,
+                             include_source_version=include_source_version)
         )
 
     # T206-PRE-R1：候选集合优先用调用方显式给的（评测夹具），否则用产品本轮
@@ -755,6 +780,43 @@ def _resolved_without_index(case: CaseSpec) -> ResolvedGold:
     )
 
 
+def _version_source_checks(case: CaseSpec, outcome: EvalOutcome, result: CaseResult) -> CaseResult:
+    """H2 opt-in: unit_key matching must not bypass version or other locator keys."""
+    if result.status not in {STATUS_PASS, STATUS_FAIL}:
+        return result
+
+    def matches(ref: Mapping[str, Any], citation: EvalCitation) -> bool:
+        if not match_source_ref(ref, doc_code=citation.doc_code, unit_ids=citation.unit_ids,
+                                unit_key=citation.unit_key, locator=citation.locator):
+            return False
+        locator = ref.get("locator") or {}
+        if "version_number" not in locator:
+            return True
+        return all((citation.locator.get(key) is value if isinstance(value, bool) else
+                    citation.locator.get(key) == value or str(citation.locator.get(key)) == str(value))
+                   for key, value in locator.items())
+
+    replacements: dict[str, CaseCheck] = {}
+    for name, check_id in (("expected_sources", "source_hit"), ("forbidden_sources", "source_forbidden")):
+        refs = getattr(case, name)
+        if not any("version_number" in (ref.get("locator") or {}) for ref in refs):
+            continue
+        if check_id == "source_hit" and case.should_refuse:
+            continue
+        hits = [any(matches(ref, citation) for citation in outcome.citations) for ref in refs]
+        failed = not all(hits) if check_id == "source_hit" else any(hits)
+        replacements[check_id] = CaseCheck(check_id, STATUS_FAIL if failed else STATUS_PASS,
+                                           {"expected": len(refs), "matched": sum(hits)})
+    if not replacements:
+        return result
+    checks = tuple(replacements.get(check.check_id, check) for check in result.checks)
+    metrics = dict(result.metrics)
+    if "source_hit" in replacements:
+        metrics["source_hit"] = 0.0 if replacements["source_hit"].status == STATUS_FAIL else 1.0
+    return replace(result, checks=checks, metrics=metrics,
+                   status=STATUS_FAIL if any(check.status == STATUS_FAIL for check in checks) else STATUS_PASS)
+
+
 def score_public_case(
     case: CaseSpec,
     case_row: Mapping[str, Any] | None,
@@ -766,6 +828,7 @@ def score_public_case(
     evidence: Sequence[Mapping[str, Any]] = (),
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
     real_calls: int = 0,
+    include_source_version: bool = False,
 ) -> P2ScoredCase:
     """给一条 public case 打分：多轮取末轮、中间轮 error 即整题 error、OCR 不跳过。
 
@@ -873,6 +936,7 @@ def score_public_case(
         document_codes=document_codes,
         source_index=source_index,
         evidence=evidence,
+        include_source_version=include_source_version,
     )
     issues = list(
         check_source_isolation(
@@ -898,6 +962,8 @@ def score_public_case(
         allowed_number_keys=citation_number_keys(outcome.citations),
         compat_refusal_kind=True,
     )
+    if include_source_version:
+        result = _version_source_checks(case, outcome, result)
     if result.status == STATUS_SKIPPED_OCR:
         issues.append(P2IsolationIssue("ocr_silently_skipped", case.case_id))
         return P2ScoredCase(

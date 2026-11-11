@@ -1808,7 +1808,10 @@ def _holdout_score_marks(
     blocks: list[P2Block],
 ) -> tuple[tuple[P2HoldoutCaseScore, ...], str]:
     """逐题判定（只在内存里）；返回 (marks, execution_mode)。每题失败按 error 记，不猜。"""
-    from .p2_score_run import holdout_case_scores_from_rows, source_index_from_rows
+    from .p2_score_run import (
+        RunScoreError, holdout_case_scores_from_rows, load_holdout_source_map,
+        remap_holdout_case, source_index_from_rows,
+    )
 
     # B1：打分输入必须是**带回答正文的逐题行**（``record_scoring_case``，只在内存里）；
     # 只有老夹具/未执行场景才退回 ledger.cases（那时本来就没有可判定的回答）。
@@ -1819,9 +1822,27 @@ def _holdout_score_marks(
         if str(case.get("case_id") or "")
     }
     mapping_failed = False
+    expected_codes = _holdout_expected_doc_codes(dataset.cases)
+    missing: list[str] = []
     try:
         codes = holdout_document_codes(ingest_plan)
-    except P2RunError as exc:
+        source_map = load_holdout_source_map()
+        # Upload order determines product version_number, regardless of publication state.
+        versions: dict[str, int] = {}
+        seen_versions: set[str] = set()
+        for source in ingest_plan.sources:
+            base = _doc_code_of(_canonical_source_label(source))
+            versions[base] = versions.get(base, 0) + 1
+            file_code = _doc_code_of(Path(str(source.path)).name)
+            mapped = source_map.get(file_code)
+            if mapped is not None:
+                if mapped != {"base_doc_code": base, "version_number": versions[base]}:
+                    raise RunScoreError(ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED, "H2 map conflicts with ingest order")
+                seen_versions.add(file_code)
+        mapped_cases = tuple(remap_holdout_case(case, source_map) for case in dataset.cases)
+        missing = sorted((_holdout_expected_doc_codes(mapped_cases) - set(codes.values()))
+                         | ((expected_codes & set(source_map)) - seen_versions))
+    except (P2RunError, RunScoreError) as exc:
         mapping_failed = True
         codes = {}
         blocks.append(
@@ -1832,7 +1853,6 @@ def _holdout_score_marks(
                 {"stage": "document_codes"},
             )
         )
-    missing = sorted(_holdout_expected_doc_codes(dataset.cases) - set(codes.values()))
     # N4：映射本身失败时已经出过 unmapped/ambiguous block，不再叠一条同名/同因的覆盖 block。
     if missing and not mapping_failed:
         blocks.append(
@@ -1847,6 +1867,9 @@ def _holdout_score_marks(
     execution_mode = (
         SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
     )
+    if mapping_failed or missing:
+        return tuple(P2HoldoutCaseScore(case_id=case.case_id, stratum=str(case.stratum),
+                                       status=CASE_STATUS_ERROR) for case in dataset.cases), execution_mode
     marks: list[P2HoldoutCaseScore] = []
     unclassified: set[str] = set()
     unscorable: dict[str, int] = {}

@@ -281,3 +281,11 @@ H2 run 过去只写计数型 ``holdout_aggregate.json``（planned/executed/kinds
 - **测试**：合成封存设施（30 题 / 10-5-5-5-5 / 36 回合）见
   ``backend/tests/evaluation/test_p2_holdout_scorecard.py``，与 T202 同口径现生成 Fernet key 与
   合成题干/答案；不读真实 H2、不取真实 key。
+
+## 11. T207-FIX-H2MAP：H2 版本来源身份（additive）
+
+`p2-holdout-v2.source-map.json` 绑定 V03→D01/v1、V04→D01/v3、V05→D01/v4、V06→D02/v2；依据 acceptance 的 B0 初始化及 `T207-ingest-plan-H2.json` 上传顺序，企业语料 manifest 的同名 V 代号属于另一套语料，不混用。
+H2 rows 评分仅在内存复制 expected/relevant/forbidden 引用：版本代号改写为基槽，locator 合并 `version_number`；不改封存文件或金标。普通基槽引用仍不约束版本。
+仅 H2 显式打开 `include_source_version`：从产品 source 的正整数 `version_number` 取版本，locator/source_index 自报版本不能补足产品缺版本；二者冲突以 `source_version_conflict` 拒绝。版本、原 locator 和 unit_key 必须在同一条 citation 上同时成立，unit_key 不得绕过版本检查；错版/缺版的 source_hit 不命中，版本禁用引用同样受约束。
+映射文件缺失、坏 schema、重复键/重复身份、期望 locator 版本冲突或 expected/relevant 基槽未覆盖均以 `holdout_document_code_unmapped` 阻断；runner 还核对实际上传顺序和引用版本文件是否已导入，失败时全部记 error。禁止来源无须已导入；全局映射中未引用的版本也无须导入。
+映射只证明历史身份，不证明 active：原完整 H2 配方中 V05 发布为 v4 后 V04/v3 已失效；经理受控聚合发现的正向 inactive 来源契约阻断由后续独立分场景包解决，本包不修改状态/题集/阈值。公开 P2 默认参数、P1、停止/重试/隔离语义不变。

@@ -373,3 +373,8 @@ R4PREP F-1：`product_adapter._start_live` 过去把 `RagConfig.max_request_cny`
 （同一计划/transport，把 `resolve_request_ceiling` 退回旧语义对比：无 OCR 计划 0 → 3 个
 embedding POST、`degraded=embedding_error` → `degraded=[]`；GO 上限 0.02 时装配期拒绝且
 POST/预留均为 0），回归在 `backend/tests/evaluation/test_p2_live_request_ceiling.py`。
+
+## T207-FIX-H2MAP：runner 的版本来源映射（additive）
+
+H2 真实 runner 与独立 rows 评分共用 `p2-holdout-v2.source-map.json`：V03/V04/V05→D01/v1/v3/v4，V06→D02/v2；版本取产品 source.version_number，与原 locator 合取比较，缺版本或错版本不命中，unit_key 不得绕过，source_index/locator 版本与产品冲突则 `source_version_conflict` 拒绝。
+runner 在受控内存内核对映射 schema、基槽覆盖、实际上传顺序及本次 expected/relevant 引用版本文件已导入；映射缺失/冲突/坏 schema 出 `holdout_document_code_unmapped`（既有文档名歧义仍用 `holdout_document_code_ambiguous`），整包记 error，不放行。未引用版本与禁止来源无需已导入；公开评分默认行为不变，版本身份不代替 active/隔离校验，也不解除原完整 H2 配方的 inactive 金标契约阻断。

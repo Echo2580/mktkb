@@ -1,0 +1,70 @@
+{
+  "public_diff": {
+    "runs": [
+      {
+        "label": "R1",
+        "cases": 52,
+        "turns": 52,
+        "all_values_equal": true
+      },
+      {
+        "label": "R2",
+        "cases": 2,
+        "turns": 2,
+        "all_values_equal": true
+      },
+      {
+        "label": "R4",
+        "cases": 3,
+        "turns": 3,
+        "all_values_equal": true
+      }
+    ],
+    "network": {
+      "external": [],
+      "local": []
+    },
+    "fixed_hashes": {
+      "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "1648405845fd5e19b593e610b92f8505fdfd78a9e57079648dc14673576785d7",
+      "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+      "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c"
+    }
+  },
+  "runner_e2e": {
+    "status": "succeeded",
+    "total": 30,
+    "executed": 30,
+    "passed": 0,
+    "failed": 30,
+    "errors": 0,
+    "network": {
+      "external": [],
+      "local": [
+        "socket.connect ('127.0.0.1', 49676)"
+      ]
+    },
+    "real_calls": 0
+  },
+  "r1_final_audit": {
+    "original_h2map_files_unchanged": 11,
+    "original_independent_test_sha256": "b4d97b0ea5a74bfc07b4fedfd1cdc135f4171131810079771c8db2529cf4e797",
+    "pre_r1_scorer_sha256": "060a67e75317e41ece66724721c8e4a898ac634c7a740fdfcd8a588caa123861",
+    "r1_scorer_sha256": "2b588699dd3c16e4975e676c24b063a10167f6a4821f431a6a8628f28ac6dfa5",
+    "new_synthetic_tests": 22,
+    "red": {
+      "failed": 10,
+      "passed": 12,
+      "deselected": 34
+    },
+    "green_h2map": {
+      "passed": 56
+    },
+    "related_chain": {
+      "passed": 236,
+      "warnings": 1,
+      "seconds": 7.42
+    },
+    "git_diff_check_exit": 0,
+    "evidence_origin": "Developer rerun of original independent test source, only output destination and helper changed; not independent acceptance."
+  }
+}

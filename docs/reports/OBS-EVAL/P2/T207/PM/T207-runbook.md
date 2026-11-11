@@ -242,6 +242,8 @@ T207-R4PREP 新增。R4 是**独立重测**：不参与 R1/R2/R3 的三 run 观�
 
 ## 8 H2（受限）执行与跑后审计
 
+H2 评分启用 `docs/evaluation/p2-holdout-v2.source-map.json` 将 V03/V04/V05/V06 绑定基槽及上传版本号，并与产品版本和原 locator 合取比对；映射/导入顺序/覆盖异常阻断，错版或缺版不命中，历史身份不代替 active 校验或后续分场景契约修复。
+
 前置：`MKTKB_P2_HOLDOUT_ROOT`/`MKTKB_P2_HOLDOUT_KEY_FILE` 只在**受控进程**注入；H2 语料包声明（fix-scope §F2）
 已就位（D01–D06 + V01–V07，requires_ocr 全 false）；H2 case 元数据（case_id/轮数）由经理按 custodian-report
 准备在**工作区外**；题干/答案/密文/key 一律不进仓库、不进日志。

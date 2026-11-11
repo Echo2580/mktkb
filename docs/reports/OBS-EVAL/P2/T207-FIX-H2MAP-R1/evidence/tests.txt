@@ -1,0 +1,206 @@
+RED: new R1 synthetic regressions before scorer repair
+FFFFFFFFFF............                                                   [100%]
+================================== FAILURES ===================================
+___ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[4-None] ____
+
+index_version = None, raw_version = 4
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+_____ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[4-3] _____
+
+index_version = 3, raw_version = 4
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+__ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[True-None] __
+
+index_version = None, raw_version = True
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+___ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[True-3] ____
+
+index_version = 3, raw_version = True
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+___ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[3-None] ____
+
+index_version = None, raw_version = '3'
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+_____ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[3-3] _____
+
+index_version = 3, raw_version = '3'
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+__ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[None-None] __
+
+index_version = None, raw_version = None
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+___ test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[None-3] ____
+
+index_version = 3, raw_version = None
+
+    @pytest.mark.parametrize("index_version", [None, 3])
+    @pytest.mark.parametrize("raw_version", [4, True, "3", None])
+    def test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index(index_version, raw_version):
+        index_locator = {"sheet": "synthetic", "row": 7}
+        if index_version is not None:
+            index_locator["version_number"] = index_version
+        item, index = r1_indexed_row({"sheet": "synthetic", "row": 7,
+                                      "version_number": raw_version}, index_locator)
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:208: Failed
+________ test_r1_raw_locator_conflict_cannot_be_hidden_by_index[row-8] ________
+
+key = 'row', value = 8
+
+    @pytest.mark.parametrize("key,value", [("row", 8), ("sheet", "other-sheet")])
+    def test_r1_raw_locator_conflict_cannot_be_hidden_by_index(key, value):
+        raw = {"sheet": "synthetic", "row": 7}
+        raw[key] = value
+        item, index = r1_indexed_row(raw, {"sheet": "synthetic", "row": 7})
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:219: Failed
+__ test_r1_raw_locator_conflict_cannot_be_hidden_by_index[sheet-other-sheet] __
+
+key = 'sheet', value = 'other-sheet'
+
+    @pytest.mark.parametrize("key,value", [("row", 8), ("sheet", "other-sheet")])
+    def test_r1_raw_locator_conflict_cannot_be_hidden_by_index(key, value):
+        raw = {"sheet": "synthetic", "row": 7}
+        raw[key] = value
+        item, index = r1_indexed_row(raw, {"sheet": "synthetic", "row": 7})
+>       with pytest.raises(P2ScoringError) as caught:
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2ScoringError
+
+backend\tests\evaluation\test_p2_holdout_source_map.py:219: Failed
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[4-None]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[4-3]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[True-None]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[True-3]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[3-None]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[3-3]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[None-None]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_version_cannot_be_hidden_by_nonempty_index[None-3]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_conflict_cannot_be_hidden_by_index[row-8]
+FAILED backend\tests\evaluation\test_p2_holdout_source_map.py::test_r1_raw_locator_conflict_cannot_be_hidden_by_index[sheet-other-sheet]
+10 failed, 12 passed, 34 deselected, 1 warning in 0.77s
+GREEN: H2MAP suite after minimal H2 scorer repair
+........................................................                 [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+56 passed, 1 warning in 0.29s
+CHAIN: .venv/Scripts/python.exe -B -m pytest -p no:cacheprovider R1/evidence/test_recheck.py test_p2_holdout_source_map.py test_p2_score_run.py test_p2_scoring.py test_p2_holdout_scorecard.py test_scorers.py -q; original independent test copy only redirects evidence writes to R1
+........................................................................ [ 30%]
+........................................................................ [ 61%]
+........................................................................ [ 91%]
+....................                                                     [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+236 passed, 1 warning in 7.42s
