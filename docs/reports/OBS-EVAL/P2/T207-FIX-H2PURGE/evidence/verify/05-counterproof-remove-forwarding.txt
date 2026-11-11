@@ -1,0 +1,37 @@
+# 反证：临时移除 cli.py 的 purge 转发（等价修复前），跑 §14 两个 CLI 用例，随后按字节恢复
+# cli.py sha256 before = 1b5428e02da55a18ef8da6990f02c7ce94bda75c923949c41501a1ee72d62855
+# 移除的片段：
+#   |            # T207-FIX-H2PURGE：holdout 的 purge 开关必须在**装配前**传下去；不传就用
+#   |            # 适配器默认 False，H2 会在首个发送之前以 holdout_requires_purge 被拒。
+#   |            purge_traces_on_close=purge_traces,
+# git diff --stat（移除后）:
+
+# cmd: .venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_live_wiring.py -q -p no:cacheprovider --basetemp docs/reports/OBS-EVAL/P2/T207-FIX-H2PURGE/evidence/verify/_tmpproof --no-header --tb=line -k "cli_holdout_live_passes_purge or cli_public_live_keeps_purge" 2>&1
+EXIT=1
+FF                                                                       [100%]
+================================== FAILURES ===================================
+E   KeyError: 'purge_traces_on_close'
+---------------------------- Captured stdout call -----------------------------
+{"ok": true, "mode": "live", "status": "succeeded", "stop_code": null, "requests_planned": 0, "requests_sent": 0, "production_ready": false, "execution": "live", "attempts_reserved": 0, "by_center_cny": {}, "out_dir": "D:\\GPT��Ŀ\\�г���AI֪ʶ��\\docs\\reports\\OBS-EVAL\\P2\\T207-FIX-H2PURGE\\evidence\\verify\\_tmpproof\\test_cli_holdout_live_passes_p0\\stub-run"}
+D:\GPT��Ŀ\�г���AI֪ʶ��\backend\tests\evaluation\test_p2_live_wiring.py:1705: KeyError: 'purge_traces_on_close'
+E   KeyError: 'purge_traces_on_close'
+---------------------------- Captured stdout call -----------------------------
+{"ok": true, "mode": "live", "status": "succeeded", "stop_code": null, "requests_planned": 0, "requests_sent": 0, "production_ready": false, "execution": "live", "attempts_reserved": 0, "by_center_cny": {}, "out_dir": "D:\\GPT��Ŀ\\�г���AI֪ʶ��\\docs\\reports\\OBS-EVAL\\P2\\T207-FIX-H2PURGE\\evidence\\verify\\_tmpproof\\test_cli_public_live_keeps_pur0\\stub-run"}
+D:\GPT��Ŀ\�г���AI֪ʶ��\backend\tests\evaluation\test_p2_live_wiring.py:1726: KeyError: 'purge_traces_on_close'
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_live_wiring.py::test_cli_holdout_live_passes_purge_true_to_run_live_p2
+FAILED backend\tests\evaluation\test_p2_live_wiring.py::test_cli_public_live_keeps_purge_false
+2 failed, 31 deselected, 1 warning in 0.14s
+
+
+# cli.py sha256 after restore = 1b5428e02da55a18ef8da6990f02c7ce94bda75c923949c41501a1ee72d62855
+# byte-identical restore: true
+# git diff --stat（恢复后）:
+backend/src/mktkb/evaluation/cli.py | 3 +++
+ 1 file changed, 3 insertions(+)

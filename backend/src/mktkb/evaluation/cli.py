@@ -726,6 +726,9 @@ def _run_p2_live(
             dataset=dataset,
             ingest_plan=ingest,
             gate_config=gate_config,
+            # T207-FIX-H2PURGE：holdout 的 purge 开关必须在**装配前**传下去；不传就用
+            # 适配器默认 False，H2 会在首个发送之前以 holdout_requires_purge 被拒。
+            purge_traces_on_close=purge_traces,
         )
 
     try:

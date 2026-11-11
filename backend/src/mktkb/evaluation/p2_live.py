@@ -1511,6 +1511,7 @@ async def run_live_p2(
     now: Any = None,
     gate_config: Any = None,
     cancel: Callable[[], bool] | None = None,
+    purge_traces_on_close: bool = False,
 ) -> tuple[Any, LiveBuild]:
     """一次性 live 执行入口：环境 -> 真实门 -> live 适配器 -> run_p2（串行、重试 0）。
 
@@ -1529,6 +1530,7 @@ async def run_live_p2(
         dataset=dataset,
         ingest_plan=ingest_plan,
         transports=transports,
+        purge_traces_on_close=purge_traces_on_close,
     )
     try:
         # T207-FIX-LIVECAP：装配期就把适配器 start 起来（start 幂等，runner 之后照旧调用）。

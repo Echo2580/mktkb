@@ -1,0 +1,19 @@
+# 独立验收探针（probe_h2purge.py；零真实出站；GO/预算/账本=tmp 副本；live env 只用显式 overrides）
+# 说明：C 组只把时钟钉到 GO 有效窗口（CLI 不传 now），其余走真门；E 组走真 argparse。
+# cmd: set PYTHONIOENCODING=utf-8&& .venv\Scripts\python.exe docs/reports/OBS-EVAL/P2/T207-FIX-H2PURGE/evidence/verify/probe_h2purge.py 2>&1
+
+[PASS] A1 CLI holdout live -> run_live_p2(purge_traces_on_close=True): exit=0 kwargs=['dataset', 'gate_config', 'ingest_plan', 'out_dir', 'purge_traces_on_close', 'run_id'] purge=True
+[PASS] A2 CLI holdout dataset.visibility=holdout / payload execution=live: visibility=holdout payload_ok=live
+[PASS] A3 CLI public live -> run_live_p2(purge_traces_on_close=False): exit=0 purge=False visibility=public
+[PASS] B1 run_live_p2(purge=True) -> adapter.purge_traces_on_close=True: captured=[{'kw': True, 'adapter': True}]
+[PASS] B2 run_live_p2(purge=False) -> adapter False（public 行为不变）: captured=[{'kw': False, 'adapter': False}]
+[PASS] B3 run_live_p2 缺省 -> adapter False（负例 holdout_requires_purge 保持可达）: captured=[{'kw': False, 'adapter': False}]
+[PASS] C1 全链路 CLI holdout -> 真正 ProductEvalAdapter(purge_traces_on_close=True): err=None captured=[{'kw': True, 'adapter': True}]
+[PASS] C2 全链路 CLI public -> 真正 ProductEvalAdapter(purge_traces_on_close=False): err=None captured=[{'kw': False, 'adapter': False}]
+[PASS] D1 负例仍可达：holdout + purge=False -> blocked/holdout_requires_purge，零发送: status=blocked stop=holdout_requires_purge sent=0 chat=0 failed_checks=['holdout_purge']
+[PASS] D2 负例 fail-closed 细节：未建 trace 库、summary 标 refused-before-start: trace_db_exists=False
+[PASS] D3 正对照：holdout + purge=True 不再被 holdout_requires_purge 拒（规则未失效/未恒拒）: status=aborted stop=product_service_error sent=0 chat_calls=1
+[PASS] E1 真 argv --visibility holdout --mode live -> purge_traces_on_close=True: exit=0 err=None purge=True
+[PASS] E2 真 argv 省略 --visibility（缺省 public）-> purge_traces_on_close=False: exit=0 err=None purge=False visibility=public
+
+SUMMARY pass=13 fail=0

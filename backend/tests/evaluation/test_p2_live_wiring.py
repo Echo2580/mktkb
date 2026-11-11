@@ -1599,3 +1599,170 @@ def test_live_gate_change_is_not_a_bypass_for_go_plan_consistency(
     with pytest.raises(p2a.P2AuthorizationError) as excinfo:
         p2_live.open_live_gate(plan, run_id="p2-livegate-consistency-2", now=NOW)
     assert excinfo.value.reason == "go_operation_invalid"
+
+
+# --------------------------------------------------------------------------- #
+# 14. T207-FIX-H2PURGE：CLI live 必须把 holdout 的 purge 开关转发给 run_live_p2
+# --------------------------------------------------------------------------- #
+
+
+class _StopBuild(RuntimeError):
+    """在装配处截停：只验证参数是否传到，不构造适配器、不发送。"""
+
+
+def _p2_case() -> CaseSpec:
+    rows = [json.loads(line) for line in B0.read_text(encoding="utf-8").splitlines() if line.strip()]
+    case = CaseSpec.from_dict(next(row for row in rows if row["case_id"] == "Q01"))
+    validate_case(case)
+    return case
+
+
+def _holdout_p2_dataset() -> SimpleNamespace:
+    """与 T202 P2Dataset 同形的 holdout 视图（只供 CLI 身份装配，不读封存文件）。"""
+    cases = (_p2_case(),)
+    manifest = SimpleNamespace(
+        dataset_version="p2-holdout-unit-v1",
+        label_version="holdout-unit-v1",
+        suite="h2",
+        manifest_sha256="b" * 64,
+        case_count=len(cases),
+        strata={},
+        turn_stats={"total_turns": len(cases), "max_turns_per_case": 1},
+    )
+    return SimpleNamespace(visibility="holdout", manifest=manifest, cases=cases)
+
+
+def _cli_stub_result(out_dir: Path) -> tuple[SimpleNamespace, SimpleNamespace]:
+    result = SimpleNamespace(
+        status="succeeded",
+        stop_code=None,
+        requests_planned=0,
+        requests_sent=0,
+        production_ready=False,
+        by_center_cny={},
+    )
+    build = SimpleNamespace(
+        wiring=SimpleNamespace(receipts=[]),
+        adapter=SimpleNamespace(paths=SimpleNamespace(run_dir=out_dir)),
+    )
+    return result, build
+
+
+def _cli_args(tmp_path: Path, *, visibility: str) -> SimpleNamespace:
+    plan_path = tmp_path / "plan.json"
+    plan_path.write_text(json.dumps(_plan_dict_for_file(_plan())), encoding="utf-8")
+    return SimpleNamespace(
+        plan=str(plan_path),
+        snapshot=None,
+        out=str(tmp_path / "cli-out"),
+        cases=None,
+        visibility=visibility,
+        holdout_manifest=str(tmp_path / "holdout-manifest.json"),
+        ingest=[str(D01)] if visibility == "holdout" else None,
+        ingest_plan=None,
+        dataset_version="p2-holdout-unit-v1",
+        label_version="holdout-unit-v1",
+        mode="live",
+        run_id="p2-h2purge-cli",
+    )
+
+
+def _spy_cli_live(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> list[dict[str, Any]]:
+    from mktkb.evaluation import p2_dataset
+
+    captured: list[dict[str, Any]] = []
+
+    async def fake_run(_plan, **kwargs):
+        captured.append(kwargs)
+        return _cli_stub_result(tmp_path / "stub-run")
+
+    monkeypatch.setattr(p2_live, "run_live_p2", fake_run)
+    monkeypatch.setattr(
+        p2_dataset, "load_p2_dataset", lambda _path, *, visibility: _holdout_p2_dataset()
+    )
+    return captured
+
+
+def test_cli_holdout_live_passes_purge_true_to_run_live_p2(
+    live_env: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """H2 回归点：--visibility holdout --mode live 必须以 purge=True 装配。
+
+    修复前这里到 run_live_p2 的 kwargs 里没有该开关，适配器默认 False，
+    p2_runner 在首个发送之前以 holdout_requires_purge 拒绝（零发送，但也零产出）。
+    """
+    from mktkb.evaluation import cli
+
+    captured = _spy_cli_live(monkeypatch, tmp_path)
+    exit_code = cli._cmd_p2_run(_cli_args(tmp_path, visibility="holdout"))
+
+    assert exit_code == 0
+    assert len(captured) == 1
+    kwargs = captured[0]
+    assert kwargs["purge_traces_on_close"] is True
+    assert kwargs["dataset"].visibility == "holdout"
+    payload = json.loads(capsys.readouterr().out.strip().splitlines()[-1])
+    assert payload["mode"] == "live" and payload["execution"] == "live"
+
+
+def test_cli_public_live_keeps_purge_false(
+    live_env: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """public 行为不变：live 仍以 purge=False 构造（不该顺手把公开 run 也清了）。"""
+    from mktkb.evaluation import cli
+
+    captured = _spy_cli_live(monkeypatch, tmp_path)
+    exit_code = cli._cmd_p2_run(_cli_args(tmp_path, visibility="public"))
+
+    assert exit_code == 0
+    assert len(captured) == 1
+    kwargs = captured[0]
+    assert kwargs["purge_traces_on_close"] is False
+    assert kwargs["dataset"].visibility == "public"
+    capsys.readouterr()
+
+
+@pytest.mark.parametrize("flag", [True, False, None])
+def test_run_live_p2_forwards_purge_flag_to_adapter_builder(
+    live_env: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    flag: bool | None,
+) -> None:
+    """run_live_p2 -> build_live_adapter 的形参对齐（True/False/缺省 False）。
+
+    缺省仍是 False：runner 的 holdout_requires_purge 拒绝规则因此保持可达（负例见
+    test_p2_runner.py 的 test_holdout_without_purge_is_refused_before_any_work）。
+    """
+    seen: dict[str, Any] = {}
+
+    def fake_build(_plan, **kwargs):
+        seen.update(kwargs)
+        raise _StopBuild
+
+    monkeypatch.setattr(p2_live, "build_live_adapter", fake_build)
+    gate = p2_live.open_live_gate(live_env.plan, run_id="p2-h2purge-build", now=NOW)
+    extra = {} if flag is None else {"purge_traces_on_close": flag}
+
+    async def go():
+        return await p2_live.run_live_p2(
+            live_env.plan,
+            run_id="p2-h2purge-build",
+            out_dir=tmp_path / "run",
+            dataset=_dataset(),
+            gate=gate,
+            env={"MKTKB_OCR_DISABLED": "0"},
+            env_overrides=LIVE_ENV_OVERRIDES,
+            now=NOW,
+            **extra,
+        )
+
+    with pytest.raises(_StopBuild):
+        asyncio.run(go())
+    assert seen["purge_traces_on_close"] is bool(flag)
