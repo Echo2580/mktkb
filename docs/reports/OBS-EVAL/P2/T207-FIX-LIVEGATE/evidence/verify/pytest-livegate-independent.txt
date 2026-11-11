@@ -1,0 +1,22 @@
+# 独立复跑：test_p2_live_wiring.py + test_p2_runner.py（T207-FIX-LIVEGATE 验收）
+# 独立 basetemp 在系统临时目录（不落 backend/.pytest-tmp），-p no:cacheprovider，PYTHONDONTWRITEBYTECODE=1
+# 命令：.venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_live_wiring.py backend/tests/evaluation/test_p2_runner.py -q -p no:cacheprovider --basetemp C:/Users/dell1712/AppData/Local/Temp/p2-t207-fix-livegate-verify-basetemp
+
+...............................................................          [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+63 passed, 1 warning in 34.68s
+
+# 零真实出站：两个文件均带 pytestmark = usefixtures("t09_network_guard")（acceptance/support/netguard.py 断言外部 socket 尝试=0），
+#              live 传输全部走 httpx.MockTransport；本进程未读 .env（未调 load_live_env）。
+
+# 固定路径文件在本验收运行前后逐一复核（我的复跑未写入）：
+ledger  05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41  bytes=1354211
+budget  79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e  bytes=1738
+go      3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c  bytes=1272
+
+# 测试收集：wiring 28 + runner 35 = 63（wiring 新增 7 例：4 个函数，其一 4 参数化）

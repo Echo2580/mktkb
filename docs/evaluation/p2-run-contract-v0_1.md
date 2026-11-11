@@ -249,6 +249,16 @@ CLI：`python -m mktkb.evaluation.cli p2-run --plan <p> --out <dir> --mode live 
 之一，一律在建应用/首个发送前拒绝（`live_requires_production_ready` / `live_env_missing:<NAME>` / `live_go_*` / `go_*` /
 `budget_*` / `env_total_limit_*`）。
 
+**修订（T207-FIX-LIVEGATE，additive）**：上句的 `ocr` 一项改为**按计划判定** ——
+`answer/index_embedding/query_embedding/rerank` 四项恒需（`p2_live.LIVE_CORE_OPERATIONS`），
+`ocr` 仅在计划含 `operation=="ocr"` 项时才要求（`p2_live.required_live_operations`）。理由：
+`authorization.operations` 取自**计划**（`p2_authorization.py:644` = `P2RunPlan.operations`），
+`begin_attempt(item_id)` 又只接受计划里存在的 item —— 计划无 OCR 项时门根本无从发起 OCR 发送，
+"计划无 OCR 却要求 ocr 授权"只会把合法计划挡在门外（T207 H2：145 项/158 请求/无 OCR 项，
+曾被 `live_operation_not_authorized: [ocr]` 拒）。含 OCR 项的计划（公开矩阵 12 页）行为逐字不变；
+GO 与计划操作集的一致性仍由 `authorize_p2` 保证（`go_operation_unauthorized` / `go_operation_invalid`，
+`p2_authorization.py:472-480`），本轮检查不构成旁路。
+
 ### 11.2 每次底层尝试 = 一条预留（G5/G6）
 
 `P2Gate.begin_attempt(item_id)` 是 `begin` 的**从属**版本：

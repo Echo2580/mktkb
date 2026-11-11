@@ -186,6 +186,14 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 已就位（D01–D06 + V01–V07，requires_ocr 全 false）；H2 case 元数据（case_id/轮数）由经理按 custodian-report
 准备在**工作区外**；题干/答案/密文/key 一律不进仓库、不进日志。
 
+**manifest 路径规则（T207-FIX-LIVEGATE）**：只有 `p2-h2-plan`（生成计划）用**仓库副本**
+`docs\evaluation\p2-holdout-v2.manifest.json` 做交叉校验；命令一旦带 `--visibility holdout`
+（执行 `p2-run` 与两步 `p2-score`），`--holdout-manifest` 必须指向**封存 root 内**的同一份
+manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 在读取任何密文之前
+以 `holdout_manifest_outside_root` 拒绝（`backend/src/mktkb/evaluation/p2_dataset.py:539-546`）。
+两份文件当前逐字节相同（sha256 `8874985e…`），因此 `manifest_sha256`、计划与产物身份都不受影响；
+但"能读"的路径只有 root 内那一份，repo 副本不得用于 holdout 加载。
+
 1. **生成计划**（封存/受控进程；stdout 只回 sha 与计数，计划文件必须写在工作区外）：
 
 ```powershell
@@ -213,12 +221,17 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 .venv\Scripts\python.exe -B -X utf8 tools\p2_live_execute.py ^
   --env-file "<工作区外>\p2-holdout.env" -- p2-run ^
   --plan "<工作区外>\h2-plan.json" --out "<工作区外>\H2" --visibility holdout ^
-  --holdout-manifest "docs\evaluation\p2-holdout-v2.manifest.json" ^
+  --holdout-manifest "D:/mktkb-p2-holdout/v2/manifest.json" ^
   --mode live --run-id "p2-t207-h2-20261111-01" ^
   --ingest-plan "docs\reports\OBS-EVAL\P2\T207\PM\T207-ingest-plan-H2.json"
 ```
 
 - `--visibility holdout` 强制 `purge_traces=True`；run 产物只留聚合（`holdout_aggregate.json`），不写 case_id/题干。
+- **门规则（T207-FIX-LIVEGATE）**：`open_live_gate` 的操作要求随**计划**（`p2_live.required_live_operations`）
+  —— `answer/index_embedding/query_embedding/rerank` 四项恒需，`ocr` 仅当计划含 `operation=="ocr"` 项时才要求。
+  H2 计划 `page_count=0`（无 OCR 项），因此即使 H2 GO 的 `scope.operations` 仍写着 `ocr`（超集），
+  门也不再以 `live_operation_not_authorized: [ocr]` 拒；含 12 页 OCR 的公开矩阵计划行为不变。
+  规则原文见 `docs/evaluation/p2-run-contract-v0_1.md` §11.1 与 `docs/evaluation/p2-live-binding-v0_1.md` §10.8。
 - **H2 ingest-plan**（`p2-ingest-plan/v0.1`，T207-FIX-A-R1 新增）：12 个 source，**顺序即语义**，不得重排：
 
 | # | 文件 | 上传名 / `document_ref` | publish | 目的（custodian-report §6 假设） |
@@ -247,12 +260,12 @@ git rev-parse --abbrev-ref HEAD; git rev-parse --short HEAD
 ```powershell
 # a) 封存逐题行（工作区外）：逐题打分后折成聚合
 .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-score --visibility holdout ^
-  --run-dir "<工作区外>\H2" --holdout-manifest "docs\evaluation\p2-holdout-v2.manifest.json" ^
+  --run-dir "<工作区外>\H2" --holdout-manifest "D:/mktkb-p2-holdout/v2/manifest.json" ^
   --holdout-cases "<工作区外>\h2-cases.jsonl" ^
   --document-codes "<工作区外>\h2-document-codes.json" --out "<工作区外>\H2\score"
 # b) 只有判定表（case_id/status/hard_failure）：直接聚合
 .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-score --visibility holdout ^
-  --run-dir "<工作区外>\H2" --holdout-manifest "docs\evaluation\p2-holdout-v2.manifest.json" ^
+  --run-dir "<工作区外>\H2" --holdout-manifest "D:/mktkb-p2-holdout/v2/manifest.json" ^
   --verdicts "<工作区外>\h2-verdicts.jsonl" --out "<工作区外>\H2\score"
 ```
 

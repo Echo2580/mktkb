@@ -1466,3 +1466,136 @@ def test_wrapper_injects_into_child_process_env_only(tmp_path: Path) -> None:
     assert code != 0
     assert "plan_unreadable" in stderr
     assert secret not in stdout and secret not in stderr
+
+
+# --------------------------------------------------------------------------- #
+# 13. T207-FIX-LIVEGATE：live 门的 OCR 要求随计划（无 OCR 项的计划不再被无条件挡下）
+# --------------------------------------------------------------------------- #
+
+
+def _plan_dict_without_ocr(*, plan_id: str = "P2-LIVEGATE-H2LIKE-20261111") -> dict:
+    """H2 型计划：与公开型计划同一套 item 口径，但**没有** ocr 项（无 OCR 页）。"""
+    document = _plan_dict()
+    document["plan_id"] = plan_id
+    document["items"] = [item for item in document["items"] if item["operation"] != "ocr"]
+    return document
+
+
+def _rewrite_scope_operations(go: Path, *, drop: str = "", add: str = "") -> None:
+    """就地改 GO 的 scope.operations（只动这一个字段，其他绑定值保持原样）。"""
+    document = json.loads(go.read_text(encoding="utf-8"))
+    operations = {op for op in document["scope"]["operations"] if op != drop}
+    if add:
+        operations.add(add)
+    document["scope"]["operations"] = sorted(operations)
+    go.write_text(json.dumps(document, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+
+
+def test_live_gate_still_requires_ocr_for_plan_with_ocr_items(
+    live_env: SimpleNamespace,
+) -> None:
+    """回归：公开矩阵计划含 OCR 项 -> 证仍要求 ocr（GO 不覆盖就在发放前拒）。
+
+    默认计划有 12 页 OCR 项，因此 ``required_live_operations`` 仍把 ocr 算进必需集；
+    GO 少了 ocr 时由 ``authorize_p2`` 以 go_operation_unauthorized 拒绝（GO 必须先覆盖计划
+    操作），门自己那道 live_operation_not_authorized 也不因"计划里有 OCR"而放松。
+    """
+    plan = live_env.plan
+    assert "ocr" in plan.operations
+    assert p2_live.required_live_operations(plan) == (
+        "answer",
+        "index_embedding",
+        "ocr",
+        "query_embedding",
+        "rerank",
+    )
+
+    _rewrite_scope_operations(live_env.go, drop="ocr")
+    with pytest.raises(p2a.P2AuthorizationError) as excinfo:
+        p2_live.open_live_gate(plan, run_id="p2-livegate-ocr-required", now=NOW)
+    assert excinfo.value.reason == "go_operation_unauthorized"
+
+
+def test_live_gate_opens_for_plan_without_ocr_items(
+    live_env: SimpleNamespace, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """H2 型计划（无 OCR 项、其余核心齐）在 GO 覆盖计划操作时开门。
+
+    复现 T207 H2 的真实形态：GO 的 scope.operations 仍是六项**超集**（含 ocr），而
+    ``authorization.operations`` 取自**计划**（p2_authorization.py:644）= 五项（无 ocr）。
+    修正前这里会以 live_operation_not_authorized: [ocr] 拒绝本次 live 执行。
+    """
+    plan = P2RunPlan.from_dict(_plan_dict_without_ocr())
+    assert "ocr" not in plan.operations
+    assert p2_live.required_live_operations(plan) == (
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "rerank",
+    )
+
+    go = tmp_path / "P2-LIVE-GO-h2like.json"
+    _write_go(go, ledger=live_env.ledger, plan=plan)
+    # 真实 H2 GO 是照旧模板签的：scope 里仍写着 ocr（超集不是授权来源，只是上界声明）。
+    _rewrite_scope_operations(go, add="ocr")
+    monkeypatch.setattr(p2a, "P2_GO_PATH", go)
+
+    gate = p2_live.open_live_gate(plan, run_id="p2-livegate-h2like", now=NOW)
+    assert gate.authorization.production_ready is True
+    assert gate.authorization.operations == (
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "query_expansion",
+        "rerank",
+    )
+    assert "ocr" not in gate.authorization.operations
+
+
+@pytest.mark.parametrize("operation", ["answer", "index_embedding", "query_embedding", "rerank"])
+def test_live_gate_refuses_plan_missing_a_core_operation(
+    live_env: SimpleNamespace,
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    operation: str,
+) -> None:
+    """四个核心操作恒需：计划缺任一（GO 照计划签发）-> live_operation_not_authorized。"""
+    document = _plan_dict_without_ocr(plan_id="P2-LIVEGATE-NO-" + operation)
+    document["items"] = [item for item in document["items"] if item["operation"] != operation]
+    plan = P2RunPlan.from_dict(document)
+    assert operation not in plan.operations
+
+    go = tmp_path / ("P2-LIVE-GO-no-" + operation + ".json")
+    _write_go(go, ledger=live_env.ledger, plan=plan)
+    monkeypatch.setattr(p2a, "P2_GO_PATH", go)
+
+    with pytest.raises(p2_live.P2LiveConfigError) as excinfo:
+        p2_live.open_live_gate(plan, run_id="p2-livegate-core", now=NOW)
+    assert excinfo.value.code == "live_operation_not_authorized"
+    assert operation in excinfo.value.detail
+
+
+def test_live_gate_change_is_not_a_bypass_for_go_plan_consistency(
+    live_env: SimpleNamespace, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """不作任何放行：authorization.operations 与 plan.operations 的一致性仍由 authorize 保证。
+
+    本包只把 ocr 从"无条件要求"改成"随计划要求"，没有放宽 GO 与计划的一致性：
+    GO 少写计划里的任一操作 -> go_operation_unauthorized；GO 写未注册操作 ->
+    go_operation_invalid。两者都在构造适配器之前拒绝。
+    """
+    plan = P2RunPlan.from_dict(_plan_dict_without_ocr(plan_id="P2-LIVEGATE-CONSISTENCY"))
+    go = tmp_path / "P2-LIVE-GO-consistency.json"
+    _write_go(go, ledger=live_env.ledger, plan=plan)
+    monkeypatch.setattr(p2a, "P2_GO_PATH", go)
+
+    _rewrite_scope_operations(go, drop="rerank")
+    with pytest.raises(p2a.P2AuthorizationError) as excinfo:
+        p2_live.open_live_gate(plan, run_id="p2-livegate-consistency", now=NOW)
+    assert excinfo.value.reason == "go_operation_unauthorized"
+
+    _write_go(go, ledger=live_env.ledger, plan=plan)
+    _rewrite_scope_operations(go, add="replay")
+    with pytest.raises(p2a.P2AuthorizationError) as excinfo:
+        p2_live.open_live_gate(plan, run_id="p2-livegate-consistency-2", now=NOW)
+    assert excinfo.value.reason == "go_operation_invalid"

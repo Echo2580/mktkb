@@ -299,3 +299,22 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
   同时设 `MKTKB_NO_DOTENV=1`、并把 `backend/src` 放进子进程 `PYTHONPATH`；
 - 输出只有变量名清单 + `values_printed=false` + 子进程退出码；任何路径都不打印/记录值
   （`EnvLoading.__repr__` 也把值标 `<redacted>`）。
+
+### 10.8 门的操作要求随计划（T207-FIX-LIVEGATE，additive）
+
+`open_live_gate` 的 `live_operation_not_authorized` 不再对五项操作一视同仁：
+
+| 操作 | 何时要求 | 依据 |
+|---|---|---|
+| `answer` / `index_embedding` / `query_embedding` / `rerank` | **恒需**（`p2_live.LIVE_CORE_OPERATIONS`） | 任何 live run 都会发出 answer chat、rerank 与两次 embedding |
+| `ocr` | 仅当**计划**含 `operation == "ocr"` 的项 | 见下 |
+
+这不是放宽：`P2Gate.authorization.operations` 直接取自**计划**（`p2_authorization.py:644` =
+`P2RunPlan.operations`），而 `begin_attempt(item_id)` 只接受计划里存在的 item —— 计划没有 OCR 项时，
+门里根本无从发起 OCR 发送。因此"计划无 OCR 却要求 ocr 授权"只会把合法计划挡在门外：T207 H2 受限
+计划（145 项 / 158 请求 / 无 OCR 项）就是这样被拒的（`live_operation_not_authorized: ["ocr"]`）。
+
+- 含 OCR 项的默认公开矩阵计划（12 页）行为**逐字不变**：仍要求 `ocr`；
+- GO 与计划操作集的一致性仍由 `authorize_p2` 保证（`go_operation_unauthorized` /
+  `go_operation_invalid`，`p2_authorization.py:472-480`），门里这层检查不是旁路；
+- 计划缺任一核心操作（如漏 `rerank`）仍以 `live_operation_not_authorized` 在构造适配器之前拒绝。

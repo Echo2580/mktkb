@@ -44,6 +44,7 @@ from ..rag.errors import BudgetLedgerInvalid
 from ..rag.settlement_policy import KIND_CHAT, UsageEvidence, build_policy
 
 __all__ = [
+    "LIVE_CORE_OPERATIONS",
     "MODE_LIVE",
     "MODE_MOCK",
     "NO_PAID_ATTEMPT",
@@ -67,6 +68,7 @@ __all__ = [
     "load_live_env",
     "make_settle_evidence",
     "open_live_gate",
+    "required_live_operations",
     "run_live_p2",
 ]
 
@@ -1123,6 +1125,31 @@ class LiveWiring:
         }
 
 
+#: live 门**恒需**的四个核心操作：任何真实 run 都会发出 answer/rerank 与两次 embedding。
+LIVE_CORE_OPERATIONS: tuple[str, ...] = (
+    "answer",
+    "index_embedding",
+    "query_embedding",
+    "rerank",
+)
+
+
+def required_live_operations(plan: P2RunPlan) -> tuple[str, ...]:
+    """本计划真正需要的授权操作集：四核心恒需；``ocr`` 仅在计划含 OCR 项时才要求。
+
+    为什么 OCR 要按计划判（T207-FIX-LIVEGATE）：``P2Gate.authorization.operations`` 直接取自
+    **计划**（``p2_authorization.py:644`` = ``P2RunPlan.operations``），而 ``begin_attempt``
+    只接受计划里存在的 item。计划没有 OCR 项时门里根本无从发起 OCR 发送，"计划无 OCR 项却
+    要求 ocr 授权"只会把合法计划挡在门外（T207 H2：145 项/158 请求/无 OCR）。反过来，计划一旦
+    含 OCR 项这里仍要求 ocr；GO 未授权时 ``authorize_p2`` 会先以 ``go_operation_unauthorized``
+    拒绝（``p2_authorization.py:478``），本检查不会成为绕开 GO 的旁路。
+    """
+    required = set(LIVE_CORE_OPERATIONS)
+    if "ocr" in plan.operations:
+        required.add("ocr")
+    return tuple(sorted(required))
+
+
 def open_live_gate(
     plan: P2RunPlan,
     *,
@@ -1139,6 +1166,9 @@ def open_live_gate(
     显式传 go_payload/budget_payload/ledger_snapshot 只供单元测试隔离副本；此时
     production_ready 会自然为 False（这是预期）。测试请在 tmp 里把副本 monkeypatch 成
     固定路径（与 T201 一致），否则这里会以 live_requires_production_ready 拒绝。
+
+    操作校验按**计划能力**（``required_live_operations``）：四个核心操作恒需，``ocr`` 仅在
+    计划存在 OCR 项时要求 —— 默认公开矩阵计划含 OCR 项，行为与修正前逐字相同。
     """
     if not isinstance(run_id, str) or not run_id.strip():
         raise P2LiveConfigError("run_id_missing", "live 需要非空 run_id")
@@ -1159,10 +1189,7 @@ def open_live_gate(
             "GO/预算必须来自固定路径、账本快照必须来自固定共享账本、"
             "且 MKTKB_PROJECT_TOTAL_LIMIT_CNY 已设置并与预算一致",
         )
-    missing = sorted(
-        {"answer", "index_embedding", "query_embedding", "rerank", "ocr"}
-        - set(authorization.operations)
-    )
+    missing = sorted(set(required_live_operations(plan)) - set(authorization.operations))
     if missing:
         raise P2LiveConfigError("live_operation_not_authorized", f"GO 未授权 {missing}")
     return gate
