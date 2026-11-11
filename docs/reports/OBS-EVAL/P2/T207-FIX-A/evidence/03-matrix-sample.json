@@ -1,0 +1,237 @@
+{
+  "schema_version": "p2-matrix-observation/v0.1",
+  "composition": "multi_run_scenario_isolated",
+  "release_decision": false,
+  "not_a_release_decision": true,
+  "gate": {
+    "decision": "unknown",
+    "block_reason": "gate_config_unapproved",
+    "why": "gate_v0_3 未审批；本矩阵只给执行观测值，放行权在 T209"
+  },
+  "runs": [
+    {
+      "run_id": "p2-t207-r1-sample",
+      "run_dir": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t207fixa-evidence",
+      "execution_mode": "live",
+      "real_calls": 242,
+      "index_revision": 11,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cases": 3,
+      "decision": null
+    },
+    {
+      "run_id": "p2-t207-r2-sample",
+      "run_dir": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\t207fixa-evidence",
+      "execution_mode": "live",
+      "real_calls": 15,
+      "index_revision": 13,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "cases": 1,
+      "decision": null
+    }
+  ],
+  "run_ids": [
+    "p2-t207-r1-sample",
+    "p2-t207-r2-sample"
+  ],
+  "cases": [
+    {
+      "case_id": "C01",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "status": "pass",
+      "run_id": "p2-t207-r1-sample",
+      "index_revision": 11,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "basis": "R",
+      "execution_mode": "live",
+      "real_calls": 0,
+      "duplicated_in": []
+    },
+    {
+      "case_id": "N01",
+      "suite": "negative",
+      "stratum": "negative",
+      "status": "pass",
+      "run_id": "p2-t207-r1-sample",
+      "index_revision": 11,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "basis": "R",
+      "execution_mode": "live",
+      "real_calls": 0,
+      "duplicated_in": []
+    },
+    {
+      "case_id": "Q01",
+      "suite": "b0",
+      "stratum": "exact",
+      "status": "pass",
+      "run_id": "p2-t207-r1-sample",
+      "index_revision": 11,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "basis": "R",
+      "execution_mode": "live",
+      "real_calls": 0,
+      "duplicated_in": []
+    },
+    {
+      "case_id": "U01",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "status": "pass",
+      "run_id": "p2-t207-r2-sample",
+      "index_revision": 13,
+      "config_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "basis": "R",
+      "execution_mode": "live",
+      "real_calls": 0,
+      "duplicated_in": []
+    }
+  ],
+  "tallies": {
+    "b0": {
+      "planned": 40,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 0,
+      "missing": 39
+    },
+    "negative": {
+      "planned": 8,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 0,
+      "missing": 7
+    },
+    "boundary": {
+      "planned": 6,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 0,
+      "missing": 5
+    },
+    "update_delete": {
+      "planned": 10,
+      "passed": 1,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 0,
+      "missing": 9
+    },
+    "u": {
+      "planned": 10,
+      "passed": 10,
+      "failed": 0,
+      "errors": 0,
+      "not_executed": 0,
+      "missing": 0
+    }
+  },
+  "u_table": [
+    {
+      "case_id": "U01",
+      "basis": "R",
+      "status": "pass",
+      "run_id": "p2-t207-r2-sample",
+      "source": "real-run:R2",
+      "note": "计划绑定的有限真实更新 smoke（docs/fixtures U01 断言）"
+    },
+    {
+      "case_id": "U02",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U03",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U04",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U05",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U06",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U07",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U08",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U09",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    },
+    {
+      "case_id": "U10",
+      "basis": "L",
+      "status": "pass",
+      "run_id": null,
+      "source": "backend/tests/acceptance/test_t09_mutation.py",
+      "note": "product_mutation_test 本地控制；不作为真实模型能力"
+    }
+  ],
+  "u_basis": {
+    "R": [
+      "U01"
+    ],
+    "L": [
+      "U02",
+      "U03",
+      "U04",
+      "U05",
+      "U06",
+      "U07",
+      "U08",
+      "U09",
+      "U10"
+    ]
+  },
+  "duplicated_cases": {},
+  "notes": [
+    "R1/R2/R3 是三个独立 run（各自独立门、独立灌库）；同一 case 不跨 run 取最好成绩",
+    "B0/N/C 行为 live run 产物；U01 取 R2 的真实 smoke，U02-U10 只取本地控制（L）",
+    "本矩阵不得表述为 release/质量达标；baseline 与阈值由 T209 决定"
+  ]
+}

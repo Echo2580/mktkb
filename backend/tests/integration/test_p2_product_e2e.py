@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import asyncio
 import functools
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -50,6 +51,8 @@ FIXTURES = ROOT / "fixtures" / "acceptance"
 D01 = FIXTURES / "normal" / "D01_物品位置表.xlsx"
 D02 = FIXTURES / "normal" / "D02_合作店家信息.xlsx"
 D04 = FIXTURES / "normal" / "D04_活动策划流程.docx"
+V03 = FIXTURES / "variants" / "V03_物品位置表_历史V1.xlsx"
+V04 = FIXTURES / "variants" / "V04_物品位置表_新版V3.xlsx"
 
 RAG_QUESTION = "把城东店和城西店的宣传海报记录都列出来"
 LEGACY_QUESTION = "活动策划需要哪些步骤？"
@@ -443,3 +446,201 @@ async def test_mock_provider_failures_never_escape_to_network(tmp_path: Path) ->
         )
     finally:
         await adapter.close()
+
+
+# --------------------------------------------------------------------------- #
+# 5. T207-FIX-A §D：同一份资料的版本槽（历史版 -> 当前版 -> 未生效版）
+# --------------------------------------------------------------------------- #
+
+
+def version_slot_plan() -> P2IngestPlan:
+    """V03 以 D01 的文件名首次上传（建槽）-> D01 作为同槽 v2 发布 -> V04 作为 v3 只处理不发布。
+
+    只用 document_ref（本次 ingest 内按上传名解析 document_id），**不用** allow_same_name：
+    后者建的是第二份独立文档，正是 T206 的失败形态（fix-scope §D）。
+    """
+    name = "D01_物品位置表.xlsx"
+    return P2IngestPlan(
+        sources=(
+            IngestSource(path=V03, name=name),
+            IngestSource(path=D01, document_ref=name),
+            IngestSource(path=V04, document_ref=name, publish=False),
+        ),
+        label="t207-version-slot",
+    )
+
+
+def document_versions(adapter: ProductEvalAdapter, document_id: str) -> tuple[dict[str, Any], list[str]]:
+    """只读产品库：返回 (文档摘要, 逐版本 state)；断言用，不写任何业务字段。"""
+    import uuid
+
+    from mktkb.documents.models import Document, DocumentVersion
+
+    db = adapter.app.state.db.session()
+    try:
+        document = db.get(Document, uuid.UUID(document_id))
+        assert document is not None, document_id
+        versions = (
+            db.query(DocumentVersion)
+            .filter(DocumentVersion.document_id == document.id)
+            .order_by(DocumentVersion.number)
+            .all()
+        )
+        summary = {
+            "name": document.name,
+            "latest_version_number": int(document.latest_version_number),
+            "active_version_number": next(
+                (int(item.number) for item in versions if item.id == document.active_version_id), None
+            ),
+            "version_ids": {int(item.number): str(item.id) for item in versions},
+        }
+        return summary, [str(item.state) for item in versions]
+    finally:
+        db.close()
+
+
+@asyncio_test
+async def test_version_slot_keeps_history_current_and_unpublished(tmp_path: Path) -> None:
+    reset_post_counters()
+    # 记录型答案：产品会校验"答案值必须来自本轮 evidence"，所以这条固定答案只有在
+    # 当前有效版是 v2（B区1号货架第二层）时才会被接受；v1/v3 都会因值不在 evidence 被拒。
+    chat = MockChatBackend(
+        behaviors=(ChatBehavior(answer="位置：B区1号货架第二层"),)
+    )
+    adapter = ProductEvalAdapter(
+        tmp_path / "version-slot",
+        chat=chat,
+        dataset=empty_dataset(),
+        ingest_plan=version_slot_plan(),
+    )
+    try:
+        await adapter.start()
+        receipts = await adapter.ingest()
+        assert len(receipts) == 3
+        assert [receipt.upload_status for receipt in receipts] == [202, 202, 202]
+        assert [receipt.job_state for receipt in receipts] == ["succeeded"] * 3
+        assert [receipt.publish_status for receipt in receipts] == [200, 200, None]
+        assert [receipt.published for receipt in receipts] == [True, True, False]
+        # 三份资料落在**同一个** document_id 上（版本槽），不是三份独立文档。
+        assert len({receipt.document_id for receipt in receipts}) == 1
+        assert [receipt.sha256 for receipt in receipts] == [
+            hashlib.sha256(V03.read_bytes()).hexdigest(),
+            hashlib.sha256(D01.read_bytes()).hexdigest(),
+            hashlib.sha256(V04.read_bytes()).hexdigest(),
+        ]
+        document_map = adapter.ingest_document_map
+        assert set(document_map) == {"D01_物品位置表.xlsx"}
+        assert document_map["D01_物品位置表.xlsx"]["document_id"] == receipts[0].document_id
+        assert document_map["D01_物品位置表.xlsx"]["active_version_id"] == receipts[1].version_id
+
+        summary, states = document_versions(adapter, receipts[0].document_id)
+        assert summary["latest_version_number"] == 3
+        assert summary["active_version_number"] == 2
+        assert states == ["superseded", "published", "review_required"]
+        assert summary["version_ids"][2] != summary["version_ids"][3]
+        # revision 只随发布递增：两次发布 = +2（v3 的处理与不发布都不入 revision）。
+        assert adapter.product_revision() == 2
+        status = adapter.index_status()
+        assert status["ready"] is True and int(status["documents"]) == 1
+
+        conversation_id = await adapter.open_conversation()
+        turn = await adapter.ask_turn(
+            "城东店的宣传海报在哪里？",
+            user_id="employee",
+            conversation_id=conversation_id,
+            client_request_id="99999999-9999-4999-8999-999999999999",
+        )
+        assert turn.http_status == 200 and turn.kind == "answer", turn.as_dict(include_text=True)
+        assert "B区1号货架第二层" in turn.text
+        assert "D区暂存柜" not in turn.text, "未生效的 v3 不得进入回答"
+        assert turn.sources, "产品回答必须带引用"
+        cited = turn.sources[0]
+        assert str(cited["document_name"]).startswith("D01_物品位置表")
+        assert int(cited["version_number"]) == 2, "引用必须落在当前有效版（v2）"
+        assert cited["status"] == "active"
+        code, detail = await adapter.source_detail(turn.message_id or "", cited["source_id"])
+        assert code == 200, detail
+        assert detail["fields"]["位置"] == "B区1号货架第二层"
+        assert detail["status"] == "active"
+    finally:
+        await adapter.close()
+
+
+@asyncio_test
+async def test_document_ref_unknown_fails_closed(tmp_path: Path) -> None:
+    adapter = ProductEvalAdapter(
+        tmp_path / "unknown-ref",
+        chat=MockChatBackend(),
+        dataset=empty_dataset(),
+        ingest_plan=P2IngestPlan(
+            sources=(IngestSource(path=D01, document_ref="从来没有上传过的名字.xlsx"),),
+            label="t207-unknown-ref",
+        ),
+    )
+    try:
+        with pytest.raises(RuntimeError) as excinfo:
+            await adapter.ingest()
+        assert "document_ref" in str(excinfo.value)
+        assert adapter.ingest_receipts == []
+    finally:
+        await adapter.close()
+
+
+def test_ingest_source_rejects_ref_mixed_with_document_id_or_same_name() -> None:
+    with pytest.raises(ValueError):
+        IngestSource(path=D01, document_id="11111111-1111-4111-8111-111111111111", document_ref="x")
+    with pytest.raises(ValueError):
+        IngestSource(path=D01, document_ref="x", allow_same_name=True)
+    with pytest.raises(ValueError):
+        IngestSource(path=D01, document_ref="   ")
+
+
+def test_ingest_plan_document_loader_and_cli_mutual_exclusion(tmp_path: Path) -> None:
+    from mktkb.evaluation import cli as cli_module
+    from mktkb.evaluation.product_adapter import (
+        P2_INGEST_PLAN_DOCUMENT_SCHEMA_VERSION,
+        ingest_plan_from_document,
+    )
+
+    payload = {
+        "schema_version": P2_INGEST_PLAN_DOCUMENT_SCHEMA_VERSION,
+        "label": "r1",
+        "sources": [
+            {"path": str(V03), "name": "D01_物品位置表.xlsx"},
+            {"path": str(D01), "document_ref": "D01_物品位置表.xlsx"},
+            {"path": str(V04), "document_ref": "D01_物品位置表.xlsx", "publish": False},
+        ],
+    }
+    plan = ingest_plan_from_document(payload)
+    assert plan.label == "r1"
+    assert [source.document_ref for source in plan.sources] == [None, "D01_物品位置表.xlsx", "D01_物品位置表.xlsx"]
+    assert [source.publish for source in plan.sources] == [True, True, False]
+    assert plan.sources[0].name == "D01_物品位置表.xlsx"
+    with pytest.raises(ValueError):
+        ingest_plan_from_document({**payload, "document_id": "x"})
+    with pytest.raises(ValueError):
+        ingest_plan_from_document(
+            {**payload, "sources": [{"path": str(D01), "document_id": "11111111-1111-4111-8111-111111111111"}]}
+        )
+    with pytest.raises(ValueError):
+        ingest_plan_from_document({**payload, "schema_version": "p2-ingest-plan/v9"})
+
+    # --ingest 与 --ingest-plan 互斥（argparse 层拒绝，退出码 2，不构造适配器）。
+    plan_file = tmp_path / "plan.json"
+    plan_file.write_text("{}", encoding="utf-8")
+    ingest_file = tmp_path / "ingest-plan.json"
+    ingest_file.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+    code = cli_module.main(
+        [
+            "p2-run",
+            "--plan",
+            str(plan_file),
+            "--out",
+            str(tmp_path / "out"),
+            "--ingest",
+            str(D01),
+            "--ingest-plan",
+            str(ingest_file),
+        ]
+    )
+    assert code == 2

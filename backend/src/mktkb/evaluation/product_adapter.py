@@ -60,6 +60,7 @@ __all__ = [
     "MockReranker",
     "P2IngestPlan",
     "P2RunDataset",
+    "ingest_plan_from_document",
     "PRODUCT_TURN_TIMEOUT_SECONDS",
     "ProductEvalAdapter",
     "ProductPaths",
@@ -74,6 +75,13 @@ PRODUCT_TURN_TIMEOUT_SECONDS = float(_CONVERSATION_BUDGET_SECONDS)
 
 P2_ADAPTER_SCHEMA_VERSION = "p2-product-adapter/v0.1"
 P2_INGEST_PLAN_SCHEMA_VERSION = "p2-ingest-plan/v0.1"
+P2_INGEST_PLAN_DOCUMENT_SCHEMA_VERSION = "p2-ingest-plan/v0.1"
+"""CLI --ingest-plan 的文件 schema：与 P2IngestPlan.as_dict 同键（label + sources[]）。
+
+一条 source 只表达「一次上传（必要时同槽新版本）+ 处理 + 可选发布」，字段白名单固定：
+path（必填）/ name / document_ref / expected_active_version_id / publish。document_id 不开放：
+版本槽一律用 document_ref 在本次 ingest 内按上传名解析，避免驱动层手抄 UUID。
+"""
 
 ORIGIN = "http://p2-eval.testserver"
 """隔离应用自己的受信任 Origin（只用于 CSRF/Origin 校验，不出网）。"""
@@ -306,6 +314,9 @@ class IngestSource:
     expected_active_version_id: str | None = None
     allow_same_name: bool = False
     publish: bool = True
+    #: T207-FIX-A D：本次 ingest 内按 **上传名** 解析成既有资料的 document_id（走产品「新版本」路径）。
+    #: 只用 allow_same_name 会建出第二份独立文档（T206 的失败形态），因此这里显式禁止混用。
+    document_ref: str | None = None
 
     def __post_init__(self) -> None:
         path = Path(self.path)
@@ -322,6 +333,15 @@ class IngestSource:
             uuid.UUID(str(self.document_id))
         if self.expected_active_version_id is not None:
             uuid.UUID(str(self.expected_active_version_id))
+        if self.document_ref is not None:
+            ref = str(self.document_ref).strip()
+            if not ref:
+                raise ValueError("ingest source 的 document_ref 不得为空字符串")
+            if self.document_id is not None:
+                raise ValueError("document_ref 与 document_id 互斥（前者在本次 ingest 内解析成后者）")
+            if self.allow_same_name:
+                raise ValueError("document_ref 不得与 allow_same_name 同用（那会建第二份独立文档）")
+            object.__setattr__(self, "document_ref", ref)
 
     def as_dict(self) -> dict[str, Any]:
         return {
@@ -329,6 +349,7 @@ class IngestSource:
             "sha256": hashlib.sha256(self.path.read_bytes()).hexdigest(),
             "bytes": self.path.stat().st_size,
             "document_id": self.document_id,
+            "document_ref": self.document_ref,
             "publish": bool(self.publish),
         }
 
@@ -354,6 +375,54 @@ class P2IngestPlan:
             "label": self.label,
             "sources": [source.as_dict() for source in self.sources],
         }
+
+
+_INGEST_PLAN_DOCUMENT_KEYS = frozenset({"schema_version", "label", "sources"})
+_INGEST_PLAN_SOURCE_KEYS = frozenset(
+    {"path", "name", "document_ref", "expected_active_version_id", "publish"}
+)
+
+
+def ingest_plan_from_document(payload: Any) -> P2IngestPlan:
+    """把 CLI --ingest-plan 的 JSON 文档解析成 P2IngestPlan（未知字段一律拒绝，不猜）。"""
+    if not isinstance(payload, Mapping):
+        raise ValueError("ingest plan 顶层必须是 JSON 对象")
+    unknown = sorted(str(key) for key in set(payload) - _INGEST_PLAN_DOCUMENT_KEYS)
+    if unknown:
+        raise ValueError(f"ingest plan 含未知字段 {unknown}")
+    missing = sorted(_INGEST_PLAN_DOCUMENT_KEYS - set(payload))
+    if missing:
+        raise ValueError(f"ingest plan 缺少字段 {missing}")
+    schema_version = str(payload.get("schema_version") or "").strip()
+    if schema_version != P2_INGEST_PLAN_DOCUMENT_SCHEMA_VERSION:
+        raise ValueError(
+            f"ingest plan.schema_version 必须是 {P2_INGEST_PLAN_DOCUMENT_SCHEMA_VERSION}"
+        )
+    raw_sources = payload.get("sources")
+    if isinstance(raw_sources, (str, bytes)) or not isinstance(raw_sources, Sequence):
+        raise ValueError("ingest plan.sources 必须是数组")
+    if not raw_sources:
+        raise ValueError("ingest plan.sources 不得为空（至少一份资料）")
+    sources: list[IngestSource] = []
+    for index, item in enumerate(raw_sources):
+        if not isinstance(item, Mapping):
+            raise ValueError(f"ingest plan.sources[{index}] 必须是对象")
+        unknown_source = sorted(str(key) for key in set(item) - _INGEST_PLAN_SOURCE_KEYS)
+        if unknown_source:
+            raise ValueError(f"ingest plan.sources[{index}] 含未知字段 {unknown_source}")
+        path = item.get("path")
+        if not isinstance(path, str) or not path.strip():
+            raise ValueError(f"ingest plan.sources[{index}].path 必填")
+        sources.append(
+            IngestSource(
+                path=Path(path),
+                name=item.get("name"),
+                document_ref=item.get("document_ref"),
+                expected_active_version_id=item.get("expected_active_version_id"),
+                publish=bool(item.get("publish", True)),
+            )
+        )
+    return P2IngestPlan(sources=tuple(sources), label=str(payload.get("label") or ""))
 
 
 @dataclass(frozen=True)
@@ -825,6 +894,9 @@ class ProductEvalAdapter:
         self._started = False
         self._closed = False
         self.ingest_receipts: list[IngestReceipt] = []
+        #: T207-FIX-A D：本次灌库的资料身份（上传名 -> document_id/active_version_id），
+        #: 供 document_ref 解析与「同槽多版本」断言；只存身份，不存正文。
+        self.ingest_documents: dict[str, dict[str, str | None]] = {}
         self.real_provider_built = False
         # T206-LIVE：live 模式下 embedding/rerank/OCR 也都是**真实** provider（默认 None）。
         self._ocr_gateway: Any = None
@@ -1753,6 +1825,7 @@ class ProductEvalAdapter:
                         expected_active_version_id=item.get("expected_active_version_id"),
                         allow_same_name=bool(item.get("allow_same_name", False)),
                         publish=bool(item.get("publish", True)),
+                        document_ref=item.get("document_ref"),
                     )
                     for item in plan.get("sources") or ()
                 ),
@@ -1763,9 +1836,66 @@ class ProductEvalAdapter:
         receipts: list[IngestReceipt] = []
         admin = self._session(self._users_spec[0][0])
         for source in chosen.sources:
-            receipts.append(await self._ingest_one(admin, source))
+            resolved = self._resolve_ingest_source(source)
+            receipt = await self._ingest_one(admin, resolved)
+            # 资料身份按"逻辑资料名"记：document_ref 解析出的新版本仍归同一个键，
+            # 这样版本槽（历史/当前/未生效）只有一个 document_id，不会被文件名拆开。
+            self._remember_ingest_receipt(str(source.document_ref or source.name), receipt)
+            receipts.append(receipt)
         self.ingest_receipts.extend(receipts)
         return receipts
+
+    @property
+    def ingest_document_map(self) -> dict[str, dict[str, str | None]]:
+        """本次适配器已灌进产品的资料身份：上传名 -> {document_id, active_version_id}。
+
+        只回身份（客户端不可构造），供驱动断言版本槽；不读正文、不改产品。
+        """
+        return {
+            name: {"document_id": item["document_id"], "active_version_id": item["active_version_id"]}
+            for name, item in self.ingest_documents.items()
+        }
+
+    def _resolve_ingest_source(self, source: IngestSource) -> IngestSource:
+        """把 document_ref 解析成同一份资料的 document_id（本次 ingest 内按上传名解析）。
+
+        解析不到即 fail closed：不去猜、也不退化成 allow_same_name（那会建第二份文档）。
+        新版本的 expected_active_version_id 缺省取该资料**当前已发布**的版本号，保证
+        「以我看到的那一版为基准」的语义；显式给出时按显式值走（产品会自己核对）。
+        """
+        ref = source.document_ref
+        if ref is None:
+            return source
+        known = self.ingest_documents.get(str(ref))
+        if known is None:
+            raise RuntimeError(
+                f"document_ref 未在本次 ingest 中出现：{ref!r}"
+                f"（已灌: {sorted(self.ingest_documents)}）"
+            )
+        expected = source.expected_active_version_id or known.get("active_version_id")
+        if expected is None:
+            raise RuntimeError(f"document_ref {ref!r} 指向的资料还没有已发布版本，不能作为基准")
+        return IngestSource(
+            path=source.path,
+            name=source.name,
+            document_id=str(known["document_id"]),
+            expected_active_version_id=str(expected),
+            publish=source.publish,
+        )
+
+    def _remember_ingest_receipt(self, key: str, receipt: IngestReceipt) -> None:
+        """记录每次回执的 document_id/版本：只有**发布成功**才更新 active（未发布版不生效）。"""
+        entry = self.ingest_documents.get(str(key))
+        if entry is None:
+            entry = {"document_id": str(receipt.document_id), "active_version_id": None}
+            self.ingest_documents[str(key)] = entry
+        if str(entry["document_id"]) != str(receipt.document_id):
+            raise RuntimeError(
+                f"灌库回执的 document_id 变了：{key!r} "
+                f"{entry['document_id']} -> {receipt.document_id}"
+            )
+        if receipt.published:
+            entry["active_version_id"] = str(receipt.version_id)
 
     async def _ingest_one(self, admin: _UserSession, source: IngestSource) -> IngestReceipt:
         content = source.path.read_bytes()

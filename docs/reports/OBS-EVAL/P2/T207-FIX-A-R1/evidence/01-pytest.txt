@@ -1,0 +1,30 @@
+# T207-FIX-A-R1 复跑（在 FIX-S 存在的工作区；HEAD b1bfa60）
+# 命令: python -m pytest <8 files> -q -p no:cacheprovider
+# 文件: backend/tests/evaluation/test_p2_score_run.py backend/tests/evaluation/test_p2_holdout_plan.py backend/tests/evaluation/test_p2_public_cases.py backend/tests/evaluation/test_p2_live_wiring.py backend/tests/integration/test_p2_product_e2e.py backend/tests/evaluation/test_p2_authorization.py backend/tests/evaluation/test_p2_runner.py backend/tests/evaluation/test_p2_scoring.py
+# exit=0
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+...................................................                      [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+195 passed, 1 warning in 54.16s
+
+
+
+# 追加: A 改动面相邻的 P2 公开控制 + gate/quality 回归
+# 命令: python -m pytest <3 files> -q -p no:cacheprovider
+# 文件: backend/tests/integration/test_p2_public_controls.py backend/tests/evaluation/test_gate_quality.py backend/tests/evaluation/test_p0_acceptance.py
+# exit=0
+..........................................                               [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+42 passed, 1 warning in 28.98s
+

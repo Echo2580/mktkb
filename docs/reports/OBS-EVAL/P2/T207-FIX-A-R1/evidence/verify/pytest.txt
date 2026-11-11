@@ -1,0 +1,96 @@
+# T207-FIX-A-R1 独立复验：pytest 复跑（零真实调用；mock/离线）
+# HEAD b1bfa6013ab186b6d9b8a766c72d755648422671
+# branch codex/p2-e2e
+
+# [1] 8 文件（A 交付点名 7 + FIX-S 的 test_p2_scoring）: python -m pytest <8> -q -p no:cacheprovider
+........................................................................ [ 36%]
+........................................................................ [ 73%]
+...................................................                      [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+195 passed, 1 warning in 70.50s (0:01:10)
+# stderr: 
+# exit=0 elapsed=72.9s
+
+# [2] 逐文件用例数（collect-only）: python -m pytest <8> --collect-only -q -p no:cacheprovider
+{
+ "tests/evaluation/test_p2_score_run.py": 9,
+ "tests/evaluation/test_p2_holdout_plan.py": 5,
+ "tests/evaluation/test_p2_public_cases.py": 8,
+ "tests/evaluation/test_p2_live_wiring.py": 21,
+ "tests/integration/test_p2_product_e2e.py": 8,
+ "tests/evaluation/test_p2_authorization.py": 71,
+ "tests/evaluation/test_p2_runner.py": 35,
+ "tests/evaluation/test_p2_scoring.py": 38
+}
+#  | -- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html | 195 tests collected in 0.18s
+# exit=0
+
+# [3] 相邻回归 3 文件（public_controls + gate_quality + p0_acceptance）
+..........................................                               [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+42 passed, 1 warning in 27.51s
+# exit=0 elapsed=29.6s
+
+# [4] FIX-A 269 基线复跑（同一 10 文件集合：A evidence 01 的原清单）
+# python -m pytest <10 files> -q -p no:cacheprovider
+{
+ "tests/evaluation/test_p2_public_cases.py": 8,
+ "tests/evaluation/test_p2_holdout_plan.py": 5,
+ "tests/evaluation/test_p2_score_run.py": 9,
+ "tests/evaluation/test_p2_runner.py": 35,
+ "tests/evaluation/test_p2_live_wiring.py": 21,
+ "tests/evaluation/test_p2_authorization.py": 71,
+ "tests/evaluation/test_p2_scoring.py": 38,
+ "tests/evaluation/test_p2_gate.py": 23,
+ "tests/evaluation/test_p2_dataset.py": 64,
+ "tests/integration/test_p2_product_e2e.py": 8
+}
+# collect: 282 tests collected in 0.22s
+........................................................................ [ 25%]
+........................................................................ [ 51%]
+........................................................................ [ 76%]
+..................................................................       [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+282 passed, 1 warning in 30.19s
+# exit=0 elapsed=32.2s
+
+# [5] p2-u-controls（既有 test_t09_mutation.py；只读运行，测试文件未改）
+{
+ "exit": 0,
+ "elapsed": "20.5",
+ "stderr_bytes": 0,
+ "stderr_head": "",
+ "ok": true,
+ "cases": {
+  "U01": "pass",
+  "U02": "pass",
+  "U03": "pass",
+  "U04": "pass",
+  "U05": "pass",
+  "U06": "pass",
+  "U07": "pass",
+  "U08": "pass",
+  "U09": "pass",
+  "U10": "pass"
+ },
+ "all_pass": true,
+ "test_sha_before": "31374667cf0d7fcc",
+ "test_sha_after": "31374667cf0d7fcc",
+ "test_unchanged": true,
+ "out_exists": true
+}

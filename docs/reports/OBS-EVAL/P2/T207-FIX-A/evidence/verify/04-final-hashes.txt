@@ -1,0 +1,80 @@
+# P2-T207-FIX-A 验收：最终只读事实（2026-11-11 ~10:40 +08:00）
+# HEAD b1bfa60（验收期间从 405491c 变为 b1bfa60：B-R1 已由经理提交；A 未提交）
+# 注意：验收期间工作区出现并行包 T207-FIX-S 的未提交改动（p2_scoring/scorers/test_p2_scoring）；
+#       本文件按“当前工作区”记录，无法把 A 与 FIX-S 的改动从共享文件里拆开。
+# 报告 §1 的 sha16/行数 vs 实际（行数采用 splitlines 口径；报告多数行数 +1）：
+backend/src/mktkb/evaluation/product_adapter.py
+  actual lines=2212 report=2213 MISMATCH | sha16 actual=553e4ccf56765356 report=553e4ccf56765356 MATCH
+backend/src/mktkb/evaluation/cli.py
+  actual lines=1274 report=1275 MISMATCH | sha16 actual=bb9234f3938fba9e report=bb9234f3938fba9e MATCH
+backend/src/mktkb/evaluation/p2_public_cases.py
+  actual lines=359 report=360 MISMATCH | sha16 actual=0b5254437dd09a3f report=0b5254437dd09a3f MATCH
+backend/src/mktkb/evaluation/p2_holdout_plan.py
+  actual lines=366 report=367 MISMATCH | sha16 actual=3885c747decf529a report=3885c747decf529a MATCH
+backend/src/mktkb/evaluation/p2_score_run.py
+  actual lines=878 report=879 MISMATCH | sha16 actual=4aad21c28a5d21d2 report=4aad21c28a5d21d2 MATCH
+tools/p2_live_execute.py
+  actual lines=243 report=244 MISMATCH | sha16 actual=76245bf0fd22041e report=76245bf0fd22041e MATCH
+backend/tests/evaluation/test_p2_public_cases.py
+  actual lines=192 report=192 MATCH | sha16 actual=4d59b34048eb1cef report=8f00e01c120ab07a MISMATCH
+backend/tests/evaluation/test_p2_holdout_plan.py
+  actual lines=193 report=194 MISMATCH | sha16 actual=5067acb54d6e32de report=5067acb54d6e32de MATCH
+backend/tests/evaluation/test_p2_score_run.py
+  actual lines=486 report=487 MISMATCH | sha16 actual=e81fe64493a15af5 report=e81fe64493a15af5 MATCH
+backend/tests/evaluation/test_p2_authorization.py
+  actual lines=1416 report=1417 MISMATCH | sha16 actual=11d8a0c38d4b28fc report=11d8a0c38d4b28fc MATCH
+backend/tests/evaluation/test_p2_live_wiring.py
+  actual lines=1468 report=1469 MISMATCH | sha16 actual=b4ccd71e3963aa4b report=b4ccd71e3963aa4b MATCH
+backend/tests/integration/test_p2_product_e2e.py
+  actual lines=646 report=647 MISMATCH | sha16 actual=0f0abafa87984a4d report=0f0abafa87984a4d MATCH
+
+# 固定路径（到达=离开；与任务书基线一致）：
+docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl
+  bytes=1050298 sha256=6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c
+docs/evidence/LOCAL-R1-20261101/budget/budget.json
+  bytes=1738 sha256=79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e
+docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json
+  bytes=1232 sha256=79a5f318e007bf71f38fa2379949096f018030b4fcacbf196de676a29c19070e
+# 当前测试收集数：
+  test_p2_public_cases.py: 7
+  test_p2_holdout_plan.py: 5
+  test_p2_score_run.py: 8
+  test_p2_runner.py: 35
+  test_p2_live_wiring.py: 21
+  test_p2_authorization.py: 71
+  test_p2_scoring.py: 38
+  test_p2_gate.py: 23
+  test_p2_dataset.py: 64
+  integration/test_p2_product_e2e.py: 8
+# git status（仅列与本包相关/并行包相关；完整清单见 review.md）：
+ M backend/src/mktkb/evaluation/cli.py
+ M backend/src/mktkb/evaluation/p2_scoring.py
+ M backend/src/mktkb/evaluation/product_adapter.py
+ M backend/src/mktkb/evaluation/scorers.py
+ M backend/tests/evaluation/test_p2_authorization.py
+ M backend/tests/evaluation/test_p2_live_wiring.py
+ M backend/tests/evaluation/test_p2_scoring.py
+ M backend/tests/integration/test_p2_product_e2e.py
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-GO-h2.CANDIDATE-DRAFT.json
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-GO.CANDIDATE-DRAFT.json
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-cost-and-quota.md
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-plan-v0_1.json
+ M docs/reports/OBS-EVAL/P2/T207/PM/T207-runbook.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-S-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-S-verify.md
+?? backend/src/mktkb/evaluation/p2_holdout_plan.py
+?? backend/src/mktkb/evaluation/p2_public_cases.py
+?? backend/src/mktkb/evaluation/p2_score_run.py
+?? backend/tests/evaluation/test_p2_holdout_plan.py
+?? backend/tests/evaluation/test_p2_public_cases.py
+?? backend/tests/evaluation/test_p2_score_run.py
+?? docs/reports/OBS-EVAL/P2/T207-FIX-A/
+?? docs/reports/OBS-EVAL/P2/T207-FIX-S/
+?? docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-R1.json
+?? docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-R2.json
+?? docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-R3.json
+?? docs/reports/OBS-EVAL/P2/T207/cases/
+?? tools/p2_live_execute.py

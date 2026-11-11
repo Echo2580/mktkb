@@ -283,3 +283,19 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
   不读 `output_valid`，只有 embedding/rerank 的 `_validate_total_evidence` 读它），因此合法 usage 轮
   的金额在修复前后相同；本次修复消除的是"内容标志被硬编码成有效"的记账缺口 —— 无效输出从
   "按 usage 入账"改为"保守上界 + 停止"。
+
+### 10.7 环境注入：`tools/p2_live_execute.py --env-file`（T207-FIX-A additive）
+
+真实凭据只允许经**显式** `--env-file` 进入本次执行：
+
+- 包装器自己读文件（模式 `KEY=VALUE`，支持 `#` 注释），只认白名单：
+  `MKTKB_MODEL_API_KEY` / `MKTKB_MODEL_BASE_URL` / `MKTKB_MODEL_NAME` / `DASHSCOPE_API_KEY` /
+  `DASHSCOPE_BASE_URL` / `MKTKB_OCR_SECRET_ID` / `MKTKB_OCR_SECRET_KEY` / `MKTKB_OCR_REGION` /
+  `MKTKB_OCR_DISABLED` / `MKTKB_PROJECT_TOTAL_LIMIT_CNY` / `MKTKB_P2_HOLDOUT_ROOT` / `MKTKB_P2_HOLDOUT_KEY_FILE`；
+- 未知变量名、重复名、空值 → fail closed（`env_name_not_allowed` / `env_name_duplicated` / `env_value_empty`），
+  缺必需变量 → `env_required_missing`，**只报变量名**；
+- 拒绝把名为 `.env`（或 `.env.*`）的文件当输入（`env_file_forbidden`）：不允许"顺手从工作区 .env 取凭据"；
+- 注入只发生在**子进程**环境（父进程环境不变，且子进程环境先剔除同名旧值再写入），
+  同时设 `MKTKB_NO_DOTENV=1`、并把 `backend/src` 放进子进程 `PYTHONPATH`；
+- 输出只有变量名清单 + `values_printed=false` + 子进程退出码；任何路径都不打印/记录值
+  （`EnvLoading.__repr__` 也把值标 `<redacted>`）。

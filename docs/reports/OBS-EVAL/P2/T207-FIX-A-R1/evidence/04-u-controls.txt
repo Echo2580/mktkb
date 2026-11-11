@@ -1,0 +1,69 @@
+# T207-FIX-A-R1 item 6: p2-u-controls Windows UnicodeDecodeError（修复前/后）
+
+## A. p2-u-controls（当前代码，stderr 单独留证）
+{"ok": true, "exit_code": 0, "cases": {"U01": "pass", "U02": "pass", "U03": "pass", "U04": "pass", "U05": "pass", "U06": "pass", "U07": "pass", "U08": "pass", "U09": "pass", "U10": "pass"}, "out": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2r1-ucontrols.json"}
+exit=0
+stderr_bytes=0
+
+## B. 同一 pytest 调用：旧形态 subprocess.run(text=True)
+mode=old exit=0 stdout_chars=0 has_passed=False
+stdout_tail=<empty>
+old_stderr_bytes=2128
+--- old stderr 前 8 行 ---
+.venv\Scripts\python.exe : Exception in thread Thread-1 (_readerthread):
+所在位置 行:1 字符: 1053
++ ...  utf8 $out; .venv\Scripts\python.exe -B -X utf8 $p old 2> (Join-Path  ...
++                 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (Exception in th..._readerthread)::String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+Traceback (most recent call last):
+
+## C. 同一调用：新形态 encoding=utf-8/errors=replace + PYTHONIOENCODING=utf-8
+mode=new exit=0 stdout_chars=563 has_passed=True
+stdout_tail=13 passed, 1 warning in 24.68s
+new_stderr_bytes=0
+# end
+
+## D. 旧形态 stderr 里的异常类型（同一文件全文检索）
+mode=old exit=0 stdout_chars=0 has_passed=False
+stdout_tail=<empty>
+.venv\Scripts\python.exe : Exception in thread Thread-1 (_readerthread):
++ CategoryInfo          : NotSpecified: (Exception in th..._readerthread)::String) [], RemoteException
+File "C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\subprocess.py", line 1599, in _readerthread
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xcf in position 219: invalid continuation byte
+
+## E. 复现用的探针源码（已删除独立文件，只留在此处）
+```python
+"""u-controls 的 Windows 解码缺陷：同一 pytest 调用在旧/新两种 subprocess 参数下的差异。
+
+旧形态：subprocess.run(text=True) —— Windows 用 locale(cp936) 解码 pytest 的 UTF-8 输出，
+       读取线程抛 UnicodeDecodeError（父进程 stderr 出现线程异常；exit 仍为 0）。
+新形态：encoding="utf-8", errors="replace" + 子进程 PYTHONIOENCODING=utf-8（T207-FIX-A-R1 修法）。
+
+用法：python u-controls-decode-probe.py {old|new}   （stderr 用 shell 重定向单独留证）
+"""
+import os
+import subprocess
+import sys
+from pathlib import Path
+
+REPO = Path(__file__).resolve().parents[6]
+target = REPO / "backend" / "tests" / "acceptance" / "test_t09_mutation.py"
+common = dict(cwd=str(REPO), capture_output=True, text=True,
+              timeout=1200,
+              args=[sys.executable, "-m", "pytest", str(target), "-q", "-p", "no:cacheprovider"])
+
+mode = sys.argv[1] if len(sys.argv) > 1 else "old"
+args = common.pop("args")
+if mode == "old":
+    done = subprocess.run(args, **common)
+else:
+    done = subprocess.run(args, encoding="utf-8", errors="replace",
+                          env={**os.environ, "PYTHONIOENCODING": "utf-8"}, **common)
+stdout = done.stdout or ""
+print(f"mode={mode} exit={done.returncode} stdout_chars={len(stdout)} "
+      f"has_passed={'passed' in stdout}")
+print("stdout_tail=" + stdout.strip().splitlines()[-1][:120] if stdout.strip() else "stdout_tail=<empty>")
+```
+# end

@@ -1184,3 +1184,285 @@ def test_live_run_separates_answer_scope_from_all_attempts_and_marks_output_vali
     assert chat_result["settlement"]["content_parse_ok"] is True
     assert chat_result["conservative_charge_cny"] == pytest.approx(0.000384)
     assert chat_result["conservative_charge_cny"] < 0.018688
+
+
+# --------------------------------------------------------------------------- #
+# 12. T207-FIX-B-R1：J1 拒绝轮的保守占用必须进 summary（C1，真实 P2Gate）
+# --------------------------------------------------------------------------- #
+
+
+def test_live_j1_rejected_settle_keeps_conservative_held_cny(
+    live_env: SimpleNamespace, tmp_path: Path
+) -> None:
+    """端到端复现 C1：answer 轮 usage total 对不上 -> J1 拒绝结算（gate_error）。
+
+    账本已经按该笔上界写了一条保守 result；summary.conservative_held_cny 必须等于
+    本 run 账本 result 保守合计（含这一笔），且 rejected_rounds=1、不算成功/失败结算。
+    """
+
+    class _TotalMismatchChat(_UsageChatBackend):
+        """官方 usage 自相矛盾（total_tokens=999 != prompt+completion）：J1 必须拒绝。"""
+
+        def _completion(self, request: httpx.Request, content: str, *, call: int) -> httpx.Response:
+            response = super()._completion(request, content, call=call)
+            payload = json.loads(response.content.decode("utf-8"))
+            payload["usage"]["total_tokens"] = 999
+            return httpx.Response(200, json=payload, request=request)
+
+    chat = _TotalMismatchChat(behaviors=(ChatBehavior(answer="位置：B区1号货架第二层"),))
+    result, build, _gate = _run(live_env, tmp_path, chat=chat)
+
+    assert result.status == "aborted"
+    assert result.stop_code == "gate_error"
+    assert result.requests_sent == 0
+    # answer 单侧旧键含该笔上界（不是 0，也不是成功结算额）。
+    assert result.settled_cny == pytest.approx(0.018688)
+    assert result.by_center_cny["answer_retrieval"] == pytest.approx(0.018688)
+
+    run_dir = build.adapter.paths.run_dir
+    summary = json.loads((run_dir / "summary.json").read_text(encoding="utf-8"))
+    run_result = json.loads((run_dir / "run_result.json").read_text(encoding="utf-8"))
+    requests = summary["requests"]
+    results = _results(live_env.ledger)
+    ledger_held = round(
+        sum(float(row.get("conservative_charge_cny") or 0.0) for row in results), 8
+    )
+    answer_rows = [row for row in results if row.get("kind") == "chat"]
+    assert len(answer_rows) == 1
+    assert answer_rows[0]["status"] == "unknown"
+    assert str(answer_rows[0]["error_code"]).startswith("SETTLEMENT_NOT_RELEASABLE:total_mismatch")
+    assert answer_rows[0]["conservative_charge_cny"] == pytest.approx(0.018688)
+
+    assert requests["rejected_rounds"] == 1
+    assert requests["settled_success"] == requests["settled_failure"] == 0
+    assert requests["failed_rounds"] == 0
+    assert requests["unpaid_rounds"] == 0
+    # C1：summary 的保守占用必须等于账本 result 保守合计（含被拒的这一笔）。
+    assert requests["conservative_held_cny"] == pytest.approx(ledger_held)
+    assert requests["conservative_held_cny"] == pytest.approx(0.018812)
+    assert requests["provider_billed_cny"] == pytest.approx(ledger_held - 0.018688)
+    assert requests["billed_cny"] == 0.0, "Mock 链零出站：不冒充真实出网计费"
+    assert run_result["settled_cny"] == pytest.approx(0.018688)
+    assert run_result["by_center_cny"]["answer_retrieval"] == pytest.approx(0.018688)
+    assert sum(result.attempts_by_center_cny.values()) == pytest.approx(ledger_held)
+    assert summary["failure"]["stage"] == "gate_settle"
+    assert summary["network"]["outbound_attempts"] == 0
+
+
+# --------------------------------------------------------------------------- #
+# 11. T207-FIX-A §F7：每次 run 新开一扇门（同一计划/GO 可连续独立 run）
+# --------------------------------------------------------------------------- #
+
+
+def _dataset_empty() -> P2RunDataset:
+    return P2RunDataset(
+        visibility="public",
+        cases=(),
+        identity={
+            "dataset_version": "p2-live-unit-empty",
+            "label_version": "b0-2026-11-04",
+            "suite": "b0",
+            "manifest_sha256": "b" * 64,
+            "case_count": 0,
+        },
+    )
+
+
+def _run_once(env: SimpleNamespace, out_dir: Path, run_id: str, *, gate=None):
+    """计划/GO/账本都不变，只换 run_id、输出目录与**新开的门**。"""
+    plan = env.plan
+    live_gate = gate or p2_live.open_live_gate(plan, run_id=run_id, now=NOW)
+    chat = _UsageChatBackend(behaviors=(ChatBehavior(answer="位置：B区1号货架第二层"),))
+
+    async def go():
+        return await p2_live.run_live_p2(
+            plan,
+            run_id=run_id,
+            out_dir=out_dir,
+            dataset=_dataset("Q01"),
+            ingest_plan=P2IngestPlan(sources=(IngestSource(path=D01),), label="t207-f7"),
+            gate=live_gate,
+            env={"MKTKB_OCR_DISABLED": "0"},
+            env_overrides=LIVE_ENV_OVERRIDES,
+            transports=_transports(chat),
+            now=NOW,
+        )
+
+    result, build = asyncio.run(go())
+    return result, build, live_gate
+
+
+def test_two_runs_with_fresh_gates_keep_per_run_accounting(live_env: SimpleNamespace, tmp_path: Path) -> None:
+    first, build_first, gate_first = _run_once(live_env, tmp_path / "run-1", "p2-f7-r1")
+    assert first.status == "succeeded", (first.status, first.stop_code)
+    assert first.stop_code is None
+    assert first.requests_sent == 1
+    summary_first = json.loads((build_first.adapter.paths.run_dir / "summary.json").read_text(encoding="utf-8"))
+    assert summary_first["attempts"]["gate_reserved"] == summary_first["attempts"]["expected_reservations"]
+    used_after_first = int(gate_first.authorization.requests_used) + len(_reservations(live_env.ledger))
+    reserved_first = len(_reservations(live_env.ledger))
+    assert reserved_first > 0
+
+    # 第二扇门：同一份计划、同一份 GO、同一只账本，但那扇门是**新开**的。
+    second, build_second, gate_second = _run_once(live_env, tmp_path / "run-2", "p2-f7-r2")
+    assert second.status == "succeeded", (second.status, second.stop_code)
+    assert second.stop_code is None
+    assert second.requests_sent == 1
+    summary_second = json.loads((build_second.adapter.paths.run_dir / "summary.json").read_text(encoding="utf-8"))
+    # 关键：第二 run 的 gate 累计计数只等于**本 run**的期望（不是两 run 之和）。
+    assert summary_second["attempts"]["expected_reservations"] == summary_first["attempts"]["expected_reservations"]
+    assert summary_second["attempts"]["gate_reserved"] == summary_second["attempts"]["expected_reservations"]
+    assert gate_second.authorization.requests_used == reserved_first, "新门看到的是已有账本，但计数从本 run 起算"
+    assert int(gate_second.authorization.requests_used) > int(gate_first.authorization.requests_used)
+    reservations = _reservations(live_env.ledger)
+    assert len(reservations) == reserved_first * 2
+    assert all(row.get("cost_center") for row in reservations)
+    assert all(row.get("run_id") in {"p2-f7-r1", "p2-f7-r2"} for row in reservations)
+    assert {row.get("run_id") for row in reservations} == {"p2-f7-r1", "p2-f7-r2"}
+    _ = used_after_first
+
+
+def test_reusing_one_gate_for_a_second_run_is_refused_by_accounting(
+    live_env: SimpleNamespace, tmp_path: Path
+) -> None:
+    """反证：同一扇门跑第二次 → attempt_accounting_mismatch（口径不放宽，只能换门）。"""
+    first, _build, gate_first = _run_once(live_env, tmp_path / "run-1", "p2-f7-reuse-r1")
+    assert first.status == "succeeded", (first.status, first.stop_code)
+    reserved_first = len(_reservations(live_env.ledger))
+
+    # 同一扇门 + 空题集（不会发送任何请求）：计数口径立刻不自洽。
+    async def go():
+        return await p2_live.run_live_p2(
+            live_env.plan,
+            run_id="p2-f7-reuse-r2",
+            out_dir=tmp_path / "run-2",
+            dataset=_dataset_empty(),
+            ingest_plan=None,
+            gate=gate_first,
+            env={"MKTKB_OCR_DISABLED": "0"},
+            env_overrides=LIVE_ENV_OVERRIDES,
+            transports=_transports(_UsageChatBackend()),
+            now=NOW,
+        )
+
+    second, _build2 = asyncio.run(go())
+    assert second.status != "succeeded"
+    assert second.stop_code == "attempt_accounting_mismatch", second.stop_code
+    assert second.requests_sent == 0
+    assert len(_reservations(live_env.ledger)) == reserved_first, "反证路径不得再写账本"
+
+
+# --------------------------------------------------------------------------- #
+# 12. T207-FIX-A：live 执行包装器（显式 --env-file，只报变量名、绝不回显值）
+# --------------------------------------------------------------------------- #
+
+
+def _wrapper():
+    import importlib.util
+
+    path = ROOT / "tools" / "p2_live_execute.py"
+    spec = importlib.util.spec_from_file_location("p2_live_execute", path)
+    module = importlib.util.module_from_spec(spec)
+    assert spec.loader is not None
+    # dataclass 解析字符串注解时要能按 __module__ 在 sys.modules 里找到本模块。
+    sys.modules["p2_live_execute"] = module
+    spec.loader.exec_module(module)
+    return module
+
+
+def _env_file(path: Path, *, secret: str = "S3CRET-VALUE-never-printed", extra: str = "") -> Path:
+    lines = [
+        f"MKTKB_MODEL_API_KEY={secret}",
+        "MKTKB_MODEL_BASE_URL=https://api.deepseek.com",
+        "MKTKB_MODEL_NAME=deepseek-flash",
+        f"DASHSCOPE_API_KEY={secret}-dashscope",
+        f"MKTKB_OCR_SECRET_ID={secret}-ocr-id",
+        f"MKTKB_OCR_SECRET_KEY={secret}-ocr-key",
+        "MKTKB_OCR_DISABLED=0",
+        "MKTKB_PROJECT_TOTAL_LIMIT_CNY=40.0",
+    ]
+    if extra:
+        lines.append(extra)
+    path.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    return path
+
+
+def test_wrapper_reads_explicit_env_file_and_never_prints_values(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    wrapper = _wrapper()
+    secret = "S3CRET-VALUE-never-printed"
+    env_file = _env_file(tmp_path / "p2-live.env", secret=secret)
+    code = wrapper.main(["--env-file", str(env_file), "--check-only"])
+    captured = capsys.readouterr()
+    assert code == 0
+    payload = json.loads(captured.out)
+    assert payload["ok"] is True and payload["values_printed"] is False
+    assert "MKTKB_MODEL_API_KEY" in payload["injected"]
+    assert secret not in captured.out and secret not in captured.err
+    assert env_file.name in captured.out
+
+    # 显式要求才读：不传 --env-file 时 argparse 直接拒绝（默认不读 .env）。
+    with pytest.raises(SystemExit) as excinfo:
+        wrapper.main(["--check-only"])
+    assert int(excinfo.value.code or 0) == 2
+
+    # 名为 .env 的文件一律拒绝（避免"顺手从工作区 .env 取凭据"）。
+    dotenv = _env_file(tmp_path / ".env", secret=secret)
+    code = wrapper.main(["--env-file", str(dotenv), "--check-only"])
+    captured = capsys.readouterr()
+    assert code == 3
+    assert json.loads(captured.out)["error_code"] == "env_file_forbidden"
+    assert secret not in captured.out and secret not in captured.err
+
+
+def test_wrapper_fails_closed_on_missing_or_foreign_names(
+    tmp_path: Path, capsys: pytest.CaptureFixture[str]
+) -> None:
+    wrapper = _wrapper()
+    secret = "S3CRET-VALUE-never-printed"
+    missing = tmp_path / "missing.env"
+    missing.write_text(
+        f"MKTKB_MODEL_API_KEY={secret}\nMKTKB_MODEL_BASE_URL=https://api.deepseek.com\n",
+        encoding="utf-8",
+    )
+    code = wrapper.main(["--env-file", str(missing), "--check-only"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert code == 3 and payload["error_code"] == "env_required_missing"
+    assert "MKTKB_OCR_SECRET_ID" in payload["detail"]
+    assert secret not in captured.out and secret not in captured.err
+
+    foreign = _env_file(tmp_path / "foreign.env", secret=secret, extra=f"AWS_SECRET_ACCESS_KEY={secret}")
+    code = wrapper.main(["--env-file", str(foreign), "--check-only"])
+    captured = capsys.readouterr()
+    payload = json.loads(captured.out)
+    assert code == 3 and payload["error_code"] == "env_name_not_allowed"
+    assert "AWS_SECRET_ACCESS_KEY" in payload["detail"]
+    assert secret not in captured.out and secret not in captured.err
+
+
+def test_wrapper_injects_into_child_process_env_only(tmp_path: Path) -> None:
+    wrapper = _wrapper()
+    secret = "S3CRET-VALUE-never-printed"
+    env_file = _env_file(tmp_path / "p2-live.env", secret=secret)
+    env = wrapper.build_child_env(env_file, base_env={})
+    assert env["MKTKB_MODEL_API_KEY"] == secret
+    assert "AWS_SECRET_ACCESS_KEY" not in env
+    # 父进程环境不变（只影响子进程）。
+    assert "MKTKB_MODEL_API_KEY" not in __import__("os").environ or __import__("os").environ["MKTKB_MODEL_API_KEY"] != secret
+    probe = (
+        "import os,sys;"
+        "sys.exit(0 if os.environ.get('MKTKB_MODEL_API_KEY') == %r else 9)" % secret
+    )
+    completed = wrapper.run_command([sys.executable, "-c", probe], env=env)
+    assert completed.returncode == 0, (completed.stdout, completed.stderr)
+    assert secret not in (completed.stdout or "") and secret not in (completed.stderr or "")
+
+    # 走真实子进程路径（bogus plan）：子进程失败，但输出里只有它自己的错误，不含凭据值。
+    code, stdout, stderr = wrapper.run_cli(
+        env_file, ["p2-run", "--plan", str(tmp_path / "no-such-plan.json"), "--out", str(tmp_path / "out")]
+    )
+    assert code != 0
+    assert "plan_unreadable" in stderr
+    assert secret not in stdout and secret not in stderr

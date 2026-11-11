@@ -527,6 +527,35 @@ def _add_run_selector(parser: argparse.ArgumentParser, *, with_comparison: bool)
         )
 
 
+def _ingest_plan_for_args(
+    args: argparse.Namespace, *, label: str
+) -> Any:
+    """--ingest / --ingest-plan 的唯一读入口（旧 --ingest 分支逐字不变）。
+
+    --ingest-plan 的文档里可以写 document_ref（在本次 ingest 内按上传名解析成 document_id），
+    这是「同槽新版本」与「不发布」的唯一合法驱动入口；--ingest 只造新文档。
+    """
+    from .product_adapter import IngestSource, P2IngestPlan, ingest_plan_from_document
+
+    if getattr(args, "ingest_plan", None):
+        try:
+            payload = _read_json(Path(args.ingest_plan))
+        except OSError as exc:
+            raise CliError(f"ingest_plan_unreadable: {type(exc).__name__}") from None
+        except ValueError as exc:
+            raise CliError(f"ingest_plan_json_invalid: {type(exc).__name__}") from None
+        try:
+            return ingest_plan_from_document(payload)
+        except (ValueError, OSError) as exc:
+            raise CliError(f"ingest_plan_invalid: {exc}") from None
+    if args.ingest:
+        return P2IngestPlan(
+            sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
+            label=label,
+        )
+    return None
+
+
 def _cmd_p2_run(args: argparse.Namespace) -> int:
     """P2-T203 产品端到端空跑：预检 -> 空跑授权 -> 隔离应用 -> 产物（零真实调用）。
 
@@ -595,25 +624,15 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
     if args.mode == "live":
         # live 自己开真实门（GO/预算/账本/环境），不先用内存快照做预检：
         # 预检通过也不等于可发送，真正的准入只有 authorize_p2 + production_ready。
-        ingest_live = None
-        if args.ingest:
-            ingest_live = P2IngestPlan(
-                sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
-                label="cli-p2-run-live",
-            )
-        if not args.ingest and dataset.cases:
+        ingest_live = _ingest_plan_for_args(args, label="cli-p2-run-live")
+        if ingest_live is None and dataset.cases:
             raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
         return _run_p2_live(
             args, plan=plan, dataset=dataset, ingest=ingest_live, purge_traces=purge_traces
         )
 
-    ingest = None
-    if args.ingest:
-        ingest = P2IngestPlan(
-            sources=tuple(IngestSource(path=Path(item)) for item in args.ingest),
-            label="cli-p2-run",
-        )
-    if not args.ingest and dataset.cases:
+    ingest = _ingest_plan_for_args(args, label="cli-p2-run")
+    if ingest is None and dataset.cases:
         raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
 
 
@@ -743,6 +762,279 @@ def _run_p2_live(
     }
     print(json.dumps(payload, ensure_ascii=False))
     return 0 if result.status == "succeeded" else EXIT_DATA
+
+
+
+# --------------------------------------------------------------------------- #
+# P2-T207-FIX-A：H2 计划生成 / run 产物评分 / 观测矩阵（全部零真实调用）
+# --------------------------------------------------------------------------- #
+
+
+def _cmd_p2_h2_plan(args: argparse.Namespace) -> int:
+    """封存进程内生成 H2 计划：只读元数据，计划写在工作区外，stdout 只回 sha 与计数。"""
+    from .p2_holdout_plan import (
+        HoldoutPlanError,
+        assert_outside_workspace,
+        build_holdout_plan,
+        crosscheck_metadata,
+        load_holdout_manifest,
+        parse_cases_metadata,
+        summarize,
+    )
+
+    try:
+        out = assert_outside_workspace(Path(args.plan_out), what="H2 计划文件")
+        metadata_path = assert_outside_workspace(
+            Path(args.cases_metadata), what="H2 case 元数据"
+        )
+        metadata = _read_json(metadata_path)
+        dataset_version, cases = parse_cases_metadata(metadata)
+        manifest = load_holdout_manifest(Path(args.holdout_manifest))
+        crosschecked = crosscheck_metadata(dataset_version, cases, manifest)
+        plan = build_holdout_plan(
+            cases=cases,
+            ingest_batches=int(args.ingest_batches),
+            plan_id=str(args.plan_id),
+            plan_version=str(args.plan_version),
+            created_utc=str(args.created_utc),
+            max_requests=int(args.max_requests),
+        )
+    except HoldoutPlanError as exc:
+        print(json.dumps({"ok": False, "error_code": exc.code, "detail": exc.detail}, ensure_ascii=False))
+        return EXIT_DATA
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(json.dumps(plan.as_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    payload = {"ok": True, **summarize(plan), "crosscheck": crosschecked, "plan_out": str(out)}
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0
+
+
+def _score_holdout(args: argparse.Namespace) -> int:
+    """H2：受限加载 + 封存逐题行/判定 -> aggregate_holdout（只写聚合）。"""
+    from .p2_score_run import (
+        RunScoreError,
+        aggregate_holdout_bundle,
+        assert_outside_workspace,
+        _execution_context,
+        _read_json,
+        holdout_case_scores_from_rows,
+        holdout_case_scores_from_verdicts,
+        load_document_codes,
+        load_holdout_dataset,
+        load_holdout_verdicts,
+        read_cases_jsonl,
+    )
+    from .p2_scoring import P2Block, SEVERITY_UNKNOWN
+
+    # T207-FIX-A-R1：封存逐题输入必须显式二选一。两个都不给时旧代码把 None 传进
+    # load_holdout_verdicts/Path() 得到 TypeError（exit 3，但不是契约承诺的稳定码）；
+    # 两个都给时旧代码静默只认 --holdout-cases。这里统一 fail closed，且**不写任何产物**。
+    if not args.holdout_cases and not args.verdicts:
+        raise RunScoreError(
+            "holdout_input_missing",
+            "visibility=holdout 需要 --holdout-cases（封存逐题行）或 --verdicts（封存判定表）",
+        )
+    if args.holdout_cases and args.verdicts:
+        raise RunScoreError(
+            "holdout_input_conflict",
+            "--holdout-cases 与 --verdicts 二选一（不静默择一）",
+        )
+
+    dataset = load_holdout_dataset(args.holdout_manifest)
+    cases = tuple(dataset.cases)
+    extra_blocks = []
+    if args.holdout_cases:
+        rows = read_cases_jsonl(assert_outside_workspace(args.holdout_cases, what="H2 逐题行"))
+        if not args.document_codes:
+            raise RunScoreError("document_codes_missing", "--holdout-cases 需要 --document-codes")
+        codes = load_document_codes(Path(args.document_codes))
+        execution_mode, real_calls = "local_mock", 0
+        if args.run_dir:
+            manifest = _read_json(Path(args.run_dir) / "run_manifest.json", name="run_manifest")
+            summary = _read_json(Path(args.run_dir) / "summary.json", name="run_summary")
+            execution_mode, real_calls = _execution_context(manifest, summary)
+        scores, unclassified = holdout_case_scores_from_rows(
+            cases,
+            rows,
+            document_codes=codes,
+            allowed_doc_codes=set(codes.values()),
+            execution_mode=execution_mode,
+            real_calls=real_calls,
+        )
+        if unclassified:
+            extra_blocks.append(
+                P2Block(
+                    "holdout_hard_failure_unclassified",
+                    SEVERITY_UNKNOWN,
+                    "逐题行里出现来源/安全类结构问题，但硬失败类别必须由封存标注方判定",
+                    {"codes": sorted(set(unclassified))},
+                )
+            )
+    else:
+        verdicts = load_holdout_verdicts(args.verdicts)
+        scores = holdout_case_scores_from_verdicts(cases, verdicts)
+        execution_mode, real_calls = "local_mock", 0
+        if args.run_dir:
+            manifest = _read_json(Path(args.run_dir) / "run_manifest.json", name="run_manifest")
+            summary = _read_json(Path(args.run_dir) / "summary.json", name="run_summary")
+            execution_mode, real_calls = _execution_context(manifest, summary)
+    run_id = None
+    config_hash = None
+    if args.run_dir:
+        manifest = _read_json(Path(args.run_dir) / "run_manifest.json", name="run_manifest")
+        run_id = str(manifest.get("run_id") or "") or None
+        config_hash = str(manifest.get("config_hash") or "") or None
+    card = aggregate_holdout_bundle(
+        scores,
+        expected_strata=dict(dataset.manifest.strata),
+        thresholds_approved=False,
+        execution_mode=execution_mode,
+        real_calls=real_calls,
+        run_id=run_id,
+        config_hash=config_hash,
+        extra_blocks=tuple(extra_blocks),
+    )
+    out_dir = Path(args.out) if args.out else Path(args.run_dir or ".") / "score"
+    assert_outside_workspace(out_dir, what="H2 聚合产物目录")
+    out_dir.mkdir(parents=True, exist_ok=True)
+    target = out_dir / "holdout_scorecard.json"
+    target.write_text(json.dumps(card.to_dict(), ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "visibility": "holdout",
+                "total": card.total,
+                "passed": card.passed,
+                "failed": card.failed,
+                "errors": card.errors,
+                "hard_failures": card.hard_failures,
+                "threshold_met": card.threshold_met,
+                "release_ready": card.release_ready,
+                "blocks": [block.code for block in card.blocks],
+                "out": str(target),
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_p2_score(args: argparse.Namespace) -> int:
+    """run 产物 -> 逐题打分 -> scorecard.json（+ p2_decision.json）；不重跑产品。"""
+    from .p2_score_run import (
+        RunScoreError,
+        decide_run,
+        load_cases_file,
+        load_document_codes,
+        score_run,
+        write_score_bundle,
+    )
+
+    if args.visibility == "holdout":
+        if not args.holdout_manifest:
+            print(json.dumps({"ok": False, "error_code": "holdout_manifest_missing",
+                              "detail": "visibility=holdout 需要 --holdout-manifest"}, ensure_ascii=False))
+            return EXIT_DATA
+        try:
+            return _score_holdout(args)
+        except RunScoreError as exc:
+            print(json.dumps({"ok": False, "error_code": exc.code, "detail": exc.detail}, ensure_ascii=False))
+            return EXIT_DATA
+    if not args.cases or not args.document_codes:
+        print(json.dumps({"ok": False, "error_code": "score_inputs_missing",
+                          "detail": "公开评分需要 --cases 与 --document-codes（都不猜）"}, ensure_ascii=False))
+        return EXIT_DATA
+    try:
+        cases = load_cases_file(args.cases)
+        codes = load_document_codes(Path(args.document_codes))
+        bundle = score_run(Path(args.run_dir), cases=cases, document_codes=codes)
+        if not args.no_decision:
+            bundle = decide_run(bundle, cases=cases)
+        written = write_score_bundle(bundle, args.out)
+    except RunScoreError as exc:
+        print(json.dumps({"ok": False, "error_code": exc.code, "detail": exc.detail}, ensure_ascii=False))
+        return EXIT_DATA
+    decision = None if bundle.decision is None else bundle.decision.decision
+    release_allowed = False if bundle.decision is None else bool(bundle.decision.release_allowed)
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "run_id": bundle.run_id,
+                "execution_mode": bundle.execution_mode,
+                "real_calls": bundle.real_calls,
+                "cases": len(bundle.scores),
+                "executed": sum(1 for score in bundle.scores if score.executed),
+                "passed": sum(1 for score in bundle.scores if score.passed),
+                "release_ready": bool(bundle.scorecard.release_ready),
+                "decision": decision,
+                "release_allowed": release_allowed,
+                "blocks": [block.code for block in bundle.scorecard.blocks],
+                "out": {name: str(path) for name, path in written.items()},
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_p2_matrix(args: argparse.Namespace) -> int:
+    """R1/R2/R3 逐题分数 + U 证据表 -> matrix_observation.json（明确非 release）。"""
+    from .p2_score_run import RunScoreError, matrix_from_files
+
+    try:
+        matrix = matrix_from_files(
+            [Path(item) for item in args.case_scores],
+            u_controls_path=None if not args.u_controls else Path(args.u_controls),
+        )
+    except RunScoreError as exc:
+        print(json.dumps({"ok": False, "error_code": exc.code, "detail": exc.detail}, ensure_ascii=False))
+        return EXIT_DATA
+    target = Path(args.out)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(json.dumps(matrix, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "composition": matrix["composition"],
+                "release_decision": matrix["release_decision"],
+                "runs": [item["run_id"] for item in matrix["runs"]],
+                "tallies": matrix["tallies"],
+                "out": str(target),
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_p2_u_controls(args: argparse.Namespace) -> int:
+    """跑既有 test_t09_mutation.py 并把逐 U 判定导出成 JSON（不改该测试）。"""
+    from .p2_score_run import RunScoreError, export_local_controls
+
+    try:
+        payload = export_local_controls(
+            Path(args.out),
+            test_path=None if not args.test else Path(args.test),
+            pytest_args=tuple(args.pytest_arg or ()),
+        )
+    except RunScoreError as exc:
+        print(json.dumps({"ok": False, "error_code": exc.code, "detail": exc.detail}, ensure_ascii=False))
+        return EXIT_DATA
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "exit_code": payload["exit_code"],
+                "cases": {name: item["status"] for name, item in payload["cases"].items()},
+                "out": str(args.out),
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -890,8 +1182,14 @@ def build_parser() -> argparse.ArgumentParser:
     p2_run.add_argument(
         "--holdout-manifest", default=None, help="H2 manifest 路径（visibility=holdout 时必填）"
     )
-    p2_run.add_argument(
+    ingest_group = p2_run.add_mutually_exclusive_group()
+    ingest_group.add_argument(
         "--ingest", action="append", default=[], help="要经产品上传/解析/发布路径灌库的本地文件（可重复）"
+    )
+    ingest_group.add_argument(
+        "--ingest-plan",
+        default=None,
+        help="灌库计划 JSON（p2-ingest-plan/v0.1：可写 document_ref/publish=false；与 --ingest 互斥）",
     )
     p2_run.add_argument("--dataset-version", default="p2-cli-local", help="公开 run 的 dataset_version")
     p2_run.add_argument("--label-version", default="p2-cli-local", help="公开 run 的 label_version")
@@ -907,6 +1205,57 @@ def build_parser() -> argparse.ArgumentParser:
         help="--mode live 必填：本次 run 的身份（写进 trace/manifest/账本）",
     )
     p2_run.set_defaults(handler=_cmd_p2_run)
+
+    p2_h2_plan = sub.add_parser(
+        "p2-h2-plan",
+        help="H2 受限计划生成（只读 case 元数据/manifest；计划写在工作区外，stdout 只回 sha）",
+    )
+    p2_h2_plan.add_argument("--cases-metadata", required=True, help="H2 case 元数据 JSON（工作区外）")
+    p2_h2_plan.add_argument("--holdout-manifest", required=True, help="H2 manifest（repo-safe 元数据）")
+    p2_h2_plan.add_argument("--ingest-batches", required=True, type=int, help="H2 语料包 embedding 批数 B")
+    p2_h2_plan.add_argument("--plan-out", required=True, help="输出计划 JSON（必须在工作区外）")
+    # 单一来源：与候选 GO 的 scope.plan_id、runbook §8.1 同值（T207-FIX-A-R1 阻断 2）。
+    from .p2_holdout_plan import H2_DEFAULT_PLAN_ID
+
+    p2_h2_plan.add_argument("--plan-id", default=H2_DEFAULT_PLAN_ID, help="计划 id")
+    p2_h2_plan.add_argument("--plan-version", default="v0.1", help="计划版本")
+    p2_h2_plan.add_argument("--created-utc", default="2026-11-11T08:30:00+08:00", help="计划创建时刻（ISO8601）")
+    p2_h2_plan.add_argument("--max-requests", type=int, default=1100, help="计划累计请求上限（默认 1100）")
+    p2_h2_plan.set_defaults(handler=_cmd_p2_h2_plan)
+
+    p2_score = sub.add_parser(
+        "p2-score",
+        help="只读 run 产物 -> 逐题评分/公开分母/决策（holdout 只出聚合）",
+    )
+    p2_score.add_argument("--run-dir", required=True, help="run 目录（run_manifest.json 所在）")
+    p2_score.add_argument("--cases", default=None, help="计划内 CaseSpec JSONL（与 p2-run --cases 同一份）")
+    p2_score.add_argument("--document-codes", default=None, help="产品文档名 -> doc_code 的 JSON 映射")
+    p2_score.add_argument("--out", default=None, help="输出目录（默认 <run-dir>/score）")
+    p2_score.add_argument("--no-decision", action="store_true", help="只出 scorecard，不调 evaluate_p2_gate")
+    p2_score.add_argument(
+        "--visibility",
+        choices=("public", "holdout"),
+        default="public",
+        help="public（逐题） / holdout（只出聚合；需要 --holdout-manifest 与封存输入）",
+    )
+    p2_score.add_argument("--holdout-manifest", default=None, help="H2 manifest（visibility=holdout 必填）")
+    p2_score.add_argument("--holdout-cases", default=None, help="封存逐题行 JSONL（工作区外）")
+    p2_score.add_argument("--verdicts", default=None, help="封存判定表 JSONL（工作区外，与 --holdout-cases 二选一）")
+    p2_score.set_defaults(handler=_cmd_p2_score)
+
+    p2_matrix = sub.add_parser("p2-matrix", help="多 run 观测矩阵（逐 case provenance + U 证据表；非 release）")
+    p2_matrix.add_argument(
+        "--case-scores", action="append", required=True, help="p2-score 落盘的 case_scores.json（可重复，逐 run）"
+    )
+    p2_matrix.add_argument("--u-controls", default=None, help="U 本地控制导出 JSON（p2-u-controls 产物）")
+    p2_matrix.add_argument("--out", required=True, help="matrix_observation.json 输出路径")
+    p2_matrix.set_defaults(handler=_cmd_p2_matrix)
+
+    p2_u = sub.add_parser("p2-u-controls", help="跑既有 test_t09_mutation.py 并导出逐 U 判定（不改该测试）")
+    p2_u.add_argument("--out", required=True, help="导出 JSON 路径")
+    p2_u.add_argument("--test", default=None, help="测试文件（默认 backend/tests/acceptance/test_t09_mutation.py）")
+    p2_u.add_argument("--pytest-arg", action="append", default=[], help="透传给 pytest 的额外参数（可重复）")
+    p2_u.set_defaults(handler=_cmd_p2_u_controls)
     return parser
 
 

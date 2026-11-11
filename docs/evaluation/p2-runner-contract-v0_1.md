@@ -243,7 +243,9 @@ gate 的唯一 reservation 数`（`test_p2_live_wiring.py`），旧产物缺这�
   缺题/`error`/未执行一律如实出 block（`case_not_executed` / `case_error` / `missing_case`），不补不猜；
 - `p2-score --visibility holdout`：受控进程内 `load_p2_dataset(visibility="holdout")` 取 CaseSpec/分层，
   再用**工作区外**的封存逐题行（`--holdout-cases`）或判定表（`--verdicts`）做 `aggregate_holdout`，
-  只写聚合（`holdout_scorecard.json`）；缺输入 → `holdout_input_missing`（不按计数编造 pass/fail）；
+  只写聚合（`holdout_scorecard.json`）；**两个输入必须显式二选一**（T207-FIX-A-R1 落码）：
+  都缺 → `holdout_input_missing`、都给 → `holdout_input_conflict`，两者都在解封/读数据集**之前**
+  fail closed（exit 3、不写任何产物），不按计数编造 pass/fail；
 - `p2-matrix --case-scores <R1/R2/R3 的 case_scores.json> --u-controls <json>`：合并逐题分数 + U 证据表，
   写 `matrix_observation.json`（逐 case `run_id/index_revision/config_hash/basis`、B0/N/C/U tallies、
   `composition=multi_run_scenario_isolated`、`release_decision=false`、`gate_config_unapproved`）。

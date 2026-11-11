@@ -71,3 +71,13 @@
 
 预期：`preflight_real_snapshot.ok=true`（`requests_remaining=453`）、`authorize_candidate.production_ready=false`、
 10 条负例全部按稳定码拒绝、`read_only_proof.unchanged=true`、`go_path_exists_after=true`（未创建/未修改）。
+
+## 8 T207-FIX-A 修订（2026-11-11）
+
+- 计划按经理决定重发为 `max_requests=1200`，新 `plan_sha256=0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194`（233 项 / 254 请求不变）；
+  候选 GO 同步改为 `max_requests=1200`（DRAFT 仍不可用）。
+- 请求拆分改为 R1=242 / R2=15 / R3=6（累计 **263**，worst **8.145808**）；Q01 只在 R1；R2=U01+C05、R3=C06。
+- **顺序改为 R3 → R2 → R1**：计划含 12 页 OCR（5.65），R1 跑完后 ocr 中心只剩 0.35，再授权必然
+  `center_budget_insufficient:ocr`（请求窗口仍够）。反证见 `evidence/validate-plan-out.txt` 的 `reorder_control`。
+- 已交付驱动/生成器：`--ingest-plan`（版本槽）、`cases/{R1,R2,R3}.jsonl`、`p2-h2-plan`、`p2-score`、`p2-matrix`、
+  `p2-u-controls`、`tools/p2_live_execute.py`；详见 `docs/reports/OBS-EVAL/P2/T207-FIX-A/report.md`。

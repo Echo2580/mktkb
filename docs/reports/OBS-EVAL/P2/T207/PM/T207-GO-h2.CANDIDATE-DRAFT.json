@@ -2,7 +2,7 @@
   "document": "P2-LIVE-GO",
   "schema_version": "p2-live-go/v0.1",
   "stage": "P2-LIVE",
-  "authorization": "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE / plan_sha256 待封存进程生成 H2 计划后再填（本文件绑定的是全零占位，授权链必然失败）；只作形状与上限的预审件",
+  "authorization": "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE；只作形状与上限的预审件（plan_sha256 为全零占位，授权链必然失败）。签发条件（全部满足才可签）：1) 在受控进程用 p2-h2-plan 生成计划（计划文件必须写在工作区外），把生成物的 plan_sha256 填进 scope.plan_sha256；2) H2 语料包声明已落盘（D01-D06 + V01-V07，requires_ocr 全 false，embedding 批数 B=14（实测；上界 20，包络 <=68））；3) scope.max_requests=1100、中心 8.5/6.5/3/2 与计划逐值一致；4) budget_ledger_sha256=账本不可变历史前缀（f4710b18...）；5) nonce/issued_utc/expires_utc(<=14d) 与 signature 由经理签发时填并记录 GO SHA",
   "issued_by": "PM-candidate",
   "nonce": "DRAFT-T207-h2-candidate-nonce-NOT-A-REAL-NONCE",
   "issued_utc": "2026-11-11T08:30:00+08:00",

@@ -310,3 +310,42 @@ live 下 OCR 走 `build_ocr_gateway(settings, transport=<真实传输>)` 构造�
 `outbound_attempts == chat_outbound_attempts + rag_provider_posts + ocr_outbound_attempts`。
 Mock 链不给该键（视为 0），旧断言不变。live 链四个真实传输各自被计量包装，
 "0 出站"是测量结果而不是声明。
+
+### 11.6 灌库驱动：`--ingest-plan` 与 `document_ref`（T207-FIX-A additive）
+
+`p2-run` 新增 `--ingest-plan <json>`（与 `--ingest` **互斥**；旧 `--ingest` 路径逐字不变）。文件 schema
+`p2-ingest-plan/v0.1`，字段白名单固定：
+
+- `schema_version`（必须是 `p2-ingest-plan/v0.1`）、`label`、`sources[]`；
+- 每个 source：`path`（必填）、`name`（上传文件名）、`document_ref`、`expected_active_version_id`、`publish`；
+- `document_id` **不开放**：版本槽一律用 `document_ref` 在**本次 ingest 内**按上传名解析，避免手抄 UUID。
+
+语义（产品代码 0 改动，走 `documents/service.py` 既有「新版本」路径）：
+
+- `document_ref` 解析不到 → `RuntimeError`（fail closed，不猜、不退化成 `allow_same_name`）；
+- 新版本的 `expected_active_version_id` 缺省取该资料**当前已发布**版本（"以我看到的那一版为基准"）；
+- `publish=false` = 产品上传 + worker 处理成功但不发布：版本停在 `review_required`，`active_version_id`
+  仍指上一版、`revision` 不增（这正是 U01 要的"未生效版"）；
+- `IngestSource` 侧禁止 `document_ref` 与 `document_id` / `allow_same_name` 同用；
+- 回执只记身份（`document_id`/`version_id`/`job_state`/`published`/`revision`/`units`），适配器额外维护
+  `ingest_document_map`（逻辑资料名 → `document_id` + 当前已发布版本），供断言"同槽多版本"。
+
+`--ingest-plan` 与 `--ingest` 同时给出时由 argparse 拒绝（退出码 2），不会构造适配器。
+
+### 11.7 H2 计划生成器 `p2-h2-plan`（T207-FIX-A additive）
+
+-- H2 的 case_id 只在封存密文里，而计划项按 (operation, case_id, turn) 逐项解析，因此 H2 计划
+**必须**在受控进程内由「case_id + 轮数」元数据生成：
+
+```text
+p2-h2-plan --cases-metadata <工作区外 json> --holdout-manifest <repo-safe manifest> \
+           --ingest-batches B --plan-out <工作区外 json> [--plan-id/--plan-version/--created-utc/--max-requests]
+```
+
+- 元数据 schema：`{schema_version:"p2-h2-cases-metadata/v0.1", dataset_version, cases:[{case_id, turns}]}`；
+  出现 `question`/`answer` 等未知字段、重复 case_id、非法 id 一律拒绝；
+- 与 manifest 交叉校验：题数、总轮数、`max_turns_per_case`、`turn_histogram`、`multi_turn` 分层计数；
+- 每回合 4 项（query_embedding / rerank / query_expansion / answer 各 1）+ 1 个 `index_embedding`
+  项 `requests=B`；**不生成 OCR 项**；中心 8.5/6.5/3/2，`max_requests` 默认 1100；
+- 计划文件必须写在工作区外（`plan_out_inside_workspace`），stdout 只回 `plan_sha256` 与计数，
+  不回 case_id；生成物必须能过 `P2RunPlan.from_dict`。

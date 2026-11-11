@@ -63,9 +63,10 @@ PROJECT_TOTAL_LIMIT_CNY = 40.0
 STAGE_LIMIT_CNY = 20.0
 #: 阶段内四中心重排（OCR 6.15 > 原 6.0 的证明见 PM/T207-cost-and-quota.md §3）。
 COST_CENTERS_CNY = {"answer_retrieval": 8.5, "ocr": 6.5, "judge": 3.0, "independent": 2.0}
-MAX_REQUESTS = 1000           # 当前 HARD_MAX_REQUESTS 下的最大值（547 已用 + 本计划 254 = 801 ≤ 1000）
-#: 提硬顶后（见 PM/T207-cost-and-quota.md §6）改这一处即可重发计划：MAX_REQUESTS = 1200。
-MAX_REQUESTS_AFTER_CAP_RAISE = 1200
+#: T207-FIX-A §7：硬顶已落盘为 1600（T207-FIX-B），公开矩阵按 PM 决定重发为 1200。
+#: 逐 run 授权算式（累计口径：plan.total_requests <= max_requests - 账本 reservation_count）：
+#:   R1 547+254=801 / R2 (547+242)+254=1043 / R3 (547+242+15)+254=1058，均 <= 1200。
+MAX_REQUESTS = 1200
 INGEST_BATCHES = 22           # fixtures 侧（11 批非 OCR + 11 批 OCR 文本上限），见 evidence/estimate-out.json
 LEDGER_PREFIX_SHA = "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014"
 BUDGET_LEDGER_PATH = "docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl"
@@ -206,11 +207,21 @@ def h2_plan_template() -> dict:
             "index_embedding_rule": "1 项，requests = 声明的 H2 语料包批数 B（上限见 cost-and-quota §5）",
             "ocr_rule": "语料包含 OCR 页时按页生成 ocr 项；不含则 GO 不授权 ocr 操作",
         },
+        # T207-FIX-A-R1：B 已由产品 chunker + 缓存语义离线实算（12 份资料 -> 14 批），
+        # 不再用 68 这个"声明包络"占位。规模断言与 p2-h2-plan 的生成物逐值一致。
+        "plan_id": "P2-T207-H2-20261111",
         "scale": {
             "cases": 30,
             "total_turns": 36,
             "turn_derived_items": 36 * 4,
             "request_count_without_ingest": 36 * 4,
+            "ingest_batches": 14,
+            "ingest_batches_upper_bound": 20,
+            "index_embedding_items": 1,
+            "items_total": 1 + 36 * 4,
+            "total_requests": 36 * 4 + 14,
+            "worst_case_cny": 1.620736,
+            "page_count": 0,
         },
         "cost_centers_cny": dict(COST_CENTERS_CNY),
         "stage_limit_cny": STAGE_LIMIT_CNY,
@@ -248,13 +259,21 @@ def main() -> None:
         plan,
         document_plan_sha="0" * 64,
         authorization_note=(
-            "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE / plan_sha256 待封存进程生成 "
-            "H2 计划后再填（本文件绑定的是全零占位，授权链必然失败）；只作形状与上限的预审件"
+            "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE；只作形状与上限的预审件"
+            "（plan_sha256 为全零占位，授权链必然失败）。签发条件（全部满足才可签）："
+            "1) 在受控进程用 p2-h2-plan 生成计划（计划文件必须写在工作区外），把生成物的 plan_sha256 填进 scope.plan_sha256；"
+            "2) H2 语料包声明已落盘（D01-D06 + V01-V07，requires_ocr 全 false，embedding 批数 B=14（实测；上界 20，包络 <=68））；"
+            "3) scope.max_requests=1100、中心 8.5/6.5/3/2 与计划逐值一致；"
+            "4) budget_ledger_sha256=账本不可变历史前缀（f4710b18...）；"
+            "5) nonce/issued_utc/expires_utc(<=14d) 与 signature 由经理签发时填并记录 GO SHA"
         ),
         nonce="DRAFT-T207-h2-candidate-nonce-NOT-A-REAL-NONCE",
         max_requests=1100,
     )
-    go_h2["scope"]["plan_id"] = "P2-T207-H2-20261111"
+    # 单一来源：与 CLI 默认值（--plan-id）同值，避免 runbook/GO 漂移（T207-FIX-A-R1 阻断 2）。
+    from mktkb.evaluation.p2_holdout_plan import H2_DEFAULT_PLAN_ID
+
+    go_h2["scope"]["plan_id"] = H2_DEFAULT_PLAN_ID
     go_h2["scope"]["operations"] = ["answer", "index_embedding", "query_embedding", "query_expansion", "rerank"]
     (PM / "T207-GO-h2.CANDIDATE-DRAFT.json").write_text(
         json.dumps(go_h2, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")

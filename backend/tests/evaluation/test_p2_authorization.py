@@ -1335,18 +1335,51 @@ def test_candidate_budget_keeps_owner_arithmetic() -> None:
     assert total_stages + stages[P2_STAGE] + 0.03 == pytest.approx(40.0)
 
 
+#: T201 存档证据值（不可变历史记录）：T201 记录时刻共享账本的**整文件** sha256
+#: （958,277 B / 1011 行）。见 docs/reports/OBS-EVAL/P2/T201/evidence/verify.json 的
+#: ledger_sha256_start/_end、evidence/candidate-numbers.json 的 snapshot_ledger_sha、
+#: candidates/README.md 与 evidence/verify/probe_t201.py 的 LEDGER_SHA_EXPECTED（四处同值）。
+T201_LEDGER_SHA256 = "1f46d1b9e846528d5a1635db5175a997eab9da075d61a90a8cbf803f3fde7390"
+
+
 def test_candidate_snapshot_binds_the_real_shared_ledger() -> None:
-    """候选快照必须绑定仓库真实的共享账本历史前缀（若本机没有该文件则跳过）。"""
+    """候选快照绑定「不可变历史前缀 + T201 记录时刻的整文 sha」（若本机没有该文件则跳过）。
+
+    T207-FIX-A §8（经理已授权）修正的是**绑定对象选错**，不是放宽安全断言：
+    共享账本只允许追加（T206 pilot 与 T207 的每笔预留都是合法追加），所以"整文件 sha 等于
+    今天的文件"这种断言等于要求账本永远不再增长——任何合法 run 之后都必然失败，且它证明
+    不了"历史没被改写"。改为两条更强的绑定：
+
+    1. 快照钉的整文 sha 必须等于 **T201 存档证据值**（不可变，不随新追加变化）——
+       防止快照被悄悄重钉到"当前字节"；
+    2. 快照的历史前缀必须等于**当前**账本的历史前缀——历史一旦被改写/替换即失败；
+    3. 预留计数只增不减（>=505）——原来的下限保留。
+
+    三条加起来比"整文相等"更严：整文相等只说明"此刻字节相同"，上述组合同时拒绝
+    "历史被改"与"快照偷偷换基准"。真实前缀绑定本身由 authorize_p2 的 ledger_binding_ok
+    在准入时再核一次（本测试不改那条路径）。
+    """
     if not REAL_LEDGER.is_file():
         pytest.skip("本机没有共享账本文件")
     snapshot = _load_candidate("p2-ledger-snapshot.CANDIDATE-DRAFT.json")
     raw = REAL_LEDGER.read_bytes()
-    assert snapshot["ledger_sha256"] == hashlib.sha256(raw).hexdigest()
+    assert snapshot["ledger_sha256"] == T201_LEDGER_SHA256, (
+        "候选快照必须钉在 T201 存档的整文 sha 上（不是当前字节，也不是任何后写值）"
+    )
     assert snapshot["historical_prefix_sha256"] == live_authorization.historical_prefix_sha256(
         REAL_LEDGER
-    )
+    ), "当前账本的历史前缀必须与快照一致（历史不可改写）"
+    current_prefix = live_authorization.historical_prefix_sha256(REAL_LEDGER)
+    assert current_prefix == snapshot["historical_prefix_sha256"]
+    # 合法追加只改整文 sha、不改历史前缀：两者可以不同，但前缀必须仍相等。
+    if hashlib.sha256(raw).hexdigest() != snapshot["ledger_sha256"]:
+        assert snapshotted_prefix(snapshot) == current_prefix
     assert snapshot["ledger_path"].endswith("live-ledger.jsonl")
     assert snapshot["reservation_count"] >= 505
+
+
+def snapshotted_prefix(snapshot: dict) -> str:
+    return str(snapshot["historical_prefix_sha256"])
 
 
 def test_hard_max_requests_is_the_manager_recorded_1600(p2_env: SimpleNamespace) -> None:

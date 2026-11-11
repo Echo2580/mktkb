@@ -1,0 +1,278 @@
+# P2-T207-FIX-A 证据 02：计划/GO 重建后的离线校验（真实账本只读快照；零写入、零发送）
+# 命令：python docs/reports/OBS-EVAL/P2/T207/evidence/build-plan.py
+#       python docs/reports/OBS-EVAL/P2/T207/evidence/validate-plan.py
+# 关注：新 plan_sha256、max_requests=1200、preflight ok、候选 GO production_ready=false、
+#       负例（含 hard_cap_over_1600）、三 run 授权窗口、顺序反证、只读证明。
+
+## build-plan.py{
+ "plan_id": "P2-T207-MATRIX-20261111",
+ "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+ "items": 233,
+ "case_count": 60,
+ "turn_count": 60,
+ "page_count": 12,
+ "total_requests": 254,
+ "max_requests": 1200,
+ "worst_case_cny": 8.127376,
+ "reserve_peak_cny": 0.5,
+ "estimated_success_cny": 6.1681,
+ "requests_by_operation": {
+  "index_embedding": 22,
+  "query_embedding": 55,
+  "rerank": 55,
+  "query_expansion": 55,
+  "answer": 55,
+  "ocr": 12
+ },
+ "center_needs_cny": {
+  "answer_retrieval": 2.477376,
+  "ocr": 5.65,
+  "judge": 0.0,
+  "independent": 0.0
+ },
+ "center_limits_cny": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "go_plan_sha_bound": true,
+ "go_max_requests": 1200,
+ "plan_sha_file_sha256": "d19ecb15fe2695067cf2ce1246f8dcdcb056697fa60769d89421018c24a2bcf1"
+}
+
+## validate-plan.py
+{
+ "step": "plan",
+ "plan_id": "P2-T207-MATRIX-20261111",
+ "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+ "items": 233,
+ "cases": 60,
+ "turns": 60,
+ "ocr_pages": 12,
+ "total_requests": 254,
+ "max_requests": 1200,
+ "worst_case_cny": 8.127376,
+ "reserve_peak_cny": 0.5,
+ "estimated_success_cny": 6.1681,
+ "by_operation": {
+  "index_embedding": 22,
+  "query_embedding": 55,
+  "rerank": 55,
+  "query_expansion": 55,
+  "answer": 55,
+  "ocr": 12
+ },
+ "center_needs_cny": {
+  "answer_retrieval": 2.477376,
+  "ocr": 5.65,
+  "judge": 0.0,
+  "independent": 0.0
+ },
+ "center_limits_cny": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "hard_max_requests": 1600
+}
+{
+ "step": "go_candidate",
+ "document": "P2-LIVE-GO",
+ "authorization": "DRAFT CANDIDATE (PM-candidate) - NOT ISSUED / NOT USABLE / production_ready=false; the only usable GO is written by the manager to the fixed P2_GO_PATH",
+ "plan_id_bound": true,
+ "plan_sha_bound": true,
+ "max_requests": 1200,
+ "max_request_cny": 0.5,
+ "validity_days": 13,
+ "ledger_sha_is_history_prefix": true,
+ "operations": [
+  "answer",
+  "index_embedding",
+  "ocr",
+  "query_embedding",
+  "query_expansion",
+  "rerank"
+ ],
+ "centers": {
+  "answer_retrieval": 8.5,
+  "ocr": 6.5,
+  "judge": 3.0,
+  "independent": 2.0
+ }
+}
+{
+ "step": "preflight_real_snapshot",
+ "ok": true,
+ "reasons": [],
+ "stage_remaining": 19.4286417,
+ "total_remaining": 24.35769720000002,
+ "requests_used": 547,
+ "requests_remaining": 653,
+ "requests_planned": 254,
+ "worst_case": 8.127376,
+ "reserve_peak": 0.5,
+ "center_remaining": {
+  "answer_retrieval": 8.4286417,
+  "ocr": 6.0,
+  "judge": 3.0,
+  "independent": 2.0
+ },
+ "production_ready": true,
+ "go_path_exists": true
+}
+{
+ "step": "authorize_candidate",
+ "production_ready": false,
+ "go_sha256": "7376bc3187e6860ab0f36c4af07e5a4393d7ec9b7363edcfbf046ec409c06b64",
+ "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+ "stage_remaining_cny": 19.4286417,
+ "requests_used": 547,
+ "requests_remaining": 653,
+ "max_requests": 1200,
+ "operation_count": 6,
+ "note": "production_ready=False ⇒ 候选 GO 不可发送；只有经理落盘的固定路径 GO 才可能为 True"
+}
+{
+ "step": "negatives",
+ "rows": [
+  {
+   "case": "legacy_p1_go",
+   "kind": "authorize",
+   "reason": "legacy_go_document"
+  },
+  {
+   "case": "plan_sha_mismatch",
+   "kind": "authorize",
+   "reason": "go_plan_id_mismatch"
+  },
+  {
+   "case": "plan_sha_mismatch_only",
+   "kind": "authorize",
+   "reason": "go_plan_sha256_mismatch"
+  },
+  {
+   "case": "ocr_center_6_0_below_usage",
+   "kind": "preflight",
+   "reasons": [
+    "center_budget_insufficient:ocr"
+   ]
+  },
+  {
+   "case": "requests_over_remaining",
+   "kind": "preflight",
+   "reasons": [
+    "request_budget_insufficient"
+   ]
+  },
+  {
+   "case": "hard_cap_over_1600",
+   "kind": "authorize",
+   "reason": "request_cap_over_hard_limit"
+  },
+  {
+   "case": "go_expired",
+   "kind": "authorize",
+   "reason": "go_expired"
+  },
+  {
+   "case": "go_max_requests_below_plan",
+   "kind": "authorize",
+   "reason": "go_max_requests_below_plan"
+  },
+  {
+   "case": "go_max_request_cny_below_peak",
+   "kind": "authorize",
+   "reason": "go_max_request_cny_below_plan"
+  },
+  {
+   "case": "go_operation_unauthorized_ocr",
+   "kind": "authorize",
+   "reason": "go_operation_unauthorized"
+  }
+ ]
+}
+{
+ "step": "runs_authorization",
+ "order": [
+  "R3",
+  "R2",
+  "R1"
+ ],
+ "windows": [
+  {
+   "run": "R3",
+   "requests_used_before": 547,
+   "requests_this_run": 6,
+   "ceiling_used_plus_planned": 801,
+   "max_requests": 1200,
+   "preflight_ok": true,
+   "reasons": [],
+   "stage_remaining_before": 19.4286417,
+   "worst_case_this_run": 0.04832
+  },
+  {
+   "run": "R2",
+   "requests_used_before": 553,
+   "requests_this_run": 15,
+   "ceiling_used_plus_planned": 807,
+   "max_requests": 1200,
+   "preflight_ok": true,
+   "reasons": [],
+   "stage_remaining_before": 19.3803217,
+   "worst_case_this_run": 0.102784
+  },
+  {
+   "run": "R1",
+   "requests_used_before": 568,
+   "requests_this_run": 242,
+   "ceiling_used_plus_planned": 822,
+   "max_requests": 1200,
+   "preflight_ok": true,
+   "reasons": [],
+   "stage_remaining_before": 19.2775377,
+   "worst_case_this_run": 7.994704
+  }
+ ],
+ "cumulative": {
+  "requests": 810,
+  "worst_case_cny": 8.145808
+ },
+ "why_this_order": "OCR 中心窗口：计划含 12 页 OCR（上界 5.65），R1 跑完后 ocr 已占 6.15，余 0.35 < 5.65，再次授权必然 center_budget_insufficient:ocr；R3/R2 不消耗 OCR，故先跑它们、R1 最后跑（各 run 仍独立进程 + 新门）。"
+}
+{
+ "step": "reorder_control",
+ "if_r1_first": {
+  "ok": false,
+  "reasons": [
+   "center_budget_insufficient:ocr"
+  ],
+  "requests_remaining": 411,
+  "requests_planned": 254,
+  "center_remaining": {
+   "answer_retrieval": 6.0839377,
+   "ocr": 0.34999999999999964,
+   "judge": 3.0,
+   "independent": 2.0
+  },
+  "note": "请求窗口够（653-242=411 >= 254），但 ocr 中心不够 → 必须先 R3/R2 再 R1"
+ }
+}
+{
+ "step": "read_only_proof",
+ "before": {
+  "ledger_sha": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1050298,
+  "ledger_lines": 1095
+ },
+ "after": {
+  "ledger_sha": "6b053520a2358f942279c9e6abbdb3b868e729b6df6b8397c132fce666ee345c",
+  "budget_sha": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "ledger_bytes": 1050298,
+  "ledger_lines": 1095
+ },
+ "unchanged": true,
+ "go_path_exists_after": true
+}
