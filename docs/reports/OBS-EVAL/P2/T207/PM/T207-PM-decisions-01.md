@@ -83,3 +83,38 @@
 - **R4PREP 独立验收**：计划/case/ingest/GO 候选逐值 PASS；因 F-1 判不可签，F-1 由 LIVECAP 闭环、F-2/F-3/F-4/F-6 由 R4PREP-R1 文档收口（只动 T207 文档；plan/case/ingest/GO 不改）。
 - **R2（commit `24f9cde`）**：冲突回答 text 披露双方取值（通用渲染、≤8 条/字段），C05/C06 冻结评分 fail→pass；54 例仅 C05/C06 变化；独立验收接收。
 - **H2 执行前置补充**：固定路径当前为 H2 GO（sha `3ed427f4…`）；R4 需先归档该 GO、签 R4 GO；H2 前再恢复/重签 H2 GO。
+
+## 13. H2 首次真实 run 中止与诊断（2026-11-11 14:5x–15:0x）
+- **执行**：H2 GO `3ed427f4…`（plan `f5877f56…`、1100）；run_id `p2-t207-h2-20261111-01`；`--visibility holdout --mode live`，purge 接线修复后成功启动。
+- **结果**：**aborted**，`stop_code=product_service_error`，`error_code=MODEL_OUTPUT_INVALID`（HTTP 200，stage=product_answer，turn 1）；已发送 21 chat、63 出站、70 笔预留，结算 0.1825 元（保守 0.1862082），账本 +140 行；累计请求 774。
+- **执行面读数**（holdout_scorecard，仅聚合）：total 30 / executed 21 / passed **11** / failed 10 / errors 9（中止后未执行）；分层 paraphrase 8/10、multi_turn 2/5、negative **1/5**、stale_conflict 0/5（4 未执行+1 fail）、cross_doc 0/5（全未执行）。**即使剩余 9 题全过也仅 20/30，低于 24 标准**。
+- **另见聚合 block**：`holdout_document_code_unmapped`（mapped 8，missing [`V04`,`V06`]）——H2 labels 期望来源用版本文件名代号（V04/V06），而产品回传 document_name 为基槽名（D01/D02），来源匹配需版本代号→基槽映射（否则 stale_conflict/cross_doc 结构性失败）。
+- **MODEL_OUTPUT_INVALID 语义**：模型 HTTP 200 但输出不合 JSON/schema，当前 runner 归为 product_service_error 并整 run 停止；H2 需 30/30 无 error 才能过（errors 会形成 unknown block），单次输出异常即中止使 H2 几乎不可完整；需产品健壮性修复或停止语义裁定（待诊断后决定）。
+- **经理处理**：已复制中止产物至 `T207/p2-t207-h2-20261111-01-aborted/`（聚合安全、无逐题）；派受控元数据核对（labels expected_sources 的 doc_code 集合/locator 键集，仅聚合）+ 聚合诊断扩展（expected_kind×actual_kind、失败 check 计数、映射状态；无题干/答案）。诊断后决定产品/评分修复与是否再跑一轮 H2（新计划+新 GO，计入同 20 元/同请求）。
+
+## 14. 主人选择 A：T207 报告收口后暂停（2026-11-11）
+
+- **最新授权**：主人明确选择“不再付费，完成报告与独立复核，如实保留 H2 未达标结论，收口后暂停”；不进入 T208/T209/T900。
+  当前宿主没有 wb 子代理工具与 Codex Host CLI，主人另明确允许用内置子代理完成零真实调用独立验收；不再执行旧模型入口要求。
+  当前宿主权限以实际 workspace-write 为准，不沿用交接中 danger-full-access 的环境快照。
+- **固定文件核对**：账本/预算/GO 分别为 `1648405845fd5e19…` / `79b21700…` / `3ed427f4…`，与暂停交接一致。
+  ledger 774 reserved/result；P2 **保守占用** 6.784628 元、项目保守占用 21.8555725 元；本轮新增真实调用/预留均 0。
+  原记录把全操作保守占用简称“结算”的地方以此收紧，供应商实账未在本轮核对。
+- **矩阵取证政策（预定范围，不择优）**：R1-fixed 取 B0 40/N01–N07/C01–C04；R4 取 N08/C05/C06；R2-fixed 仅取 U01；
+  U02–U10 取已有 `scoring/u-controls.json`。按该固定范围过滤后调用既有矩阵工具，无重复 case、保留 Q25/Q33 失败。
+  `update_delete` 真运行行覆盖 1/10，`u` 才是 R1+L9 的 10/10 证据表；不把本地控制当真实模型完整更新验证。
+  生成 `scoring/closeout/{matrix_observation,verification}.json`，输入文件 hash、原运行身份/配置/索引与复评分比对同存。
+- **H2计数更正**：scorecard executed=21（11 pass/10 fail），errors=9；计数聚合 cases.executed=22、with_error=1，故 1 题出错+8 题未开始。
+  不是 9 题全未尝试；现有评分把 9 项全补通过也只有 20/30，但有 V04/V06 映射缺口，不能用该读数预测修复后能力。
+  `hard_failures=0` 不证明真实硬失败全零；冻结停止语义保持不变、不重跑、不修 FIX-H2MAP。
+- **独立验收安排**：H2DIAG 由全新内置上下文验收；若不通过，保存拒收证据并只撤回其源码/测试/契约增量，不发新修复包。
+  组合矩阵与最终报告由另一全新内置上下文复核，允许“有质量缺口的报告收口”接收，不允许认证质量达标或 P2 总完成。
+- **本轮 U 验证限制**：旧导出 U01–U10 为 10/10；本轮复跑默认 TEMP 权限失败，换可写 TEMP 后在 B0 构建阶段无进展并中止。
+  不把中止复跑称通过，不改断言/预算；本轮使用旧控制的来源/时点明确保留。
+- **交付与停止**：最终报告 `../T207-final-report.md`、全新复核 `../review-closeout.md`；
+  经理确认接收后只暂存 P2 路径并本地 commit；协调文档/面试材料/原有临时文件不入库；不 push/合并/部署。
+- **最终经理接收**：H2DIAG 独立拒收后已按计划撤回，源码/测试/两契约 diff 为空；拒收 patch/hash/反例完整保留。
+  另一全新内置独立复核完成 223 条同步证据断言、退出 0、网络尝试 0，结论为“限定接收 T207 如实收口，收口范围阻断 0”。
+  经理接收该报告范围，不接收 H2 质量/安全通过，不宣称 P2 总完成；回退后经理同步子集16 passed/5 deselected，未执行项不计通过。
+  H2 原元数据三文件含封存题号，已仓外逐字节保全并核hash，仓内仅保留三安全聚合；索引为 `../scoring/closeout/h2-artifact-audit.json`。
+  后续本地提交仅限 T207 收口与 H2DIAG 拒收证据两目录；提交后更新暂停交接，不再派发下一任务。

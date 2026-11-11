@@ -1,5 +1,9 @@
 # T207 成本与请求核算（逐 operation / 中心 / 案例 / 页 / 批；零真实调用）
 
+> 收口实际快照见 `../T207-final-report.md` §3 与 `../scoring/closeout/verification.json`：
+> 累计 774 reserved/result；P2 保守占用 6.784628 元，项目保守占用 21.8555725 元。
+> 主人选择 A，本轮零新增付费，后文计划上界与 R4 前后预计值均为历史记录，不是当前余量。
+
 - 全部数字可由 `evidence/{estimate.py,build-plan.py,validate-plan.py}` 离线复算；真实账本只被**只读**读过一次
   （前后 SHA 一致，见 `evidence/validate-plan-out.txt` 的 `read_only_proof`）。
 - 单位价来自 `p2_contracts` 冻结常量：chat 上界 `6144×2/1e6 + 800×8/1e6 = 0.018688`；

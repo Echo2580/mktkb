@@ -1,0 +1,319 @@
+{
+  "generated_utc": "2026-11-11T07:51:15+00:00",
+  "schema_version": "p2-t207-closeout-verification/v0.1",
+  "new_real_calls": 0,
+  "network_policy": "socket connect/connect_ex/create_connection denied; no product execution",
+  "fixed_files_before": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "1648405845fd5e19b593e610b92f8505fdfd78a9e57079648dc14673576785d7",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c"
+  },
+  "fixed_files_after": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "1648405845fd5e19b593e610b92f8505fdfd78a9e57079648dc14673576785d7",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json": "3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c"
+  },
+  "ledger_snapshot": {
+    "schema_version": "p2-ledger-snapshot/v0.1",
+    "ledger_path": "D:\\GPT项目\\市场部AI知识库\\docs\\evidence\\LOCAL-R1-20261101\\budget\\live-ledger.jsonl",
+    "ledger_sha256": "1648405845fd5e19b593e610b92f8505fdfd78a9e57079648dc14673576785d7",
+    "historical_prefix_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "total_limit_cny": 40.0,
+    "historical_accounted_cny": 0.03,
+    "accounted_cny": 21.855572499999955,
+    "reservation_count": 774,
+    "result_count": 774,
+    "stage_allocations_cny": {
+      "S1-DEV": 0.0,
+      "S1-IA": 0.0,
+      "S2-DEV": 15.4,
+      "P1-RETRIEVAL": 3.0,
+      "later_shared_reserve": 1.57,
+      "P2-LIVE": 20.0
+    },
+    "p2_stage_accounted_cny": 6.784628000000008,
+    "p2_center_accounted_cny": {
+      "answer_retrieval": 0.6346279999999999,
+      "ocr": 6.15
+    },
+    "source": "fixed-paths"
+  },
+  "run_accounting": [
+    {
+      "run": "R1",
+      "status": "succeeded",
+      "reservations": 129,
+      "chat_sends": 40,
+      "conservative_accounted_cny": 5.947332,
+      "answer_side_settled_cny": 0.28944
+    },
+    {
+      "run": "R2",
+      "status": "succeeded",
+      "reservations": 10,
+      "chat_sends": 1,
+      "conservative_accounted_cny": 0.0207119,
+      "answer_side_settled_cny": 0.020004
+    },
+    {
+      "run": "R3",
+      "status": "succeeded",
+      "reservations": 5,
+      "chat_sends": 1,
+      "conservative_accounted_cny": 0.0015582,
+      "answer_side_settled_cny": 0.00116
+    },
+    {
+      "run": "R4",
+      "status": "succeeded",
+      "reservations": 13,
+      "chat_sends": 0,
+      "conservative_accounted_cny": 0.0574594,
+      "answer_side_settled_cny": 0.056064
+    },
+    {
+      "run": "H2",
+      "status": "aborted",
+      "reservations": 70,
+      "chat_sends": 21,
+      "conservative_accounted_cny": 0.1862082,
+      "answer_side_settled_cny": 0.1825
+    }
+  ],
+  "u_controls_reexecution": "本次宿主复跑在B0构建阶段无进展，已中止；这里只核对原控制产物，不声称本次复跑通过",
+  "inputs": [
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+      "sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+      "sha256": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+      "sha256": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+      "sha256": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/cases/R4.jsonl",
+      "sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/scoring/R4/case_scores.json",
+      "sha256": "223e4c16b009c06a4bf5cbfcf128ca71ac7b4502014603d198a06f3b5205ef33"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl",
+      "sha256": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json",
+      "sha256": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/cases/R2.jsonl",
+      "sha256": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/scoring/R2-fixed/case_scores.json",
+      "sha256": "410efbef275501b82de2b7770c252f181712daaff8f41505d60473136e09af47"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/cases.jsonl",
+      "sha256": "f95ae56249ae08ab3c58497bc6b62ba56fae68c47c24d4716c2176343eb7ca9b"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/run_manifest.json",
+      "sha256": "7139213b4f0e6038186e6f3c63b6d58dba99517c7821a05d058465db3e2ca290"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+      "sha256": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/run_result.json",
+      "sha256": "043b78c0e8ed9d4b3f86b6a0cfc70bc6d4ea32806cbe014d05a1ec6409e6b478"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r3-20261111-01/run_result.json",
+      "sha256": "168ef1e8ea6127a6ab4de0ac66c06b58d1b1e2226411ea0136bf6322558bd051"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_result.json",
+      "sha256": "977d65aa74e1c0cda79474af9c6b5818ff60727e2273edcb844568459bbabdc0"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-h2-20261111-01-aborted/run_result.json",
+      "sha256": "4644b3caab9fc85daae43af3396204c7c7596f5b495894b8327a837700e9fcdf"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+      "sha256": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-h2-20261111-01-aborted/holdout_scorecard.json",
+      "sha256": "6586d3cc21e23a3f144d48b648375ec9f7af081923998ed6aa2184f5f9f20bd8"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/p2-t207-h2-20261111-01-aborted/holdout_aggregate.json",
+      "sha256": "772bce7239284e28a2bf7cdac9fc06e1a1b2ed8fc4aa696f3d30d613af77842d"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/T207/cases/document-codes.json",
+      "sha256": "3ac6a4eb5570e42312127c39cd6a79d8759bf2fb3821ef0bd45bdee2ca5cc20d"
+    }
+  ],
+  "public_rescore": [
+    {
+      "source": "R1-fixed",
+      "cases_rechecked": 52,
+      "status_equal": true,
+      "selected_ids": [
+        "C01",
+        "C02",
+        "C03",
+        "C04",
+        "N01",
+        "N02",
+        "N03",
+        "N04",
+        "N05",
+        "N06",
+        "N07",
+        "Q01",
+        "Q02",
+        "Q03",
+        "Q04",
+        "Q05",
+        "Q06",
+        "Q07",
+        "Q08",
+        "Q09",
+        "Q10",
+        "Q11",
+        "Q12",
+        "Q13",
+        "Q14",
+        "Q15",
+        "Q16",
+        "Q17",
+        "Q18",
+        "Q19",
+        "Q20",
+        "Q21",
+        "Q22",
+        "Q23",
+        "Q24",
+        "Q25",
+        "Q26",
+        "Q27",
+        "Q28",
+        "Q29",
+        "Q30",
+        "Q31",
+        "Q32",
+        "Q33",
+        "Q34",
+        "Q35",
+        "Q36",
+        "Q37",
+        "Q38",
+        "Q39",
+        "Q40"
+      ],
+      "selected_count": 51
+    },
+    {
+      "source": "R4",
+      "cases_rechecked": 3,
+      "status_equal": true,
+      "selected_ids": [
+        "C05",
+        "C06",
+        "N08"
+      ],
+      "selected_count": 3
+    },
+    {
+      "source": "R2-fixed",
+      "cases_rechecked": 2,
+      "status_equal": true,
+      "selected_ids": [
+        "U01"
+      ],
+      "selected_count": 1
+    }
+  ],
+  "remaining_public_failures": [
+    {
+      "case_id": "Q25",
+      "status": "fail",
+      "failed_checks": [
+        "value_hit"
+      ]
+    },
+    {
+      "case_id": "Q33",
+      "status": "fail",
+      "failed_checks": [
+        "source_hit"
+      ]
+    }
+  ],
+  "exact_passed": 24,
+  "ocr_passed": 7,
+  "h2": {
+    "total": 30,
+    "executed": 21,
+    "passed": 11,
+    "failed": 10,
+    "errors": 9,
+    "by_stratum": {
+      "cross_doc_security": {
+        "errors": 5,
+        "failed": 0,
+        "passed": 0,
+        "total": 5
+      },
+      "multi_turn": {
+        "errors": 0,
+        "failed": 3,
+        "passed": 2,
+        "total": 5
+      },
+      "negative": {
+        "errors": 0,
+        "failed": 4,
+        "passed": 1,
+        "total": 5
+      },
+      "paraphrase": {
+        "errors": 0,
+        "failed": 2,
+        "passed": 8,
+        "total": 10
+      },
+      "stale_conflict": {
+        "errors": 4,
+        "failed": 1,
+        "passed": 0,
+        "total": 5
+      }
+    },
+    "hard_failures": 0,
+    "release_ready": false,
+    "threshold_met": false
+  },
+  "h2_execution": {
+    "cases_started": 22,
+    "cases_with_error": 1,
+    "cases_not_started": 8,
+    "cases_scored": 21
+  },
+  "h2_status": "aborted/未达标；errors=9含1题出错+8题未尝试，不能将9全部称为从未尝试"
+}

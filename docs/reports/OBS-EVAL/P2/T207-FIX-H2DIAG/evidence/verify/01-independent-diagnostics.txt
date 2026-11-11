@@ -1,0 +1,247 @@
+# 01 独立复跑：自建 30 题合成封存 → diagnostics 逐值核对（43 项断言）
+# 脚本：evidence/verify/v1_independent_diagnostics.py（本人新写，未复用 test_p2_holdout_scorecard.py 的 _diag_specs/_diag_rows）
+# 零真实调用：纯内存夹具（自建 CaseSpec / ProductTurn / ledger），不联网、不读 .env / 真实 H2 / key、不写仓库内产物。
+# 期望值在脚本里手算写死（A 段 EXPECTED），与实现输出做深比较。
+
+=== 自建合成（30 题 / 10-5-5-5-5）card ===
+{"errors": 4, "executed": 26, "failed": 8, "passed": 18, "total": 30}
+BLOCKS ['holdout_case_error', 'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_document_code_unmapped', 'holdout_hard_failure_unclassified']
+=== diagnostics ===
+{
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors_by_code": {},
+      "failing_checks": {
+        "source_hit": 4
+      },
+      "kind_matrix": {
+        "answer": {
+          "answer": 5
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 5,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "multi_turn": {
+      "errors_by_code": {
+        "MODEL_TIMEOUT": 1
+      },
+      "failing_checks": {},
+      "kind_matrix": {
+        "answer": {
+          "answer": 4,
+          "error": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 4,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "negative": {
+      "errors_by_code": {},
+      "failing_checks": {
+        "kind_correct": 1,
+        "refusal_expected": 1
+      },
+      "kind_matrix": {
+        "refusal": {
+          "answer": 1,
+          "not_found": 4
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 0,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 1,
+          "refused": 4
+        }
+      }
+    },
+    "paraphrase": {
+      "errors_by_code": {
+        "MODEL_OUTPUT_INVALID": 1,
+        "not_executed": 1
+      },
+      "failing_checks": {
+        "kind_correct": 1,
+        "refusal_unexpected": 1,
+        "source_hit": 1,
+        "value_hit": 2
+      },
+      "kind_matrix": {
+        "answer": {
+          "answer": 7,
+          "error": 1,
+          "not_executed": 1,
+          "not_found": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 7,
+          "refused": 1
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "stale_conflict": {
+      "errors_by_code": {
+        "source_not_active": 1
+      },
+      "failing_checks": {
+        "kind_correct": 1,
+        "refusal_unexpected": 1
+      },
+      "kind_matrix": {
+        "conflict": {
+          "conflict": 4,
+          "not_found": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 4,
+          "refused": 1
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    }
+  },
+  "detail_available": true,
+  "ends_observed": 27,
+  "errors_by_code": {
+    "MODEL_OUTPUT_INVALID": 1,
+    "MODEL_TIMEOUT": 1,
+    "not_executed": 1,
+    "source_not_active": 1
+  },
+  "failing_checks": {
+    "kind_correct": 3,
+    "refusal_expected": 1,
+    "refusal_unexpected": 2,
+    "source_hit": 5,
+    "value_hit": 2
+  },
+  "kind_matrix": {
+    "answer": {
+      "answer": 16,
+      "error": 2,
+      "not_executed": 1,
+      "not_found": 1
+    },
+    "conflict": {
+      "conflict": 4,
+      "not_found": 1
+    },
+    "refusal": {
+      "answer": 1,
+      "not_found": 4
+    }
+  },
+  "refusal_matrix": {
+    "false": {
+      "not_refused": 20,
+      "refused": 2
+    },
+    "true": {
+      "not_refused": 1,
+      "refused": 4
+    }
+  },
+  "schema_version": "p2-holdout-diagnostics/v0.1",
+  "source_mapping": {
+    "by_doc_code": {
+      "D01": {
+        "expected_cases": 19,
+        "mapped": true,
+        "source_hit_failed": 3
+      },
+      "D02": {
+        "expected_cases": 1,
+        "mapped": true,
+        "source_hit_failed": 1
+      },
+      "V07": {
+        "expected_cases": 1,
+        "mapped": false,
+        "source_hit_failed": 1
+      }
+    },
+    "doc_codes_available": 3,
+    "doc_codes_expected": 3,
+    "doc_codes_missing": 1,
+    "expected_cases": 20,
+    "expected_cases_mapped": 19,
+    "source_hit_failed_cases": 5
+  },
+  "total": 30
+}
+PASS A1 diagnostics 逐值等于手算期望
+PASS A2 计数卡与手算一致（诊断不改口径）
+PASS A3 kind 取末轮（12 号第1轮 not_found 不计入）
+PASS B1 kind 矩阵覆盖全部题
+PASS B2 拒答矩阵总和 = ends_observed
+PASS B3 sum(errors_by_code) == card.errors
+PASS B4 分层自洽 cross_doc_security
+PASS B4 分层自洽 multi_turn
+PASS B4 分层自洽 negative
+PASS B4 分层自洽 paraphrase
+PASS B4 分层自洽 stale_conflict
+PASS B5 映射缺失 block 与 source_mapping 同源
+PASS B6 available==mapped
+PASS B7 已命中的 D01 未被 26 号冤枉（26 号只记 D02）
+PASS C1 诊断子树无任何非 ASCII（CJK/全角）字符
+PASS C2 卡全文扫描 0 命中（case_id/题干/答案/文档内容）
+PASS D1 去掉 diagnostics 后与既有聚合逐字相同
+PASS D2 卡上只新增 diagnostics 一个键
+PASS E1 传/不传 score_sink 返回值完全相同
+PASS E2 score_sink 收到 30 条逐题明细（只读口）
+PASS E3 score_sink 默认 None（既有调用不受影响）
+PASS F0 正常诊断卡不误报（0 命中）
+PASS F1 自由文本 kind 键（题干原文）
+PASS F2a 含空格的自由文本值
+PASS F2b 超长串值（65 字）
+PASS F3 数组夹带
+PASS F4 未登记顶层键
+PASS F5 H2- 前缀键
+PASS F6 题干片段值
+PASS F7 未登记 schema 版本
+PASS F8 代码形态的 ASCII 题干：白名单放过、needle 扫描拦下（纵深防御）
+PASS G1 坏诊断 → 退化为全 error 卡
+PASS G2 稳定 block 码 holdout_scorecard_leak
+PASS G3 兜底卡诊断只给原因码 x 总数
+PASS G4 兜底卡不残留明文题干
+PASS G5 兜底卡自身通过泄漏审计
+PASS H1 正常 artifact 诊断=手算、pass=18（未被误判成泄漏）
+PASS I1 aborted 诊断逐值（已执行 1 + not_executed 29）
+PASS I2 aborted: sum(errors_by_code)==errors==30
+PASS I3 aborted 仍按层拆表
+PASS I4 aborted 分层覆盖率完整
+PASS J1 p2-score CLI 侧代码不含 diagnostics
+PASS J2 无 diagnostics 的卡仍可审计（向后兼容）
+
+=== SUMMARY: 43 PASS / 0 FAIL ===

@@ -1,0 +1,96 @@
+{
+  "blocks": [
+    {
+      "code": "holdout_case_error",
+      "detail": "H2 存在未执行/error 题，不得并入正确数",
+      "evidence": {
+        "errors": 9
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_below_threshold",
+      "detail": "H2 通过 11 < 门槛 24/30",
+      "evidence": {
+        "min_pass": 24,
+        "passed": 11
+      },
+      "severity": "quality"
+    },
+    {
+      "code": "holdout_threshold_unapproved",
+      "detail": "H2 阈值/门禁版本未审批（gate_v0_3 初始 unapproved），不得按通过处理",
+      "evidence": {
+        "gate_status": "unapproved"
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_document_code_unmapped",
+      "detail": "数据集期望来源的 doc_code 无法由 H2 语料文件名映射（不猜、不放行）",
+      "evidence": {
+        "mapped": 8,
+        "missing": [
+          "V04",
+          "V06"
+        ]
+      },
+      "severity": "unknown"
+    }
+  ],
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    },
+    "multi_turn": {
+      "errors": 0,
+      "failed": 3,
+      "passed": 2,
+      "total": 5
+    },
+    "negative": {
+      "errors": 0,
+      "failed": 4,
+      "passed": 1,
+      "total": 5
+    },
+    "paraphrase": {
+      "errors": 0,
+      "failed": 2,
+      "passed": 8,
+      "total": 10
+    },
+    "stale_conflict": {
+      "errors": 4,
+      "failed": 1,
+      "passed": 0,
+      "total": 5
+    }
+  },
+  "config_hash": "037a7e569f650058373d1ebd93d209ed64c991aa212186a44f65f6418ac49dc8",
+  "detail_export": false,
+  "errors": 9,
+  "executed": 21,
+  "execution_mode": "live",
+  "failed": 10,
+  "hard_failures": 0,
+  "hard_failures_by_kind": {
+    "cross_entity": 0,
+    "cross_user": 0,
+    "safety": 0,
+    "stale_source": 0
+  },
+  "hard_failures_max": 0,
+  "min_pass": 24,
+  "passed": 11,
+  "real_calls": 63,
+  "release_ready": false,
+  "run_id": "p2-t207-h2-20261111-01",
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "threshold_met": false,
+  "thresholds_approved": false,
+  "total": 30
+}

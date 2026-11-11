@@ -1,0 +1,221 @@
+# 01 合成封存 30 题（10-5-5-5-5）的 holdout_scorecard.diagnostics 逐值
+# 与 test_p2_holdout_scorecard.py::test_diagnostics_matrix_matches_sealed_cases_value_by_value
+# 的断言逐字相同；重跑 `-k diagnostics` 即复现（零真实调用、不读真实 H2/key）。
+# 合成题只用于构造 kind/check/来源分布，产物里只有稳定代码与计数。
+
+## 复现脚本（写在仓库外临时目录，import 测试模块复用其夹具；用完即删）
+
+import importlib.util, json, sys
+from pathlib import Path
+
+ROOT = Path(r"D:\GPT项目\市场部AI知识库")
+sys.path.insert(0, str(ROOT / "backend" / "src"))
+sys.path.insert(0, str(ROOT / "backend" / "tests"))
+
+spec = importlib.util.spec_from_file_location("t_h2diag", ROOT / "backend/tests/evaluation/test_p2_holdout_scorecard.py")
+mod = importlib.util.module_from_spec(spec)
+sys.modules["t_h2diag"] = mod
+spec.loader.exec_module(mod)
+
+card, specs = mod._diag_card()
+print("=== SYNTHETIC DIAGNOSTICS ===")
+print(json.dumps(card["diagnostics"], ensure_ascii=False, indent=2, sort_keys=True))
+print("CARD", json.dumps({k: card[k] for k in ("total","executed","passed","failed","errors")}, ensure_ascii=False))
+print("BLOCKS", [b["code"] for b in card["blocks"]])
+mod.runner._assert_holdout_scorecard_payload(card, mod._synthetic_dataset(specs))
+print("AUDIT ok")
+
+## 输出
+=== SYNTHETIC DIAGNOSTICS ===
+{
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors_by_code": {},
+      "failing_checks": {
+        "kind_correct": 1,
+        "refusal_unexpected": 1,
+        "source_hit": 3,
+        "value_hit": 1
+      },
+      "kind_matrix": {
+        "answer": {
+          "answer": 4,
+          "not_found": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 4,
+          "refused": 1
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "multi_turn": {
+      "errors_by_code": {
+        "MODEL_OUTPUT_INVALID": 1
+      },
+      "failing_checks": {},
+      "kind_matrix": {
+        "answer": {
+          "answer": 4,
+          "error": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 4,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "negative": {
+      "errors_by_code": {},
+      "failing_checks": {
+        "kind_correct": 1,
+        "refusal_expected": 1
+      },
+      "kind_matrix": {
+        "refusal": {
+          "answer": 1,
+          "not_found": 4
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 0,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 1,
+          "refused": 4
+        }
+      }
+    },
+    "paraphrase": {
+      "errors_by_code": {
+        "not_executed": 1
+      },
+      "failing_checks": {
+        "source_hit": 1,
+        "value_hit": 1
+      },
+      "kind_matrix": {
+        "answer": {
+          "answer": 9,
+          "not_executed": 1
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 9,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    },
+    "stale_conflict": {
+      "errors_by_code": {
+        "source_not_active": 1
+      },
+      "failing_checks": {},
+      "kind_matrix": {
+        "answer": {
+          "answer": 1
+        },
+        "conflict": {
+          "conflict": 4
+        }
+      },
+      "refusal_matrix": {
+        "false": {
+          "not_refused": 5,
+          "refused": 0
+        },
+        "true": {
+          "not_refused": 0,
+          "refused": 0
+        }
+      }
+    }
+  },
+  "detail_available": true,
+  "ends_observed": 28,
+  "errors_by_code": {
+    "MODEL_OUTPUT_INVALID": 1,
+    "not_executed": 1,
+    "source_not_active": 1
+  },
+  "failing_checks": {
+    "kind_correct": 2,
+    "refusal_expected": 1,
+    "refusal_unexpected": 1,
+    "source_hit": 4,
+    "value_hit": 2
+  },
+  "kind_matrix": {
+    "answer": {
+      "answer": 18,
+      "error": 1,
+      "not_executed": 1,
+      "not_found": 1
+    },
+    "conflict": {
+      "conflict": 4
+    },
+    "refusal": {
+      "answer": 1,
+      "not_found": 4
+    }
+  },
+  "refusal_matrix": {
+    "false": {
+      "not_refused": 22,
+      "refused": 1
+    },
+    "true": {
+      "not_refused": 1,
+      "refused": 4
+    }
+  },
+  "schema_version": "p2-holdout-diagnostics/v0.1",
+  "source_mapping": {
+    "by_doc_code": {
+      "D01": {
+        "expected_cases": 21,
+        "mapped": true,
+        "source_hit_failed": 3
+      },
+      "D02": {
+        "expected_cases": 1,
+        "mapped": true,
+        "source_hit_failed": 1
+      },
+      "V06": {
+        "expected_cases": 1,
+        "mapped": false,
+        "source_hit_failed": 1
+      }
+    },
+    "doc_codes_available": 8,
+    "doc_codes_expected": 3,
+    "doc_codes_missing": 1,
+    "expected_cases": 21,
+    "expected_cases_mapped": 20,
+    "source_hit_failed_cases": 4
+  },
+  "total": 30
+}
+CARD {"total": 30, "executed": 27, "passed": 21, "failed": 6, "errors": 3}
+BLOCKS ['holdout_case_error', 'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_document_code_unmapped', 'holdout_hard_failure_unclassified']
+AUDIT ok

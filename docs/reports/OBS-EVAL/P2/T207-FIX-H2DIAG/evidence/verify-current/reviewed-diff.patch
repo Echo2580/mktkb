@@ -1,0 +1,1062 @@
+diff --git a/backend/src/mktkb/evaluation/p2_runner.py b/backend/src/mktkb/evaluation/p2_runner.py
+index 758eb06..0e47239 100644
+--- a/backend/src/mktkb/evaluation/p2_runner.py
++++ b/backend/src/mktkb/evaluation/p2_runner.py
+@@ -49,6 +49,9 @@ from .p2_contracts import (
+ from .dataset import cases_to_jsonl
+ from .p2_scoring import (
+     CASE_STATUS_ERROR,
++    CASE_STATUS_FAIL,
++    CASE_STATUS_NOT_EXECUTED,
++    CASE_STATUS_PASS,
+     EXECUTION_MODE_LIVE as SCORING_EXECUTION_LIVE,
+     EXECUTION_MODE_LOCAL_MOCK as SCORING_EXECUTION_LOCAL_MOCK,
+     P2_BINDING_VERSION,
+@@ -56,12 +59,14 @@ from .p2_scoring import (
+     P2_HOLDOUT_MAX_HARD_FAILURES,
+     P2_HOLDOUT_MIN_PASS,
+     P2Block,
++    P2CaseScore,
+     P2HoldoutCaseScore,
+     P2HoldoutScorecard,
+     SEVERITY_UNKNOWN,
+     binding_config_hash,
+     citation_evidence_status,
+ )
++from .scorers import is_refusal
+ from .product_adapter import (
+     P2RunDataset,
+     PRODUCT_TURN_TIMEOUT_SECONDS,
+@@ -1781,16 +1786,26 @@ def holdout_document_codes(ingest_plan: Any) -> dict[str, str]:
+     return mapping
+ 
+ 
++def _case_doc_codes(case: Any) -> frozenset[str]:
++    """一条题的**期望来源代号**：``expected_sources``/``relevant_units`` 里的 ``doc_code``。
++
++    只认语料文件名代号（``D01``/``V06``），不读答案正文、不按名称猜。
++    """
++    codes: set[str] = set()
++    for name in ("expected_sources", "relevant_units"):
++        for ref in getattr(case, name, ()) or ():
++            if isinstance(ref, Mapping):
++                code = str(ref.get("doc_code") or "").strip()
++                if code:
++                    codes.add(code)
++    return frozenset(codes)
++
++
+ def _holdout_expected_doc_codes(cases: Sequence[Any]) -> set[str]:
+     """数据集**期望来源**里出现的 doc_code 全集（gold 引用，不含任何答案正文）。"""
+     codes: set[str] = set()
+     for case in cases:
+-        for name in ("expected_sources", "relevant_units"):
+-            for ref in getattr(case, name, ()) or ():
+-                if isinstance(ref, Mapping):
+-                    code = str(ref.get("doc_code") or "").strip()
+-                    if code:
+-                        codes.add(code)
++        codes |= _case_doc_codes(case)
+     return codes
+ 
+ 
+@@ -1806,8 +1821,8 @@ def _holdout_score_marks(
+     ingest_plan: Any,
+     execution: str,
+     blocks: list[P2Block],
+-) -> tuple[tuple[P2HoldoutCaseScore, ...], str]:
+-    """逐题判定（只在内存里）；返回 (marks, execution_mode)。每题失败按 error 记，不猜。"""
++) -> tuple[tuple[P2HoldoutCaseScore, ...], str, "_HoldoutScoring"]:
++    """逐题判定（只在内存里）；返回 (marks, execution_mode, 诊断上下文)。每题失败按 error 记，不猜。"""
+     from .p2_score_run import holdout_case_scores_from_rows, source_index_from_rows
+ 
+     # B1：打分输入必须是**带回答正文的逐题行**（``record_scoring_case``，只在内存里）；
+@@ -1848,6 +1863,9 @@ def _holdout_score_marks(
+         SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
+     )
+     marks: list[P2HoldoutCaseScore] = []
++    # T207-FIX-H2DIAG：逐题 P2CaseScore 的只读观察口（checks/issues/turn_kinds 已在内存里），
++    # 只用于算聚合诊断，不进任何产物。
++    details: list[P2CaseScore] = []
+     unclassified: set[str] = set()
+     unscorable: dict[str, int] = {}
+     for case in dataset.cases:
+@@ -1861,6 +1879,7 @@ def _holdout_score_marks(
+                 execution_mode=execution_mode,
+                 # 逐题不虚构真实调用归属：run 级实测值进聚合卡，逐题一律 0。
+                 real_calls=0,
++                score_sink=details,
+             )
+         except Exception as exc:  # noqa: BLE001 - 单题评分失败不得毁掉整份聚合
+             code = str(getattr(exc, "code", None) or type(exc).__name__)
+@@ -1900,7 +1919,361 @@ def _holdout_score_marks(
+                 },
+             )
+         )
+-    return tuple(marks), execution_mode
++    return (
++        tuple(marks),
++        execution_mode,
++        _HoldoutScoring(
++            rows=rows,
++            scores={item.case_id: item for item in details},
++            codes=dict(codes),
++        ),
++    )
++
++
++# --------------------------------------------------------------------------- #
++# T207-FIX-H2DIAG：H2 聚合诊断（只出稳定代码/计数；不出题干/答案/逐题）
++# --------------------------------------------------------------------------- #
++
++HOLDOUT_DIAGNOSTICS_SCHEMA_VERSION = "p2-holdout-diagnostics/v0.1"
++"""``holdout_scorecard.json`` 里 ``diagnostics`` 的 schema 版本（additive）。"""
++
++_HOLDOUT_DIAG_TOP_KEYS = frozenset(
++    {
++        "schema_version",
++        "detail_available",
++        "total",
++        "ends_observed",
++        "kind_matrix",
++        "refusal_matrix",
++        "failing_checks",
++        "source_mapping",
++        "errors_by_code",
++        "by_stratum",
++    }
++)
++"""诊断的**固定顶层键**：出现未登记键 = 结构变了，先审白名单（审计 fail-closed）。"""
++
++_HOLDOUT_DIAG_CODE_RE = re.compile(r"^[A-Za-z][A-Za-z0-9_.:-]{0,63}$")
++"""诊断里允许的**稳定代码**形态：kind / check_id / doc_code / 错误码 / 占位码。
++
++不允许空白、CJK、括号等自由文本字符，长度 ≤64；题面/答案/引文几乎不可能命中，
++命中即按"自由文本"处理（``holdout_scorecard_leak``，fail-closed）。
++"""
++
++#: 诊断里"未执行/执行失败"的固定占位 kind：只进 ``kind_matrix``，不进拒答矩阵。
++_DIAG_KIND_NOT_EXECUTED = "not_executed"
++_DIAG_KIND_ERROR = "error"
++_DIAG_KIND_UNKNOWN = "unknown"
++_DIAG_NON_END_KINDS = frozenset(
++    {_DIAG_KIND_ERROR, _DIAG_KIND_UNKNOWN, _DIAG_KIND_NOT_EXECUTED, "service_error", "timeout"}
++)
++
++
++@dataclass(frozen=True)
++class _HoldoutScoring:
++    """H2 逐题判定的**内存上下文**：只服务诊断聚合，不落盘、不出 case_id。"""
++
++    rows: Mapping[str, Mapping[str, Any]] = field(default_factory=dict)
++    scores: Mapping[str, P2CaseScore] = field(default_factory=dict)
++    codes: Mapping[str, str] = field(default_factory=dict)
++
++
++@dataclass(frozen=True)
++class _HoldoutDiagCase:
++    """一条题的**诊断维度**：全部是代码/计数/布尔，没有题干、答案、case_id。"""
++
++    stratum: str
++    expected_kind: str
++    actual_kind: str
++    should_refuse: bool
++    refused: bool
++    has_end: bool
++    failing_checks: tuple[str, ...]
++    error_code: str | None
++    doc_codes: frozenset[str]
++    source_failed_codes: frozenset[str]
++
++
++def _diag_code(value: Any, *, fallback: str) -> str:
++    """把任意值收成**稳定代码**；收不了就换固定占位（绝不把自由文本写进诊断）。"""
++    text = str(value or "").strip()
++    if text and _HOLDOUT_DIAG_CODE_RE.match(text):
++        return text
++    return fallback
++
++
++def _case_actual_kind(mark: P2HoldoutCaseScore, score: P2CaseScore | None) -> str:
++    """产品的**实际结局 kind**：取末轮 ``product.kind``；没有就是固定占位码。
++
++    末轮才是评分口径用的那一轮（多轮题中间轮的 kind 不参与判定）；行里没有 product
++    （执行失败/未执行）时按状态落到 ``error``/``not_executed``，不猜具体 kind。
++    """
++    if score is not None and score.turn_kinds:
++        actual = _diag_code(score.turn_kinds[-1], fallback="")
++        if actual:
++            return actual
++    if mark.status == CASE_STATUS_NOT_EXECUTED:
++        return _DIAG_KIND_NOT_EXECUTED
++    if mark.status == CASE_STATUS_ERROR:
++        return _DIAG_KIND_ERROR
++    return _DIAG_KIND_UNKNOWN
++
++
++def _case_error_code(
++    mark: P2HoldoutCaseScore,
++    row: Mapping[str, Any] | None,
++    score: P2CaseScore | None,
++) -> str | None:
++    """**首因**错误码：每题最多记一个（保证 ``sum(errors_by_code) == errors``）。
++
++    优先取逐题行/逐轮行上的 ``error_code``（真实失败码），其次取打分期的隔离问题码
++    （``source_not_active`` 这类结构问题），最后退到状态码；**只取代码**，不取 detail
++    （detail 里可能带 case_id）。
++    """
++    if mark.status not in {CASE_STATUS_ERROR, CASE_STATUS_NOT_EXECUTED}:
++        return None
++    if row is None:
++        return _DIAG_KIND_NOT_EXECUTED
++    code = str(row.get("error_code") or "").strip()
++    if not code:
++        for turn in row.get("turns") or ():
++            if isinstance(turn, Mapping) and turn.get("error_code"):
++                code = str(turn["error_code"]).strip()
++                break
++    if not code and score is not None:
++        for issue in score.issues:
++            candidate = str(getattr(issue, "code", "") or "").strip()
++            if candidate:
++                code = candidate
++                break
++    return _diag_code(code or mark.status, fallback=_DIAG_KIND_ERROR)
++
++
++def _case_failing_checks(score: P2CaseScore | None) -> tuple[str, ...]:
++    """该题**失败的 check_id**（稳定代码；只留 id，不带 evidence）。"""
++    if score is None:
++        return ()
++    failed: dict[str, None] = {}
++    for check in score.checks:
++        if not isinstance(check, Mapping):
++            continue
++        if str(check.get("status") or "") != "fail":
++            continue
++        failed.setdefault(_diag_code(check.get("check_id"), fallback="unknown_check"), None)
++    return tuple(failed)
++
++
++def _case_source_failed_codes(case: Any, score: P2CaseScore | None) -> frozenset[str]:
++    """该题**没命中的期望来源** doc_code（``source_hit`` 失败项按 ``missing_index`` 归位）。
++
++    归位不到（老格式/空 evidence）时退化成"该题期望的全部 doc_code"：只多算、不少算，
++    不会把失败记到没被期望的来源上。
++    """
++    expected = tuple(getattr(case, "expected_sources", ()) or ())
++    if not expected or score is None:
++        return frozenset()
++    failed: set[str] = set()
++    for check in score.checks:
++        if not isinstance(check, Mapping):
++            continue
++        if str(check.get("check_id") or "") != "source_hit":
++            continue
++        if str(check.get("status") or "") != "fail":
++            continue
++        evidence = check.get("evidence") if isinstance(check.get("evidence"), Mapping) else {}
++        missing = evidence.get("missing_index")
++        picked: set[str] = set()
++        if isinstance(missing, Sequence) and not isinstance(missing, (str, bytes)):
++            for index in missing:
++                if isinstance(index, bool) or not isinstance(index, int):
++                    continue
++                if not 0 <= index < len(expected):
++                    continue
++                ref = expected[index]
++                if not isinstance(ref, Mapping):
++                    continue
++                code = str(ref.get("doc_code") or "").strip()
++                if code:
++                    picked.add(code)
++        failed |= picked or set(_case_doc_codes(case))
++    return frozenset(failed)
++
++
++def _holdout_diag_cases(
++    cases: Sequence[Any],
++    marks: Sequence[P2HoldoutCaseScore],
++    scoring: _HoldoutScoring,
++) -> tuple[_HoldoutDiagCase, ...]:
++    """把逐题判定 + 内存明细折成诊断维度（仍只在内存里，不导出）。"""
++    by_id = {item.case_id: item for item in marks}
++    records: list[_HoldoutDiagCase] = []
++    for case in cases:
++        mark = by_id.get(case.case_id)
++        if mark is None:  # pragma: no cover - marks 与 cases 逐题对齐
++            continue
++        score = scoring.scores.get(case.case_id)
++        actual_kind = _case_actual_kind(mark, score)
++        records.append(
++            _HoldoutDiagCase(
++                stratum=str(case.stratum),
++                expected_kind=_diag_code(case.expected_kind, fallback=_DIAG_KIND_UNKNOWN),
++                actual_kind=actual_kind,
++                should_refuse=bool(case.should_refuse),
++                refused=is_refusal(actual_kind),
++                has_end=(
++                    mark.status != CASE_STATUS_NOT_EXECUTED
++                    and actual_kind not in _DIAG_NON_END_KINDS
++                ),
++                failing_checks=_case_failing_checks(score),
++                error_code=_case_error_code(mark, scoring.rows.get(case.case_id), score),
++                doc_codes=_case_doc_codes(case),
++                source_failed_codes=_case_source_failed_codes(case, score),
++            )
++        )
++    return tuple(records)
++
++
++def _diag_tally(records: Sequence[_HoldoutDiagCase]) -> dict[str, Any]:
++    """一组诊断维度 -> 四张计数表（键全部排好序，产物可直接比对）。"""
++    kinds: dict[str, dict[str, int]] = {}
++    refusal = {
++        "true": {"refused": 0, "not_refused": 0},
++        "false": {"refused": 0, "not_refused": 0},
++    }
++    failing: dict[str, int] = {}
++    errors: dict[str, int] = {}
++    for record in records:
++        bucket = kinds.setdefault(record.expected_kind, {})
++        bucket[record.actual_kind] = bucket.get(record.actual_kind, 0) + 1
++        if record.has_end:
++            row = refusal["true" if record.should_refuse else "false"]
++            row["refused" if record.refused else "not_refused"] += 1
++        for check_id in record.failing_checks:
++            failing[check_id] = failing.get(check_id, 0) + 1
++        if record.error_code:
++            errors[record.error_code] = errors.get(record.error_code, 0) + 1
++    return {
++        "kind_matrix": {
++            expected: dict(sorted(counts.items()))
++            for expected, counts in sorted(kinds.items())
++        },
++        "refusal_matrix": refusal,
++        "failing_checks": dict(sorted(failing.items())),
++        "errors_by_code": dict(sorted(errors.items())),
++    }
++
++
++def _source_mapping(
++    records: Sequence[_HoldoutDiagCase], codes: Mapping[str, str]
++) -> dict[str, Any]:
++    """期望来源 doc_code 的映射统计：可用/期望/缺失代码数 + 每代码的期望与未命中题数。
++
++    ``mapped`` 与 ``holdout_document_code_unmapped`` block 的 evidence 同口径
++    （``mapped`` = 语料能提供的代号个数）；``expected_cases_mapped`` 只统计**全部**期望
++    代号都能映射到的题，缺一个也算未映射（不猜、不放行）。
++    """
++    available = {
++        _diag_code(value, fallback="") for value in (codes or {}).values()
++    } - {""}
++    by_doc_code: dict[str, dict[str, Any]] = {}
++    expected_cases = 0
++    expected_mapped = 0
++    failed_cases = 0
++    for record in records:
++        if not record.doc_codes:
++            continue
++        expected_cases += 1
++        if record.doc_codes <= available:
++            expected_mapped += 1
++        if record.source_failed_codes:
++            failed_cases += 1
++        for code in sorted(record.doc_codes):
++            name = _diag_code(code, fallback="unknown")
++            slot = by_doc_code.setdefault(
++                name, {"expected_cases": 0, "source_hit_failed": 0, "mapped": name in available}
++            )
++            slot["expected_cases"] += 1
++            if code in record.source_failed_codes:
++                slot["source_hit_failed"] += 1
++    missing = [name for name, slot in by_doc_code.items() if not slot["mapped"]]
++    return {
++        "doc_codes_available": len(available),
++        "doc_codes_expected": len(by_doc_code),
++        "doc_codes_missing": len(missing),
++        "expected_cases": expected_cases,
++        "expected_cases_mapped": expected_mapped,
++        "source_hit_failed_cases": failed_cases,
++        "by_doc_code": {name: by_doc_code[name] for name in sorted(by_doc_code)},
++    }
++
++
++def _holdout_diagnostics(
++    cases: Sequence[Any],
++    marks: Sequence[P2HoldoutCaseScore],
++    scoring: _HoldoutScoring,
++) -> dict[str, Any]:
++    """H2 聚合诊断（additive）：kind 矩阵 / 拒答矩阵 / 失败 check / 来源映射 / 错误码。
++
++    只有稳定代码、计数与布尔；没有题干、答案、reference_answer、case_id、locator，
++    也没有逐题行。明细不可得时（``detail_available=false``）只按状态归类，不编造分布。
++    """
++    records = _holdout_diag_cases(cases, marks, scoring)
++    payload: dict[str, Any] = {
++        "schema_version": HOLDOUT_DIAGNOSTICS_SCHEMA_VERSION,
++        "detail_available": all(case.case_id in scoring.scores for case in cases),
++        "total": len(records),
++        "ends_observed": sum(1 for record in records if record.has_end),
++    }
++    payload.update(_diag_tally(records))
++    payload["source_mapping"] = _source_mapping(records, scoring.codes)
++    payload["by_stratum"] = {
++        stratum: _diag_tally([record for record in records if record.stratum == stratum])
++        for stratum in sorted({record.stratum for record in records})
++    }
++    return payload
++
++
++def _assert_holdout_diagnostics(payload: Any) -> None:
++    """诊断结构的**白名单审计**：固定顶层键 + 稳定代码/布尔/整数，命中自由文本即 fail-closed。
++
++    递归只允许 ``Mapping`` / ``str`` / ``int`` / ``bool``：数组一律拒绝（数组是夹带
++    自由文本最方便的形状）。嵌套键先按代码形态校验，再逐层下钻；``schema_version`` 只认本包常量。
++    """
++    if payload is None:
++        return
++    if not isinstance(payload, Mapping):
++        raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断不是对象")
++
++    def _walk(node: Any, *, top: bool) -> None:
++        if isinstance(node, Mapping):
++            for key, value in node.items():
++                name = str(key)
++                if top:
++                    if name not in _HOLDOUT_DIAG_TOP_KEYS:
++                        raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断含未登记字段")
++                elif not _HOLDOUT_DIAG_CODE_RE.match(name):
++                    raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断的键不是稳定代码")
++                if name.startswith("H2-"):
++                    raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断含 H2 case_id")
++                if name == "schema_version":
++                    if str(value) != HOLDOUT_DIAGNOSTICS_SCHEMA_VERSION:
++                        raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断版本不是固定值")
++                    continue
++                _walk(value, top=False)
++            return
++        if isinstance(node, bool) or isinstance(node, int):
++            return
++        if isinstance(node, str):
++            if not _HOLDOUT_DIAG_CODE_RE.match(node):
++                raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断的值不是稳定代码")
++            if node.startswith("H2-"):
++                raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断含 H2 case_id")
++            return
++        raise P2RunError(
++            ERROR_HOLDOUT_SCORECARD_LEAK, "聚合诊断只允许固定键/稳定代码/计数/布尔"
++        )
++
++    _walk(payload, top=True)
+ 
+ 
+ def _aggregate_marks(
+@@ -1942,12 +2315,12 @@ def _holdout_scorecard(
+     binding: Mapping[str, Any],
+     gate_config: Any | None,
+ ) -> dict[str, Any]:
+-    """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block。"""
++    """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block/诊断。"""
+     blocks: list[P2Block] = []
+-    marks, execution_mode = _holdout_score_marks(
++    marks, execution_mode, scoring = _holdout_score_marks(
+         ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks
+     )
+-    return _aggregate_marks(
++    payload = _aggregate_marks(
+         marks,
+         dataset=dataset,
+         ledger=ledger,
+@@ -1957,6 +2330,9 @@ def _holdout_scorecard(
+         real_calls=real_calls,
+         blocks=blocks,
+     )
++    # T207-FIX-H2DIAG：additive 诊断（只有代码/计数）；与计数卡同一次审计、同一份产物。
++    payload["diagnostics"] = _holdout_diagnostics(dataset.cases, marks, scoring)
++    return payload
+ 
+ 
+ #: 泄漏审计的最短 needle：1 字题面在产物里没有判别力（任何一个汉字都会命中固定说明），
+@@ -1989,18 +2365,27 @@ def _assert_holdout_scorecard_payload(
+     逐题扫一遍文本，防止"字段名合法但内容泄漏"（例如把 case_id 塞进 block.evidence）。
+     题面覆盖 ``case.question`` + ``turns[*]`` 的每一轮 + ``reference_answer``；
+     needle 阈值见 ``_HOLDOUT_LEAK_MIN_NEEDLE``（2 字起，短题干不漏）。
++
++    诊断子树（``diagnostics``）不套用"明细字段名"规则：它的键就是稳定代码（``answer`` /
++    ``not_found`` 这类 kind 名本身就是合法的诊断维度），改用**更严**的
++    ``_assert_holdout_diagnostics``（固定键 + 稳定代码形态，任何自由文本直接 fail-closed）；
++    ``H2-`` 前缀与逐题 needle 扫描对诊断同样生效。
+     """
++    # T207-FIX-H2DIAG：诊断结构单独按白名单审（固定键 + 稳定代码形态），命中自由文本即
++    # fail-closed；通过后再走下面的逐题 needle 扫描。
++    _assert_holdout_diagnostics(payload.get("diagnostics"))
+     raw = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True)
+ 
+-    def _walk(value: Any) -> None:
++    def _walk(value: Any, *, in_diagnostics: bool = False) -> None:
+         if isinstance(value, Mapping):
+             for key, item in value.items():
+-                if str(key) in _HOLDOUT_FORBIDDEN_KEYS:
++                name = str(key)
++                if not in_diagnostics and name in _HOLDOUT_FORBIDDEN_KEYS:
+                     raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含明细字段")
+-                _walk(item)
++                _walk(item, in_diagnostics=in_diagnostics or name == "diagnostics")
+         elif isinstance(value, (list, tuple)):
+             for item in value:
+-                _walk(item)
++                _walk(item, in_diagnostics=in_diagnostics)
+         elif isinstance(value, str):
+             if value.startswith("H2-"):
+                 raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含 H2 case_id")
+@@ -2073,7 +2458,16 @@ def _blocked_holdout_scorecard(
+         run_id=ledger.run_id,
+         config_hash=None if config_hash in (None, "") else str(config_hash),
+     )
+-    return card.to_dict()
++    payload = card.to_dict()
++    # T207-FIX-H2DIAG：兜底卡也带诊断，但只给"fail-closed 原因码 x 全部题数"——
++    # 明细不可得时绝不编造 kind/check 分布（detail_available=false 明说这一点）。
++    payload["diagnostics"] = {
++        "schema_version": HOLDOUT_DIAGNOSTICS_SCHEMA_VERSION,
++        "detail_available": False,
++        "total": total,
++        "errors_by_code": {_diag_code(code, fallback="holdout_scorecard_error"): total},
++    }
++    return payload
+ 
+ 
+ def _holdout_scorecard_artifact(
+diff --git a/backend/src/mktkb/evaluation/p2_score_run.py b/backend/src/mktkb/evaluation/p2_score_run.py
+index bea4d47..01b9995 100644
+--- a/backend/src/mktkb/evaluation/p2_score_run.py
++++ b/backend/src/mktkb/evaluation/p2_score_run.py
+@@ -490,6 +490,7 @@ def holdout_case_scores_from_rows(
+     allowed_doc_codes: Iterable[str] | None = None,
+     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
+     real_calls: int = 0,
++    score_sink: list[P2CaseScore] | None = None,
+ ) -> tuple[tuple[P2HoldoutCaseScore, ...], list[str]]:
+     """用封存目录内的逐题行算 H2 单题判定；返回 (scores, 未分类的问题码)。
+ 
+@@ -498,6 +499,9 @@ def holdout_case_scores_from_rows(
+     交给调用方出 ``holdout_hard_failure_unclassified`` block。原因是"引用了失效/越界来源"
+     与"答对了"不能同时成立；而硬失败**类别**的判定权在封存标注方，驱动层不替它分类
+     （``hard_failure`` 因此保持 ``None`，``hard_failures` 恒 0 只表示"未分类"，不表示"无硬失败"）。
++    T207-FIX-H2DIAG：``score_sink`` 是可选的**只读观察口** —— 传进来时把逐题
++    ``P2CaseScore``（checks/issues/turn_kinds，本来就在内存里）追加进去，供调用方算聚合
++    诊断；返回值形状不变（仍是 ``(scores, unclassified)``），不传就完全无副作用。
+     """
+     scores: list[P2HoldoutCaseScore] = []
+     unclassified: list[str] = []
+@@ -512,6 +516,10 @@ def holdout_case_scores_from_rows(
+             execution_mode=execution_mode,
+             real_calls=real_calls,
+         )
++        if score_sink is not None:
++            # 诊断只读口：逐题明细已在内存里，调用方据此算 kind/check/错误码聚合，
++            # 不落盘、不出 case_id（见 p2_runner._holdout_diagnostics）。
++            score_sink.append(item.score)
+         structural = [
+             issue.code
+             for issue in item.score.issues
+diff --git a/backend/tests/evaluation/test_p2_holdout_scorecard.py b/backend/tests/evaluation/test_p2_holdout_scorecard.py
+index 127b6ff..736d85e 100644
+--- a/backend/tests/evaluation/test_p2_holdout_scorecard.py
++++ b/backend/tests/evaluation/test_p2_holdout_scorecard.py
+@@ -1400,3 +1400,436 @@ def test_h2_expected_refusal_answered_wrongly_still_fails() -> None:
+     assert (card["total"], card["errors"]) == (30, 0)
+     assert (card["passed"], card["failed"]) == (24, 6)
+     assert "holdout_below_threshold" not in {block["code"] for block in card["blocks"]}
++
++# --------------------------------------------------------------------------- #
++# 6. T207-FIX-H2DIAG：holdout_scorecard.diagnostics（只出代码/计数）
++#    合成封存 30 题，逐值核对 kind 矩阵 / 拒答矩阵 / 失败 check / 来源映射 / 错误码。
++# --------------------------------------------------------------------------- #
++
++DIAG_CASE_PREFIX = "P2DG"
++"""诊断用例的合成 case 前缀（与 H2 真实前缀无关，避免与 needle 规则混淆）。"""
++
++DIAG_DOC_NAME = "D01_物品位置表.xlsx"
++DIAG_UNIT_ID = "55555555-5555-4555-8555-555555555555"
++DIAG_WRONG_UNIT_ID = "55555555-5555-4555-8555-555555555556"
++DIAG_UNIT_KEY = "sheet:物品位置:row:8"
++DIAG_WRONG_UNIT_KEY = "sheet:物品位置:row:99"
++DIAG_SCHEMA = "p2-holdout-diagnostics/v0.1"
++
++#: 每题的产品结局（不在此表里的按"层/期望值"取默认）：(kind, text, unit_id, source_status)。
++_DIAG_PRODUCT: dict[int, tuple[str, str, str | None, str]] = {
++    9: ("answer", "资料写着：别的结论", DIAG_UNIT_ID, "active"),  # value_hit fail
++    20: ("answer", f"资料写着：{VALUE_TOKEN}", DIAG_UNIT_ID, "active"),  # 该拒答却作答
++    25: ("answer", f"资料写着：{VALUE_TOKEN}", DIAG_UNIT_ID, "superseded"),  # 结构问题 → error
++    26: ("answer", f"资料写着：{VALUE_TOKEN}", DIAG_WRONG_UNIT_ID, "active"),  # source_hit fail
++    27: ("answer", f"资料写着：{VALUE_TOKEN}", DIAG_WRONG_UNIT_ID, "active"),  # source_hit fail
++    29: ("not_found", "", None, "active"),  # 该作答却拒答
++}
++
++
++def _diag_number(spec: CaseSpec) -> int:
++    return int(spec.case_id.rsplit("-", 1)[1])
++
++
++def _diag_specs() -> tuple[CaseSpec, ...]:
++    """30 题（10-5-5-5-5）：期望 kind / should_refuse / 期望来源都写在题面上。"""
++    plan: list[tuple[int, str]] = []
++    for stratum, count in STRATA_PLAN:
++        plan.extend((number, stratum) for number in range(len(plan) + 1, len(plan) + count + 1))
++    specs: list[CaseSpec] = []
++    for number, stratum in plan:
++        refusal = stratum == "negative"
++        conflict = stratum == "stale_conflict" and number != 25
++        expected_kind = "refusal" if refusal else ("conflict" if conflict else "answer")
++        sources: list[dict[str, Any]] = []
++        if not refusal and not conflict:
++            sources.append({"doc_code": "D01", "unit_key": DIAG_UNIT_KEY})
++        if number == 8:
++            sources.append({"doc_code": "D02", "unit_key": DIAG_UNIT_KEY})
++        if number == 27:
++            # 期望里带一个语料根本映射不到的代号（真实 H2 abort 的同一形态）。
++            sources.append({"doc_code": "V06", "unit_key": DIAG_UNIT_KEY})
++        multi_turn = stratum == "multi_turn"
++        specs.append(
++            CaseSpec(
++                case_id=f"{DIAG_CASE_PREFIX}-{number:02d}",
++                suite="p2-holdout",
++                split="holdout",
++                stratum=stratum,
++                business_date=BUSINESS_DATE,
++                question="" if multi_turn else f"{QUESTION_TOKEN} 诊断合成问句 {number:02d}",
++                turns=(
++                    (
++                        {"question": f"{FOLLOWUP_TOKEN} 第 1 轮"},
++                        {"question": f"{FOLLOWUP_TOKEN} 第 2 轮"},
++                    )
++                    if multi_turn
++                    else ()
++                ),
++                expected_kind=expected_kind,
++                expected_values=() if (refusal or conflict) else (VALUE_TOKEN,),
++                expected_sources=tuple(sources),
++                reference_answer="" if (refusal or conflict) else f"{ANSWER_TOKEN} 合成参考答案",
++                should_refuse=refusal,
++                refusal_reason="合成负样本：语料无答案" if refusal else None,
++                label_version=LABEL_VERSION,
++            )
++        )
++    return tuple(specs)
++
++
++def _diag_product(spec: CaseSpec) -> tuple[str, str, str | None, str]:
++    number = _diag_number(spec)
++    if number in _DIAG_PRODUCT:
++        return _DIAG_PRODUCT[number]
++    if spec.expected_kind == "refusal":
++        return "not_found", "", None, "active"
++    if spec.expected_kind == "conflict":
++        return "conflict", "两份资料不一致（合成）", None, "active"
++    return "answer", f"资料写着：{VALUE_TOKEN}", DIAG_UNIT_ID, "active"
++
++
++def _diag_rows(specs: tuple[CaseSpec, ...]) -> dict[str, dict[str, Any]]:
++    """逐题行（只在内存里）：10 号故意**没有**行（未执行）；15 号第 2 轮 error。"""
++    rows: dict[str, dict[str, Any]] = {}
++    for spec in specs:
++        number = _diag_number(spec)
++        if number == 10:
++            continue
++        questions = _turn_questions(spec)
++        if number == 15:
++            rows[spec.case_id] = {
++                "case_id": spec.case_id,
++                "status": "error",
++                "error_code": "MODEL_OUTPUT_INVALID",
++                "planned_turns": len(questions),
++                "turns": [
++                    {
++                        "turn": 1,
++                        "status": "ok",
++                        "error_code": None,
++                        "product": _product_turn(
++                            questions[0], text=f"资料写着：{VALUE_TOKEN}"
++                        ).as_dict(include_text=True),
++                    },
++                    {
++                        "turn": 2,
++                        "status": "error",
++                        "error_code": "MODEL_OUTPUT_INVALID",
++                        "product": None,
++                    },
++                ],
++            }
++            continue
++        kind, text, unit_id, status = _diag_product(spec)
++        unit_key = DIAG_WRONG_UNIT_KEY if unit_id == DIAG_WRONG_UNIT_ID else DIAG_UNIT_KEY
++        rows[spec.case_id] = {
++            "case_id": spec.case_id,
++            "status": "ok",
++            "error_code": None,
++            "planned_turns": len(questions),
++            "turns": [
++                {
++                    "turn": index,
++                    "status": "ok",
++                    "error_code": None,
++                    "product": _product_turn(
++                        question,
++                        kind=kind,
++                        text=text,
++                        source_id=unit_id,
++                        unit_key=unit_key,
++                        status=status,
++                    ).as_dict(include_text=True),
++                }
++                for index, question in enumerate(questions, start=1)
++            ],
++        }
++    return rows
++
++
++def _diag_card(
++    specs: tuple[CaseSpec, ...] | None = None, *, ingest_plan: Any | None = _codes_plan()
++) -> tuple[dict[str, Any], tuple[CaseSpec, ...]]:
++    specs = specs or _diag_specs()
++    dataset = _synthetic_dataset(specs)
++    ledger = _ledger("p2run-h2diag-unit")
++    for row in _diag_rows(specs).values():
++        ledger.record_scoring_case(row)
++    card = runner._holdout_scorecard(
++        ledger,
++        dataset,
++        ingest_plan=ingest_plan,
++        execution="dry_run",
++        real_calls=0,
++        binding={"config_hash": "c" * 64},
++        gate_config=None,
++    )
++    return card, specs
++
++
++def test_diagnostics_matrix_matches_sealed_cases_value_by_value() -> None:
++    """30 题逐值核对：诊断只搬运计数/代码，不改 pass/fail/error 的口径。"""
++    card, specs = _diag_card()
++
++    # 计数卡本身不变（诊断是 additive）。
++    assert (card["total"], card["executed"], card["errors"]) == (30, 27, 3)
++    # 8 号期望两份来源、只引了一份 → source_hit fail（归位到 D02，不冤枉已命中的 D01）。
++    assert (card["passed"], card["failed"]) == (21, 6)
++    assert card["detail_export"] is False
++
++    diagnostics = card["diagnostics"]
++    assert diagnostics == {
++        "schema_version": DIAG_SCHEMA,
++        "detail_available": True,
++        "total": 30,
++        # 有产品结局的题：30 - 1 未执行（10 号）- 1 无产品结局（15 号 error）。
++        "ends_observed": 28,
++        "kind_matrix": {
++            "answer": {"answer": 18, "error": 1, "not_executed": 1, "not_found": 1},
++            "conflict": {"conflict": 4},
++            "refusal": {"answer": 1, "not_found": 4},
++        },
++        "refusal_matrix": {
++            # 负样本层：4 题按 not_found 拒答，20 号错答成 answer。
++            "true": {"refused": 4, "not_refused": 1},
++            # 其余层：29 号不该拒答却拒答；未执行/无产品结局的题不进来。
++            "false": {"refused": 1, "not_refused": 22},
++        },
++        "failing_checks": {
++            "kind_correct": 2,  # 20 号（answer 冒充拒答）、29 号（not_found 冒充作答）
++            "refusal_expected": 1,  # 20 号
++            "refusal_unexpected": 1,  # 29 号
++            "source_hit": 4,  # 8 号只引了一份、26/27 号引错单位、29 号没有引用
++            "value_hit": 2,  # 9 号答错、29 号没有正文
++        },
++        "source_mapping": {
++            "doc_codes_available": 8,
++            "doc_codes_expected": 3,
++            "doc_codes_missing": 1,
++            "expected_cases": 21,
++            "expected_cases_mapped": 20,
++            "source_hit_failed_cases": 4,
++            "by_doc_code": {
++                # D01 在 21 题里被期望；未命中只算 26/27/29（8 号的 D01 是命中的）。
++                "D01": {"expected_cases": 21, "source_hit_failed": 3, "mapped": True},
++                "D02": {"expected_cases": 1, "source_hit_failed": 1, "mapped": True},
++                # 27 号期望 V06，但语料里 V06 只作为 D02 的新版本存在 → 映射不到。
++                "V06": {"expected_cases": 1, "source_hit_failed": 1, "mapped": False},
++            },
++        },
++        "errors_by_code": {
++            "MODEL_OUTPUT_INVALID": 1,  # 15 号：200 但输出不合 schema
++            "not_executed": 1,  # 10 号：没有逐题行
++            "source_not_active": 1,  # 25 号：引用了 superseded 版本
++        },
++        "by_stratum": {
++            "cross_doc_security": {
++                "kind_matrix": {"answer": {"answer": 4, "not_found": 1}},
++                "refusal_matrix": {
++                    "true": {"refused": 0, "not_refused": 0},
++                    "false": {"refused": 1, "not_refused": 4},
++                },
++                "failing_checks": {
++                    "kind_correct": 1,
++                    "refusal_unexpected": 1,
++                    "source_hit": 3,
++                    "value_hit": 1,
++                },
++                "errors_by_code": {},
++            },
++            "multi_turn": {
++                "kind_matrix": {"answer": {"answer": 4, "error": 1}},
++                "refusal_matrix": {
++                    "true": {"refused": 0, "not_refused": 0},
++                    "false": {"refused": 0, "not_refused": 4},
++                },
++                "failing_checks": {},
++                "errors_by_code": {"MODEL_OUTPUT_INVALID": 1},
++            },
++            "negative": {
++                "kind_matrix": {"refusal": {"answer": 1, "not_found": 4}},
++                "refusal_matrix": {
++                    "true": {"refused": 4, "not_refused": 1},
++                    "false": {"refused": 0, "not_refused": 0},
++                },
++                "failing_checks": {"kind_correct": 1, "refusal_expected": 1},
++                "errors_by_code": {},
++            },
++            "paraphrase": {
++                "kind_matrix": {"answer": {"answer": 9, "not_executed": 1}},
++                "refusal_matrix": {
++                    "true": {"refused": 0, "not_refused": 0},
++                    "false": {"refused": 0, "not_refused": 9},
++                },
++                "failing_checks": {"source_hit": 1, "value_hit": 1},
++                "errors_by_code": {"not_executed": 1},
++            },
++            "stale_conflict": {
++                "kind_matrix": {"answer": {"answer": 1}, "conflict": {"conflict": 4}},
++                "refusal_matrix": {
++                    "true": {"refused": 0, "not_refused": 0},
++                    "false": {"refused": 0, "not_refused": 5},
++                },
++                "failing_checks": {},
++                "errors_by_code": {"source_not_active": 1},
++            },
++        },
++    }
++    # 自洽不变量：kind 矩阵覆盖全部题；拒答矩阵=有结局的题；错误码恒等于计数卡的 errors。
++    assert sum(sum(counts.values()) for counts in diagnostics["kind_matrix"].values()) == 30
++    assert (
++        sum(
++            count
++            for row in diagnostics["refusal_matrix"].values()
++            for count in row.values()
++        )
++        == diagnostics["ends_observed"]
++    )
++    assert sum(diagnostics["errors_by_code"].values()) == card["errors"]
++    # 与既有 unmapped block 同口径（diagnostics 只是把它拆到每个 doc_code）。
++    blocks = {block["code"]: block for block in card["blocks"]}
++    assert blocks[ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED]["evidence"] == {
++        "missing": ["V06"],
++        "mapped": 8,
++    }
++    # 产物审计：真实卡（含诊断）本身必须通过泄漏审计。
++    runner._assert_holdout_scorecard_payload(card, _synthetic_dataset(specs))
++    raw = json.dumps(card, ensure_ascii=False)
++    for spec in specs:
++        assert spec.case_id not in raw
++        if spec.question:
++            assert spec.question not in raw
++    for token in (QUESTION_TOKEN, FOLLOWUP_TOKEN, ANSWER_TOKEN, VALUE_TOKEN):
++        assert token not in raw
++
++
++def test_diagnostics_source_mapping_flags_unmapped_doc_codes() -> None:
++    """没有 ingest plan（映射建不出来）时，来源统计如实记成"全部未映射"，不猜。"""
++    card, _specs = _diag_card(ingest_plan=None)
++
++    mapping = card["diagnostics"]["source_mapping"]
++    assert mapping["doc_codes_available"] == 0
++    assert mapping["doc_codes_expected"] == 3
++    assert mapping["doc_codes_missing"] == 3
++    assert mapping["expected_cases"] == 21
++    assert mapping["expected_cases_mapped"] == 0
++    assert all(not slot["mapped"] for slot in mapping["by_doc_code"].values())
++
++
++def test_diagnostics_never_carry_free_text_kind() -> None:
++    """产品回了自由文本 kind：诊断换成固定占位码，绝不把原文写进产物。"""
++    case = _value_case()
++    turn = _product_turn(case.question, kind="这是一段题面文本", text=f"资料写着：{VALUE_TOKEN}")
++    card = _card_for_rows(case, _scoring_row(case, turn.as_dict(include_text=True)))
++
++    diagnostics = card["diagnostics"]
++    assert diagnostics["kind_matrix"] == {"answer": {"unknown": 1}}
++    assert diagnostics["ends_observed"] == 0
++    assert "这是一段题面文本" not in json.dumps(card, ensure_ascii=False)
++
++
++def test_diagnostics_free_text_fails_closed() -> None:
++    """诊断结构审计：未登记键 / 自由文本键值 / 数组 / 非代码 → 一律 holdout_scorecard_leak。"""
++    dataset = _synthetic_dataset(_synthetic_cases())
++
++    def _payload(**diagnostics: Any) -> dict[str, Any]:
++        return dict({"diagnostics": {"schema_version": DIAG_SCHEMA, **diagnostics}})
++
++    # 正常诊断不误报（kind 名就是合法代码）。
++    runner._assert_holdout_scorecard_payload(
++        _payload(detail_available=True, total=30, kind_matrix={"answer": {"answer": 30}}),
++        dataset,
++    )
++
++    for bad in (
++        {"unregistered": 1},  # 未登记顶层字段
++        {"kind_matrix": {"answer": {dataset.cases[0].question: 1}}},  # 自由文本键
++        {"failing_checks": {"value_hit": dataset.cases[0].question}},  # 自由文本值
++        {"errors_by_code": {"MODEL_OUTPUT_INVALID": ["MODEL_OUTPUT_INVALID"]}},  # 数组夹带
++        {"kind_matrix": {"answer": {"H2-01": 1}}},  # H2 case_id 形态
++        {"schema_version": "p2-holdout-diagnostics/v9.9"},  # 未登记版本
++    ):
++        with pytest.raises(P2RunError) as info:
++            runner._assert_holdout_scorecard_payload(_payload(**bad), dataset)
++        assert info.value.code == ERROR_HOLDOUT_SCORECARD_LEAK, bad
++
++
++def test_blocked_scorecard_carries_minimal_diagnostics(monkeypatch: pytest.MonkeyPatch) -> None:
++    """fail-closed 兜底卡也带诊断：只给"原因码 x 全部题数"，不编造分布。"""
++    dataset = _synthetic_dataset(_synthetic_cases())
++
++    def _boom(*_args, **_kwargs):  # noqa: ANN001 - 故意抛错
++        raise P2RunError("document_codes_exploded", "synthetic")
++
++    monkeypatch.setattr(runner, "_holdout_scorecard", _boom)
++    payload = runner._holdout_scorecard_artifact(
++        _ledger(),
++        dataset,
++        ingest_plan=_codes_plan(),
++        execution="dry_run",
++        real_calls=0,
++        binding={},
++        gate_config=None,
++    )
++    diagnostics = payload["diagnostics"]
++    assert diagnostics == {
++        "schema_version": DIAG_SCHEMA,
++        "detail_available": False,
++        "total": 30,
++        "errors_by_code": {"document_codes_exploded": 30},
++    }
++    assert sum(diagnostics["errors_by_code"].values()) == payload["errors"] == 30
++
++
++@asyncio_test
++async def test_aborted_holdout_run_writes_diagnostics_for_executed_rows(
++    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
++) -> None:
++    """aborted（第 1 轮服务错误就停）：已执行行进诊断，未执行的题记 not_executed。"""
++    sealed = _write_sealed(tmp_path)
++    monkeypatch.setenv(HOLDOUT_ROOT_ENV, str(sealed.root))
++    monkeypatch.setenv(HOLDOUT_KEY_FILE_ENV, str(sealed.key_file))
++    dataset = P2RunDataset.from_p2_dataset(
++        load_p2_dataset(sealed.manifest_path, visibility="holdout")
++    )
++    plan = _make_plan(dataset.cases)
++    authorization = _dry_run_authorization(plan)
++    adapter = ProductEvalAdapter(
++        tmp_path / "h2-diag-abort",
++        chat=MockChatBackend(behaviors=(ChatBehavior(kind="http_error"),)),
++        dataset=dataset,
++        ingest_plan=_ingest_plan(D01, D04),
++        purge_traces_on_close=True,
++    )
++    run_dir = adapter.paths.run_dir
++    try:
++        result = await run_p2(plan, adapter=adapter, authorization=authorization, now=NOW)
++    finally:
++        await adapter.close()
++
++    assert result.status in {"aborted", "blocked"}
++    card = _read_json(run_dir / "holdout_scorecard.json")
++    diagnostics = card["diagnostics"]
++    assert card["passed"] == 0
++    assert card["errors"] == 30
++    assert diagnostics["total"] == 30
++    assert diagnostics["detail_available"] is True
++    # 第 1 题（paraphrase）执行了但产品回 service_error：不是"有结局"，也不进拒答矩阵。
++    assert diagnostics["ends_observed"] == 0
++    assert diagnostics["kind_matrix"] == {
++        "answer": {"not_executed": 24, "service_error": 1},
++        "refusal": {"not_executed": 5},
++    }
++    assert diagnostics["refusal_matrix"] == {
++        "true": {"refused": 0, "not_refused": 0},
++        "false": {"refused": 0, "not_refused": 0},
++    }
++    assert diagnostics["errors_by_code"] == {"MODEL_UNAVAILABLE": 1, "not_executed": 29}
++    assert sum(diagnostics["errors_by_code"].values()) == card["errors"]
++    # 诊断里同样没有 case_id / 题干 / 答案。
++    secrets = [case.case_id for case in dataset.cases]
++    secrets += [QUESTION_TOKEN, FOLLOWUP_TOKEN, ANSWER_TOKEN]
++    raw = json.dumps(diagnostics, ensure_ascii=False)
++    for secret in secrets:
++        assert secret not in raw
+diff --git a/docs/evaluation/p2-dataset-v0_1.md b/docs/evaluation/p2-dataset-v0_1.md
+index bd6cc34..5164774 100644
+--- a/docs/evaluation/p2-dataset-v0_1.md
++++ b/docs/evaluation/p2-dataset-v0_1.md
+@@ -281,3 +281,37 @@ H2 run 过去只写计数型 ``holdout_aggregate.json``（planned/executed/kinds
+ - **测试**：合成封存设施（30 题 / 10-5-5-5-5 / 36 回合）见
+   ``backend/tests/evaluation/test_p2_holdout_scorecard.py``，与 T202 同口径现生成 Fernet key 与
+   合成题干/答案；不读真实 H2、不取真实 key。
++
++## 11. T207-FIX-H2DIAG：`holdout_scorecard.diagnostics`（additive，只出代码/计数）
++
++H2 首次真实 run（`p2-t207-h2-20261111-01`：21 chat 后 `MODEL_OUTPUT_INVALID` abort，11 pass / 10 fail /
++9 error）只有分层 pass/fail/error 计数，**不读题就判断不了失败类别**。本包在 `holdout_scorecard.json` 上
++加 `diagnostics`（schema `p2-holdout-diagnostics/v0.1`）：**只有稳定代码、计数与布尔**，没有题干/答案/
++`reference_answer`/`case_id`/`locator`/逐题行；`detail_export` 仍为 `false`。
++
++| 字段 | 口径（全部可机器核对） |
++|---|---|
++| `detail_available` | 逐题 `P2CaseScore` 明细（checks/issues/turn_kinds，内存）是否齐全；`false` 时矩阵只按状态归类，不编造分布 |
++| `total` / `ends_observed` | 卡内题数 / **有产品结局**的题数（`error`/`service_error`/`timeout`/`not_executed`/`unknown` 不算结局） |
++| `kind_matrix` | expected_kind → actual_kind → 题数（actual 取**末轮** `product.kind`；无产品结局时用固定占位码） |
++| `refusal_matrix` | `should_refuse`(true/false) → `refused`/`not_refused` 计数；只统计有产品结局的题（未执行不算"没拒答"） |
++| `failing_checks` | 失败 check_id（`value_hit`/`source_hit`/`kind_correct`/…）→ 次数；只留 id，不带 evidence |
++| `source_mapping` | `doc_codes_available`（= unmapped block 的 `mapped`）/ `doc_codes_expected` / `doc_codes_missing` / `expected_cases` / `expected_cases_mapped` / `source_hit_failed_cases` + `by_doc_code{doc_code:{expected_cases, source_hit_failed, mapped}}` |
++| `errors_by_code` | 错误码 → 题数（每题只记**首因**，故 `sum(errors_by_code) == scorecard.errors`）；未执行记 `not_executed`，行里没有错误码时退到隔离问题码（如 `source_not_active`） |
++| `by_stratum` | 上面同样四张表按层拆开（kind / refusal / failing_checks / errors_by_code） |
++
++- **来源归位**：`source_hit` 失败按该 check 的 `missing_index` 归到**没命中的**期望来源 —— 期望 D01+D02
++  只命中其一时，只给 D02 记一次未命中（不冤枉 D01）；归位不到（老格式/空 evidence）才退化成"该题期望的全部
++  doc_code"（只多算、不少算）。
++- **aborted 也写**：`stop_code` 提前结束时已执行行照常进矩阵，未执行的题按 `not_executed` 计入
++  `errors_by_code`（与 `scorecard.errors` 同分母）；公开 run 仍不写该卡并清残留。
++- **泄漏审计扩展**（`_assert_holdout_diagnostics`）：顶层键固定白名单；嵌套键必须是稳定代码形态
++  `[A-Za-z][A-Za-z0-9_.:-]{0,63}`；叶子只允许 int/bool/同形态字符串。**数组、未登记键、`H2-` 前缀、
++  任何自由文本（空白/CJK/超长）→ `holdout_scorecard_leak`**，产物退化成"全 error + 稳定 block"。
++  kind 名（`answer`/`not_found`）本身就是合法代码，因此诊断子树不套用"明细字段名"规则（否则 `answer`
++  这个正常 kind 键会误伤整张卡），改用这条更严的形态白名单；逐题 needle 扫描与 `H2-` 前缀检查对诊断同样生效。
++  诊断的键/值在**生成侧**也先过同一形态校验（收不了就换 `unknown` 等固定占位），自由文本进不了产物。
++- **兜底卡**（评分/审计失败）也带 `diagnostics`，但只有 `{schema_version, detail_available=false, total,
++  errors_by_code:{原因码: total}}`；明细不可得时不编造分布。
++- **测试**：`backend/tests/evaluation/test_p2_holdout_scorecard.py` §6 —— 30 题合成封存**逐值**核对五类
++  诊断、映射缺失、自由文本 kind、审计 fail-closed（含 `H2-`/数组/未登记键）、aborted 实跑。
+diff --git a/docs/evaluation/p2-live-binding-v0_1.md b/docs/evaluation/p2-live-binding-v0_1.md
+index 60892d8..f22dddb 100644
+--- a/docs/evaluation/p2-live-binding-v0_1.md
++++ b/docs/evaluation/p2-live-binding-v0_1.md
+@@ -373,3 +373,11 @@ R4PREP F-1：`product_adapter._start_live` 过去把 `RagConfig.max_request_cny`
+ （同一计划/transport，把 `resolve_request_ceiling` 退回旧语义对比：无 OCR 计划 0 → 3 个
+ embedding POST、`degraded=embedding_error` → `degraded=[]`；GO 上限 0.02 时装配期拒绝且
+ POST/预留均为 0），回归在 `backend/tests/evaluation/test_p2_live_request_ceiling.py`。
++
++### 10.11 `holdout_scorecard.diagnostics`（T207-FIX-H2DIAG，additive）
++
++H2 卡新增 `diagnostics`（`p2-holdout-diagnostics/v0.1`：kind 矩阵 / 拒答矩阵 / 失败 check / 来源映射 /
++错误码 × 计数 / 分层），内容只有稳定代码与计数，`detail_export` 仍为 `false`，没有 `case_id`/题干/答案。
++它是**观测面**：不进 `release_ready`、不改 `passed/failed/errors` 口径、不参与门禁判定；aborted run 同样写出
++（未执行题记 `not_executed`）。字段口径、来源归位与诊断子树的泄漏审计（形态白名单 + fail-closed）见
++`p2-dataset-v0_1.md` §11。
