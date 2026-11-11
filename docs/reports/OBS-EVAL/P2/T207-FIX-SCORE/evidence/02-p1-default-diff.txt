@@ -1,0 +1,205 @@
+# T207-FIX-SCORE 证据 02：默认参数（P1 口径）差分证明 —— old vs new 逐字相同（0 分歧）
+
+## 做法
+
+1. 用 `git show HEAD:backend/src/mktkb/evaluation/{scorers.py,p2_scoring.py}` 生成 **HEAD 源码副本**
+   （整包 copytree + 这两个文件回退；不改工作区），用 `PYTHONPATH` 决定导入哪一份：
+   - old = `C:\Users\dell1712\AppData\Local\Temp\t207fixscore-old`
+   - new = `backend/src`
+2. 同一批输入、**只调默认参数**（不传 `allowed_number_keys`），把每条 `CaseResult.to_dict()`
+   （12 个 check + evidence + metrics + status）落盘，再用 `json.dumps` 逐字节比对（含 dict 键序）。
+3. 输入：冻结夹具 60 条 case × 4 条文本变体 = **240 条**；R1/R2/R3 真实产物 **55 条**（52+2+1）。
+
+## 夹具变体（每条都带一个"locator 自带数字"的引用：cells display = 010-00000001 / 示例市示例路18号）
+
+| 变体 | value_no_fabricated（new，默认参数） |
+|---|---|
+| echo_gold（金标回显） | pass 53 / skipped 7 |
+| echo_plus_number（回显 + "另有 99 件在库"） | **fail 53** / skipped 7 |
+| refusal（拒答文本） | pass 53 / skipped 7 |
+| echo_plus_citation_numbers（回显 + 引用里的电话/地址数字） | **fail 53** / skipped 7 |
+
+合计 pass 106 / fail 106 / skipped 28。**关键点**：最后一行 53 条在默认口径下全部仍 fail ——
+引用 locator 里的数字不会被默认调用方当成"允许来源"，opt-in 没在 P1 生效。
+
+## 结果
+
+`fixture_records` 240/240、`run_records` 55/55：**JSON 逐字相同（identical = True）**，
+含 check evidence 的键序（默认路径仍是 "extra" 在前、"checked" 在后）。
+
+默认口径下 55 条真实行的 `value_no_fabricated` 仍 fail **17** 条：
+R1 的 Q09-Q24（16 条）+ R3 的 C06（同一 D02 行，同类问题；R3 未重跑产物，仅内存核对）。
+
+## 命令
+
+set PYTHONPATH=C:\Users\dell1712\AppData\Local\Temp\t207fixscore-old
+.venv\Scripts\python.exe -X utf8 -B <probe>.py --out p1diff-old.json
+set PYTHONPATH=%CD%\backend\src
+.venv\Scripts\python.exe -X utf8 -B <probe>.py --out p1diff-new.json
+
+stdout：
+old {"module": "...\\t207fixscore-old\\mktkb\\__init__.py", "fixture_records": 240, "run_records": 55}
+new {"module": "...\\backend\\src\\mktkb\\__init__.py",        "fixture_records": 240, "run_records": 55}
+
+## 比对（可复跑）
+
+import json
+a = json.load(open(r"p1diff-old.json", encoding="utf-8"))
+b = json.load(open(r"p1diff-new.json", encoding="utf-8"))
+for key in ("fixture_records", "run_records"):
+    print(key, len(a[key]), json.dumps(a[key], ensure_ascii=False) == json.dumps(b[key], ensure_ascii=False))
+→ fixture_records 240 True
+  run_records 55 True
+
+## 差分转储源码（probe.py；只调用既有模块，不新造判定）
+
+"""T207-FIX-SCORE：默认参数（P1 口径）差分转储 —— 同一批输入喂给 old/new 两套源码。
+
+用法：PYTHONPATH=<包根> python -X utf8 -B <本文件> --out <json>
+判定：两次转储逐条相等 = 默认口径 0 分歧（本次修改只在显式传 allowed_number_keys 时生效）。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+from pathlib import Path
+
+import mktkb
+from mktkb.evaluation.dataset import CaseSpec
+from mktkb.evaluation.gold import ResolvedGold
+from mktkb.evaluation.p2_scoring import _resolved_without_index, normalize_product_outcome
+from mktkb.evaluation.scorers import EvalCitation, EvalOutcome, score_case
+
+ROOT = Path(".")
+FIXTURES = (
+    ROOT / "fixtures" / "evaluation" / "b0.jsonl",
+    ROOT / "fixtures" / "evaluation" / "badcase.jsonl",
+    ROOT / "fixtures" / "evaluation" / "regression.jsonl",
+)
+RUNS = (
+    ROOT / "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+    ROOT / "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01",
+    ROOT / "docs/reports/OBS-EVAL/P2/T207/p2-t207-r3-20261111-01",
+)
+DOC_CODES = ROOT / "docs/reports/OBS-EVAL/P2/T207/cases/document-codes.json"
+
+#: 引用 locator 自带数字（Q09 式整行记录）：默认口径必须无视它，opt-in 才用它。
+CITATION = EvalCitation(
+    doc_code="D01",
+    unit_key=None,
+    unit_ids=("unit-1",),
+    locator={
+        "sheet": "店家信息",
+        "row": 5,
+        "cells": [{"display": "010-00000001"}, {"display": "示例市示例路18号（模拟）"}],
+    },
+    text="",
+    kind="active",
+)
+
+
+def gold(case: CaseSpec) -> ResolvedGold:
+    return ResolvedGold(
+        case_id=case.case_id,
+        requires_ocr=bool(case.requires_ocr),
+        skipped=False,
+        sources=(),
+        unit_ids=(),
+        relevant_unit_ids=(),
+    )
+
+
+def variants(case: CaseSpec) -> dict[str, str]:
+    echo = case.reference_answer or "；".join(case.expected_values) or case.question
+    return {
+        "echo_gold": echo,
+        "echo_plus_number": echo + "。另有 99 件在库。",
+        "refusal": "没有找到相关资料，无法回答。",
+        "echo_plus_citation_numbers": echo + "。电话 010-00000001，地址示例市示例路18号。",
+    }
+
+
+def fixture_records() -> list[dict]:
+    records: list[dict] = []
+    for path in FIXTURES:
+        if not path.is_file():
+            continue
+        for line in path.read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            case = CaseSpec.from_dict(json.loads(line))
+            for name, text in variants(case).items():
+                outcome = EvalOutcome(
+                    kind=str(case.expected_kind or "answer"),
+                    text=text,
+                    citations=(CITATION,),
+                    path="rag",
+                )
+                result = score_case(case, gold(case), outcome)
+                records.append(
+                    {
+                        "id": f"{path.stem}:{case.case_id}:{name}",
+                        "result": result.to_dict(),
+                    }
+                )
+    return records
+
+
+def run_records() -> list[dict]:
+    codes = json.loads(DOC_CODES.read_text(encoding="utf-8"))
+    records: list[dict] = []
+    for run in RUNS:
+        if not run.is_dir():
+            continue
+        cases = {
+            case.case_id: case
+            for case in (
+                CaseSpec.from_dict(json.loads(line))
+                for line in (run / "dataset.jsonl").read_text(encoding="utf-8").splitlines()
+                if line.strip()
+            )
+        }
+        for line in (run / "cases.jsonl").read_text(encoding="utf-8").splitlines():
+            if not line.strip():
+                continue
+            row = json.loads(line)
+            case = cases.get(row.get("case_id"))
+            turns = row.get("turns") or ()
+            if case is None or not turns or not isinstance(turns[-1].get("product"), dict):
+                continue
+            outcome = normalize_product_outcome(turns[-1], document_codes=codes)
+            result = score_case(
+                case, _resolved_without_index(case), outcome, cross_explicit_space=True
+            )
+            records.append(
+                {"id": f"{run.name}:{case.case_id}", "result": result.to_dict()}
+            )
+    return records
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--out", required=True)
+    args = parser.parse_args()
+    payload = {
+        "module": mktkb.__file__,
+        "fixture_records": fixture_records(),
+        "run_records": run_records(),
+    }
+    Path(args.out).write_text(json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8")
+    print(
+        json.dumps(
+            {
+                "module": payload["module"],
+                "fixture_records": len(payload["fixture_records"]),
+                "run_records": len(payload["run_records"]),
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

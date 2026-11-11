@@ -60,6 +60,7 @@ from .scorers import (
     EvalCitation,
     EvalOutcome,
     EvalRetrieved,
+    citation_number_keys,
     score_case,
 )
 
@@ -877,8 +878,16 @@ def score_public_case(
     )
     # T207-FIX-S：scorers 默认口径不变，这里显式打开「期望值内部本来就有空白」的
     # 跨空白匹配——否则 Q39 这类「日期 + 时间」期望值即使答对也必然 value_hit fail。
+    # T207-FIX-SCORE：value_no_fabricated 的「允许数字来源」也是 P2 专用 opt-in ——
+    # 允许集合 = 问题/金标/参考答 ∪ **本轮引用证据里的数字**（引用 locator 的 cell
+    # display 等）。B0 Q09-Q24 的答案会回显整行记录（电话/地址里的数字就在所引用的那一
+    # 行），旧口径把它们当"编造"；默认路径（P1）不传这个参数，口径逐字不变。
     result = score_case(
-        case, _resolved_without_index(case), outcome, cross_explicit_space=True
+        case,
+        _resolved_without_index(case),
+        outcome,
+        cross_explicit_space=True,
+        allowed_number_keys=citation_number_keys(outcome.citations),
     )
     if result.status == STATUS_SKIPPED_OCR:
         issues.append(P2IsolationIssue("ocr_silently_skipped", case.case_id))

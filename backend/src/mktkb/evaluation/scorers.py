@@ -77,6 +77,7 @@ __all__ = [
     "answer_metrics",
     "check_source",
     "check_value",
+    "citation_number_keys",
     "cost_metrics",
     "is_refusal",
     "latency_metrics",
@@ -410,6 +411,54 @@ def _gold_number_keys(case: CaseSpec) -> frozenset[str]:
     return frozenset(keys)
 
 
+#: locator 里可能是"容器身份"而不是证据内容的键：文件名/文档名里的编号（如 `D02`）
+#: 不是本轮证据，不得让回答里的同名数字因此通过。
+_NON_EVIDENCE_LOCATOR_KEYS = frozenset(
+    {"document_name", "doc_name", "document", "file_name", "filename", "source_file", "path"}
+)
+
+
+def _locator_evidence_texts(value: Any) -> Iterable[str]:
+    """深度收集 locator 里的字符串值（单元格 `display` 本身就是字符串）。"""
+    if isinstance(value, str):
+        yield value
+    elif isinstance(value, Mapping):
+        for key, item in value.items():
+            if str(key).strip().lower() in _NON_EVIDENCE_LOCATOR_KEYS:
+                continue
+            yield from _locator_evidence_texts(item)
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for item in value:
+            yield from _locator_evidence_texts(item)
+
+
+def citation_number_keys(citations: Iterable[EvalCitation]) -> frozenset[str]:
+    """本轮引用证据里"可核对"的数字 key（供 `value_no_fabricated` 的 opt-in）。
+
+    只取 `citation.text` 与 `locator` 的字符串值 / 单元格 `display`：这些是产品真正
+    引用的那一行、那一段的可见内容；文件名/文档名（`document_name` 等）明确排除 —— 它是
+    容器身份而不是证据内容。归一与回答侧同一口径（`010-00000001` → `10` 与 `1`）。
+
+    默认打分不使用本集合：只有调用方显式把它传给
+    `score_case(..., allowed_number_keys=...)` 才生效（P1 口径逐字不变）。
+    """
+    keys: set[str] = set()
+    for citation in citations:
+        if not isinstance(citation, EvalCitation):
+            raise TypeError("citation_number_keys 只接受 EvalCitation")
+        keys.update(_number_keys(citation.text))
+        for text in _locator_evidence_texts(citation.locator):
+            keys.update(_number_keys(text))
+    return frozenset(keys)
+
+
+def _normalized_number_keys(keys: Collection[str] | None) -> frozenset[str]:
+    """把调用方给的「额外允许数字」归一成与回答侧同口径的 key 集合（默认空集）。"""
+    if not keys:
+        return frozenset()
+    return frozenset(_number_key(str(key)) for key in keys)
+
+
 # --------------------------------------------------------------------------- #
 # 来源匹配
 # --------------------------------------------------------------------------- #
@@ -563,7 +612,11 @@ def _safe(value: Any) -> Any:
 
 
 def _value_checks(
-    case: CaseSpec, outcome: EvalOutcome, *, cross_explicit_space: bool = False
+    case: CaseSpec,
+    outcome: EvalOutcome,
+    *,
+    cross_explicit_space: bool = False,
+    allowed_number_keys: Collection[str] | None = None,
 ) -> tuple[CaseCheck, ...]:
     text = outcome.text
     expected = tuple(case.expected_values)
@@ -599,14 +652,23 @@ def _value_checks(
     elif not expected:
         checks.append(_skipped("value_no_fabricated", {"reason": "no_expected_values"}))
     else:
-        allowed = _gold_number_keys(case)
+        # opt-in：调用方给的「引用证据数字」与 gold 数字取并集后才判"编造"；默认空集
+        # 时集合与旧口径完全相同（P1 逐字不变）。
+        evidence_keys = _normalized_number_keys(allowed_number_keys)
+        allowed = _gold_number_keys(case) | evidence_keys
         extra = sorted({key for key in _number_keys(text) if key not in allowed})
+        # 默认路径的 evidence 键序与旧实现逐字相同（"extra" 在前、"checked" 在后）；
+        # 只有 opt-in 生效时才追加 "evidence_numbers"。
+        evidence: dict[str, Any] = {}
         if extra:
-            checks.append(
-                _fail("value_no_fabricated", {"extra": extra, "checked": len(expected)})
-            )
+            evidence["extra"] = extra
+        evidence["checked"] = len(expected)
+        if evidence_keys:
+            evidence["evidence_numbers"] = len(evidence_keys)
+        if extra:
+            checks.append(_fail("value_no_fabricated", evidence))
         else:
-            checks.append(_pass("value_no_fabricated", {"checked": len(expected)}))
+            checks.append(_pass("value_no_fabricated", evidence))
     return tuple(checks)
 
 
@@ -1033,6 +1095,7 @@ def score_case(
     trace: TraceRecord | None = None,
     *,
     cross_explicit_space: bool = False,
+    allowed_number_keys: Collection[str] | None = None,
 ) -> CaseResult:
     """对单条 case 做确定性打分，返回逐项 check + 可聚合指标 + 运行成本字段。
 
@@ -1043,6 +1106,10 @@ def score_case(
     - 延迟 / Token / 成本从 ``trace`` 读取（非法/负值忽略为 ``None``，不编造）；
     - ``cross_explicit_space`` 只透传给 ``check_value`` 的下述 opt-in（P2 值匹配
       缺口），默认 ``False``：P1 路径的值命中口径逐字不变。
+    - ``allowed_number_keys`` 是 ``value_no_fabricated`` 的 opt-in「允许数字来源」：
+      与 ``_gold_number_keys(case)`` 取并集后才判"编造"。P2 传
+      :func:`citation_number_keys`（本轮引用证据里的数字）；默认 ``None``/空 →
+      只看问题/金标/参考答案/业务日期，P1 逐字不变（检查结果与 case 状态都不变）。
     """
     if not isinstance(case, CaseSpec):
         raise TypeError("score_case 只接受 CaseSpec")
@@ -1080,7 +1147,14 @@ def score_case(
         )
 
     checks: list[CaseCheck] = []
-    checks.extend(_value_checks(case, outcome, cross_explicit_space=cross_explicit_space))
+    checks.extend(
+        _value_checks(
+            case,
+            outcome,
+            cross_explicit_space=cross_explicit_space,
+            allowed_number_keys=allowed_number_keys,
+        )
+    )
     checks.extend(_source_checks(case, outcome, resolved))
     kind_checks, refused = _kind_checks(case, outcome)
     checks.extend(kind_checks)

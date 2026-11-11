@@ -539,3 +539,69 @@ def test_u_suite_reuses_existing_mutation_evidence() -> None:
     card = score_public_suites(scores)
     assert card.release_ready is False
     assert "suite_below_threshold" in {block.code for block in card.blocks}
+
+
+# --------------------------------------------------------------------------- #
+# 4. T207-FIX-SCORE：允许数字来源 = 问题/金标/参考答 ∪ 引用证据，诱饵判别力不变
+# --------------------------------------------------------------------------- #
+
+
+def test_frozen_decoys_f01_f04_keep_failing_after_citation_grounding() -> None:
+    """T205 冻结诱饵 F01-F04：加了「引用证据数字」允许集合后，失败项与结论都不变。"""
+    kpi_sources = freeze_sources("E10_市场部KPI月报.xlsx", {"sheet": "KPI月报", "row": 103})
+
+    missing_target = score_frozen(KPI_TARGET_CASE, text=KPI_DECOY_ANSWER, sources=kpi_sources)
+    assert missing_target.score.status == CASE_STATUS_FAIL
+    assert {"value_hit"} <= {
+        check["check_id"] for check in missing_target.score.checks if check["status"] == "fail"
+    }
+
+    approval = score_frozen(
+        APPROVAL_CASE,
+        text=APPROVAL_DECOY_ANSWER,
+        sources=freeze_sources("W03_促销活动申请审批与结案流程管理办法.docx", {"heading": "第三章 审批权限"}),
+    )
+    assert approval.score.status == CASE_STATUS_FAIL
+    assert any(
+        check["check_id"] == "value_forbidden" and check["status"] == "fail"
+        for check in approval.score.checks
+    )
+
+    price = score_frozen(
+        PRICE_CASE,
+        text=PRICE_DECOY_ANSWER,
+        sources=freeze_sources("E03_2026年Q4渠道价目表.xlsx", {"sheet": "NKA卖场", "row": 7}),
+    )
+    assert price.score.status == CASE_STATUS_FAIL
+    assert any(
+        check["check_id"] == "value_hit" and check["status"] == "fail"
+        for check in price.score.checks
+    )
+
+    entity = score_frozen(
+        ENTITY_CASE,
+        text=ENTITY_DECOY_ANSWER,
+        sources=freeze_sources("E03_2026年Q4渠道价目表.xlsx", {"sheet": "NKA卖场", "row": 7}),
+    )
+    assert entity.score.status == CASE_STATUS_FAIL
+    assert any(
+        check["check_id"] == "kind_correct" and check["status"] == "fail"
+        for check in entity.score.checks
+    )
+
+
+def test_f01_answer_with_number_outside_cited_row_still_counts_as_fabricated() -> None:
+    """引用行（KPI月报 第103行）里没有 12 → 仍然 value_no_fabricated fail + case fail。
+
+    这是 `value_no_fabricated` 的"极端情形"：允许集合只加了**被引用内容**里的数字，
+    没有变成"有引用就放行"；该情况下 case 仍按 fail 记，不放宽。
+    """
+    scored = score_frozen(
+        KPI_TARGET_CASE,
+        text="陈列达标率的年度目标是 90%；计算口径：检核合格门店数 ÷ 抽检门店数 ×100%。抽检 12 家门店。",
+        sources=freeze_sources("E10_市场部KPI月报.xlsx", {"sheet": "KPI月报", "row": 103}),
+    )
+    failed = [check for check in scored.score.checks if check["status"] == "fail"]
+    assert [check["check_id"] for check in failed] == ["value_no_fabricated"], failed
+    assert failed[0]["evidence"]["extra"] == ["12"]
+    assert scored.score.status == CASE_STATUS_FAIL

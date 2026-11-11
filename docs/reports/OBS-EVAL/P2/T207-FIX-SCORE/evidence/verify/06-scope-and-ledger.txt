@@ -1,0 +1,60 @@
+# T207-FIX-SCORE 验收证据 06：范围、账本/预算/GO 与并发归属
+
+## 1. 本包改动（git diff --numstat HEAD）
+
+    backend/src/mktkb/evaluation/scorers.py       81  7
+    backend/src/mktkb/evaluation/p2_scoring.py    10  1
+    backend/tests/evaluation/test_p2_gate.py      31  0
+    backend/tests/evaluation/test_p2_scoring.py  160  1   # 唯一删除行是 import 替换
+    backend/tests/integration/test_p2_public_controls.py 66 0
+
+本包 sha256 前 16：scorers.py `8c2715661997cecb`（1350 行）、
+p2_scoring.py `2d40963176de02f2`（2215 行）；与报告 §3 一致；`git diff --check` 无空白错误。
+
+新增目录/产物仅：
+- `docs/reports/OBS-EVAL/P2/T207-FIX-SCORE/`（report + evidence）
+- `docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/`（scorecard/case_scores/p2_decision）
+
+未改：`fixtures/**`（git diff 为空）、`docs/evaluation/gate_v0_3.json`（git diff 为空）、
+`p2_live.py`（HEAD 已是 FIX-LIVEGATE 提交）、账本/预算/GO（见 §3）、未新增 skip/xfail。
+
+## 2. 并行包归属（不是本包）
+
+工作区是活跃并行现场，以下差异有显式包名标注，且不在本包允许改文件清单内：
+
+| 文件 | 归属 | 证据 |
+|---|---|---|
+| `backend/src/mktkb/copy.py`（+12） | T207-FIX-CONFLICT/N08 | 新增 `IMAGE_NOT_SUPPORTED` 文案，注释标 FIX-CONFLICT/N08 |
+| `backend/src/mktkb/conversations/{intent,service}.py` | T207-FIX-CONFLICT | mtime 03:30Z，N08 路由 |
+| `backend/src/mktkb/evaluation/p2_runner.py`（+376/−1） | T207-FIX-H2SCORE | 新增 `T207-FIX-H2SCORE` 段、holdout_scorecard；mtime 03:46:53Z |
+| `docs/evaluation/p2-dataset-v0_1.md` | T207-FIX-H2SCORE | 新增 §10；mtime 03:51Z |
+| `backend/tests/evaluation/test_p2_holdout_scorecard.py` | T207-FIX-H2SCORE | 未跟踪新文件，03:50Z |
+| `backend/tests/integration/test_t207_fix_conflict.py` | T207-FIX-CONFLICT | 未跟踪新文件，03:42Z |
+| `.claude/handoffs/_index.md` | PM 交接 | 写 T206 pilot 接收与交接授权，非本包 |
+
+本包报告/证据未声称修改上述文件；验收也未改动它们。
+
+## 3. 账本 / 预算 / GO（验收前后 sha256 不变）
+
+| 文件 | 验收前 sha256 | 验收后 | mtime |
+|---|---|---|---|
+| `docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl` | `05b54d06f2e3b46147d09fad623ac310bf384b9674223a225ce8163a1cc72c41` | 相同 | 03:13:53Z |
+| `docs/evidence/LOCAL-R1-20261101/budget/budget.json` | `79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e` | 相同 | 11-10 17:42Z |
+| `docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json` | `3ed427f42ac2eeedff489505b94f730eadba1dc38f1b9adecf94d25750b02a7c` | 相同 | 03:14:31Z |
+
+- 账本最后一条 `run_id=p2-t207-r1-20261111-01`、`time_utc=2026-11-11T03:13:53Z`，与 R1 正式运行
+  （start 03:12:40Z / finish 03:13:53Z）一致；账本增长是**正式运行**的合法写入，
+  发生在本包文件（03:21Z 起）之前。验收跑测试/评分前后账本 sha256 未变（测试零写入）。
+- 预算/GO mtime 均早于本包工作开始；本包未签发/改写 GO。
+
+## 4. 未 commit
+
+- HEAD 仍 `edeeefd37c5bdb4fa2d011f4a526d4c827d7db0c`；`git diff --cached` 为空；
+  reflog 最后一次 commit 是 FIX-LIVEGATE 的 `edeeefd`（11:37 +08），不是本包。
+- 本包产物全部为未跟踪/未提交工作区改动，符合"不 commit"。
+
+## 5. 并发风险
+
+验收期间 p2_runner.py（03:46:53Z）、copy.py（03:41Z）、H2SCORE 测试（03:50Z）仍在被并行包写入。
+本包五个文件的 sha256 在验收开始与结束一致；若经理在 H2SCORE/FIX-CONFLICT 合并后再验收，
+建议重新核对这两组文件的最终哈希。

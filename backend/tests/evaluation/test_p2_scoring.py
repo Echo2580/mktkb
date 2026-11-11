@@ -65,7 +65,13 @@ from mktkb.evaluation.p2_scoring import (
     score_public_case,
     score_public_suites,
 )
-from mktkb.evaluation.scorers import EvalOutcome, check_value, score_case
+from mktkb.evaluation.scorers import (
+    EvalCitation,
+    EvalOutcome,
+    check_value,
+    citation_number_keys,
+    score_case,
+)
 
 UNIT_KEY = "sheet:物品位置:row:8"
 UNIT_ID = "11111111-1111-4111-8111-111111111111"
@@ -1028,3 +1034,156 @@ def test_score_case_default_still_rejects_q39_value() -> None:
     assert strict.check("value_hit").status == "fail"
     loose = score_case(case, gold, outcome, cross_explicit_space=True)
     assert loose.check("value_hit").status == "pass"
+
+
+# --------------------------------------------------------------------------- #
+# 13. T207-FIX-SCORE：value_no_fabricated 按「问题/金标 + 本轮引用证据」判数字
+# --------------------------------------------------------------------------- #
+
+#: B0 Q09 的真实回答形态（R1 产物原文）：回显整行记录，电话/地址里的数字来自引用行。
+Q09_ROW_TEXT = (
+    "城东店的联系人：模拟联系人·陈宁；店家：城东店；电话：010-00000001；"
+    "地址：示例市示例路18号（模拟）；合作状态：合作中。"
+)
+Q09_DOCUMENT_CODES = {"D02_合作店家信息.xlsx": "D02"}
+Q09_LOCATOR = {
+    "sheet": "店家信息",
+    "header_row": 4,
+    "row": 5,
+    "cells": [
+        {"column": "A", "display": "S01", "header": "标识"},
+        {"column": "B", "display": "城东店", "header": "店家"},
+        {"column": "C", "display": "模拟联系人·陈宁", "header": "联系人"},
+        {"column": "D", "display": "010-00000001", "header": "电话"},
+        {"column": "E", "display": "示例市示例路18号（模拟）", "header": "地址"},
+        {"column": "F", "display": "合作中", "header": "合作状态"},
+    ],
+}
+Q09_SOURCE_INDEX = {UNIT_ID: {"doc_code": "D02", "unit_key": "sheet:店家信息:row:5", "locator": {}}}
+
+
+def q09_case() -> CaseSpec:
+    """真实冻结题 Q09（stratum=exact，期望值是联系人），不用手搓样本。"""
+    return {case.case_id: case for case in load_b0_cases()}["Q09"]
+
+
+def q09_source(**overrides: Any) -> dict:
+    source = {
+        "source_id": UNIT_ID,
+        "document_name": "D02_合作店家信息.xlsx",
+        "version_number": 1,
+        "status": "active",
+        "locator": dict(Q09_LOCATOR),
+    }
+    source.update(overrides)
+    return source
+
+
+def q09_score(text: str, *, sources: tuple[dict, ...] | None = None) -> P2ScoredCase:
+    case = q09_case()
+    row = case_row(
+        case,
+        [
+            turn_row(
+                product(text=text, sources=(q09_source(),) if sources is None else sources)
+            )
+        ],
+    )
+    return score_public_case(
+        case,
+        row,
+        document_codes=Q09_DOCUMENT_CODES,
+        source_index=Q09_SOURCE_INDEX,
+        allowed_doc_codes={"D02"},
+    )
+
+
+def q09_checks(scored: P2ScoredCase) -> dict[str, str]:
+    return {check["check_id"]: check["status"] for check in scored.score.checks}
+
+
+def check_evidence(scored: P2ScoredCase, check_id: str) -> dict:
+    return next(
+        check["evidence"] for check in scored.score.checks if check["check_id"] == check_id
+    )
+
+
+def test_citation_number_keys_reads_cited_content_not_container_names() -> None:
+    """允许集合只来自被引用的内容（含 cell display）；文档名里的编号不算证据。"""
+    citation = EvalCitation(
+        doc_code="D02",
+        locator={
+            "document_name": "E03_2026年Q4渠道价目表.xlsx",
+            "sheet": "店家信息",
+            "row": 5,
+            "cells": [{"display": "010-00000001"}, {"display": "示例市示例路18号（模拟）"}],
+        },
+        text="联系人：模拟联系人·陈宁，分机 8021",
+    )
+    keys = citation_number_keys([citation])
+    assert keys == frozenset({"10", "1", "18", "8021"})
+    assert "2026" not in keys and "3" not in keys  # 文档名被排除
+    assert citation_number_keys([]) == frozenset()
+
+
+def test_q09_row_echo_is_grounded_by_citation_evidence() -> None:
+    """Q09 式回答：电话/地址里的数字就在本轮引用 locator 的 display 里 → 不算编造。"""
+    scored = q09_score(Q09_ROW_TEXT)
+    checks = q09_checks(scored)
+    assert checks["value_no_fabricated"] == "pass", checks
+    assert checks["value_hit"] == "pass" and checks["source_hit"] == "pass", checks
+    assert scored.score.status == CASE_STATUS_PASS, checks
+    assert check_evidence(scored, "value_no_fabricated")["evidence_numbers"] == 3
+
+
+def test_same_answer_without_citation_evidence_still_fails() -> None:
+    """同一段回答、但没有引用证据 → 仍然按"编造"判 fail（放宽的是来源，不是判定）。"""
+    scored = q09_score(Q09_ROW_TEXT, sources=())
+    checks = q09_checks(scored)
+    assert checks["value_no_fabricated"] == "fail", checks
+    assert scored.score.status == CASE_STATUS_FAIL
+    evidence = check_evidence(scored, "value_no_fabricated")
+    assert evidence["extra"] == ["1", "18"], evidence
+    assert "evidence_numbers" not in evidence
+
+
+def test_number_outside_question_gold_and_evidence_still_fails() -> None:
+    """数字既不在问题/金标/参考答、也不在本轮引用证据 → 仍 fail（含 case）。"""
+    scored = q09_score(Q09_ROW_TEXT + "另有 7 家分店正在装修。")
+    checks = q09_checks(scored)
+    assert checks["value_no_fabricated"] == "fail", checks
+    assert check_evidence(scored, "value_no_fabricated")["extra"] == ["7"]
+    assert scored.score.status == CASE_STATUS_FAIL
+
+
+def test_score_case_default_ignores_citation_numbers() -> None:
+    """共享 scorer 默认（P1）不把引用数字算进允许集合；opt-in 才生效。"""
+    case = q09_case()
+    gold = ResolvedGold(
+        case_id=case.case_id,
+        requires_ocr=False,
+        skipped=False,
+        sources=(),
+        unit_ids=(),
+        relevant_unit_ids=(),
+    )
+    citation = EvalCitation(
+        doc_code="D02",
+        unit_key="sheet:店家信息:row:5",
+        unit_ids=(UNIT_ID,),
+        locator=dict(Q09_LOCATOR),
+        kind="active",
+    )
+    outcome = EvalOutcome(kind="answer", text=Q09_ROW_TEXT, citations=(citation,))
+    strict = score_case(case, gold, outcome)
+    assert strict.check("value_no_fabricated").status == "fail"
+    assert strict.check("value_no_fabricated").evidence["extra"] == ["1", "18"]
+    assert strict.status == "fail"
+    loose = score_case(
+        case, gold, outcome, allowed_number_keys=citation_number_keys(outcome.citations)
+    )
+    assert loose.check("value_no_fabricated").status == "pass"
+    assert loose.check("value_hit").status == "pass"
+    # 允许集合只影响 value_no_fabricated：其余 check 逐个不变。
+    for check_id in ("value_hit", "value_forbidden", "kind_correct", "refusal_expected"):
+        assert strict.check(check_id).status == loose.check(check_id).status, check_id

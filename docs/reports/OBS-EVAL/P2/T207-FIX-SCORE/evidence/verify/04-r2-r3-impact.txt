@@ -1,0 +1,29 @@
+# T207-FIX-SCORE 验收证据 04：R2/R3 离线重算的影响（供 R4/H2 口径决策）
+
+本包报告声明"只重跑 R1，R2/R3 未重算产物"。验收方独立用同一新代码对 R2/R3 既有 run
+离线重跑 `p2-score`（零真实），输出到工作区外临时目录，与既有 scoring 产物对比：
+
+    p2-score --run-dir ...\p2-t207-r2-20261111-01 --cases ...\cases\R2.jsonl ...
+    p2-score --run-dir ...\p2-t207-r3-20261111-01 --cases ...\cases\R3.jsonl ...
+
+## R2（C05 + U01）
+
+- scorecard.json：**逐字节相同**（5710 bytes）；p2_decision.json：**逐字节相同**（12483 bytes）。
+- case_scores.json 仅 2 条 vnf 的 evidence 追加 `evidence_numbers`：
+  U01 `{"checked":1}` -> `{"checked":1,"evidence_numbers":1}`；
+  C05 `{"checked":2}` -> `{"checked":2,"evidence_numbers":1}`。
+- 无 case/check status 变化；C05 仍 fail（conflict 值语义缺口，属 FIX-CONFLICT）。
+
+## R3（C06）
+
+- scorecard.json：**逐字节相同**（5454 bytes）；p2_decision.json：**逐字节相同**（11838 bytes）。
+- C06：`value_no_fabricated` fail -> pass（旧 extra=['18'] -> 新 evidence_numbers=3），
+  但 case 仍 **fail**（value_hit/source_hit/kind_correct 等 conflict 语义失败未变）；
+  case_scores.json 因该诊断/证据变化而字节不同（3139 -> 3115 bytes）。
+- decision/hard_failures（conflict_not_rejected 等）不变。
+
+## 结论
+
+- R2/R3 的**分数与门禁结论不受影响**；只有 vnf 诊断 evidence 追加（R2）与 C06 的 vnf 转 pass
+  （R3，case 仍 fail）。
+- 若经理要求产物内部一致，可零真实重算 R2/R3 的 case_scores；不重算也不影响任何 release 判断。

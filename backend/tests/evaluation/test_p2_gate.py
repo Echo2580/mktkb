@@ -40,6 +40,7 @@ from mktkb.evaluation.gate import (
     write_gate_proposal,
 )
 from mktkb.evaluation.p2_scoring import (
+    CASE_STATUS_FAIL,
     CASE_STATUS_PASS,
     EXECUTION_MODE_LIVE,
     P2_B0_EXACT_IDS,
@@ -936,3 +937,33 @@ def test_gate_proposal_cannot_overwrite_gate_v0_3(tmp_path: Path) -> None:
     )
     with pytest.raises(ValueError):
         write_gate_proposal(proposal, gate_module.P2_GATE_CONFIG_PATH)
+
+
+# --------------------------------------------------------------------------- #
+# 4. T207-FIX-SCORE：value_no_fabricated 是诊断字段（T004b MEDIUM-1）
+# --------------------------------------------------------------------------- #
+
+
+def test_value_no_fabricated_alone_does_not_move_hard_gates(tmp_path: Path) -> None:
+    """只在 value_no_fabricated 上 fail 的 P2 行：打分层如实记 fail，硬门禁与分母不变。
+
+    与 gate.py 的冻结语义对齐：该 check 不参与任何硬门禁，也不改 ``evaluated_count``
+    （pass / fail 都计入 min_sample 分母）。引用证据里的数字也不会反过来"豁免"硬门禁。
+    """
+    clean_case = make_case("Q01")
+    noisy_case = make_case("Q01")
+    clean_run, _, _ = build_run(
+        tmp_path / "clean-row", [clean_case], [product(text="B区1号货架第二层")]
+    )
+    noisy_run, noisy_scored, _ = build_run(
+        tmp_path / "noisy-row", [noisy_case], [product(text="B区1号货架第二层，另有 99 件在库")]
+    )
+    failed = {item.check_id for item in noisy_scored[0].result.checks if item.status == "fail"}
+    assert failed == {"value_no_fabricated"}, failed
+    assert noisy_scored[0].score.status == CASE_STATUS_FAIL
+
+    clean_gate = evaluate(clean_run, config_for())
+    noisy_gate = evaluate(noisy_run, config_for())
+    assert noisy_gate.gate_status == clean_gate.gate_status
+    assert noisy_gate.hard_failures == clean_gate.hard_failures == ()
+    assert noisy_gate.evaluated_count == clean_gate.evaluated_count == 1

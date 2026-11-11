@@ -1,0 +1,73 @@
+# T207-FIX-SCORE 验收证据 03：独立重跑 R1 评分（零真实调用）
+
+## 命令（cwd = 仓库根；只读既有 run 产物，输出到工作区外临时目录）
+
+    .venv\Scripts\python.exe -B -X utf8 -m mktkb.evaluation.cli p2-score ^
+      --run-dir "docs\reports\OBS-EVAL\P2\T207\p2-t207-r1-20261111-01" ^
+      --cases "docs\reports\OBS-EVAL\P2\T207\cases\R1.jsonl" ^
+      --document-codes "docs\reports\OBS-EVAL\P2\T207\cases\document-codes.json" ^
+      --out "%TEMP%\t207v\R1-rescore"
+
+stdout：
+
+    {"ok": true, "run_id": "p2-t207-r1-20261111-01", "execution_mode": "live",
+     "real_calls": 117, "cases": 52, "executed": 52, "passed": 49,
+     "release_ready": false, "decision": "blocked", "release_allowed": false,
+     "blocks": ["suite_below_threshold", "missing_case", "case_not_executed",
+                "suite_below_threshold", "missing_case", "case_not_executed"]}
+
+注：`real_calls=117` 是 R1 产物里记录的**历史实测出站次数**（summary.network），
+本次重跑自身 0 请求（见证据 07 的 socket 守卫）。
+
+## scorecard（旧 scoring/R1 -> 本次独立重跑）
+
+| suite | passed | failed | exact_passed | ocr_passed |
+|---|---|---|---|---|
+| b0 | 22 -> **38** | 18 -> **2** | 8 -> **24** | 7 -> 7 |
+| negative | 7 -> 7 | 1 -> 1 | — | — |
+| boundary | 4 -> 4 | 0 -> 0 | — | — |
+| update_delete | 0 -> 0 | 0 -> 0 | — | — |
+
+- b0 剩余 2 条失败：Q25（value_hit）、Q33（source_hit）；negative 剩余 N08（kind_correct +
+  refusal_expected）；OCR 7/8、negative 7/8 未变。
+- 本次独立输出与开发产物 `scoring/R1-fixed/` **三个文件逐字节相同**：
+  scorecard.json `85adccbed8d892bd`、case_scores.json `d22156becd06cddc`、
+  p2_decision.json `f78d9887fdaf2325`（sha256 前 16，长度 3547/143529/7840）。
+
+## 逐题漂移（52 条）
+
+- **case status 变化 16 条**：Q09-Q24 全部 `fail -> pass`，无其它 case 变化。
+- **check status 变化 16 条**：全部是 `value_no_fabricated: fail -> pass`；
+  value_hit / value_forbidden / source_hit / source_forbidden / kind_correct / refusal_* /
+  pagination_* **零 status 漂移**。
+- **13 条 vnf 的 evidence 变化（status 仍 pass->pass）**：Q01-Q08、Q25-Q28、Q30 的 vnf
+  evidence 追加 `evidence_numbers`（诊断字段；旧 `{"checked":1}` -> 新
+  `{"checked":1,"evidence_numbers":N}`）。**其余 check 的 evidence 零变化**。
+  开发报告 §evidence 01 的"check 级变化总数 = 16"只统计 status；这 13 条是同一 opt-in 的
+  诊断字段追加，不影响 case 状态 / gate / 决策（见下）。
+
+## blocks
+
+旧：`exact_below_24_of_24(b0)`、`suite_below_threshold(b0)`、
+`suite_below_threshold(negative)`、`missing_case(boundary)`、
+`case_not_executed(boundary)`、`suite_below_threshold(boundary)`、
+`missing_case(update_delete)`、`case_not_executed(update_delete)`
+
+新：只有 `exact_below_24_of_24` 与 b0 的 `suite_below_threshold` 消失；
+negative 7/8、boundary 4/6、U01-U10 缺题等块**逐条不变**（本包没有掩盖这些缺口）。
+
+## p2_decision
+
+- decision `blocked` -> `blocked`；release_allowed `false` -> `false`；
+  `release_ready` `false` -> `false`。
+- hard_gate_status 逐项相同（exact_value_contract=pass、citation_required=pass、
+  trace_integrity=fail、其余 not_applicable）；hard_failures 均 `["trace_integrity"]`。
+- decision blocks 只少 `exact_below_24_of_24(b0)` 与 `suite_below_threshold(b0)`；
+  `gate_config_unapproved`/`hard_gate_failed`/`hard_gate_unknown`/`holdout_missing`
+  等均不变。
+
+## 结论
+
+R1 重评分复现成立：b0 38/40、exact 24/24、OCR 7/8、negative 7/8；只有 Q09-Q24 的
+`value_no_fabricated` 转 pass；blocks 只少 b0 threshold 与 exact_below；
+release_ready/decision 不变。
