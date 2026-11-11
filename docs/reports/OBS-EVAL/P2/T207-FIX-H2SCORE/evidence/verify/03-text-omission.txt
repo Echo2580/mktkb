@@ -1,0 +1,90 @@
+# T207-FIX-H2SCORE 独立复验 03：单变量 A/B —— 同一产品观测，行内 text 有/无
+
+脚本：probe3_text_omission.py（同一脚本内含带 gate_config 的绑定复核）。零出站；H2V_WORK 需指向仓外临时目录。
+用例：AB-01 由真实产品检索 D01「物品位置」第 8 行，Mock provider 固定回答（含金标值 substring）；
+AB-02 为无检索的负样本（not_found + should_refuse）。只使用公开验收夹具的值，不引用 H2 内容。
+
+## public run 实际观测（rows 里 text 存在）
+{
+  "AB01": {
+    "kind": "answer",
+    "text_present": true,
+    "sources": [
+      {
+        "document_name": "D01_物品位置表.xlsx",
+        "status": "active",
+        "row": 8
+      },
+      {
+        "document_name": "D01_物品位置表.xlsx",
+        "status": "active",
+        "row": 9
+      }
+    ]
+  },
+  "AB02": {
+    "kind": "not_found",
+    "text_present": true
+  }
+}
+chat_calls=1
+
+## 逐题打分（同一 rows）
+with text:    {"AB-01":{"status":"fail","checks":[["value_hit","pass"],["value_no_fabricated","fail"],["source_hit","pass"],["kind_correct","pass"],["refusal_unexpected","pass"]]},"AB-02":{"status":"pass","checks":[["kind_correct","pass"],["refusal_expected","pass"]]}}
+text stripped:{"AB-01":{"status":"fail","checks":[["value_hit","fail"],["value_no_fabricated","pass"],["source_hit","pass"],["kind_correct","pass"],["refusal_unexpected","pass"]]},"AB-02":{"status":"pass","checks":[["kind_correct","pass"],["refusal_expected","pass"]]}}
+
+## 同一用例的 holdout run（runner 自己写 holdout_scorecard.json）
+{
+  "total": 2,
+  "executed": 2,
+  "passed": 1,
+  "failed": 1,
+  "errors": 0,
+  "by_stratum": {
+    "negative": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 1,
+      "total": 1
+    },
+    "paraphrase": {
+      "errors": 0,
+      "failed": 1,
+      "passed": 0,
+      "total": 1
+    }
+  },
+  "blocks": [
+    "holdout_sample_missing",
+    "holdout_below_threshold",
+    "holdout_threshold_unapproved"
+  ]
+}
+
+## 带真实 gate_v0_3 配置的绑定复核
+{
+  "status": "succeeded",
+  "card_subset": {
+    "run_id": "p2run-20e44102d01a4e48",
+    "config_hash": "dbb1c76b16d6cd0053fac98eb681b17b1f0afa4eb272d841c20fd4e8212f5731",
+    "execution_mode": "local_mock",
+    "real_calls": 0,
+    "thresholds_approved": false,
+    "release_ready": false,
+    "min_pass": 24,
+    "hard_failures_max": 0
+  },
+  "manifest": {
+    "run_id": "p2run-20e44102d01a4e48",
+    "config_hash": "dbb1c76b16d6cd0053fac98eb681b17b1f0afa4eb272d841c20fd4e8212f5731",
+    "execution": "dry_run"
+  },
+  "equal_run_id": true,
+  "equal_config_hash": true
+}
+
+结论：
+1) AB-01 的 product.text 里包含金标值，with-text 打分 value_hit=pass、source_hit=pass；把同一行的 text 去掉后 value_hit=fail；
+2) runner 的 H2 行（p2_runner.py:1178 include_question=dataset.public_details -> False；1382 as_dict(include_text=False)）
+   正是 text-stripped 形状，因此 holdout_scorecard 把这条正确回答记成 failed；
+3) 这不是 Mock 的局限：产品的 kind/sources 在两条路径完全一致（同一次 ask_turn 产物）。

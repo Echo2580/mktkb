@@ -1,0 +1,68 @@
+# T207-FIX-H2SCORE 独立复验 04：泄漏审计边界 + 多轮题干覆盖
+
+脚本：probe4_audit_boundary.py（直接调用 _assert_holdout_scorecard_payload + 两级注入）；probe5_no_plan.py。
+
+## 审计矩阵（30 题合成 dataset；题面 token 与答案 token 均为探针自造）
+{
+  "case_id": {
+    "raised": true,
+    "code": "holdout_scorecard_leak"
+  },
+  "long_question": {
+    "raised": true,
+    "code": "holdout_scorecard_leak"
+  },
+  "reference_answer": {
+    "raised": true,
+    "code": "holdout_scorecard_leak"
+  },
+  "H2_prefix": {
+    "raised": true,
+    "code": "holdout_scorecard_leak"
+  },
+  "detail_key": {
+    "raised": true,
+    "code": "holdout_scorecard_leak"
+  },
+  "short_question_below_8": {
+    "raised": false,
+    "note": "5-char question is NOT caught (audit threshold len>=8)"
+  },
+  "short_answer_below_8": {
+    "raised": false,
+    "note": "2-char answer is NOT caught"
+  },
+  "builder_leak_fail_closed": {
+    "escaped": false,
+    "total": 30,
+    "passed": 0,
+    "failed": 0,
+    "errors": 30,
+    "blocks": [
+      "holdout_case_error",
+      "holdout_below_threshold",
+      "holdout_threshold_unapproved",
+      "holdout_scorecard_leak"
+    ],
+    "contains_case_id": false,
+    "contains_question": false,
+    "contains_answer": false,
+    "contains_detail_key": false
+  },
+  "aggregator_leak_fail_closed": {
+    "escaped": true,
+    "error": "P2RunError",
+    "code": "holdout_scorecard_leak"
+  }
+}
+
+## 多轮题干覆盖（真实 H2 的 multi_turn：question=""，题干在 turns 里）
+{"turn1_question": "NOT_CAUGHT", "turn2_question": "NOT_CAUGHT", "reference_answer": "NOT_CAUGHT", "case_id": "caught:holdout_scorecard_leak"}
+scanned_fields: ['question', 'reference_answer', 'turns']
+case.question repr: '' turns: 2
+→ `_assert_holdout_scorecard_payload` 只扫 `case.question` 与 `case.reference_answer`，**不扫 `case.turns[*].question/text`**；
+  真实 H2 的 5 道 multi_turn（11/36 回合）题干因此不在审计覆盖内。
+
+## 无 ingest plan 时的 fail-closed（30 题）
+{"passed": 0, "failed": 0, "errors": 30, "blocks": ["holdout_case_error", "holdout_below_threshold", "holdout_threshold_unapproved", "holdout_document_code_unmapped", "holdout_document_code_unmapped", "holdout_case_unscorable"], "release_ready": false}
+→ 30 题全 error、无 pass、release_ready=false；同时出现两条同名 holdout_document_code_unmapped block（重复，只是观感问题）。

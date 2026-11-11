@@ -1,0 +1,76 @@
+{
+  "blocks": [
+    {
+      "code": "holdout_below_threshold",
+      "detail": "H2 通过 0 < 门槛 24/30",
+      "evidence": {
+        "min_pass": 24,
+        "passed": 0
+      },
+      "severity": "quality"
+    },
+    {
+      "code": "holdout_threshold_unapproved",
+      "detail": "H2 阈值/门禁版本未审批（gate_v0_3 初始 unapproved），不得按通过处理",
+      "evidence": {
+        "gate_status": "unapproved"
+      },
+      "severity": "unknown"
+    }
+  ],
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    },
+    "multi_turn": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    },
+    "negative": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    },
+    "paraphrase": {
+      "errors": 0,
+      "failed": 10,
+      "passed": 0,
+      "total": 10
+    },
+    "stale_conflict": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    }
+  },
+  "config_hash": "a1216dfc7ac22a47631c3e2d45bf8ffd8ebfcf22f8ec27834284f180f28dea8e",
+  "detail_export": false,
+  "errors": 0,
+  "executed": 30,
+  "execution_mode": "local_mock",
+  "failed": 30,
+  "hard_failures": 0,
+  "hard_failures_by_kind": {
+    "cross_entity": 0,
+    "cross_user": 0,
+    "safety": 0,
+    "stale_source": 0
+  },
+  "hard_failures_max": 0,
+  "min_pass": 24,
+  "passed": 0,
+  "real_calls": 0,
+  "release_ready": false,
+  "run_id": "p2run-bcb86f31b66f46ac",
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "threshold_met": false,
+  "thresholds_approved": false,
+  "total": 30
+}

@@ -318,3 +318,18 @@ payload 摘要不能替代它，也不能让同一计划项的不同 payload 互
 - GO 与计划操作集的一致性仍由 `authorize_p2` 保证（`go_operation_unauthorized` /
   `go_operation_invalid`，`p2_authorization.py:472-480`），门里这层检查不是旁路；
 - 计划缺任一核心操作（如漏 `rerank`）仍以 `live_operation_not_authorized` 在构造适配器之前拒绝。
+
+### 10.9 `thresholds_approved` 的两张卡口径差异（T207-FIX-H2SCORE-R1，N3）
+
+H2 聚合有两张同 schema 的卡，`thresholds_approved` 的来源不同：
+
+| 产物 | 谁写 | `thresholds_approved` 来源 |
+|---|---|---|
+| `<run-dir>/holdout_scorecard.json` | `p2-run --visibility holdout`（runner 受限进程内） | gate 配置 `P2GateConfig.status == "approved"`（`p2_runner._thresholds_approved`） |
+| `<out>/holdout_scorecard.json` | `p2-score --visibility holdout`（独立复核） | 硬编码 `False`（`cli.py:890`，不读 gate 配置） |
+
+gate_v0_3 现值 `unapproved` 时两张卡都是 `false`、结论一致。**gate 转为 `approved` 后**：runner 卡会
+变 `true`，`p2-score` 卡仍是 `false` —— 因此本契约规定放行判断一律取**更保守**者（任一为 `false`
+即不放行），并显式记录差异来源；`p2-score` 侧的读取口径统一留给后续 CLI 包（本包不改 `cli.py`）。
+`execution_mode`/`real_calls`/`run_id`/`config_hash` 两侧一致：`real_calls` 都取实测出站尝试数
+（`summary.network.outbound_attempts`）。

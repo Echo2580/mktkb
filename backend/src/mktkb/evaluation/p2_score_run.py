@@ -468,6 +468,19 @@ def load_holdout_dataset(manifest_path: Path | str | None = None) -> Any:
         raise RunScoreError(str(exc.reason), exc.detail) from None
 
 
+#: 来源/安全类**结构问题**：引用越界、引用被禁资料、非单位级引用、引用非当前有效版本。
+#: 出现任一条即"这题不能计 pass"，但**具体硬失败类别**（stale_source/safety/…）只能由封存
+#: 标注方判定 —— 驱动层不代分类，只记 error + 未分类清单。
+HOLDOUT_STRUCTURAL_ISSUE_CODES = frozenset(
+    {
+        "source_forbidden_document",
+        "source_outside_run",
+        "citation_not_unit_level",
+        "source_not_active",
+    }
+)
+
+
 def holdout_case_scores_from_rows(
     cases: Sequence[CaseSpec],
     rows: Mapping[str, Mapping[str, Any]],
@@ -478,7 +491,14 @@ def holdout_case_scores_from_rows(
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
     real_calls: int = 0,
 ) -> tuple[tuple[P2HoldoutCaseScore, ...], list[str]]:
-    """用封存目录内的逐题行算 H2 单题判定；返回 (scores, 未分类的问题码)。"""
+    """用封存目录内的逐题行算 H2 单题判定；返回 (scores, 未分类的问题码)。
+
+    B2：逐题行里出现来源/安全类结构问题（引用 superseded/forbidden/越界/非单位级）时，
+    该题一律**不计 pass**（``pass`` → ``error`；已经是 fail/error 的保持不变），并把问题码
+    交给调用方出 ``holdout_hard_failure_unclassified`` block。原因是"引用了失效/越界来源"
+    与"答对了"不能同时成立；而硬失败**类别**的判定权在封存标注方，驱动层不替它分类
+    （``hard_failure`` 因此保持 ``None`，``hard_failures` 恒 0 只表示"未分类"，不表示"无硬失败"）。
+    """
     scores: list[P2HoldoutCaseScore] = []
     unclassified: list[str] = []
     for case in cases:
@@ -492,24 +512,23 @@ def holdout_case_scores_from_rows(
             execution_mode=execution_mode,
             real_calls=real_calls,
         )
-        hard_failure = None
-        for issue in item.score.issues:
-            if issue.code in {
-                "source_forbidden_document",
-                "source_outside_run",
-                "citation_not_unit_level",
-                "source_not_active",
-            }:
-                # 这些是"来源/安全"类的结构问题，但具体硬失败类别要由封存标注方判定：
-                # 驱动层不替它分类，只把它记进未分类清单（聚合必须带 block）。
-                unclassified.append(issue.code)
-                break
+        structural = [
+            issue.code
+            for issue in item.score.issues
+            if issue.code in HOLDOUT_STRUCTURAL_ISSUE_CODES
+        ]
+        status = item.score.status
+        if structural:
+            # 结构问题优先：即便 value/source 命中判成了 pass，也不许计 pass。
+            status = CASE_STATUS_ERROR if status == CASE_STATUS_PASS else status
+            unclassified.extend(structural[:1])
         scores.append(
             P2HoldoutCaseScore(
                 case_id=case.case_id,
                 stratum=str(case.stratum),
-                status=item.score.status,
-                hard_failure=hard_failure,
+                status=status,
+                # 硬失败类别由封存标注方判定；未分类就是 None（不猜、不冒充 0 个硬失败）。
+                hard_failure=None,
             )
         )
     return tuple(scores), unclassified

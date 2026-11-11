@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import time
 import uuid
 from dataclasses import dataclass, field
@@ -47,7 +48,17 @@ from .p2_contracts import (
 )
 from .dataset import cases_to_jsonl
 from .p2_scoring import (
+    CASE_STATUS_ERROR,
+    EXECUTION_MODE_LIVE as SCORING_EXECUTION_LIVE,
+    EXECUTION_MODE_LOCAL_MOCK as SCORING_EXECUTION_LOCAL_MOCK,
     P2_BINDING_VERSION,
+    P2_HOLDOUT_HARD_FAILURE_KINDS,
+    P2_HOLDOUT_MAX_HARD_FAILURES,
+    P2_HOLDOUT_MIN_PASS,
+    P2Block,
+    P2HoldoutCaseScore,
+    P2HoldoutScorecard,
+    SEVERITY_UNKNOWN,
     binding_config_hash,
     citation_evidence_status,
 )
@@ -118,6 +129,10 @@ STOP_ADAPTER_ERROR = "adapter_error"
 STOP_OPEN_CONVERSATION_FAILED = "open_conversation_failed"
 #: T206-PRE：产物校验失败也要落盘并带稳定 stop_code（R2-F-R2-1）。
 STOP_ARTIFACT_VALIDATION_FAILED = "artifact_validation_failed"
+#: T207-FIX-H2SCORE：H2 聚合的文档代号映射/泄漏审计失败码（fail closed，不猜）。
+ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED = "holdout_document_code_unmapped"
+ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS = "holdout_document_code_ambiguous"
+ERROR_HOLDOUT_SCORECARD_LEAK = "holdout_scorecard_leak"
 #: T206-LIVE：真实发送声明成功但拿不到 usage 证据 —— 不伪造金额，保守留账后停。
 STOP_USAGE_MISSING = "usage_evidence_missing"
 #: T206-LIVE：逐次底层尝试的回执与计划/成本中心/账本对不上 —— 事实不可信即停。
@@ -346,6 +361,9 @@ class P2RunLedger:
     by_center_cny: dict[str, float] = field(default_factory=dict)
     gate_notes: list[str] = field(default_factory=list)
     checks: list[dict[str, Any]] = field(default_factory=list)
+    #: T207-FIX-H2SCORE-R1（B1）：H2 **打分输入**——逐题行，``turns[*].product`` 带回答正文。
+    #: 只在本次进程内存里：任何写盘路径都不读它（H2 只写聚合，公开 run 用 cases.jsonl）。
+    scoring_cases: list[dict[str, Any]] = field(default_factory=list)
 
     # -------------------------------------------------------------- 记录
     def add_check(self, name: str, ok: bool, detail: str = "") -> None:
@@ -410,6 +428,14 @@ class P2RunLedger:
 
     def record_case(self, row: Mapping[str, Any]) -> None:
         self.cases.append(dict(row))
+
+    def record_scoring_case(self, row: Mapping[str, Any]) -> None:
+        """登记**只在内存里**的打分行（与公开 run 的 cases.jsonl 行同形，含 product.text）。
+
+        H2 不落逐题行，所以这份数据只服务受限进程内的逐题判定：它不进任何产物、
+        不被 ``_write_json``/``_write_jsonl`` 读取，进程结束即消失。
+        """
+        self.scoring_cases.append(dict(row))
 
     # -------------------------------------------------------------- 汇总
     def counts(self, key: str) -> dict[str, int]:
@@ -912,6 +938,7 @@ async def run_p2(
             network=None,
             attempt_audit=attempt_audit,
             artifact_failure=exc,
+            gate_config=gate_config,
         )
         raise
     _write_artifacts(
@@ -932,6 +959,7 @@ async def run_p2(
         network=network,
         attempt_audit=attempt_audit,
         artifact_failure=None,
+        gate_config=gate_config,
     )
     return result
 
@@ -1231,6 +1259,9 @@ async def _execute(
             "planned_turns": len(questions),
             "turns_executed": 0,
         }
+        # T207-FIX-H2SCORE-R1（B1）：这一题的产品观测原件只在本进程内存里留一份，供 H2
+        # 逐题判定取 ``product.text``；落盘的 case 行仍按 visibility 决定带不带正文。
+        turn_products: dict[int, ProductTurn] = {}
         for turn, question in enumerate(questions, start=1):
             if ledger.stop_code is not None:
                 break
@@ -1348,6 +1379,8 @@ async def _execute(
                     error_code=error_code,
                 )
             elapsed_ms = int((time.perf_counter() - turn_started) * 1000)
+            if product is not None:
+                turn_products[turn] = product
             counters_after = _provider_counters(adapter)
             turn_calls = {
                 name: max(0, counters_after[name] - counters_before[name])
@@ -1536,8 +1569,37 @@ async def _execute(
                 break
         case_row["turns_executed"] = len(case_row["turns"])
         ledger.record_case(case_row)
+        if not include_question:
+            # H2：打分要回答正文，但产物不要。完整行只进内存（``scoring_cases``），
+            # 复核/写盘仍只用上面那份按 visibility 收窄过的 case 行。
+            ledger.record_scoring_case(_scoring_case_row(case_row, turn_products))
         if ledger.stop_code is not None:
             break
+
+
+def _scoring_case_row(
+    case_row: Mapping[str, Any], products: Mapping[int, ProductTurn]
+) -> dict[str, Any]:
+    """把一条已记录的 case 行重建成**公开 run 行同形**的打分行：``turns[*].product`` 带正文。
+
+    H2 落盘的 case 行按 ``include_text=False`` 写了产品观测（不含回答正文），而打分侧
+    （``normalize_product_outcome``）只从 ``product.text`` 取回答、从 ``product.sources``
+    取引用。这里用同一个 ``ProductTurn.as_dict(include_text=True)`` 构造器补回正文，字段集与
+    公开 run 的 cases.jsonl 行逐键相同。
+
+    只在内存里用：调用方（``_execute``）把返回值交给 ``P2RunLedger.record_scoring_case``，
+    任何写盘函数都不读它 —— H2 产物里绝不出现题干/回答。
+    """
+    row = {key: value for key, value in case_row.items() if key != "turns"}
+    turns: list[dict[str, Any]] = []
+    for turn in case_row.get("turns") or ():
+        item = dict(turn)
+        product = products.get(int(turn.get("turn") or 0))
+        if product is not None and item.get("product") is not None:
+            item["product"] = product.as_dict(include_text=True)
+        turns.append(item)
+    row["turns"] = turns
+    return row
 
 
 def _dry_ticket(item: Any, item_id: str, client_request_id: str) -> dict[str, Any]:
@@ -1640,6 +1702,439 @@ def _holdout_aggregate(ledger: P2RunLedger, dataset: P2RunDataset) -> dict[str, 
     }
 
 
+# --------------------------------------------------------------------------- #
+# T207-FIX-H2SCORE：H2 聚合在受限进程内算（只写聚合，不落逐题）
+# --------------------------------------------------------------------------- #
+
+_HOLDOUT_DOC_CODE_RE = re.compile(r"^([A-Z][0-9]{2})[_-]")
+"""H2 语料文件名的规范前缀（``D01_`` / ``V03_``）：文件名 -> doc_code 的唯一规则。"""
+
+#: 聚合产物里不得出现的字段名（与 ``p2_scoring._assert_no_holdout_detail`` 同口径；这里
+#: 只用于本模块自建的审计，真正的兜底仍在 ``P2HoldoutScorecard.to_dict``）。
+_HOLDOUT_FORBIDDEN_KEYS = frozenset(
+    {"case_id", "question", "text", "answer", "reference_answer", "labels"}
+)
+
+
+def _canonical_source_label(source: Any) -> str:
+    """一份 ingest source 的**规范文档名**：``document_ref`` > ``name`` > 文件名。
+
+    ``document_ref``（"在本次 ingest 内给既有资料上传新版本"）优先：V03/V04/V05 这类版本
+    文件属于 D01 槽，产品回的 document_name 仍是槽名，不能按版本文件名另立代号。
+    """
+    for value in (getattr(source, "document_ref", None), getattr(source, "name", None)):
+        label = str(value or "").strip()
+        if label:
+            return label
+    return Path(str(getattr(source, "path", "") or "")).name
+
+
+def _doc_code_of(label: str) -> str | None:
+    match = _HOLDOUT_DOC_CODE_RE.match(str(label or "").strip())
+    return None if match is None else match.group(1)
+
+
+def holdout_document_codes(ingest_plan: Any) -> dict[str, str]:
+    """从 H2 语料文件名建「产品文档名 -> doc_code」映射（确定、可审、冲突即拒绝）。
+
+    - doc_code 只取规范前缀 ``[A-Z]NN``（``D01`` / ``V07``），不做其它猜测；
+    - 每个 source 登记**规范名与去扩展名**、以及**文件名与去扩展名**两种形态：产品回传的
+      ``document_name`` 带不带扩展名都能命中（与 ``p2_scoring._lookup_document_code`` 的
+      「原样 -> 去扩展名 -> 文件名」三级查找对齐）；
+    - 同一名字映射到两个不同 doc_code = 语料不自洽，fail closed（不静默择一）；
+    - 缺 ingest plan / 文件名没有规范前缀：同样 fail closed，缺映射就不评 pass。
+    """
+    sources = getattr(ingest_plan, "sources", None)
+    if not sources:
+        raise P2RunError(
+            ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+            "H2 run 必须带 ingest plan 才能从语料文件名建文档代号映射",
+        )
+    mapping: dict[str, str] = {}
+    for source in sources:
+        canonical = _canonical_source_label(source)
+        code = _doc_code_of(canonical)
+        if code is None:
+            raise P2RunError(
+                ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+                "语料文件名缺少规范前缀（形如 D01_/V03_）",
+            )
+        candidates = {
+            canonical,
+            Path(canonical).stem,
+            Path(str(getattr(source, "path", "") or "")).name,
+            Path(str(getattr(source, "path", "") or "")).stem,
+        }
+        for label in candidates:
+            name = str(label or "").strip()
+            if not name:
+                continue
+            found = mapping.get(name)
+            if found is not None and found != code:
+                raise P2RunError(
+                    ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS,
+                    "同一语料文件名映射到两个不同的 doc_code",
+                )
+            mapping[name] = code
+    if not mapping:  # pragma: no cover - sources 非空时必有映射
+        raise P2RunError(ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED, "语料没有可用的文档名")
+    return mapping
+
+
+def _holdout_expected_doc_codes(cases: Sequence[Any]) -> set[str]:
+    """数据集**期望来源**里出现的 doc_code 全集（gold 引用，不含任何答案正文）。"""
+    codes: set[str] = set()
+    for case in cases:
+        for name in ("expected_sources", "relevant_units"):
+            for ref in getattr(case, name, ()) or ():
+                if isinstance(ref, Mapping):
+                    code = str(ref.get("doc_code") or "").strip()
+                    if code:
+                        codes.add(code)
+    return codes
+
+
+def _thresholds_approved(gate_config: Any | None) -> bool:
+    """只有显式 ``status="approved"`` 的 gate 配置才算阈值已批（gate_v0_3 初值 unapproved）。"""
+    return str(getattr(gate_config, "status", "") or "").strip() == "approved"
+
+
+def _holdout_score_marks(
+    ledger: P2RunLedger,
+    dataset: P2RunDataset,
+    *,
+    ingest_plan: Any,
+    execution: str,
+    blocks: list[P2Block],
+) -> tuple[tuple[P2HoldoutCaseScore, ...], str]:
+    """逐题判定（只在内存里）；返回 (marks, execution_mode)。每题失败按 error 记，不猜。"""
+    from .p2_score_run import holdout_case_scores_from_rows, source_index_from_rows
+
+    # B1：打分输入必须是**带回答正文的逐题行**（``record_scoring_case``，只在内存里）；
+    # 只有老夹具/未执行场景才退回 ledger.cases（那时本来就没有可判定的回答）。
+    source_rows = ledger.scoring_cases or ledger.cases
+    rows = {
+        str(case.get("case_id") or ""): case
+        for case in source_rows
+        if str(case.get("case_id") or "")
+    }
+    mapping_failed = False
+    try:
+        codes = holdout_document_codes(ingest_plan)
+    except P2RunError as exc:
+        mapping_failed = True
+        codes = {}
+        blocks.append(
+            P2Block(
+                exc.code,
+                SEVERITY_UNKNOWN,
+                "H2 语料文件名无法建出文档代号映射，来源比对不可信",
+                {"stage": "document_codes"},
+            )
+        )
+    missing = sorted(_holdout_expected_doc_codes(dataset.cases) - set(codes.values()))
+    # N4：映射本身失败时已经出过 unmapped/ambiguous block，不再叠一条同名/同因的覆盖 block。
+    if missing and not mapping_failed:
+        blocks.append(
+            P2Block(
+                ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+                SEVERITY_UNKNOWN,
+                "数据集期望来源的 doc_code 无法由 H2 语料文件名映射（不猜、不放行）",
+                {"missing": missing, "mapped": len(set(codes.values()))},
+            )
+        )
+    source_index = source_index_from_rows(rows) or None
+    execution_mode = (
+        SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
+    )
+    marks: list[P2HoldoutCaseScore] = []
+    unclassified: set[str] = set()
+    unscorable: dict[str, int] = {}
+    for case in dataset.cases:
+        try:
+            item_marks, item_unclassified = holdout_case_scores_from_rows(
+                (case,),
+                rows,
+                document_codes=codes,
+                source_index=source_index,
+                allowed_doc_codes=set(codes.values()) if codes else None,
+                execution_mode=execution_mode,
+                # 逐题不虚构真实调用归属：run 级实测值进聚合卡，逐题一律 0。
+                real_calls=0,
+            )
+        except Exception as exc:  # noqa: BLE001 - 单题评分失败不得毁掉整份聚合
+            code = str(getattr(exc, "code", None) or type(exc).__name__)
+            unscorable[code] = unscorable.get(code, 0) + 1
+            item_marks = (
+                P2HoldoutCaseScore(
+                    case_id=case.case_id,
+                    stratum=str(case.stratum),
+                    status=CASE_STATUS_ERROR,
+                ),
+            )
+            item_unclassified = ()
+        marks.extend(item_marks)
+        unclassified.update(item_unclassified)
+    if unscorable:
+        blocks.append(
+            P2Block(
+                "holdout_case_unscorable",
+                SEVERITY_UNKNOWN,
+                "有题在受限进程内无法评分（数据/证据缺失）：按 error 记，不计入 pass",
+                {"cases": sum(unscorable.values()), "codes": sorted(unscorable)},
+            )
+        )
+    if unclassified:
+        # B2：结构类问题**不**计 pass（``holdout_case_scores_from_rows`` 把它们判成 error），
+        # 但具体硬失败类别（stale_source/safety/…）只能由封存标注方判定：本卡不代分类，
+        # 因此 ``hard_failures`` 恒 0 且必须由这条 block 说明"0 不等于无硬失败"。
+        blocks.append(
+            P2Block(
+                "holdout_hard_failure_unclassified",
+                SEVERITY_UNKNOWN,
+                "逐题行里出现来源/安全类结构问题：本卡不计 pass，硬失败类别由封存标注方判定",
+                {
+                    "codes": sorted(unclassified),
+                    "counted_as": CASE_STATUS_ERROR,
+                    "hard_failures_owner": "sealed-labels",
+                },
+            )
+        )
+    return tuple(marks), execution_mode
+
+
+def _aggregate_marks(
+    marks: Sequence[P2HoldoutCaseScore],
+    *,
+    dataset: P2RunDataset,
+    ledger: P2RunLedger,
+    binding: Mapping[str, Any],
+    gate_config: Any | None,
+    execution_mode: str,
+    real_calls: int,
+    blocks: Sequence[P2Block],
+) -> dict[str, Any]:
+    """把逐题判定折成聚合字典（只有计数；``to_dict`` 自带明细字段兜底断言）。"""
+    from .p2_score_run import aggregate_holdout_bundle
+
+    config_hash = binding.get("config_hash")
+    expected_strata = dict(dataset.identity.get("strata") or {})
+    card = aggregate_holdout_bundle(
+        marks,
+        expected_strata=expected_strata or None,
+        thresholds_approved=_thresholds_approved(gate_config),
+        execution_mode=execution_mode,
+        real_calls=int(real_calls),
+        run_id=ledger.run_id,
+        config_hash=None if config_hash in (None, "") else str(config_hash),
+        extra_blocks=tuple(blocks),
+    )
+    return card.to_dict()
+
+
+def _holdout_scorecard(
+    ledger: P2RunLedger,
+    dataset: P2RunDataset,
+    *,
+    ingest_plan: Any,
+    execution: str,
+    real_calls: int,
+    binding: Mapping[str, Any],
+    gate_config: Any | None,
+) -> dict[str, Any]:
+    """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block。"""
+    blocks: list[P2Block] = []
+    marks, execution_mode = _holdout_score_marks(
+        ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks
+    )
+    return _aggregate_marks(
+        marks,
+        dataset=dataset,
+        ledger=ledger,
+        binding=binding,
+        gate_config=gate_config,
+        execution_mode=execution_mode,
+        real_calls=real_calls,
+        blocks=blocks,
+    )
+
+
+#: 泄漏审计的最短 needle：1 字题面在产物里没有判别力（任何一个汉字都会命中固定说明），
+#: 2 字及以上一律按子串直报（产物只有稳定码/计数/固定说明，没有自由文本）。
+_HOLDOUT_LEAK_MIN_NEEDLE = 2
+
+
+def _holdout_leak_needles(case: CaseSpec) -> tuple[str, ...]:
+    """一条 case 的全部受限文本：题干（含每个回合的 question/text）+ 参考答案。
+
+    多轮题（真实 H2 有 5 道 / 11 回合）的题干在 ``turns[*].question``，``case.question``
+    是空串；只扫 ``question`` 会整层漏掉（B3）。
+    """
+    needles: list[str] = [str(case.question or ""), str(case.reference_answer or "")]
+    for turn in case.turns or ():
+        if isinstance(turn, Mapping):
+            for key in ("question", "text"):
+                value = turn.get(key)
+                if isinstance(value, str):
+                    needles.append(value)
+    return tuple(needles)
+
+
+def _assert_holdout_scorecard_payload(
+    payload: Mapping[str, Any], dataset: P2RunDataset
+) -> None:
+    """审计：聚合产物里不得出现任何 H2 case_id / 题干 / 参考答案（数据驱动，不只看前缀）。
+
+    ``P2HoldoutScorecard.to_dict`` 已按字段名兜底；这里再用**本次解封在内存里的题面**
+    逐题扫一遍文本，防止"字段名合法但内容泄漏"（例如把 case_id 塞进 block.evidence）。
+    题面覆盖 ``case.question`` + ``turns[*]`` 的每一轮 + ``reference_answer``；
+    needle 阈值见 ``_HOLDOUT_LEAK_MIN_NEEDLE``（2 字起，短题干不漏）。
+    """
+    raw = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True)
+
+    def _walk(value: Any) -> None:
+        if isinstance(value, Mapping):
+            for key, item in value.items():
+                if str(key) in _HOLDOUT_FORBIDDEN_KEYS:
+                    raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含明细字段")
+                _walk(item)
+        elif isinstance(value, (list, tuple)):
+            for item in value:
+                _walk(item)
+        elif isinstance(value, str):
+            if value.startswith("H2-"):
+                raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含 H2 case_id")
+
+    _walk(payload)
+    for case in dataset.cases:
+        case_id = str(case.case_id or "").strip()
+        if case_id and case_id in raw:
+            raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含 H2 case_id")
+        for value in _holdout_leak_needles(case):
+            needle = value.strip()
+            if len(needle) >= _HOLDOUT_LEAK_MIN_NEEDLE and needle in raw:
+                raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, "聚合产物含题干/参考答案")
+
+
+_BLOCKED_SCORECARD_DETAIL = "H2 聚合在受限进程内算不出来/审计失败：按 error 记，不猜通过"
+
+
+def _blocked_holdout_scorecard(
+    ledger: P2RunLedger,
+    dataset: P2RunDataset,
+    *,
+    code: str,
+    binding: Mapping[str, Any],
+    gate_config: Any | None,
+    execution: str,
+    real_calls: int,
+    detail: str = _BLOCKED_SCORECARD_DETAIL,
+    evidence: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """评分/审计失败的 fail-closed 聚合：保留分母，全部记 error（绝不冒充通过）。
+
+    N1：**不经过聚合器**（``aggregate_holdout_bundle``）。泄漏可能就来自聚合器自己的输入
+    （例如 stratum/绑定字段），再从同一路径算一遍会把同一条泄漏带回来、二次审计照样抛错、
+    最终一个产物都写不出。这里直接按分母写 ``P2HoldoutScorecard``（schema 与正常卡相同）。
+    """
+    strata: dict[str, dict[str, int]] = {}
+    for case in dataset.cases:
+        bucket = strata.setdefault(
+            str(case.stratum), {"total": 0, "passed": 0, "failed": 0, "errors": 0}
+        )
+        bucket["total"] += 1
+        bucket["errors"] += 1
+    total = len(dataset.cases)
+    config_hash = binding.get("config_hash")
+    card = P2HoldoutScorecard(
+        total=total,
+        executed=0,
+        errors=total,
+        passed=0,
+        failed=0,
+        hard_failures=0,
+        hard_failures_by_kind={kind: 0 for kind in P2_HOLDOUT_HARD_FAILURE_KINDS},
+        by_stratum=strata,
+        min_pass=P2_HOLDOUT_MIN_PASS,
+        hard_failures_max=P2_HOLDOUT_MAX_HARD_FAILURES,
+        thresholds_approved=_thresholds_approved(gate_config),
+        blocks=(
+            P2Block(
+                str(code),
+                SEVERITY_UNKNOWN,
+                detail,
+                dict(evidence) if evidence is not None else {"stage": "holdout_scorecard"},
+            ),
+        ),
+        execution_mode=(
+            SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
+        ),
+        real_calls=int(real_calls),
+        run_id=ledger.run_id,
+        config_hash=None if config_hash in (None, "") else str(config_hash),
+    )
+    return card.to_dict()
+
+
+def _holdout_scorecard_artifact(
+    ledger: P2RunLedger,
+    dataset: P2RunDataset,
+    *,
+    ingest_plan: Any,
+    execution: str,
+    real_calls: int,
+    binding: Mapping[str, Any],
+    gate_config: Any | None,
+) -> dict[str, Any]:
+    """算 + 审计 H2 聚合；任何异常都退化成"全 error + 稳定 block"，产物一定写出。
+
+    N1：兜底不经过被怀疑的聚合器；若兜底卡自己又被同一条 needle 命中（题面恰好是固定
+    说明的子串），去掉全部自由文本再审计一次 —— 只剩稳定码/计数，不再命中。仍命中说明
+    题面与稳定码重合，此时宁可抛错也不写泄漏产物（产物写入失败由调用方按已有路径处理）。
+    """
+    try:
+        payload = _holdout_scorecard(
+            ledger,
+            dataset,
+            ingest_plan=ingest_plan,
+            binding=binding,
+            gate_config=gate_config,
+            execution=execution,
+            real_calls=real_calls,
+        )
+        _assert_holdout_scorecard_payload(payload, dataset)
+        return payload
+    except Exception as exc:  # noqa: BLE001 - 产物必须写出；失败原因只留稳定码，不留原文
+        code = str(getattr(exc, "code", None) or type(exc).__name__)
+    kwargs = {
+        "binding": binding,
+        "gate_config": gate_config,
+        "execution": execution,
+        "real_calls": real_calls,
+        "code": code,
+    }
+    payload = _blocked_holdout_scorecard(ledger, dataset, **kwargs)
+    try:
+        _assert_holdout_scorecard_payload(payload, dataset)
+        return payload
+    except Exception:  # noqa: BLE001 - 兜底卡也被命中：退到"无文本"卡
+        payload = _blocked_holdout_scorecard(
+            ledger, dataset, detail="", evidence={}, **kwargs
+        )
+        _assert_holdout_scorecard_payload(payload, dataset)
+        return payload
+
+
+def _scorecard_real_calls(network: tuple[int, Mapping[str, Any]] | None) -> int:
+    """``holdout_scorecard.real_calls`` 的口径：与 ``p2-score`` 一致，取**实测出站尝试数**。
+
+    N2：不是"有出网的请求行数"（同一行里可能既有 chat 又有 embedding/rerank，行数 ≠ 出站
+    次数）。实测未通过交叉校验（``network is None``）时不冒充：记 0，真实情况由
+    ``summary.network.available=false`` 表达。
+    """
+    return 0 if network is None else int(network[0])
+
+
 def _write_artifacts(
     *,
     plan: P2RunPlan,
@@ -1659,6 +2154,7 @@ def _write_artifacts(
     network: tuple[int, Mapping[str, Any]] | None,
     attempt_audit: Mapping[str, Any] | None = None,
     artifact_failure: P2RunError | None = None,
+    gate_config: Any | None = None,
 ) -> None:
     """写全部产物；**校验失败也要写**（R2-F-R2-1：不能"已发生请求但无产物"）。
 
@@ -1948,7 +2444,7 @@ def _write_artifacts(
     if public_details:
         _write_jsonl(run_dir / "cases.jsonl", ledger.cases)
         _write_jsonl(run_dir / "requests.jsonl", ledger.requests)
-        for name in ("holdout_aggregate.json",):
+        for name in ("holdout_aggregate.json", "holdout_scorecard.json"):
             try:
                 (run_dir / name).unlink()
             except FileNotFoundError:
@@ -1956,6 +2452,21 @@ def _write_artifacts(
     else:
         # H2：只留聚合；逐题行/请求行一律不落盘。
         _write_json(run_dir / "holdout_aggregate.json", _holdout_aggregate(ledger, dataset))
+        # T207-FIX-H2SCORE：H2 质量聚合（pass/hard_failures/by_stratum）在受限进程内直接
+        # 算出来，只写计数：不产生 case_id/题干/逐题行，也不依赖工作区外的封存逐题行。
+        _write_json(
+            run_dir / "holdout_scorecard.json",
+            _holdout_scorecard_artifact(
+                ledger,
+                dataset,
+                ingest_plan=getattr(adapter, "ingest_plan", None),
+                execution=execution,
+                # N2：与 p2-score 同口径（实测出站尝试数），不是"有出网的请求行数"。
+                real_calls=_scorecard_real_calls(network),
+                binding=binding,
+                gate_config=gate_config,
+            ),
+        )
         for stale in (run_dir / "cases.jsonl", run_dir / "requests.jsonl"):
             try:
                 stale.unlink()

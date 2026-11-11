@@ -1,0 +1,84 @@
+{
+  "blocks": [
+    {
+      "code": "holdout_case_error",
+      "detail": "H2 存在未执行/error 题，不得并入正确数",
+      "evidence": {
+        "errors": 30
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_below_threshold",
+      "detail": "H2 通过 0 < 门槛 24/30",
+      "evidence": {
+        "min_pass": 24,
+        "passed": 0
+      },
+      "severity": "quality"
+    },
+    {
+      "code": "holdout_threshold_unapproved",
+      "detail": "H2 阈值/门禁版本未审批（gate_v0_3 初始 unapproved），不得按通过处理",
+      "evidence": {
+        "gate_status": "unapproved"
+      },
+      "severity": "unknown"
+    }
+  ],
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    },
+    "multi_turn": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    },
+    "negative": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    },
+    "paraphrase": {
+      "errors": 10,
+      "failed": 0,
+      "passed": 0,
+      "total": 10
+    },
+    "stale_conflict": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    }
+  },
+  "config_hash": "42da3e251f339cbdd004fc50a3e73273e92406ab851bec7e83452f2546c005aa",
+  "detail_export": false,
+  "errors": 30,
+  "executed": 0,
+  "execution_mode": "local_mock",
+  "failed": 0,
+  "hard_failures": 0,
+  "hard_failures_by_kind": {
+    "cross_entity": 0,
+    "cross_user": 0,
+    "safety": 0,
+    "stale_source": 0
+  },
+  "hard_failures_max": 0,
+  "min_pass": 24,
+  "passed": 0,
+  "real_calls": 0,
+  "release_ready": false,
+  "run_id": "p2run-21d25ee0d32c4a92",
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "threshold_met": false,
+  "thresholds_approved": false,
+  "total": 30
+}

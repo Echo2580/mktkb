@@ -224,3 +224,60 @@ holdout 还会用解密后的 questions 复算这三个值，必须与 manifest 
   （repo-safe 元数据），不打开密文/key/root 内其它文件，也不会返回题目或答案。
 - 只跑本包测试；未跑全仓、未联网、未装依赖、未读 .env / H1 / 真实 H2、未访问
   `D:/mktkb-p2-holdout`、未 commit/push。
+
+## 10. T207-FIX-H2SCORE：runner 内的 H2 聚合产物（additive）
+
+H2 run 过去只写计数型 ``holdout_aggregate.json``（planned/executed/kinds/branches/strata），
+质量聚合（pass≥24/30、``hard_failures=0``）只能靠 ``p2-score --visibility holdout`` 读工作区外的
+封存逐题行/判定表 —— 而这两类输入没有生产者。本包在 runner 的受限进程内用**已解封在内存里的**
+``dataset.cases`` + 本次 run 的逐题/逐轮产品结果直接算出 H2 聚合，写 ``holdout_scorecard.json``：
+
+- **只写聚合**：字段与 ``p2-score --visibility holdout`` 的产物同 schema
+  （``mktkb.p2.scoring.v0.1``）——``total/executed/errors/passed/failed/min_pass/threshold_met/
+  hard_failures/hard_failures_by_kind/by_stratum/thresholds_approved/blocks/release_ready/
+  execution_mode/real_calls/run_id/config_hash``；无 ``case_id``/题干/答案/逐题行，``detail_export=false``。
+- **逐题判定只在内存**：复用 ``p2_score_run.holdout_case_scores_from_rows`` 的逐题评分口径 +
+  ``aggregate_holdout_bundle`` 的聚合口径；单题评分异常 → 该题记 ``error`` 并出
+  ``holdout_case_unscorable`` block（severity=unknown），**不猜 pass**。
+- **B1：打分必须看到回答正文（行不落盘）**：打分侧只从 ``product.text`` 取回答，所以 ``_execute``
+  在 holdout 路径把每题的完整观测（``turns[*].product`` 含 ``text``/``sources``/``evidence``，与公开
+  run 的 ``cases.jsonl`` 行同形）另存进 ``P2RunLedger.scoring_cases``，跑完由它喂逐题判定；落盘的
+  ``ledger.cases`` 仍按 ``include_text=False`` 收窄，H2 产物里没有逐题行/题干/回答。单变量测试：
+  同一条产品观测带 ``text`` → ``pass``、去掉 ``text`` → ``fail``；30 题合成封存实跑 23 条正确回答 →
+  ``passed=23``（去掉正文的对照臂 → ``passed=0``）。
+- **B2：结构类来源问题不计 pass，硬失败判定权在封存方**：逐题行里出现 ``source_not_active``
+  （引用旧/失效版本）/``source_forbidden_document``/``source_outside_run``/``citation_not_unit_level``
+  时，该题状态由 ``pass`` 降为 ``error``（不计 pass，也不冒充 fail），并出
+  ``holdout_hard_failure_unclassified``（unknown，evidence 带 ``codes``/``counted_as``/
+  ``hard_failures_owner="sealed-labels"``）。``hard_failures`` 在本卡因此**恒 0**，含义是
+  "驱动层不代分类"，**不是**"无硬失败"；硬失败类别与计数以封存判定表（``p2-score --verdicts``）为准。
+- **文档代号映射（确定、可审）**：从本次 ingest plan 的语料文件名建「产品文档名 -> doc_code」：
+  规范名 = ``document_ref``（同槽新版本）> ``name``（上传名）> 文件名；代号只取规范前缀
+  ``[A-Z]NN``（如 ``D01_``/``V03_``）；规范名与去扩展名、文件名与去扩展名这些候选名按 set 去重后
+  登记（同名时只登记一次，通常 2–4 个键；与 ``p2_scoring._lookup_document_code`` 的原样/去扩展名/文件名三级查找对齐）；同一名字映射到
+  两个代号 → ``holdout_document_code_ambiguous``；无 ingest plan 或文件名无前缀 →
+  ``holdout_document_code_unmapped``；``dataset.cases`` 里 ``expected_sources``/``relevant_units``
+  的 doc_code 全集必须都能映射，否则出 ``holdout_document_code_unmapped`` block
+  （evidence 只有 ``{"missing": [...], "mapped": N}``，不猜来源）。
+- **阈值未批但观测值可读**：``thresholds_approved`` 只在 gate 配置显式 ``status="approved"`` 时为真；
+  gate_v0_3 现值 unapproved → 出 ``holdout_threshold_unapproved``（unknown）、``release_ready=false``，
+  但 ``passed/failed/errors/by_stratum`` 照常写出（未执行/error 一律不计 pass）。
+- **执行身份**：``execution_mode`` 只在 ``manifest.execution="live"`` 时标 ``live``，否则 ``local_mock``；
+  ``real_calls`` 取本轮的**实测出站尝试数**（与 ``p2-score`` 同口径：``summary.network.outbound_attempts``
+  的分母；不是"有出网的请求行数"；实测不可用时记 0 并保留 ``network.available=false``）；
+  ``run_id``/``config_hash``
+  来自本次 run 的绑定摘要（绑定未完成时 ``config_hash=null``，不编造）。
+- **写盘隔离与泄漏审计**：产物只落 run_dir（工作区外）；写盘前用**本次解封在内存里的题面**逐题扫
+  聚合 JSON 文本：case_id、``case.question``、**每个回合的 ``turns[*].question``/``text``**、
+  ``reference_answer``（needle ≥2 字；1 字题面在产物里没有判别力，见 ``_HOLDOUT_LEAK_MIN_NEEDLE``），
+  并拒收明细字段名；命中 → ``holdout_scorecard_leak``，退化成"全部记 error + 稳定 block"的聚合
+  （产物仍写出、绝不写明细）。兜底卡**不再经过聚合器**（泄漏可能就来自聚合器自己的输入）：若兜底卡
+  自己又被同一条 needle 命中，则去掉全部说明文本再写一次。
+- **与 ``p2-score`` 的关系**：``p2-score --visibility holdout`` 保留为**可选独立复核**（需工作区外的
+  封存逐题行或判定表）；H2 run 的质量读数不再依赖它。两者逐题口径相同（含 B2），但
+  ``thresholds_approved`` 来源不同：runner 读 gate 配置 ``status``，``p2-score`` 当前硬编码 ``false``
+  ——gate 转 approved 后两张卡会不一致，放行判断一律取**更保守**者（任一为 false 即不放行），
+  见 ``p2-live-binding-v0_1.md`` §10.9。
+- **测试**：合成封存设施（30 题 / 10-5-5-5-5 / 36 回合）见
+  ``backend/tests/evaluation/test_p2_holdout_scorecard.py``，与 T202 同口径现生成 Fernet key 与
+  合成题干/答案；不读真实 H2、不取真实 key。

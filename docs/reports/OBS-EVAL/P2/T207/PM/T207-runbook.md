@@ -226,7 +226,7 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
   --ingest-plan "docs\reports\OBS-EVAL\P2\T207\PM\T207-ingest-plan-H2.json"
 ```
 
-- `--visibility holdout` 强制 `purge_traces=True`；run 产物只留聚合（`holdout_aggregate.json`），不写 case_id/题干。
+- `--visibility holdout` 强制 `purge_traces=True`；run 产物只留聚合（`holdout_aggregate.json` + `holdout_scorecard.json`），不写 case_id/题干。
 - **门规则（T207-FIX-LIVEGATE）**：`open_live_gate` 的操作要求随**计划**（`p2_live.required_live_operations`）
   —— `answer/index_embedding/query_embedding/rerank` 四项恒需，`ocr` 仅当计划含 `operation=="ocr"` 项时才要求。
   H2 计划 `page_count=0`（无 OCR 项），因此即使 H2 GO 的 `scope.operations` 仍写着 `ocr`（超集），
@@ -255,7 +255,32 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
   入包会凭空造出一个未声明的电话冲突；若保管方确认某题引用 V02，最小替代是加 1 个 source（B=15、165 请求）。
   **灌库后必须核对**：账本 `index_embedding` 增量 **≤14**（超过即 `attempt_quota_exhausted` 在发送前停）、
   `run_manifest.ingest.documents == 12`、revision=12、D01 槽 4 个版本、D02 槽 2 个版本。
-4. **聚合**（只在受控进程内、工作区外产物目录）；两种输入二选一，缺输入即 `holdout_input_missing`：
+4. **聚合（H2 run 后直接读 `<工作区外>\H2\holdout_scorecard.json`）**：T207-FIX-H2SCORE-R1 之后，
+   runner 在受限进程内已用**内存里的题面** + 本次 run 的完整逐题观测（含回答正文，只在内存、不落盘）
+   算好 H2 质量聚合，只写计数：
+   `total/executed/errors/passed/failed/hard_failures/by_stratum/blocks/execution_mode/real_calls/run_id/config_hash`，
+   没有 `case_id`/题干/答案/逐题行（`detail_export=false`）。**不需要**再为 H2 生产封存逐题行/判定表。
+   - `passed` 是"产品真的答对"的读数：answer 轮的回答正文由 runner 在内存里保留并参与 value_hit 判定，
+     产物里不出现正文；同一批正确回答若没有正文（旧口径）会退化成 `passed=0`（30 题合成实跑对照：
+     带正文 23 pass / 去掉正文 0 pass）。
+   - 引用**结构性**问题（`source_not_active` 旧/失效版本、`source_forbidden_document`、
+     `source_outside_run`、`citation_not_unit_level`）的题**不计 pass**：状态记 `error` 并出
+     `holdout_hard_failure_unclassified`（unknown）。因此本卡的 `hard_failures` **恒 0**，含义是
+     "驱动层不代分类"，**不是**"无硬失败"；硬失败类别/计数以封存判定表（`p2-score --verdicts`）为准。
+   - 阈值未批（gate_v0_3 `status="unapproved"`）→ `holdout_threshold_unapproved`（unknown）、
+     `release_ready=false`，但观测到的 `passed/failed/errors/by_stratum` 照常可读；error/未执行**不计** pass。
+     `thresholds_approved` 由 runner **读 gate 配置**；`p2-score` 侧当前硬编码 `false`，gate 转 approved 后
+     两张卡会不一致 —— 放行判断一律取更保守者（见 `docs/evaluation/p2-live-binding-v0_1.md` §10.9）。
+   - `real_calls` 取**实测出站尝试数**（与 `p2-score` 同口径，不是"有出网的请求行数"）。
+   - 文档代号映射按 ingest-plan 的语料文件名规范前缀（`D01_`/`V03_`，版本文件按 `document_ref` 归槽）
+     自动建立；映射冲突/缺失 → `holdout_document_code_ambiguous`/`holdout_document_code_unmapped` block
+     （映射本身失败时只出一条，不叠同因 block）。
+   - 写盘前用内存题面逐题扫聚合文本：`case_id` + `case.question` + **每个回合的题面** + `reference_answer`
+     （≥2 字即报，短题干不漏），命中即 `holdout_scorecard_leak` 并退化成"全 error + 稳定 block"（兜底卡
+     不再经过聚合器，产物照样写出）；字段与审计口径见 `docs/evaluation/p2-dataset-v0_1.md` §10。
+
+   **可选独立复核**（需要工作区外的封存输入；不是 H2 run 的必要步骤）：两种输入二选一，缺输入即
+   `holdout_input_missing`：
 
 ```powershell
 # a) 封存逐题行（工作区外）：逐题打分后折成聚合
@@ -269,7 +294,7 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
   --verdicts "<工作区外>\h2-verdicts.jsonl" --out "<工作区外>\H2\score"
 ```
 
-- 聚合产物只有计数/`hard_failures`/`by_stratum`/分母；`case_id`/题干出现即由 `aggregate_holdout` 抛
+- 复核产物同样只有计数/`hard_failures`/`by_stratum`/分母；`case_id`/题干出现即由 `aggregate_holdout` 抛
   `holdout_detail_leak`（不是靠人眼查）。阈值未审批 → `holdout_threshold_unapproved`（unknown），不放行。
 - **缺输入/给多了都是稳定码（T207-FIX-A-R1 阻断 3）**：两个输入都不给 → `holdout_input_missing`；
   两个都给 → `holdout_input_conflict`（不静默择一）。两者都在**读数据集/解封之前**拒绝，exit 3、不写任何产物。

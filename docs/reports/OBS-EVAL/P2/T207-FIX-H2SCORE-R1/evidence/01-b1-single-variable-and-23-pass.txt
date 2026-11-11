@@ -1,0 +1,16 @@
+# B1：H2 打分必须看到回答正文（单变量 + 30 题 23 pass），零真实出站
+# 命令（工作目录=仓库根）：.venv\Scripts\python.exe -X utf8 docs\reports\OBS-EVAL\P2\T207-FIX-H2SCORE-R1\evidence\probe.py
+# 合成封存设施来自 backend/tests/evaluation/test_p2_holdout_scorecard.py（Fernet key 现生成，写系统 TEMP）。
+=== B1 单变量：同一条产品观测，只切换 product.text ===
+  带 text: passed=1 failed=0 errors=0
+  去 text: passed=0 failed=1 errors=0
+
+=== B1 端到端：30 题合成封存 + 会作答的 Mock 产品（唯一变量=打分行有没有正文） ===
+  带 text（修复后）: total=30 executed=30 passed=23 failed=7 errors=0
+    by_stratum(passed)={'cross_doc_security': 3, 'multi_turn': 5, 'negative': 0, 'paraphrase': 10, 'stale_conflict': 5} threshold_met=False
+    blocks=['holdout_below_threshold', 'holdout_threshold_unapproved'] run_dir_leak_hits=0 cases.jsonl=False
+    real_calls=0 network.available=True network.outbound_attempts=0
+  去 text（修复前口径）: total=30 executed=30 passed=0 failed=30 errors=0
+    by_stratum(passed)={'cross_doc_security': 0, 'multi_turn': 0, 'negative': 0, 'paraphrase': 0, 'stale_conflict': 0} threshold_met=False
+    blocks=['holdout_below_threshold', 'holdout_threshold_unapproved'] run_dir_leak_hits=0 cases.jsonl=False
+    real_calls=0 network.available=True network.outbound_attempts=0

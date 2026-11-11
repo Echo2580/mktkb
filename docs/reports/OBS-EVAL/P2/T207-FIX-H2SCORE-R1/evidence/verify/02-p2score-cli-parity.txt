@@ -1,0 +1,14 @@
+# command: .venv\Scripts\python.exe -B -X utf8 docs\reports\OBS-EVAL\P2\T207-FIX-H2SCORE-R1\evidence\verify\probe_p2score_cli.py
+# cwd: 仓库根；真实 CLI p2-score（离线评分，零出站）vs runner 卡；临时产物在系统 TEMP（仓外）
+
+repo=D:\GPT项目\市场部AI知识库
+temp=C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda
+cmd: -B -X utf8 -m mktkb.evaluation.cli p2-score --visibility holdout --holdout-manifest C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda\sealed\manifest.json --run-dir C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda\rundir --holdout-cases C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda\rows.jsonl --document-codes C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda\codes.json --out C:\Users\dell1712\AppData\Local\Temp\p2cli-qi4l_fda\score
+exit=0
+stdout={"ok": true, "visibility": "holdout", "total": 30, "passed": 0, "failed": 30, "errors": 0, "hard_failures": 0, "threshold_met": false, "release_ready": false, "blocks": ["holdout_below_threshold", "holdout_threshold_unapproved"], "out": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\p2cli-qi4l_fda\\score\\holdout_scorecard.json"}
+p2-score card: {"errors": 0, "executed": 30, "execution_mode": "local_mock", "failed": 30, "hard_failures": 0, "passed": 0, "real_calls": 0, "release_ready": false, "threshold_met": false, "thresholds_approved": false, "total": 30}
+card key count=20 keys=['blocks', 'by_stratum', 'config_hash', 'detail_export', 'errors', 'executed', 'execution_mode', 'failed', 'hard_failures', 'hard_failures_by_kind', 'hard_failures_max', 'min_pass', 'passed', 'real_calls', 'release_ready', 'run_id', 'schema_version', 'threshold_met', 'thresholds_approved', 'total']
+blocks=['holdout_below_threshold', 'holdout_threshold_unapproved']
+
+对照：同一批逐题行经 runner 的 _holdout_scorecard（source_index=evidence 索引）
+runner card: {"errors": 0, "executed": 30, "execution_mode": "local_mock", "failed": 7, "hard_failures": 0, "passed": 23, "real_calls": 0, "release_ready": false, "threshold_met": false, "thresholds_approved": false, "total": 30}
