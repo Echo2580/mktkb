@@ -378,3 +378,11 @@ POST/预留均为 0），回归在 `backend/tests/evaluation/test_p2_live_reques
 
 H2 真实 runner 与独立 rows 评分共用 `p2-holdout-v2.source-map.json`：V03/V04/V05→D01/v1/v3/v4，V06→D02/v2；版本取产品 source.version_number，与原 locator 合取比较，缺版本或错版本不命中，unit_key 不得绕过，source_index/locator 版本与产品冲突则 `source_version_conflict` 拒绝。
 runner 在受控内存内核对映射 schema、基槽覆盖、实际上传顺序及本次 expected/relevant 引用版本文件已导入；映射缺失/冲突/坏 schema 出 `holdout_document_code_unmapped`（既有文档名歧义仍用 `holdout_document_code_ambiguous`），整包记 error，不放行。未引用版本与禁止来源无需已导入；公开评分默认行为不变，版本身份不代替 active/隔离校验，也不解除原完整 H2 配方的 inactive 金标契约阻断。
+
+## T207-SAFE-DIAG：安全聚合与模型失败原因（additive）
+
+H2 runner 内存评分接入固定 diagnostics（定义见 dataset 契约 §12），全卡写盘按 exact 顶层/分层/blocks schema 校验。block.code、severity、detail 只接受登记常量或受限计数生成的固定模板；evidence 按 code 逐项校验，缺失来源仅导出 missing_count，不导出原 doc_code。run_id 必须与 runner ledger 传入值一致（非空、最多120字符、不含换行），config_hash 必须与本次 binding 一致且为64位小写hex或null；它们是受信任的运行关联元数据，不能承载题目/文档内容。其余任意输入字符串均不能借稳定代码字段出盘。
+
+生成及写盘均严格拒绝未知嵌套键、数组/长串、布尔冒充计数、非法状态与计数不守恒；原递归明细字段禁令和≥2字完整题面/回合/参考答案针扫描继续执行，对 diagnostics 无整树豁免。异常为全 error 卡加固定 holdout_scorecard_leak/holdout_case_unscorable 原因，不先清洗异常 payload 再认定安全。兜底卡也带四类未验证计数；不把错误或未开始算通过。
+
+MODEL_OUTPUT_INVALID 保留原错误码、用户文案、retryable 与停止行为。只有 `providers/types.py` 登记的完整静态内部异常消息精确匹配后才映射 json_parse/response_schema/answer_shape/source_identity/exact_value/unsupported_value/entity_scope/record_facts/record_source/record_entity/query_terms，否则 unknown（不 strip，不按前缀猜）。`_model_failure_result` 只增加固定 model_failure Span 的 attributes_json；适配器仅读取并重校验 model_failure_reason，ProductTurn 字段只在 H2 内存评分行传递，不新增公开序列化字段或HTTP API字段。diagnostics.model_failure_reasons 每个 error case 记一次，未开始不记模型原因；这个原因说明拒绝点，不代替硬失败分类或根因修复。

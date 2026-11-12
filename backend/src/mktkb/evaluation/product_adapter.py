@@ -779,6 +779,7 @@ class ProductTurn:
     #: T206-PRE-R1：本轮**真实检索候选单元**（产品自己的检索结果，**不是引用**）。
     #: 只在作答轮采集；取不到就留空——gate 的 ``citation_required`` 因此判 fail，不放宽。
     retrieved: tuple[Mapping[str, Any], ...] = ()
+    model_failure_reason: str = 'unknown'
 
     def as_dict(self, *, include_text: bool) -> dict[str, Any]:
         payload: dict[str, Any] = {
@@ -2105,6 +2106,7 @@ class ProductEvalAdapter:
         trace_id = response.headers.get("X-Trace-ID")
         trace_path = trace_outcome = trace_status = None
         trace_spans: tuple[str, ...] = ()
+        model_failure_reason = 'unknown'
         record = self.trace_of(trace_id)
         if record is not None:
             trace, spans = record
@@ -2112,6 +2114,14 @@ class ProductEvalAdapter:
             trace_outcome = getattr(trace, "outcome_kind", None)
             trace_status = getattr(trace, "status", None)
             trace_spans = tuple(str(span.name) for span in spans)
+            from ..providers.types import safe_model_failure_reason
+            for span in spans:
+                if span.name == 'model_failure':
+                    try:
+                        attrs = json.loads(span.attributes_json or '{}')
+                        model_failure_reason = safe_model_failure_reason(attrs.get('model_failure_reason'))
+                    except (TypeError, ValueError, AttributeError):
+                        pass
         payload = self._json_body(response)
         kind = str(payload.get("kind") or ("service_error" if response.status_code != 200 else ""))
         sources = tuple(
@@ -2168,6 +2178,7 @@ class ProductEvalAdapter:
             trace_outcome=trace_outcome,
             trace_status=trace_status,
             trace_spans=trace_spans,
+            model_failure_reason=model_failure_reason,
             replayed=bool(payload.get("replayed", False)),
             elapsed_ms=elapsed_ms,
             evidence=evidence,

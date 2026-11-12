@@ -64,6 +64,33 @@ class ModelGateway(Protocol):
     async def complete(self, request: CompletionInput, *, timeout_seconds: float) -> CompletionOutput: ...
 
 
+MODEL_FAILURE_REASONS = (
+    'json_parse', 'response_schema', 'answer_shape', 'source_identity',
+    'exact_value', 'unsupported_value', 'entity_scope', 'record_facts',
+    'record_source', 'record_entity', 'query_terms', 'unknown',
+)
+
+
+def safe_model_failure_reason(value: object) -> str:
+    return value if type(value) is str and value in MODEL_FAILURE_REASONS else 'unknown'
+
+
+_MODEL_FAILURE_MESSAGES = {
+    '响应不是 JSON': 'json_parse', 'content 不是 JSON 对象': 'json_parse',
+    **{x: 'response_schema' for x in ('响应结构不合法', '响应缺少 choices', 'choices 结构不合法',
+        '上游完成状态不是完整文本结束', 'message 结构不合法', 'content 为空', 'answer 不合法',
+        'source_ids 不合法')},
+    **{x: 'query_terms' for x in ('terms 不合法', 'terms 必须是字符串', 'query_terms 必须是字符串',
+        '检索词过长', '检索词包含不允许的结构', '检索词数量超出上限')},
+    '回答文本为空或过长': 'answer_shape', 'source_ids 必须是字符串': 'source_identity',
+    '回答未给出任何来源': 'source_identity', '回答引用了本次候选之外的来源': 'source_identity',
+    '回答未保留精确字段原值': 'exact_value', '回答包含引用来源中不存在的数据值': 'unsupported_value',
+    '回答混入了其它门店的事实': 'entity_scope',
+    '记录型回答不是可验证的字段事实陈述': 'record_facts',
+    '回答字段原值未由被引用来源背书': 'record_source', '回答字段原值属于其它对象': 'record_entity',
+}
+
+
 class ModelError(Exception):
     """模型层稳定错误基类；message 面向内部，code 映射 AskResult.error_code。"""
 
@@ -73,6 +100,10 @@ class ModelError(Exception):
     def __init__(self, message: str = "") -> None:
         super().__init__(message or self.code)
         self.message = message or self.code
+        # Exact registered internal messages only; never export an exception's text.
+        self.failure_reason = (_MODEL_FAILURE_MESSAGES.get(message, 'unknown')
+                               if type(message) is str and self.code == 'MODEL_OUTPUT_INVALID'
+                               else 'unknown')
 
 
 class ModelNotConfigured(ModelError):

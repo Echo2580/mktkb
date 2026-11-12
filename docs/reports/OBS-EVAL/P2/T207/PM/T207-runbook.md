@@ -412,3 +412,9 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
 - 禁止并发发送、禁止自动重试；禁止用 `--ingest` 冒充版本槽（那会建第二份文档 = T206 失败形态）。
 - 禁止复用同一扇门跑第二次（第二 run 会被 `attempt_accounting_mismatch` 拒；这是既有语义，不放宽）。
 - 禁止把三 run 观测矩阵写成 release/达标结论（`release_decision=false`、`gate_config_unapproved` 是写死的）。
+
+## 12 SAFE-DIAG 读取边界
+
+H2 聚合卡新增固定 diagnostics；先看 counts 的 scored/errors/not_executed，再看已登记正常结局的 observed 和单列 unknown_kind。末轮矩阵总数为 observed+unknown_kind，多轮任一错误不进矩阵；source_hit skipped 不算来源命中。MODEL_OUTPUT_INVALID 的固定 model_failure_reasons 可区分 JSON/schema、原值/来源/实体和记录事实拒绝点；未知仍 unknown，不能从同一个外层错误码猜产品根因。原停止、自动重试0、账本/预算与真实调用授权不变。
+
+四类硬失败当前分类全部 unverified，checked=0、unknown=planned，卡片 holdout_hard_failure_unverified 阻断不解除。结构性违规计数与普通source失败不能替代安全、跨用户、跨实体、失效来源的受控逐维证据；未来封存复核方接口须按 dataset 契约 §12 实现并另行验收。本包仅合成/公开离线验证，不证明真实H2质量通过。

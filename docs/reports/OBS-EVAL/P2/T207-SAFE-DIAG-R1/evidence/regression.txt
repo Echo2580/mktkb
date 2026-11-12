@@ -1,0 +1,45 @@
+...................................................F.................... [ 25%]
+........................................................................ [ 50%]
+........................................................................ [ 76%]
+....................................................................     [100%]
+================================== FAILURES ===================================
+_______________ test_aggregator_leak_still_writes_blocked_card ________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000012388A11C40>
+
+    def test_aggregator_leak_still_writes_blocked_card(monkeypatch: pytest.MonkeyPatch) -> None:
+        """N1��й©���Ծۺ�������ʱ�����ײ��پ����ۺ�����blocked ������д����"""
+        cases = _synthetic_cases()
+        dataset = _synthetic_dataset(cases)
+    
+        def _leaky_aggregate(*_args, **_kwargs):  # noqa: ANN001 - ����й© case_id
+            return {"blocks": [{"code": "x", "detail": cases[0].case_id}]}
+    
+        monkeypatch.setattr(runner, "_aggregate_marks", _leaky_aggregate)
+        payload = runner._holdout_scorecard_artifact(
+            _ledger(),
+            dataset,
+            ingest_plan=_codes_plan(),
+            execution="dry_run",
+            real_calls=0,
+            binding={},
+            gate_config=None,
+        )
+        assert (payload["total"], payload["passed"], payload["errors"]) == (30, 0, 30)
+>       assert {block["code"] for block in payload["blocks"]} == {ERROR_HOLDOUT_SCORECARD_LEAK}
+E       AssertionError: assert {'holdout_har...orecard_leak'} == {'holdout_scorecard_leak'}
+E         
+E         Extra items in the left set:
+E         'holdout_hard_failure_unverified'
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_holdout_scorecard.py:1148: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_holdout_scorecard.py::test_aggregator_leak_still_writes_blocked_card
+1 failed, 283 passed, 1 warning in 34.51s

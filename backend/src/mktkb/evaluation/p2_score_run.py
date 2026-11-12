@@ -552,6 +552,7 @@ def holdout_case_scores_from_rows(
     allowed_doc_codes: Iterable[str] | None = None,
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
     real_calls: int = 0,
+    diagnostics: Any = None,
 ) -> tuple[tuple[P2HoldoutCaseScore, ...], list[str]]:
     """用封存目录内的逐题行算 H2 单题判定；返回 (scores, 未分类的问题码)。
 
@@ -592,6 +593,8 @@ def holdout_case_scores_from_rows(
             # 结构问题优先：即便 value/source 命中判成了 pass，也不许计 pass。
             status = CASE_STATUS_ERROR if status == CASE_STATUS_PASS else status
             unclassified.extend(structural[:1])
+        if diagnostics is not None:
+            diagnostics.record(case, row, item, status=status)
         scores.append(
             P2HoldoutCaseScore(
                 case_id=case.case_id,

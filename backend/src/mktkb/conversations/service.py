@@ -1830,6 +1830,10 @@ def _service_error(code: str, text: str, retryable: bool, revision: int) -> _Res
 def _model_failure_result(exc: ModelError, revision: int) -> _Result:
     """T104：按异常真实原因返回稳定码 / 可重试性 / ERR-07 模板文案。"""
     code, retryable = _classify_model_error(exc)
+    from ..providers.types import safe_model_failure_reason
+    with trace_attrs.span('model_failure', model_failure_reason=safe_model_failure_reason(
+            getattr(exc, 'failure_reason', None))):
+        pass
     return _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
 
 

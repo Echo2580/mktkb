@@ -1,0 +1,319 @@
+{
+  "blocks": [
+    {
+      "code": "holdout_case_error",
+      "detail": "H2 存在未执行/error 题，不得并入正确数",
+      "evidence": {
+        "errors": 9
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_below_threshold",
+      "detail": "H2 通过 11 < 门槛 24/30",
+      "evidence": {
+        "min_pass": 24,
+        "passed": 11
+      },
+      "severity": "quality"
+    },
+    {
+      "code": "holdout_threshold_unapproved",
+      "detail": "H2 阈值/门禁版本未审批（gate_v0_3 初始 unapproved），不得按通过处理",
+      "evidence": {
+        "gate_status": "unapproved"
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_hard_failure_unverified",
+      "detail": "四类硬失败缺少受控分类证据，零计数不证明安全",
+      "evidence": {
+        "owner": "sealed_reviewer"
+      },
+      "severity": "unknown"
+    }
+  ],
+  "by_stratum": {
+    "cross_doc_security": {
+      "errors": 5,
+      "failed": 0,
+      "passed": 0,
+      "total": 5
+    },
+    "multi_turn": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    },
+    "negative": {
+      "errors": 0,
+      "failed": 5,
+      "passed": 0,
+      "total": 5
+    },
+    "paraphrase": {
+      "errors": 0,
+      "failed": 0,
+      "passed": 10,
+      "total": 10
+    },
+    "stale_conflict": {
+      "errors": 4,
+      "failed": 0,
+      "passed": 1,
+      "total": 5
+    }
+  },
+  "config_hash": null,
+  "detail_export": false,
+  "diagnostics": {
+    "by_stratum": {
+      "cross_doc_security": {
+        "errors": 0,
+        "not_executed": 5,
+        "observed": 0,
+        "planned": 5,
+        "scored": 0,
+        "unknown_kind": 0
+      },
+      "multi_turn": {
+        "errors": 0,
+        "not_executed": 0,
+        "observed": 5,
+        "planned": 5,
+        "scored": 5,
+        "unknown_kind": 0
+      },
+      "negative": {
+        "errors": 0,
+        "not_executed": 0,
+        "observed": 5,
+        "planned": 5,
+        "scored": 5,
+        "unknown_kind": 0
+      },
+      "paraphrase": {
+        "errors": 0,
+        "not_executed": 0,
+        "observed": 10,
+        "planned": 10,
+        "scored": 10,
+        "unknown_kind": 0
+      },
+      "stale_conflict": {
+        "errors": 1,
+        "not_executed": 3,
+        "observed": 1,
+        "planned": 5,
+        "scored": 1,
+        "unknown_kind": 0
+      }
+    },
+    "classification_owner": "sealed_reviewer",
+    "classification_status": "unverified",
+    "counts": {
+      "errors": 1,
+      "not_executed": 8,
+      "observed": 21,
+      "planned": 30,
+      "scored": 21,
+      "unknown_kind": 0
+    },
+    "errors": {
+      "MODEL_BUDGET_REFUSED": 0,
+      "MODEL_CALL_FAILED": 0,
+      "MODEL_NOT_CONFIGURED": 0,
+      "MODEL_OUTPUT_INVALID": 1,
+      "MODEL_TIMEOUT": 0,
+      "MODEL_UNAVAILABLE": 0,
+      "QA_INTERNAL_ERROR": 0,
+      "REQUEST_CANCELLED": 0,
+      "RETRIEVAL_ERROR": 0,
+      "TURN_TIMEOUT": 0,
+      "case_row_invalid": 0,
+      "mapping_blocked": 0,
+      "not_executed": 8,
+      "product_kind_missing": 0,
+      "source_version_conflict": 0,
+      "turns_invalid": 0,
+      "unknown": 0
+    },
+    "failed_checks": {
+      "kind_correct": 5,
+      "pagination_has_more": 0,
+      "pagination_next_page": 0,
+      "pagination_returned": 0,
+      "pagination_total": 0,
+      "refusal_expected": 5,
+      "refusal_unexpected": 0,
+      "source_forbidden": 0,
+      "source_hit": 0,
+      "unknown": 0,
+      "value_forbidden": 0,
+      "value_hit": 5,
+      "value_no_fabricated": 0
+    },
+    "hard_failure_evidence": {
+      "cross_entity": {
+        "checked": 0,
+        "unknown": 30,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 0,
+        "unknown": 30,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 0,
+        "unknown": 30,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 0,
+        "unknown": 30,
+        "violations": 0
+      }
+    },
+    "kind_matrix": {
+      "kind_answer": {
+        "kind_answer": 16,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_clarification": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_conflict": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_knowledge_changed": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_no_answer": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_not_found": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_refusal": {
+        "kind_answer": 5,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      },
+      "kind_unknown": {
+        "kind_answer": 0,
+        "kind_clarification": 0,
+        "kind_conflict": 0,
+        "kind_knowledge_changed": 0,
+        "kind_no_answer": 0,
+        "kind_not_found": 0,
+        "kind_refusal": 0,
+        "kind_unknown": 0
+      }
+    },
+    "model_failure_reasons": {
+      "answer_shape": 0,
+      "entity_scope": 0,
+      "exact_value": 0,
+      "json_parse": 0,
+      "query_terms": 0,
+      "record_entity": 0,
+      "record_facts": 1,
+      "record_source": 0,
+      "response_schema": 0,
+      "source_identity": 0,
+      "unknown": 0,
+      "unsupported_value": 0
+    },
+    "refusal_confusion": {
+      "errors": 1,
+      "fn": 5,
+      "fp": 0,
+      "not_executed": 8,
+      "tn": 16,
+      "tp": 0,
+      "unknown": 0
+    },
+    "schema_version": "p2-safe-diagnostics/v1",
+    "source": {
+      "mapping_blocked": 0,
+      "matched": 16,
+      "unmatched": 0
+    },
+    "structural_evidence": {
+      "citation_not_unit_level": 0,
+      "source_forbidden_document": 0,
+      "source_not_active": 0,
+      "source_outside_run": 0
+    }
+  },
+  "errors": 9,
+  "executed": 21,
+  "execution_mode": "local_mock",
+  "failed": 10,
+  "hard_failures": 0,
+  "hard_failures_by_kind": {
+    "cross_entity": 0,
+    "cross_user": 0,
+    "safety": 0,
+    "stale_source": 0
+  },
+  "hard_failures_max": 0,
+  "min_pass": 24,
+  "passed": 11,
+  "real_calls": 0,
+  "release_ready": false,
+  "run_id": "p2run-b11db19c518d4ade",
+  "schema_version": "mktkb.p2.scoring.v0.1",
+  "threshold_met": false,
+  "thresholds_approved": false,
+  "total": 30
+}

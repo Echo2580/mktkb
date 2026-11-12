@@ -47,6 +47,7 @@ from .p2_contracts import (
     P2RunResult,
 )
 from .dataset import cases_to_jsonl
+from .p2_diagnostics import HoldoutDiagnostics, validate_scorecard, fixed, ERRORS
 from .p2_scoring import (
     CASE_STATUS_ERROR,
     EXECUTION_MODE_LIVE as SCORING_EXECUTION_LIVE,
@@ -1597,6 +1598,9 @@ def _scoring_case_row(
         product = products.get(int(turn.get("turn") or 0))
         if product is not None and item.get("product") is not None:
             item["product"] = product.as_dict(include_text=True)
+            from ..providers.types import safe_model_failure_reason
+            item['product']['model_failure_reason'] = safe_model_failure_reason(
+                product.model_failure_reason)
         turns.append(item)
     row["turns"] = turns
     return row
@@ -1806,6 +1810,7 @@ def _holdout_score_marks(
     ingest_plan: Any,
     execution: str,
     blocks: list[P2Block],
+    diagnostics: HoldoutDiagnostics | None = None,
 ) -> tuple[tuple[P2HoldoutCaseScore, ...], str]:
     """逐题判定（只在内存里）；返回 (marks, execution_mode)。每题失败按 error 记，不猜。"""
     from .p2_score_run import (
@@ -1847,7 +1852,8 @@ def _holdout_score_marks(
         codes = {}
         blocks.append(
             P2Block(
-                exc.code,
+                fixed(exc.code, (ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+                                ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS)),
                 SEVERITY_UNKNOWN,
                 "H2 语料文件名无法建出文档代号映射，来源比对不可信",
                 {"stage": "document_codes"},
@@ -1860,7 +1866,7 @@ def _holdout_score_marks(
                 ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
                 SEVERITY_UNKNOWN,
                 "数据集期望来源的 doc_code 无法由 H2 语料文件名映射（不猜、不放行）",
-                {"missing": missing, "mapped": len(set(codes.values()))},
+                {"missing_count": len(missing), "mapped": len(set(codes.values()))},
             )
         )
     source_index = source_index_from_rows(rows) or None
@@ -1868,6 +1874,9 @@ def _holdout_score_marks(
         SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
     )
     if mapping_failed or missing:
+        if diagnostics is not None:
+            for case in dataset.cases:
+                diagnostics.record(case, rows.get(case.case_id), mapping_blocked=True)
         return tuple(P2HoldoutCaseScore(case_id=case.case_id, stratum=str(case.stratum),
                                        status=CASE_STATUS_ERROR) for case in dataset.cases), execution_mode
     marks: list[P2HoldoutCaseScore] = []
@@ -1884,9 +1893,12 @@ def _holdout_score_marks(
                 execution_mode=execution_mode,
                 # 逐题不虚构真实调用归属：run 级实测值进聚合卡，逐题一律 0。
                 real_calls=0,
+                diagnostics=diagnostics,
             )
         except Exception as exc:  # noqa: BLE001 - 单题评分失败不得毁掉整份聚合
-            code = str(getattr(exc, "code", None) or type(exc).__name__)
+            code = fixed(getattr(exc, 'code', None), ERRORS)
+            if diagnostics is not None:
+                diagnostics.record(case, rows.get(case.case_id), error=code)
             unscorable[code] = unscorable.get(code, 0) + 1
             item_marks = (
                 P2HoldoutCaseScore(
@@ -1967,10 +1979,12 @@ def _holdout_scorecard(
 ) -> dict[str, Any]:
     """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block。"""
     blocks: list[P2Block] = []
+    diagnostics = HoldoutDiagnostics()
     marks, execution_mode = _holdout_score_marks(
-        ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks
+        ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks,
+        diagnostics=diagnostics,
     )
-    return _aggregate_marks(
+    payload = _aggregate_marks(
         marks,
         dataset=dataset,
         ledger=ledger,
@@ -1980,6 +1994,16 @@ def _holdout_scorecard(
         real_calls=real_calls,
         blocks=blocks,
     )
+    payload['diagnostics'] = diagnostics.to_dict()
+    payload['blocks'].append(P2Block(
+        'holdout_hard_failure_unverified', SEVERITY_UNKNOWN,
+        '四类硬失败缺少受控分类证据，零计数不证明安全',
+        {'owner': 'sealed_reviewer'},
+    ).to_dict())
+    payload['release_ready'] = False
+    _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
+                                     config_hash=binding.get('config_hash') or None)
+    return payload
 
 
 #: 泄漏审计的最短 needle：1 字题面在产物里没有判别力（任何一个汉字都会命中固定说明），
@@ -2004,7 +2028,8 @@ def _holdout_leak_needles(case: CaseSpec) -> tuple[str, ...]:
 
 
 def _assert_holdout_scorecard_payload(
-    payload: Mapping[str, Any], dataset: P2RunDataset
+    payload: Mapping[str, Any], dataset: P2RunDataset, *, run_id: str | None = None,
+    config_hash: str | None = None,
 ) -> None:
     """审计：聚合产物里不得出现任何 H2 case_id / 题干 / 参考答案（数据驱动，不只看前缀）。
 
@@ -2013,6 +2038,10 @@ def _assert_holdout_scorecard_payload(
     题面覆盖 ``case.question`` + ``turns[*]`` 的每一轮 + ``reference_answer``；
     needle 阈值见 ``_HOLDOUT_LEAK_MIN_NEEDLE``（2 字起，短题干不漏）。
     """
+    try:
+        validate_scorecard(payload, total=len(dataset.cases), run_id=run_id, config_hash=config_hash)
+    except (ValueError, TypeError, KeyError):
+        raise P2RunError(ERROR_HOLDOUT_SCORECARD_LEAK, 'diagnostics_invalid') from None
     raw = json.dumps(dict(payload), ensure_ascii=False, sort_keys=True)
 
     def _walk(value: Any) -> None:
@@ -2088,6 +2117,11 @@ def _blocked_holdout_scorecard(
                 detail,
                 dict(evidence) if evidence is not None else {"stage": "holdout_scorecard"},
             ),
+            P2Block(
+                'holdout_hard_failure_unverified', SEVERITY_UNKNOWN,
+                '四类硬失败缺少受控分类证据，零计数不证明安全',
+                {'owner': 'sealed_reviewer'},
+            ),
         ),
         execution_mode=(
             SCORING_EXECUTION_LIVE if execution == EXECUTION_LIVE else SCORING_EXECUTION_LOCAL_MOCK
@@ -2096,7 +2130,14 @@ def _blocked_holdout_scorecard(
         run_id=ledger.run_id,
         config_hash=None if config_hash in (None, "") else str(config_hash),
     )
-    return card.to_dict()
+    payload = card.to_dict()
+    diagnostics = HoldoutDiagnostics()
+    for case in dataset.cases:
+        diagnostics.record(case, None, error='unknown')
+    payload['diagnostics'] = diagnostics.to_dict()
+    validate_scorecard(payload, total=len(dataset.cases), run_id=ledger.run_id,
+                       config_hash=binding.get('config_hash') or None)
+    return payload
 
 
 def _holdout_scorecard_artifact(
@@ -2125,10 +2166,13 @@ def _holdout_scorecard_artifact(
             execution=execution,
             real_calls=real_calls,
         )
-        _assert_holdout_scorecard_payload(payload, dataset)
+        _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
+                                         config_hash=binding.get('config_hash') or None)
         return payload
     except Exception as exc:  # noqa: BLE001 - 产物必须写出；失败原因只留稳定码，不留原文
-        code = str(getattr(exc, "code", None) or type(exc).__name__)
+        code = fixed(getattr(exc, 'code', None), (
+            ERROR_HOLDOUT_SCORECARD_LEAK, ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+            ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS), 'holdout_case_unscorable')
     kwargs = {
         "binding": binding,
         "gate_config": gate_config,
@@ -2138,13 +2182,15 @@ def _holdout_scorecard_artifact(
     }
     payload = _blocked_holdout_scorecard(ledger, dataset, **kwargs)
     try:
-        _assert_holdout_scorecard_payload(payload, dataset)
+        _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
+                                         config_hash=binding.get('config_hash') or None)
         return payload
     except Exception:  # noqa: BLE001 - 兜底卡也被命中：退到"无文本"卡
         payload = _blocked_holdout_scorecard(
             ledger, dataset, detail="", evidence={}, **kwargs
         )
-        _assert_holdout_scorecard_payload(payload, dataset)
+        _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
+                                         config_hash=binding.get('config_hash') or None)
         return payload
 
 

@@ -622,15 +622,13 @@ def test_counts_and_unknown_semantics_from_synthetic_marks(monkeypatch: pytest.M
         return tuple(marks), ["source_outside_run"]
 
     monkeypatch.setattr(p2_score_run, "holdout_case_scores_from_rows", _fake_scores)
-    card = runner._holdout_scorecard(
-        _ledger(),
-        dataset,
-        ingest_plan=_codes_plan(),
-        execution="dry_run",
-        real_calls=0,
-        binding={"config_hash": "c" * 64},
-        gate_config=None,
-    )
+    # A synthetic verdict tally tests aggregation, not the runner's evidence boundary.
+    ledger, blocks = _ledger(), []
+    marks, mode = runner._holdout_score_marks(ledger, dataset, ingest_plan=_codes_plan(),
+        execution='dry_run', blocks=blocks)
+    card = runner._aggregate_marks(marks, dataset=dataset, ledger=ledger,
+        binding={'config_hash': 'c' * 64}, gate_config=None, execution_mode=mode,
+        real_calls=0, blocks=blocks)
 
     assert card["total"] == 30
     assert card["passed"] == 23
@@ -696,7 +694,7 @@ def test_unmappable_expected_doc_code_becomes_unknown_block() -> None:
     )
     blocks = {block["code"]: block for block in card["blocks"]}
     assert ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED in blocks
-    assert blocks[ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED]["evidence"]["missing"] == ["D09"]
+    assert blocks[ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED]["evidence"]["missing_count"] == 1
     # 映射不到就不是 pass：30 题全按未执行/error 记。
     assert card["passed"] == 0
 
@@ -786,7 +784,7 @@ def test_builder_failure_degrades_to_all_error_payload(monkeypatch: pytest.Monke
     assert payload["total"] == 30
     assert payload["passed"] == 0
     assert payload["errors"] == 30
-    assert {block["code"] for block in payload["blocks"]} >= {"document_codes_exploded"}
+    assert {block["code"] for block in payload["blocks"]} >= {"holdout_case_unscorable"}
     raw = json.dumps(payload, ensure_ascii=False)
     for case in dataset.cases:
         assert case.case_id not in raw
@@ -1123,9 +1121,9 @@ def test_leak_audit_covers_multi_turn_and_short_questions() -> None:
             )
         assert info.value.code == ERROR_HOLDOUT_SCORECARD_LEAK
     # 不含题面的正常卡不报（阈值设计不制造系统性 fail-closed）。
-    runner._assert_holdout_scorecard_payload(
-        {"total": 30, "passed": 23, "blocks": [{"code": "holdout_below_threshold"}]}, dataset
-    )
+    clean = runner._holdout_scorecard(_ledger(), dataset, ingest_plan=_codes_plan(),
+        execution='dry_run', real_calls=0, binding={}, gate_config=None)
+    runner._assert_holdout_scorecard_payload(clean, dataset, run_id=_ledger().run_id)
 
 
 def test_aggregator_leak_still_writes_blocked_card(monkeypatch: pytest.MonkeyPatch) -> None:
@@ -1147,7 +1145,7 @@ def test_aggregator_leak_still_writes_blocked_card(monkeypatch: pytest.MonkeyPat
         gate_config=None,
     )
     assert (payload["total"], payload["passed"], payload["errors"]) == (30, 0, 30)
-    assert {block["code"] for block in payload["blocks"]} == {ERROR_HOLDOUT_SCORECARD_LEAK}
+    assert {block["code"] for block in payload["blocks"]} == {ERROR_HOLDOUT_SCORECARD_LEAK, "holdout_hard_failure_unverified"}
     raw = json.dumps(payload, ensure_ascii=False)
     for case in cases:
         assert case.case_id not in raw

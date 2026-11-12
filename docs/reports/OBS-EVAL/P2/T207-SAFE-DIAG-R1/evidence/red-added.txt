@@ -1,0 +1,261 @@
+FFFFFFFFFFF                                                              [100%]
+================================== FAILURES ===================================
+_______ test_r1_scored_requires_complete_observation_at_both_boundaries _______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159219310>
+
+    def test_r1_scored_requires_complete_observation_at_both_boundaries(monkeypatch):
+        from mktkb.evaluation.p2_diagnostics import HoldoutDiagnostics, validate_diagnostics
+        case, _, bad = good_card()
+        d = bad['diagnostics']
+        d['counts']['observed'] = d['by_stratum']['paraphrase']['observed'] = 0
+        d['kind_matrix']['kind_answer']['kind_answer'] = 0
+        d['refusal_confusion']['tn'] = 0
+        d['refusal_confusion']['unknown'] = 1
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:334: Failed
+_ test_r1_generation_rejects_missing_refusal_or_outcome_evidence[missing_outcome] _
+
+broken = 'missing_outcome'
+
+    @pytest.mark.parametrize('broken', ['missing_outcome', 'invalid_should_refuse'])
+    def test_r1_generation_rejects_missing_refusal_or_outcome_evidence(broken):
+        from mktkb.evaluation.p2_diagnostics import HoldoutDiagnostics
+        from mktkb.evaluation.p2_scoring import score_public_case
+        case, row, _ = good_card()
+        scored = score_public_case(case, row, document_codes={'D01_��Ʒλ�ñ�.xlsx': 'D01'})
+        if broken == 'missing_outcome':
+            scored = dataclasses.replace(scored, outcome=None)
+        else:
+            case = dataclasses.replace(case, should_refuse='unknown')
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:357: Failed
+_ test_r1_generation_rejects_missing_refusal_or_outcome_evidence[invalid_should_refuse] _
+
+broken = 'invalid_should_refuse'
+
+    @pytest.mark.parametrize('broken', ['missing_outcome', 'invalid_should_refuse'])
+    def test_r1_generation_rejects_missing_refusal_or_outcome_evidence(broken):
+        from mktkb.evaluation.p2_diagnostics import HoldoutDiagnostics
+        from mktkb.evaluation.p2_scoring import score_public_case
+        case, row, _ = good_card()
+        scored = score_public_case(case, row, document_codes={'D01_��Ʒλ�ñ�.xlsx': 'D01'})
+        if broken == 'missing_outcome':
+            scored = dataclasses.replace(scored, outcome=None)
+        else:
+            case = dataclasses.replace(case, should_refuse='unknown')
+>       with pytest.raises(ValueError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE ValueError
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:357: Failed
+__ test_r1_normal_card_cannot_delete_required_blocks[holdout_sample_missing] __
+
+missing = 'holdout_sample_missing'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000211592372C0>
+
+    @pytest.mark.parametrize('missing', ['holdout_sample_missing', 'holdout_case_error',
+        'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_hard_failure_unverified'])
+    def test_r1_normal_card_cannot_delete_required_blocks(missing, monkeypatch):
+        case, row, _ = good_card()
+        if missing == 'holdout_case_error':
+            row['status'] = 'error'
+            row['error_code'] = 'MODEL_TIMEOUT'
+        bad = _card_for_rows(case, row)
+        assert missing in {block['code'] for block in bad['blocks']}
+        bad['blocks'] = [block for block in bad['blocks'] if block['code'] != missing]
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+E       assert (1, 1, 0) == (0, 0, 1)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:376: AssertionError
+____ test_r1_normal_card_cannot_delete_required_blocks[holdout_case_error] ____
+
+missing = 'holdout_case_error'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159237EC0>
+
+    @pytest.mark.parametrize('missing', ['holdout_sample_missing', 'holdout_case_error',
+        'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_hard_failure_unverified'])
+    def test_r1_normal_card_cannot_delete_required_blocks(missing, monkeypatch):
+        case, row, _ = good_card()
+        if missing == 'holdout_case_error':
+            row['status'] = 'error'
+            row['error_code'] = 'MODEL_TIMEOUT'
+        bad = _card_for_rows(case, row)
+        assert missing in {block['code'] for block in bad['blocks']}
+        bad['blocks'] = [block for block in bad['blocks'] if block['code'] != missing]
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+        assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+>       assert out['blocks'][0]['code'] == 'holdout_scorecard_leak'
+E       AssertionError: assert 'holdout_sample_missing' == 'holdout_scorecard_leak'
+E         
+E         - holdout_scorecard_leak
+E         + holdout_sample_missing
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:377: AssertionError
+_ test_r1_normal_card_cannot_delete_required_blocks[holdout_below_threshold] __
+
+missing = 'holdout_below_threshold'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159249E80>
+
+    @pytest.mark.parametrize('missing', ['holdout_sample_missing', 'holdout_case_error',
+        'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_hard_failure_unverified'])
+    def test_r1_normal_card_cannot_delete_required_blocks(missing, monkeypatch):
+        case, row, _ = good_card()
+        if missing == 'holdout_case_error':
+            row['status'] = 'error'
+            row['error_code'] = 'MODEL_TIMEOUT'
+        bad = _card_for_rows(case, row)
+        assert missing in {block['code'] for block in bad['blocks']}
+        bad['blocks'] = [block for block in bad['blocks'] if block['code'] != missing]
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+E       assert (1, 1, 0) == (0, 0, 1)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:376: AssertionError
+_ test_r1_normal_card_cannot_delete_required_blocks[holdout_threshold_unapproved] _
+
+missing = 'holdout_threshold_unapproved'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000211592375F0>
+
+    @pytest.mark.parametrize('missing', ['holdout_sample_missing', 'holdout_case_error',
+        'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_hard_failure_unverified'])
+    def test_r1_normal_card_cannot_delete_required_blocks(missing, monkeypatch):
+        case, row, _ = good_card()
+        if missing == 'holdout_case_error':
+            row['status'] = 'error'
+            row['error_code'] = 'MODEL_TIMEOUT'
+        bad = _card_for_rows(case, row)
+        assert missing in {block['code'] for block in bad['blocks']}
+        bad['blocks'] = [block for block in bad['blocks'] if block['code'] != missing]
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+E       assert (1, 1, 0) == (0, 0, 1)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:376: AssertionError
+_ test_r1_normal_card_cannot_delete_required_blocks[holdout_hard_failure_unverified] _
+
+missing = 'holdout_hard_failure_unverified'
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159237620>
+
+    @pytest.mark.parametrize('missing', ['holdout_sample_missing', 'holdout_case_error',
+        'holdout_below_threshold', 'holdout_threshold_unapproved', 'holdout_hard_failure_unverified'])
+    def test_r1_normal_card_cannot_delete_required_blocks(missing, monkeypatch):
+        case, row, _ = good_card()
+        if missing == 'holdout_case_error':
+            row['status'] = 'error'
+            row['error_code'] = 'MODEL_TIMEOUT'
+        bad = _card_for_rows(case, row)
+        assert missing in {block['code'] for block in bad['blocks']}
+        bad['blocks'] = [block for block in bad['blocks'] if block['code'] != missing]
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+E       assert (1, 1, 0) == (0, 0, 1)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:376: AssertionError
+_________________ test_r1_cannot_move_pass_to_unknown_stratum _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159235F70>
+
+    def test_r1_cannot_move_pass_to_unknown_stratum(monkeypatch):
+        cases = (dataclasses.replace(_value_case(), case_id='R1-NORMAL'),
+                 dataclasses.replace(_value_case(), case_id='R1-UNKNOWN', stratum='negative'))
+        ledger = _ledger()
+        ledger.scoring_cases = [_scoring_row(case, _product_turn(case.question, text=VALUE_TOKEN,
+            kind=kind).as_dict(include_text=True)) for case, kind in zip(cases, ('answer', 'UNREGISTERED'))]
+        dataset = _synthetic_dataset(cases)
+        bad = runner._holdout_scorecard(ledger, dataset, ingest_plan=_codes_plan(),
+            execution='dry_run', real_calls=0, binding={}, gate_config=None)
+        assert (bad['passed'], bad['failed'], bad['diagnostics']['counts']['observed']) == (1, 1, 1)
+        bad['by_stratum']['paraphrase'].update(passed=0, failed=1)
+        bad['by_stratum']['negative'].update(passed=1, failed=0)
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(ledger, dataset, ingest_plan=_codes_plan(),
+            execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert (out['passed'], out['executed'], out['errors']) == (0, 0, 2)
+E       assert (1, 2, 0) == (0, 0, 2)
+E         
+E         At index 0 diff: 1 != 0
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:396: AssertionError
+__________ test_r1_diagnostic_strata_cannot_disagree_with_scorecard ___________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021159235FA0>
+
+    def test_r1_diagnostic_strata_cannot_disagree_with_scorecard(monkeypatch):
+        case, _, bad = good_card()
+        d = bad['diagnostics']
+        d['by_stratum']['negative'], d['by_stratum']['paraphrase'] = (
+            d['by_stratum']['paraphrase'], d['by_stratum']['negative'])
+        monkeypatch.setattr(runner, '_holdout_scorecard', lambda *a, **kw: bad)
+        out = runner._holdout_scorecard_artifact(_ledger(), _synthetic_dataset((case,)),
+            ingest_plan=_codes_plan(), execution='dry_run', real_calls=0, binding={}, gate_config=None)
+>       assert out['blocks'][0]['code'] == 'holdout_scorecard_leak'
+E       AssertionError: assert 'holdout_sample_missing' == 'holdout_scorecard_leak'
+E         
+E         - holdout_scorecard_leak
+E         + holdout_sample_missing
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:408: AssertionError
+________________ test_r1_fallback_also_keeps_unverified_block _________________
+
+    def test_r1_fallback_also_keeps_unverified_block():
+        case, _, _ = good_card()
+        out = runner._blocked_holdout_scorecard(_ledger(), _synthetic_dataset((case,)),
+            code='holdout_case_unscorable', execution='dry_run', real_calls=0, binding={}, gate_config=None)
+        assert (out['passed'], out['executed'], out['errors']) == (0, 0, 1)
+        assert out['diagnostics']['classification_status'] == 'unverified'
+        assert all(e == dict(checked=0, unknown=1, violations=0)
+                   for e in out['diagnostics']['hard_failure_evidence'].values())
+>       assert 'holdout_hard_failure_unverified' in {block['code'] for block in out['blocks']}
+E       AssertionError: assert 'holdout_hard_failure_unverified' in {'holdout_case_unscorable'}
+
+backend\tests\evaluation\test_p2_safe_diagnostics.py:420: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_scored_requires_complete_observation_at_both_boundaries
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_generation_rejects_missing_refusal_or_outcome_evidence[missing_outcome]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_generation_rejects_missing_refusal_or_outcome_evidence[invalid_should_refuse]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_normal_card_cannot_delete_required_blocks[holdout_sample_missing]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_normal_card_cannot_delete_required_blocks[holdout_case_error]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_normal_card_cannot_delete_required_blocks[holdout_below_threshold]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_normal_card_cannot_delete_required_blocks[holdout_threshold_unapproved]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_normal_card_cannot_delete_required_blocks[holdout_hard_failure_unverified]
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_cannot_move_pass_to_unknown_stratum
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_diagnostic_strata_cannot_disagree_with_scorecard
+FAILED backend\tests\evaluation\test_p2_safe_diagnostics.py::test_r1_fallback_also_keeps_unverified_block
+11 failed, 25 deselected, 1 warning in 0.88s

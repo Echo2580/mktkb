@@ -258,7 +258,7 @@ H2 run 过去只写计数型 ``holdout_aggregate.json``（planned/executed/kinds
   两个代号 → ``holdout_document_code_ambiguous``；无 ingest plan 或文件名无前缀 →
   ``holdout_document_code_unmapped``；``dataset.cases`` 里 ``expected_sources``/``relevant_units``
   的 doc_code 全集必须都能映射，否则出 ``holdout_document_code_unmapped`` block
-  （evidence 只有 ``{"missing": [...], "mapped": N}``，不猜来源）。
+  （evidence 只有 ``{"missing_count": N, "mapped": N}``，不导出来源输入字符串）。
 - **阈值未批但观测值可读**：``thresholds_approved`` 只在 gate 配置显式 ``status="approved"`` 时为真；
   gate_v0_3 现值 unapproved → 出 ``holdout_threshold_unapproved``（unknown）、``release_ready=false``，
   但 ``passed/failed/errors/by_stratum`` 照常写出（未执行/error 一律不计 pass）。
@@ -289,3 +289,15 @@ H2 rows 评分仅在内存复制 expected/relevant/forbidden 引用：版本代�
 仅 H2 显式打开 `include_source_version`：从产品 source 的正整数 `version_number` 取版本，locator/source_index 自报版本不能补足产品缺版本；二者冲突以 `source_version_conflict` 拒绝。版本、原 locator 和 unit_key 必须在同一条 citation 上同时成立，unit_key 不得绕过版本检查；错版/缺版的 source_hit 不命中，版本禁用引用同样受约束。
 映射文件缺失、坏 schema、重复键/重复身份、期望 locator 版本冲突或 expected/relevant 基槽未覆盖均以 `holdout_document_code_unmapped` 阻断；runner 还核对实际上传顺序和引用版本文件是否已导入，失败时全部记 error。禁止来源无须已导入；全局映射中未引用的版本也无须导入。
 映射只证明历史身份，不证明 active：原完整 H2 配方中 V05 发布为 v4 后 V04/v3 已失效；经理受控聚合发现的正向 inactive 来源契约阻断由后续独立分场景包解决，本包不修改状态/题集/阈值。公开 P2 默认参数、P1、停止/重试/隔离语义不变。
+
+## 12. T207-SAFE-DIAG：受控内存聚合
+
+H2 runner 的 `holdout_scorecard.json.diagnostics` 使用 `p2-safe-diagnostics/v1`；公开 run 不输出本子树。固定键表及严格校验在 `p2_diagnostics.py`：`counts`、`kind_matrix`、`failed_checks`、`refusal_confusion`、`errors`、`model_failure_reasons`、`source`、`by_stratum`、`classification_status`、`classification_owner`、`hard_failure_evidence`、`structural_evidence`。生成与写盘均校验完整树，每层 exact keys；只允许固定状态字符串和非负整数，bool/float 不算整数，诊断内不接受数组。未知 kind/check/error/reason 只进入固定 unknown 键，不输出外部字符串。
+
+`planned=scored+errors+not_executed`；scored 为完成正常评分的 pass/fail，旧 scorecard.errors 仍包含未开始。末轮矩阵使用 `kind_answer` 等固定键，矩阵总数=`observed+unknown_kind`；实际 kind 在已登记正常结局/拒答枚举内才进入 observed，未知实际 kind 单列 unknown_kind。任何中间轮错误、未完成回合或未开始均不进入矩阵。五个分层与总计逐项守恒。source 仅 matched/unmatched/mapping_blocked；source_hit skipped 不混入 matched，普通来源失败不被猜为硬失败。
+
+结构性评分 error 同样不进入正常矩阵。`refusal_confusion` 只用 should_refuse 和实际 no_answer/not_found/refusal 集合计算 tp/fp/tn/fn，与 expected_kind 独立；另列 errors/not_executed/unknown，七项之和等于 planned，前三类异常不并入TN。precision=tp/(tp+fp)，recall=tp/(tp+fn)，false-refusal=fp/(fp+tn)；分母为0时保持未定义/null，不填0冒充已测。
+
+四类 safety/cross_user/cross_entity/stale_source 当前均 `checked=0, unknown=planned, violations=0`，`classification_status=unverified`、owner=sealed_reviewer，另保留固定结构性违规计数。`hard_failures=0` 不是已验证安全；runner 始终新增 `holdout_hard_failure_unverified` 阻断且 release_ready=false。
+
+后续受控分类接口必须由封存复核方在内存按“case × 四类维度”提交 checked/result 与证据归属，绑定 dataset/manifest、run/config、场景和来源有效状态；仅有硬失败标签 None 或普通 source_hit fail 不足以证明已检查。证据引用与逐题判定留在受控区，只能导出本严格聚合 schema 批准后的计数；本包尚未实现或接受该分类接口，也不把结构性计数代替四维覆盖。

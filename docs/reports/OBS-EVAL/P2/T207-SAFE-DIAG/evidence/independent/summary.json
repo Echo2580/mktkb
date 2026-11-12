@@ -1,0 +1,251 @@
+{
+  "verdict": "FAIL",
+  "real_calls": 0,
+  "source": "independent synthetic runs",
+  "runs": {
+    "normal": {
+      "passed": 30,
+      "failed": 0,
+      "errors": 0,
+      "counts": {
+        "errors": 0,
+        "not_executed": 0,
+        "observed": 30,
+        "planned": 30,
+        "scored": 30,
+        "unknown_kind": 0
+      },
+      "refusal_confusion": {
+        "errors": 0,
+        "fn": 0,
+        "fp": 0,
+        "not_executed": 0,
+        "tn": 25,
+        "tp": 5,
+        "unknown": 0
+      },
+      "precision": 1.0,
+      "recall": 1.0,
+      "false_refusal": 0.0,
+      "source": {
+        "mapping_blocked": 0,
+        "matched": 25,
+        "unmatched": 0
+      },
+      "by_stratum": {
+        "cross_doc_security": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        },
+        "multi_turn": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        },
+        "negative": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        },
+        "paraphrase": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 10,
+          "planned": 10,
+          "scored": 10,
+          "unknown_kind": 0
+        },
+        "stale_conflict": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        }
+      },
+      "classification_status": "unverified",
+      "hard_failure_evidence": {
+        "cross_entity": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        }
+      },
+      "hard_failure_unverified_block_present": true,
+      "release_ready": false
+    },
+    "partial": {
+      "passed": 11,
+      "failed": 10,
+      "errors": 9,
+      "counts": {
+        "errors": 1,
+        "not_executed": 8,
+        "observed": 21,
+        "planned": 30,
+        "scored": 21,
+        "unknown_kind": 0
+      },
+      "refusal_confusion": {
+        "errors": 1,
+        "fn": 5,
+        "fp": 0,
+        "not_executed": 8,
+        "tn": 16,
+        "tp": 0,
+        "unknown": 0
+      },
+      "precision": null,
+      "recall": 0.0,
+      "false_refusal": 0.0,
+      "source": {
+        "mapping_blocked": 0,
+        "matched": 16,
+        "unmatched": 0
+      },
+      "by_stratum": {
+        "cross_doc_security": {
+          "errors": 0,
+          "not_executed": 5,
+          "observed": 0,
+          "planned": 5,
+          "scored": 0,
+          "unknown_kind": 0
+        },
+        "multi_turn": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        },
+        "negative": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 5,
+          "planned": 5,
+          "scored": 5,
+          "unknown_kind": 0
+        },
+        "paraphrase": {
+          "errors": 0,
+          "not_executed": 0,
+          "observed": 10,
+          "planned": 10,
+          "scored": 10,
+          "unknown_kind": 0
+        },
+        "stale_conflict": {
+          "errors": 1,
+          "not_executed": 3,
+          "observed": 1,
+          "planned": 5,
+          "scored": 1,
+          "unknown_kind": 0
+        }
+      },
+      "classification_status": "unverified",
+      "hard_failure_evidence": {
+        "cross_entity": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 0,
+          "unknown": 30,
+          "violations": 0
+        }
+      },
+      "hard_failure_unverified_block_present": true,
+      "release_ready": false
+    }
+  },
+  "reason_chains": [
+    {
+      "reason": "json_parse",
+      "trace_span_verified": true,
+      "product_memory_verified": true,
+      "aggregate_verified": true,
+      "chat_calls": 1,
+      "error_code": "MODEL_OUTPUT_INVALID",
+      "stop_code": "product_service_error",
+      "trace_purged": true,
+      "arbitrary_message_absent_from_run_artifacts": true
+    },
+    {
+      "reason": "record_facts",
+      "trace_span_verified": true,
+      "product_memory_verified": true,
+      "aggregate_verified": true,
+      "chat_calls": 1,
+      "error_code": "MODEL_OUTPUT_INVALID",
+      "stop_code": "product_service_error",
+      "trace_purged": true,
+      "arbitrary_message_absent_from_run_artifacts": true
+    },
+    {
+      "reason": "unknown",
+      "trace_span_verified": true,
+      "product_memory_verified": true,
+      "aggregate_verified": true,
+      "chat_calls": 1,
+      "error_code": "MODEL_OUTPUT_INVALID",
+      "stop_code": "product_service_error",
+      "trace_purged": true,
+      "arbitrary_message_absent_from_run_artifacts": true
+    }
+  ],
+  "network": {
+    "guarded_tests": 25,
+    "external_attempts": 0,
+    "external_empty": true,
+    "loopback_attempts": 5,
+    "pytest_exit_status": 1
+  },
+  "protected_files": true,
+  "public_cases": 57,
+  "independent_probes": {
+    "passed": 21,
+    "failed": 4,
+    "skip": 0,
+    "xfail": 0
+  }
+}

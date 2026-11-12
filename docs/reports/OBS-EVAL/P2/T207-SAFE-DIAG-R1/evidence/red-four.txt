@@ -1,0 +1,75 @@
+FFFF                                                                     [100%]
+================================== FAILURES ===================================
+_________ test_review_unknown_cannot_be_reclassified_as_tn_at_writer __________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FEE1E0F140>
+
+    def test_review_unknown_cannot_be_reclassified_as_tn_at_writer(monkeypatch):
+        case, _, bad = sample('REVIEW_UNREGISTERED_KIND')
+        assert bad['diagnostics']['counts']['unknown_kind'] == 1
+        assert bad['diagnostics']['counts']['observed'] == 0
+        bad['diagnostics']['refusal_confusion']['unknown'] = 0
+        bad['diagnostics']['refusal_confusion']['tn'] = 1
+        out = artifact(case, bad, monkeypatch)
+        Path(__file__).with_name('counterexample-unknown-to-tn.json').write_text(
+            json.dumps({'input': bad, 'writer_output': out}, indent=2, ensure_ascii=False), encoding='utf-8')
+>       assert out['executed'] == 0 and out['errors'] == 1, 'writer accepted unknown actual kind as TN'
+E       AssertionError: writer accepted unknown actual kind as TN
+E       assert (1 == 0)
+
+docs\reports\OBS-EVAL\P2\T207-SAFE-DIAG-R1\evidence\replayed-review\test_independent_safe_diag.py:121: AssertionError
+________________ test_review_unknown_cannot_be_pass_at_writer _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FEE1E0FBC0>
+
+    def test_review_unknown_cannot_be_pass_at_writer(monkeypatch):
+        case, _, bad = sample('REVIEW_UNREGISTERED_KIND')
+        assert bad['failed'] == 1 and bad['diagnostics']['counts']['observed'] == 0
+        bad['passed'], bad['failed'] = 1, 0
+        bad['by_stratum']['paraphrase']['passed'], bad['by_stratum']['paraphrase']['failed'] = 1, 0
+        for block in bad['blocks']:
+            if block['code'] == 'holdout_below_threshold':
+                block['detail'] = 'H2 ͨ�� 1 < �ż� 24/30'; block['evidence']['passed'] = 1
+        out = artifact(case, bad, monkeypatch)
+        Path(__file__).with_name('counterexample-unknown-to-pass.json').write_text(
+            json.dumps({'input': bad, 'writer_output': out}, indent=2, ensure_ascii=False), encoding='utf-8')
+>       assert out['passed'] == 0 and out['errors'] == 1, 'writer accepted unknown actual kind as pass'
+E       AssertionError: writer accepted unknown actual kind as pass
+E       assert (1 == 0)
+
+docs\reports\OBS-EVAL\P2\T207-SAFE-DIAG-R1\evidence\replayed-review\test_independent_safe_diag.py:135: AssertionError
+__________________ test_review_unverified_block_must_remain ___________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FEE1E0F7A0>
+
+    def test_review_unverified_block_must_remain(monkeypatch):
+        case, _, bad = sample()
+        bad['blocks'] = [b for b in bad['blocks'] if b['code'] != 'holdout_hard_failure_unverified']
+        out = artifact(case, bad, monkeypatch)
+>       assert out['errors'] == 1, 'writer accepted removal of mandatory unverified block'
+E       AssertionError: writer accepted removal of mandatory unverified block
+E       assert 0 == 1
+
+docs\reports\OBS-EVAL\P2\T207-SAFE-DIAG-R1\evidence\replayed-review\test_independent_safe_diag.py:142: AssertionError
+_____________ test_review_scalar_required_block_cannot_be_removed _____________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001FEE1E0F800>
+
+    def test_review_scalar_required_block_cannot_be_removed(monkeypatch):
+        case, _, bad = sample()
+        assert bad['thresholds_approved'] is False
+        bad['blocks'] = [b for b in bad['blocks'] if b['code'] != 'holdout_threshold_unapproved']
+        out = artifact(case, bad, monkeypatch)
+        Path(__file__).with_name('counterexample-required-block.json').write_text(
+            json.dumps({'input': bad, 'writer_output': out}, indent=2, ensure_ascii=False), encoding='utf-8')
+>       assert out['errors'] == 1, 'writer accepted removal of scalar-required unknown block'
+E       AssertionError: writer accepted removal of scalar-required unknown block
+E       assert 0 == 1
+
+docs\reports\OBS-EVAL\P2\T207-SAFE-DIAG-R1\evidence\replayed-review\test_independent_safe_diag.py:152: AssertionError
+=========================== short test summary info ===========================
+FAILED docs/reports/OBS-EVAL/P2/T207-SAFE-DIAG-R1/evidence/replayed-review/test_independent_safe_diag.py::test_review_unknown_cannot_be_reclassified_as_tn_at_writer
+FAILED docs/reports/OBS-EVAL/P2/T207-SAFE-DIAG-R1/evidence/replayed-review/test_independent_safe_diag.py::test_review_unknown_cannot_be_pass_at_writer
+FAILED docs/reports/OBS-EVAL/P2/T207-SAFE-DIAG-R1/evidence/replayed-review/test_independent_safe_diag.py::test_review_unverified_block_must_remain
+FAILED docs/reports/OBS-EVAL/P2/T207-SAFE-DIAG-R1/evidence/replayed-review/test_independent_safe_diag.py::test_review_scalar_required_block_cannot_be_removed
+4 failed, 21 deselected in 2.37s

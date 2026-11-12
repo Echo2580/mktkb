@@ -32,3 +32,16 @@
 - H2MAP首轮独立review正式FAIL，212passed/2failed，2红例即双版本冲突；真runner合成30题全部执行（30fail/0error，仅执行/隔离证明，不代表质量正例），网络0、57公开默认值与固定hash一致。已派全新h2map_r1_dev，严格只修H2显式定位冲突，旧反例保留。不以190自测掩盖拒收。
 - 依赖细化：H2MAP R1接收后先SAFE-DIAG再SCENARIO，以便分场景合并能按最终严格诊断schema保留错误和安全unknown，避免后补聚合接口。只是同一批准范围内串行实现顺序调整，不改两场景决定或任何质量标准。
 - **H2MAP R1经理接收**：全新h2map_r1_review PASS，255passed（含独立新增19边界及原B1两个分支）；57公开默认逐值差分、真runner Mock E2E、guard external=[]、三固定hash与16保护文件hash一致。经理已读review、复核最终diff与空白、亲核三固定hash，接收仅离线版本来源映射修复；真实H2质量NOT-RUN，四类硬失败未证明0。准备仅本包及本次P2接手证据本地commit，不含协调/面试/tmp。
+- H2MAP本地commit **09ddc87520576958ff4c19be16f245f8197fdfe5**，38文件仅列明P2修复/证据；暂存空。提交前经理受控扫描38 staged blobs：真实H2 exact case_id及≥12字完整题面/回合/参考答匹配0（不冒称任意子串审计）；空白检查0。Git必要命令级写入获当前宿主批准，不是沿用上次d7728db例外。未push/合并/部署。
+- 已派全新safe_diag_dev（提示P2-T207-SAFE-DIAG-dev.md），零真实，H2MAP源码基线09ddc87。SAFE-DIAG尚未交付/验收；下一SCENARIO及产品根因/真实验证未开始。
+- 经理只读conversations/service.py发现MODEL_OUTPUT_INVALID还覆盖来源/原值/实体/记录事实准入（不只是JSON解析/schema），旧HTTP200+该码不能唯一归因。SAFE-DIAG补充允许最小固定reason枚举接线：providers/types、conversations失败标注、product_adapter读固定枚举；未知message只unknown，不改错误码/文案/判定/计费/停止/重试。已在当前开发提示和消息明确，独立验收必须验证行为不变及未知文本不外泄。
+- SAFE-DIAG开发报告首轮严格边界6red/1green；新结构/固定枚举与既有trace reason接线进行中。经理允许最小更新一项旧测试“任意exception.code原样导出”的不安全期望为固定登记code/unknown，必须保留全error/阻断/分母断言并新增ASCII秘密code不出盘反例；这是安全契约收紧，不得借机删断言或声称测试语义完全未变。
+- 经理源码审查指出旧blocks.evidence.missing可外泄任意doc_code，开发已用ASCII合成反例确认并改missing_count；全卡exact顶层/分层/block code/detail/evidence校验及身份绑定收紧进行中。unknown actual kind已从正常observed分母分离。Trace顶层不支持扩展attrs，必要reason改用固定model_failure span内登记枚举；没有API/业务/停止变更。以上尚待独立验收，不能先称安全通过。
+- SAFE-DIAG开发停止，自报最终248passed；已派全新safe_diag_review独立验收。经理发现待核跨字段计数缺口并交独立探针；已独立证实unknown_kind=1/observed0可被篡改为TN1、或passed1并被writer接受，删除unverified block也未拒。首轮本包尚不接收/commit，R1提示已备，等待review正式落盘后全新上下文返工。结构白名单本身不能代替分母和必需阻断语义。
+- SAFE-DIAG独立基础248项无失败；自有探针最终20passed/4failed，4项为unknown→TN、unknown→pass、删除unverified、删除threshold_unapproved。自有normal30、21评分11pass10fail+1error+8未开始、JSON/record_facts/未知ASCII错误三条真reason链、外网0、公开57差分和16保护hash均通过。测试夹具开发期3项错误已仅修自有探针，不当产品缺陷；本包仍FAIL，非248通过即可接收。
+- SAFE-DIAG首轮review正式落盘并停止，最终独立自有25项=21passed/4failed（末尾新增代表block删除例），基础248独立无失败。已派全新safe_diag_r1_dev，仅修跨字段等式及必需阻断，保留旧FAIL报告/反例，未commit或真实调用。
+- 同时派hard_evidence_audit做只读前置可行性审计：只查公开owner源码/字段，明确四类证据/unknown界线，不碰源码/真实H2/真实调用。实际修复包仍串行；SAFE-DIAG的unverified不是最终交付目标，SCENARIO之后还需按可核证据落实受控四维分类，缺证据不能冒充0。
+- SAFE-DIAG R1首轮283passed/1failed，唯一旧测试要求兜底block集合只含leak，与明确新增unverified契约冲突。经理授权最小同步该一行expected集合增加unverified，保留集合等号及所有原error/leak/防泄漏断言并在report披露，需定向重跑；不扩大其他旧测试改动。
+- hard_evidence_audit已完成只读报告，指出实际context provenance、生命周期deleted/effective date、实体/安全语义归属、业务日期None和多轴接口缺口；不声称已实现/测试。经理已给出semantic-custody-decision.md具体方案，并向主人请求仅专门保管标注/保管复核角色的原文可见性例外，经理/开发/验收仍聚合。该决定待明确答复，不因等待时间默认授权；未读取或开放任何真实原文。
+- **SAFE-DIAG R1经理限定接收**：全新safe_diag_r1_review独立302passed，原4反例及18新边界、normal30/partial21+1+8、三条真离线reason链、公开57差分、16保护hash/外网0通过；旧一行expected集合最小同步合理、原断言保留。经理已读完整review并亲核三固定hash。只接收安全诊断，不代表四轴/真实质量通过。
+- **主人明确授权专门保管标注与复核**（2026-11-12接续）：按semantic-custody-decision.md的两个隔离保管角色例外，原金标/30题/阈值不变，其他角色仍聚合。当前未新开放原文；先完成已接收SAFE-DIAG本地commit，再派保管。接续核HEAD09ddc87、暂存空、未发现旧python/node，三固定hash未变；客户端日期已11/12，后续计划/GO需重新生成，不复用旧created_utc。
