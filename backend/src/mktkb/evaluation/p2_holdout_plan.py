@@ -283,6 +283,7 @@ def build_holdout_plan(
     cost_centers_cny: Mapping[str, float] | None = None,
     stage_limit_cny: float = H2_STAGE_LIMIT_CNY,
     project_total_limit_cny: float = H2_PROJECT_TOTAL_LIMIT_CNY,
+    scenario_binding: Mapping[str, str] | None = None,
 ) -> P2RunPlan:
     """按 (case_id, turn) 生成 P2RunPlan；任何规模/额度不成立都在构造期拒绝。"""
     if isinstance(ingest_batches, bool) or not isinstance(ingest_batches, int):
@@ -342,6 +343,8 @@ def build_holdout_plan(
         },
         "items": items,
     }
+    if scenario_binding is not None:
+        document['scenario_binding'] = dict(scenario_binding)
     try:
         return P2RunPlan.from_dict(document)
     except ValueError as exc:

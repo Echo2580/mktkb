@@ -843,8 +843,14 @@ class P2RunPlan:
     max_requests: int
     cost_centers_cny: Mapping[str, float]
     items: tuple[P2RequestItem, ...]
+    scenario_binding: Mapping[str, str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
+        if self.scenario_binding is not None:
+            from types import MappingProxyType
+            from .p2_holdout_scenarios import validate_plan_scenario_binding
+            validate_plan_scenario_binding(self.scenario_binding)
+            object.__setattr__(self, 'scenario_binding', MappingProxyType(dict(self.scenario_binding)))
         if self.schema_version != P2_RUN_PLAN_SCHEMA_VERSION:
             raise P2ContractError(
                 "schema_version_invalid",
@@ -979,7 +985,7 @@ class P2RunPlan:
     # ------------------------------------------------------------ 序列化
 
     def as_dict(self) -> dict[str, Any]:
-        return {
+        payload = {
             "schema_version": self.schema_version,
             "plan_id": self.plan_id,
             "plan_version": self.plan_version,
@@ -994,6 +1000,9 @@ class P2RunPlan:
             },
             "items": [item.as_dict() for item in self.items],
         }
+        if self.scenario_binding is not None:
+            payload['scenario_binding'] = dict(self.scenario_binding)
+        return payload
 
     @property
     def plan_sha256(self) -> str:
@@ -1001,7 +1010,7 @@ class P2RunPlan:
 
     @classmethod
     def from_dict(cls, data: Any) -> "P2RunPlan":
-        _exact_keys(data, _PLAN_KEYS, "plan")
+        _optional_exact_keys(data, _PLAN_KEYS, frozenset({'scenario_binding'}), "plan")
         raw_items = data["items"]
         if not isinstance(raw_items, list):
             raise P2ContractError("items_required", "plan.items 必须是数组")
@@ -1025,6 +1034,7 @@ class P2RunPlan:
                 for center, value in centers.items()
             },
             items=tuple(P2RequestItem.from_dict(item) for item in raw_items),
+            scenario_binding=data.get('scenario_binding'),
         )
 
 

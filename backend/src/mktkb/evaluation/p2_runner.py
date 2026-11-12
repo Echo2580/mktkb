@@ -655,7 +655,7 @@ def _gate_identity(gate_config: Any | None) -> tuple[str | None, str | None]:
 
 def _empty_binding(dataset: P2RunDataset, run_id: str) -> dict[str, Any]:
     """绑定状态的"未完成"基线（不含摘要）：仅数据集侧已知的部分，其余显式 None。"""
-    return {
+    payload = {
         "binding_version": P2_BINDING_VERSION,
         "run_id": run_id,
         "dataset_version": str(dataset.identity.get("dataset_version") or ""),
@@ -673,6 +673,9 @@ def _empty_binding(dataset: P2RunDataset, run_id: str) -> dict[str, Any]:
         "complete": False,
         "missing": [],
     }
+    if dataset.identity.get('scenario_binding') is not None:
+        payload['scenario_binding'] = dict(dataset.identity['scenario_binding'])
+    return payload
 
 
 def _binding_state(
@@ -765,6 +768,9 @@ async def run_p2(
     frozen_dataset = dataset if dataset is not None else getattr(adapter, "dataset", None)
     if not isinstance(frozen_dataset, P2RunDataset):
         raise ValueError("run_p2 需要 P2RunDataset（adapter.dataset 或显式 dataset=）")
+    from .p2_holdout_scenarios import validate_scenario_execution
+    validate_scenario_execution(plan, frozen_dataset, getattr(adapter, 'ingest_plan', None),
+                                getattr(adapter, 'scenario_contract', None))
     moment = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     started = time.perf_counter()
     # T206-PRE（R2-F-R2-3）：run_id 是身份必填项 —— 显式给空/non-str 就在**任何发送前**
@@ -1827,7 +1833,14 @@ def _holdout_score_marks(
         if str(case.get("case_id") or "")
     }
     mapping_failed = False
-    expected_codes = _holdout_expected_doc_codes(dataset.cases)
+    scenario_binding = dataset.identity.get('scenario_binding')
+    mapping_cases = dataset.cases
+    if scenario_binding is not None:
+        # Relevant/forbidden refs may describe deliberately excluded historical
+        # sources. Positive expected refs must still be present in this state.
+        from dataclasses import replace
+        mapping_cases = tuple(replace(c, relevant_units=()) for c in dataset.cases)
+    expected_codes = _holdout_expected_doc_codes(mapping_cases)
     missing: list[str] = []
     try:
         codes = holdout_document_codes(ingest_plan)
@@ -1845,7 +1858,8 @@ def _holdout_score_marks(
                     raise RunScoreError(ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED, "H2 map conflicts with ingest order")
                 seen_versions.add(file_code)
         mapped_cases = tuple(remap_holdout_case(case, source_map) for case in dataset.cases)
-        missing = sorted((_holdout_expected_doc_codes(mapped_cases) - set(codes.values()))
+        mapped_for_coverage = mapped_cases if scenario_binding is None else tuple(replace(c, relevant_units=()) for c in mapped_cases)
+        missing = sorted((_holdout_expected_doc_codes(mapped_for_coverage) - set(codes.values()))
                          | ((expected_codes & set(source_map)) - seen_versions))
     except (P2RunError, RunScoreError) as exc:
         mapping_failed = True
@@ -1894,6 +1908,7 @@ def _holdout_score_marks(
                 # 逐题不虚构真实调用归属：run 级实测值进聚合卡，逐题一律 0。
                 real_calls=0,
                 diagnostics=diagnostics,
+                known_historical_doc_codes={'D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'V01', 'V07'} if scenario_binding is not None else None,
             )
         except Exception as exc:  # noqa: BLE001 - 单题评分失败不得毁掉整份聚合
             code = fixed(getattr(exc, 'code', None), ERRORS)
@@ -2278,6 +2293,8 @@ def _write_artifacts(
         "gate_config_hash": binding.get("gate_config_hash"),
         "trace_identity_bound": bool(getattr(adapter, "trace_identity_bound", False)),
     }
+    if dataset.identity.get('scenario_binding') is not None:
+        binding_payload['scenario_binding'] = dict(dataset.identity['scenario_binding'])
     # gate 产物（build_gate_run）要求的身份字段：顶层逐个给，缺就留空让 gate 拒绝。
     business_dates = sorted({str(case.business_date) for case in dataset.cases if str(case.business_date or "")})
     business_date = business_dates[0] if len(business_dates) == 1 else ""

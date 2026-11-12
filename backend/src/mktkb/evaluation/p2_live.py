@@ -1461,12 +1461,15 @@ def build_live_adapter(
     transports: Mapping[str, Any] | None = None,
     turn_timeout_seconds: float | None = None,
     purge_traces_on_close: bool = False,
+    scenario_contract: Any = None,
 ) -> LiveBuild:
     """装配 live 适配器：真实 provider + 真实 OCR 传输 + 逐次尝试预留。
 
     transports 只供测试注入（httpx.MockTransport / 假传输）；生产不传即真实传输。
     """
     from .product_adapter import ProductEvalAdapter
+    from .p2_holdout_scenarios import validate_scenario_execution
+    validate_scenario_execution(plan, dataset, ingest_plan, scenario_contract)
 
     plan_index = PlanIndex(plan)
     budget = AttemptBudget(plan)
@@ -1493,6 +1496,7 @@ def build_live_adapter(
         turn_timeout_seconds=turn_timeout_seconds or 60.0,
         purge_traces_on_close=purge_traces_on_close,
         live_wiring=wiring,
+        scenario_contract=scenario_contract,
     )
     return LiveBuild(adapter=adapter, gate=gate, ledger=ledger, wiring=wiring, env=env)
 
@@ -1512,12 +1516,15 @@ async def run_live_p2(
     gate_config: Any = None,
     cancel: Callable[[], bool] | None = None,
     purge_traces_on_close: bool = False,
+    scenario_contract: Any = None,
 ) -> tuple[Any, LiveBuild]:
     """一次性 live 执行入口：环境 -> 真实门 -> live 适配器 -> run_p2（串行、重试 0）。
 
     任何一步不成立都在**首个发送之前**抛 P2LiveConfigError；不构造第二套账本/授权。
     """
     from .p2_runner import run_p2
+    from .p2_holdout_scenarios import validate_scenario_execution
+    validate_scenario_execution(plan, dataset, ingest_plan, scenario_contract)
 
     live_env = load_live_env(env, overrides=env_overrides)
     live_gate = gate or open_live_gate(plan, run_id=run_id, now=now)
@@ -1531,6 +1538,7 @@ async def run_live_p2(
         ingest_plan=ingest_plan,
         transports=transports,
         purge_traces_on_close=purge_traces_on_close,
+        scenario_contract=scenario_contract,
     )
     try:
         # T207-FIX-LIVECAP：装配期就把适配器 start 起来（start 幂等，runner 之后照旧调用）。

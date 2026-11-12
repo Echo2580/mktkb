@@ -210,7 +210,7 @@ class P2RunDataset:
     """
 
     visibility: str
-    cases: tuple[CaseSpec, ...]
+    cases: tuple[CaseSpec, ...] = field(repr=False)
     identity: Mapping[str, Any]
 
     def __post_init__(self) -> None:
@@ -251,6 +251,8 @@ class P2RunDataset:
                 "declared_case_count": int(self.identity.get("declared_case_count") or self.identity["case_count"]),
             }
         )
+        if self.identity.get('scenario_binding') is not None:
+            payload['scenario_binding'] = dict(self.identity['scenario_binding'])
         return payload
 
     @classmethod
@@ -863,6 +865,7 @@ class ProductEvalAdapter:
         trace_identity: Mapping[str, Any] | None = None,
         mode: str = "mock",
         live_wiring: Any | None = None,
+        scenario_contract: Any | None = None,
     ) -> None:
         if mode not in ("mock", "live"):
             raise ValueError("adapter.mode 只允许 mock/live")
@@ -875,6 +878,15 @@ class ProductEvalAdapter:
         self.paths = ProductPaths.of(out_dir)
         self.ingest_plan = ingest_plan
         self.dataset = dataset
+        self.scenario_contract = scenario_contract
+        if dataset is not None and dataset.identity.get('scenario_binding') is not None:
+            from .p2_holdout_scenarios import ValidatedScenarioContract, ScenarioError, assert_private_path
+            assert_private_path(out_dir)
+            if not isinstance(scenario_contract, ValidatedScenarioContract):
+                raise ScenarioError('scenario_contract_required')
+            scenario_id = dataset.identity['scenario_binding']['scenario_id']
+            if scenario_contract.subset(scenario_id) != dataset or scenario_contract.ingest_plan(scenario_id) != ingest_plan:
+                raise ScenarioError('scenario_adapter_binding_mismatch')
         self.chat = chat
         self.turn_timeout_seconds = float(turn_timeout_seconds)
         if self.turn_timeout_seconds <= 0:
@@ -1853,6 +1865,9 @@ class ProductEvalAdapter:
             )
         if chosen is None:
             raise RuntimeError("adapter 没有 ingest plan：请显式传入")
+        if self.scenario_contract is not None and chosen != self.ingest_plan:
+            from .p2_holdout_scenarios import ScenarioError
+            raise ScenarioError('scenario_ingest_mismatch')
         receipts: list[IngestReceipt] = []
         admin = self._session(self._users_spec[0][0])
         for source in chosen.sources:

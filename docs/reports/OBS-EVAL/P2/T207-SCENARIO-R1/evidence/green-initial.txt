@@ -1,0 +1,41 @@
+....................................................F................... [ 94%]
+....                                                                     [100%]
+================================== FAILURES ===================================
+_______ test_unresolved_empty_entity_key_loads_without_quality_evidence _______
+
+package = (P2Dataset(visibility='holdout', manifest=P2Manifest(schema_version='p2-holdout-manifest/v0.1', dataset_version='P2-HO...STENT_WITH_GAPS_NOT_QUALITY_READY', 'structure': 'PASS', ...}, <function package.<locals>.write at 0x000001B1ABCA6340>)
+
+    def test_unresolved_empty_entity_key_loads_without_quality_evidence(package):
+        dataset, payload, paths, _, review, write = package
+        for row in payload['cases'][:2]:
+            axis = row['axes']['cross_entity']
+            axis.update(applicability='unknown', criterion='unknown', reason='unresolved_target',
+                        targets=[dict(entity_type='synthetic_entity', entity_key='synthetic-placeholder', filters={})])
+        review['axis_counts']['cross_entity'] = dict(required=28, not_applicable=0, unknown=2)
+        review['axis_unknown_total'] = 2
+        write()
+        before = scenario.load_scenario_contract(dataset, **paths).safe_summary()
+        for row in payload['cases'][:2]:
+            row['axes']['cross_entity']['targets'][0]['entity_key'] = ''
+        write()
+        contract = scenario.load_scenario_contract(dataset, **paths)
+        summary = contract.safe_summary()
+        assert summary == before
+>       assert summary['axis_counts']['cross_entity'] == dict(required=28, not_applicable=0, unknown=2)
+E       AssertionError: assert {'unknown': 2, 'required': 28} == {'required': ... 'unknown': 2}
+E         
+E         Omitting 2 identical items, use -vv to show
+E         Right contains 1 more item:
+E         {'not_applicable': 0}
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p2_holdout_scenarios.py:462: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_holdout_scenarios.py::test_unresolved_empty_entity_key_loads_without_quality_evidence
+1 failed, 75 passed, 1 warning in 27.98s

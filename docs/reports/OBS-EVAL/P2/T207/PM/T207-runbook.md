@@ -418,3 +418,9 @@ manifest `D:/mktkb-p2-holdout/v2/manifest.json` —— 否则 `load_p2_dataset` 
 H2 聚合卡新增固定 diagnostics；先看 counts 的 scored/errors/not_executed，再看已登记正常结局的 observed 和单列 unknown_kind。末轮矩阵总数为 observed+unknown_kind，多轮任一错误不进矩阵；source_hit skipped 不算来源命中。MODEL_OUTPUT_INVALID 的固定 model_failure_reasons 可区分 JSON/schema、原值/来源/实体和记录事实拒绝点；未知仍 unknown，不能从同一个外层错误码猜产品根因。原停止、自动重试0、账本/预算与真实调用授权不变。
 
 四类硬失败当前分类全部 unverified，checked=0、unknown=planned，卡片 holdout_hard_failure_unverified 阻断不解除。结构性违规计数与普通source失败不能替代安全、跨用户、跨实体、失效来源的受控逐维证据；未来封存复核方接口须按 dataset 契约 §12 实现并另行验收。本包仅合成/公开离线验证，不证明真实H2质量通过。
+
+## 13 四状态离线装配
+
+执行接口、参数与安全组合见 `docs/evaluation/p2-h2-scenario-execution-v0_1.md`。只消费CUSTODY-V2冻结的唯一归属与公共四状态子序列，每状态独立仓外计划/产品库/会话/新门；完整多轮同库。`p2-h2-scenarios-run` 是串行Mock专用入口，四计划全部预校验，首个执行失败后其余明确not_started，无live模式、零隐式重试，不生成/修改实际GO或账本。合成运行只验证接线与安全输出，不授权加载真实保管材料或执行真实复测。
+
+组合必须有全部冻结subset身份并对各实际聚合卡执行SAFE-DIAG整卡校验。只能在完整30题上重算可证明的subset数量型门槛；错误、未开始、unknown及安全阻断保留，release_ready=false。真实复测与四轴受控分类仍需各自授权和独立验收；本包完成后暂停，不进入后续任务。

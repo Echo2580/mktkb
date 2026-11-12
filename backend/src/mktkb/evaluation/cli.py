@@ -556,6 +556,18 @@ def _ingest_plan_for_args(
     return None
 
 
+def _scenario_for_args(args: argparse.Namespace, full_dataset: Any) -> Any:
+    from .p2_holdout_scenarios import load_scenario_contract, ScenarioError
+    required = ('scenario_annotations', 'scenario_review', 'scenario_key_file')
+    if not all(getattr(args, k, None) for k in required):
+        raise ScenarioError('scenario_cli_parameters_missing')
+    return load_scenario_contract(full_dataset, annotation_path=args.scenario_annotations,
+                                  review_path=args.scenario_review, key_file=args.scenario_key_file,
+                                  manager_path=args.scenario_manager,
+                                  review_aggregate_path=args.scenario_review_aggregate,
+                                  ingest_path=args.ingest_plan)
+
+
 def _cmd_p2_run(args: argparse.Namespace) -> int:
     """P2-T203 产品端到端空跑：预检 -> 空跑授权 -> 隔离应用 -> 产物（零真实调用）。
 
@@ -588,14 +600,26 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         plan = P2RunPlan.from_dict(plan_document)
     except ValueError as exc:
         raise CliError(f"plan_invalid: {type(exc).__name__}") from None
+    scenario_contract = None
+    scenario_id = getattr(args, 'scenario_id', None)
+    if plan.scenario_binding is not None or scenario_id or any(getattr(args, k, None) for k in
+                ('scenario_annotations', 'scenario_review', 'scenario_key_file')):
+        if not scenario_id or args.visibility != 'holdout' or not args.ingest_plan:
+            raise CliError('scenario_cli_parameters_missing')
+        from .p2_holdout_scenarios import assert_private_path
+        assert_private_path(args.plan)
     if args.visibility == "holdout":
         from .p2_dataset import load_p2_dataset
 
         if not args.holdout_manifest:
             raise CliError("--visibility holdout 需要 --holdout-manifest（T202 受限加载器）")
-        dataset = P2RunDataset.from_p2_dataset(
-            load_p2_dataset(Path(args.holdout_manifest), visibility="holdout")
-        )
+        full_dataset = load_p2_dataset(Path(args.holdout_manifest), visibility="holdout")
+        if scenario_id:
+            scenario_contract = _scenario_for_args(args, full_dataset)
+            dataset = scenario_contract.subset(scenario_id)
+            scenario_contract.validate_run(plan, dataset, scenario_contract.ingest_plan(scenario_id))
+        else:
+            dataset = P2RunDataset.from_p2_dataset(full_dataset)
         purge_traces = True
     else:
         cases = []
@@ -624,14 +648,15 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
     if args.mode == "live":
         # live 自己开真实门（GO/预算/账本/环境），不先用内存快照做预检：
         # 预检通过也不等于可发送，真正的准入只有 authorize_p2 + production_ready。
-        ingest_live = _ingest_plan_for_args(args, label="cli-p2-run-live")
+        ingest_live = scenario_contract.ingest_plan(scenario_id) if scenario_contract else _ingest_plan_for_args(args, label="cli-p2-run-live")
         if ingest_live is None and dataset.cases:
             raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
         return _run_p2_live(
-            args, plan=plan, dataset=dataset, ingest=ingest_live, purge_traces=purge_traces
+            args, plan=plan, dataset=dataset, ingest=ingest_live, purge_traces=purge_traces,
+            scenario_contract=scenario_contract,
         )
 
-    ingest = _ingest_plan_for_args(args, label="cli-p2-run")
+    ingest = scenario_contract.ingest_plan(scenario_id) if scenario_contract else _ingest_plan_for_args(args, label="cli-p2-run")
     if ingest is None and dataset.cases:
         raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
 
@@ -662,6 +687,7 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         dataset=dataset,
         ingest_plan=ingest,
         purge_traces_on_close=purge_traces,
+        scenario_contract=scenario_contract,
     )
 
     async def _run():
@@ -692,6 +718,7 @@ def _run_p2_live(
     dataset: Any,
     ingest: Any,
     purge_traces: bool,
+    scenario_contract: Any = None,
 ) -> int:
     """``--mode live``：真实门 + 真实 provider/OCR + usage 证据（零隐式调用）。
 
@@ -729,6 +756,7 @@ def _run_p2_live(
             # T207-FIX-H2PURGE：holdout 的 purge 开关必须在**装配前**传下去；不传就用
             # 适配器默认 False，H2 会在首个发送之前以 holdout_requires_purge 被拒。
             purge_traces_on_close=purge_traces,
+            scenario_contract=scenario_contract,
         )
 
     try:
@@ -784,6 +812,20 @@ def _cmd_p2_h2_plan(args: argparse.Namespace) -> int:
         parse_cases_metadata,
         summarize,
     )
+
+    if getattr(args, 'scenario_id', None):
+        from .p2_dataset import load_p2_dataset
+        full_dataset = load_p2_dataset(args.holdout_manifest, visibility='holdout')
+        contract = _scenario_for_args(args, full_dataset)
+        plan = contract.build_plan(args.scenario_id, plan_id=args.plan_id, plan_version=args.plan_version,
+                                   created_utc=args.created_utc, max_requests=args.max_requests)
+        out = assert_outside_workspace(args.plan_out)
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(json.dumps(plan.as_dict(), ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+        print(json.dumps(dict(ok=True, **summarize(plan), scenario_binding=dict(plan.scenario_binding)), ensure_ascii=False))
+        return 0
+    if not args.cases_metadata or args.ingest_batches is None:
+        raise CliError('holdout_plan_parameters_missing')
 
     try:
         out = assert_outside_workspace(Path(args.plan_out), what="H2 计划文件")
@@ -844,7 +886,27 @@ def _score_holdout(args: argparse.Namespace) -> int:
         )
 
     dataset = load_holdout_dataset(args.holdout_manifest)
-    cases = tuple(dataset.cases)
+    scenario_contract = None
+    scenario_id = getattr(args, 'scenario_id', None)
+    run_manifest = _read_json(Path(args.run_dir) / 'run_manifest.json', name='run_manifest') if args.run_dir else {}
+    run_binding = (run_manifest.get('binding') or {}).get('scenario_binding')
+    if run_binding is not None or scenario_id or any(getattr(args, k, None) for k in
+                  ('scenario_annotations', 'scenario_review', 'scenario_key_file')):
+        if not scenario_id or not getattr(args, 'plan', None):
+            raise RunScoreError('scenario_cli_parameters_missing')
+        from .p2_contracts import P2RunPlan
+        from .p2_holdout_scenarios import assert_private_path, ScenarioError
+        scenario_contract = _scenario_for_args(args, dataset)
+        plan = P2RunPlan.from_dict(_read_json(assert_private_path(args.plan), name='scenario_plan'))
+        subset = scenario_contract.subset(scenario_id)
+        scenario_contract.validate_run(plan, subset, scenario_contract.ingest_plan(scenario_id))
+        if run_binding != dict(plan.scenario_binding) or (run_manifest.get('plan') or {}).get('plan_sha256') != plan.plan_sha256:
+            raise ScenarioError('scenario_run_binding_mismatch')
+        cases = subset.cases
+        expected_strata = dict(subset.identity['strata'])
+    else:
+        cases = tuple(dataset.cases)
+        expected_strata = dict(dataset.manifest.strata)
     extra_blocks = []
     if args.holdout_cases:
         rows = read_cases_jsonl(assert_outside_workspace(args.holdout_cases, what="H2 逐题行"))
@@ -863,6 +925,7 @@ def _score_holdout(args: argparse.Namespace) -> int:
             allowed_doc_codes=set(codes.values()),
             execution_mode=execution_mode,
             real_calls=real_calls,
+            known_historical_doc_codes={'D01', 'D02', 'D03', 'D04', 'D05', 'D06', 'V01', 'V07'} if scenario_contract else None,
         )
         if unclassified:
             extra_blocks.append(
@@ -889,7 +952,7 @@ def _score_holdout(args: argparse.Namespace) -> int:
         config_hash = str(manifest.get("config_hash") or "") or None
     card = aggregate_holdout_bundle(
         scores,
-        expected_strata=dict(dataset.manifest.strata),
+        expected_strata=expected_strata,
         thresholds_approved=False,
         execution_mode=execution_mode,
         real_calls=real_calls,
@@ -1038,6 +1101,35 @@ def _cmd_p2_u_controls(args: argparse.Namespace) -> int:
         )
     )
     return 0
+
+
+def _add_scenario_args(parser: argparse.ArgumentParser, *, with_id: bool = True) -> None:
+    from .p2_holdout_scenarios import PUBLIC_CUSTODY
+    if with_id:
+        parser.add_argument('--scenario-id', default=None, help='显式冻结scenario；不自动分配')
+    parser.add_argument('--scenario-annotations', default=None, help='仓外冻结附件密文')
+    parser.add_argument('--scenario-review', default=None, help='仓外独立复核密文（只核hash）')
+    parser.add_argument('--scenario-key-file', default=None, help='仓外key文件；不回显')
+    parser.add_argument('--scenario-manager', default=str(PUBLIC_CUSTODY / 'manager-acceptance.json'))
+    parser.add_argument('--scenario-review-aggregate', default=str(PUBLIC_CUSTODY / 'review-aggregate.json'))
+
+
+def _cmd_p2_scenarios_run(args: argparse.Namespace) -> int:
+    import asyncio
+    from .p2_dataset import load_p2_dataset
+    from .p2_contracts import P2RunPlan, P2LedgerSnapshot
+    from .p2_holdout_scenarios import run_scenario_batch, assert_private_path
+    from .p2_scoring import load_p2_gate_config
+    full = load_p2_dataset(args.holdout_manifest, visibility='holdout')
+    contract = _scenario_for_args(args, full)
+    plans = [P2RunPlan.from_dict(_read_json(assert_private_path(p))) for p in args.plan]
+    payload = asyncio.run(run_scenario_batch(contract, plans, out_dir=args.out,
+                         snapshot=P2LedgerSnapshot.from_dict(_read_json(Path(args.snapshot))),
+                         gate_config=load_p2_gate_config()))
+    print(json.dumps(dict(ok=payload['status'] == 'complete', status=payload['status'],
+                         total=payload['total'], errors=payload['errors'], real_calls=payload['real_calls'],
+                         release_ready=False), ensure_ascii=False))
+    return 0 if payload['status'] == 'complete' else EXIT_DATA
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -1196,6 +1288,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     p2_run.add_argument("--dataset-version", default="p2-cli-local", help="公开 run 的 dataset_version")
     p2_run.add_argument("--label-version", default="p2-cli-local", help="公开 run 的 label_version")
+    _add_scenario_args(p2_run)
     p2_run.add_argument(
         "--mode",
         choices=("dry-run", "live"),
@@ -1213,9 +1306,12 @@ def build_parser() -> argparse.ArgumentParser:
         "p2-h2-plan",
         help="H2 受限计划生成（只读 case 元数据/manifest；计划写在工作区外，stdout 只回 sha）",
     )
-    p2_h2_plan.add_argument("--cases-metadata", required=True, help="H2 case 元数据 JSON（工作区外）")
+    p2_h2_plan.add_argument("--cases-metadata", default=None, help="H2 case 元数据 JSON（工作区外）")
     p2_h2_plan.add_argument("--holdout-manifest", required=True, help="H2 manifest（repo-safe 元数据）")
-    p2_h2_plan.add_argument("--ingest-batches", required=True, type=int, help="H2 语料包 embedding 批数 B")
+    p2_h2_plan.add_argument("--ingest-batches", default=None, type=int, help="H2 语料包 embedding 批数 B")
+    from .p2_holdout_scenarios import DEFAULT_INGEST
+    p2_h2_plan.add_argument('--ingest-plan', default=str(DEFAULT_INGEST), help='冻结完整12source计划')
+    _add_scenario_args(p2_h2_plan)
     p2_h2_plan.add_argument("--plan-out", required=True, help="输出计划 JSON（必须在工作区外）")
     # 单一来源：与候选 GO 的 scope.plan_id、runbook §8.1 同值（T207-FIX-A-R1 阻断 2）。
     from .p2_holdout_plan import H2_DEFAULT_PLAN_ID
@@ -1244,7 +1340,19 @@ def build_parser() -> argparse.ArgumentParser:
     p2_score.add_argument("--holdout-manifest", default=None, help="H2 manifest（visibility=holdout 必填）")
     p2_score.add_argument("--holdout-cases", default=None, help="封存逐题行 JSONL（工作区外）")
     p2_score.add_argument("--verdicts", default=None, help="封存判定表 JSONL（工作区外，与 --holdout-cases 二选一）")
+    p2_score.add_argument('--plan', default=None, help='scenario评分所需仓外计划')
+    p2_score.add_argument('--ingest-plan', default=str(DEFAULT_INGEST))
+    _add_scenario_args(p2_score)
     p2_score.set_defaults(handler=_cmd_p2_score)
+
+    p2_scenarios = sub.add_parser('p2-h2-scenarios-run', help='四状态串行Mock离线接线（首错停止；无live模式）')
+    p2_scenarios.add_argument('--plan', action='append', required=True, help='四个仓外冻结计划，按批准优先序')
+    p2_scenarios.add_argument('--snapshot', required=True, help='只读合成/已核预算快照；不写账本')
+    p2_scenarios.add_argument('--holdout-manifest', required=True)
+    p2_scenarios.add_argument('--ingest-plan', default=str(DEFAULT_INGEST))
+    p2_scenarios.add_argument('--out', required=True, help='新仓外私有运行根')
+    _add_scenario_args(p2_scenarios, with_id=False)
+    p2_scenarios.set_defaults(handler=_cmd_p2_scenarios_run)
 
     p2_matrix = sub.add_parser("p2-matrix", help="多 run 观测矩阵（逐 case provenance + U 证据表；非 release）")
     p2_matrix.add_argument(

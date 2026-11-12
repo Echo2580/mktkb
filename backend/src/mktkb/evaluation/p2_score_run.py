@@ -553,6 +553,7 @@ def holdout_case_scores_from_rows(
     execution_mode: str = EXECUTION_MODE_LOCAL_MOCK,
     real_calls: int = 0,
     diagnostics: Any = None,
+    known_historical_doc_codes: Iterable[str] | None = None,
 ) -> tuple[tuple[P2HoldoutCaseScore, ...], list[str]]:
     """用封存目录内的逐题行算 H2 单题判定；返回 (scores, 未分类的问题码)。
 
@@ -565,9 +566,9 @@ def holdout_case_scores_from_rows(
     source_map = load_holdout_source_map()
     cases = tuple(remap_holdout_case(case, source_map) for case in cases)
     available = set(document_codes.values())
-    if any(str(ref.get("doc_code") or "") not in available for case in cases
-           for name in ("expected_sources", "relevant_units")
-           for ref in getattr(case, name)):
+    known = set(known_historical_doc_codes or ())
+    if any(str(ref.get("doc_code") or "") not in (available | known if name == 'relevant_units' else available)
+           for case in cases for name in ("expected_sources", "relevant_units") for ref in getattr(case, name)):
         raise RunScoreError("holdout_document_code_unmapped", "H2 source map does not cover source refs")
     scores: list[P2HoldoutCaseScore] = []
     unclassified: list[str] = []

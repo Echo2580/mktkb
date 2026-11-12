@@ -1,0 +1,38 @@
+{
+  "base": "a751889bd4673fe43ba9c631f4e2ea13ce4fe585",
+  "head": "a751889bd4673fe43ba9c631f4e2ea13ce4fe585",
+  "spec_verdict": "PASS",
+  "code_quality_verdict": "PASS",
+  "controlled_script_static_verdict": "PASS",
+  "controlled_script_executed": false,
+  "real_h2_loaded": false,
+  "real_annotation_loaded": false,
+  "pytest_passed": 255,
+  "independent_new_probes": 29,
+  "scenario_existing_tests": 52,
+  "remaining_targeted_tests": 174,
+  "public_default_cases": 57,
+  "source_sha256": {
+    "backend/src/mktkb/evaluation/p2_holdout_scenarios.py": "2e9abf50e833aa32e32eb7836c4c1a25b3e1ae7c529eae84da37616e80a84bc1",
+    "backend/src/mktkb/evaluation/cli.py": "1302d940cc23f3251a05af0867f4da3ba9a4f7fa041d015009d7e6a3eec7a26f",
+    "backend/src/mktkb/evaluation/p2_contracts.py": "f8cd8083e958b783c589c541eecef473c5c57cb2ed9b3f795c476a85962a607e",
+    "backend/src/mktkb/evaluation/p2_holdout_plan.py": "d0cb23de2cff80a743c086a8723edd80654d64b22f4e18f97973dd83b153cd25",
+    "backend/src/mktkb/evaluation/p2_live.py": "01368910a47c99203f1069c74b590f3282c1250be59688e982f45edb1944bc92",
+    "backend/src/mktkb/evaluation/p2_runner.py": "5708000ad3a9ed043530e041b82dbbf244fae5194d1632677078dca5528c3c50",
+    "backend/src/mktkb/evaluation/p2_score_run.py": "366e621bb681570b349313cd9a67338824cbd668e08d3eb0b5b6d1f71ed67326",
+    "backend/src/mktkb/evaluation/product_adapter.py": "edac6278afe61a3df52c7edf30e14e048bee3a6a9d6fa7b33b02fbb128e989a8",
+    "backend/tests/evaluation/test_p2_holdout_scenarios.py": "a50d0d31cee791bbabf424f26512edfd9c223d0d4b9246b7370e1e56c4dd7b34",
+    "docs/reports/OBS-EVAL/P2/T207-SCENARIO/evidence/controlled_binding_check.py": "751455f0530cef9246ff55c2279f3cc384871edf96d1ab37014acbd8322d5a07",
+    "docs/reports/OBS-EVAL/P2/T207-SCENARIO/evidence/review-package.diff": "bfb3d42e73455767500c49a9887ff258b9d38b1da78be98a16d729a8797f00a6"
+  },
+  "static_controlled_boundary": [
+    "load_p2_dataset only decrypts to process memory",
+    "load_scenario_contract checks exact assignment and frozen hashes",
+    "safe_summary exports fixed scenario/axis/gap count vocabularies only",
+    "whole-file protected SHA256 only; no per-case hash or ID",
+    "no adapter construction, runner invocation, provider send or credential-service call",
+    "key-file read only by authorized loader; .env not read; no key material emitted",
+    "socket connect/connect_ex/create_connection denied before loader imports",
+    "exceptions caught and replaced with fixed FAIL code; no traceback export"
+  ]
+}
