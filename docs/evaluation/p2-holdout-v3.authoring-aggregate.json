@@ -1,0 +1,164 @@
+{
+  "schema_version": "p2-holdout-v3-authoring/v1",
+  "dataset_version": "P2-HOLDOUT-v3.1",
+  "label_version": "p2-holdout-v3.1-2026-11-15",
+  "revision": "R2 (v3.1 rework)",
+  "case_count": 30,
+  "total_turns": 36,
+  "turn_histogram": {
+    "1": 25,
+    "2": 4,
+    "3": 1
+  },
+  "strata": {
+    "paraphrase": 10,
+    "multi_turn": 5,
+    "negative": 5,
+    "stale_conflict": 5,
+    "cross_doc_security": 5
+  },
+  "expected_kind": {
+    "answer": 25,
+    "not_found": 2,
+    "refusal": 3
+  },
+  "axis_attitudes": {
+    "required": 95,
+    "not_applicable": 25,
+    "total": 120
+  },
+  "effective_axes": {
+    "cross_entity_target_matches": 28,
+    "cross_entity_empty_use": 2,
+    "stale_true_date_checks": 28,
+    "stale_empty_use": 2,
+    "note": "C16/C17 为 not_found + 零引用；只走空集证明，不按 target/日期匹配计 30/30。"
+  },
+  "entity_targets": {
+    "cases_with_targets": 30,
+    "target_instances": 36,
+    "single_target_cases": 24,
+    "multi_target_cases": 6
+  },
+  "per_run": {
+    "0": {
+      "cases": 12,
+      "turns": 14
+    },
+    "1": {
+      "cases": 8,
+      "turns": 10
+    },
+    "2": {
+      "cases": 5,
+      "turns": 6
+    },
+    "3": {
+      "cases": 5,
+      "turns": 6
+    }
+  },
+  "corpus_reuse": {
+    "reuses_v2_corpus": true,
+    "declaration": "v3.1 复用 v2 的 12 源语料与 L1 生命周期；题面按加严门槛重写，未改语料、targets、版本对或判定目标。",
+    "hardened_gate": "max < 0.5 AND count_over_0.5 <= 3 (design spec §6.2 #4; corpus spec §6)",
+    "v2_read_exception": "v2 冻结题面仅用于本轮去重相似度回查，未抄用、未写入任何密文/公开件；已在 authoring-inputs.json 登记。"
+  },
+  "similarity": {
+    "status": "computed",
+    "method": {
+      "normalization": "NFKC; remove whitespace and punctuation; casefold",
+      "per_case": "max over 30 v2 cases; text=question or joined turns",
+      "metrics": {
+        "char_seq": "difflib.SequenceMatcher ratio on normalized chars",
+        "char_lev": "1 - Levenshtein/max(len)",
+        "jaccard3": "char 3-gram Jaccard",
+        "containment3": "|A∩B|/min(|A|,|B|) on 3-grams (observational, not gated)",
+        "jaccard2": "char 2-gram Jaccard"
+      }
+    },
+    "distributions": {
+      "char_seq": {
+        "min": 0.2545,
+        "median": 0.3711,
+        "max": 0.4444,
+        "count_gt_0.5": 0,
+        "count_ge_0.6": 0
+      },
+      "char_lev": {
+        "min": 0.1667,
+        "median": 0.2709,
+        "max": 0.35,
+        "count_gt_0.5": 0,
+        "count_ge_0.6": 0
+      },
+      "jaccard3": {
+        "min": 0.0278,
+        "median": 0.099,
+        "max": 0.1951,
+        "count_gt_0.5": 0,
+        "count_ge_0.6": 0
+      },
+      "containment3": {
+        "min": 0.1,
+        "median": 0.3063,
+        "max": 0.6667,
+        "count_gt_0.5": 3,
+        "count_ge_0.6": 1
+      },
+      "jaccard2": {
+        "min": 0.0541,
+        "median": 0.1482,
+        "max": 0.25,
+        "count_gt_0.5": 0,
+        "count_ge_0.6": 0
+      }
+    },
+    "gate": {
+      "char_seq": {
+        "max": 0.4444,
+        "count_over_0.5": 0,
+        "pass_max": true,
+        "pass_count": true,
+        "pass": true
+      },
+      "char_lev": {
+        "max": 0.35,
+        "count_over_0.5": 0,
+        "pass_max": true,
+        "pass_count": true,
+        "pass": true
+      },
+      "jaccard3": {
+        "max": 0.1951,
+        "count_over_0.5": 0,
+        "pass_max": true,
+        "pass_count": true,
+        "pass": true
+      }
+    },
+    "over_0.5_count": 0,
+    "verdict": "PASS under hardened corpus-reuse threshold; char-level max 0.4444 < 0.45 margin target"
+  },
+  "rework": {
+    "review_basis": "v3-author/independent-review.md + review-aggregate.json (FAIL)",
+    "rewritten_over_threshold": 10,
+    "rewritten_for_margin_or_ambiguity": 5,
+    "rewritten_total": 15,
+    "question_text_only": true,
+    "targets_labels_authoring_for_rewrite10_unchanged": true,
+    "c16_c17": "维持 not_found；anchor why 改为‘语料无覆盖’，lifecycle_rows 清空；labels/reference_answer/expected_sources 不变；四处一致。",
+    "c20_c22": "单回合内只保留一个物品名，第二件改为行级指代（同店失效旧登记 / 未生效登记 / 旧登记）；回合数、targets、labels、run 均不变；规避 ITEM_AMBIGUOUS。"
+  },
+  "review": {
+    "status": "pending_re_review",
+    "prior_verdict": "FAIL",
+    "disagreement_count": null
+  },
+  "authoring_inputs_sha256": "e8d121f4fb069415f80f3a4e7e006c5fcd1438659aa85136b27bcf71ba0b1afa",
+  "notes": [
+    "不含题号、题面、参考答案、目标值、record 锚点或 business_date 具体值。",
+    "逐题出题记录与 targets 以 Fernet 密文封存在仓外 root（第 5/6 件），仓内不保留明文。",
+    "v3.1 新密文 SHAs 见 docs/evaluation/p2-holdout-v3-dataset.md §5。"
+  ]
+}

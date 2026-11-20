@@ -1,0 +1,74 @@
+{
+  "A1-wrong-binding": {
+    "exit_code": 1,
+    "expected_code": "WRONG_BINDING",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"WRONG_BINDING:N02:plan_sha256\"]}"
+  },
+  "A2-duplicate-case": {
+    "exit_code": 1,
+    "expected_code": "DUPLICATE_CASE",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"SAMPLE_INSUFFICIENT:N:expected=8:actual=9\", \"DUPLICATE_CASE:N02\"]}"
+  },
+  "A3-u-type-mixed": {
+    "exit_code": 1,
+    "expected_code": "U_TYPE_MIXED",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"U_TYPE_MIXED:U05:R_basis_with_local_control_fields\", \"WRONG_BINDING:U05:plan_sha256\", \"WRONG_BINDING:U05:config_hash\", \"WRONG_BINDING:U05:pipeline_version\", \"WRONG_BINDING:U05:index_revision_binding\", \"WRONG_BINDING:U05:question_sha256\", \"MISSING_TRACE:U05\"]}"
+  },
+  "A4-sample-insufficient": {
+    "exit_code": 1,
+    "expected_code": "SAMPLE_INSUFFICIENT",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"SAMPLE_INSUFFICIENT:C:expected=6:actual=5\"]}"
+  },
+  "A5-missing-trace": {
+    "exit_code": 1,
+    "expected_code": "MISSING_TRACE",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"MISSING_TRACE:N03\"]}"
+  },
+  "A6-missing-citation": {
+    "exit_code": 1,
+    "expected_code": "MISSING_CITATION_EVIDENCE",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"MISSING_CITATION_EVIDENCE:U01\", \"MISSING_CITATION_EVIDENCE:U01:source_hit\"]}"
+  },
+  "B1-question-hash": {
+    "exit_code": 1,
+    "expected_code": "QUESTION_HASH_MISMATCH",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"QUESTION_HASH_MISMATCH:N05:frozen\", \"QUESTION_HASH_MISMATCH:N05:run_cases\", \"TRACE_CASE_MISMATCH:N05:question_hash\"]}"
+  },
+  "B2-evidence-path": {
+    "exit_code": 1,
+    "expected_code": "EVIDENCE_PATH_MISSING",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"EVIDENCE_PATH_MISSING:N02:run_cases\"]}"
+  },
+  "B5-trace-swap": {
+    "exit_code": 1,
+    "expected_code": "TRACE_CASE_MISMATCH",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"TRACE_CASE_MISMATCH:N02:question_hash\", \"TRACE_CASE_MISMATCH:N03:question_hash\"]}"
+  },
+  "B7-binding-proof-no-mech": {
+    "exit_code": 1,
+    "expected_code": "BINDING_PROOF_WITHOUT_MECHANICAL_FAIL",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"BINDING_PROOF_WITHOUT_MECHANICAL_FAIL:N01:no_mechanical_record\"]}"
+  },
+  "B8-binding-proof-missing": {
+    "exit_code": 1,
+    "expected_code": "BINDING_PROOF_MISSING",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"BINDING_PROOF_MISSING:N01\"]}"
+  },
+  "B9-binding-proof-gate-pass": {
+    "exit_code": 1,
+    "expected_code": "BINDING_PROOF_WITHOUT_MECHANICAL_FAIL",
+    "ok": true,
+    "output": "{\"ok\": false, \"errors\": [\"BINDING_PROOF_WITHOUT_MECHANICAL_FAIL:N01:no_gate_fail\"]}"
+  }
+}

@@ -52,7 +52,7 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 from .dataset import HOLDOUT_SUITE
-from .gate import GATE_VERSION_V0_2, GateResult, load_run_result
+from .gate import GATE_VERSION_V0_2, GATE_VERSION_V0_3, GateResult, load_run_result
 from .runner import RunManifest, RunResult
 
 __all__ = [
@@ -206,7 +206,12 @@ class BaselineIdentity:
             value = getattr(self, name)
             if not isinstance(value, str) or not value.strip():
                 raise BaselineIdentityError(f"baseline 身份字段 {name} 必须是非空字符串")
-        _validate_mode(self.mode, self.gate_version)
+        if not self.is_p2_b0:
+            _validate_mode(self.mode, self.gate_version)
+
+    @property
+    def is_p2_b0(self) -> bool:
+        return self.mode == "live" and self.scope == "end_to_end" and self.gate_version == GATE_VERSION_V0_3
 
     def canonical(self) -> str:
         """按 ``BASELINE_ID_FIELDS`` 顺序字面拼接（文档化的 digest 输入）。"""
@@ -450,6 +455,7 @@ class Baseline:
     gate: BaselineGate | None = None
     approval: BaselineApproval | None = None
     schema_version: str = BASELINE_SCHEMA_VERSION
+    evidence_dir: Path | None = field(default=None, repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if not _IDENTITY_PATTERN.fullmatch(str(self.baseline_id)):
@@ -510,6 +516,12 @@ class Baseline:
 
     def load_run(self) -> RunResult:
         """只读加载 baseline 指向的 run，并再次核对身份 / run_id / 产物摘要。"""
+        if self.identity.is_p2_b0:
+            from .p2_b0_baseline import validate_b0_baseline
+
+            if self.evidence_dir is None:
+                raise BaselineError("b0_approval_evidence_missing")
+            return validate_b0_baseline(self, self.evidence_dir, Path(self.run_dir)).run
         run = load_run_result(self.run_dir)
         actual = baseline_identity(run.manifest)
         if actual != self.identity:
@@ -666,6 +678,8 @@ def save_baseline(run: RunResult, root: Path | str, *, gate: GateResult | None =
     if not isinstance(run, RunResult):
         raise BaselineError(f"save_baseline 只接受 RunResult，收到 {type(run).__name__}")
     identity = baseline_identity(run.manifest)
+    if identity.is_p2_b0:
+        raise BaselineApprovalError("b0_requires_scoped_approval_receipt")
     dir_path = _baseline_dir(identity.baseline_id, root)
     existing_path = dir_path / BASELINE_FILENAME
     artifacts = _artifact_digests(run)
@@ -857,12 +871,25 @@ def load_baseline(
     """
     dir_path = _baseline_dir(baseline_id_value, root)
     baseline_path = dir_path / BASELINE_FILENAME
+    from .p2_b0 import safe_path
+
+    try:
+        safe_path(baseline_path)
+        safe_path(dir_path / APPROVAL_FILENAME)
+    except ValueError as exc:
+        raise BaselineError("baseline 路径含链接或目录联接") from exc
     if not baseline_path.is_file():
         raise BaselineError(f"baseline 不存在: {baseline_path}")
     payload = _read_json(baseline_path, BASELINE_FILENAME)
     baseline = Baseline.from_dict(
         payload, approval=_load_approval_if_present(dir_path)
     )
+    if baseline.identity.is_p2_b0:
+        try:
+            baseline = replace(baseline, evidence_dir=safe_path(dir_path))
+            baseline.load_run()
+        except (ValueError, OSError) as exc:
+            raise BaselineError(f"正式 B0 基线证据无效: {exc}") from exc
     if baseline.baseline_id != baseline_id_value:
         raise BaselineIdentityError(
             f"baseline 目录/请求 id {baseline_id_value!r} 与文件内 id {baseline.baseline_id!r} 不一致"
@@ -1081,6 +1108,10 @@ def archive_baseline(
     """
     baseline = load_baseline(baseline_id_value, root)
     source_baseline_dir = _baseline_dir(baseline.baseline_id, root)
+    if baseline.identity.is_p2_b0:
+        from .p2_b0_baseline import archive_b0_baseline
+
+        return archive_b0_baseline(baseline, source_baseline_dir, Path(out_dir), archived_at)
     # 先读 run_manifest 判 holdout（holdout 聚合 run 没有 cases.jsonl，不能被「缺产物」误导）；
     # 再做完整 load_run 复核（身份 / run_id / 三件套摘要）。
     run_dir = Path(baseline.run_dir)
@@ -1153,7 +1184,12 @@ def archive_baseline(
         source_run_dir=run_dir,
     )
 
-    out = Path(out_dir)
+    return _pack_archive(Path(out_dir), entries, manifest)
+
+
+def _pack_archive(
+    out: Path, entries: Sequence[tuple[str, bytes]], manifest: Mapping[str, Any],
+) -> BaselineArchive:
     if out.exists():
         raise BaselineArchiveError(f"归档目标已存在，拒绝覆盖: {out}")
     parent = out.parent
@@ -1235,14 +1271,29 @@ def verify_archive(archive_dir: Path | str) -> BaselineArchive:
     任何缺失、哈希不符、未登记文件、符号链接、holdout 痕迹或身份不一致都抛
     :class:`BaselineArchiveError`（fail closed）；通过后返回 :class:`BaselineArchive`。
     """
-    target = Path(archive_dir)
+    from .p2_b0 import B0_ARTIFACTS, safe_path
+    from .p2_b0_baseline import B0_BASELINE_ARTIFACTS
+
+    try:
+        target = safe_path(Path(archive_dir))
+        safe_path(target / ARCHIVE_MANIFEST_FILENAME)
+    except ValueError as exc:
+        raise BaselineArchiveError("归档路径含链接或目录联接") from exc
     payload, files = _load_archive_manifest(target)
+    allowed = {
+        *(f"{ARCHIVE_RUN_DIR}/{name}" for name in (*ARCHIVE_RUN_ARTIFACTS, *B0_ARTIFACTS)),
+        *(f"{ARCHIVE_BASELINE_DIR}/{name}" for name in (BASELINE_FILENAME, APPROVAL_FILENAME, *B0_BASELINE_ARTIFACTS)),
+    }
+    if not set(files).issubset(allowed):
+        raise BaselineArchiveError("归档出现未列入白名单的文件")
 
     # 1) 磁盘文件集合必须恰好等于「manifest 登记 + manifest 自身」。
     disk: set[str] = set()
     for path in target.rglob("*"):
-        if path.is_symlink():
-            raise BaselineArchiveError(f"归档不允许符号链接: {path}")
+        try:
+            safe_path(path)
+        except ValueError as exc:
+            raise BaselineArchiveError(f"归档不允许符号链接或目录联接: {path}") from exc
         if path.is_dir():
             continue
         if not path.is_file():
@@ -1319,13 +1370,31 @@ def verify_archive(archive_dir: Path | str) -> BaselineArchive:
     if str(payload.get("suite") or "") != baseline.suite:
         raise BaselineArchiveError("archive_manifest.suite 与 baseline.json 不一致")
 
+    if baseline.identity.is_p2_b0:
+        from .p2_b0_baseline import validate_b0_archive
+
+        try:
+            validate_b0_archive(target, baseline, content, payload)
+        except (ValueError, OSError) as exc:
+            raise BaselineArchiveError(f"正式 B0 归档证据无效: {exc}") from exc
+    elif not set(files).issubset({baseline_rel, approval_rel, *(
+        f"{ARCHIVE_RUN_DIR}/{name}" for name in ARCHIVE_RUN_ARTIFACTS
+    )}):
+        raise BaselineArchiveError("旧归档出现未列入白名单的文件")
+
     # 5) 归档 run_manifest 必须与 baseline 身份一致，且不得是 holdout。
     run_manifest_rel = f"{ARCHIVE_RUN_DIR}/run_manifest.json"
     run_manifest_payload = _decode_archive_json(content[run_manifest_rel], run_manifest_rel)
     if not isinstance(run_manifest_payload, Mapping):
         raise BaselineArchiveError("归档 run_manifest.json 必须是 JSON 对象")
     try:
-        run_manifest = RunManifest.from_dict(run_manifest_payload)
+        if baseline.identity.is_p2_b0:
+            run_manifest = RunManifest.from_dict({
+                **run_manifest_payload, "mode": baseline.identity.mode,
+                "pipeline_version": baseline.pipeline_version,
+            })
+        else:
+            run_manifest = RunManifest.from_dict(run_manifest_payload)
     except ValueError as exc:
         raise BaselineArchiveError(f"归档 run_manifest.json 不合法: {exc}") from exc
     if run_manifest.run_id != baseline.run_id:
@@ -1381,7 +1450,7 @@ def verify_archive(archive_dir: Path | str) -> BaselineArchive:
     if expected_gate_digest is None and approval is not None:
         expected_gate_digest = approval.gate_result_sha256
     gate_rel = f"{ARCHIVE_RUN_DIR}/{_ARCHIVE_GATE_FILENAME}"
-    if gate_rel in files:
+    if gate_rel in files and not baseline.identity.is_p2_b0:
         gate_payload = _decode_archive_json(content[gate_rel], gate_rel)
         if not isinstance(gate_payload, Mapping):
             raise BaselineArchiveError("归档 gate.json 必须是 JSON 对象")
@@ -1453,6 +1522,10 @@ def restore_baseline(
     - 目标写盘后立即 ``load_baseline`` + ``load_run`` 复核，失败则删除本次新建的目录并抛错。
     """
     archive = verify_archive(archive_dir)
+    if archive.identity.is_p2_b0:
+        from .p2_b0_baseline import restore_b0_archive
+
+        return restore_b0_archive(Path(archive_dir), archive, Path(root), runs_root)
     source = Path(archive_dir)
     baseline_payload = _decode_archive_json(
         _read_archive_bytes(source / ARCHIVE_BASELINE_DIR / BASELINE_FILENAME, BASELINE_FILENAME),

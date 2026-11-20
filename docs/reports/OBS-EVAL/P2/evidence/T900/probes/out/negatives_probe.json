@@ -1,0 +1,39 @@
+{
+  "control": {
+    "decision": "pass",
+    "h2.cards_index": "pass"
+  },
+  "wrong_binding": {
+    "decision": "blocked",
+    "row": "h2.cards_index",
+    "row_decision": "blocked",
+    "reasons": [
+      "release_identity_mismatch"
+    ],
+    "detail": {
+      "cause": "card_file_sha_equals_aggregate",
+      "evidence": {
+        "scenario_id": "base_b0"
+      }
+    },
+    "card0_file_sha": "6fd2a94c3baf3186e25fef6a7b80665718176a8fe8a8622440e6b29b42ee39d1",
+    "card0_aggregate_sha": "6fd2a94c3baf3186e25fef6a7b80665718176a8fe8a8622440e6b29b42ee39d1"
+  },
+  "forged_attested": {
+    "decision": "blocked",
+    "binding_row": "binding.p2-t207-r1-20261111-01",
+    "row_decision": "blocked",
+    "reasons": [
+      "release_binding_attestation_invalid"
+    ],
+    "detail": {
+      "cause": "attested 与 rag_meta.revision 不符",
+      "evidence": {
+        "declared": 99,
+        "actual": 12
+      }
+    },
+    "declared_attested": 99,
+    "actual_attested": 12
+  }
+}

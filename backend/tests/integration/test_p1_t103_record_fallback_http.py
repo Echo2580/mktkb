@@ -116,7 +116,9 @@ def t103_trace_env(settings: Settings, chat_model, tmp_path: Path) -> SimpleName
 
 
 def _force_truncated(monkeypatch, unit, *, record: bool) -> None:
-    def fake_retrieve(db_factory, intent, revision, limit=20, *, candidate_ids=None):
+    # v3-fix-1/B：产品证据入口新增 as_of（业务日时间过滤）；本用例只验证截断回退，
+    # 证据集由桩直接给出，因此接受并忽略该关键字。
+    def fake_retrieve(db_factory, intent, revision, limit=20, *, candidate_ids=None, as_of=None):
         if record:
             return EvidenceSet(
                 units=[unit],

@@ -19,9 +19,14 @@ provider 用假发送记录器；不读 .env、不读 H2/Holdout、不碰 var/ �
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import hashlib
 import json
+import os
+import subprocess
+import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from types import SimpleNamespace
@@ -38,6 +43,13 @@ from mktkb.evaluation.p2_contracts import (
     P2LedgerSnapshot,
     P2RequestItem,
     P2RunPlan,
+)
+from mktkb.providers.budgeted import BudgetedModelGateway, ChatPricing
+from mktkb.providers.types import (
+    CompletionInput,
+    DialogueContext,
+    ModelEvidence,
+    ModelTimeout,
 )
 from mktkb.rag.budget import BudgetLedger, RequestLimitExceeded
 from mktkb.rag.errors import BudgetLedgerInvalid
@@ -344,8 +356,9 @@ def _snapshot(**kwargs) -> P2LedgerSnapshot:
 
 
 def _open_gate(env: SimpleNamespace, **kwargs):
+    plan = kwargs.pop("plan", env.plan)
     return p2a.P2Gate.open(
-        env.plan,
+        plan,
         go_payload=kwargs.pop("go_payload", env.go),
         budget_payload=kwargs.pop("budget_payload", env.budget),
         now=kwargs.pop("now", NOW),
@@ -1413,4 +1426,361 @@ def test_hard_max_requests_is_the_manager_recorded_1600(p2_env: SimpleNamespace)
         scope={"max_requests": 1601},
     )
     _refuse(p2_env, "go_max_requests_over_hard_cap", go_payload=over)
+
+
+# --------------------------------------------------------------------------- #
+# 6. CAP-UNLIMITED：累计请求无上限的语义、账本锁与事件循环
+# --------------------------------------------------------------------------- #
+
+UNLIMITED = "unlimited"
+
+
+def test_unlimited_plan_roundtrips_and_keeps_the_json_string() -> None:
+    plan = _plan(max_requests=UNLIMITED)
+    again = P2RunPlan.from_dict(json.loads(json.dumps(plan.as_dict())))
+    assert plan.max_requests == UNLIMITED
+    assert again.max_requests == UNLIMITED
+    assert again.plan_sha256 == plan.plan_sha256
+    assert again.total_requests == plan.total_requests == PLANNED_REQUESTS
+
+
+def test_preflight_unlimited_keeps_history_but_never_blocks_on_request_count(
+    p2_env: SimpleNamespace,
+) -> None:
+    # 1500 条历史预留（跨 kind/跨 stage）：累计请求口径必须看见它们。
+    _write_ledger(p2_env.ledger, seeded=1500)
+    snapshot = _snapshot()
+    assert snapshot.reservation_count == 1500
+
+    unlimited = p2a.preflight_p2(_plan(max_requests=UNLIMITED), snapshot)
+    assert unlimited.requests_used == 1500
+    assert unlimited.requests_remaining == UNLIMITED
+    assert "request_budget_insufficient" not in unlimited.reasons
+
+    finite = p2a.preflight_p2(_plan(max_requests=1500), snapshot)
+    assert finite.requests_remaining == 0
+    assert "request_budget_insufficient" in finite.reasons
+
+
+def test_authorize_accepts_unlimited_plan_with_unlimited_go(p2_env: SimpleNamespace) -> None:
+    plan = _plan(max_requests=UNLIMITED)
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+    )
+    auth = _authorize(p2_env, plan=plan)
+    assert auth.max_requests == UNLIMITED
+    assert auth.requests_remaining == UNLIMITED
+    assert auth.production_ready is True
+
+
+def test_authorize_refuses_finite_go_for_unlimited_plan(p2_env: SimpleNamespace) -> None:
+    plan = _plan(max_requests=UNLIMITED)
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": 1500},
+    )
+    _refuse(p2_env, "go_max_requests_below_plan", plan=plan)
+
+
+def test_assert_authorization_live_refuses_finite_go_for_unlimited_plan(
+    p2_env: SimpleNamespace,
+) -> None:
+    plan = _plan(max_requests=UNLIMITED)
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+    )
+    gate = _open_gate(p2_env, plan=plan)
+    gate._assert_authorization_live(NOW)  # 无限计划 + 无限 GO：放行
+
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": 1500},
+    )
+    with pytest.raises(p2a.P2GateError) as excinfo:
+        gate._assert_authorization_live(NOW)
+    assert excinfo.value.reason == "request_cap_changed"
+
+
+def test_budget_ledger_unlimited_needs_p2_stage_and_a_per_request_guard(
+    p2_env: SimpleNamespace,
+) -> None:
+    with pytest.raises(BudgetLedgerInvalid):
+        BudgetLedger(
+            p2_env.ledger, p2_env.budget, stage="S2-DEV", max_requests=UNLIMITED
+        )
+
+    book = BudgetLedger(
+        p2_env.ledger,
+        p2_env.budget,
+        stage=P2_STAGE,
+        stage_limit_cny=STAGE_LIMIT_CNY,
+        max_requests=UNLIMITED,
+    )
+    with pytest.raises(BudgetLedgerInvalid, match="无限请求必须有逐笔授权复核"):
+        book.reserve(
+            kind="chat",
+            provider="deepseek",
+            model="deepseek-flash",
+            max_cny=0.01,
+            request_sha256="a" * 64,
+        )
+
+
+def test_unlimited_item_quota_accumulates_across_gate_instances(
+    p2_env: SimpleNamespace,
+) -> None:
+    """换 run_id/重开 gate 不能把计划项次数清零（跨进程/重启同一账本事实）。"""
+    # 账本里先有更早阶段的预留（无 plan 元数据）：它们不参与本计划项计数，也不得
+    # 让 unlimited 门直接拒绝（真实共享账本有 1400+ 条这样的历史）。
+    _write_ledger(p2_env.ledger, seeded=3)
+    plan = _plan(max_requests=UNLIMITED)
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+    )
+    first = _open_gate(p2_env, plan=plan, run_id="p2run-first")
+    ticket = first.begin("answer-B0-Q01-t1")
+    assert ticket.item_id == "answer-B0-Q01-t1"
+    assert _reserved_count(p2_env.ledger) == 4
+
+    second = _open_gate(p2_env, plan=plan, run_id="p2run-second")
+    with pytest.raises(p2a.P2GateError) as excinfo:
+        second.begin("answer-B0-Q01-t1")
+    assert excinfo.value.reason == "attempt_quota_exhausted"
+    assert _reserved_count(p2_env.ledger) == 4
+
+
+def test_second_round_must_not_reuse_the_same_plan_identity(
+    p2_env: SimpleNamespace,
+) -> None:
+    """R0 第二轮真实运行（2026-11-16）的失败形态：换 run_id、重签 GO，但复用同一份计划。
+
+    真实现场：第二轮的 ``plan_sha256`` 与第一轮逐字节相同（``92db7035…``），第一轮已在共享
+    账本里为这 14 个计划项各写了一条 ``reserved``；unlimited 门的逐项配额按
+    ``plan_sha256 + item_id`` 累计（不看 run_id），于是**第一项**的 ``begin`` 就在预留之前
+    被拒成 ``P2GateError('attempt_quota_exhausted')``。
+
+    对 runner 的影响（``p2_runner`` 的 gate_begin 分支）：``requests_reserved`` 保持 0、
+    一个产品回合都没发生、其余题全部 not_executed；异常类名 ``P2GateError`` 不在
+    ``p2_diagnostics.ERRORS`` 里，聚合把它记成 ``unknown``。
+
+    这里把"复用计划 = 一定失败 / 重新出计划 = 通过"固定成可执行事实：新一轮必须**重新生成
+    计划**（``created_utc`` 改 → ``plan_sha256`` 改），而不是只重签 GO。
+    """
+    plan = _plan(max_requests=UNLIMITED)
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+        nonce="unit-test-p2-nonce-round1-0123",
+    )
+    first = _open_gate(p2_env, plan=plan, run_id="p2run-round1")
+    first.begin("answer-B0-Q01-t1")
+    before = _reserved_count(p2_env.ledger)
+    results_before = _result_events(p2_env.ledger)
+
+    # 第二轮：重新签 GO（新 nonce + 新账本前缀）、换 run_id，计划一字不改。
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=plan,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+        nonce="unit-test-p2-nonce-round2-0123",
+    )
+    second = _open_gate(p2_env, plan=plan, run_id="p2run-round2")
+    with pytest.raises(p2a.P2GateError) as excinfo:
+        second.begin("answer-B0-Q01-t1")
+    assert excinfo.value.reason == "attempt_quota_exhausted"
+    # runner 落盘的 error_code 是异常类名（它不在固定码表里 → unknown），不是 reason。
+    assert type(excinfo.value).__name__ == "P2GateError"
+    # 门自己一笔都没预留、也没结算（runner 侧 requests_reserved 恒为 0、0 元结算）。
+    assert _reserved_count(p2_env.ledger) == before, "预留前拒绝：账本一笔都不新增"
+    assert _result_events(p2_env.ledger) == results_before, "预留前拒绝：不写任何结算行"
+
+    # 修复口径：重新生成计划（created_utc 变 → plan_sha256 变），再签 GO，同一 item 可预留。
+    fresh = _plan(max_requests=UNLIMITED, created_utc="2026-11-16T17:30:00+08:00")
+    assert fresh.plan_sha256 != plan.plan_sha256
+    _write_go(
+        p2_env.go,
+        ledger_prefix=_prefix_sha(p2_env.ledger),
+        plan=fresh,
+        ledger_path=p2_env.ledger,
+        scope={"max_requests": UNLIMITED},
+        nonce="unit-test-p2-nonce-round3-0123",
+    )
+    third = _open_gate(p2_env, plan=fresh, run_id="p2run-round3")
+    ticket = third.begin("answer-B0-Q01-t1")
+    assert ticket.item_id == "answer-B0-Q01-t1"
+    assert _reserved_count(p2_env.ledger) == before + 1
+
+
+def _reserve_probe(book: BudgetLedger) -> None:
+    book.reserve(
+        kind="chat",
+        provider="deepseek",
+        model="deepseek-flash",
+        max_cny=0.01,
+        request_sha256="b" * 64,
+    )
+
+
+def test_ledger_lock_from_a_dead_pid_is_reclaimed_immediately(tmp_path: Path) -> None:
+    """stale 判定按 PID 存活：死进程的锁不该再等 mtime 60 秒。"""
+    from mktkb.proc_identity import process_identity
+
+    ledger = tmp_path / "live-ledger.jsonl"
+    budget = tmp_path / "budget.json"
+    ledger.write_text("", encoding="utf-8")
+    budget.write_text(json.dumps({"limit_cny": 40.0, "stages": {P2_STAGE: 20.0}}), encoding="utf-8")
+    book = BudgetLedger(
+        ledger,
+        budget,
+        stage=P2_STAGE,
+        stage_limit_cny=STAGE_LIMIT_CNY,
+        max_requests=10,
+        lock_timeout_seconds=0.5,
+    )
+    dead = subprocess.Popen([sys.executable, "-c", "pass"])
+    dead.wait()
+    alive, marker = process_identity(dead.pid)
+    assert alive is False and marker is None
+    book.lock_path.write_text(
+        f"{dead.pid} - 2026-11-19T00:00:00+00:00\n", encoding="utf-8"
+    )
+
+    _reserve_probe(book)  # 修复前：等到 lock_timeout_seconds 后 BudgetLedgerInvalid
+    assert _reserved_count(ledger) == 1
+
+
+def test_ledger_lock_of_a_live_pid_is_not_stolen_even_past_the_mtime_window(
+    tmp_path: Path,
+) -> None:
+    """慢持有者仍然活着就不能被 mtime 回收（否则出现双写窗口）。"""
+    from mktkb.proc_identity import process_identity
+
+    ledger = tmp_path / "live-ledger.jsonl"
+    budget = tmp_path / "budget.json"
+    ledger.write_text("", encoding="utf-8")
+    budget.write_text(json.dumps({"limit_cny": 40.0, "stages": {P2_STAGE: 20.0}}), encoding="utf-8")
+    book = BudgetLedger(
+        ledger,
+        budget,
+        stage=P2_STAGE,
+        stage_limit_cny=STAGE_LIMIT_CNY,
+        max_requests=10,
+        lock_timeout_seconds=0.3,
+        stale_lock_seconds=0.0,
+    )
+    alive, marker = process_identity(os.getpid())
+    assert alive is True
+    book.lock_path.write_text(
+        f"{os.getpid()} {marker or '-'} 2026-11-19T00:00:00+00:00\n", encoding="utf-8"
+    )
+
+    with pytest.raises(BudgetLedgerInvalid, match="锁超时"):
+        _reserve_probe(book)
+    assert _reserved_count(ledger) == 0
+
+
+class _NeverSentChatClient:
+    """只提供 Gateway 构造所需的表面；任何真实调用都算测试失败。"""
+
+    _model = "deepseek-flash"
+    max_output_tokens = 800
+
+    def request_upper_bytes(self, request: CompletionInput) -> int:
+        return 1
+
+    async def complete(self, request: CompletionInput, *, timeout_seconds: float, pre_send_check=None):
+        raise AssertionError("账本锁未释放时不得进入发送")
+
+
+def _chat_completion_input() -> CompletionInput:
+    return CompletionInput(
+        purpose="answer",
+        question="合成问题：湖滨店的展架在哪里？",
+        context=DialogueContext(questions=(), entities={}),
+        evidence=(ModelEvidence(source_id="s1", text="湖滨店 展架 A 区", fields={}),),
+    )
+
+
+def test_turn_times_out_instead_of_hanging_when_the_ledger_lock_is_held(
+    tmp_path: Path,
+) -> None:
+    """service._call_model 的 wait_for 必须能兜住 reserve 的同步锁等待。"""
+    from mktkb.conversations import service as conversation_service
+    from mktkb.rag.config import (
+        CONSERVATIVE_CONTEXT_CEILING_TOKENS,
+        RESERVE_PROFILE_CONTEXT_CEILING,
+    )
+
+    ledger = tmp_path / "live-ledger.jsonl"
+    budget = tmp_path / "budget.json"
+    ledger.write_text("", encoding="utf-8")
+    budget.write_text(json.dumps({"limit_cny": 40.0, "stages": {P2_STAGE: 20.0}}), encoding="utf-8")
+    book = BudgetLedger(
+        ledger,
+        budget,
+        stage=P2_STAGE,
+        stage_limit_cny=STAGE_LIMIT_CNY,
+        max_requests=10,
+        lock_timeout_seconds=0.8,
+    )
+    book.lock_path.write_text(
+        f"{os.getpid()} - 2026-11-19T00:00:00+00:00\n", encoding="utf-8"
+    )
+    pricing = ChatPricing(
+        input_price_per_million_cny=2.0,
+        output_price_per_million_cny=8.0,
+        max_input_tokens=6144,
+        max_output_tokens=800,
+        reserve_profile=RESERVE_PROFILE_CONTEXT_CEILING,
+        context_ceiling_tokens=CONSERVATIVE_CONTEXT_CEILING_TOKENS,
+    )
+    gateway = BudgetedModelGateway(
+        _NeverSentChatClient(),
+        gate=SimpleNamespace(max_request_cny=3.0, stage=P2_STAGE),
+        pricing=pricing,
+        budget=book,
+    )
+
+    async def _scenario() -> float:
+        started = time.monotonic()
+        with pytest.raises(ModelTimeout):
+            await conversation_service._call_model(
+                gateway, _chat_completion_input(), time.monotonic() + 0.2
+            )
+        return time.monotonic() - started
+
+    elapsed = asyncio.run(_scenario())
+    assert elapsed < 0.5, f"回合没有按超时返回（实际 {elapsed:.3f}s）"
+    assert [
+        event
+        for event in (
+            json.loads(line)
+            for line in ledger.read_text(encoding="utf-8").splitlines()
+            if line.strip()
+        )
+        if event.get("event") == "reserved"
+    ] == []
 

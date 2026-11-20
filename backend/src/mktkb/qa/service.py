@@ -28,6 +28,7 @@ from sqlalchemy import select
 from ..documents.lifecycle import get_revision, visible_source_units_stmt
 from ..documents.models import Document, DocumentVersion, SourceUnit
 from ..observability import trace_attrs
+from ..observability.evaluation_capture import capture_enabled, emit_capture_event
 from ..observability.tracer import current_trace
 from ..rag import DocumentSpec, RagConfig, RagIndex, safe_config_summary
 from ..rag.chunking import adapt_parsed_unit
@@ -50,6 +51,109 @@ _META_ENGINE = "qa_engine_version"
 _META_PROVIDER = "provider_mode"
 _META_DOCUMENTS = "product_documents"
 _META_UNITS = "product_units"
+
+#: R0/C12 候选丢弃原因的固定优先级（先记录先保留：按此顺序取第一个已记录码）。
+CANDIDATE_DROP_PRIORITY: tuple[str, ...] = (
+    "kind_miss",
+    "term_miss",
+    "vector_unavailable",
+    "filter_miss",
+    "dedup_dropped",
+    "limit_dropped",
+)
+
+
+def _merge_candidate_drop_reason(*diags: Mapping[str, str] | None) -> str:
+    """把记录面/正文面的丢弃点合成一个枚举码；两面都无丢弃 = ``no_drop``。"""
+
+    recorded = {code for diag in diags if diag for code in diag.values()}
+    for code in CANDIDATE_DROP_PRIORITY:
+        if code in recorded:
+            return code
+    return "no_drop"
+
+
+#: R0-CAPTURE-DROP 按面键：记录面/正文面各一个枚举码（合成值 ``candidate_dropped_reason`` 不动）。
+CANDIDATE_DROP_FACE_FIELDS: tuple[str, str] = (
+    "candidate_dropped_reason_record",
+    "candidate_dropped_reason_document",
+)
+
+
+def _face_candidate_drop_reason(diag: Mapping[str, str] | None) -> str:
+    """单面码：该面 diag 未采集（``None``）= 未观测，否则按面内固定优先级取第一个码。"""
+
+    return "not_applicable" if diag is None else _merge_candidate_drop_reason(diag)
+
+
+def _face_candidate_drop_reasons(
+    mode: str,
+    *,
+    record_diag: Mapping[str, str] | None,
+    document_diag: Mapping[str, str] | None,
+) -> dict[str, str]:
+    """把两面 diag 各折成一个按面码：一面一码，未参与本轮的面记 ``not_applicable``。
+
+    - ``mode="record"``：两面都执行（``record_diag`` 记录面、``document_diag`` 正文面）；
+    - ``mode="document"``：只跑正文面，唯一一面归 ``document``（不把 kind_miss 挂到记录面）；
+    - 其它模式：两面都不参与，与合成值的 ``not_applicable`` 口径一致。
+
+    记录型意图的结构性 ``term_miss`` 在记录面如实保留（不改检索行为），合成值仍按
+    ``CANDIDATE_DROP_PRIORITY`` 取，故本函数只做拆分、不改变既有合成语义。
+    """
+
+    record_reason = "not_applicable"
+    document_reason = "not_applicable"
+    if mode == "record":
+        record_reason = _face_candidate_drop_reason(record_diag)
+        document_reason = _face_candidate_drop_reason(document_diag)
+    elif mode == "document":
+        document_reason = _face_candidate_drop_reason(record_diag)
+    return {
+        CANDIDATE_DROP_FACE_FIELDS[0]: record_reason,
+        CANDIDATE_DROP_FACE_FIELDS[1]: document_reason,
+    }
+
+
+#: R0-CAPTURE-KEYS：只有候选上界事件才携带候选单元身份（其它 scope 一律不建键）。
+CANDIDATE_UPPER_BOUND_SCOPE = "rag_candidate_upper_bound"
+#: R0-CAPTURE-KEYS：``candidate_unit_keys`` 的单事件上限（超出截断并置显式 bool）。
+MAX_CANDIDATE_UNIT_KEYS = 32
+
+
+def _candidate_unit_keys(index: RagIndex, unit_ids: Iterable[str]) -> tuple[list[str], bool]:
+    """把候选 unit_id 解析成稳定身份 ``unit_key``（只出标识符，不出正文/值）。
+
+    复用 ``RagIndex.get_unit`` 这条**既有**读取路径（不新建第二条 DB 查询链路）；读不到
+    身份的 unit（例如只有 chunk_id、没有 unit 行的记录块）直接跳过：不报错、不填占位。
+    返回 ``(排序后的前 MAX_CANDIDATE_UNIT_KEYS 个键, 是否发生截断)``。
+    """
+
+    keys: set[str] = set()
+    for unit_id in unit_ids:
+        try:
+            unit = index.get_unit(str(unit_id))
+        except Exception:  # noqa: BLE001 - 纯观测：身份解析失败不得改变产品行为
+            continue
+        key = str(getattr(unit, "unit_key", "") or "") if unit is not None else ""
+        if key:
+            keys.add(key)
+    ordered = sorted(keys)
+    return ordered[:MAX_CANDIDATE_UNIT_KEYS], len(ordered) > MAX_CANDIDATE_UNIT_KEYS
+
+
+def _candidate_unit_key_fields(
+    scope: str, index: RagIndex, unit_ids: Iterable[str]
+) -> dict[str, Any]:
+    """按 scope 产出候选身份键：非 ``rag_candidate_upper_bound`` 一律不建键。"""
+
+    if scope != CANDIDATE_UPPER_BOUND_SCOPE:
+        return {}
+    keys, truncated = _candidate_unit_keys(index, unit_ids)
+    return {
+        "candidate_unit_keys": keys,
+        "candidate_unit_keys_truncated": truncated,
+    }
 
 
 class QaNotReady(Exception):
@@ -440,22 +544,67 @@ class QaEngine:
         result = self.index().ask(
             question, user_id=str(user_id), conversation_id=str(conversation_id), limit=limit
         )
+        if capture_enabled():
+            cited: list[str] = []
+            for citation in result.citations:
+                for unit_id in citation.unit_ids or ():
+                    value = str(unit_id or "")
+                    if value and value not in cited:
+                        cited.append(value)
+            emit_capture_event(
+                "direct_rag_answer",
+                request_id=None,
+                kind=str(result.kind),
+                text=str(result.text),
+                reason=result.reason,
+                answer_source=str(result.answer_source) if result.answer_source is not None else None,
+                cited_unit_ids=cited,
+                fact_count=len(result.facts),
+                facts=[
+                    {
+                        "entity_key": str(fact.entity_key),
+                        "entity_label": str(fact.entity_label),
+                        "field_role": str(fact.field_role),
+                        "field_label": str(fact.field_label),
+                        "value": str(fact.value),
+                        "source_chunk_id": str(fact.source_chunk_id),
+                        "source_unit_id": str(fact.source_unit_id),
+                        "doc_id": str(fact.doc_id),
+                        "version_id": str(fact.version_id),
+                        "revision": int(fact.revision),
+                    }
+                    for fact in result.facts
+                ],
+                state_keys=sorted(str(key) for key in dict(result.state or {}).keys()),
+            )
         trace = current_trace()
         if trace is not None:
             trace.set_outcome(result.kind, result.reason)
         return result
 
-    def search(self, plan: QueryPlan, *, limit: int | None = None) -> RetrievalResult:
+    def search(
+        self, plan: QueryPlan, *, limit: int | None = None, diag: dict[str, str] | None = None
+    ) -> RetrievalResult:
         self.ensure_ready()
-        return self.index().search(plan, limit=limit)
+        return self.index().search(plan, limit=limit, diag=diag)
 
     def candidate_unit_ids_for_intent(
-        self, *, mode: str, terms: Iterable[str] = (), entity_filters: Mapping[str, str] | None = None
+        self,
+        *,
+        mode: str,
+        terms: Iterable[str] = (),
+        entity_filters: Mapping[str, str] | None = None,
+        document_terms: Iterable[str] = (),
     ) -> set[str]:
         """按产品既有意图（实体条件/检索词）取 rag 召回候选，不继承 rag 状态。
 
         产品对话上下文由产品自己的 ``context_entities`` 决定；rag 持久状态只负责枚举/分页/
         澄清槽。两者刻意分开，避免把上一轮失败请求的实体继承进本轮候选。
+
+        ``document_terms`` 是记录型问题在**正文面**要用的检索词（R0/C12）：记录型意图
+        ``terms`` 为空，正文单元又没有 store/item 过滤条件，没有这组词时正文面计划
+        ``match_expression(())`` 直接返回 None，正文单元只能靠全库向量窗口偶然命中。
+        记录面计划不读它。
         """
         filters = {
             key: str(value)
@@ -463,6 +612,7 @@ class QaEngine:
             if key in ("store", "item", "product", "channel", "price_type", "identifier")
         }
         term_tuple = tuple(str(term) for term in terms)
+        document_term_tuple = tuple(str(term) for term in document_terms) or term_tuple
         query_text = " ".join([*term_tuple, *filters.values()]).strip() or "查询"
         plan = QueryPlan(
             question=query_text,
@@ -475,11 +625,18 @@ class QaEngine:
             state=QueryState(),
             include_future=True,
         )
-        ids = self._candidate_ids(self.search(plan))
+        # R0/C12：只在观察开启时采集丢弃原因码；未开观察时 diag=None，检索行为逐字不变。
+        collect_diag = capture_enabled()
+        record_diag: dict[str, str] | None = {} if collect_diag else None
+        ids = self._candidate_ids(self.search(plan, diag=record_diag))
+        drop_diags: list[Mapping[str, str] | None] = [record_diag]
+        document_diag: dict[str, str] | None = None
         if mode == "record":
             # 记录型产品检索还会合并“正文通知里的表格式事实”（T09-D2）；这些单元在 rag 里
             # 是 text chunk，记录面召回不会返回。用同一过滤条件的正文面补齐候选，避免把
             # 冲突通知误判成不可见。旧检索的分组/冲突判定仍在后面复核。
+            # 正文面没有可用过滤器（text chunk 的 filters_norm 为空），lexical 只能靠词：
+            # 用题面派生的正文检索词，记录面计划保持原样。
             document_plan = QueryPlan(
                 question=query_text,
                 mode="document",
@@ -487,16 +644,65 @@ class QaEngine:
                 field_role=None,
                 field_label=None,
                 filters=filters,
-                terms=term_tuple,
+                terms=document_term_tuple,
                 state=QueryState(),
                 include_future=True,
             )
-            ids |= self._candidate_ids(self.search(document_plan))
+            document_diag = {} if collect_diag else None
+            ids |= self._candidate_ids(self.search(document_plan, diag=document_diag))
+            if document_diag is not None:
+                # 正文面是 document 计划：记录面精确通道按设计不存在，这一面的结构性
+                # kind_miss 不是丢弃，不参与合成（否则永远压过记录面的真实原因）。
+                document_diag.pop("exact", None)
+            drop_diags.append(document_diag)
+        if capture_enabled():
+            # R0-CAPTURE-DROP 按面：两面各发一个码（未参与本轮的面 = not_applicable），
+            # 让一次真实 run 同时读到记录面与正文面的原因；合成值不因按面键而改变。
+            face_reasons = _face_candidate_drop_reasons(
+                mode, record_diag=record_diag, document_diag=document_diag
+            )
+            ordered_ids = sorted(str(item) for item in ids)
+            # R0-CAPTURE-KEYS：候选单元的 unit_key（身份标识符，不是正文/值）随同一个
+            # 上界事件发出；解析复用 RagIndex.get_unit，解析不到的直接跳过，上限 32。
+            try:
+                identity_fields = _candidate_unit_key_fields(
+                    CANDIDATE_UPPER_BOUND_SCOPE, self.index(), ordered_ids
+                )
+            except Exception:  # noqa: BLE001 - 纯观测：身份采集失败不得改变产品行为
+                identity_fields = {}
+            emit_capture_event(
+                "retrieval_observed",
+                request_id=None,
+                scope=CANDIDATE_UPPER_BOUND_SCOPE,
+                unit_ids=ordered_ids,
+                candidate=True,
+                truncated=False,
+                empty=not ids,
+                # R0/C12：只发枚举级丢弃原因码（记录面 + 正文面按固定优先级合成）。
+                candidate_dropped_reason=(
+                    _merge_candidate_drop_reason(*drop_diags)
+                    if mode in ("record", "document")
+                    else "not_applicable"
+                ),
+                **identity_fields,
+                **face_reasons,
+            )
         return ids
 
     def candidate_unit_ids(self, plan: QueryPlan, *, limit: int | None = None) -> set[str]:
         """返回本轮 rag 召回覆盖的产品来源单元 ID（记录行或正文单元）。"""
-        return self._candidate_ids(self.search(plan, limit=limit))
+        ids = self._candidate_ids(self.search(plan, limit=limit))
+        if capture_enabled():
+            emit_capture_event(
+                "retrieval_observed",
+                request_id=None,
+                scope="rag_candidate_upper_bound",
+                unit_ids=sorted(str(item) for item in ids),
+                candidate=True,
+                truncated=False,
+                empty=not ids,
+            )
+        return ids
 
     @staticmethod
     def _candidate_ids(result: RetrievalResult) -> set[str]:

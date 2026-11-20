@@ -13,6 +13,7 @@ import json
 import re
 from typing import Any, Iterable, Mapping, Sequence
 
+from ..entity_identity import build_entity_key, identifier_value
 from .config import RagConfig
 from .types import AtomicUnit, DocumentSpec, IndexedChunk
 
@@ -100,6 +101,26 @@ def normalize_field(name: object) -> str:
     return normalize(str(name)).strip()
 
 
+#: 表头末尾的括号单位说明（“售价（元）”“尺寸（cm）”）：识别角色前先剥掉。
+_HEADER_UNIT_SUFFIX = re.compile(r"[（(][^（）()]{0,16}[）)]\s*$")
+#: 通用形态规则：表头常以字段词收尾，而同义词表只登记了少数写法。与既有
+#: “XX编码/编号/单号 → identifier”同一口径：只做字段角色识别，不含任何业务数据。
+#: 顺序即优先级；“评价”这类以“价”结尾但与价格无关的通用词显式排除。
+_ROLE_SUFFIX_RULES: tuple[tuple[str, tuple[str, ...]], ...] = (
+    ("price", ("价",)),
+    ("date", ("日期", "时间")),
+    ("location", ("位置",)),
+    ("quantity", ("数量",)),
+    ("spec", ("规格", "型号", "尺寸")),
+    ("status", ("状态",)),
+    ("note", ("备注", "说明")),
+    ("phone", ("电话",)),
+    ("address", ("地址",)),
+    ("contact", ("联系人", "负责人")),
+)
+_ROLE_SUFFIX_EXCLUSIONS: dict[str, tuple[str, ...]] = {"price": ("评价",)}
+
+
 def field_role(name: object) -> str | None:
     """字段名 -> 角色；支持带单位/括号的表头（如“价格(元)”）。"""
     normalized = normalize_field(name)
@@ -113,6 +134,14 @@ def field_role(name: object) -> str | None:
     # 物料编码/门店编码/经销商编码等后缀是通用 identifier，不按具体资料名白名单。
     if normalized.endswith(("编码", "编号", "单号")) and not normalized.endswith("编码规则"):
         return "identifier"
+    # 同义列名的常见变体（“售价/促销价”“上架日期”“铺货数量”“尺寸/型号”）按词尾归角色，
+    # 否则同一行里承载答案的第二列会被当成“无角色”而死无对证（R0-5/C21、C27）。
+    core = _HEADER_UNIT_SUFFIX.sub("", normalized).strip() or normalized
+    for role, suffixes in _ROLE_SUFFIX_RULES:
+        if any(core.endswith(suffix) for suffix in suffixes):
+            if any(core.endswith(bad) for bad in _ROLE_SUFFIX_EXCLUSIONS.get(role, ())):
+                continue
+            return role
     return None
 
 
@@ -220,7 +249,16 @@ def adapt_parsed_unit(
     )
 
 
-def _entity(fields: Mapping[str, Any], *, doc: DocumentSpec) -> tuple[str, str, str, dict[str, str], dict[str, object]]:
+def _entity(
+    fields: Mapping[str, Any], *, doc: DocumentSpec, unit_id: str
+) -> tuple[str, str, str, dict[str, str], dict[str, object]]:
+    """记录块的实体身份。
+
+    item / store 两型的键由 ``mktkb.entity_identity.build_entity_key`` 单点派生，与检索索引写进
+    ``retrieval_unit_index.entity_key`` 的键逐字相同（评测 ``cross_entity`` 轴按相等判同一实体）。
+    product / record / document 三型检索侧没有对应类型（``analyze_fields`` 只产出 item/store），
+    没有第二条链可对齐，键形态保持原样，避免无对手地改动其派生结果。
+    """
     values = role_values(fields)
     store = first_value(values, "store")
     item = first_value(values, "item")
@@ -228,6 +266,8 @@ def _entity(fields: Mapping[str, Any], *, doc: DocumentSpec) -> tuple[str, str, 
     channel = first_value(values, "channel")
     price_type = first_value(values, "price_type")
     identifier = first_value(values, "identifier")
+    # 与检索索引侧同一判据的「标识」列值（见 mktkb.entity_identity）：两条链的实体键必须逐字相同。
+    record_identifier = identifier_value(fields)
 
     if product:
         entity_type = "product"
@@ -235,11 +275,23 @@ def _entity(fields: Mapping[str, Any], *, doc: DocumentSpec) -> tuple[str, str, 
         label = "｜".join(part for part in (product, channel, price_type) if part)
     elif store and item:
         entity_type = "item"
-        key = f"item|{normalize_field(store)}|{normalize_field(item)}"
+        key = build_entity_key(
+            entity_type,
+            name_key=f"item|{normalize_field(store)}|{normalize_field(item)}",
+            identifier=record_identifier,
+            document_id=doc.doc_id,
+            unit_id=unit_id,
+        )
         label = f"{store}的{item}"
     elif store:
         entity_type = "store"
-        key = f"store|{normalize_field(store)}"
+        key = build_entity_key(
+            entity_type,
+            name_key=f"store|{normalize_field(store)}",
+            identifier=record_identifier,
+            document_id=doc.doc_id,
+            unit_id=unit_id,
+        )
         label = store
     elif identifier:
         entity_type = "record"
@@ -294,7 +346,9 @@ def _row_prefix(
 
 def _record_chunks(doc: DocumentSpec, unit: AtomicUnit, config: RagConfig) -> list[IndexedChunk]:
     values = role_values(unit.fields)
-    entity_type, entity_key, label, filters, filters_norm = _entity(unit.fields, doc=doc)
+    entity_type, entity_key, label, filters, filters_norm = _entity(
+        unit.fields, doc=doc, unit_id=unit.unit_id
+    )
     prefix = _row_prefix(doc, unit, chunk_index=0, chunk_count=1)
     field_items = [(str(name), str(value).strip()) for name, value in (unit.fields or {}).items() if value not in (None, "")]
     full_text = prefix + " / " + "；".join(f"{name}: {value}" for name, value in field_items)

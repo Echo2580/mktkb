@@ -1,0 +1,111 @@
+{
+  "schema_version": "p2-ncu-u01-citation-reconstruction/v0.1",
+  "case_id": "U01",
+  "run_id": "p2-t207-r2-20261111-01",
+  "trace_id": "edacbdb8d40040f7a1b27de9b72dd7ca",
+  "trace_citation": {
+    "doc_id": "6a7427cb-4b0b-4c49-b689-ec55014d27c3",
+    "locator": {
+      "cell_types": {
+        "位置": "s",
+        "别名": "s",
+        "标识": "s",
+        "物品": "s",
+        "门店": "s"
+      },
+      "cells": [
+        {
+          "column": "A",
+          "column_index": 1,
+          "display": "P01",
+          "header": "标识",
+          "number_format": "General",
+          "raw_type": "s"
+        },
+        {
+          "column": "B",
+          "column_index": 2,
+          "display": "城东店",
+          "header": "门店",
+          "number_format": "General",
+          "raw_type": "s"
+        },
+        {
+          "column": "C",
+          "column_index": 3,
+          "display": "宣传海报",
+          "header": "物品",
+          "number_format": "General",
+          "raw_type": "s"
+        },
+        {
+          "column": "D",
+          "column_index": 4,
+          "display": "海报",
+          "header": "别名",
+          "number_format": "General",
+          "raw_type": "s"
+        },
+        {
+          "column": "E",
+          "column_index": 5,
+          "display": "B区1号货架第二层",
+          "header": "位置",
+          "number_format": "General",
+          "raw_type": "s"
+        }
+      ],
+      "chunk_count": 1,
+      "chunk_index": 0,
+      "header_row": 7,
+      "record_ref": "cb96344c",
+      "row": 8,
+      "sheet": "物品位置",
+      "unit_key": "sheet:物品位置:row:8"
+    },
+    "unit_id_hash": "504e0ea7f4b1c86f"
+  },
+  "hash_reconstruction": {
+    "trace.citation_refs_json[0].unit_id_hash": "504e0ea7f4b1c86f",
+    "sha256(rag_chunks.chunk_id)[:16]": "504e0ea7f4b1c86f",
+    "matched": true
+  },
+  "rag_chunk": {
+    "chunk_id": "a202ff9b372dc1d919ca73a698c84c38",
+    "doc_id": "6a7427cb-4b0b-4c49-b689-ec55014d27c3",
+    "version_id": "61a8d487-e0ff-46ad-987b-befc1a2ffeb4",
+    "revision": 3,
+    "kind": "record",
+    "unit_ids": "[\"072d28f2-b403-4af3-9fe9-31b9e8714dbf\"]",
+    "record_unit_id": "072d28f2-b403-4af3-9fe9-31b9e8714dbf",
+    "title": "D01_物品位置表.xlsx",
+    "content_sha256": "5648564acdc8703793bd1affc84727d97132f79ac3b5b1d61e0aa4931b4256fe"
+  },
+  "rag_unit": {
+    "unit_id": "072d28f2-b403-4af3-9fe9-31b9e8714dbf",
+    "doc_id": "6a7427cb-4b0b-4c49-b689-ec55014d27c3",
+    "version_id": "61a8d487-e0ff-46ad-987b-befc1a2ffeb4",
+    "unit_key": "sheet:物品位置:row:8",
+    "sheet": "物品位置",
+    "row_number": 8,
+    "text": "标识: P01 | 门店: 城东店 | 物品: 宣传海报 | 别名: 海报 | 位置: B区1号货架第二层"
+  },
+  "product_response": {
+    "kind": "answer",
+    "revision": 3,
+    "source_ids": [
+      "072d28f2-b403-4af3-9fe9-31b9e8714dbf"
+    ],
+    "evidence": [
+      {
+        "unit_id": "072d28f2-b403-4af3-9fe9-31b9e8714dbf",
+        "unit_key": "sheet:物品位置:row:8",
+        "version_id": "61a8d487-e0ff-46ad-987b-befc1a2ffeb4",
+        "version_number": 2
+      }
+    ],
+    "retrieved_count": 0,
+    "sources_count": 1
+  },
+  "conclusion": "trace 引用的是 RAG chunk（哈希=sha256(chunk_id)[:16]），其 record_unit_id 与 product.evidence/sources 的 unit 一致（同一 unit_key、同一行、同一取值 B区1号货架第二层）。引用真实且可对回；门禁 citation_required 失败的直接原因是同轮 product.retrieved=[]（evidence 有 1 条），不是引用编造。"
+}

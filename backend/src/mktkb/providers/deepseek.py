@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import asyncio
+import inspect
 import json
 from typing import Any, Callable
 
@@ -110,7 +111,7 @@ class DeepSeekClient:
         request: CompletionInput,
         *,
         timeout_seconds: float,
-        pre_send_check: Callable[[], None] | None = None,
+        pre_send_check: Callable[[], Any] | None = None,
     ) -> CompletionOutput:
         if timeout_seconds <= 0:
             raise ModelTimeout("剩余预算不足")
@@ -119,7 +120,10 @@ class DeepSeekClient:
         if pre_send_check is not None:
             # 最后一次发送边界复核：已经在 client 创建/锁等待 await 之后、真实 POST 之前。
             # 回调拒绝时抛出 ModelError，此时没有发出任何 HTTP 请求。
-            pre_send_check()
+            # R0-5：回调允许返回 awaitable（预算门把账本锁等待放进工作线程）。
+            outcome = pre_send_check()
+            if inspect.isawaitable(outcome):
+                await outcome
         try:
             response = await client.post(
                 f"{self._base_url}{CHAT_PATH}",

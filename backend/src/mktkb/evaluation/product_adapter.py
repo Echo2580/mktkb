@@ -24,10 +24,11 @@ from __future__ import annotations
 import asyncio
 import hashlib
 import json
+import re
 import time
 import uuid
 from dataclasses import dataclass, field, replace
-from datetime import datetime, timezone
+from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
 
@@ -62,6 +63,7 @@ __all__ = [
     "P2RunDataset",
     "ingest_plan_from_document",
     "PRODUCT_TURN_TIMEOUT_SECONDS",
+    "ProductAdapterError",
     "ProductEvalAdapter",
     "ProductPaths",
     "ProductTurn",
@@ -101,6 +103,60 @@ _IDENTITY_KEYS = (
     "case_count",
 )
 _VISIBILITIES = ("public", "holdout")
+
+# T207-04c：业务日期接线的固定错误码（错误文本只含固定码，不回显日期值/外部字段）。
+_BUSINESS_DATE_INVALID = "adapter_business_date_invalid"
+_BUSINESS_DATE_MANIFEST_UNBOUND = "adapter_business_date_manifest_unbound"
+_BUSINESS_DATE_RAG_UNBOUND = "adapter_business_date_rag_unbound"
+_BUSINESS_DATE_MANIFEST_MISMATCH = "adapter_business_date_manifest_mismatch"
+_BUSINESS_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
+
+
+class ProductAdapterError(ValueError):
+    """产品适配器装配拒绝（固定码）：不把日期值或外部字段写进错误文本。"""
+
+    def __init__(self, code: str) -> None:
+        self.code = str(code)
+        super().__init__(self.code)
+
+
+def _checked_business_date(value: object) -> str:
+    """只接受显式给出的 YYYY-MM-DD（真实日历日期）；其余一律固定码拒绝。"""
+
+    if not isinstance(value, str):
+        raise ProductAdapterError(_BUSINESS_DATE_INVALID)
+    text = value.strip()
+    if _BUSINESS_DATE_RE.fullmatch(text) is None:
+        raise ProductAdapterError(_BUSINESS_DATE_INVALID)
+    try:
+        date.fromisoformat(text)
+    except ValueError:
+        raise ProductAdapterError(_BUSINESS_DATE_INVALID) from None
+    return text
+
+
+def _resolve_business_dates(
+    rag_business_date: object | None,
+    manifest_business_date: object | None,
+) -> tuple[str | None, str | None]:
+    """校验并返回 (产品实际业务日期, 公开 manifest 声明日期)。
+
+    T207-04c 边界：值只能由受控入口/计划**显式**给出，默认 (None, None) 逐值不变；
+    显式日期必须与公开 manifest 声明一致，否则固定码拒绝（不从 CaseSpec/dataset 回填、
+    不读 .env、不猜日期）。
+    """
+
+    if rag_business_date is None and manifest_business_date is None:
+        return None, None
+    if rag_business_date is None:
+        raise ProductAdapterError(_BUSINESS_DATE_RAG_UNBOUND)
+    if manifest_business_date is None:
+        raise ProductAdapterError(_BUSINESS_DATE_MANIFEST_UNBOUND)
+    declared = _checked_business_date(rag_business_date)
+    expected = _checked_business_date(manifest_business_date)
+    if declared != expected:
+        raise ProductAdapterError(_BUSINESS_DATE_MANIFEST_MISMATCH)
+    return declared, expected
 
 
 def _utc_now() -> datetime:
@@ -749,6 +805,43 @@ class ProductPaths:
         }
 
 
+#: 产品响应 ``pagination`` 块的计数键（与 ``conversations.schemas.PaginationView`` 同口径）。
+_PAGINATION_COUNT_KEYS = ("page", "page_size", "total", "returned")
+
+
+def _pagination_of(payload: Mapping[str, Any] | None) -> dict[str, Any]:
+    """从产品 HTTP 响应里取枚举分页页头；缺失/非法一律 ``{}``，**不补默认页**。
+
+    T-R1-102d：这是「产品响应 → ProductTurn.pagination」的唯一取值口。
+
+    - ``pagination`` 缺失、``None``（产品非枚举答复就是这样）或不是对象 → ``{}``：
+      "产品没给分页"≠"第 1 页共 0 条"，补默认值等于给页头计数凭空造出处；
+    - 只保留白名单键（页头六字段）；其他键（``revision`` 之类）不进评分，也不去
+      污染 ``p2_evidence_io`` 里拒绝未知键的 pagination schema；
+    - 只按原类型保留：四个计数必须是 ``int``（``bool`` 不算），``has_more`` 必须是
+      ``bool``，``next_page`` 必须是 ``int`` 或 ``None``；类型不符的键直接丢弃
+      （不当 0、不做字符串→数字转换）。
+    """
+    if not isinstance(payload, Mapping):
+        return {}
+    raw = payload.get("pagination")
+    if not isinstance(raw, Mapping):
+        return {}
+    block: dict[str, Any] = {}
+    for key in _PAGINATION_COUNT_KEYS:
+        value = raw.get(key)
+        if type(value) is int:  # 拒绝 bool 冒充计数
+            block[key] = value
+    has_more = raw.get("has_more")
+    if type(has_more) is bool:
+        block["has_more"] = has_more
+    if "next_page" in raw:
+        next_page = raw["next_page"]
+        if next_page is None or type(next_page) is int:
+            block["next_page"] = next_page
+    return block
+
+
 @dataclass(frozen=True)
 class ProductTurn:
     """一次产品问答的观测结果（产品响应 + trace 归属，不含任何评测评分）。"""
@@ -781,6 +874,10 @@ class ProductTurn:
     #: T206-PRE-R1：本轮**真实检索候选单元**（产品自己的检索结果，**不是引用**）。
     #: 只在作答轮采集；取不到就留空——gate 的 ``citation_required`` 因此判 fail，不放宽。
     retrieved: tuple[Mapping[str, Any], ...] = ()
+    #: T-R1-102d：本轮产品响应里的枚举分页页头（``total/page/page_size/returned/
+    #: has_more/next_page``，只 int/bool）。产品没给就是 ``{}``——**不补**"第 1 页/
+    #: 共 0 条"，否则 ``value_no_fabricated`` 会把页头计数当成"有出处"。
+    pagination: Mapping[str, Any] = field(default_factory=dict)
     model_failure_reason: str = 'unknown'
 
     def as_dict(self, *, include_text: bool) -> dict[str, Any]:
@@ -808,6 +905,7 @@ class ProductTurn:
             "elapsed_ms": int(self.elapsed_ms),
             "evidence": [dict(item) for item in self.evidence],
             "retrieved": [dict(item) for item in self.retrieved],
+            "pagination": dict(self.pagination),
         }
         if include_text:
             payload["text"] = self.text
@@ -866,6 +964,10 @@ class ProductEvalAdapter:
         mode: str = "mock",
         live_wiring: Any | None = None,
         scenario_contract: Any | None = None,
+        evidence_capture: Any | None = None,
+        # T207-04c：显式业务日期（默认 None = 既有行为逐值不变）；构造时一次设定、start 后只读。
+        rag_business_date: str | None = None,
+        manifest_business_date: str | None = None,
     ) -> None:
         if mode not in ("mock", "live"):
             raise ValueError("adapter.mode 只允许 mock/live")
@@ -874,6 +976,10 @@ class ProductEvalAdapter:
         if mode == "mock" and live_wiring is not None:
             raise ValueError("mock 模式不接受 live_wiring（默认必须零真实调用）")
         self._mode = str(mode)
+        (
+            self._rag_business_date,
+            self._manifest_business_date,
+        ) = _resolve_business_dates(rag_business_date, manifest_business_date)
         self._wiring = live_wiring
         self.paths = ProductPaths.of(out_dir)
         self.ingest_plan = ingest_plan
@@ -926,6 +1032,13 @@ class ProductEvalAdapter:
         # T206-PRE：评测身份绑定（run_id/dataset/manifest/pipeline/index/config）。
         self._trace_identity: dict[str, str] = {}
         self._identity_bound = False
+        # T207 第一步 A2/A3：显式启用的证据采集（默认 None = 产品行为逐值不变）
+        self._evidence_capture_config = evidence_capture
+        self._evidence_session: Any = None
+        self._evidence_manifest: dict[str, Any] | None = None
+        self._evidence_blocked = False
+        self._evidence_last_error: str | None = None
+        self._evidence_turn_seen = False
         if trace_identity is not None:
             self.bind_trace_identity(trace_identity)
 
@@ -944,6 +1057,25 @@ class ProductEvalAdapter:
     @property
     def mode(self) -> str:
         return str(self._mode)
+
+    @property
+    def rag_business_date(self) -> str | None:
+        """产品**实际生效**的业务日期（T207-04c）。
+
+        start 前是显式声明值；start 后从产品 QaEngine 的 RagConfig.business_date 读取，
+        供 A 证据采集/05 受控入口读取并纳入 run 身份。本包不把它塞进 runner 的
+        binding/config hash（交接给 05 入口层显式绑定）。
+        """
+
+        if self._qa is not None:
+            return getattr(getattr(self._qa, "config", None), "business_date", None)
+        return self._rag_business_date
+
+    @property
+    def manifest_business_date(self) -> str | None:
+        """公开 manifest 声明的业务日期（仅用于一致性校验；默认 None 表示未声明）。"""
+
+        return self._manifest_business_date
 
     async def start(self) -> "ProductEvalAdapter":
         if self._started:
@@ -973,6 +1105,7 @@ class ProductEvalAdapter:
             rag_index_path=self.paths.index_db,
             rag_provider_mode="offline",
             rag_sync_on_startup=False,
+            rag_business_date=self._rag_business_date,
             ocr_disabled=True,
             trace_enabled=self.trace_enabled,
             trace_db_path=self.paths.trace_db,
@@ -995,7 +1128,7 @@ class ProductEvalAdapter:
         rag_config = RagConfig(
             provider_mode="offline",
             data_dir=self.paths.data_dir,
-            business_date=None,
+            business_date=self._rag_business_date,
             top_k=8,
             page_size=10,
             vector_candidate_limit=50,
@@ -1036,6 +1169,7 @@ class ProductEvalAdapter:
                 await session.login()
             self._sessions[username] = session
         self._started = True
+        self._start_evidence_capture()
         return self
 
     async def _start_live(self) -> "ProductEvalAdapter":
@@ -1076,6 +1210,7 @@ class ProductEvalAdapter:
             rag_index_path=self.paths.index_db,
             rag_provider_mode="live",
             rag_sync_on_startup=False,
+            rag_business_date=self._rag_business_date,
             ocr_disabled=False,
             ocr_secret_id=env.ocr_secret_id,
             ocr_secret_key=env.ocr_secret_key,
@@ -1098,7 +1233,7 @@ class ProductEvalAdapter:
         rag_config = RagConfig(
             provider_mode="live",
             data_dir=self.paths.data_dir,
-            business_date=None,
+            business_date=self._rag_business_date,
             top_k=8,
             page_size=10,
             vector_candidate_limit=50,
@@ -1211,6 +1346,7 @@ class ProductEvalAdapter:
                 await session.login()
             self._sessions[username] = session
         self._started = True
+        self._start_evidence_capture()
         return self
 
     def _create_account(self, username: str, password: str) -> None:
@@ -1233,6 +1369,14 @@ class ProductEvalAdapter:
         if self._closed:
             return
         self._closed = True
+        evidence_error: Exception | None = None
+        if self._evidence_session is not None:
+            try:
+                self._evidence_finalize()
+            except Exception as exc:  # noqa: BLE001 - 保留固定失败状态，清理照常执行
+                evidence_error = exc
+                self._evidence_blocked = True
+                self._evidence_last_error = type(exc).__name__
         for session in self._sessions.values():
             await session.client.aclose()
         self._sessions.clear()
@@ -1257,6 +1401,8 @@ class ProductEvalAdapter:
         if self._seal_questions:
             # F6/H2：通知关闭后再封存，避免"trace 删了、业务库还留着题干明文"。
             self.seal_receipt = self.seal_question_store()
+        if evidence_error is not None:
+            raise evidence_error
 
     def require_holdout_sealing(self) -> None:
         """runner 对 holdout run 的显式标记：close() 时必须删掉含题干明文的隔离业务库。"""
@@ -1760,6 +1906,8 @@ class ProductEvalAdapter:
                         mode="record",
                         terms=plan.intent.terms,
                         entity_filters=plan.intent.entity_filters,
+                        # 与产品同一口径（R0/C12）：重放必须比产品更宽或相等，不能更窄。
+                        document_terms=intent_module.document_terms(str(question)),
                     )
                 except Exception:  # noqa: BLE001 - 没有上界时按产品自身的"无候选上界"处理
                     candidate_ids = None
@@ -1817,6 +1965,73 @@ class ProductEvalAdapter:
             return repo.get(trace_id)
         except Exception:  # noqa: BLE001 - trace 是观测面，读失败不改业务结论
             return None
+
+    @staticmethod
+    def _trace_observation(record: tuple[Any, list[Any]] | None) -> dict[str, Any] | None:
+        """把 trace 记录压成**固定白名单**快照值（只给 span 名/状态/固定安全子因）。"""
+        if record is None:
+            return None
+        trace, spans = record
+        from ..providers.types import safe_model_failure_reason
+
+        model_failure_reason = 'unknown'
+        span_names: list[str] = []
+        for span in spans:
+            span_names.append(str(span.name))
+            if span.name == 'model_failure':
+                try:
+                    attrs = json.loads(span.attributes_json or '{}')
+                    model_failure_reason = safe_model_failure_reason(
+                        attrs.get('model_failure_reason')
+                    )
+                except (TypeError, ValueError, AttributeError):
+                    pass
+        return {
+            "path": getattr(trace, "path", None),
+            "outcome": getattr(trace, "outcome_kind", None),
+            "status": getattr(trace, "status", None),
+            "spans": span_names,
+            "model_failure_reason": model_failure_reason,
+        }
+
+    def _captured_retrieved(self, evidence: Mapping[str, Any] | None) -> tuple[dict[str, Any], ...]:
+        """采集启用时用该轮**实际观察**的候选/发送证据做评估候选（禁止事后重放）。"""
+        if not isinstance(evidence, Mapping):
+            return ()
+        snapshot = evidence.get("runtime_snapshot")
+        if not isinstance(snapshot, Mapping):
+            return ()
+        usage = snapshot.get("retrieval_use")
+        if not isinstance(usage, Mapping):
+            return ()
+        ids: list[str] = []
+        seen: set[str] = set()
+
+        def add(value: Any) -> None:
+            text = str(value or "").strip()
+            if text and text not in seen:
+                seen.add(text)
+                ids.append(text)
+
+        for row in usage.get("candidates") or ():
+            if isinstance(row, Mapping):
+                for value in row.get("unit_ids") or ():
+                    add(value)
+        for row in usage.get("model_evidence") or ():
+            if isinstance(row, Mapping):
+                for value in row.get("unit_ids") or ():
+                    add(value)
+        for row in usage.get("direct_rag_facts") or ():
+            if isinstance(row, Mapping):
+                add(row.get("source_unit_id"))
+        for value in usage.get("direct_rag_citations") or ():
+            add(value)
+        if not ids:
+            return ()
+        try:
+            return self._resolve_retrieved_units(ids)
+        except Exception:  # noqa: BLE001 - 观测面失败只让候选为空，不改产品结论
+            return ()
 
     def product_revision(self) -> int:
         db = self._app.state.db.session()
@@ -2021,6 +2236,116 @@ class ProductEvalAdapter:
         finally:
             db.close()
 
+    # ---------------------------------------------------------------- 证据采集（T207 A2/A3）
+    def _start_evidence_capture(self) -> None:
+        if self._evidence_capture_config is None or self._evidence_session is not None:
+            return
+        from .p2_evidence_capture import EvidenceCaptureSession
+
+        self._evidence_session = EvidenceCaptureSession(self._evidence_capture_config)
+
+    def enable_evidence_capture(self, config: Any) -> None:
+        """显式启用证据采集；必须在首个产品回合之前调用（默认不启用）。"""
+        if config is None:
+            return
+        if self._evidence_session is not None:
+            raise RuntimeError("证据采集已启用，不能重复配置")
+        if getattr(self, "_evidence_turn_seen", False):
+            raise RuntimeError("已有产品回合执行后才启用证据采集，禁止追溯")
+        self._evidence_capture_config = config
+        if self._started:
+            self._start_evidence_capture()
+
+    def evidence_capture_manifest(self) -> dict[str, Any] | None:
+        return None if self._evidence_manifest is None else dict(self._evidence_manifest)
+
+    def evidence_capture_summary(self) -> dict[str, Any] | None:
+        if self._evidence_session is None:
+            return None
+        return self._evidence_session.summary()
+
+    def _authenticated_db_user_id(self, username: str) -> str:
+        """把适配器用户名解析成产品库真实用户 ID（证据绑定用，不信任 hook 自报）。"""
+        try:
+            from sqlalchemy import select
+
+            from ..auth.models import User
+
+            db = self._app.state.db.session()
+            try:
+                row = db.scalar(select(User).where(User.username == str(username)))
+                return str(row.id) if row is not None else str(username)
+            finally:
+                db.close()
+        except Exception:  # noqa: BLE001 - 解析失败保留用户名并在完整性检查中暴露
+            return str(username)
+
+    def _evidence_begin_turn(
+        self,
+        *,
+        question: str,
+        user_id: str,
+        conversation_id: str,
+        client_request_id: str,
+        pre_revision: int | None,
+    ) -> Any:
+        session = self._evidence_session
+        if session is None:
+            return None
+        from .p2_evidence_capture import EvidenceCaptureBlocked
+
+        if session.blocked:
+            raise EvidenceCaptureBlocked("evidence_capture_session_blocked")
+        if not session.bound:
+            try:
+                session.bind(self.binding_components())
+            except Exception:
+                session.blocked = True
+                self._evidence_blocked = True
+                self._evidence_last_error = "evidence_binding_failed"
+                raise
+        return session.begin_turn(
+            turn_index=len(session.turns),
+            client_request_id=str(client_request_id),
+            conversation_id=str(conversation_id),
+            authenticated_user_id=self._authenticated_db_user_id(user_id),
+            question_sha256=_sha256_text(question),
+            pre_revision=pre_revision,
+        )
+
+    def _evidence_finish_turn(
+        self,
+        turn: Any,
+        *,
+        http_status: int | None,
+        timed_out: bool,
+        runtime_observation: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any] | None:
+        session = self._evidence_session
+        if session is None or turn is None:
+            return None
+        try:
+            return session.finish_turn(
+                turn,
+                http_status=http_status,
+                timed_out=bool(timed_out),
+                db_factory=getattr(self._app.state, "db", None) if self._app is not None else None,
+                qa=self._qa,
+                post_revision=self._safe_product_revision(),
+                runtime_observation=runtime_observation,
+            )
+        except Exception:
+            session.blocked = True
+            self._evidence_blocked = True
+            self._evidence_last_error = "evidence_capture_failed"
+            raise
+
+    def _evidence_finalize(self) -> None:
+        session = self._evidence_session
+        if session is None:
+            return
+        self._evidence_manifest = session.finalize()
+
     # ---------------------------------------------------------------- 问答（产品路径）
     async def open_conversation(self, *, user_id: str = "employee", title: str | None = None) -> str:
         await self.start()
@@ -2043,6 +2368,10 @@ class ProductEvalAdapter:
     ) -> ProductTurn:
         """走用户同一产品入口提问一次；超时/异常都转成可记录的产品回合结果。"""
         await self.start()
+        if self._evidence_session is not None and self._evidence_session.blocked:
+            from .p2_evidence_capture import EvidenceCaptureBlocked
+
+            raise EvidenceCaptureBlocked("evidence_capture_session_blocked")
         session = self._session(user_id)
         if self._mode == "live":
             # 进入本轮 live 上下文：只有本 run 的 answer 计划项能开真实发送；退出时必须清空，
@@ -2070,30 +2399,67 @@ class ProductEvalAdapter:
         client_request_id: str,
     ) -> ProductTurn:
         session = self._session(user_id)
+        self._evidence_turn_seen = True
         # T206-PRE-R1：检索候选只能在**发送前**取基线（产品 revision + rag 查询状态）——
         # 本轮会把状态推进，事后重算就不是这一轮的检索了。
         pre_revision = self._safe_product_revision()
         pre_state = self._safe_query_state(user_id, conversation_id)
+        evidence_turn = self._evidence_begin_turn(
+            question=question,
+            user_id=user_id,
+            conversation_id=conversation_id,
+            client_request_id=client_request_id,
+            pre_revision=pre_revision,
+        )
         started = time.perf_counter()
         timed_out = False
         response: httpx.Response | None = None
+        from contextlib import nullcontext
+
         try:
-            response = await asyncio.wait_for(
-                session.client.post(
-                    f"/api/v1/conversations/{conversation_id}/messages",
-                    json={
-                        "client_request_id": str(client_request_id),
-                        "question": str(question),
-                    },
-                    headers=session.write_headers,
-                ),
-                timeout=self.turn_timeout_seconds,
-            )
+            with evidence_turn.scope() if evidence_turn is not None else nullcontext():
+                response = await asyncio.wait_for(
+                    session.client.post(
+                        f"/api/v1/conversations/{conversation_id}/messages",
+                        json={
+                            "client_request_id": str(client_request_id),
+                            "question": str(question),
+                        },
+                        headers=session.write_headers,
+                    ),
+                    timeout=self.turn_timeout_seconds,
+                )
         except asyncio.TimeoutError:
             timed_out = True
         elapsed_ms = int((time.perf_counter() - started) * 1000)
+        # A-R2：产品响应与 trace 在**同一次传输**后解析一次；快照只消费这一次结果，
+        # 不重放检索/模型，也不为采集再发第二次请求。
+        received = not timed_out and response is not None
+        trace_id = response.headers.get("X-Trace-ID") if received else None
+        # 解析失败必须显式保留为 None（不可用），不能被当成“合法空响应”。
+        parsed_payload = self._json_body_or_none(response) if received else None
+        payload = parsed_payload or {}
+        record = self.trace_of(trace_id)
+        trace_observation = self._trace_observation(record)
+        captured_evidence: dict[str, Any] | None = None
+        if evidence_turn is not None:
+            captured_evidence = self._evidence_finish_turn(
+                evidence_turn,
+                http_status=None if (timed_out or response is None) else int(response.status_code),
+                timed_out=bool(timed_out),
+                runtime_observation={
+                    "product_response_payload": parsed_payload,
+                    "http_status": (
+                        None
+                        if (timed_out or response is None)
+                        else int(response.status_code)
+                    ),
+                    "timed_out": bool(timed_out),
+                    "trace_id": trace_id,
+                    "record": trace_observation,
+                },
+            )
         if timed_out or response is None:
-            record: tuple[Any, list[Any]] | None = None
             return ProductTurn(
                 question_sha256=_sha256_text(question),
                 question_chars=len(question),
@@ -2111,33 +2477,24 @@ class ProductEvalAdapter:
                 missing_fields=(),
                 candidates=0,
                 trace_id=None,
-                trace_path=None if record is None else getattr(record[0], "path", None),
+                trace_path=None,
                 trace_outcome=None,
                 trace_status=None,
                 trace_spans=(),
                 replayed=False,
                 elapsed_ms=elapsed_ms,
             )
-        trace_id = response.headers.get("X-Trace-ID")
         trace_path = trace_outcome = trace_status = None
         trace_spans: tuple[str, ...] = ()
         model_failure_reason = 'unknown'
-        record = self.trace_of(trace_id)
-        if record is not None:
-            trace, spans = record
-            trace_path = getattr(trace, "path", None)
-            trace_outcome = getattr(trace, "outcome_kind", None)
-            trace_status = getattr(trace, "status", None)
-            trace_spans = tuple(str(span.name) for span in spans)
-            from ..providers.types import safe_model_failure_reason
-            for span in spans:
-                if span.name == 'model_failure':
-                    try:
-                        attrs = json.loads(span.attributes_json or '{}')
-                        model_failure_reason = safe_model_failure_reason(attrs.get('model_failure_reason'))
-                    except (TypeError, ValueError, AttributeError):
-                        pass
-        payload = self._json_body(response)
+        if trace_observation is not None:
+            trace_path = trace_observation.get("path")
+            trace_outcome = trace_observation.get("outcome")
+            trace_status = trace_observation.get("status")
+            trace_spans = tuple(trace_observation.get("spans") or ())
+            model_failure_reason = str(
+                trace_observation.get("model_failure_reason") or "unknown"
+            )
         kind = str(payload.get("kind") or ("service_error" if response.status_code != 200 else ""))
         sources = tuple(
             dict(item) for item in (payload.get("sources") or ()) if isinstance(item, Mapping)
@@ -2157,20 +2514,24 @@ class ProductEvalAdapter:
         # （GatedChatGateway 捕获，零额外调用/零额外付费）；捕获不到就留空 → gate 的
         # citation_required fail-closed。live **不做**付费重放：重放会再发一次真实
         # embedding/rerank，而计划只给了本轮各 1 次（已用于产品自己的检索）。
-        if self._mode == "live":
-            retrieved = self._live_retrieved() if kind == "answer" else ()
+        if kind != "answer":
+            # 非作答轮保持空（gate 不要求引用，也不允许拿"没检索"冒充通过）。
+            retrieved = ()
+        elif self._mode == "live":
+            # live：取产品 answer 请求里**实际交给模型的证据集合**（零额外调用/零额外付费）。
+            retrieved = self._live_retrieved()
+        elif captured_evidence is not None:
+            # 采集启用：只用该轮实际观察到的候选/发送证据，**不做**事后检索重放。
+            retrieved = self._captured_retrieved(captured_evidence)
         else:
-            retrieved = (
-                self.retrieval_candidates(
-                    str(question),
-                    conversation_id=str(conversation_id),
-                    client_request_id=str(client_request_id),
-                    trace_path=trace_path,
-                    revision=pre_revision,
-                    state=pre_state,
-                )
-                if kind == "answer"
-                else ()
+            # 采集未启用：保持旧行为（mock 便利回查），不改变既有 run 的评分输入。
+            retrieved = self.retrieval_candidates(
+                str(question),
+                conversation_id=str(conversation_id),
+                client_request_id=str(client_request_id),
+                trace_path=trace_path,
+                revision=pre_revision,
+                state=pre_state,
             )
         return ProductTurn(
             question_sha256=_sha256_text(question),
@@ -2198,6 +2559,8 @@ class ProductEvalAdapter:
             elapsed_ms=elapsed_ms,
             evidence=evidence,
             retrieved=retrieved,
+            # T-R1-102d：分页从**这一条**产品响应里取（只读一次，不重发请求）。
+            pagination=_pagination_of(payload),
         )
 
     @staticmethod
@@ -2207,6 +2570,15 @@ class ProductEvalAdapter:
         except (json.JSONDecodeError, ValueError):
             return {}
         return payload if isinstance(payload, dict) else {}
+
+    @staticmethod
+    def _json_body_or_none(response: httpx.Response) -> dict[str, Any] | None:
+        """回合边界用：解析失败/非对象返回 None，交给证据层记 `product_response_unparsable`。"""
+        try:
+            payload = response.json()
+        except (json.JSONDecodeError, ValueError):
+            return None
+        return payload if isinstance(payload, dict) else None
 
     # ---------------------------------------------------------------- 来源/会话观测
     async def source_detail(

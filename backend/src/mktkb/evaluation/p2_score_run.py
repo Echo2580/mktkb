@@ -350,7 +350,8 @@ def decide_run(
     rows = read_cases_jsonl(root / "cases.jsonl")
     config = gate_config or load_p2_gate_config()
     scored = bundle.scored or _rescore_for_gate(cases, rows, bundle)
-    gate_rows = build_gate_rows(cases, scored, document_codes=None)
+    gate_rows = build_gate_rows(cases, scored, document_codes=None,
+                                case_rows={str(row.get("case_id") or ""): row for row in rows.values()})
     run_result = build_gate_run(
         run_dir=root,
         manifest=manifest,

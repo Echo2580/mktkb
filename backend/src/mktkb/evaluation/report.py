@@ -548,6 +548,8 @@ def _release_blocked_reason(
     """
     if comparison == COMPARISON_CROSS_VERSION:
         return "explicit_cross_version_analysis_only"
+    if baseline.identity.is_p2_b0:
+        return "p2_release_blocked_pending_n_c_u_h2_evidence"
     if baseline.approval is None:
         return "baseline_unapproved"
     if baseline.gate is None:

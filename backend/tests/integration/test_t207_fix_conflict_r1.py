@@ -162,11 +162,15 @@ def test_conflict_recheck_db_error_is_fail_closed_not_500(
     original = service_module._retrieve
     probes = {"count": 0}
 
-    def retrieve_raises_on_probe(db_factory, intent, revision, limit=20, *, candidate_ids=None):
+    def retrieve_raises_on_probe(
+        db_factory, intent, revision, limit=20, *, candidate_ids=None, as_of=None
+    ):
         if candidate_ids is None and getattr(intent, "mode", None) == "record":
             probes["count"] += 1
             raise OperationalError("SELECT 1", {}, Exception("database is locked"))
-        return original(db_factory, intent, revision, limit=limit, candidate_ids=candidate_ids)
+        return original(
+            db_factory, intent, revision, limit=limit, candidate_ids=candidate_ids, as_of=as_of
+        )
 
     monkeypatch.setattr(service_module, "_retrieve", retrieve_raises_on_probe)
 

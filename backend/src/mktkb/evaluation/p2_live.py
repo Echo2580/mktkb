@@ -1462,6 +1462,10 @@ def build_live_adapter(
     turn_timeout_seconds: float | None = None,
     purge_traces_on_close: bool = False,
     scenario_contract: Any = None,
+    evidence_capture: Any = None,
+    # T207-04c：显式业务日期透传（默认 None = 既有行为逐值不变）。
+    rag_business_date: str | None = None,
+    manifest_business_date: str | None = None,
 ) -> LiveBuild:
     """装配 live 适配器：真实 provider + 真实 OCR 传输 + 逐次尝试预留。
 
@@ -1497,6 +1501,9 @@ def build_live_adapter(
         purge_traces_on_close=purge_traces_on_close,
         live_wiring=wiring,
         scenario_contract=scenario_contract,
+        evidence_capture=evidence_capture,
+        rag_business_date=rag_business_date,
+        manifest_business_date=manifest_business_date,
     )
     return LiveBuild(adapter=adapter, gate=gate, ledger=ledger, wiring=wiring, env=env)
 
@@ -1517,17 +1524,49 @@ async def run_live_p2(
     cancel: Callable[[], bool] | None = None,
     purge_traces_on_close: bool = False,
     scenario_contract: Any = None,
+    evidence_capture: Any = None,
+    #: 05 live 证据：适配器 start 之后才拿得到实际 business_date/index_revision，
+    #: 因此允许注入 factory(build) -> EvidenceCaptureConfig；与 evidence_capture 互斥。
+    evidence_capture_factory: Callable[[LiveBuild], Any] | None = None,
+    #: 05 受控入口：holdout 逐题质量 marks 的内存回调（默认 None = 行为逐值不变）。
+    private_case_marks_sink: Callable[[Any], None] | None = None,
+    # T207-04c：显式业务日期透传（默认 None = 既有行为逐值不变）。
+    rag_business_date: str | None = None,
+    manifest_business_date: str | None = None,
 ) -> tuple[Any, LiveBuild]:
     """一次性 live 执行入口：环境 -> 真实门 -> live 适配器 -> run_p2（串行、重试 0）。
 
     任何一步不成立都在**首个发送之前**抛 P2LiveConfigError；不构造第二套账本/授权。
+    05 版本化扩展（默认 None 逐值不变）：evidence_capture_factory 在适配器 start
+    之后、run_p2（ingest/首轮）之前构造 live 采集配置，使绑定能包含**实际**
+    business_date/index_revision；private_case_marks_sink 只把逐题质量状态交给
+    显式注入的内存回调，不改变任何公开产物。
     """
     from .p2_runner import run_p2
     from .p2_holdout_scenarios import validate_scenario_execution
     validate_scenario_execution(plan, dataset, ingest_plan, scenario_contract)
 
+    b0_corpus = None
+    if plan.b0_binding is not None or getattr(gate_config, "status", None) == "approved":
+        from .p2_b0 import B0_BUSINESS_DATE, safe_path, validate_b0_live_inputs
+
+        b0_corpus = validate_b0_live_inputs(
+            plan, run_id=run_id, dataset=dataset, ingest_plan=ingest_plan,
+            gate_config=gate_config, out_dir=out_dir,
+        )
+        if transports or env_overrides or gate or purge_traces_on_close or scenario_contract is not None:
+            raise P2LiveConfigError("b0_live_override_invalid", "正式 B0 要求原生发送门与公开 trace")
+        out_dir = safe_path(Path(out_dir))
+        rag_business_date = manifest_business_date = B0_BUSINESS_DATE
+
+    if evidence_capture is not None and evidence_capture_factory is not None:
+        raise P2LiveConfigError(
+            "evidence_capture_conflict", "evidence_capture 与 factory 只能给一个"
+        )
     live_env = load_live_env(env, overrides=env_overrides)
     live_gate = gate or open_live_gate(plan, run_id=run_id, now=now)
+    if plan.b0_binding is not None:
+        Path(out_dir).mkdir(parents=True, exist_ok=False)
     build = build_live_adapter(
         plan,
         gate=live_gate,
@@ -1539,6 +1578,9 @@ async def run_live_p2(
         transports=transports,
         purge_traces_on_close=purge_traces_on_close,
         scenario_contract=scenario_contract,
+        evidence_capture=evidence_capture,
+        rag_business_date=rag_business_date,
+        manifest_business_date=manifest_business_date,
     )
     try:
         # T207-FIX-LIVECAP：装配期就把适配器 start 起来（start 幂等，runner 之后照旧调用）。
@@ -1546,6 +1588,15 @@ async def run_live_p2(
         # 会以稳定码抛给调用方，而不是被 runner 的 ingest 失败路径吞成 ingest_failed
         # （后者虽同样不发送，但会丢掉可机读的原因）。
         await build.adapter.start()
+        run_capture = None
+        if evidence_capture_factory is not None:
+            # 只有 start 之后才知道产品**实际**业务日期/ingest 后 revision；此时构造配置，
+            # 仍由 run_p2 在首个产品回合之前 enable（失败即拒，不追溯）。
+            run_capture = evidence_capture_factory(build)
+            if run_capture is None:
+                raise P2LiveConfigError(
+                    "evidence_capture_factory_empty", "受控入口必须产出显式采集配置"
+                )
         result = await run_p2(
             plan,
             adapter=build.adapter,
@@ -1557,6 +1608,9 @@ async def run_live_p2(
             settle_evidence=make_settle_evidence(build.adapter),
             cancel=cancel,
             now=now,
+            evidence_capture=run_capture,
+            private_case_marks_sink=private_case_marks_sink,
+            **({"b0_corpus": b0_corpus} if b0_corpus is not None else {}),
         )
     finally:
         await build.adapter.close()

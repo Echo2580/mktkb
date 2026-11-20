@@ -64,7 +64,8 @@ def test_table_row_keeps_title_header_sheet_and_row() -> None:
     assert "第 7 行" in chunk.text
     assert "表头: 标识 | 门店 | 物品 | 别名 | 位置 | 数量 | 单位 | 更新日期" in chunk.text
     assert "QF01" in chunk.text and "店内外侧" in chunk.text
-    assert chunk.entity_key == "item|滨江店|宣传海报"
+    # 实体键与检索索引侧同一形态（R0 统一）：有「标识」列即 ``<type>|id:<归一化标识>``。
+    assert chunk.entity_key == "item|id:qf01"
     assert chunk.filters_norm["store"] == "滨江店"
     assert chunk.filters_norm["item"] == "宣传海报"
 

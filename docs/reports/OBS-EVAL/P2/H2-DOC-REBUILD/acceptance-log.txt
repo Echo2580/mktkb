@@ -1,0 +1,20 @@
+﻿### A1  .\.venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_hard_evidence.py -q
+322 passed, 1 warning in 14.72s
+exit_code=0
+
+### A2  .\.venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_holdout_scenarios.py -q
+84 passed, 1 warning in 12.22s
+exit_code=0
+
+### A3  .\.venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q
+20 passed, 1 warning in 0.27s
+exit_code=0
+
+### A4  .\.venv\Scripts\python.exe -m pytest <Resolve-Path backend/tests/evaluation/test_p2_h2_docforbidden_*.py> -q
+32 passed, 1 warning in 6.54s
+exit_code=0
+
+### A5  .\.venv\Scripts\python.exe -m pytest backend/tests/evaluation -q -k "hard_evidence or holdout or evidence_rescore"
+608 passed, 1 skipped, 2273 deselected, 1 warning in 98.05s (0:01:38)
+exit_code=0
+

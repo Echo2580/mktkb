@@ -82,8 +82,13 @@ def _narrow_to_table_rows(app, monkeypatch) -> None:
     qa = app.state.qa
     original = qa.candidate_unit_ids_for_intent
 
-    def record_rows_only(*, mode, terms=(), entity_filters=None):
-        ids = original(mode=mode, terms=terms, entity_filters=entity_filters)
+    def record_rows_only(*, mode, terms=(), entity_filters=None, document_terms=()):
+        ids = original(
+            mode=mode,
+            terms=terms,
+            entity_filters=entity_filters,
+            document_terms=document_terms,
+        )
         return {str(item) for item in ids if str(item) in table_rows}
 
     monkeypatch.setattr(qa, "candidate_unit_ids_for_intent", record_rows_only)

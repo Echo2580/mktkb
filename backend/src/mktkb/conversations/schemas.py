@@ -66,6 +66,12 @@ class SourceSummary(BaseModel):
     locator: dict
     published_at: datetime | None = None
 
+    @field_validator("locator")
+    @classmethod
+    def _omit_cell_snapshots(cls, locator: dict) -> dict:
+        # A citation pointer needs the row coordinates, not the values of the whole row.
+        return {key: value for key, value in locator.items() if key != "cells"}
+
 
 class CandidateView(BaseModel):
     label: str

@@ -1381,6 +1381,116 @@ def read_trace(adapter: Any, trace_id: str) -> Any:
     return found
 
 
+@pytest.mark.parametrize("index_event", ["stable", "not_ready", "before_second", "during_final"])
+@asyncio_test
+async def test_formal_b0_binds_ready_index_and_stops_on_drift(tmp_path, monkeypatch, index_event):
+    from mktkb.evaluation import p2_runner
+    from mktkb.evaluation.p2_b0 import build_b0_plan_binding, load_approved_b0_config
+
+    config = load_approved_b0_config(ROOT / "docs/evaluation/gate_v0_3_approved.json")
+    run_id = "synthetic-b0-index"
+    cases = (
+        make_case("P01", RAG_QUESTION),
+        make_case("P02", LEGACY_QUESTION),
+        make_case("P03", "城东店的宣传海报在哪里？"),
+    )
+    plan = replace(make_plan(cases), b0_binding=build_b0_plan_binding(run_id))
+    gate = StubGate()
+    # Reach the formal B0 runner with product routes and a test-only gate.
+    monkeypatch.setattr(p2_runner, "is_real_p2_gate", lambda candidate: candidate is gate)
+    ingest = P2IngestPlan(
+        sources=(
+            IngestSource(path=FIXTURES / "variants" / "V03_物品位置表_历史V1.xlsx", name=D01.name),
+            IngestSource(path=D01, document_ref=D01.name),
+            IngestSource(path=D04),
+        ),
+        label="synthetic-b0-replaced-source",
+    )
+    dataset = make_dataset(cases)
+    chat = MockChatBackend(behaviors=(ChatBehavior(), ChatBehavior(answer="位置：B区1号货架第二层")))
+    adapter = ProductEvalAdapter(
+        tmp_path / "b0", chat=chat, dataset=dataset, ingest_plan=ingest,
+    )
+    actual_status = adapter.index_status
+    open_conversation = adapter.open_conversation
+    ask_turn = adapter.ask_turn
+    observed = []
+    opened = 0
+
+    def change_index():
+        index = adapter.app.state.qa.index()
+        index.remove_document(index.list_documents()[0]["doc_id"])
+
+    async def open_with_drift(**kwargs):
+        nonlocal opened
+        opened += 1
+        if opened == 2:
+            change_index()
+        return await open_conversation(**kwargs)
+
+    async def ask_and_record(question, **kwargs):
+        product = await ask_turn(question, **kwargs)
+        trace, _ = read_trace(adapter, product.trace_id)
+        observed.append((trace.path, trace.index_revision))
+        if index_event == "during_final" and question == cases[-1].question:
+            change_index()
+        return product
+
+    if index_event == "not_ready":
+        monkeypatch.setattr(adapter, "index_status", lambda: {**actual_status(), "ready": False})
+    if index_event == "before_second":
+        monkeypatch.setattr(adapter, "open_conversation", open_with_drift)
+    monkeypatch.setattr(adapter, "ask_turn", ask_and_record)
+    try:
+        result = await run_p2(
+            plan, adapter=adapter, authorization=dry_run_authorization(plan),
+            gate=gate, gate_config=config, b0_corpus=(), run_id=run_id, now=NOW,
+        )
+        out = adapter.paths.run_dir
+        manifest = read_json(out / "run_manifest.json")
+        summary = read_json(out / "summary.json")
+        assert adapter.product_revision() == 3
+        assert adapter.provider_calls()["outbound_network"] == 0
+        if index_event == "not_ready":
+            assert (result.status, result.stop_code) == ("blocked", "b0_index_not_ready")
+            assert not gate.calls and not observed
+            assert manifest["index_revision"] is None and not manifest["binding"]["complete"]
+            assert read_jsonl(out / "requests.jsonl") == []
+            return
+
+        count = 1 if index_event == "before_second" else 3
+        assert manifest["index_revision"] == manifest["binding"]["index_revision"] == 4
+        assert summary["binding"] == manifest["binding"] == read_json(out / "gate.json")["binding"]
+        assert observed == [
+            ("rag", "4"), ("legacy", "4"), ("legacy_with_rag_candidates", "4"),
+        ][:count]
+        assert gate.calls == ["begin", "confirm_before_send", "settle_success"] * count
+        assert len(read_jsonl(out / "requests.jsonl")) == count
+        if index_event != "stable":
+            assert (result.status, result.stop_code) == ("aborted", "b0_index_changed")
+            expected_case = "P02" if index_event == "before_second" else "P03"
+            assert summary["failure"]["case_id"] == expected_case
+            assert summary["failure"]["stage"] == (
+                "index_before_turn" if index_event == "before_second" else "index_after_turn"
+            )
+            return
+
+        assert (result.status, result.stop_code) == ("succeeded", None)
+        scored = [
+            score_p2_public_case(case, row, document_codes=DOCUMENT_CODES,
+                                 allowed_doc_codes=set(DOCUMENT_CODES.values()))
+            for case, row in zip(cases, read_jsonl(out / "cases.jsonl"), strict=True)
+        ]
+        rows = build_gate_rows(cases, scored)
+        # Match p2-admit's projection: trace manifest_sha256 binds the frozen cases.
+        bridge = dict(manifest, corpus_manifest_sha256=manifest["binding"]["manifest_sha256"])
+        gate_run = build_gate_run(run_dir=out, manifest=bridge, cases=cases, rows=rows, summary=summary)
+        hard = evaluate_p2_hard_gates(gate_run, config=config, require_trace=True)
+        assert hard.gate_status["trace_integrity"] == "pass", json.dumps(hard.to_dict(), ensure_ascii=False)
+    finally:
+        await adapter.close()
+
+
 @asyncio_test
 async def test_mock_dry_run_binds_identity_and_passes_trace_integrity(tmp_path: Path) -> None:
     """Mock dry-run：身份绑进 trace、证据 id 可判定 True、8 硬门禁里的 trace_integrity 真 PASS。"""

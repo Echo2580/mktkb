@@ -202,6 +202,8 @@ DEFAULT_GATE_CONFIG_PATH = (
 P1_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_2.json"
 #: P2 配置路径（初始 unapproved）；同样拒绝被校准提案覆盖。
 P2_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_3.json"
+P2_APPROVED_GATE_CONFIG_PATH = DEFAULT_GATE_CONFIG_PATH.parent / "gate_v0_3_approved.json"
+P2_APPROVED_GATE_CONFIG_HASH = "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094"
 #: design §8.2 检索 5 指标（v0.2 必须全部声明，方向固定）。
 RETRIEVAL_METRIC_DIRECTIONS: Mapping[str, str] = {
     "Recall@10": "higher_is_better",
@@ -1691,6 +1693,15 @@ def _gate_citation_required(view: _View) -> _GateOutcome:
             for unit in _as_list(item.get("unit_ids"))
             if str(unit)
         }
+        # 主人 D-004（2026-11-20 授权）：citation_required 的候选接地集合改为
+        # ``outcome.evidence ∪ outcome.retrieved``。判据本身不变——引用仍必须落在
+        # 同轮已接地（evidence 回执）的单元里；这里只是把"回执字段"接进候选集合，
+        # 修的是字段读取缺陷，不是放宽阈值。
+        evidence_units.update(
+            str(item.get("unit_id"))
+            for item in _as_list(outcome.get("evidence"))
+            if isinstance(item, Mapping) and str(item.get("unit_id") or "")
+        )
         cited_units = {
             str(unit) for item in citations for unit in _as_list(item.get("unit_ids")) if str(unit)
         }
@@ -3190,8 +3201,13 @@ def write_gate_proposal(
     if not isinstance(proposal, GateProposal):
         raise TypeError("write_gate_proposal 需要 GateProposal")
     target = Path(path)
-    for protected in (DEFAULT_GATE_CONFIG_PATH, P1_GATE_CONFIG_PATH, P2_GATE_CONFIG_PATH):
-        if target.resolve() == protected.resolve():
+    for protected in (
+        DEFAULT_GATE_CONFIG_PATH, P1_GATE_CONFIG_PATH, P2_GATE_CONFIG_PATH,
+        P2_APPROVED_GATE_CONFIG_PATH,
+    ):
+        if target.resolve() == protected.resolve() or (
+            target.is_file() and protected.is_file() and target.samefile(protected)
+        ):
             raise ValueError(
                 f"不得用校准提案覆盖 {protected.name}：阈值必须经人工门审批后手写"
             )

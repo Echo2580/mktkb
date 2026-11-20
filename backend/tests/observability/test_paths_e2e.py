@@ -50,8 +50,12 @@ LEGACY_DOCUMENT_QUESTION = "公司的愿景是什么？"
 LEGACY_ERROR_QUESTION = "公司的愿景是什么？"
 #: 触发 query_expansion 的问题：无实体命中、有正文词项、证据为空。
 EXPANSION_QUESTION = "打印机怎么用？"
-#: 两个已知门店 → 产品意图层直接澄清（不检索）。
-CLARIFICATION_QUESTION = "滨江店和城东店的展架在哪里？"
+#: 单轮多目标（两个已知门店 + 一个物品 + 位置字段）：v3-fix-1/A 后按多目标枚举作答。
+MULTI_TARGET_QUESTION = "滨江店和城东店的展架在哪里？"
+#: v3-fix-1/R1：已点名多门店 + 纯指代（“这两个”）→ 改前 legacy 澄清，不得被多目标放行。
+PURE_ANAPHORA_QUESTION = "滨江店和城东店的这两个分别放在哪里？"
+#: 真歧义（两个已知门店，但没点名字段/目标）→ 产品意图层直接澄清（不检索）。
+CLARIFICATION_QUESTION = "滨江店和城东店的物料都有哪些？"
 #: 检索前拒答：RAG 内核对未收录资料名直接 no_answer（DOCUMENT_NOT_FOUND）。
 MISSING_DOCUMENT_QUESTION = "促销活动台账在哪里？"
 #: 检索后拒答：标识存在但无价格字段。
@@ -359,6 +363,45 @@ def test_legacy_clarification_binds_outcome_without_fabricated_retrieval(trace_c
     assert trace.outcome_kind == OutcomeKind.CLARIFICATION.value
     assert _names(spans) == {"intent_parse", "commit"}
     assert required_spans(TracePath.LEGACY, OutcomeKind.CLARIFICATION) <= _names(spans)
+    assert validate_required_spans(trace, _names(spans)) == []
+
+
+def test_multi_target_single_turn_answers_instead_of_clarifying(trace_chat_app):
+    """v3-fix-1/A：同一轮明确点名两个门店时按多目标枚举作答，不再判澄清。"""
+    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+    _dataset(trace_chat_app, admin)
+    conversation_id = _conversation(employee)
+
+    response = _ask(employee, conversation_id, MULTI_TARGET_QUESTION)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["kind"] == "answer", body
+    trace, spans = _trace_of(trace_chat_app, response)
+
+    assert trace.path == TracePath.RAG.value
+    assert trace.outcome_kind == OutcomeKind.ANSWER.value
+    names = _names(spans)
+    # 多目标轮由内核真实执行检索与作答（不伪造 legacy 的 intent_parse/retrieve）。
+    assert {"parse", "recall", "fuse", "answer", "commit"} <= names
+    assert not {"intent_parse", "retrieve", "model_answer", "answer_validate"} & names
+    assert validate_required_spans(trace, names) == []
+
+
+def test_pure_anaphora_with_named_stores_still_clarifies(trace_chat_app):
+    """v3-fix-1/R1：纯指代（“这两个”）没有点名目标，不能被多目标放行成整表枚举。"""
+    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+    _dataset(trace_chat_app, admin)
+    conversation_id = _conversation(employee)
+
+    response = _ask(employee, conversation_id, PURE_ANAPHORA_QUESTION)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["kind"] == "clarification", body
+    trace, spans = _trace_of(trace_chat_app, response)
+
+    assert trace.path == TracePath.LEGACY.value
+    assert trace.outcome_kind == OutcomeKind.CLARIFICATION.value
+    assert _names(spans) == {"intent_parse", "commit"}
     assert validate_required_spans(trace, _names(spans)) == []
 
 

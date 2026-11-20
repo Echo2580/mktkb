@@ -21,8 +21,10 @@ from ..retrieval.tokenize import cut, normalize
 from ..retrieval.types import QueryIntent
 from ..rag.query import (
     GENERIC_FIELD_WORDS,
+    SWITCH_WORDS,
     financial_metric_question,
     identifier_shape,
+    is_policy_question,
     is_regulation_question,
     match_identifier,
 )
@@ -32,10 +34,15 @@ from ..text_zh import iter_store_names
 FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
     "位置": ("位置", "在哪", "哪里", "放哪", "放到哪", "放在哪", "哪儿", "存放"),
     "联系人": ("联系人",),
-    "电话": ("联系电话", "电话", "号码"),
+    "电话": ("联系电话", "电话", "号码", "手机号", "手机号码", "联系方式"),
     "地址": ("地址",),
     "合作状态": ("合作状态", "合作关系", "合作"),
 }
+#: v3-safety-fix：个人联系信息字段。它们只出现在店家记录里，物品位置表没有这些列；
+#: 同一请求同时要“物品目标 + 这些字段”时属于跨资料合并，按安全策略整体拒答。
+RESTRICTED_CONTACT_FIELDS: frozenset[str] = frozenset({"联系人", "电话", "地址"})
+#: 物品型裸追问可继承的字段：只限物品记录行上存在的字段（位置）。
+ITEM_LEVEL_FOLLOWUP_FIELDS: frozenset[str] = frozenset({"位置"})
 # 业务上可能被问到、但当前资料/契约没有的字段：只用于 missing_fields 说明
 MISSING_FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
     "负责人": ("负责人",),
@@ -184,6 +191,9 @@ class IntentPlan:
     #: T207-FIX-CONFLICT/N08：问题以照片/图片为事实来源。首版无图片输入通道，
     #: 也不做实物识别；service 层在检索后按范围外拒答（不得退化成澄清）。
     image_not_supported: bool = False
+    #: v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并请求。
+    #: 非空时 service 层在检索/模型之前按安全策略整体拒答（固定 reason，不按题号/固定串特判）。
+    security_refusal: str | None = None
 
 
 def load_lexicon(db: Session) -> EntityLexicon:
@@ -302,7 +312,7 @@ def _unknown_store(question: str, matched_stores: list[str], lexicon: EntityLexi
     return None
 
 
-def _document_terms(question: str) -> tuple[str, ...]:
+def document_terms(question: str) -> tuple[str, ...]:
     terms: list[str] = []
     for token in cut(question):
         cleaned = token.strip()
@@ -315,6 +325,10 @@ def _document_terms(question: str) -> tuple[str, ...]:
         if len(terms) >= MAX_DOC_TERMS:
             break
     return tuple(terms)
+
+
+# 兼容既有调用点：正文型意图解析内部仍按旧名引用。
+_document_terms = document_terms
 
 
 def _field_hits(question: str, synonyms: dict[str, tuple[str, ...]]) -> list[str]:
@@ -464,24 +478,6 @@ def parse_question(
     不把历史助手答案当事实。
     """
     context_entities = dict(context_entities or {})
-    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）不在当前语料范围。先标记，
-    # 仍走正文检索以做“资料支持判定”（证据里确有该指标数值时不拒答）；判定在
-    # service 层检索后、任何模型调用前完成。
-    out_of_scope = financial_metric_question(question)
-    if out_of_scope:
-        return IntentPlan(
-            mode="document",
-            intent=QueryIntent(mode="document", terms=_document_terms(question)),
-            out_of_scope=out_of_scope,
-        )
-    # T207-FIX-CONFLICT/N08：图片/实物识别题先按范围外标记，仍走一次正文检索
-    # （保持 retrieve 的真实执行事实与既有 Span 契约），由 service 层给出拒答文案。
-    if image_source_question(question):
-        return IntentPlan(
-            mode="document",
-            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
-            image_not_supported=True,
-        )
     stores = _match_labels(question, lexicon.store_labels)
     item_labels = _match_labels(question, lexicon.item_labels)
     for alias_label in _alias_labels(question, lexicon):
@@ -492,14 +488,70 @@ def parse_question(
 
     identifier = match_identifier(question, lexicon.identifier_labels) if lexicon.identifier_labels else None
     unknown_identifier = _unknown_identifier(question, identifier, lexicon)
-    if unknown_identifier:
+    unknown_store = _unknown_store(question, stores, lexicon) if not stores else None
+
+    record_fields = _field_hits(question, FIELD_SYNONYMS)
+    missing_fields = _missing_field_hits(
+        question, has_record_entity=bool(stores) and bool(item_labels)
+    )
+    # "负责人"是资料未记录的字段，不能被当作联系人命中
+    if "负责人" in missing_fields:
+        record_fields = [name for name in record_fields if name != "联系人"]
+        if any(normalize(word) in normalize(question) for word in ("负责人",)):
+            record_fields = []
+
+    # v3-safety-fix：本轮点名的物品目标 + 个人联系信息字段（联系人/电话/地址）=
+    # 跨资料（物品位置表 + 店家信息表）合并，属于受限个人信息范围。这条判定只依赖
+    # 本轮显式实体与字段，放在多实体澄清之前，保证同类请求一律按安全拒答收口，
+    # 不因“多个目标”退化成澄清。纯店家级联系信息查询（无物品目标）不在此列。
+    if (
+        (item_labels or identifier)
+        and set(record_fields) & RESTRICTED_CONTACT_FIELDS
+        and not is_regulation_question(question)
+        and not is_policy_question(question)
+    ):
+        filters: dict[str, str] = {}
+        if len(stores) == 1:
+            filters["store"] = stores[0]
+        if len(item_labels) == 1:
+            filters["item"] = item_labels[0]
         return IntentPlan(
             mode="record",
-            intent=None,
-            unknown_identifier=unknown_identifier,
+            intent=QueryIntent(
+                mode="record", entity_filters=filters, requested_fields=tuple(record_fields)
+            ),
+            requested_fields=tuple(record_fields),
+            missing_fields=tuple(missing_fields),
+            entities=dict(filters),
+            security_refusal="SECURITY_RESTRICTED_CONTACT",
         )
 
-    unknown_store = _unknown_store(question, stores, lexicon) if not stores else None
+    # 店家多字段问法也可明确请求对接人。映射排在既有安全拒答判据之后。
+    if (
+        (item_labels or (len(stores) == 1 and record_fields))
+        and "联系人" not in record_fields
+        and "负责人" not in missing_fields
+        and not is_policy_question(question)
+        and any(word in question for word in ("对接人", "谁对接"))
+    ):
+        record_fields.append("联系人")
+
+    # 范围外分支不能抢在已识别的受限联系信息策略之前。
+    out_of_scope = financial_metric_question(question)
+    if out_of_scope:
+        return IntentPlan(
+            mode="document",
+            intent=QueryIntent(mode="document", terms=_document_terms(question)),
+            out_of_scope=out_of_scope,
+        )
+    if image_source_question(question):
+        return IntentPlan(
+            mode="document",
+            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
+            image_not_supported=True,
+        )
+    if unknown_identifier:
+        return IntentPlan(mode="record", intent=None, unknown_identifier=unknown_identifier)
     if unknown_store:
         return IntentPlan(
             mode="record",
@@ -531,17 +583,29 @@ def parse_question(
     item = item_labels[0] if item_labels else None
     explicit_store = store is not None
     explicit_item = item is not None
-    previous_item = _previous_item(context_questions, lexicon)
-
-    record_fields = _field_hits(question, FIELD_SYNONYMS)
-    missing_fields = _missing_field_hits(
-        question, has_record_entity=bool(stores) and bool(item_labels)
+    last_question = context_questions[-1] if context_questions else ""
+    switched_without_entity = bool(
+        last_question
+        and any(word in last_question for word in SWITCH_WORDS)
+        and not _match_labels(last_question, lexicon.store_labels)
+        and not _match_labels(last_question, lexicon.item_labels)
     )
-    # "负责人"是资料未记录的字段，不能被当作联系人命中
-    if "负责人" in missing_fields:
-        record_fields = [name for name in record_fields if name != "联系人"]
-        if any(normalize(word) in normalize(question) for word in ("负责人",)):
-            record_fields = []
+    if switched_without_entity:
+        context_entities = {}
+    if (
+        switched_without_entity
+        and explicit_item
+        and not explicit_store
+        and not record_fields
+        and not missing_fields
+        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
+    ):
+        return IntentPlan(
+            mode="record", intent=None, entities={},
+            clarification="请明确要查询的门店。",
+            candidates=_candidate_questions(lexicon, stores=list(lexicon.store_labels), item=item, requested_fields=()),
+        )
+    previous_item = _previous_item(context_questions, lexicon)
 
     # 明确实体可继承：新明确对象覆盖旧对象；问题没有新对象时补足上下文中的实体。
     # 门店级字段（联系人/电话/地址/合作状态）不继承物品，避免把店家记录误配到物品行。
@@ -576,6 +640,27 @@ def parse_question(
     inherited_item = context_entities.get("item") or (previous_item if bare_followup else None)
     if item is None and inherited_item and not store_level and (bare_followup or not explicit_store):
         item = inherited_item
+
+    # v3-safety-fix（跨实体污染）：只点名“另一个物品”的裸追问（如上一轮问城东店展架位置，
+    # 本轮只问“宣传海报呢？”）不能落成无边界的正文的检索——那会把同名不同店的记录行一起
+    # 送进证据面（“门店”条件丢失）。上下文里门店唯一且上一轮问的是物品行字段时，按
+    # “继承门店 + 上一轮字段 + 本轮物品”收敛为记录型计划。
+    if (
+        explicit_item
+        and not explicit_store
+        and not record_fields
+        and not missing_fields
+        and store_level is False
+        and context_questions
+        and context_entities.get("store")
+        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
+    ):
+        previous_fields = _field_hits(context_questions[-1], FIELD_SYNONYMS)
+        inherited_fields = [
+            name for name in previous_fields if name in ITEM_LEVEL_FOLLOWUP_FIELDS
+        ]
+        if inherited_fields:
+            record_fields = inherited_fields
 
     entities: dict[str, str] = {}
     if store:

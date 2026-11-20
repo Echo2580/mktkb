@@ -134,3 +134,46 @@ def test_state_roundtrip_keeps_candidates_and_pagination() -> None:
     assert restored.page == 2
     assert restored.candidates == ("滨江店", "鹿鸣路店")
     assert restored.pending_slot == "store"
+
+# --------------------------------------------------------------------------- #
+# T207 第一步 A1：QueryState 原始持久身份与读写键的可核观察
+# --------------------------------------------------------------------------- #
+
+
+def test_t207_capture_raw_querystate_identity_and_save(rag_index, add_records) -> None:
+    from mktkb.observability.evaluation_capture import CaptureSink, capture_scope
+
+    add_records(
+        [{"标识": "QF01", "门店": "滨江店", "物品": "宣传海报", "位置": "店内外侧"}],
+    )
+    # 产品同一入口真实写一轮状态
+    rag_index.ask("滨江店的宣传海报位置", user_id="alice", conversation_id="c1")
+
+    sink = CaptureSink()
+    with capture_scope(sink):
+        state = rag_index.load_state("alice", "c1")
+        assert state.store == "滨江店"
+        # 请求键与持久行键故意不同：原始 stored identity 必须如实可见
+        rag_index.load_state("alice", "different-conversation")
+        state.conversation_id = "c1"
+        rag_index.save_state(state)
+
+    loads = [event["payload"] for event in sink.events if event["kind"] == "query_state_observed"]
+    assert loads[0]["user_id"] == "alice" and loads[0]["conversation_id"] == "c1"
+    assert loads[0]["row_present"] is True
+    assert loads[0]["stored_user_id"] == "alice"
+    assert loads[0]["stored_conversation_id"] == "c1"
+    assert "state_json" not in loads[0]["state_keys"]
+    assert "store" in loads[0]["state_keys"]
+    missing = loads[1]
+    assert missing["user_id"] == "alice"
+    assert missing["conversation_id"] == "different-conversation"
+    assert missing["row_present"] is False
+    assert missing["stored_user_id"] is None and missing["stored_conversation_id"] is None
+
+    saved = [event["payload"] for event in sink.events if event["kind"] == "query_state_saved"][0]
+    assert saved["user_id"] == "alice" and saved["conversation_id"] == "c1"
+    assert saved["previous_user_id"] == "alice"
+    assert saved["previous_conversation_id"] == "c1"
+    assert saved["row_present"] is True
+    assert saved["pending_slot"] == state.pending_slot

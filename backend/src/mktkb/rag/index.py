@@ -14,6 +14,7 @@ from sqlalchemy import bindparam, create_engine, delete, event, select, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session, sessionmaker
 
+from ..observability.evaluation_capture import capture_enabled, emit_capture_event
 from ..retrieval.tokenize import TOKENIZER_VERSION, index_body
 from .chunking import build_chunks, role_values
 from .config import RagConfig
@@ -578,6 +579,23 @@ class RagIndex:
     def load_state(self, user_id: str, conversation_id: str) -> QueryState:
         with self.session() as session:
             row = session.get(RagQueryStateRow, (str(user_id), str(conversation_id)))
+            if capture_enabled():
+                stored = dict(row.state_json or {}) if row is not None else {}
+                raw_turn = stored.get("turn")
+                emit_capture_event(
+                    "query_state_observed",
+                    request_id=None,
+                    user_id=str(user_id),
+                    conversation_id=str(conversation_id),
+                    stored_user_id=None if row is None else str(row.user_id),
+                    stored_conversation_id=None if row is None else str(row.conversation_id),
+                    row_present=row is not None,
+                    state_keys=sorted(str(key) for key in stored.keys()),
+                    state_json=stored,
+                    pending_slot=None if stored.get("pending_slot") is None else str(stored.get("pending_slot")),
+                    last_kind=None if stored.get("last_kind") is None else str(stored.get("last_kind")),
+                    turn=raw_turn if type(raw_turn) is int else None,
+                )
             if row is None:
                 return QueryState(user_id=str(user_id), conversation_id=str(conversation_id))
             state = QueryState.from_dict(row.state_json)
@@ -590,6 +608,9 @@ class RagIndex:
             raise RagConfigError("查询状态必须绑定 user_id 与 conversation_id")
         with self.session() as session:
             row = session.get(RagQueryStateRow, (state.user_id, state.conversation_id))
+            previous_user_id = None if row is None else str(row.user_id)
+            previous_conversation_id = None if row is None else str(row.conversation_id)
+            row_present = row is not None
             payload = state.to_dict()
             if row is None:
                 session.add(
@@ -602,13 +623,40 @@ class RagIndex:
             else:
                 row.state_json = payload
             session.commit()
+            if capture_enabled():
+                raw_turn = payload.get("turn")
+                emit_capture_event(
+                    "query_state_saved",
+                    request_id=None,
+                    user_id=state.user_id,
+                    conversation_id=state.conversation_id,
+                    previous_user_id=previous_user_id,
+                    previous_conversation_id=previous_conversation_id,
+                    row_present=row_present,
+                    state_keys=sorted(str(key) for key in payload.keys()),
+                    state_json=payload,
+                    pending_slot=None if payload.get("pending_slot") is None else str(payload.get("pending_slot")),
+                    last_kind=None if payload.get("last_kind") is None else str(payload.get("last_kind")),
+                    turn=raw_turn if type(raw_turn) is int else None,
+                )
 
     def clear_state(self, user_id: str, conversation_id: str) -> None:
         with self.session() as session:
             row = session.get(RagQueryStateRow, (str(user_id), str(conversation_id)))
+            deleted_state = dict(row.state_json or {}) if row is not None else {}
+            deleted_present = row is not None
             if row is not None:
                 session.delete(row)
                 session.commit()
+            if capture_enabled():
+                emit_capture_event(
+                    "query_state_cleared",
+                    request_id=None,
+                    user_id=str(user_id),
+                    conversation_id=str(conversation_id),
+                    row_present=deleted_present,
+                    state_json=deleted_state,
+                )
 
     # ---------------------------------------------------------------- 词表
 
@@ -725,10 +773,16 @@ class RagIndex:
             by_id = {row.chunk_id: _row_to_chunk(row) for row in rows}
             return [by_id[item] for item in chunk_ids if item in by_id]
 
-    def search(self, plan: QueryPlan, *, limit: int | None = None) -> Any:
+    def search(
+        self,
+        plan: QueryPlan,
+        *,
+        limit: int | None = None,
+        diag: dict[str, str] | None = None,
+    ) -> Any:
         from .retrieval import search as _search
 
-        return _search(self, plan, limit=limit)
+        return _search(self, plan, limit=limit, diag=diag)
 
     def ask(
         self,

@@ -9,6 +9,8 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal, Mapping
 
+from ..retrieval.tokenize import normalize
+
 AnswerKind = Literal["answer", "clarification", "no_answer", "ambiguous", "conflict", "error"]
 QueryMode = Literal["record", "document"]
 ChunkKind = Literal["record", "text"]
@@ -134,6 +136,8 @@ class QueryState:
     store: str | None = None
     stores: tuple[str, ...] = ()
     item: str | None = None
+    #: 同一轮内明确点名的多个物品（v3-fix-1/A 多目标执行）；单物品时留空或只含该物品。
+    items: tuple[str, ...] = ()
     product: str | None = None
     channel: str | None = None
     price_type: str | None = None
@@ -159,6 +163,7 @@ class QueryState:
             "store": self.store,
             "stores": list(self.stores),
             "item": self.item,
+            "items": list(self.items),
             "product": self.product,
             "channel": self.channel,
             "price_type": self.price_type,
@@ -187,6 +192,7 @@ class QueryState:
             store=_opt_str(data.get("store")),
             stores=tuple(str(x) for x in (data.get("stores") or ()) if x),
             item=_opt_str(data.get("item")),
+            items=tuple(str(x) for x in (data.get("items") or ()) if x),
             product=_opt_str(data.get("product")),
             channel=_opt_str(data.get("channel")),
             price_type=_opt_str(data.get("price_type")),
@@ -228,10 +234,18 @@ class QueryPlan:
     field_roles: tuple[str, ...] = ()
     missing_stores: tuple[str, ...] = ()
     unknown_stores: tuple[str, ...] = ()
+    record_field_stores: Mapping[str, str] = field(default_factory=dict)
 
     @property
     def as_of(self) -> str | None:
         return self.state.as_of
+
+    def scoped_record_role(self, chunk: IndexedChunk) -> str | None:
+        role = {"item": "location", "store": "status"}.get(chunk.entity_type or "")
+        if role is not None and (store := self.record_field_stores.get(role)):
+            if chunk.filters_norm.get("store") == normalize(store):
+                return role
+        return None
 
 
 @dataclass(frozen=True)

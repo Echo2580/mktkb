@@ -1,0 +1,395 @@
+{
+  "schema_version": "p2-candidate-freeze/v0.2",
+  "frozen_at_local": "2026-11-21T01:16:20+08:00",
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "handover_anchor": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "worktree": {
+    "tracked_modified": 47,
+    "untracked": 5257,
+    "status_lines": 5304,
+    "status_sha256_sorted": "b0182b942b800cb58753f575ae5e5dcd764653fdc7f37d2175a4c4f01881def5"
+  },
+  "gate_config": {
+    "path": "docs/evaluation/gate_v0_3_approved.json",
+    "sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+    "canonical_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+    "tracked": false
+  },
+  "baseline": {
+    "id": "7981d4afc2d1",
+    "run_id": "p2-t209-b0-20261120-02",
+    "admission_evidence_sha256": "2226fa208aec7db84ab69e5f7a068e94322414d38b90c14399979b96fcea8b5d"
+  },
+  "formal_gate": {
+    "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/gate-result.real-ncu.json",
+    "sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461",
+    "bytes": 53053,
+    "decision": "pass",
+    "technical_gate": "pass",
+    "release_allowed": false,
+    "owner_release_decision": "not_decided",
+    "counts": {
+      "pass": 38,
+      "blocked": 0,
+      "pending": 0,
+      "observed": 9
+    },
+    "reason_codes": [],
+    "row_count": 47,
+    "row_ids": [
+      "applicability.p2-t207-r1-20261111-01",
+      "applicability.p2-t207-r2-20261111-01",
+      "applicability.p2-t207-r4-20261111-01",
+      "b0.admission",
+      "b0.exact",
+      "b0.execution",
+      "b0.ocr",
+      "b0.quality",
+      "binding.p2-t207-r1-20261111-01",
+      "binding.p2-t207-r2-20261111-01",
+      "binding.p2-t207-r4-20261111-01",
+      "boundary",
+      "boundary.hard_gates",
+      "candidate.pipeline",
+      "evidence_manifest",
+      "gate_config",
+      "h2.aggregate",
+      "h2.annotation_metadata",
+      "h2.card.base_b0",
+      "h2.card.base_b0_plus_v01",
+      "h2.card.post_v05_without_v01",
+      "h2.card.pre_v05_without_v07",
+      "h2.card_verified",
+      "h2.cards_index",
+      "h2.coverage",
+      "h2.hard_failures",
+      "h2.identity.original",
+      "h2.identity.release",
+      "h2.non_required_axes",
+      "h2.quality",
+      "h2.required_axes",
+      "h2.source_proof",
+      "h2.strata",
+      "hard_gate_min_sample.run_level_subset",
+      "hard_gates",
+      "hard_gates.b0",
+      "inputs",
+      "negative",
+      "negative.hard_gates",
+      "tallies.formal",
+      "tallies.unconditional",
+      "u",
+      "u.citation",
+      "u.coverage",
+      "u.hard_gates",
+      "u.local",
+      "u.overlap"
+    ],
+    "row_ids_sha256": "985d055638477e5f44b5b696b0d72b2c5a3676a8350c6bdabcd584ae71730d5b"
+  },
+  "gate_identity_chain": {
+    "head_version": "7e54fbf672cbc1c02bbe746c164038613d5861070796794f6a41aae1595b7fe7",
+    "pre_d004_worktree_unreconstructible": "102350994939fcd47b9c268cf732743a322b1b05bd282d563de06a354b1fec1b",
+    "current": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7"
+  },
+  "frozen_artifacts": [
+    {
+      "path": "backend/src/mktkb/evaluation/gate.py",
+      "sha256": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7",
+      "bytes": 148546,
+      "tracked": true
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_scoring.py",
+      "sha256": "6e197bc3b0b3bd275bacb2af5f7f2a24acffe8927061ffa1e1d3bb9078234344",
+      "bytes": 100309,
+      "tracked": true
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_score_run.py",
+      "sha256": "6a5edd87b8f73fb999a816096a25a005fcada63fc2e32c09147928182b45cb47",
+      "bytes": 43024,
+      "tracked": true
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_b0.py",
+      "sha256": "1f00d882d1e1de97a7977b3444fa7e32d0a10b5cf2ca764574694d9305c9f34e",
+      "bytes": 35898,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/cli.py",
+      "sha256": "f2ca03ab8e84b1454d3f3173eb137aa5afae6e9952fed125415725ec956f82dc",
+      "bytes": 74595,
+      "tracked": true
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_contracts.py",
+      "sha256": "be873d7b38aa87e44189fedba135e415452d90f510f230d24e11102b824a7b73",
+      "bytes": 69780,
+      "tracked": true
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+      "sha256": "3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd",
+      "bytes": 193686,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_evidence_rescore.py",
+      "sha256": "a0061289d13921d212ba83e81d36fd46ce07c0f7636128701501f4323714ca1b",
+      "bytes": 63542,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_model.py",
+      "sha256": "3aab5f06148cd58759b6675c62f8597eecf7953e8725b21040e86cb2502e3fdc",
+      "bytes": 14173,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_inputs.py",
+      "sha256": "4ec060a7adab179bc18686ab4fc3e3d46600e28000e390b73bdbd44023530743",
+      "bytes": 38318,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_public.py",
+      "sha256": "706dc3ad690f566acbcaec6f34033b420db4cb2a4ab4d9f56e94238d6cc44840",
+      "bytes": 64664,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_h2.py",
+      "sha256": "4a00a31366e8b2f95a4fe9358963478499b306561c030971c14c03bf53bb0474",
+      "bytes": 22358,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_h2_aggregate.py",
+      "sha256": "92a5e41a64bbb096b9190b9e5124eccc108e9b461bb1dd7b3cf6bc15ec46f4b0",
+      "bytes": 30825,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_binding.py",
+      "sha256": "a2481fffd2297aaa6b321c16d9c1b4c8f9f751d4e3a303567e4976019b3a819f",
+      "bytes": 27008,
+      "tracked": false
+    },
+    {
+      "path": "backend/src/mktkb/evaluation/p2_release_gate.py",
+      "sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+      "bytes": 26904,
+      "tracked": false
+    },
+    {
+      "path": "tools/p2_h2_controlled_execute.py",
+      "sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+      "bytes": 150917,
+      "tracked": false
+    },
+    {
+      "path": "tools/p2_h2_v3_controlled_execute.py",
+      "sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+      "bytes": 108460,
+      "tracked": false
+    },
+    {
+      "path": "docs/evaluation/gate_v0_3_approved.json",
+      "sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+      "bytes": 5785,
+      "tracked": false
+    },
+    {
+      "path": "docs/evaluation/p2-holdout-v3.source-map.json",
+      "sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8",
+      "bytes": 2648,
+      "tracked": false
+    },
+    {
+      "path": "docs/evaluation/p2-h2-scenarios-H2v3.json",
+      "sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+      "bytes": 1140,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_gate.py",
+      "sha256": "712fb0c3ca213c7057b6519f15d7a4095ac35d0add89f2dd3409b37481965d03",
+      "bytes": 39691,
+      "tracked": true
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+      "sha256": "1d47f467e4f8ac6c160fab866e8460f200593b33a4233c7718d125eaeb1d7ce5",
+      "bytes": 37520,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_release_gate_positive.py",
+      "sha256": "3bbad536e63586f6b05ed2ecd404a188901713df98b73355853e7087c45c9ceb",
+      "bytes": 8064,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_release_gate_negative.py",
+      "sha256": "14ab76d9f52e8c972ad326b476b00e4d1ecf2420e6c7d16814987a8ec976d99c",
+      "bytes": 21997,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_release_gate_real_ncu.py",
+      "sha256": "8901b9aedf5fcf9987ec1f2d43044a103370b8aceb87d6ea1136dc09988c54d7",
+      "bytes": 11510,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_hard_evidence.py",
+      "sha256": "f82046612427cbbee1d1694e7a843b238f2756875b45bb253cb5d96f305d48de",
+      "bytes": 183239,
+      "tracked": false
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_holdout_scenarios.py",
+      "sha256": "ea1a63dc8d5d6e67258160aeb1b3c4c2721a4033955a413a73d8ebc680d00199",
+      "bytes": 37029,
+      "tracked": true
+    },
+    {
+      "path": "backend/tests/evaluation/test_p2_h2_docforbidden_identity.py",
+      "sha256": "22004b466bca7b0154f527bc8ebe68caabc4d4e1419cc553ba2b4d665b086b8f",
+      "bytes": 32592,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/report.md",
+      "sha256": "adc8cb0cc73902a7cb443d26b5ed81ef39433cad7623232fa0aa211c1b329499",
+      "bytes": 57118,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/review.md",
+      "sha256": "0e074bcbf44dc1dbbf43b5dc2a4e95f218510fee46c4567abfb49bb9b6e9f48c",
+      "bytes": 63050,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/gate-result.real-ncu.json",
+      "sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461",
+      "bytes": 53053,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/inputs.template.json",
+      "sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab",
+      "bytes": 928,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+      "sha256": "3d7ca62bf1ca217c02aa50ed70425015ffc08d1c34808ab54ebcfc539528f923",
+      "bytes": 12674,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/build_template_inputs.py",
+      "sha256": "314d8fb9146ab0067ce1c65d71473ef5bf3ef0ad073ba5021c6582bbbc433d32",
+      "bytes": 2481,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-DOC-REBUILD/report.md",
+      "sha256": "bf448b0ebc4e2bf54207c0a442d0277256c2fd3f3dc3ae4155696c9c4b8a4127",
+      "bytes": 36046,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-DOC-REBUILD/review.md",
+      "sha256": "9c0c641260c0c89fcd3e1af1f1d7253705e13373d8fc9e89a99fe8778079b0ac",
+      "bytes": 35878,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/report.md",
+      "sha256": "1314683fac1cb31a7cc1206413d9fa1123e2107b25a3204a92547301de14a1d9",
+      "bytes": 46561,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/review.md",
+      "sha256": "8deb31b48933278ac88f3ec4e6c069776b99a7c23f69491acebed811c7c55a11",
+      "bytes": 36330,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/cards-index.json",
+      "sha256": "f20661d23822b6ad2f11d70feb21b818dc8f08843da80c2ccd0e3e5a57e1e487",
+      "bytes": 1301,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-composition-aggregate.json",
+      "sha256": "096de42fd573c107f97fa247cc8157ed191bdce2b32a2e26eb6d3b9c680e1c94",
+      "bytes": 4102,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-source-proof.json",
+      "sha256": "359c9554ab78176abd0588c8d129a47f598c183d3e7eae1a93a3b28730461a90",
+      "bytes": 6530,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-source-proof.full.json",
+      "sha256": "f6465fcb206821f26d51c5f93918aefe229908120cd4708917424e9ebb61d555",
+      "bytes": 5167,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/scripts/derive_v3_cards.py",
+      "sha256": "315a389cc174766340d03f006b308266a36cce6e4c56529afaf5ca0c98476861",
+      "bytes": 24149,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/report.md",
+      "sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3",
+      "bytes": 58861,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/manifest.json",
+      "sha256": "0129cd2ba6abf625c61afaaf958ae2e30e675977ad3045eb381d568ab4ab3fab",
+      "bytes": 141097,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/review.md",
+      "sha256": "d59499741bfaab13b90ff6415234d0d0ca78af2c11818284dae54f6bb2005370",
+      "bytes": 34045,
+      "tracked": false
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/SHA256SUMS",
+      "sha256": "746fa6633186356c0795583d8dccb84bb0414c94d39d7a5cb4a65f8dbac55b01",
+      "bytes": 1598,
+      "tracked": false
+    }
+  ],
+  "records_append_only": [
+    {
+      "path": "docs/reports/OBS-EVAL/P2/manager-decisions.md",
+      "bytes_at_freeze": 16145,
+      "sha256_at_freeze": "fee1f5ec4718aca2e40c4ca58ff6c703b515d33b549dd70d6123e9f24240dfbf",
+      "rule": "append_only_prefix"
+    },
+    {
+      "path": "docs/reports/OBS-EVAL/P2/manager-acceptance.md",
+      "bytes_at_freeze": 21633,
+      "sha256_at_freeze": "13339d09559f7ba48f5b78453d09a08b5c3561ece58b16cc99c0291b6248f14d",
+      "rule": "append_only_prefix"
+    }
+  ],
+  "missing": []
+}

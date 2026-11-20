@@ -1,0 +1,639 @@
+{
+  "schema_version": "p2-acceptance-corpus-manifest/v0.2",
+  "root": ".",
+  "dataset_version": "P2-HOLDOUT-v3",
+  "label_version": "p2-holdout-v3-2026-11-15",
+  "built_at": "2026-10-27",
+  "lifecycle_ref": {
+    "path": "docs/evaluation/p2-source-lifecycle-v1.json",
+    "sha256": "cc2ad0be2a3d884987d9f74b32e25181d752a8b497093afba42ccef8d87541d1",
+    "schema_version": "p2-source-lifecycle/v1"
+  },
+  "lifecycle": {
+    "source_of_truth": {
+      "path": "docs/evaluation/p2-source-lifecycle-v1.json",
+      "sha256": "cc2ad0be2a3d884987d9f74b32e25181d752a8b497093afba42ccef8d87541d1",
+      "schema_version": "p2-source-lifecycle/v1",
+      "interval": "closed",
+      "declaration_kind": "design_fixture",
+      "business_date_anchor": "2026-10-28"
+    },
+    "columns": {
+      "effective_from": {
+        "header": "生效日期",
+        "position": "first_new_column"
+      },
+      "effective_to": {
+        "header": "失效日期",
+        "position": "second_new_column"
+      }
+    },
+    "value_format": "YYYY-MM-DD 文本单元格（不写 Excel 日期序列号）；effective_to 为 null 时写哨兵 未声明",
+    "effective_to_sentinel": {
+      "literal": "未声明",
+      "cell_data_type": "s",
+      "maps_to": "L1 effective_to = null（null_semantics = not_asserted）",
+      "one_to_one": "哨兵只出现在 L1 effective_to 为 null 的行；L1 为日期时该格必然写日期，二者互斥且穷尽",
+      "not_a_date": "不含日期数字，_parse_date_text / chunking.parse_date 均返回 None",
+      "why_not_blank": "整列为空会让 ingestion/parsers/excel.py:_find_header_index 选数据行当表头（v3 R0 的 PARTIAL 根因）",
+      "why_not_changqi_youxiao": "L1 null_rule 明确 null 不等价于『无限有效』；写『长期有效』等于断言 L1 否认的业务事实",
+      "spec_ref": "docs/superpowers/plans/2026-11-15-h2-v3-corpus-modification-spec.md §1.4（R1 修订）"
+    },
+    "interval_semantics": "closed：[effective_from, effective_to]，两端点均有效",
+    "null_semantics": "not_asserted：effective_to 为 null 时写哨兵 未声明（不留空），_effective_range 该侧跳过，语义与留空逐值相同",
+    "applied_sheets": [
+      {
+        "source_id": "V03",
+        "path": "variants/V03_物品位置表_历史V1.xlsx",
+        "sheet": "物品位置",
+        "header_row": 7,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "F",
+          "G"
+        ],
+        "data_rows": 8,
+        "cells_written": 16,
+        "cells_sentinel_not_asserted": 0,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [],
+        "record_overrides": [],
+        "empty_typed_cells_restored": 2
+      },
+      {
+        "source_id": "D01",
+        "path": "normal/D01_物品位置表.xlsx",
+        "sheet": "物品位置",
+        "header_row": 7,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "F",
+          "G"
+        ],
+        "data_rows": 8,
+        "cells_written": 16,
+        "cells_sentinel_not_asserted": 0,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [],
+        "record_overrides": [
+          "P02",
+          "P05",
+          "P06",
+          "P08"
+        ],
+        "empty_typed_cells_restored": 2
+      },
+      {
+        "source_id": "V04",
+        "path": "variants/V04_物品位置表_新版V3.xlsx",
+        "sheet": "物品位置",
+        "header_row": 7,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "F",
+          "G"
+        ],
+        "data_rows": 8,
+        "cells_written": 16,
+        "cells_sentinel_not_asserted": 0,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [],
+        "record_overrides": [],
+        "empty_typed_cells_restored": 2
+      },
+      {
+        "source_id": "V05",
+        "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+        "sheet": "物品位置",
+        "header_row": 7,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "F",
+          "G"
+        ],
+        "data_rows": 7,
+        "cells_written": 14,
+        "cells_sentinel_not_asserted": 7,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [
+          {
+            "row": 8,
+            "record_code": "P02"
+          },
+          {
+            "row": 9,
+            "record_code": "P03"
+          },
+          {
+            "row": 10,
+            "record_code": "P04"
+          },
+          {
+            "row": 11,
+            "record_code": "P05"
+          },
+          {
+            "row": 12,
+            "record_code": "P06"
+          },
+          {
+            "row": 13,
+            "record_code": "P07"
+          },
+          {
+            "row": 14,
+            "record_code": "P08"
+          }
+        ],
+        "record_overrides": [],
+        "empty_typed_cells_restored": 2
+      },
+      {
+        "source_id": "D02",
+        "path": "normal/D02_合作店家信息.xlsx",
+        "sheet": "店家信息",
+        "header_row": 4,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "G",
+          "H"
+        ],
+        "data_rows": 4,
+        "cells_written": 8,
+        "cells_sentinel_not_asserted": 0,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [],
+        "record_overrides": [],
+        "empty_typed_cells_restored": 0
+      },
+      {
+        "source_id": "V06",
+        "path": "variants/V06_合作店家信息_新电话.xlsx",
+        "sheet": "店家信息",
+        "header_row": 4,
+        "new_columns": [
+          "生效日期",
+          "失效日期"
+        ],
+        "new_column_letters": [
+          "G",
+          "H"
+        ],
+        "data_rows": 4,
+        "cells_written": 8,
+        "cells_sentinel_not_asserted": 4,
+        "cells_blank_not_asserted": 0,
+        "sentinel_rows": [
+          {
+            "row": 5,
+            "record_code": "S01"
+          },
+          {
+            "row": 6,
+            "record_code": "S02"
+          },
+          {
+            "row": 7,
+            "record_code": "S03"
+          },
+          {
+            "row": 8,
+            "record_code": "S04"
+          }
+        ],
+        "record_overrides": [],
+        "empty_typed_cells_restored": 0
+      }
+    ],
+    "unchanged_sheets": [
+      {
+        "source_id": "V03",
+        "path": "variants/V03_物品位置表_历史V1.xlsx",
+        "sheet": "备用物料表"
+      },
+      {
+        "source_id": "V03",
+        "path": "variants/V03_物品位置表_历史V1.xlsx",
+        "sheet": "旧草稿"
+      },
+      {
+        "source_id": "D01",
+        "path": "normal/D01_物品位置表.xlsx",
+        "sheet": "备用物料表"
+      },
+      {
+        "source_id": "D01",
+        "path": "normal/D01_物品位置表.xlsx",
+        "sheet": "旧草稿"
+      },
+      {
+        "source_id": "V04",
+        "path": "variants/V04_物品位置表_新版V3.xlsx",
+        "sheet": "备用物料表"
+      },
+      {
+        "source_id": "V04",
+        "path": "variants/V04_物品位置表_新版V3.xlsx",
+        "sheet": "旧草稿"
+      },
+      {
+        "source_id": "V05",
+        "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+        "sheet": "备用物料表"
+      },
+      {
+        "source_id": "V05",
+        "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+        "sheet": "旧草稿"
+      }
+    ],
+    "records_overrides": [
+      "P02",
+      "P05",
+      "P06",
+      "P08"
+    ],
+    "totals": {
+      "corpus_files": 12,
+      "xlsx_modified": 6,
+      "bytes_unchanged": 6,
+      "applied_sheets": 6,
+      "unchanged_sheets": 8,
+      "header_cells_added": 12,
+      "data_rows_touched": 39,
+      "data_cells_written": 78,
+      "data_cells_sentinel_not_asserted": 11,
+      "data_cells_left_blank": 0,
+      "record_override_rows": 4,
+      "empty_typed_cells_restored": 8,
+      "existing_cells_modified": 0
+    }
+  },
+  "font": {
+    "family": "Noto Sans SC Static",
+    "regular_sha256": "F2B1C83E95DA726AA0A10FD5B6A9252A15E75AF9FFB3B25A2930D09860E39669",
+    "medium_sha256": "EFF5ACBE28D97768E393285F71A7B9672747ABAAA5E2A99330CDF57FE612555F",
+    "license": "SIL OFL 1.1",
+    "license_file": "font-license/OFL.txt"
+  },
+  "normal_files": [
+    {
+      "id": "D01",
+      "path": "normal/D01_物品位置表.xlsx",
+      "kind": "xlsx",
+      "bytes": 25542,
+      "sha256": "85b261fc2ad12c06325f12d6f756785da70d45f7da5e80e4e6eaea821e4d5b25",
+      "bytes_unchanged": false,
+      "ingest_index": 1,
+      "base_doc_code": "D01",
+      "version_number": 2,
+      "effective_from": "2026-05-01",
+      "effective_to": "2026-10-31",
+      "v2_source_sha256": "644604ccdb0ba30e802afd94cfc69425192b7eaf996a054081fe1bbef141b54d",
+      "business_version": "V2"
+    },
+    {
+      "id": "D02",
+      "path": "normal/D02_合作店家信息.xlsx",
+      "kind": "xlsx",
+      "bytes": 21003,
+      "sha256": "c8f114007b9a6e681e498b9cbad798333ce9bda94222cf9dd219af797a58ff6e",
+      "bytes_unchanged": false,
+      "ingest_index": 4,
+      "base_doc_code": "D02",
+      "version_number": 1,
+      "effective_from": "2026-02-02",
+      "effective_to": "2026-11-15",
+      "v2_source_sha256": "6a210e0629e5ccfd701c0e92fe10b51accf5528dc759bcb8480b0bd718603227",
+      "business_version": "V1"
+    },
+    {
+      "id": "D03",
+      "path": "normal/D03_市场部工作指南.docx",
+      "kind": "docx",
+      "bytes": 37107,
+      "sha256": "adbf69b520a2385a6a92b83929bb0ced68b1d6e925de994e150cff0fcee30c2e",
+      "bytes_unchanged": true,
+      "ingest_index": 6,
+      "base_doc_code": "D03",
+      "version_number": 1,
+      "effective_from": "2026-03-02",
+      "effective_to": null,
+      "v2_source_sha256": "adbf69b520a2385a6a92b83929bb0ced68b1d6e925de994e150cff0fcee30c2e",
+      "business_version": "V1"
+    },
+    {
+      "id": "D04",
+      "path": "normal/D04_活动策划流程.docx",
+      "kind": "docx",
+      "bytes": 37032,
+      "sha256": "cb64bcfd86acf35b2135ee812fcda1cda4106b0d863d6ca964d3cc6029c830f3",
+      "bytes_unchanged": true,
+      "ingest_index": 7,
+      "base_doc_code": "D04",
+      "version_number": 1,
+      "effective_from": "2026-04-06",
+      "effective_to": null,
+      "v2_source_sha256": "cb64bcfd86acf35b2135ee812fcda1cda4106b0d863d6ca964d3cc6029c830f3",
+      "business_version": "V1"
+    },
+    {
+      "id": "D05",
+      "path": "normal/D05_物料领用规范.pdf",
+      "kind": "pdf-text",
+      "bytes": 36604,
+      "sha256": "c38a13436be8552df4b388ab82fdfba20362e19a2d8f747522430e16fad0fda6",
+      "bytes_unchanged": true,
+      "ingest_index": 8,
+      "base_doc_code": "D05",
+      "version_number": 1,
+      "effective_from": "2026-04-13",
+      "effective_to": null,
+      "v2_source_sha256": "c38a13436be8552df4b388ab82fdfba20362e19a2d8f747522430e16fad0fda6",
+      "business_version": "V1"
+    },
+    {
+      "id": "D06",
+      "path": "normal/D06_店家资料维护说明.pdf",
+      "kind": "pdf-text",
+      "bytes": 33032,
+      "sha256": "30edb4383c37dc77b51eb2a8d71b8cacc4539576792d6a1c80702526a08d1dea",
+      "bytes_unchanged": true,
+      "ingest_index": 9,
+      "base_doc_code": "D06",
+      "version_number": 1,
+      "effective_from": "2026-04-20",
+      "effective_to": null,
+      "v2_source_sha256": "30edb4383c37dc77b51eb2a8d71b8cacc4539576792d6a1c80702526a08d1dea",
+      "business_version": "V1"
+    }
+  ],
+  "variants": [
+    {
+      "id": "V03",
+      "path": "variants/V03_物品位置表_历史V1.xlsx",
+      "kind": "xlsx",
+      "bytes": 25542,
+      "sha256": "5b0f9081cddbf3fe6867ccf08f4b88cf2f86ce8d6a12a9d6b386e28e59161f4b",
+      "bytes_unchanged": false,
+      "ingest_index": 0,
+      "base_doc_code": "D01",
+      "version_number": 1,
+      "effective_from": "2026-01-05",
+      "effective_to": "2026-04-30",
+      "v2_source_sha256": "d1a7be2c1f64804fdb123873bd30dbc66577e7da3a1321ef904eda201ad5d708",
+      "business_version": "V1"
+    },
+    {
+      "id": "V04",
+      "path": "variants/V04_物品位置表_新版V3.xlsx",
+      "kind": "xlsx",
+      "bytes": 25517,
+      "sha256": "505774317e0d609b358290a102aa990b7049a65f5c9bcb1ec530d5e44b46cb75",
+      "bytes_unchanged": false,
+      "ingest_index": 2,
+      "base_doc_code": "D01",
+      "version_number": 3,
+      "effective_from": "2026-11-01",
+      "effective_to": "2026-11-30",
+      "v2_source_sha256": "d27f4bc25376e9a8ad68ca4613ddeb39989aca147f8698e36dafed24cc4670a0",
+      "business_version": "V3"
+    },
+    {
+      "id": "V05",
+      "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+      "kind": "xlsx",
+      "bytes": 25154,
+      "sha256": "2deb0e23b95404fe6d65b428ca671c2e4780c8a6a7d3cd5d460bf5b3f4b2dbd7",
+      "bytes_unchanged": false,
+      "ingest_index": 3,
+      "base_doc_code": "D01",
+      "version_number": 4,
+      "effective_from": "2026-12-01",
+      "effective_to": null,
+      "v2_source_sha256": "30548bc0ee8184381b40ab0fcc0bde4a099a379540ffbc9e3e42dcbb22eac6c2",
+      "business_version": "V3"
+    },
+    {
+      "id": "V06",
+      "path": "variants/V06_合作店家信息_新电话.xlsx",
+      "kind": "xlsx",
+      "bytes": 21059,
+      "sha256": "cfaaced86b81e3d417053617bb0fbf698e70abfa18998078d059e9bdec73ffd1",
+      "bytes_unchanged": false,
+      "ingest_index": 5,
+      "base_doc_code": "D02",
+      "version_number": 2,
+      "effective_from": "2026-11-16",
+      "effective_to": null,
+      "v2_source_sha256": "0da6f5999fcd810833094342bb945a1cb65e7bf0dc176bac3dbdde8bda306c95",
+      "business_version": "V2"
+    },
+    {
+      "id": "V01",
+      "path": "variants/V01_临时物料位置通知.pdf",
+      "kind": "pdf-text",
+      "bytes": 32110,
+      "sha256": "50e74141e2cf032202108b51afaee11df8b5816bfd3130113bd99c992dddc131",
+      "bytes_unchanged": true,
+      "ingest_index": 10,
+      "base_doc_code": "V01",
+      "version_number": 1,
+      "effective_from": "2026-04-27",
+      "effective_to": null,
+      "v2_source_sha256": "50e74141e2cf032202108b51afaee11df8b5816bfd3130113bd99c992dddc131",
+      "business_version": "V1"
+    },
+    {
+      "id": "V07",
+      "path": "variants/V07_物料位置独立通知.pdf",
+      "kind": "pdf-text",
+      "bytes": 31396,
+      "sha256": "0805ee4307ce36cc703d674f7cfabb194bc318fcaef139721afe3235339f0616",
+      "bytes_unchanged": true,
+      "ingest_index": 11,
+      "base_doc_code": "V07",
+      "version_number": 1,
+      "effective_from": "2026-07-06",
+      "effective_to": null,
+      "v2_source_sha256": "0805ee4307ce36cc703d674f7cfabb194bc318fcaef139721afe3235339f0616",
+      "business_version": "V1"
+    }
+  ],
+  "records": {
+    "P01": {
+      "门店": "城东店",
+      "物品": "宣传海报",
+      "别名": "海报",
+      "位置": "B区1号货架第二层"
+    },
+    "P02": {
+      "门店": "城西店",
+      "物品": "宣传海报",
+      "别名": "海报",
+      "位置": "C区2号货架第一层"
+    },
+    "P03": {
+      "门店": "城东店",
+      "物品": "展架",
+      "别名": "展示架",
+      "位置": "A区2号货架底层"
+    },
+    "P04": {
+      "门店": "城西店",
+      "物品": "展架",
+      "别名": "展示架",
+      "位置": "B区3号货架中层"
+    },
+    "P05": {
+      "门店": "城东店",
+      "物品": "易拉宝",
+      "别名": "",
+      "位置": "D区1号柜第二层"
+    },
+    "P06": {
+      "门店": "城西店",
+      "物品": "易拉宝",
+      "别名": "",
+      "位置": "D区2号柜第二层"
+    },
+    "P07": {
+      "门店": "城东店",
+      "物品": "促销贴纸",
+      "别名": "贴纸",
+      "位置": "A区4号货架第一层"
+    },
+    "P08": {
+      "门店": "城西店",
+      "物品": "价签卡纸",
+      "别名": "价签纸",
+      "位置": "C区1号柜第一层"
+    },
+    "S01": {
+      "店家": "城东店",
+      "联系人": "模拟联系人·陈宁",
+      "电话": "010-00000001",
+      "地址": "示例市示例路18号（模拟）",
+      "合作状态": "合作中"
+    },
+    "S02": {
+      "店家": "城西店",
+      "联系人": "模拟联系人·王平",
+      "电话": "010-00000002",
+      "地址": "示例市示例路26号（模拟）",
+      "合作状态": "合作中"
+    },
+    "S03": {
+      "店家": "城北店",
+      "联系人": "模拟联系人·李禾",
+      "电话": "010-00000003",
+      "地址": "示例市北街8号（模拟）",
+      "合作状态": "暂停合作"
+    },
+    "S04": {
+      "店家": "滨河店",
+      "联系人": "模拟联系人·周安",
+      "电话": "010-00000004",
+      "地址": "示例市滨河路6号（模拟）",
+      "合作状态": "待签约"
+    }
+  },
+  "sources": {
+    "P01": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 8,
+      "business_version": "V2"
+    },
+    "P02": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 9,
+      "business_version": "V2"
+    },
+    "P03": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 10,
+      "business_version": "V2"
+    },
+    "P04": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 11,
+      "business_version": "V2"
+    },
+    "P05": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 12,
+      "business_version": "V2"
+    },
+    "P06": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 13,
+      "business_version": "V2"
+    },
+    "P07": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 14,
+      "business_version": "V2"
+    },
+    "P08": {
+      "file": "D01",
+      "sheet": "物品位置",
+      "row": 15,
+      "business_version": "V2"
+    },
+    "S01": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 5,
+      "business_version": "V1"
+    },
+    "S02": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 6,
+      "business_version": "V1"
+    },
+    "S03": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 7,
+      "business_version": "V1"
+    },
+    "S04": {
+      "file": "D02",
+      "sheet": "店家信息",
+      "row": 8,
+      "business_version": "V1"
+    }
+  },
+  "questions_file": null,
+  "corpus_notes": [
+    "本根只含 12 个被 ingest 的源 + 本 manifest；D07-D10、V02、A01-A08、B01-B08、font-license/ 按规格 §1.1 不复制。",
+    "font 块逐值沿用 v2（源字体身份与许可为构建事实）；font-license/OFL.txt 不随语料复制，许可副本仍在 fixtures/acceptance/font-license/OFL.txt。",
+    "questions_file 为 null：H2 题面/答案属私有件，不落在语料根；v2 questions.json 是另一套 64 题公共集，未复制。",
+    "records / sources 逐值等于 v2 manifest（记录身份与表/行定位不变）；built_at 仍 2026-10-27，作为『端点撞页眉常量即拒收』的可检测锚点。",
+    "b0_initialization 与 boundary 两块按规格 §4.4 未收入：前者引用未复制的 D07-D10，后者是单文件边界样本集，均非 ingest 源。",
+    "R1：失效日期 为 null（not_asserted）的行改写成哨兵 未声明（11 格），用于恢复产品 _find_header_index 的表头识别；哨兵一律不得被解析成日期。"
+  ]
+}

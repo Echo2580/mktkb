@@ -8,6 +8,8 @@
 - 预算分两层同时生效：P2 阶段硬顶（候选 20 元）与四个成本中心（12/3/3/2）。中心额度在
   **每次预留**时按同阶段已占用金额再判一次，累计（跨 run/跨进程）超限一样拒绝；
 - 请求上限是**累计**口径：直接用账本里的 reservation 计数，新增预算不重置历史 505 次；
+  unlimited 模式下计划项的逐项配额按 ``plan_sha256 + item_id`` 累计，换 run_id / 重启
+  也不会清零（见 ``P2Gate._request_guard``）；
 - 每次真实发送前有两次门：预留前（request_guard，锁内）与预留后/发送前
   （post_reserve_guard + 授权重校验）。任一失败都停在 HTTP 之前：不新增预留、不重试；
   已经发生的预留保持保守占用（写 status=failed 的 result，不回 0、不擅自释放），
@@ -42,6 +44,8 @@ from ..rag.settlement_policy import SettlementPolicy, UsageEvidence
 from .p2_contracts import (
     COST_CENTERS,
     HARD_MAX_REQUESTS,
+    UNLIMITED_REQUESTS,
+    request_cap,
     OPERATION_COST_CENTER,
     OPERATIONS,
     P2_AUTHORIZATION_SCHEMA_VERSION,
@@ -362,13 +366,14 @@ def preflight_p2(plan: P2RunPlan, snapshot: P2LedgerSnapshot) -> P2PreflightResu
         effective_stage_limit = min(allocation, frozen_plan.stage_limit_cny)
         stage_remaining = max(0.0, effective_stage_limit - frozen_snapshot.p2_stage_accounted_cny)
     total_remaining = max(0.0, frozen_snapshot.total_limit_cny - frozen_snapshot.accounted_cny)
-    requests_remaining = max(0, frozen_plan.max_requests - frozen_snapshot.reservation_count)
+    requests_remaining = (UNLIMITED_REQUESTS if frozen_plan.max_requests == UNLIMITED_REQUESTS
+                          else max(0, frozen_plan.max_requests - frozen_snapshot.reservation_count))
 
     if frozen_plan.worst_case_cny > stage_remaining + _EPS:
         reasons.append("stage_budget_insufficient")
     if frozen_plan.worst_case_cny > total_remaining + _EPS:
         reasons.append("total_budget_insufficient")
-    if frozen_plan.total_requests > requests_remaining:
+    if requests_remaining != UNLIMITED_REQUESTS and frozen_plan.total_requests > requests_remaining:
         reasons.append("request_budget_insufficient")
 
     needs = frozen_plan.center_needs_cny()
@@ -397,9 +402,9 @@ def preflight_p2(plan: P2RunPlan, snapshot: P2LedgerSnapshot) -> P2PreflightResu
         stage_remaining_cny=float(stage_remaining),
         total_limit_cny=float(frozen_snapshot.total_limit_cny),
         total_remaining_cny=float(total_remaining),
-        max_requests=int(frozen_plan.max_requests),
+        max_requests=frozen_plan.max_requests,
         requests_used=int(frozen_snapshot.reservation_count),
-        requests_remaining=int(requests_remaining),
+        requests_remaining=requests_remaining,
         requests_planned=int(frozen_plan.total_requests),
         worst_case_cny=float(frozen_plan.worst_case_cny),
         reserve_peak_cny=float(frozen_plan.reserve_peak_cny),
@@ -499,14 +504,17 @@ def _check_go_payload(payload: Mapping[str, Any], plan: P2RunPlan, now: datetime
     go_stage_limit = _number(stage_limits[P2_STAGE], f"GO 阶段 {P2_STAGE} 额度", allow_zero=False)
     if go_stage_limit + _EPS < plan.stage_limit_cny:
         raise P2AuthorizationError("go_stage_limit_below_plan", "GO 阶段额度低于计划阶段额度")
-    go_max_requests = _int_value(scope.get("max_requests"), "GO scope.max_requests", minimum=1)
-    if go_max_requests > HARD_MAX_REQUESTS:
+    try:
+        go_max_requests = request_cap(scope.get("max_requests"), "GO scope.max_requests")
+    except P2ContractError:
+        raise P2AuthorizationError("go_max_requests_invalid", "GO 累计请求上限非法") from None
+    if go_max_requests != UNLIMITED_REQUESTS and go_max_requests > HARD_MAX_REQUESTS:
         raise P2AuthorizationError(
             "go_max_requests_over_hard_cap", f"GO 累计请求上限不得超过 {HARD_MAX_REQUESTS}"
         )
-    if go_max_requests < plan.total_requests:
+    if go_max_requests != UNLIMITED_REQUESTS and go_max_requests < plan.total_requests:
         raise P2AuthorizationError("go_max_requests_below_plan", "GO 累计请求上限小于计划请求数")
-    if plan.max_requests > go_max_requests:
+    if go_max_requests != UNLIMITED_REQUESTS and (plan.max_requests == UNLIMITED_REQUESTS or plan.max_requests > go_max_requests):
         raise P2AuthorizationError("go_max_requests_below_plan", "计划累计请求上限高于 GO")
     go_max_request = _number(scope.get("max_request_cny"), "GO scope.max_request_cny", allow_zero=False)
     if go_max_request + _EPS < plan.reserve_peak_cny:
@@ -617,7 +625,7 @@ def authorize_p2(
         center: max(0.0, center_limits[center] - float(snapshot.p2_center_accounted_cny.get(center, 0.0)))
         for center in COST_CENTERS
     }
-    max_requests = min(frozen_plan.max_requests, int(scope["max_requests"]))
+    max_requests = frozen_plan.max_requests
     requests_used = int(snapshot.reservation_count)
     return P2Authorization(
         schema_version=P2_AUTHORIZATION_SCHEMA_VERSION,
@@ -637,9 +645,9 @@ def authorize_p2(
         stage_remaining_cny=float(stage_remaining),
         cost_center_limits_cny=center_limits,
         center_remaining_cny=center_remaining,
-        max_requests=int(max_requests),
+        max_requests=max_requests,
         requests_used=requests_used,
-        requests_remaining=max(0, max_requests - requests_used),
+        requests_remaining=(UNLIMITED_REQUESTS if max_requests == UNLIMITED_REQUESTS else max(0, max_requests - requests_used)),
         max_request_cny=float(scope["max_request_cny"]),
         operations=tuple(sorted(frozen_plan.operations)),
         # 生产就绪 = GO/预算来自固定路径 + 环境总上限已核 + 账本快照真的来自固定共享账本。
@@ -769,6 +777,7 @@ class P2Gate:
         self._lock = threading.Lock()
         self._now_hint: datetime | None = now
         self._pending_center: str | None = None
+        self._pending_item: P2RequestItem | None = None
         self._inflight: P2RequestTicket | None = None
         #: T206-LIVE：与主请求同时在飞/先于主请求的**从属尝试**（embedding/rerank/ocr）。
         #: 每次底层尝试都必须单独预留并带成本中心，因此不能复用主 ticket。
@@ -922,9 +931,11 @@ class P2Gate:
             if float(declared) + _EPS < float(self._plan.cost_centers_cny[center]):
                 raise P2GateError("cost_center_unauthorized", f"GO 成本中心 {center} 额度低于计划")
         max_requests = scope.get("max_requests")
-        if isinstance(max_requests, bool) or not isinstance(max_requests, int):
+        try:
+            max_requests = request_cap(max_requests, "GO scope.max_requests")
+        except P2ContractError:
             raise P2GateError("request_cap_changed", "GO 请求上限已变")
-        if max_requests > HARD_MAX_REQUESTS or max_requests < self._plan.total_requests:
+        if max_requests != UNLIMITED_REQUESTS and (max_requests > HARD_MAX_REQUESTS or max_requests < self._plan.total_requests or self._plan.max_requests == UNLIMITED_REQUESTS or self._plan.max_requests > max_requests):
             raise P2GateError("request_cap_changed", "GO 请求上限已变")
         max_request_cny = scope.get("max_request_cny")
         if isinstance(max_request_cny, bool) or not isinstance(max_request_cny, (int, float)):
@@ -974,20 +985,43 @@ class P2Gate:
         count = facts.get("reservation_count")
         if isinstance(count, bool) or not isinstance(count, int) or count < 0:
             raise P2GateError("ledger_count_invalid", "账本累计请求数非法")
-        if count > self._authorization.max_requests:
+        if self._authorization.max_requests != UNLIMITED_REQUESTS and count > self._authorization.max_requests:
             raise P2GateError("request_limit", "累计请求数已超过授权上限")
 
-    def _request_guard(self, amount: float, facts: Mapping[str, Any]) -> tuple[float, int]:
+    def _request_guard(self, amount: float, facts: Mapping[str, Any]) -> tuple[float, int | str]:
         from ..rag.errors import BudgetLedgerInvalid
 
         try:
             now = self._now_hint or self._clock()
             self._guard_common(now, facts)
             self._assert_center_room(amount, facts)
+            if self._authorization.max_requests == UNLIMITED_REQUESTS:
+                item = self._pending_item
+                if item is None:
+                    raise P2GateError("item_unknown", "缺少计划项")
+                used = 0
+                for event in self._ledger._events():  # noqa: SLF001 - called under ledger lock
+                    if event.get("event") != "reserved":
+                        continue
+                    metadata = event.get("metadata")
+                    if not isinstance(metadata, Mapping) or not isinstance(metadata.get("plan_sha256"), str):
+                        # 账本里必然有更早阶段（S1/S2）的预留，它们不属于本计划，跳过；
+                        # 但**同阶段**预留缺计划身份必须拒绝（否则等于给绕过门控的预留开口子）。
+                        if event.get("stage") == self._plan.stage:
+                            raise P2GateError("run_plan_unknown", "历史预留缺少计划身份")
+                        continue
+                    # R0-5：按 plan_sha256 + item_id 累计，**不看 run_id**。换 run_id / 重开
+                    # gate / 重启进程都读同一份账本事实，不会把计划项次数清零。
+                    if metadata["plan_sha256"] != self._plan.plan_sha256:
+                        continue
+                    if metadata.get("item_id") == item.item_id:
+                        used += 1
+                if used >= item.requests:
+                    raise P2GateError("attempt_quota_exhausted", "计划项请求次数已用完")
         except P2GateError as exc:
             self._last_guard_reason = exc.reason
             raise BudgetLedgerInvalid(f"P2 预留前门控拒绝：{exc.reason}") from None
-        return float(self._authorization.stage_limit_cny), int(self._authorization.max_requests)
+        return float(self._authorization.stage_limit_cny), self._authorization.max_requests
 
     def _post_reserve_guard(self, amount: float, facts: Mapping[str, Any]) -> None:
         from ..rag.errors import BudgetLedgerInvalid
@@ -1042,6 +1076,7 @@ class P2Gate:
         moment = (now or self._clock()).astimezone(timezone.utc)
         self._now_hint = moment
         self._pending_center = item.cost_center
+        self._pending_item = item
         self._last_guard_reason = None
         try:
             self._assert_authorization_live(moment)
@@ -1068,6 +1103,7 @@ class P2Gate:
             raise P2GateError(reason, type(exc).__name__) from None
         finally:
             self._pending_center = None
+            self._pending_item = None
         ticket = P2RequestTicket(
             reservation=reservation,
             request_id="p2req-" + hashlib.sha256(

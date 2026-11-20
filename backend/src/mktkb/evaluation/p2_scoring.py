@@ -62,6 +62,7 @@ from .scorers import (
     EvalOutcome,
     EvalRetrieved,
     citation_number_keys,
+    citation_structural_number_keys,
     match_source_ref,
     score_case,
 )
@@ -83,6 +84,7 @@ __all__ = [
     "P2_HOLDOUT_TOTAL",
     "P2_NEGATIVE_IDS",
     "P2_NEGATIVE_TOTAL",
+    "P2_PAGINATION_NUMBER_KEYS",
     "P2_UPDATE_DELETE_IDS",
     "P2_UPDATE_DELETE_TOTAL",
     "P2Block",
@@ -98,6 +100,7 @@ __all__ = [
     "P2Standards",
     "P2SuiteTally",
     "P2_BINDING_VERSION",
+    "P2_HARD_EVIDENCE_SCORING_SCHEMA_VERSION",
     "aggregate_holdout",
     "binding_config_hash",
     "build_gate_rows",
@@ -114,6 +117,8 @@ __all__ = [
 ]
 
 P2_SCORING_SCHEMA_VERSION = "mktkb.p2.scoring.v0.1"
+#: T207 B 包：新版四轴硬证据卡的评分 schema（旧 v0.1 语义/严格校验保持原样）。
+P2_HARD_EVIDENCE_SCORING_SCHEMA_VERSION = "mktkb.p2.scoring.v0.2"
 #: P2 run 的作用域与模式（T203 契约：end-to-end 产品问答，不是 P1 的 retrieval_only）。
 P2_RUN_SCOPE = "end_to_end"
 P2_RUN_MODE = "end_to_end"
@@ -817,6 +822,37 @@ def _version_source_checks(case: CaseSpec, outcome: EvalOutcome, result: CaseRes
                    status=STATUS_FAIL if any(check.status == STATUS_FAIL for check in checks) else STATUS_PASS)
 
 
+#: ``value_no_fabricated`` 的结构 token：``outcome.pagination`` 里属于**页头计数**的键。
+#: 2026-11-17 主人批准的 P2 增量：只有这五个键、且值必须是 ``int``（``bool`` 不算）才
+#: 进入允许集合；``has_more`` / ``revision`` 等其它键不算（不是可复述的计数值）。
+P2_PAGINATION_NUMBER_KEYS: tuple[str, ...] = (
+    "total",
+    "page",
+    "page_size",
+    "returned",
+    "next_page",
+)
+
+
+def _pagination_number_keys(pagination: Mapping[str, Any] | None) -> frozenset[str]:
+    """分页计数里的结构 token key（仅 ``P2_PAGINATION_NUMBER_KEYS``、仅 int）。
+
+    结构 token ≠ 业务值：``共 2 条，当前第 1 页显示 2 条`` 的计数由产品页头自述，
+    不是金标数值；本函数只把它们归一成"有出处"的 key，交给
+    ``score_case(..., structural_number_keys=...)``。缺字段/类型不对（``bool``、
+    字符串数字）一律不进集合——不猜、不做隐式转换。
+    """
+    if not pagination:
+        return frozenset()
+    if not isinstance(pagination, Mapping):
+        raise P2ScoringError("pagination_invalid", "pagination 必须是对象")
+    return frozenset(
+        str(value)
+        for value in (pagination.get(name) for name in P2_PAGINATION_NUMBER_KEYS)
+        if isinstance(value, int) and not isinstance(value, bool)
+    )
+
+
 def score_public_case(
     case: CaseSpec,
     case_row: Mapping[str, Any] | None,
@@ -840,6 +876,12 @@ def score_public_case(
     评分与 H2 评分（``p2_score_run.holdout_case_scores_from_rows``）都经过这里，因此
     ``expected_kind="refusal"`` 的题接受 ``no_answer``/``not_found``/``refusal`` 任一拒答
     结局；P1（``runner.score_case``）不传该开关，口径逐字不变。
+
+    本函数也是唯一构造「结构 token」允许集合的地方（T-R1-102a，2026-11-17 主人批准）：
+    ``value_no_fabricated`` 除问题/金标/参考答与引用证据数字外，还接受引用 locator 的
+    整数（``row``/``header_row`` 等"第 N 行"定位坐标）与 ``outcome.pagination`` 的
+    ``total``/``page``/``page_size``/``returned``/``next_page``（仅 int）。结构 token
+    ≠ 业务值：它们只说明数字有出处，不放宽金标/期望值/禁用值判定，真编造仍判 fail。
     """
     if not isinstance(case, CaseSpec):
         raise P2ScoringError("case_invalid", "score_public_case 只接受 CaseSpec")
@@ -951,15 +993,23 @@ def score_public_case(
     # 允许集合 = 问题/金标/参考答 ∪ **本轮引用证据里的数字**（引用 locator 的 cell
     # display 等）。B0 Q09-Q24 的答案会回显整行记录（电话/地址里的数字就在所引用的那一
     # 行），旧口径把它们当"编造"；默认路径（P1）不传这个参数，口径逐字不变。
+    # T-R1-102a（2026-11-17 主人批准的 P2 增量）：再并入**结构 token** —— 引用 locator
+    # 的整数（``第 {row} 行`` 的行号/表头行）与 ``outcome.pagination`` 的页头计数
+    # （``total``/``page``/``page_size``/``returned``/``next_page``，仅 int）。结构 token
+    # ≠ 业务值：只说明这些数字有出处，不改金标/期望值/禁用值判定；真编造仍 fail。
     # T207-FIX-H2KIND：expected_kind="refusal" 是 P1 兼容值（产品只回 not_found /
     # no_answer），故 kind_correct 在这里按「任一拒答结局」判；显式 kind 仍严格相等。
-    # 默认路径（P1）不传这个参数，字面相等口径逐字不变。
+    # 默认路径（P1）不传这些参数，字面相等口径逐字不变。
+    structural_keys = citation_structural_number_keys(
+        outcome.citations
+    ) | _pagination_number_keys(outcome.pagination)
     result = score_case(
         case,
         _resolved_without_index(case),
         outcome,
         cross_explicit_space=True,
         allowed_number_keys=citation_number_keys(outcome.citations),
+        structural_number_keys=structural_keys,
         compat_refusal_kind=True,
     )
     if include_source_version:
@@ -1759,6 +1809,15 @@ def evaluate_p2_gate(
     blocks: list[P2Block] = []
     notes: list[str] = []
 
+    from .gate import P2_APPROVED_GATE_CONFIG_HASH
+
+    if config.config_hash == P2_APPROVED_GATE_CONFIG_HASH:
+        blocks.append(P2Block(
+            "p2_formal_cross_scenario_evidence_required", SEVERITY_UNKNOWN,
+            "正式 P2 总门需要逐场景核验 N/C/U 与 H2 的来源身份、覆盖和必要硬证据",
+            {},
+        ))
+
     # 1) 配置身份：旧 gate / 同版本改配置 / 未审批
     if (
         config.schema_version != CONFIG_SCHEMA_VERSION_V0_3
@@ -2146,13 +2205,46 @@ def evaluate_p2_hard_gates(
 # --------------------------------------------------------------------------- #
 
 
+def _evidence_units_from_row(row: Mapping[str, Any] | None) -> list[str]:
+    """从原始 run 行取"同轮已接地单元"（``product.evidence[].unit_id``，去重保序）。
+
+    主人 D-004：``citation_required`` 的候选接地集合 = evidence ∪ retrieved。
+    evidence 只存在于原始 cases.jsonl 的 product 回执里，因此由调用方显式传入
+    原始行；这里只做投影，不发明单元、不改 retrieved。
+    """
+    if not isinstance(row, Mapping):
+        return []
+    units: list[str] = []
+    for turn in row.get("turns") or ():
+        if not isinstance(turn, Mapping):
+            continue
+        product = turn.get("product")
+        if not isinstance(product, Mapping):
+            continue
+        raw = product.get("evidence")
+        if isinstance(raw, (str, bytes)) or not isinstance(raw, Sequence):
+            continue
+        for item in raw:
+            if not isinstance(item, Mapping):
+                continue
+            unit = str(item.get("unit_id") or "")
+            if unit and unit not in units:
+                units.append(unit)
+    return units
+
+
 def build_gate_rows(
     cases: Sequence[CaseSpec],
     scored: Sequence[P2ScoredCase],
     *,
     document_codes: Mapping[str, str] | None = None,
+    case_rows: Mapping[str, Mapping[str, Any]] | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """把 P2 逐题打分转成 gate 能读的 cases.jsonl 行（P1 同键）。
+
+    ``case_rows``（可选）是原始 run 的逐题行：提供时把同轮 ``product.evidence``
+    的单元投影进 outcome.evidence，供 D-004 的 citation 候选集合使用。
+    
 
     error / not_executed 一律写 status="error" + error.code：gate 会把它们排除在
     evaluated_count 之外并记 case_error unknown —— 不静默当通过。
@@ -2190,6 +2282,10 @@ def build_gate_rows(
         trace_id = (outcome.trace_id if outcome is not None else None) or (
             score.trace_ids[-1] if score.trace_ids else None
         )
+        outcome_payload = None if outcome is None else outcome_to_dict(outcome)
+        planted = _evidence_units_from_row(None if case_rows is None else case_rows.get(case.case_id))
+        if planted and outcome_payload is not None:
+            outcome_payload = {**outcome_payload, "evidence": [{"unit_id": unit} for unit in planted]}
         rows.append(
             {
                 "case_id": case.case_id,
@@ -2210,7 +2306,7 @@ def build_gate_rows(
                 "duration_ms": 0,
                 "turns_executed": int(score.executed_turns),
                 "multi_turn_claimed": len(case.turns) > 1,
-                "outcome": None if outcome is None else outcome_to_dict(outcome),
+                "outcome": outcome_payload,
                 "gold": None,
                 "error": error,
                 "turn_traces": [

@@ -31,6 +31,34 @@ RECORD_FIELD_ROLES: frozenset[str] = frozenset(
     }
 )
 DOCUMENT_FIELD_ROLES: frozenset[str] = frozenset({"height", "clause"})
+#: v3-safety-fix：个人联系信息字段角色族（店家记录独有）。语义 = “个人联系信息”，
+#: 但**不再等同于拒答触发集**：R0/C12（2026-11-16）起拒答只认下面的
+#: ``REFUSAL_CONTACT_ROLES``（phone/address）；“物品 + 只问 contact（对接人/负责人）”
+#: 按冻结安全契约（C12 t7：should_refuse=False）放行。
+RESTRICTED_CONTACT_ROLES: frozenset[str] = frozenset({"contact", "phone", "address"})
+#: R0/C12 安全边界收窄（2026-11-16）：**拒答判定专用**的受限角色子集。冻结契约要求
+#: “物品 + 对接人/负责人（contact）”可作答（C12 t7：should_refuse=False，期望
+#: 位置+对接人+合作状态），而“物品 + 电话/地址”仍是必须拒答的跨资料个人信息合并。
+#: 只收窄组合条件，不改 ``RESTRICTED_CONTACT_ROLES`` 本身（它仍表示个人联系信息族，
+#: 其它用途与角色语义不变）。query.py 与 answer.py 两处拒答判定都只认这个子集。
+REFUSAL_CONTACT_ROLES: frozenset[str] = frozenset({"phone", "address"})
+#: R1/T-R1-102c（2026-11-17）：合同/结算账号/凭证族词表。这一族在台账里可能是真实列
+#: （“结算账号/合同编号/开户行”），却没有任何字段角色承载它——问句索取凭据时既不会进
+#: ``field_roles``，也不会命中 R0/C12 的电话/地址拒答条件，于是“位置 + 由谁对接 + 完整合同
+#: 和结算账号”会照常作答并把这列渲染进正文（M5：应拒未拒）。这里只登记**凭据语义**的词面，
+#: 不做题号/文件名特判；法规/制度正文题（“合同条款第几条”）由 ``is_policy_question``
+#: 先行排除，不被本族吞掉。
+CONTRACT_CREDENTIAL_WORDS: tuple[str, ...] = (
+    "合同",
+    "账号",
+    "账户",
+    "银行卡",
+    "凭证",
+    "开户行",
+    "开户银行",
+    "税号",
+    "密码",
+)
 FIELD_WORDS: dict[str, tuple[str, ...]] = {
     "location": ("位置", "在哪", "哪里", "哪儿", "搁哪", "搁哪儿", "放哪", "放到哪", "放在哪", "存放", "位于", "所在"),
     "price": ("参考供价", "建议零售价", "会员价", "档期特价", "箱促价", "组合价", "零售价", "价格", "单价", "多少钱", "售价", "特价", "供价"),
@@ -40,7 +68,14 @@ FIELD_WORDS: dict[str, tuple[str, ...]] = {
     "date": ("日期", "时间", "什么时候", "盘点时间", "活动日期", "更新日期"),
     "height": ("高度", "高度区间", "陈列高度"),
     "note": ("备注", "规则", "限购", "搭赠", "摆放要求", "扣分规则"),
-    "contact": ("联系人", "负责人"),
+    # R0/C27（2026-11-16 SAFE 投影）：问句用“找谁对接”这类**通用联系人问法**时，
+    # contact 词表只登记「联系人 / 负责人」会整句不命中——``_match_fields`` 只给出
+    # ``("phone", "address")``，答案层只渲染 ``plan.field_roles`` 里的角色，
+    # 于是同一被引行里承载期望值的 contact 列整列丢失（``value_hit`` 缺值 / ``role_missing``）。
+    # 只补“问的是某个人”的通用说法；**不**登记单字「谁」（会把任何“谁……”的句子都当
+    # 联系字段），也**不**按同族角色自动扩展（问 phone/address 就带上 contact），
+    # 否则“只问电话”的答案会多渲染联系人姓名（见 tests/rag/test_r0_11_contact_family.py）。
+    "contact": ("联系人", "负责人", "对接", "找谁"),
     "phone": ("电话", "联系电话", "手机号", "手机号码", "联系方式"),
     "address": ("地址", "门店地址", "详细地址"),
     "status": ("合作状态", "合作关系", "状态"),
@@ -87,6 +122,27 @@ ENUMERATE_WORDS = (
     "总共有多少",
 )
 ANAPHORA_WORDS = ("它", "这个", "那个", "该", "上述", "刚才", "前面", "这家", "那家", "这种", "该项", "其")
+#: v3-fix-1/R1：量化指代（“这两个/这几个/那两家”）**没有点名目标**，不是“本轮显式列出
+#: 多个目标”。fix-1/A 的多目标判定只认 ``ANAPHORA_WORDS`` 里的“这个/那个”，漏掉了
+#: “这 + 两 + 个”这种形式，导致“城东店和城西店的这两个……”被当成多目标放行。
+#: 复指限定语（“海报和易拉宝这两个”“这两个店”）指代的是本轮已点名的对象，不算纯指代。
+_QUANTIFIED_ANAPHORA = re.compile(r"(?:这|那)\s*(?:两|几|俩)\s*(?:个|家)")
+_QUANTIFIED_ANAPHORA_HEADS = (
+    "门店",
+    "店铺",
+    "店家",
+    "物品",
+    "商品",
+    "产品",
+    "东西",
+    "资料",
+    "字段",
+    "记录",
+    "目标",
+    "条目",
+    "店",
+)
+_QUANTIFIED_ANAPHORA_JOINERS = "和与及跟同"
 SWITCH_WORDS = ("换成", "改为", "另外", "其他", "不说", "重新问", "换个", "再问一个", "换一个话题")
 #: T102/ERR-02：无显式实体、无记录字段时，哪些问法仍应按“政策/制度/流程题”独立检索，
 #: 而不是继承上一轮门店/物品。法规名词由 ``is_regulation_question`` 统一覆盖，这里只补
@@ -206,6 +262,25 @@ _REGION_LEADINS = frozenset("是在和与及或的看查询问去到的从往对
 #: 必须由 RAG 自己返回（含 state 重置），否则会落到 legacy 意图层重新继承上一轮门店。
 #: 该键只用于让澄清计划被识别，`answer_question` 在 clarification 分支提前返回，不参与检索。
 _RAG_OWNED_CLARIFICATION_FILTER = "identifier"
+#: R1/T-R1-106b（C22）：多门店同现时的“旁证状态”问法。问句里另一家门店所在子句若只问
+#: “这条登记能不能用/是否生效”，它不是本轮取值的第二个目标——数值与引用只能来自被问的
+#: 那家门店，异店只允许“尚未生效／不能作为依据”的状态说明。这里只登记**判断口径**的词面，
+#: 不含门店名/物品名，也不按题号或资料文件名硬编码。
+_VALIDITY_ASK_PATTERN = re.compile(
+    r"(?:"
+    r"作为[^，,。？?！!；;]{0,6}依据"
+    r"|能作为|能否作为|能不能作为|可作为"
+    r"|能用吗|能用么|能否用|能不能用|可以用吗|可用吗|是否可用"
+    r"|是否有效|有没有效|有效吗|生效了吗|生效没有|有没有生效"
+    r"|尚未生效|未生效|还没生效|没有生效|已失效|过期"
+    r")"
+)
+#: 判定“这一家在问字段值吗”时先剥掉的状态词：它们本身是台账字段同形词
+#: （``FIELD_WORDS["effective_from"]`` 收「生效」），但在这里只是旁证状态判断，
+#: 不构成对本轮目标门店的字段请求。
+_VALIDITY_STATUS_WORDS = re.compile(
+    r"尚未生效|未生效|还没生效|没有生效|已失效|过期|生效|失效"
+)
 _BAD_STORE_WORDS = (
     "门店",
     "店家",
@@ -385,6 +460,37 @@ def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
     return any(word in text for word in ANAPHORA_WORDS)
 
 
+def _bare_quantified_anaphora(question: str, lexicon: Lexicon) -> bool:
+    """v3-fix-1/R1：问题里是否有**未点名目标**的量化指代（“这两个/这几个/那两家”）。
+
+    两种复指用法不算纯指代（它们指代的对象在同一轮里已点名）：
+    - **后置名词**：``这两个店`` / ``这几个物品``（量化词后面紧跟目标名词或词表实体）；
+    - **前置枚举**：``海报和易拉宝这两个`` / ``城东店、城西店这两家``（量化词前面只隔
+      标点/空白就是已点名的目标；``…和这两个`` 这类用连接词另起一个目标的仍算纯指代）。
+
+    其余位置（``城东店和城西店的这两个分别……``、``这两个分别……``）都是纯指代：
+    本轮没有说清“这两个”是哪两个目标。
+    """
+    text = _norm(question)
+    heads = tuple(
+        dict.fromkeys(
+            [_norm(head) for head in _QUANTIFIED_ANAPHORA_HEADS]
+            + [_norm(label) for label in lexicon.all_entity_labels()]
+        )
+    )
+    heads = tuple(head for head in heads if head)
+    for match in _QUANTIFIED_ANAPHORA.finditer(text):
+        following = text[match.end() :].lstrip()
+        if any(following.startswith(head) for head in heads):
+            continue
+        preceding = text[: match.start()].rstrip(" \t,，、/|｜")
+        if preceding and preceding[-1] not in _QUANTIFIED_ANAPHORA_JOINERS:
+            if any(preceding.endswith(head) for head in heads):
+                continue
+        return True
+    return False
+
+
 def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
     """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
     不判记录字段。
@@ -412,6 +518,21 @@ def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple
             continue
         kept.append(role)
     return tuple(kept)
+
+
+def is_contract_credential_question(question: str) -> bool:
+    """问题是否在索取合同/结算账号/凭证等凭据（R1/102c）。
+
+    与 ``field_roles`` 无关：M5 红例（“位置 + 由谁对接 + 完整合同和结算账号”）与
+    R0/C12 放行的合法面（“位置 + 对接人”）``field_roles`` 完全同形
+    （``("location", "contact")``），所以凭据词面是唯一可判据——按“多字段 + contact”
+    或字段数拒答会把冻结合法面（C12 t7：位置 + 对接人 + 合作状态 → should_refuse=False）
+    连同 ``tests/rag/test_r0_11_contact_family.py`` 的“对接 + 电话 + 地址”一起拒掉。
+    """
+    text = _norm(question)
+    if not text:
+        return False
+    return any(_norm(word) in text for word in CONTRACT_CREDENTIAL_WORDS)
 
 
 #: P1-FIX/A：公司级经营/财务指标检测（越界资料范围）。
@@ -460,19 +581,43 @@ def financial_metric_question(question: str) -> str | None:
     return None
 
 
+#: 指标词后的“值位置”：连接词/空白 + 数值（可带万亿千百与元/%），或“百分之…”。
+#: 只认值位置，不认邻近窗口里的任意数字——编号、日期等无关数字不构成指标支持。
+#: 数值核心后的守卫：紧随的 年份/会计期间形态（标准会计/日历年份术语：财政/会计/预算/报告/纳税/自然/日历/公历/学 等前缀 + 年/年度，及 财年缩略）或 年/月/日 或 -/−// 接数字是日期/年份形态
+#: （“毛利2026年度…”“毛利2026-04-01…”“毛利2028财年…”“毛利2033财政年度…”“毛利2037会计年度…”“毛利2038预算年度…”），不是指标取值；(?!\d|\.\d|,\d) 禁止回退截断数字前缀。
+#: 数值前允许负号（-/−/负）：亏损原值“净利润为 -908 万元”是合法取值。
+#: 指标词与数值之间允许一个括号单位说明（“毛利（万元）：6175”），括号内容不参与取值。
+#: 千分位分组（6,175）按完整数值匹配，绑定核心去掉逗号，避免截断成前导“6”。
+_METRIC_VALUE_SLOT = re.compile(
+    r"(?P<lead>[ \t：:为是达到约共计人民币]*)"
+    r"(?:[（(](?P<paren>[^（）()]{0,16})[）)][ \t：:为是达到约共计人民币]*)?"
+    r"(?:[-−负][ \t]*)?"
+    r"(?:"
+    r"(?P<num>\d+(?:,\d{3})*(?:\.\d+)?)"
+    r"(?!\d|\.\d|,\d)"
+    r"(?!\s*(?:财年|(?:财政|会计|预算|报告|纳税|自然|日历|公历|学)?年(?:度)?|[年月日]))"
+    r"(?![-−/]\s*\d)"
+    r"(?P<mult>[ \t]*[万亿千百])?"
+    r"(?P<unit>[ \t]*[元%％])?"
+    r"|百分之(?P<pct>[0-9一二三四五六七八九十百千点.]+)"
+    r")"
+)
+
+
 def _metric_value_context(text: str, term: str) -> bool:
-    """指标词附近是否有数值/百分比——用来区分“资料给出该指标的数据”与“只是提到该词”。
+    """指标词后的值位置是否有数值/百分比——区分“资料给出该指标的数据”与“只是提到该词”。
 
     例如 W03“须同时提交毛利影响测算”只出现“毛利”而没有数值，不能当作“公司毛利数据”；
-    若资料写“营收 4812 万元”，指标词与数字在同一窗口内，才算有资料支持。
+    “编号YF-07 日期2026-03-12”这类邻近数字也不算支持。只有指标词后紧跟值位置
+    （如“营收 4812 万元”“毛利为 4812 万元”）才算有资料支持。
     """
     start = 0
     while True:
         index = text.find(term, start)
         if index < 0:
             return False
-        window = text[max(0, index - 40) : index + len(term) + 60]
-        if re.search(r"\d|%|百分之", window):
+        after = text[index + len(term) : index + len(term) + 40]
+        if _METRIC_VALUE_SLOT.match(after):
             return True
         start = index + 1
 
@@ -495,6 +640,171 @@ def texts_support_financial_metric(metric: str, texts: Iterable[str]) -> bool:
             if key and key in normalized and _metric_value_context(normalized, key):
                 return True
     return False
+
+
+#: 值位置里的数值核心（与 ``_value_tokens`` 的 ASCII 数据值口径一致，中文叙述不参与）。
+_METRIC_VALUE_NUMBER = re.compile(r"\d+(?:\.\d+)?")
+
+#: 括号单位说明里的单位/倍率（“毛利（万元）：6175”的单位在括号里）。
+_METRIC_PAREN_UNIT = re.compile(r"([万亿千百])?\s*([元%％])")
+
+
+def _binding_value(match: re.Match) -> tuple[str, str, str] | None:
+    """值位置匹配 → (数值核心, 倍率, 单位类)；无数值核心（纯中文数字）返回 None。
+
+    数值核心去千分位逗号；“百分之X”与“X%”统一为 % 类；单独倍率（“6175万”）
+    按元类计；数值自身无单位时回退取括号单位说明。单位/倍率参与绑定核对，
+    “908 万元”与“908 元”不是同一绑定。
+    """
+    pct = match.group("pct")
+    if pct is not None:
+        number = _METRIC_VALUE_NUMBER.search(pct)
+        if not number:
+            return None
+        return (number.group(0), "", "%")
+    core = match.group("num").replace(",", "")
+    mult = (match.group("mult") or "").strip()
+    unit = (match.group("unit") or "").strip().replace("％", "%")
+    if not mult and not unit:
+        paren_unit = _METRIC_PAREN_UNIT.search(match.group("paren") or "")
+        if paren_unit:
+            mult = paren_unit.group(1) or ""
+            unit = paren_unit.group(2).replace("％", "%")
+    if mult and not unit:
+        unit = "元"
+    return (core, mult, unit)
+
+
+def metric_value_bindings(text: str, metric: str) -> set[str]:
+    """文本中绑定到该指标同义词组的数值核心集合（只取指标词后值位置里的数字）。
+
+    与 ``texts_support_financial_metric`` 共用值位置判定：编号/日期等邻近数字不算绑定。
+    供答案准入核对“回答把哪个值绑到了哪个指标”，而不是“值在全文出现过”；
+    调用方传入的应是**本次实际引用**的来源正文，未引用候选不能为绑定背书。
+    """
+    normalized = _norm(str(text or ""))
+    if not normalized:
+        return set()
+    bindings: set[str] = set()
+    for term in financial_metric_terms(metric):
+        key = _norm(term)
+        if not key:
+            continue
+        start = 0
+        while True:
+            index = normalized.find(key, start)
+            if index < 0:
+                break
+            after = normalized[index + len(key) : index + len(key) + 40]
+            match = _METRIC_VALUE_SLOT.match(after)
+            if match:
+                value = _binding_value(match)
+                if value is not None:
+                    bindings.add(value[0])
+            start = index + 1
+    return bindings
+
+
+#: 绑定核对的真同义/缩写归并（仅用于 M2 值绑定身份，不改问题识别/资料支持的同义词组）：
+#: 净利/纯利 是 净利润 的真缩写；营业收入/营收/营业额 等互为合法同义改写。
+#: 毛利 与 净利润 虽同属“利润”组，但不是同义指标，绑定身份各自独立（组内误绑须拒绝）。
+_METRIC_BINDING_IDENTITY_MAP = {
+    "净利": "净利润",
+    "纯利": "净利润",
+    "营业总收入": "营收",
+    "营业收入": "营收",
+    "营收额": "营收",
+    "营业额": "营收",
+}
+
+_METRIC_BINDING_TERMS = tuple(
+    sorted(
+        {term for _canonical, terms in FINANCIAL_METRIC_TERMS for term in terms}
+        | set(_METRIC_BINDING_IDENTITY_MAP),
+        key=lambda item: (-len(item), item),
+    )
+)
+
+
+def metric_binding_identity(metric: str) -> str:
+    """指标词 → 绑定核对身份（真同义/缩写归并，其余词各自独立）。"""
+    return _METRIC_BINDING_IDENTITY_MAP.get(metric, metric)
+
+
+def metric_binding_values(text: str) -> dict[str, set[tuple[str, str, str]]]:
+    """文本按绑定身份聚合的指标取值：{身份: {(数值核心, 倍率, 单位类), …}}。
+
+    与组级 ``metric_value_bindings`` 的区别：毛利/净利润等同组不同义指标各自独立，
+    且绑定携带单位/倍率（“908 万元”与“908 元”不是同一绑定）。只取指标词后值位置
+    里的数值；调用方传入的应是本次实际引用的来源正文或待核对的回答文本。
+    """
+    normalized = _norm(str(text or ""))
+    bindings: dict[str, set[tuple[str, str, str]]] = {}
+    if not normalized:
+        return bindings
+    for term in _METRIC_BINDING_TERMS:
+        key = _norm(term)
+        if not key:
+            continue
+        identity = metric_binding_identity(term)
+        start = 0
+        while True:
+            index = normalized.find(key, start)
+            if index < 0:
+                break
+            after = normalized[index + len(key) : index + len(key) + 40]
+            match = _METRIC_VALUE_SLOT.match(after)
+            if match:
+                value = _binding_value(match)
+                if value is not None:
+                    bindings.setdefault(identity, set()).add(value)
+            start = index + 1
+    return bindings
+
+
+#: 未归属取值扫描里视为编号/日期内嵌的前导字符（ASCII 字母数字与常见连接符）：
+#: “LB-12”“2026-04-01”里的数字不是指标取值，沿用既有 token 口径，不在这里核对。
+_UNATTRIBUTED_ID_PREFIX = "0123456789abcdefghijklmnopqrstuvwxyz-_./:,"
+
+
+def unattributed_metric_values(text: str) -> set[tuple[str, str, str]]:
+    """文本里未绑到任何已知指标身份的“指标样取值”（省略指标名/组外缩写的回答）。
+
+    只取带连接词（为/是/：/达到/约/共计…）或单位/倍率的值位置数值；日期/年份形态
+    由值槽守卫排除，编号内嵌数字由前导字符排除。指标题里这类取值默认就是在回答
+    所问指标，必须由所问指标的被引绑定背书，空绑定集不能成为自由通行证（R4）。
+    """
+    normalized = _norm(str(text or ""))
+    values: set[tuple[str, str, str]] = set()
+    if not normalized:
+        return values
+    term_ends: set[int] = set()
+    for term in _METRIC_BINDING_TERMS:
+        key = _norm(term)
+        if not key:
+            continue
+        start = 0
+        while True:
+            index = normalized.find(key, start)
+            if index < 0:
+                break
+            term_ends.add(index + len(key))
+            start = index + 1
+    for match in _METRIC_VALUE_SLOT.finditer(normalized):
+        if match.start() in term_ends:
+            continue
+        value = _binding_value(match)
+        if value is None:
+            continue
+        lead = match.group("lead") or ""
+        has_connector = any(ch in lead for ch in "：:为是达到约共计人民币")
+        if not has_connector and not (value[1] or value[2]):
+            continue
+        prev = normalized[match.start() - 1] if match.start() > 0 else ""
+        if prev and prev in _UNATTRIBUTED_ID_PREFIX:
+            continue
+        values.add(value)
+    return values
 
 
 def _match_labels(question: str, labels: tuple[str, ...]) -> list[str]:
@@ -630,7 +940,11 @@ def identifier_shape(question: str) -> str | None:
 
 
 def _document_core(title: str) -> str:
-    return re.split(r"[_（(]", str(title), maxsplit=1)[0].strip()
+    title = str(title)
+    if re.match(r"^[DV]\d{2}_(?=.)", title, flags=re.IGNORECASE):
+        title = re.sub(r"^[DV]\d{2}_", "", title, flags=re.IGNORECASE)
+        title = re.sub(r"\.(?:xlsx?|docx?|pdf)$", "", title, flags=re.IGNORECASE)
+    return re.split(r"[_（(]", title, maxsplit=1)[0].strip()
 
 
 def _missing_document(question: str) -> str | None:
@@ -850,6 +1164,82 @@ def _unknown_region_tokens(question: str, lexicon: Lexicon) -> tuple[str, ...]:
     return tuple(tokens)
 
 
+def _primary_store_scope(
+    question: str, stores: tuple[str, ...]
+) -> tuple[str, tuple[str, ...], str] | None:
+    """多门店同现时判定“被问目标门店”（R1/T-R1-106b，C22）。
+
+    返回 ``(目标门店, 其余门店, 目标门店所在子句)``；判不出唯一目标时返回 ``None``
+    （完全保持既有行为）。判定只看题面结构，不按门店名/题号特判：
+
+    - 显式枚举问法（``ENUMERATE_WORDS``：全部/列出/分别/各店…）一律不判目标——用户要的
+      就是两家都列出来；
+    - 每个门店以“它第一次出现的位置”为界切出所在子句（到下一个门店第一次出现处为止）；
+    - 只有一个门店所在子句在问**记录字段值**，其余门店所在子句只含有效性/可用性判断
+      （“有一条尚未生效的登记，现在能作为取用依据吗”），这时前者是目标门店，后者只是
+      旁证状态问题，不构成第二个取值目标。
+
+    ``stores`` 来自 ``_match_stores``，顺序与本判定无关；调用方负责把目标门店排到首位。
+    """
+    labels = tuple(sorted({str(store) for store in stores if store}, key=lambda item: (-len(item), item)))
+    if len(labels) < 2:
+        return None
+    text = str(question or "")
+    if any(word in text for word in ENUMERATE_WORDS):
+        return None
+    positions: list[tuple[int, str]] = []
+    for label in labels:
+        index = text.find(label)
+        if index >= 0:
+            positions.append((index, label))
+    if len(positions) < 2:
+        return None
+    positions.sort()
+    windows: list[tuple[str, str]] = []
+    for order, (start, label) in enumerate(positions):
+        end = positions[order + 1][0] if order + 1 < len(positions) else len(text)
+        windows.append((label, text[start:end]))
+    asks_value: list[str] = []
+    for label, window in windows:
+        # 状态词/状态问法先剥掉再判“问的是什么字段”，否则“尚未生效”会被当成在问生效日期。
+        stripped = _VALIDITY_STATUS_WORDS.sub(" ", _VALIDITY_ASK_PATTERN.sub(" ", window))
+        roles = field_roles_for_question(stripped, has_entity=True)
+        if set(roles) & RECORD_FIELD_ROLES:
+            asks_value.append(label)
+    if len(asks_value) != 1:
+        return None
+    primary = asks_value[0]
+    others = tuple(label for label, _window in windows if label != primary)
+    if not others:
+        return None
+    if any(
+        not _VALIDITY_ASK_PATTERN.search(window) for label, window in windows if label != primary
+    ):
+        # 其余门店所在子句不是“能不能用/是否生效”的状态问题（例如也在问字段值）：
+        # 不判主目标，交回既有多目标/歧义路径。
+        return None
+    primary_question = next(window for label, window in windows if label == primary)
+    return primary, others, primary_question
+
+
+def _record_field_stores(question: str, item: str, lexicon: Lexicon) -> dict[str, str]:
+    """Bind an item location and a store status only when distinct clauses name their stores."""
+    targets: dict[str, str] = {}
+    for clause in re.split(r"[，。；？！,;!?\n]+", question):
+        roles = set(field_roles_for_question(clause, has_entity=True)) & {"location", "status"}
+        if not roles:
+            continue
+        stores = _match_stores(clause, lexicon)
+        if len(stores) != 1 or len(roles) != 1:
+            return {}
+        role = next(iter(roles))
+        has_item = bool(_match_aliases(clause, (item,), lexicon))
+        if has_item != (role == "location") or targets.get(role, stores[0]) != stores[0]:
+            return {}
+        targets[role] = stores[0]
+    return targets if len(set(targets.values())) == 2 else {}
+
+
 def _match_field(question: str) -> str | None:
     normalized = _norm(question)
     # 明确的生效/失效词优先于“组合价/价格”等泛化词。
@@ -868,20 +1258,94 @@ def _match_field(question: str) -> str | None:
     return None
 
 
+#: ``_match_field`` 里“明确的生效/失效词”同样用于识别**其余**被请求字段：``FIELD_WORDS``
+#: 只登记了完整问法（“什么时候开始生效”），同一语义的短问法（“什么时候生效”）会漏角色。
+#: 只登记字段词，不含任何业务数据；取值与 ``_match_field`` 的优先词逐字一致。
+_EXTRA_FIELD_ROLE_WORDS: dict[str, tuple[str, ...]] = {
+    "effective_to": ("失效", "截止", "结束日期"),
+    "effective_from": ("生效", "开始日期", "什么时候开始"),
+}
+#: ``date`` 的泛化问法：已判定有效期（``effective_from``/``effective_to``）时，问句里的
+#: “日期/时间/什么时候”是同一个字段的一部分，不再另立 ``date`` 字段角色（与 ``_match_field``
+#: 的既有优先级同口径）。“盘点时间/活动日期/更新日期”这类明确日期字段名不受影响。
+_GENERIC_DATE_WORDS: tuple[str, ...] = ("日期", "时间", "什么时候")
+_VALIDITY_WORDS: tuple[str, ...] = (
+    "失效",
+    "截止",
+    "结束日期",
+    "生效",
+    "开始日期",
+    "什么时候开始",
+)
+
+
+#: 并列问法的判定词：合取连词 + 中文列表里同样常见的逗号/分号。
+#: 只用于“本轮是否在问两个以上字段”，不参与取值。
+_FIELD_LIST_JOINERS: tuple[str, ...] = ("和", "及", "以及", "、", "与", "，", ",", "；", ";")
+# 同一轮可在下一句继续索取字段。只有后面还有内容时才把断句当作并列线索。
+_FIELD_CLAUSE_CONTINUATION = re.compile(r"[。！？!?\n]\s*[^。！？!?\s]")
+
+
+def _field_role_words(role: str) -> tuple[str, ...]:
+    return (*FIELD_WORDS.get(role, ()), *_EXTRA_FIELD_ROLE_WORDS.get(role, ()))
+
+
+#: 只作限定语的字段角色：问句里出现它们的词时不得作为额外请求角色被夹带。
+#: 既有反例“那这个组合价什么时候失效？”问的是失效时间，不是价格，见 ``_match_fields`` 文档。
+_QUALIFIER_ONLY_ROLES: frozenset[str] = frozenset({"price", "price_type"})
+
+
 def _match_fields(question: str) -> tuple[str, ...]:
-    """返回问题明确要求的多个字段；单价+规格这类并列问法不能只取第一个。"""
+    """返回问题明确要求的多个字段。
+
+    两个既有漏项都会让答案层整列丢弃同一条被引行里承载答案的那一列
+    （答案层只渲染 ``plan.field_roles`` 里的角色）：
+
+    1. “并列”只认 ``和/及/以及/、/与``：中文里同样常见的逗号/分号并列
+       （“地址，电话”“什么时候生效，什么时候失效”）被当成单字段问法；
+    2. 其余字段只用 ``FIELD_WORDS`` 的**完整问法**匹配，短问法（“什么时候生效”）
+       即使句中有合取词也收不到 ``effective_from``。
+
+    仍只按“问句明确并列了两个字段”扩展：句中只是拿字段词当限定语
+    （“那这个组合价什么时候失效？”问的是失效时间）时不夹带其它字段。
+    """
     normalized = _norm(question)
     found: list[str] = []
     first = _match_field(question)
     if first:
         found.append(first)
-    if not any(word in question for word in ("和", "及", "以及", "、", "与")):
+    if not any(word in question for word in _FIELD_LIST_JOINERS) and not _FIELD_CLAUSE_CONTINUATION.search(question):
+        # R0/C21（2026-11-16 实测证据）：无并列词时，若句首命中是有效期角色
+        # （``effective_from``/``effective_to``，由 :1104-1107 的严格优先返回），
+        # 句子里另有**登记字段词**时不得整列丢弃该角色——C21 的问句同时含位置词与
+        # “失效”，旧逻辑只留 ``effective_to``，答案层因而不渲染位置列，``value_hit`` 缺值。
+        # 仍然严格保留既有反例：问“组合价什么时候失效”时价格词只是限定语，
+        # 价格类角色一律不夹带（``price``/``price_type`` 白名单排除）。
+        if first in {"effective_from", "effective_to"}:
+            for role in FIELD_WORDS:
+                if role in found or role in _QUALIFIER_ONLY_ROLES or role == "date":
+                    # ``date`` 是有效期角色的泛化父类：有效期已命中时再加它会把通用日期列
+                    # 一起拉进来（既有 :1175-1185 的同一取舍），因此一律不扩展。
+                    continue
+                if any(_norm(word) in normalized for word in _field_role_words(role)):
+                    found.append(role)
         return tuple(found)
-    for role, words in FIELD_WORDS.items():
+    for role in FIELD_WORDS:
         if role in found:
             continue
-        if any(_norm(word) in normalized for word in words):
+        if any(_norm(word) in normalized for word in _field_role_words(role)):
             found.append(role)
+    if (
+        "date" in found
+        and found[0] != "date"
+        and any(_norm(word) in normalized for word in _VALIDITY_WORDS)
+        and not any(
+            _norm(word) in normalized
+            for word in FIELD_WORDS["date"]
+            if word not in _GENERIC_DATE_WORDS
+        )
+    ):
+        found.remove("date")
     return tuple(found)
 
 
@@ -908,6 +1372,8 @@ def _anaphora_residual_terms(question: str, lexicon: Lexicon) -> tuple[str, ...]
     新的问法；此时才需要判断“问什么”。带“打印材质/陈列要求”等新内容的问题不走本分支。
     """
     text = _norm(question)
+    # v3-fix-1/R1：量化指代（“这两个/这几个”）本身不是新内容；去掉后再看还剩什么检索词。
+    text = _QUANTIFIED_ANAPHORA.sub(" ", text)
     labels = [*lexicon.all_entity_labels(), *lexicon.identifiers]
     labels.extend(str(alias) for alias in (lexicon.alias_map or {}))
     for label in sorted({item for item in labels if item}, key=len, reverse=True):
@@ -981,6 +1447,7 @@ def _new_state(
     question: str,
     slots: Mapping[str, str | None],
     stores: tuple[str, ...],
+    items: tuple[str, ...] = (),
     field_role: str | None,
     field_roles: tuple[str, ...],
     enumerate: bool,
@@ -988,6 +1455,8 @@ def _new_state(
     page_size: int,
     as_of: str | None,
     reset: bool,
+    retain_store_scope: bool = False,
+    store_scope: str | None = None,
 ) -> QueryState:
     state = QueryState(
         user_id=previous.user_id,
@@ -1000,6 +1469,7 @@ def _new_state(
         state.store = previous.store
         state.stores = previous.stores
         state.item = previous.item
+        state.items = previous.items
         state.product = previous.product
         state.channel = previous.channel
         state.price_type = previous.price_type
@@ -1016,6 +1486,13 @@ def _new_state(
         state.doc_title = None
         state.store = None
         state.stores = ()
+        state.items = ()
+        # T-R1-102b（M3）：话题切换轮本身不继承门店（``store`` 仍为空、filters 不带门店），
+        # 但上一轮**唯一且明确**的门店范围不能就此丢失：沿 ``stores`` 留到下一轮，
+        # 供不带显式门店的记录追问按 ``store_scope`` 收回。只有唯一门店才保留——
+        # 多店枚举没有“唯一作用域”可继承，不猜。
+        if retain_store_scope and len(previous.stores) == 1:
+            state.stores = tuple(previous.stores)
     elif slots.get("doc_id") and previous.doc_id and slots.get("doc_id") != previous.doc_id:
         # 明确切到另一份资料时，旧实体/字段条件不再适用于新资料。
         state.store = state.item = state.product = state.channel = state.price_type = state.identifier = None
@@ -1026,6 +1503,8 @@ def _new_state(
         state.doc_id = previous.doc_id
         state.doc_title = previous.doc_title
     # 明确切换实体时清掉旧实体的标识/渠道/价格类型，避免把 QF02 带到滨江店查询。
+    if len(stores) > 1 and not slots.get("identifier"):
+        state.identifier = None
     if slots.get("store") and previous.store and slots.get("store") != previous.store and not slots.get("identifier"):
         state.identifier = None
     if slots.get("item") and previous.item and slots.get("item") != previous.item and not slots.get("identifier"):
@@ -1046,6 +1525,32 @@ def _new_state(
         state.store = stores[0]
     elif slots.get("store"):
         state.stores = (slots["store"],)
+    # v3-fix-1/A：多目标物品只在“本轮明确点名多个物品”时进入状态；换了门店/改问单物品
+    # 时必须清掉旧集合，避免上一轮的多目标过滤条件污染本轮检索。
+    if items:
+        state.items = tuple(items)
+        if len(items) > 1:
+            state.item = None
+            if not slots.get("identifier"):
+                state.identifier = None
+    elif slots.get("item"):
+        state.items = (slots["item"],)
+    elif slots.get("store") or stores:
+        state.items = ()
+    # T-R1-102b（M3）：上一轮因话题切换而暂存下来的唯一门店范围，在本轮没有显式换店/
+    # 换标识时收回。条件由 ``parse_query`` 判定（只在记录型追问上给 ``store_scope``）：
+    # 这里只做“本轮确无门店条件”的落地，``filters`` 由 state 派生，因此检索与答案
+    # 都只落在该门店；显式点名的门店/多店问法已在上面覆盖，不会被这里改写。
+    if (
+        store_scope
+        and not reset
+        and not state.store
+        and not slots.get("store")
+        and not stores
+        and not slots.get("identifier")
+    ):
+        state.store = store_scope
+        state.stores = (store_scope,)
     if field_role:
         state.field_role = field_role
     if field_roles:
@@ -1086,16 +1591,18 @@ def _required_missing(state: QueryState, mode: str) -> str | None:
         return None
     if state.enumerate and not state.field_role and (state.store or state.item or state.product):
         return None
+    # v3-fix-1/A：本轮明确点名多个物品时，“物品”这一维已给出，不再要求补门店。
+    has_item_scope = bool(state.item) or len(tuple(getattr(state, "items", ()) or ())) > 1
     if state.field_role == "price":
-        if not (state.product or state.item or state.identifier):
+        if not (state.product or has_item_scope or state.identifier):
             return "product"
     if state.field_role in ("location", "quantity", "note"):
-        if not (state.store or state.item or state.product or state.identifier):
+        if not (state.store or has_item_scope or state.product or state.identifier):
             return "store"
     if state.field_role in ("contact", "phone", "address", "status"):
         if not state.store:
             return "store"
-    if not any((state.store, state.item, state.product, state.identifier, state.doc_id)):
+    if not any((state.store, has_item_scope, state.product, state.identifier, state.doc_id)):
         return "store"
     return None
 
@@ -1120,6 +1627,17 @@ def parse_query(
     strong_policy_topic = _strong_policy_topic(question)
     policy_followup = is_policy_followup(question) or strong_policy_topic
     stores = _match_stores(question, lexicon)
+    # R1/T-R1-106b（C22）：两家门店同现、但只有一家是被问目标时，目标门店排到首位
+    # （``state.store`` 取首位），字段请求只按目标门店所在子句解析——“乙店有一条尚未生效
+    # 的登记，现在能作为取用依据吗”里的「生效」不是本轮的字段请求，而是旁证状态问题。
+    # 其余门店仍留在 ``stores`` 里：它们是本轮**被提到的**门店，答案层要用它们的有效期
+    # 状态给出“尚未生效/不能作为依据”的说明；取值与引用不进这些门店的行。
+    primary_scope = _primary_store_scope(question, stores)
+    field_question = question
+    if primary_scope:
+        primary_store, other_stores, primary_question = primary_scope
+        stores = (primary_store, *other_stores)
+        field_question = primary_question
     unknown_stores = _unknown_store_tokens(question, lexicon)
     unknown_regions = _unknown_region_tokens(question, lexicon)
     store = stores[0] if stores else None
@@ -1131,7 +1649,6 @@ def parse_query(
     price_type_hits = _match_price_types(question, lexicon)
     identifier = _match_identifier(question, lexicon)
     document, document_candidates = _match_document(question, lexicon)
-    missing_document = _missing_document(question) if document is None else None
     missing_stores = unknown_stores if stores else ()
     # T102/ERR-02：政策题里的“档期”指物料档期，不是“档期特价”这个价格类型；无实体时
     # 不能把它当成记录型价格条件，否则会被 _required_missing 判成“请补充门店”。
@@ -1150,12 +1667,22 @@ def parse_query(
         "doc_title": document.title if document else None,
     }
     field_roles = field_roles_for_question(
-        question,
+        field_question,
         has_entity=bool(
             store or item_hits or product or product_candidates or channel_hits or identifier
         ),
     )
     field_role = field_roles[0] if field_roles else None
+    # v3-fix-2/A：本轮已点名记录实体（门店/物品/商品/标识）**且**问的是记录字段时，
+    # “XX表/XX清单/XX通知/XX资料”这类字样只是行文里的顺带提及，不是“点了一份不存在的资料”。
+    # 让 ``_missing_document`` 在这种轮次上不触发，避免把可作答的记录题判成 DOCUMENT_NOT_FOUND
+    # （同一 gate 也用于资料歧义分支：记录实体已唯一确定时，资料歧义不该抢占记录作答）。
+    # 反例保持：点名未收录资料的题（“促销活动台账在哪里？”）没有记录实体/记录字段，仍按原路判缺失。
+    record_scope = bool(stores or item_hits or product or identifier)
+    record_field_scope = record_scope and field_role in RECORD_FIELD_ROLES
+    missing_document = (
+        _missing_document(question) if document is None and not record_field_scope else None
+    )
     page_request = _page_request(question, previous)
     enumerate_flag = any(word in question for word in ENUMERATE_WORDS)
     if page_request is not None and previous.enumerate:
@@ -1193,7 +1720,8 @@ def parse_query(
         slots.get(key) and slots.get(key) == getattr(previous, key)
         for key in ("store", "item", "product", "identifier", "doc_id")
     )
-    anaphora = any(word in question for word in ANAPHORA_WORDS)
+    quantified_anaphora = _bare_quantified_anaphora(question, lexicon)
+    anaphora = quantified_anaphora or any(word in question for word in ANAPHORA_WORDS)
     anaphora_residual = _anaphora_residual_terms(question, lexicon) if anaphora else ()
     # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
     # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
@@ -1211,12 +1739,16 @@ def parse_query(
     # （无上一轮门店时拒答）；该分支的检索预算行为已有 P0 live 结构上界测试锁定，本包不改。
     unknown_region_scope = bool(unknown_regions and not stores)
     reset = False
+    retain_store_scope = False
     if any(word in question for word in SWITCH_WORDS):
         reset = True
     elif unknown_region_scope:
         reset = True
     elif topic_switch:
         reset = True
+        # T-R1-102b（M3）：话题切换轮不猜门店（本轮 ``store``/``filters`` 仍为空），
+        # 但上一轮唯一明确的门店范围保留到状态里，供下一轮不带显式门店的记录追问收回。
+        retain_store_scope = True
     elif explicit_entity and previous_entity and not overlap and field_role is not None:
         reset = True
     elif field_role in DOCUMENT_FIELD_ROLES and previous_entity and not explicit_entity:
@@ -1225,11 +1757,53 @@ def parse_query(
         # 澄清后换了对象：保留其它有效条件，只替换该对象。
         reset = False
 
+    # T-R1-102b（M3）：哪些轮次可以把上一轮暂存的唯一门店范围收回为检索条件。
+    # 只在“记录型追问”上收口：本轮问的是记录字段（或已点名物品/标识），且没有显式
+    # 换店、没有换到商品/渠道/价格类型这些另一族实体，也不是政策/正文题。
+    store_scope_followup = (
+        bool(previous.stores)
+        and len(previous.stores) == 1
+        and previous.store is None
+        and not stores
+        and not slots.get("store")
+        and not slots.get("identifier")
+        and not (slots.get("product") or slots.get("channel") or slots.get("price_type"))
+        and field_role in RECORD_FIELD_ROLES
+        and not policy_followup
+    )
+
+    # v3-fix-1/A：同一轮内**明确提出**的多个目标（同一维度 ≥2、另一维度 ≤1）按多目标
+    # 枚举执行，不再判澄清：目标都是词表里的确定实体，答案按目标逐条列出。
+    # 真歧义仍保持既有澄清/拒绝面：两个维度都 ≥2（交叉配对不明）、词表外门店/区域、
+    # 资料或产品歧义、本轮没有可回答的字段、指代追问与政策正文题都不在此列。
+    multi_stores = len(stores) > 1
+    multi_items = len(item_hits) > 1 and not product
+    # v3-fix-2/A：指代词的两种身份要分开。**指代本身充当目标**（“这两个/这几个/它们”，
+    # 本轮没点名物品）时仍是真歧义，必须澄清（fix-1r1 正面成果）；指代词只是行文里的
+    # 回指填充（“那个位置”“那件已经停用的”），而本轮已点名物品目标时，目标由显式实体
+    # 唯一确定，不应再因一个虚指词把可作答的多目标轮次打回澄清。
+    anaphora_blocks_multi_target = anaphora and (quantified_anaphora or not (item_hits or product))
+    multi_target = (
+        (multi_stores != multi_items)
+        and field_role in RECORD_FIELD_ROLES
+        and not anaphora_blocks_multi_target
+        and not policy_followup
+        and not unknown_stores
+        and not unknown_regions
+        and not missing_document
+        and identifier is None
+        and not (document_candidates and not record_field_scope)
+        and not product_candidates
+    )
+    if multi_target:
+        enumerate_flag = True
+
     state = _new_state(
         previous,
         question=question,
         slots=slots,
         stores=stores,
+        items=item_hits if (multi_target and multi_items) else (),
         field_role=field_role,
         field_roles=field_roles,
         enumerate=enumerate_flag,
@@ -1237,6 +1811,8 @@ def parse_query(
         page_size=page_size,
         as_of=as_of,
         reset=reset,
+        retain_store_scope=retain_store_scope,
+        store_scope=previous.stores[0] if store_scope_followup else None,
     )
     if filled_pending:
         state.pending_slot = None
@@ -1245,6 +1821,63 @@ def parse_query(
         # 用户直接在问题里给出了澄清槽的值（例如“城东店”）：槽已满足，不能继续挂起。
         state.pending_slot = None
         state.candidates = ()
+    if multi_target:
+        # 本轮已点名多个确定目标：旧澄清槽不再挂起，避免下一轮又把已给出的一维当缺失。
+        state.pending_slot = None
+        state.candidates = ()
+    # 安全拒答必须先于候选歧义等早退，避免受限请求被当成普通澄清。
+    # R0/C12：单店物品查询只问对接人/负责人时放行；电话/地址仍按受限角色处理。
+    # R1/102c：合同/结算账号/凭证族的索取同样在此整体拒答（凭据列不进证据面/正文）。该判据
+    # 与实体、字段角色无关，所以不能写成“多字段 + contact”——M5 红例与 R0/C12 合法面同形。
+    # R2-206A（C29）：混合角色不再整题拒答。原判据 ``set(field_roles) & REFUSAL_CONTACT_ROLES``
+    # 把题面里**顺带抽到**的电话/地址角色当成整题的拒答理由（C29 的 field_roles =
+    # location/phone/status ⇒ 整题拒绝：值 0/2、来源 0/2），而冻结标签是 should_refuse=false、
+    # expected_kind=answer、期望答案不含电话值。这里把受限角色当作**可丢弃的请求角色**：
+    # 只有当本轮请求角色里除了电话/地址之外还剩**至少两个**可答角色时，才按正常路径生成计划，
+    # 并把受限角色从本轮请求角色集合中剔除（fail-closed 丢弃：不进 field_roles/requested_fields，
+    # 因而不进取值/渲染面）。保留的拒答面逐字不变：
+    # - 只问电话/地址，或“另一个角色 + 电话/地址”的既有冻结形态（R0/C12 的
+    #   “位置 + 联系电话”“找谁对接 + 电话/地址”、跨实体两店 + 电话）仍整题拒答；
+    # - 凭据族（``is_contract_credential_question``）始终整题拒答；
+    # - 政策/法规正文不进入本判据；请求中的“要求/规则”单独出现时也可能只是台账用词。
+    restricted_roles = set(field_roles) & REFUSAL_CONTACT_ROLES
+    other_roles = set(field_roles) - REFUSAL_CONTACT_ROLES
+    unpaired_items = len(item_hits) > 1 and not multi_target
+    # 多店位置与对接人无法按目标配对时，由内核在退回 legacy 前完成拒答及证据采集。
+    ambiguous_cross_store_contact = (
+        multi_stores
+        and not multi_target
+        and primary_scope is None
+        and not restricted_roles
+        and {"location", "contact"}.issubset(other_roles)
+    )
+    mixed_restricted_roles = (
+        bool(restricted_roles)
+        and len(other_roles) >= 2
+        and not policy_followup
+        and not unpaired_items
+    )
+    # 只能在可继续取值的形态丢弃受限角色。若多物品无法配对就会进入澄清，直接安全收口。
+    if (
+        (not is_policy_question(question) and is_contract_credential_question(question))
+        or (
+            not policy_followup
+            and (bool(item_hits) or identifier is not None)
+            and (ambiguous_cross_store_contact or (restricted_roles and not mixed_restricted_roles))
+        )
+    ):
+        return QueryPlan(
+            question=question, mode="record", query_text=question,
+            field_role=state.field_role, field_label=state.field_role, filters={},
+            terms=_terms(question), state=state, enumerate=state.enumerate,
+            page=state.page, page_size=state.page_size, include_future=include_future,
+            reason="SECURITY_RESTRICTED_CONTACT",
+        )
+    if mixed_restricted_roles and (bool(item_hits) or identifier is not None):
+        field_roles = tuple(role for role in field_roles if role not in REFUSAL_CONTACT_ROLES)
+        field_role = field_roles[0]
+        state.field_roles = field_roles
+        state.field_role = field_role
     if missing_document:
         return QueryPlan(
             question=question,
@@ -1267,7 +1900,9 @@ def parse_query(
         )
 
     # 多个候选对象：先澄清，不检索。
-    if document_candidates and not state.doc_id:
+    # v3-fix-2/A：本轮已点名记录实体且问的是记录字段时，记录目标已唯一确定，资料歧义不抢占作答
+    # （否则多店/单物品这类可作答轮次会被判 DOCUMENT_AMBIGUOUS → 交回 legacy → 多实体澄清）。
+    if document_candidates and not state.doc_id and not record_field_scope:
         return QueryPlan(
             question=question,
             mode="record" if (state.enumerate or field_role is None) else "document",
@@ -1303,7 +1938,9 @@ def parse_query(
             include_future=include_future,
             reason="PRODUCT_AMBIGUOUS",
         )
-    if len(item_hits) > 1:
+    if unpaired_items:
+        # v3-fix-1/A：本轮不满足多目标条件（例如门店与物品两维同时点名多个、交叉配对
+        # 不明，或没有可回答的字段）时，仍按“哪一条”先澄清；确定的多目标轮次不走这里。
         return QueryPlan(
             question=question,
             mode="record",
@@ -1470,8 +2107,14 @@ def parse_query(
     explicit_record_entity = any(
         slots.get(key) for key in ("store", "item", "product", "identifier")
     )
+    # v3-fix-2/B：“指代追问”按定义要有先行语（上文）。首轮（``previous.turn == 0``）没有可
+    # 回指的对象，此时句中“那个/该/其”只是行文虚指，不构成“追问”，不能据此把已点名门店+物品
+    # 的首轮请求直接收口成“未记录该字段”（那会在任何检索之前就把有据可答的问题判成找不到）。
+    # 首轮按“显式实体 → 记录枚举”作答；追问仍走原有 collapse（T105 R1/B2 口径不变）。
+    has_prior_context = previous.turn > 0
     anaphora_new_content = (
         anaphora
+        and has_prior_context
         and not field_roles
         and bool(anaphora_residual)
         and explicit_record_entity
@@ -1481,10 +2124,23 @@ def parse_query(
         # 也不能按继承字段作答；交回既有正文检索（T101 法规优先、T102 政策题口径）。
         and not policy_followup
     )
+    first_turn_new_content = (
+        anaphora
+        and not has_prior_context
+        and not field_roles
+        and bool(anaphora_residual)
+        and explicit_record_entity
+        and page_request is None
+        and not any(word in question for word in ENUMERATE_WORDS)
+        and not policy_followup
+    )
     if anaphora_new_content:
         # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
         state.enumerate = True
         plan_reason = "ANAPHORA_NEW_CONTENT"
+    elif first_turn_new_content:
+        # 首轮无先行语：按显式实体的记录枚举作答（不猜字段、不倾倒未问字段以外的内容）。
+        state.enumerate = True
     elif (
         explicit_record_entity
         and is_anaphora_field_followup(question, state.field_role)
@@ -1525,6 +2181,46 @@ def parse_query(
         state.enumerate = True
         plan_reason = "POLICY_TOPIC_FOLLOWUP"
 
+    # v3-fix-1/R1：纯指代不能当成本轮“显式列出多个目标”。已点名多个门店（或含词表外
+    # 门店）时，“这两个/这几个”到底指哪两个仍不能唯一确定：按“多个对象”先澄清，
+    # 既不回退成整表枚举，也不静默只答显式那一维。复指用法（“海报和易拉宝这两个”）
+    # 已在 ``_bare_quantified_anaphora`` 里排除；带显式物品目标的混合问句保持原路由。
+    if (
+        quantified_anaphora
+        and stores
+        and not item_hits
+        and (multi_stores or unknown_stores)
+        and field_role in RECORD_FIELD_ROLES
+        and identifier is None
+        and plan_reason is None
+    ):
+        labels = list(stores)
+        state.pending_slot = None
+        state.candidates = ()
+        return QueryPlan(
+            question=question,
+            mode="record",
+            query_text=question,
+            field_role=state.field_role,
+            field_label=state.field_role,
+            filters={},
+            terms=_terms(question),
+            state=state,
+            enumerate=state.enumerate,
+            page=state.page,
+            page_size=state.page_size,
+            clarification=copy_module.multiple_entities_text(labels),
+            candidates=(),
+            include_future=include_future,
+            reason="MULTIPLE_ENTITIES",
+        )
+
+    if multi_target and plan_reason is None:
+        # 只作“本轮由内核按多目标枚举作答”的标记（产品层据此把轮次交给 rag 内核），
+        # 不参与事实判定，也不改写任何拒绝/澄清原因。
+        # T-R1-106b（C22）：两家门店同现但只有一家被问时，按“主目标门店”作答（取值/引用
+        # 只来自目标门店，异店只作状态说明）；它同样走内核直答入口，故沿用多目标分支。
+        plan_reason = "PRIMARY_STORE_TARGET" if primary_scope else "MULTI_TARGET_ENUMERATE"
     filters = {
         key: str(getattr(state, key))
         for key in ("store", "item", "product", "channel", "price_type", "identifier")
@@ -1594,6 +2290,23 @@ def parse_query(
             include_future=include_future,
             reason="EMPTY_QUERY",
         )
+    record_field_stores = {}
+    if (
+        mode == "record"
+        and state.enumerate
+        and len(state.stores) == 2
+        and set(filters) == {"item"}
+        and state.field_role in {"location", "status"}
+        and set(state.field_roles) <= {"location", "status"}
+    ):
+        paging = page_request is not None and previous.enumerate and not explicit_entity and not stores
+        if (multi_target and not primary_scope) or paging:
+            scope_question = previous.last_question if paging else question
+            record_field_stores = _record_field_stores(scope_question or "", filters["item"], lexicon)
+            if record_field_stores:
+                state.field_roles = tuple(record_field_stores)
+                if paging:
+                    state.last_question = scope_question
     return QueryPlan(
         question=question,
         mode=mode,
@@ -1610,6 +2323,7 @@ def parse_query(
         field_roles=state.field_roles,
         missing_stores=missing_stores,
         reason=plan_reason,
+        record_field_stores=record_field_stores,
     )
 
 

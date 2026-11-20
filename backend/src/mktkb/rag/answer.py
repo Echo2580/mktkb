@@ -15,12 +15,16 @@ from typing import Any, Iterable, Iterator, Mapping
 
 from .. import copy as copy_module
 from ..observability import trace_attrs
+from ..observability.evaluation_capture import (
+    MAX_LIST_ITEMS, capture_enabled, current_capture_sink, emit_capture_event, safe_roles, safe_stores,
+)
 from ..retrieval.tokenize import cut, normalize
-from .chunking import first_value, role_label
+from .chunking import field_role, first_value, role_label
 from .errors import FactRejected, RagError
 from .facts import FactValidator
 from .query import (
     Lexicon,
+    REFUSAL_CONTACT_ROLES,
     build_lexicon,
     financial_metric_question,
     is_anaphora_field_followup,
@@ -124,6 +128,20 @@ def answer_question(
         )
         _commit(index, plan.state)
         return answer
+    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
+        # v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并，
+        # 在检索/模型之前整体拒答；文案是固定骨架，不含任何来源值。
+        answer = RagAnswer(
+            kind="no_answer",
+            question=question,
+            text=copy_module.text("SECURITY_RESTRICTED_CONTACT"),
+            state=plan.state.to_dict(),
+            reason="SECURITY_RESTRICTED_CONTACT",
+            answer_source="refusal",
+            diagnostics=_finish_diagnostics(index, diagnostics, started),
+        )
+        _commit(index, plan.state)
+        return answer
     if plan.clarification:
         text = plan.clarification
         if plan.candidates:
@@ -183,6 +201,47 @@ def answer_question(
         )
         _commit(index, plan.state)
         return answer
+    if capture_enabled():
+        try:
+            chunks: dict[str, Any] = {}
+            for collection in (result.exact, result.lexical, result.vector):
+                for chunk in collection:
+                    chunks.setdefault(chunk.chunk_id, chunk)
+            for chunk, _ in result.fused:
+                chunks.setdefault(chunk.chunk_id, chunk)
+            ids: set[str] = set()
+            for chunk in chunks.values():
+                if chunk.kind == "record" and chunk.record_unit_id:
+                    ids.add(str(chunk.record_unit_id))
+                ids.update(str(unit_id) for unit_id in (chunk.unit_ids or ()))
+                if chunk.kind == "record" and chunk.record_unit_id is None:
+                    ids.add(str(chunk.chunk_id))
+            ordered_ids = sorted(ids)
+            role_values = getattr(plan, "field_roles", None)
+            roles, unknown = safe_roles(role_values)
+            primary = getattr(plan, "field_role", None)
+            primary_roles, primary_unknown = safe_roles([primary] if primary is not None else [])
+            roles.extend(role for role in primary_roles if role not in roles)
+            unknown += primary_unknown
+            stores_state, stores_count = safe_stores(plan.state)
+            observed = result.diagnostics.get("store_join_observed", "unknown") if plan.mode == "record" else "not_applicable"
+            emit_capture_event(
+                "retrieval_observed", request_id=None, scope="direct_rag_retrieval",
+                unit_ids=ordered_ids[:MAX_LIST_ITEMS], candidate=True,
+                truncated=len(ordered_ids) > MAX_LIST_ITEMS, empty=not ids,
+                candidate_count=len(ordered_ids), page_has_more=bool(result.has_more),
+                candidate_scope_limit="unknown",
+                effective_roles=roles, role_unknown_count=unknown,
+                effective_mode=plan.mode if plan.mode in ("record", "document") else "unknown",
+                effective_enumerate=bool(plan.enumerate),
+                roles_state="available" if type(role_values) in (tuple, list) else "unknown",
+                stores_state=stores_state, stores_count=stores_count,
+                store_join_status=observed,
+            )
+        except Exception:  # observation failure must not change the answer
+            sink = current_capture_sink()
+            if sink is not None:
+                sink.fail("capture_internal_error", "direct_rag_retrieval")
     diagnostics.update(_result_diagnostics(result))
     trace_attrs.annotate_trace(
         pagination_json={
@@ -269,6 +328,73 @@ def _commit(index: Any, state: QueryState) -> None:
         index.save_state(state)
 
 
+def _store_join(result: RetrievalResult) -> dict[str, Any]:
+    """本轮由检索层并入的「联结店家行」载荷（R2-202C）；未触发联结时为空。
+
+    只在检索层**触发条件全部成立**时写入（见 ``retrieval._store_join_chunks``）；答案层是
+    消费者，不自己反推门店、不扩大联结面。
+    """
+    payload = (result.diagnostics or {}).get("store_join")
+    return dict(payload) if isinstance(payload, dict) else {}
+
+
+def _store_join_ids(result: RetrievalResult) -> set[str]:
+    return {str(chunk_id) for chunk_id in (_store_join(result).get("chunk_ids") or ())}
+
+
+def _store_join_value(result: RetrievalResult) -> str | None:
+    value = str(_store_join(result).get("store") or "")
+    return value or None
+
+
+def _record_marker(chunk: Any) -> str:
+    """记录行的稳定指纹标记（与 ``_record_line`` 同一派生，不依赖标题/行号）。
+
+    联结轮次里同一个门店既是物品行标签的一部分、又是店家行自己的标签，
+    纯标签匹配无法区分两行的事实归属；按记录身份（doc/version/source unit）绑定
+    是产品已有的口径（``_record_line``/``_citation``），这里直接复用。
+    """
+    from .facts import record_reference
+
+    return f"（记录 {record_reference(chunk.doc_id, chunk.version_id, chunk.record_unit_id or chunk.chunk_id)}）"
+
+
+def _record_scope(chunk: Any) -> tuple[str, str]:
+    """命中记录自己已规范化的业务范围 ``(store, item)``；缺失记为空串。
+
+    只读 ``filters_norm``（``rag/chunking._entity`` 按 ``normalize_field`` 写入的硬过滤键），
+    不取 ``role_values`` 原值、不按表头字面量、也不读资料名。
+    """
+    filters_norm = getattr(chunk, "filters_norm", None) or {}
+    return (
+        normalize(str(filters_norm.get("store") or "")),
+        normalize(str(filters_norm.get("item") or "")),
+    )
+
+
+def _entity_groups(plan: QueryPlan, exact: list) -> dict[Any, list]:
+    """本轮记录消歧的分组键（值仍是命中块列表）。
+
+    canonical ``chunk.entity_key`` 是记录级唯一身份，但同一标识可能被不同门店/物品复用
+    （``item|id:…`` 相同），只用它分组会把跨店记录并成一个对象、误报成字段冲突。
+    仅当**非枚举**且计划带标识过滤、且命中记录自己的业务范围存在 ≥2 个不同且非空的组合时，
+    才把该范围并入分组键；其余情况逐字沿用 ``chunk.entity_key or chunk.chunk_id``。
+    分组结果仍交给既有 ``MULTIPLE_ENTITIES`` / 单组多值分支，不新造 reason 或候选结构。
+    """
+    if not plan.filters.get("identifier") or plan.enumerate:
+        groups: dict[Any, list] = {}
+        for chunk in exact:
+            groups.setdefault(chunk.entity_key or chunk.chunk_id, []).append(chunk)
+        return groups
+    scopes = [_record_scope(chunk) for chunk in exact]
+    splittable = len({scope for scope in scopes if any(scope)}) >= 2
+    groups = {}
+    for chunk, scope in zip(exact, scopes):
+        key = chunk.entity_key or chunk.chunk_id
+        groups.setdefault((key, scope) if splittable else key, []).append(chunk)
+    return groups
+
+
 def _answer_record(
     index: Any,
     plan: QueryPlan,
@@ -277,6 +403,14 @@ def _answer_record(
     diagnostics: dict[str, Any],
     started: float,
 ) -> RagAnswer:
+    if plan.reason == "PRIMARY_STORE_TARGET":
+        # T-R1-106b（C22）：问句同时提到两家门店、但只有一家是被问目标时，取值与引用
+        # 只能来自目标门店；异店只允许名字 + 状态说明，不引用其记录行。
+        return _primary_store_answer(index, plan, result, validator, diagnostics, started)
+    if ambiguous_store := result.diagnostics.get("scoped_record_ambiguity"):
+        return _no_answer(
+            plan, copy_module.multiple_entities_text([ambiguous_store]), "MULTIPLE_ENTITIES", diagnostics,
+        )
     if plan.reason == "ANAPHORA_NEW_CONTENT":
         # T105 R1/B2：带新内容的指代追问问的不是台账记录字段（打印材质/陈列要求），
         # 不能回落到枚举/整条记录渲染；只说明未记录并提示可问字段，不输出任何未问字段值。
@@ -286,19 +420,25 @@ def _answer_record(
             "ANAPHORA_NEW_CONTENT",
             diagnostics,
         )
-    if plan.enumerate and is_anaphora_field_followup(plan.question, plan.field_role):
+    if plan.enumerate and int(getattr(plan.state, "turn", 0) or 0) > 1 and is_anaphora_field_followup(
+        plan.question, plan.field_role
+    ):
         # T105/ERR-06：指代追问只继承字段时，``enumerate`` 只是产品层“交给 rag 直答”的
         # 入口，用户没有要求枚举；这里按单字段答案渲染，避免把整条记录全字段倾倒出来。
+        # v3-fix-2/A：本收敛按定义只适用于**追问**（有上文可继承字段）。首轮没有可继承字段，
+        # 句中“那个/该/其”只是行文虚指；若照旧把 enumerate 关掉，多目标轮次会退化成
+        # “多个对象不能唯一确定”的歧义澄清（可作答的题被判澄清）。首轮保持枚举渲染。
         plan = replace(plan, enumerate=False, state=QueryState.from_dict(plan.state.to_dict()))
         plan.state.enumerate = False
     exact = [
         chunk
         for chunk in result.exact
-        if not plan.field_role or chunk.role_values.get(plan.field_role)
+        if not plan.field_role
+        or chunk.role_values.get(plan.field_role)
+        or chunk.chunk_id in _store_join_ids(result)
+        or (plan.record_field_stores and plan.scoped_record_role(chunk))
     ]
-    groups: dict[str, list] = {}
-    for chunk in exact:
-        groups.setdefault(chunk.entity_key or chunk.chunk_id, []).append(chunk)
+    groups = _entity_groups(plan, exact)
     if plan.enumerate:
         page_ids = {item.chunk_id for item in result.evidence}
         items = [chunk for chunk in exact if chunk.chunk_id in page_ids]
@@ -432,6 +572,153 @@ def _answer_record(
         "NO_EVIDENCE" if not _requested_stores(plan) else "NO_RECORD_FOR_ENTITY",
         diagnostics,
     )
+
+
+def _row_store(row: Any) -> str:
+    """记录行自己的门店键（规范化）；不是门店行时返回空串。
+
+    ``IndexedChunk`` 带 ``filters_norm``，``EvidenceItem`` 只有 ``fields``；两种都按
+    “硬过滤键优先、字段角色兜底”取值，避免按表头字面量匹配某份资料。
+    """
+    filters_norm = getattr(row, "filters_norm", None) or {}
+    key = str(filters_norm.get("store") or "")
+    if key:
+        return normalize(key)
+    for name, value in dict(getattr(row, "fields", None) or {}).items():
+        if field_role(str(name)) == "store" and str(value).strip():
+            return normalize(str(value))
+    return ""
+
+
+def _secondary_store_status_note(
+    validator: FactValidator,
+    result: RetrievalResult,
+    others: tuple[str, ...],
+) -> str | None:
+    """异店的“尚未生效／已过有效期，不能作为取用依据”状态说明（C22）。
+
+    依据是本轮检索里被业务基准日挡下的记录（``result.effective_hints``）：只取**门店列**
+    与该门店一致、且状态确实不是“当前有效”的行。说明文本只含门店名、状态与有效期日期，
+    **不含该行的任何字段值**，也不作为引用；文本单独按正文口径核验（数值必须来自该行），
+    所以无需把异店行放进事实/引用面。
+
+    没有可核实的有效期状态时返回 ``None``：不拿题面自称的“尚未生效”代替资料状态。
+    """
+    wanted = {normalize(str(store)): str(store) for store in others if str(store).strip()}
+    if not wanted or not result.effective_hints:
+        return None
+    notes: list[str] = []
+    seen: set[str] = set()
+    for chunk, status in result.effective_hints:
+        if status not in ("future", "expired"):
+            continue
+        key = _row_store(chunk)
+        if key not in wanted or key in seen:
+            continue
+        label = wanted[key]
+        if status == "future":
+            note = (
+                f"{label}的那条记录尚未生效（生效日期 {chunk.effective_from or '资料规定日期'}），"
+                "不能作为取用依据。"
+            )
+        else:
+            note = (
+                f"{label}的那条记录已过有效期（截止日期 {chunk.effective_to or '资料规定日期'}），"
+                "不能作为取用依据。"
+            )
+        try:
+            validator.validate_document_text(note, [chunk])
+        except FactRejected:
+            # 状态说明核验不过就整条不写：答案不能为了“答全”而渲染未经核实的结论。
+            continue
+        seen.add(key)
+        notes.append(note)
+    return "\n".join(notes) if notes else None
+
+
+def _primary_store_answer(
+    index: Any,
+    plan: QueryPlan,
+    result: RetrievalResult,
+    validator: FactValidator,
+    diagnostics: dict[str, Any],
+    started: float,
+) -> RagAnswer:
+    """R1/T-R1-106b（C22）：只按被问目标门店取值/引用，异店只作状态说明。
+
+    规划层已把目标门店放在 ``state.store`` 与 ``state.stores`` 首位；其余门店仍留在
+    ``state.stores`` 里——它们是本轮**被提到的**门店，检索面需要看到它们的有效期状态
+    才能回答“能不能作为依据”，但它们的行不进取值、不进引用。
+    """
+    primary = str(plan.state.store or "")
+    primary_key = normalize(primary)
+    if not primary_key:
+        # 防御：没有可判定的目标门店时不收窄（理论上 ``parse_query`` 不会发出这种计划）。
+        return _answer_record(
+            index, replace(plan, reason=None), result, validator, diagnostics, started
+        )
+    others = tuple(
+        store for store in _requested_stores(plan) if normalize(store) != primary_key
+    )
+    # 证据面/精确面都收敛到目标门店：异店行即使进了候选，也不参与取值与引用。
+    result.exact = [chunk for chunk in result.exact if _row_store(chunk) == primary_key]
+    result.evidence = [item for item in result.evidence if _row_store(item) == primary_key]
+    note = _secondary_store_status_note(validator, result, others)
+    # 计数与 ``evidence_ids`` 跟着收敛后的证据面重算：评测/前端把 diagnostics 里的
+    # ``evidence_ids`` 当作“本轮用到的检索证据”，异店行留在里面就会被判成用了其它实体
+    # 的资料（C13/C22 的 ``other_entity_used`` 口径）。
+    result.total = len(result.exact)
+    result.returned = len(result.evidence)
+    result.has_more = False
+    result.next_page = None
+    diagnostics.update(
+        {
+            "total": result.total,
+            "returned": result.returned,
+            "has_more": False,
+            "next_page": None,
+            "evidence_ids": [item.chunk_id for item in result.evidence],
+            "citations": [item.citation.display() for item in result.evidence],
+        }
+    )
+    trace_attrs.annotate_trace(
+        pagination_json={
+            "enumerate": False,
+            "page": 1,
+            "page_size": int(plan.page_size),
+            "total": int(result.total),
+            "returned": int(result.returned),
+            "has_more": False,
+            "next_page": None,
+            "revision": int(result.revision),
+        },
+    )
+    # 目标门店的记录本身按既有单值/多字段路径渲染（``enumerate`` 只是产品层的直答入口）。
+    state = QueryState.from_dict(plan.state.to_dict())
+    state.enumerate = False
+    state.store = plan.state.store
+    state.stores = (plan.state.store,) if plan.state.store else ()
+    answer = _answer_record(
+        index,
+        # ``reason`` 清空后再进既有记录路径：主目标标记只用于本轮的分支选择，
+        # 不能让递归回到 ``_primary_store_answer``（否则同一计划自我调用）。
+        replace(plan, enumerate=False, reason=None, state=state),
+        result,
+        validator,
+        diagnostics,
+        started,
+    )
+    if note and answer.kind == "answer":
+        answer.text = f"{answer.text}\n{note}"
+    answer.diagnostics = {
+        **dict(answer.diagnostics or {}),
+        "primary_store_target": {
+            "store": plan.state.store,
+            "other_stores": list(others),
+            "status_note": bool(note and answer.kind == "answer"),
+        },
+    }
+    return answer
 
 
 def _requested_stores(plan: QueryPlan) -> tuple[str, ...]:
@@ -588,6 +875,45 @@ def _record_line(chunk: Any) -> str:
     return f"- {where}：{('；'.join(fields) if fields else chunk.text[:300])}"
 
 
+def _requested_field_entries(chunk: Any, roles: tuple[str, ...]) -> list[tuple[str, str, str]]:
+    """记录块里被请求角色的全部字段列与值：``(role, 表头, 值)``。
+
+    ``role_values`` 只保留角色 -> 去重值，丢掉了“同一角色由多列承载”的事实
+    （例如“参考供价/零售价”都归 ``price``）。枚举作答必须逐列展示，否则第二列
+    会被静默吞掉；表头名同时用于让读者区分同角色不同列。
+    """
+    entries: list[tuple[str, str, str]] = []
+    seen: set[tuple[str, str]] = set()
+    fields = dict(getattr(chunk, "fields", None) or {})
+    for role in roles:
+        matched = False
+        for name, raw in fields.items():
+            if field_role(name) != role:
+                continue
+            value = "" if raw is None else str(raw).strip()
+            if not value or value in ("—", "-", "无", "None", "null"):
+                continue
+            key = (role, normalize(value))
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append((role, str(name).strip(), value))
+            matched = True
+        if matched:
+            continue
+        # 没有可用的字段名（旧块/兼容路径）时回落到角色值，仍只按请求角色取。
+        for raw in (getattr(chunk, "role_values", None) or {}).get(role, ()):
+            value = str(raw).strip()
+            if not value:
+                continue
+            key = (role, normalize(value))
+            if key in seen:
+                continue
+            seen.add(key)
+            entries.append((role, role_label(role), value))
+    return entries
+
+
 def _enumerate_answer(
     index: Any,
     plan: QueryPlan,
@@ -596,11 +922,26 @@ def _enumerate_answer(
     diagnostics: dict[str, Any],
     started: float,
 ) -> RagAnswer:
+    if (
+        not plan.field_role
+        and (plan.state.item or len(plan.state.items) > 1 or plan.state.identifier)
+        # R0/C12：拒答子集只认 phone/address；“物品记录里带 contact”不再单独触发拒答。
+        and any(chunk.role_values.get(role) for chunk in items for role in REFUSAL_CONTACT_ROLES)
+    ):
+        return _no_answer(plan, copy_module.text("SECURITY_RESTRICTED_CONTACT"),
+                          "SECURITY_RESTRICTED_CONTACT", diagnostics)
     facts: list[Fact] = []
     lines: list[str] = []
     citations: list[Citation] = []
     seen: set[str] = set()
     all_fields = not plan.field_role
+    requested_roles = tuple(getattr(plan, "field_roles", ()) or ()) or (
+        (plan.field_role,) if plan.field_role else ()
+    )
+    # R2-202C：本轮的店家行来自「物品行 + 同门店」显式联结。物品行标签形如
+    # “青禾店的折叠桌”天然含店名，与店家行标签“青禾店”会互污；因此联结轮次按
+    # **记录身份**逐行渲染（每行只含一条记录的事实，归属由记录指纹决定，不放宽任何检查）。
+    mark_records = bool(_store_join_ids(result) or plan.record_field_stores)
     for chunk in items:
         key = chunk.record_unit_id or chunk.chunk_id
         if key in seen:
@@ -614,13 +955,32 @@ def _enumerate_answer(
             citations.append(_citation(index, chunk))
             lines.append(_record_line(chunk))
             continue
-        values = chunk.role_values.get(plan.field_role or "", ())
-        if not values:
+        roles = requested_roles
+        if plan.record_field_stores:
+            scoped_role = plan.scoped_record_role(chunk)
+            if scoped_role is None:
+                continue
+            roles = (scoped_role,)
+        entries = _requested_field_entries(chunk, roles)
+        if not entries:
             continue
-        value = values[0]
-        facts.append(_fact(chunk, plan.field_role or "", value, revision=index.revision()))
         citations.append(_citation(index, chunk))
-        lines.append(f"- {_entity_label(chunk)}：{_format_value(chunk, plan.field_role or '', value)}（来源：{chunk.title}）")
+        facts.extend(
+            _fact(chunk, role, value, revision=index.revision())
+            for role, _name, value in entries
+        )
+        marker = _record_marker(chunk) if mark_records else ""
+        if len(entries) == 1 and len(requested_roles) <= 1:
+            role, _name, value = entries[0]
+            lines.append(
+                f"- {_entity_label(chunk)}：{_format_value(chunk, role, value)}（来源：{chunk.title}）{marker}"
+            )
+        else:
+            parts = [
+                f"{name} {_format_value(chunk, role, value)}"
+                for role, name, value in entries
+            ]
+            lines.append(f"- {_entity_label(chunk)}：{'、'.join(parts)}（来源：{chunk.title}）{marker}")
     if not facts:
         return _no_answer(
             plan,
@@ -631,7 +991,8 @@ def _enumerate_answer(
     total = int(result.total)
     page = int(plan.page)
     page_size = int(plan.page_size)
-    returned = len(facts)
+    # 分页/摘要里的“显示 N 条”按记录行计数；一个记录可贡献多个字段事实。
+    returned = len(lines)
     found_stores = {normalize(str(chunk.filters_norm.get("store") or "")) for chunk in items}
     requested_stores = tuple(getattr(plan.state, "stores", ()) or ())
     missing_stores = [store for store in requested_stores if normalize(store) not in found_stores]
@@ -658,7 +1019,12 @@ def _enumerate_answer(
     state.candidates = ()
     try:
         with _fact_gate(len(facts)):
-            FactValidator(index, plan, build_lexicon(index.lexicon_data())).validate_record_text(
+            FactValidator(
+                index,
+                plan,
+                build_lexicon(index.lexicon_data()),
+                joined_store=_store_join_value(result),
+            ).validate_record_text(
                 text,
                 facts,
                 extra_tokens={str(total), str(page), str(returned), str(result.next_page or "")},

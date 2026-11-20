@@ -1,0 +1,222 @@
+{
+  "schema_version": "mktkb.gate.config.v0.3",
+  "gate_version": "mktkb.gate.v0.3",
+  "status": "approved",
+  "approval": {
+    "approver": "主人",
+    "approved_at": "2026-11-20",
+    "response": "批准正式门槛",
+    "scope": "T209 P2 正式质量阈值、八项硬门禁及必要证据未知判定",
+    "basis": "docs/reports/OBS-EVAL/P2/T209-PREP/threshold-approval.md",
+    "template_sha256": "3af301dba2d4dbd1bcc9d8f17c656f8a80755820fa2a8559b787974f20b5619d",
+    "template_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8"
+  },
+  "hard_gates": [
+    "security_leak",
+    "cross_entity",
+    "stale_bypass",
+    "conflict_not_rejected",
+    "exact_value_contract",
+    "pagination_contract",
+    "citation_required",
+    "trace_integrity"
+  ],
+  "hard_gate_min_sample": {
+    "b0": 32,
+    "badcase": 8,
+    "boundary": 6,
+    "update_delete": 10,
+    "regression": 7,
+    "p2-holdout": 30
+  },
+  "suites": [
+    "b0",
+    "badcase",
+    "boundary",
+    "update_delete",
+    "regression",
+    "p2-holdout"
+  ],
+  "sensitive_patterns": [],
+  "p2_standards": {
+    "status": "approved",
+    "approver": "主人",
+    "approved_at": "2026-11-20",
+    "basis": "docs/reports/OBS-EVAL/P2/T209-PREP/threshold-approval.md",
+    "b0": {
+      "total": 40,
+      "min_pass": 36,
+      "exact_total": 24,
+      "exact_ids": "Q01-Q24",
+      "exact_min_pass": 24,
+      "text_total": 8,
+      "ocr_total": 8
+    },
+    "negative": {
+      "total": 8,
+      "ids": "N01-N08",
+      "min_pass": 8
+    },
+    "boundary": {
+      "total": 6,
+      "ids": "C01-C06",
+      "min_pass": 6
+    },
+    "update_delete": {
+      "total": 10,
+      "ids": "U01-U10",
+      "min_pass": 10
+    },
+    "holdout": {
+      "total": 30,
+      "min_pass": 24,
+      "hard_failures_max": 0,
+      "strata": {
+        "paraphrase": 10,
+        "multi_turn": 5,
+        "negative": 5,
+        "stale_conflict": 5,
+        "cross_doc_security": 5
+      }
+    },
+    "denominators": "b0 全 40 执行（含 8 道 OCR 题）；精确 Q01-Q24 24/24；N/C/U 单独矩阵；H2 30 题只出聚合。error/未执行不计入正确数，OCR 不得静默跳过。"
+  },
+  "metrics": [
+    {
+      "name": "Recall@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "MRR@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "nDCG@10",
+      "group": "retrieval",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "hard_filter_violation_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "empty_recall_rate",
+      "group": "retrieval",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "value_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "source_hit",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "kind_correct",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_precision",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "citation_recall",
+      "group": "answer",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_recall",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "false_refusal_rate",
+      "group": "refusal",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "refusal_precision",
+      "group": "refusal",
+      "direction": "higher_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "p95_latency_ms",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    },
+    {
+      "name": "cost_per_case_cny",
+      "group": "runtime",
+      "direction": "lower_is_better",
+      "min_sample": null,
+      "absolute_min": null,
+      "absolute_max": null,
+      "max_regression_pp": null
+    }
+  ],
+  "notes": "主人于 2026-11-20 批准 T209 正式门槛。八项硬门禁及必要证据未知的判定继续适用。15 项诊断指标沿用空阈值。真实请求、费用、正式基线接收和发布按各自审批办理。"
+}

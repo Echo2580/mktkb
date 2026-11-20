@@ -432,6 +432,19 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         requires_user_input=True,
     ),
     _entry(
+        # v3-safety-fix：安全策略拒答。物品记录（物品位置表）与店家联系人/电话/地址
+        # （店家信息表）属于两份不同资料；把两者合并提供的请求按受限个人信息处理，
+        # 在检索/模型之前整体拒答。文案为固定骨架，不含任何来源值的占位。
+        "SECURITY_RESTRICTED_CONTACT",
+        "该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，"
+        "属于受限个人信息范围，不能据此作答；"
+        "这不是资料中没有答案，也不代表该信息未被登记；"
+        "请改为只询问物品位置等非个人联系信息后重新提问。",
+        retryable=True,
+        material_related=False,
+        requires_user_input=True,
+    ),
+    _entry(
         # P1-FIX/B：指代追问里的制度/流程话题（如“报销规则”）进入正文查询后，
         # 证据里没有可支撑该话题的正文；如实说明“找到的资料里没有”，不拿无关正文冒充。
         "POLICY_TOPIC_NOT_FOUND",

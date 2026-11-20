@@ -29,6 +29,13 @@ BLOCKED_DETAIL = 'H2 聚合在受限进程内算不出来/审计失败：按 err
 
 def validate_scorecard(payload, *, total, run_id=None, config_hash=None):
     """Closed full-card boundary; only runner-bound correlation metadata is free text."""
+    if isinstance(payload, dict) and payload.get("schema_version") == "mktkb.p2.scoring.v0.2":
+        # T207 B 包：显式 versioned 分派到新版四轴硬证据全卡 validator；旧 v0.1 语义不变。
+        from .p2_hard_evidence import validate_hard_evidence_scorecard
+
+        return validate_hard_evidence_scorecard(
+            payload, total=total, run_id=run_id, config_hash=config_hash
+        )
     def require(condition):
         if not condition:
             raise ValueError('holdout_scorecard_invalid')
@@ -190,6 +197,16 @@ def _empty():
 
 def validate_diagnostics(payload, *, total=None):
     """Validate ORIGINAL full tree, exact keys/types, fixed strings and equations."""
+    if isinstance(payload, dict) and payload.get("schema_version") == "p2-safe-diagnostics/v2":
+        # T207 B 包：新版诊断（四轴硬证据计数口径），旧 v1 模板/等式保持原样。
+        from .p2_hard_evidence import validate_hard_evidence_diagnostics
+
+        resolved = total
+        if resolved is None:
+            counts = payload.get("counts")
+            resolved = int(counts.get("planned") or 0) if isinstance(counts, dict) else 0
+        validate_hard_evidence_diagnostics(payload, total=int(resolved))
+        return
     def walk(value, template):
         if type(template) is dict:
             if type(value) is not dict or value.keys() != template.keys():

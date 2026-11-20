@@ -99,8 +99,11 @@ DEFAULT_USER_ID = "employee"
 #: T206-PRE：产物/绑定校验的稳定错误码（R2-F-R2-2：不再只靠异常消息前缀）。
 ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH = "provider_network_detail_mismatch"
 ERROR_RUN_ID_MISSING = "run_id_missing"
+#: 05：live 证据的 run binding 与本次实际身份不一致 -> 首个发送之前拒绝。
+ERROR_LIVE_EVIDENCE_BINDING = "live_evidence_binding_mismatch"
 ERROR_BINDING_INCOMPLETE = "binding_incomplete"
 ERROR_ARTIFACT_WRITE_FAILED = "artifact_write_failed"
+ERROR_ADAPTER_CONTRACT = "adapter_contract"
 
 EXECUTION_DRY_RUN = "dry_run"
 EXECUTION_MOCK_GATE = "mock_gate"
@@ -119,6 +122,8 @@ STOP_PRODUCTION_NOT_READY = "production_not_ready"
 STOP_MOCK_REQUIRES_DRY_RUN = "mock_adapter_requires_dry_run"
 STOP_CANCELLED = "cancelled"
 STOP_INGEST_FAILED = "ingest_failed"
+STOP_B0_INDEX_NOT_READY = "b0_index_not_ready"
+STOP_B0_INDEX_CHANGED = "b0_index_changed"
 STOP_PLAN_ITEM_MISSING = "plan_item_missing"
 STOP_PLAN_ITEM_AMBIGUOUS = "plan_item_ambiguous"
 STOP_PRE_SEND_REFUSED = "pre_send_refused"
@@ -540,9 +545,9 @@ def build_dry_run_authorization(
         center_remaining_cny={
             center: float(plan.cost_centers_cny[center]) for center in COST_CENTERS
         },
-        max_requests=int(plan.max_requests),
+        max_requests=plan.max_requests,
         requests_used=0,
-        requests_remaining=max(0, int(plan.max_requests) - int(plan.total_requests)),
+        requests_remaining=("unlimited" if plan.max_requests == "unlimited" else max(0, plan.max_requests - int(plan.total_requests))),
         max_request_cny=float(plan.reserve_peak_cny),
         operations=tuple(plan.operations),
         production_ready=False,
@@ -596,7 +601,7 @@ def _prepare(
     add("operations", not unauthorized, f"未授权操作: {unauthorized}" if unauthorized else "")
     add(
         "request_cap",
-        int(plan.total_requests) <= int(authorization.requests_remaining),
+        authorization.requests_remaining == "unlimited" or int(plan.total_requests) <= authorization.requests_remaining,
         "计划请求数超出授权剩余",
     )
     if gate is None:
@@ -678,11 +683,25 @@ def _empty_binding(dataset: P2RunDataset, run_id: str) -> dict[str, Any]:
     return payload
 
 
+def _b0_ready_revisions(adapter: ProductEvalAdapter) -> tuple[int, int] | None:
+    """读取已同步的业务库版本和检索实际使用的索引版本，不触发建索引。"""
+    status = adapter.index_status()
+    product_revision = status.get("product_revision")
+    index_revision = status.get("index_revision")
+    if (status.get("ready") is True
+            and type(product_revision) is int and product_revision >= 0
+            and type(index_revision) is int and index_revision >= 0):
+        return product_revision, index_revision
+    return None
+
+
 def _binding_state(
     adapter: Any,
     dataset: P2RunDataset,
     run_id: str,
     gate_config: Any | None,
+    *,
+    index_revision: int | None = None,
 ) -> dict[str, Any]:
     """组装本次 run 的绑定组件与确定性 config_hash（T206-PRE 要求 3）。
 
@@ -706,6 +725,8 @@ def _binding_state(
     if not isinstance(raw, Mapping):
         missing.append("adapter_binding_components")
         raw = {}
+    if index_revision is not None:
+        raw = dict(raw, index_revision=index_revision)
     for name in ("pipeline_version", "index_revision", "provider"):
         if raw.get(name) in (None, ""):
             missing.append(name)
@@ -758,6 +779,10 @@ async def run_p2(
     settle_evidence: Callable[[Any, ProductTurn], Any] | None = None,
     run_id: str | None = None,
     gate_config: Any | None = None,
+    evidence_capture: Any | None = None,
+    #: 05 受控入口：只在显式给出时接收 holdout 逐题质量状态（内存回调，不落公开产物）。
+    private_case_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+    b0_corpus: Sequence[Mapping[str, Any]] | None = None,
 ) -> P2RunResult:
     """按 plan 逐轮驱动隔离产品；返回请求/费用回执 ``P2RunResult``（产物同时落盘）。
 
@@ -771,6 +796,20 @@ async def run_p2(
     from .p2_holdout_scenarios import validate_scenario_execution
     validate_scenario_execution(plan, frozen_dataset, getattr(adapter, 'ingest_plan', None),
                                 getattr(adapter, 'scenario_contract', None))
+    formal_b0 = plan.b0_binding is not None
+    if formal_b0:
+        from .p2_b0 import B0_GATE_CONFIG_HASH, require
+
+        require(
+            b0_corpus is not None and is_real_p2_gate(gate)
+            and getattr(gate_config, "config_hash", None) == B0_GATE_CONFIG_HASH,
+            "b0_validated_live_context_required",
+        )
+    if evidence_capture is not None:
+        enable = getattr(adapter, "enable_evidence_capture", None)
+        if not callable(enable):
+            raise P2RunError(ERROR_ADAPTER_CONTRACT, "adapter 不支持 evidence_capture")
+        enable(evidence_capture)
     moment = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
     started = time.perf_counter()
     # T206-PRE（R2-F-R2-3）：run_id 是身份必填项 —— 显式给空/non-str 就在**任何发送前**
@@ -781,6 +820,11 @@ async def run_p2(
         run_id = run_id.strip()
     else:
         run_id = "p2run-" + uuid.uuid4().hex[:16]
+    if evidence_capture is not None:
+        # 05：真实证据的 run binding 必须在 ingest/首个发送之前与实际身份逐值一致。
+        _validate_live_evidence_binding(
+            config=evidence_capture, plan=plan, run_id=run_id, gate=gate, adapter=adapter
+        )
     execution, checks, stop_code = _prepare(plan, authorization, adapter, gate, moment)
     if frozen_dataset.visibility == "holdout":
         if not bool(getattr(adapter, "purge_traces_on_close", False)):
@@ -856,24 +900,44 @@ async def run_p2(
                     "ticket": None,
                 }
         if ledger.stop_code is None:
-            # T206-PRE：灌库/发布之后 index_revision 已定型，这里才算绑定并写进 trace 身份。
-            binding = _binding_state(adapter, frozen_dataset, run_id, gate_config)
-            identity = _trace_identity_from_binding(binding)
-            bind = getattr(adapter, "bind_trace_identity", None)
-            if identity and callable(bind):
-                bind(identity)
-            elif not identity:
-                binding["missing"] = sorted(set(binding["missing"]) | {"trace_identity"})
-            await _execute(
-                plan=plan,
-                adapter=adapter,
-                dataset=frozen_dataset,
-                ledger=ledger,
-                gate=gate,
-                cancel=cancel,
-                run_id=run_id,
-                settle_evidence=settle_evidence,
-            )
+            b0_revisions = _b0_ready_revisions(adapter) if formal_b0 else None
+            if formal_b0 and b0_revisions is None:
+                binding["missing"] = ["index_revision"]
+                _case_item_failure(
+                    ledger, stop_code=STOP_B0_INDEX_NOT_READY, stage="index_after_ingest",
+                    case_id=None, turn=None, item_id=None,
+                )
+            else:
+                # 正式 B0 的 trace 使用索引自身版本。资料换版时，两套版本号可以不同。
+                binding = _binding_state(
+                    adapter, frozen_dataset, run_id, gate_config,
+                    index_revision=b0_revisions[1] if b0_revisions is not None else None,
+                )
+                identity = _trace_identity_from_binding(binding)
+                bind = getattr(adapter, "bind_trace_identity", None)
+                if identity and callable(bind):
+                    bind(identity)
+                elif not identity or formal_b0:
+                    binding["missing"] = sorted(set(binding["missing"]) | {"trace_identity"})
+
+                if formal_b0 and binding["missing"]:
+                    binding["complete"] = False
+                    _case_item_failure(
+                        ledger, stop_code=ERROR_BINDING_INCOMPLETE, stage="trace_binding",
+                        case_id=None, turn=None, item_id=None,
+                    )
+                else:
+                    await _execute(
+                        plan=plan,
+                        adapter=adapter,
+                        dataset=frozen_dataset,
+                        ledger=ledger,
+                        gate=gate,
+                        cancel=cancel,
+                        run_id=run_id,
+                        settle_evidence=settle_evidence,
+                        b0_revisions=b0_revisions,
+                    )
         attempt_audit, attempt_code = _attempt_audit(plan, adapter, ledger)
         gate_reserved = _gate_reservation_count(gate)
         if gate_reserved is not None:
@@ -946,6 +1010,8 @@ async def run_p2(
             attempt_audit=attempt_audit,
             artifact_failure=exc,
             gate_config=gate_config,
+            private_case_marks_sink=private_case_marks_sink,
+            b0_corpus=b0_corpus,
         )
         raise
     _write_artifacts(
@@ -967,8 +1033,50 @@ async def run_p2(
         attempt_audit=attempt_audit,
         artifact_failure=None,
         gate_config=gate_config,
+        private_case_marks_sink=private_case_marks_sink,
+        b0_corpus=b0_corpus,
     )
     return result
+
+
+def _validate_live_evidence_binding(
+    *,
+    config: Any,
+    plan: P2RunPlan,
+    run_id: str,
+    gate: Any,
+    adapter: Any,
+) -> None:
+    """live_h2 证据的 9 键 run binding 必须等于**本次实际**身份（发送前 fail closed）。
+
+    这不是信任调用方字符串：run_id/plan_sha/scenario 来自本次参数与绑定，
+    go/ledger 摘要来自刚打开的真实门，business_date 取产品 QaEngine 实际生效值。
+    任何一项不一致都在 ingest/首个 HTTP 之前以稳定码拒绝（detail 只含键名）。
+    """
+    from .p2_evidence_capture import LIVE_FIXTURE_KIND, RUN_BINDING_KEYS
+
+    if str(getattr(config, "fixture_kind", "")) != LIVE_FIXTURE_KIND:
+        return
+    run_binding = dict(getattr(config, "run_binding", None) or {})
+    bindings = dict(getattr(config, "bindings", None) or {})
+    if set(run_binding) != set(RUN_BINDING_KEYS):
+        raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, "run_binding_keys")
+    if gate is None or not is_real_p2_gate(gate):
+        raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, "gate_required")
+    authorization = gate.authorization
+    expected = {
+        "run_id": str(run_id),
+        "plan_sha256": str(plan.plan_sha256),
+        "scenario_id": str(bindings.get("scenario_id") or ""),
+        "go_sha256": str(authorization.go_sha256),
+        "ledger_sha256": str(authorization.ledger_sha256),
+        "business_date": str(getattr(adapter, "rag_business_date", None) or ""),
+        "code_version": str(bindings.get("code_version") or ""),
+        "config_sha256": str(bindings.get("config_sha256") or ""),
+    }
+    for key, value in expected.items():
+        if str(run_binding.get(key)) != value:
+            raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, key)
 
 
 def _attempt_audit(plan: P2RunPlan, adapter: Any, ledger: P2RunLedger) -> tuple[dict[str, Any], str | None]:
@@ -1158,7 +1266,7 @@ def _case_item_failure(
     *,
     stop_code: str,
     stage: str,
-    case_id: str,
+    case_id: str | None,
     turn: int | None,
     item_id: str | None,
     ticket: Mapping[str, Any] | None = None,
@@ -1195,6 +1303,7 @@ async def _execute(
     cancel: Callable[[], bool] | None,
     run_id: str,
     settle_evidence: Callable[[Any, ProductTurn], Any] | None,
+    b0_revisions: tuple[int, int] | None = None,
 ) -> None:
     items = _answer_items(plan, dataset)
     include_question = dataset.public_details
@@ -1274,6 +1383,12 @@ async def _execute(
                 break
             item = items[(case.case_id, turn)]
             item_id = item.item_id
+            if b0_revisions is not None and _b0_ready_revisions(adapter) != b0_revisions:
+                _case_item_failure(
+                    ledger, stop_code=STOP_B0_INDEX_CHANGED, stage="index_before_turn",
+                    case_id=case.case_id, turn=turn, item_id=item_id,
+                )
+                break
             client_request_id = _request_uuid(run_id, case.case_id, turn)
             ticket: Any | None = None
             billed = False
@@ -1574,6 +1689,15 @@ async def _execute(
                 case_row["status"] = "error"
                 case_row["error_code"] = turn_row.get("error_code")
                 break
+            # 先保留实际响应和结算，再阻止漂移的 run 继续或以成功收尾。
+            if b0_revisions is not None and _b0_ready_revisions(adapter) != b0_revisions:
+                _case_item_failure(
+                    ledger, stop_code=STOP_B0_INDEX_CHANGED, stage="index_after_turn",
+                    case_id=case.case_id, turn=turn, item_id=item_id, ticket=ticket_payload,
+                )
+                break
+        if not case_row["turns"] and ledger.stop_code == STOP_B0_INDEX_CHANGED:
+            break
         case_row["turns_executed"] = len(case_row["turns"])
         ledger.record_case(case_row)
         if not include_question:
@@ -1991,6 +2115,7 @@ def _holdout_scorecard(
     real_calls: int,
     binding: Mapping[str, Any],
     gate_config: Any | None,
+    private_marks_sink: Callable[[Sequence[Any]], None] | None = None,
 ) -> dict[str, Any]:
     """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block。"""
     blocks: list[P2Block] = []
@@ -1999,6 +2124,9 @@ def _holdout_scorecard(
         ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks,
         diagnostics=diagnostics,
     )
+    if private_marks_sink is not None:
+        # 05 受控入口：逐题 marks 只交给显式注入的内存回调（默认 None = 行为逐值不变）。
+        private_marks_sink(tuple(marks))
     payload = _aggregate_marks(
         marks,
         dataset=dataset,
@@ -2164,6 +2292,7 @@ def _holdout_scorecard_artifact(
     real_calls: int,
     binding: Mapping[str, Any],
     gate_config: Any | None,
+    private_marks_sink: Callable[[Sequence[Any]], None] | None = None,
 ) -> dict[str, Any]:
     """算 + 审计 H2 聚合；任何异常都退化成"全 error + 稳定 block"，产物一定写出。
 
@@ -2180,6 +2309,7 @@ def _holdout_scorecard_artifact(
             gate_config=gate_config,
             execution=execution,
             real_calls=real_calls,
+            private_marks_sink=private_marks_sink,
         )
         _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
                                          config_hash=binding.get('config_hash') or None)
@@ -2188,6 +2318,18 @@ def _holdout_scorecard_artifact(
         code = fixed(getattr(exc, 'code', None), (
             ERROR_HOLDOUT_SCORECARD_LEAK, ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
             ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS), 'holdout_case_unscorable')
+    if private_marks_sink is not None:
+        # 聚合/审计失败：逐题质量状态一律按 error 交回，绝不用未审计的 marks 冒充。
+        private_marks_sink(
+            tuple(
+                P2HoldoutCaseScore(
+                    case_id=case.case_id,
+                    stratum=str(case.stratum),
+                    status=CASE_STATUS_ERROR,
+                )
+                for case in dataset.cases
+            )
+        )
     kwargs = {
         "binding": binding,
         "gate_config": gate_config,
@@ -2239,6 +2381,8 @@ def _write_artifacts(
     attempt_audit: Mapping[str, Any] | None = None,
     artifact_failure: P2RunError | None = None,
     gate_config: Any | None = None,
+    private_case_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+    b0_corpus: Sequence[Mapping[str, Any]] | None = None,
 ) -> None:
     """写全部产物；**校验失败也要写**（R2-F-R2-1：不能"已发生请求但无产物"）。
 
@@ -2355,8 +2499,8 @@ def _write_artifacts(
             "stage": authorization.stage,
             "production_ready": bool(authorization.production_ready),
             "operations": list(authorization.operations),
-            "max_requests": int(authorization.max_requests),
-            "requests_remaining": int(authorization.requests_remaining),
+            "max_requests": authorization.max_requests,
+            "requests_remaining": authorization.requests_remaining,
             "ledger_path": authorization.ledger_path,
         },
         "pipeline": {
@@ -2393,6 +2537,13 @@ def _write_artifacts(
         "finished_utc": utc_iso(),
         "duration_ms": int(duration_ms),
     }
+    if plan.b0_binding is not None:
+        manifest["formal_b0"] = {
+            "plan": plan.as_dict(),
+            "corpus": list(b0_corpus or ()),
+            "rag_business_date": adapter.rag_business_date,
+        }
+        manifest["corpus_manifest_sha256"] = plan.b0_binding["corpus_sha256"]
     _write_json(run_dir / "run_manifest.json", manifest)
 
     branches: dict[str, int] = {}
@@ -2551,6 +2702,7 @@ def _write_artifacts(
                 real_calls=_scorecard_real_calls(network),
                 binding=binding,
                 gate_config=gate_config,
+                private_marks_sink=private_case_marks_sink,
             ),
         )
         for stale in (run_dir / "cases.jsonl", run_dir / "requests.jsonl"):

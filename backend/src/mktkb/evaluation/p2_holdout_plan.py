@@ -279,7 +279,7 @@ def build_holdout_plan(
     plan_id: str,
     plan_version: str,
     created_utc: str,
-    max_requests: int = H2_MAX_REQUESTS,
+    max_requests: int | str = H2_MAX_REQUESTS,
     cost_centers_cny: Mapping[str, float] | None = None,
     stage_limit_cny: float = H2_STAGE_LIMIT_CNY,
     project_total_limit_cny: float = H2_PROJECT_TOTAL_LIMIT_CNY,
@@ -336,7 +336,7 @@ def build_holdout_plan(
         "created_utc": str(created_utc),
         "project_total_limit_cny": float(project_total_limit_cny),
         "stage_limit_cny": float(stage_limit_cny),
-        "max_requests": int(max_requests),
+        "max_requests": max_requests,
         "cost_centers_cny": {
             center: float((cost_centers_cny or H2_COST_CENTERS_CNY)[center])
             for center in COST_CENTERS

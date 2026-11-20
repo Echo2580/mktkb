@@ -21,6 +21,7 @@ from sqlalchemy.exc import IntegrityError, OperationalError
 from sqlalchemy.orm import Session
 
 from ..documents.models import Document, DocumentVersion, SourceUnit
+from ..entity_identity import IDENTIFIER_HEADERS, build_entity_key, is_identifier_header
 from .models import RetrievalFieldIndex, RetrievalUnitIndex, RetrievalVersionIndex
 from .tokenize import TOKENIZER_VERSION, index_body, normalize, normalize_value
 from .types import IndexStatus
@@ -36,7 +37,8 @@ HEADER_ROLES: dict[str, tuple[str, ...]] = {
     "address": ("地址", "门店地址", "详细地址", "店家地址"),
     "status": ("合作状态", "状态"),
 }
-ID_HEADERS: tuple[str, ...] = ("标识", "编号", "id", "ID")
+#: 兼容别名：标识列判据已上收到 ``mktkb.entity_identity``，两条实体键派生链共用同一份。
+ID_HEADERS: tuple[str, ...] = IDENTIFIER_HEADERS
 
 ROLE_LABELS: dict[str, str] = {
     "store": "门店",
@@ -66,7 +68,7 @@ def _role_for_name(name: str) -> str | None:
 
 
 def _is_id_header(name: str) -> bool:
-    return name in ID_HEADERS or name.lower() in ("id", "编号")
+    return is_identifier_header(name)
 
 
 def resolve_requested_role(label: str) -> str | None:
@@ -120,10 +122,13 @@ def analyze_fields(
     else:
         return role_by_name, role_values, None, None, None, None
 
-    if id_name is not None and id_value:
-        entity_key = f"{entity_type}|id:{normalize_value(id_value)}"
-    else:
-        entity_key = f"{name_key}|doc:{document_id}|unit:{unit_id}"
+    entity_key = build_entity_key(
+        entity_type,
+        name_key=name_key,
+        identifier=id_value,
+        document_id=document_id,
+        unit_id=unit_id,
+    )
 
     entity_filters: dict[str, str] = {}
     if store:

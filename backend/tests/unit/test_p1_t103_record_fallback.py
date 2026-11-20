@@ -50,7 +50,9 @@ def test_document_overshoot_fallback_unions_term_evidence(monkeypatch) -> None:
     intent = QueryIntent(mode="document", terms=("物料", "归还"), entity_filters={"item": "宣传海报"})
     calls: list[QueryIntent] = []
 
-    def fake_retrieve(db_factory, query_intent, revision, limit=20, *, candidate_ids=None):
+    def fake_retrieve(
+        db_factory, query_intent, revision, limit=20, *, candidate_ids=None, as_of=None
+    ):
         calls.append(query_intent)
         return EvidenceSet(
             units=[extra], kind="matches", total_candidates=9, revision=revision, candidates=[]

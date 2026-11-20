@@ -89,6 +89,8 @@ PROJECT_ROOT = Path(__file__).resolve().parents[4]
 DEFAULT_BASELINE_ROOT = PROJECT_ROOT / "var" / "eval" / "baselines"
 EXIT_DATA = 3
 EXIT_USAGE = 2
+#: 正式门禁专用：外部输入（任务 2/3 工件）尚未交付时的退出码。
+EXIT_PENDING = 4
 SUITES = ("b0", "badcase", "regression", HOLDOUT_SUITE)
 MODES = ("local", "replay")
 
@@ -347,10 +349,11 @@ def _cmd_baseline_list(args: argparse.Namespace) -> int:
             code = EXIT_DATA
             continue
         approved = "yes" if baseline.approval is not None else "no"
+        p2_status = " p2_release_allowed=no" if baseline.identity.is_p2_b0 else ""
         print(
             f"baseline_id={baseline.baseline_id} run_id={baseline.run_id} "
             f"suite={baseline.suite} pipeline_version={baseline.pipeline_version} "
-            f"approved={approved}"
+            f"approved={approved}{p2_status}"
         )
     return code
 
@@ -395,6 +398,8 @@ def _cmd_baseline_restore(args: argparse.Namespace) -> int:
 
 
 def _cmd_baseline(args: argparse.Namespace) -> int:
+    if args.baseline_command in {"p2-admit", "p2-approve", "p2-diff"}:
+        return _cmd_baseline_p2(args)
     if args.baseline_command == "approve":
         return _cmd_baseline_approve(args)
     if args.baseline_command == "archive":
@@ -404,6 +409,36 @@ def _cmd_baseline(args: argparse.Namespace) -> int:
     if args.baseline_command == "restore":
         return _cmd_baseline_restore(args)
     return _cmd_baseline_list(args)
+
+
+def _cmd_baseline_p2(args: argparse.Namespace) -> int:
+    from .p2_b0 import check_b0_admission, load_approved_b0_config, safe_path
+    from .p2_b0_baseline import approve_b0_baseline, diff_b0_baseline, evidence_sha256
+
+    run_dir = Path(args.run)
+    gate_config_path = Path(args.gate_config)
+    if args.baseline_command == "p2-admit":
+        admission = check_b0_admission(run_dir, load_approved_b0_config(gate_config_path))
+        proof = {
+            **admission.proof, "baseline_id": baseline_id(admission.run),
+            "evidence_sha256": evidence_sha256(admission),
+        }
+        output = safe_path(Path(args.out)) if args.out else None
+    elif args.baseline_command == "p2-approve":
+        baseline = approve_b0_baseline(run_dir, gate_config_path, Path(args.receipt), Path(args.root))
+        proof = {"baseline_id": baseline.baseline_id, "run_id": baseline.run_id,
+                 "baseline_approved": True, "p2_release_allowed": False}
+        output = None
+    else:
+        proof = diff_b0_baseline(run_dir, gate_config_path, Path(args.root), args.baseline, args.compare_with)
+        output = safe_path(Path(args.out)) if args.out else None
+    serialized = json.dumps(proof, ensure_ascii=False, indent=2)
+    if output is not None:
+        with output.open("x", encoding="utf-8") as stream:
+            stream.write(serialized + "\n")
+    else:
+        print(serialized)
+    return 0
 
 
 # --------------------------------------------------------------------------- #
@@ -576,7 +611,7 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
     """
     import asyncio
 
-    from .dataset import CaseSpec, validate_case
+    from .dataset import CaseSpec, dataset_version, validate_case
     from .p2_authorization import preflight_p2, read_ledger_snapshot
     from .p2_contracts import P2LedgerSnapshot, P2RunPlan
     from .p2_runner import build_dry_run_authorization, run_p2
@@ -600,6 +635,23 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
         plan = P2RunPlan.from_dict(plan_document)
     except ValueError as exc:
         raise CliError(f"plan_invalid: {type(exc).__name__}") from None
+    gate_config = None
+    explicit_config = getattr(args, "gate_config", None)
+    if explicit_config is not None:
+        from .p2_b0 import B0_LABEL_VERSION, load_approved_b0_config
+        from .p2_scoring import load_p2_gate_config
+
+        if args.mode != "live" or args.visibility != "public":
+            raise CliError("gate_config_requires_public_live")
+        gate_config = load_p2_gate_config(explicit_config)
+        if gate_config.status == "approved":
+            gate_config = load_approved_b0_config(explicit_config)
+            if plan.b0_binding is None:
+                raise CliError("b0_plan_binding_required")
+        elif plan.b0_binding is not None:
+            raise CliError("b0_gate_config_not_approved")
+    elif plan.b0_binding is not None:
+        raise CliError("b0_explicit_gate_config_required")
     scenario_contract = None
     scenario_id = getattr(args, 'scenario_id', None)
     if plan.scenario_binding is not None or scenario_id or any(getattr(args, k, None) for k in
@@ -622,6 +674,11 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
             dataset = P2RunDataset.from_p2_dataset(full_dataset)
         purge_traces = True
     else:
+        if plan.b0_binding is not None:
+            from .p2_b0 import B0_CASES_SHA256, read_member, sha256
+
+            if not args.cases or sha256(read_member(Path(args.cases))) != B0_CASES_SHA256:
+                raise CliError("b0_input_cases_not_frozen")
         cases = []
         manifest_sha = hashlib.sha256(b"").hexdigest()
         if args.cases:
@@ -636,9 +693,12 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
             visibility="public",
             cases=tuple(cases),
             identity={
-                "dataset_version": str(args.dataset_version),
-                "label_version": str(args.label_version),
-                "suite": "p2-cli",
+                "dataset_version": (
+                    dataset_version(cases, B0_LABEL_VERSION) if plan.b0_binding is not None
+                    else str(args.dataset_version)
+                ),
+                "label_version": B0_LABEL_VERSION if plan.b0_binding is not None else str(args.label_version),
+                "suite": "b0" if plan.b0_binding is not None else "p2-cli",
                 "manifest_sha256": manifest_sha,
                 "case_count": len(cases),
             },
@@ -653,7 +713,7 @@ def _cmd_p2_run(args: argparse.Namespace) -> int:
             raise CliError("指定了 --cases 时必须同时给至少一个 --ingest（否则知识库为空）")
         return _run_p2_live(
             args, plan=plan, dataset=dataset, ingest=ingest_live, purge_traces=purge_traces,
-            scenario_contract=scenario_contract,
+            scenario_contract=scenario_contract, gate_config=gate_config,
         )
 
     ingest = scenario_contract.ingest_plan(scenario_id) if scenario_contract else _ingest_plan_for_args(args, label="cli-p2-run")
@@ -719,6 +779,7 @@ def _run_p2_live(
     ingest: Any,
     purge_traces: bool,
     scenario_contract: Any = None,
+    gate_config: Any = None,
 ) -> int:
     """``--mode live``：真实门 + 真实 provider/OCR + usage 证据（零隐式调用）。
 
@@ -735,7 +796,8 @@ def _run_p2_live(
     if not str(args.run_id or "").strip():
         raise CliError("--mode live 需要显式 --run-id（身份必填，不自动生成）")
     try:
-        gate_config = load_p2_gate_config()
+        if gate_config is None:
+            gate_config = load_p2_gate_config()
     except (P2ScoringError, ValueError) as exc:
         print(
             json.dumps(
@@ -1132,6 +1194,90 @@ def _cmd_p2_scenarios_run(args: argparse.Namespace) -> int:
     return 0 if payload['status'] == 'complete' else EXIT_DATA
 
 
+def _cmd_p2_hard_evidence_recompute(args: argparse.Namespace) -> int:
+    """独立进程：只读仓外合成密文 + 冻结合成 case/annotation，逐值重算四轴。"""
+    from .p2_hard_evidence import run_recompute_cli
+
+    options: dict[str, Any] = {}
+    if args.schema:
+        options["schema_path"] = args.schema
+    if args.scenario_contract:
+        options["scenario_path"] = args.scenario_contract
+    result = run_recompute_cli(
+        evidence_dir=args.evidence_dir,
+        case_plan_path=args.case_plan,
+        cases_path=args.cases,
+        annotation_path=args.annotation,
+        addendum_path=args.addendum,
+        annotation_cipher_sha256=args.annotation_cipher_sha256,
+        key_file=args.key_file,
+        out_path=args.out,
+        manifest_path=args.manifest,
+        scope_contract_path=args.scope_contract,
+        **options,
+    )
+    summary = result["summary"]
+    print(
+        json.dumps(
+            {
+                "ok": True,
+                "total": summary["total"],
+                "executed": summary["executed"],
+                "errors": summary["errors"],
+                "passed": summary["passed"],
+                "failed": summary["failed"],
+                "hard_failures": summary["hard_failures"],
+                "hard_failures_by_kind": summary["hard_failures_by_kind"],
+                "missing_evidence_cases": summary["missing_evidence_cases"],
+                "verified": summary["verified"],
+                "axes": summary["axes"],
+                "scope_contract_sha256": result.get("scope_contract_sha256"),
+                "scope_contract_case_count": result.get("scope_contract_case_count"),
+                "release_ready": False,
+            },
+            ensure_ascii=False,
+        )
+    )
+    return 0
+
+
+def _cmd_p2_release_gate(args: argparse.Namespace) -> int:
+    """正式跨场景门禁：输入契约 -> 逐项判定 -> 脱敏结果（技术门，不是发布决定）。"""
+    from .p2_release_gate import evaluate_release_gate
+    from .p2_release_model import DECISION_BLOCKED, DECISION_PENDING
+
+    result = evaluate_release_gate(args.inputs, project_root=args.project_root)
+    payload = result.to_dict()
+    if args.out:
+        target = Path(args.out)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(json.dumps(payload, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(json.dumps(payload, ensure_ascii=False))
+    if result.decision == DECISION_PENDING:
+        return EXIT_PENDING
+    return EXIT_DATA if result.decision == DECISION_BLOCKED else 0
+
+
+def _cmd_p2_release_applicability(args: argparse.Namespace) -> int:
+    """按原证据重算适用性证明（供历史 run 接线；不改原证据）。"""
+    from .p2_release_gate import emit_applicability_proof
+
+    payload = emit_applicability_proof(
+        args.inputs, out_dir=args.out_dir, project_root=args.project_root
+    )
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0
+
+
+def _cmd_p2_release_binding(args: argparse.Namespace) -> int:
+    """按原工件重算历史绑定适用性证明（只读 run/rag/trace，零真实请求）。"""
+    from .p2_release_gate import emit_binding_proof
+
+    payload = emit_binding_proof(args.inputs, out_dir=args.out_dir, project_root=args.project_root)
+    print(json.dumps(payload, ensure_ascii=False))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(
         prog="rag_eval",
@@ -1211,6 +1357,24 @@ def build_parser() -> argparse.ArgumentParser:
     approve.add_argument("--root", default=str(DEFAULT_BASELINE_ROOT))
     approve.add_argument("--config", default=None)
     approve.set_defaults(handler=_cmd_baseline)
+    for command, help_text in (
+        ("p2-admit", "复核同轮真实公开 B0 的准入证据"),
+        ("p2-approve", "凭范围明确的独立接收记录保存 B0 基线"),
+        ("p2-diff", "比较正式 B0 基线与当前公开 B0"),
+    ):
+        formal = baseline_sub.add_parser(command, help=help_text)
+        formal.add_argument("--run", required=True, help="公开 B0 原始 run 目录")
+        formal.add_argument("--gate-config", required=True, help="批准的 P2 配置")
+        formal.set_defaults(handler=_cmd_baseline)
+        if command != "p2-approve":
+            formal.add_argument("--out", help="将 JSON 结果写入新文件")
+        if command != "p2-admit":
+            formal.add_argument("--root", default=str(DEFAULT_BASELINE_ROOT))
+        if command == "p2-approve":
+            formal.add_argument("--receipt", required=True, help="已授权的独立 B0 基线接收记录")
+        if command == "p2-diff":
+            formal.add_argument("--baseline", help="基线 ID")
+            formal.add_argument("--compare-with", help="显式允许与指定流水线基线分析比较")
     listing = baseline_sub.add_parser("list", help="列出 <root>/<baseline_id>/baseline.json")
     listing.add_argument("--root", default=str(DEFAULT_BASELINE_ROOT))
     listing.set_defaults(handler=_cmd_baseline)
@@ -1287,6 +1451,7 @@ def build_parser() -> argparse.ArgumentParser:
         help="灌库计划 JSON（p2-ingest-plan/v0.1：可写 document_ref/publish=false；与 --ingest 互斥）",
     )
     p2_run.add_argument("--dataset-version", default="p2-cli-local", help="公开 run 的 dataset_version")
+    p2_run.add_argument("--gate-config", help="公开真实运行显式绑定 P2 门禁配置")
     p2_run.add_argument("--label-version", default="p2-cli-local", help="公开 run 的 label_version")
     _add_scenario_args(p2_run)
     p2_run.add_argument(
@@ -1367,6 +1532,59 @@ def build_parser() -> argparse.ArgumentParser:
     p2_u.add_argument("--test", default=None, help="测试文件（默认 backend/tests/acceptance/test_t09_mutation.py）")
     p2_u.add_argument("--pytest-arg", action="append", default=[], help="透传给 pytest 的额外参数（可重复）")
     p2_u.set_defaults(handler=_cmd_p2_u_controls)
+
+    p2_hard = sub.add_parser(
+        "p2-hard-evidence-recompute",
+        help="独立进程从仓外合成密文+冻结case/annotation重算四轴（零模型/检索/实时DB）",
+    )
+    p2_hard.add_argument("--evidence-dir", required=True, help="仓外认证密文目录（只读）")
+    p2_hard.add_argument("--case-plan", required=True, help="合成冻结 case-plan（题序/质量状态/回合-证据文件）")
+    p2_hard.add_argument("--cases", required=True, help="冻结合成 CaseSpec JSONL")
+    p2_hard.add_argument("--annotation", required=True, help="合成 v0.2 annotation JSON")
+    p2_hard.add_argument("--addendum", default=None, help="合成 v0.3 gap addendum JSON（可选）")
+    p2_hard.add_argument(
+        "--annotation-cipher-sha256",
+        default=None,
+        help="v0.2 标注密文文件 SHA256（提供 --addendum 时必需；禁止用明文摘要替代）",
+    )
+    p2_hard.add_argument("--key-file", required=True, help="本次合成 Fernet key 文件（不输出）")
+    p2_hard.add_argument("--out", required=True, help="新仓外输出卡 JSON")
+    p2_hard.add_argument("--manifest", default=None, help="仓外 manifest 密文（可选交叉核验）")
+    p2_hard.add_argument("--schema", default=None, help="覆盖冻结 annotation schema 路径（测试用）")
+    p2_hard.add_argument("--scenario-contract", default=None, help="覆盖冻结 scenario 契约路径（测试用）")
+    p2_hard.add_argument(
+        "--scope-contract",
+        default=None,
+        help="版本化 cross_entity scope 合同 JSON（p2-entity-scope/v0.1；可选，缺省=旧语义）",
+    )
+    p2_hard.set_defaults(handler=_cmd_p2_hard_evidence_recompute)
+
+    p2_release = sub.add_parser(
+        "p2-release-gate",
+        help="正式跨场景门禁（显式输入清单；缺证/必需未知/硬失败一律阻断；不构成发布决定）",
+    )
+    p2_release.add_argument("--inputs", required=True, help="正式门禁输入清单 JSON（p2-release-gate-inputs/v0.1）")
+    p2_release.add_argument("--project-root", default=None, help="相对路径解析根（默认仓库根）")
+    p2_release.add_argument("--out", default=None, help="脱敏结果 JSON 输出路径（可选）")
+    p2_release.set_defaults(handler=_cmd_p2_release_gate)
+
+    p2_applicability = sub.add_parser(
+        "p2-release-applicability",
+        help="按原证据重算历史 run 的适用性证明（旧配置口径 + 派生评分器身份）",
+    )
+    p2_applicability.add_argument("--inputs", required=True, help="正式门禁输入清单 JSON")
+    p2_applicability.add_argument("--project-root", default=None, help="相对路径解析根（默认仓库根）")
+    p2_applicability.add_argument("--out-dir", required=True, help="证明输出目录（每个 run 一份）")
+    p2_applicability.set_defaults(handler=_cmd_p2_release_applicability)
+
+    p2_binding = sub.add_parser(
+        "p2-release-binding",
+        help="按原工件重算历史绑定适用性证明（rag_meta.revision + 逐轮 product.revision + 双跑）",
+    )
+    p2_binding.add_argument("--inputs", required=True, help="正式门禁输入清单 JSON")
+    p2_binding.add_argument("--project-root", default=None, help="相对路径解析根（默认仓库根）")
+    p2_binding.add_argument("--out-dir", required=True, help="证明输出目录（每个 run 一份）")
+    p2_binding.set_defaults(handler=_cmd_p2_release_binding)
     return parser
 
 

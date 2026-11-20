@@ -1,0 +1,413 @@
+{
+  "schema_version": "p2-release-gate-result/v0.1",
+  "inputs_sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab",
+  "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+  "candidate_pipeline_version": "candidate-mktkb.gate.v0.3",
+  "decision": "pending",
+  "release_allowed": false,
+  "release_authority": "owner",
+  "owner_release_decision": "not_decided",
+  "technical_gate": "pending",
+  "counts": {
+    "pass": 9,
+    "blocked": 0,
+    "pending": 19,
+    "observed": 0
+  },
+  "reason_codes": [
+    "release_pending_input"
+  ],
+  "pending": {
+    "public": "PENDING-TASK3",
+    "u": "PENDING-TASK3",
+    "h2": "PENDING-TASK2"
+  },
+  "rows": [
+    {
+      "row_id": "gate_config",
+      "title": "已批准正式配置",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "gate_version": "mktkb.gate.v0.3",
+        "status": "approved"
+      },
+      "evidence": [
+        "gate_config:gate_v0_3_approved.json"
+      ]
+    },
+    {
+      "row_id": "inputs",
+      "title": "输入契约（逐字节绑定）",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "inputs_sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab",
+        "pending": {
+          "public": "PENDING-TASK3",
+          "u": "PENDING-TASK3",
+          "h2": "PENDING-TASK2"
+        }
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "b0.admission",
+      "title": "原 B0 准入留存（便携证明重算）",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "run_id": "p2-t209-b0-20261120-02",
+        "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "plan_sha256": "38d8c7f228de339255ea0f8cd6638ce6762374ab276c43d1993607131a194931",
+        "real_calls": 112,
+        "p2_release_status": "blocked_pending_n_c_u_h2_evidence"
+      },
+      "evidence": [
+        "b0-admission:2226fa208aec7db8",
+        "run:p2-t209-b0-20261120-02"
+      ]
+    },
+    {
+      "row_id": "b0.execution",
+      "title": "B0 执行 40/40",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "planned": 40,
+        "executed": 40
+      },
+      "evidence": [
+        "b0-admission:2226fa208aec7db8",
+        "run:p2-t209-b0-20261120-02"
+      ]
+    },
+    {
+      "row_id": "b0.quality",
+      "title": "B0 正确 ≥36/40",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "passed": 38,
+        "failed": 2,
+        "errors": 0,
+        "not_executed": 0
+      },
+      "evidence": [
+        "b0-admission:2226fa208aec7db8",
+        "run:p2-t209-b0-20261120-02"
+      ]
+    },
+    {
+      "row_id": "b0.exact",
+      "title": "B0 精确 24/24",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "exact_planned": 24,
+        "exact_passed": 24
+      },
+      "evidence": [
+        "b0-admission:2226fa208aec7db8",
+        "run:p2-t209-b0-20261120-02"
+      ]
+    },
+    {
+      "row_id": "b0.ocr",
+      "title": "B0 OCR 8/8 执行",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "ocr_planned": 8,
+        "ocr_executed": 8,
+        "ocr_passed": 7
+      },
+      "evidence": [
+        "b0-admission:2226fa208aec7db8",
+        "run:p2-t209-b0-20261120-02"
+      ]
+    },
+    {
+      "row_id": "candidate.pipeline",
+      "title": "候选流水线与 B0 绑定一致",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "pipeline_source_sha256": "28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7",
+        "pipeline_version": "d3ca88d2c515+28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "hard_gates.b0",
+      "title": "B0 八项硬门禁（原最小样本）",
+      "decision": "pass",
+      "reasons": [],
+      "detail": {
+        "gate_status": {
+          "citation_required": "pass",
+          "conflict_not_rejected": "not_applicable",
+          "cross_entity": "not_applicable",
+          "exact_value_contract": "pass",
+          "pagination_contract": "not_applicable",
+          "security_leak": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "trace_integrity": "pass"
+        },
+        "min_sample": 32,
+        "expected_min_sample": 32,
+        "scored_count": 40,
+        "min_sample_coverage": {
+          "suite": "b0",
+          "suite_planned_cases": 40,
+          "required_min_sample": 32,
+          "run_level_evaluated": 40,
+          "basis": "suite_planned_cases",
+          "covered": true
+        },
+        "source_hit_basis": "frozen_case_gold"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "negative",
+      "title": "N 8/8（真实公开 run）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "boundary",
+      "title": "C 6/6（真实公开 run）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "hard_gates.negative",
+      "title": "N · 八项硬门禁",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "hard_gates.boundary",
+      "title": "C · 八项硬门禁",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "applicability",
+      "title": "历史 run 适用性证明",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "u",
+      "title": "U 10/10（1 真实 smoke + 9 本地控制）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "u.local",
+      "title": "U 本地控制 U02–U10（L）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "hard_gates.update_delete",
+      "title": "U · 八项硬门禁",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2",
+      "title": "H2 同批聚合（严格校验）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.composition",
+      "title": "H2 四场景组合严格校验",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.source_proof",
+      "title": "H2 同批来源证明",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.coverage",
+      "title": "H2 同批 30 题 36 回合",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.strata",
+      "title": "H2 五层齐全（10/5/5/5/5）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.quality",
+      "title": "H2 正确 ≥24/30",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.hard_failures",
+      "title": "H2 硬失败 0",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.required_axes",
+      "title": "H2 必需轴无未知",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.non_required_axes",
+      "title": "H2 非必需轴未知（C25 原口径）",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "h2.card_verified",
+      "title": "H2 整卡 verified",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK2"
+      },
+      "evidence": []
+    },
+    {
+      "row_id": "hard_gates",
+      "title": "八项硬门禁汇总",
+      "decision": "pending",
+      "reasons": [
+        "release_pending_input"
+      ],
+      "detail": {
+        "marker": "PENDING-TASK3",
+        "evidence": {
+          "pending_sources": [
+            "public",
+            "u"
+          ]
+        }
+      },
+      "evidence": []
+    }
+  ],
+  "notes": [
+    "技术门通过只作为 T900 独立总验收输入，不构成发布决定",
+    "缺证/未执行/必需未知/硬失败/版本不符/身份不符一律阻断",
+    "不许用调用方自报布尔或名称白名单当必要证据"
+  ]
+}

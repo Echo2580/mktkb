@@ -22,19 +22,55 @@ _VALUE_TOKEN = re.compile(r"[0-9A-Za-z]+(?:[-_./:][0-9A-Za-z]+)*")
 _ENTITY_ROLES = frozenset({"store", "item", "product", "channel", "price_type", "identifier", "alias"})
 # 枚举行的稳定记录标记：由 doc/version/source unit 三元组派生，不依赖标题或行号。
 _RECORD_REF = re.compile(r"（记录 ([0-9a-f]{8})）")
+#: 记录指纹的展示字母表：只用 a–f（仍满足 ``_RECORD_REF`` 的 ``[0-9a-f]`` 形状，
+#: 但不再产生十进制数字 token）。R0-4/C02：8 位 hex 里的数字会被评测当成答案数值，
+#: 而它只是记录身份，不是业务字段值。
+_RECORD_REF_ALPHABET = "abcdef"
 
 
 def record_reference(doc_id: str, version_id: str, unit_id: str) -> str:
-    """来源单元的稳定短指纹：doc/version/unit 唯一，不含标题与行号。"""
+    """来源单元的稳定短指纹：doc/version/unit 唯一，不含标题与行号。
+
+    输出固定 8 位、只用 a–f 的字母串（64 位 SHA-256 的低位按 6 进制编码），
+    避免把机器身份的十进制数字混进答案正文；同一条记录在正文、引用 locator 与
+    事实绑定里使用同一个指纹。
+    """
     payload = f"{doc_id}|{version_id}|{unit_id}".encode("utf-8")
-    return hashlib.sha256(payload).hexdigest()[:8]
+    number = int.from_bytes(hashlib.sha256(payload).digest(), "big")
+    letters: list[str] = []
+    for _ in range(8):
+        number, remainder = divmod(number, len(_RECORD_REF_ALPHABET))
+        letters.append(_RECORD_REF_ALPHABET[remainder])
+    return "".join(letters)
 
 
 class FactValidator:
-    def __init__(self, index: Any, plan: QueryPlan, lexicon: Lexicon) -> None:
+    def __init__(
+        self,
+        index: Any,
+        plan: QueryPlan,
+        lexicon: Lexicon,
+        *,
+        joined_store: str | None = None,
+    ) -> None:
         self.index = index
         self.plan = plan
         self.lexicon = lexicon
+        #: R2-202C：本轮由检索层显式联结的店家行门店值（规范化）。只在“物品字段 + 店家级
+        #: 字段”同问、且物品行唯一时由调用方传入；为空时下面所有判定与加该参数前完全一致。
+        self.joined_store = normalize(str(joined_store or "")) or None
+
+    def _joined_store_row(self, chunk: Any) -> bool:
+        """该来源是否为本轮显式联结进来的店家行（门店值必须等于联结门店）。
+
+        只对 ``entity_type == "store"`` 且门店值与联结门店逐字一致的行放行实体过滤比对；
+        其它来源（含同名/异店/物品行）继续走原判，不放宽任何实体归属检查。
+        """
+        if not self.joined_store:
+            return False
+        if getattr(chunk, "entity_type", None) != "store":
+            return False
+        return normalize(str((getattr(chunk, "filters_norm", None) or {}).get("store") or "")) == self.joined_store
 
     def validate_fact(self, fact: Fact, *, allow_all_roles: bool = False) -> None:
         chunk = self.index.get_chunk(fact.source_chunk_id, require_visible=True)
@@ -73,8 +109,17 @@ class FactValidator:
             requested = set(ROLE_SYNONYMS) | set(RECORD_FIELD_ROLES) | set(_ENTITY_ROLES) | {"unit", "date"}
         if fact.field_role not in requested:
             raise CrossField("事实字段角色与问题不一致")
+        scoped_role = self.plan.scoped_record_role(chunk) if self.plan.record_field_stores else None
+        if self.plan.record_field_stores and scoped_role != fact.field_role:
+            raise CrossEntity("事实来源不满足该字段点名的门店和记录类型")
         for key, value in self.plan.filters.items():
+            if key == "item" and scoped_role == "status":
+                continue
             if key in _ENTITY_ROLES and chunk.filters_norm.get(key) != normalize(value):
+                if self._joined_store_row(chunk):
+                    # 联结店家行只承载店家级字段，天然没有 `item` 等物品条件；放行条件是
+                    # “该行门店值 == 物品行门店值”（见 `_joined_store_row`），不是“忽略过滤”。
+                    continue
                 raise CrossEntity("事实来源不满足问题实体条件")
         if self.plan.as_of and not self.plan.include_future:
             if chunk.effective_from and chunk.effective_from > self.plan.as_of:
@@ -112,7 +157,13 @@ class FactValidator:
         if len(chunks) != len(cited_ids):
             raise StaleSource("部分引用来源已失效")
         allowed_roles = {fact.field_role for fact in facts} | (_ENTITY_ROLES - {"identifier"})
-        if self.plan.field_role in ("price", "quantity"):
+        # ``_format_value`` 会给被请求的 price/quantity 值补上 ``unit`` 角色的单位；
+        # 该补充按**被请求字段集合**判定，不能只看 ``field_role``（首个角色），否则
+        # “价格，失效日期”这类多字段问法会因为“混入未请求字段 unit”整条被拒。
+        requested_roles = set(getattr(self.plan, "field_roles", ()) or ())
+        if self.plan.field_role:
+            requested_roles.add(self.plan.field_role)
+        if requested_roles & {"price", "quantity"}:
             allowed_roles = allowed_roles | {"unit"}
         if allow_all_roles:
             # 全字段枚举打印整条记录的所有字段，不能再按“未请求字段”拒绝。

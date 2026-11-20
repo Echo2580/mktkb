@@ -1,0 +1,66 @@
+{
+  "schema_version": "t208-public-batch/v0.1",
+  "mode": "real_judge",
+  "run_id": "t208-real-judge-candidate-20261119-v1",
+  "source": {
+    "kind": "public_fixture",
+    "run_id": "t208-public-calibration-controls-20261119",
+    "version": "t208-public-calibration/v1",
+    "sha256": "b442b7526db4394eba190e79b9231bd00df5c2e101074a6089c57cd787ae88e6"
+  },
+  "cases": [
+    {
+      "case_id": "T208-PUB-01",
+      "question": "盘点表中的物料 P01 放在哪个货架？",
+      "answer": "物料 P01 放在 B 区 1 号货架。",
+      "contexts": [
+        "公开模拟盘点表第 1 行。物料 P01 的存放货架为 B 区 1 号货架。"
+      ],
+      "reference": "物料 P01 放在 B 区 1 号货架。",
+      "refusal": false,
+      "hard_failure": null
+    },
+    {
+      "case_id": "T208-PUB-02",
+      "question": "物料 P02 放在哪个货架？",
+      "answer": "物料 P02 放在 A 区 2 号货架。",
+      "contexts": [
+        "公开模拟检索上下文。物料 P02 的存放货架为 A 区 2 号货架。"
+      ],
+      "reference": "物料 P02 放在 C 区 3 号货架。",
+      "refusal": false,
+      "hard_failure": null
+    },
+    {
+      "case_id": "T208-PUB-03",
+      "question": "物料 P03 放在哪个货架？",
+      "answer": "物料 P03 放在 C 区 3 号货架。",
+      "contexts": [
+        "公开模拟检索上下文只记录物料 P04 位于 D 区 4 号货架。"
+      ],
+      "reference": "物料 P03 放在 C 区 3 号货架。",
+      "refusal": false,
+      "hard_failure": null
+    },
+    {
+      "case_id": "T208-PUB-04",
+      "question": "物料 P04 放在哪个货架？",
+      "answer": "物料 P04 放在 D 区 4 号货架。",
+      "contexts": [
+        "公开模拟旧版盘点表。物料 P04 的存放货架为 D 区 4 号货架。"
+      ],
+      "reference": "物料 P04 放在 D 区 4 号货架。",
+      "refusal": false,
+      "hard_failure": "stale_source"
+    },
+    {
+      "case_id": "T208-PUB-05",
+      "question": "物料 P99 放在哪个货架？",
+      "answer": "现有盘点资料未记录物料 P99 的存放货架。",
+      "contexts": [],
+      "reference": "应说明现有盘点资料未记录物料 P99 的存放货架。",
+      "refusal": true,
+      "hard_failure": null
+    }
+  ]
+}

@@ -1,0 +1,3157 @@
+{
+  "schema_version": "p2-ncu-release-evidence/v0.1",
+  "generated_utc": "2026-11-20T23:59:26+08:00",
+  "composition": "multi_run_historical_plus_local_controls",
+  "release_decision": false,
+  "not_a_release_decision": true,
+  "authority": {
+    "taskbook": "docs/superpowers/plans/2026-11-20-p2-closeout-3-ncu-evidence.md",
+    "approved_threshold": "docs/evaluation/gate_v0_3_approved.json",
+    "approved_threshold_file_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+    "approved_threshold_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+    "frozen_template": "docs/evaluation/gate_v0_3.json",
+    "frozen_template_file_sha256": "3af301dba2d4dbd1bcc9d8f17c656f8a80755820fa2a8559b787974f20b5619d",
+    "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+    "old_version_applicability_proof": "approved 与 frozen 的 schema_version/gate_version/hard_gates/hard_gate_min_sample/suites/sensitive_patterns/metrics 逐键相同；差异仅 status、approval、p2_standards.status/approved_at/basis、notes。故历史 run 的 d1097573 绑定在当前 7fa6f47a 门槛下语义等价（旧身份保留，不重绑摘要）。",
+    "decisions": {
+      "D-004": "citation_required 的候选接地集合改为 outcome.evidence[].unit_id ∪ outcome.retrieved[].unit_ids；判据本身不变（既不在 evidence 也不在 retrieved 仍 fail）。实现还需要 build_gate_rows 显式接收原始 run 行（case_rows）以投影 product.evidence。",
+      "D-005": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；必须全程披露原始机械 FAIL；trace_integrity 逐值相等语义不改。"
+    },
+    "gate_code": {
+      "path": "backend/src/mktkb/evaluation/gate.py",
+      "sha256_current": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7",
+      "sha256_head_97b00667": "7e54fbf672cbc1c02bbe746c164038613d5861070796794f6a41aae1595b7fe7",
+      "sha256_before_d004_reported": "10235099（任务 4 交接记录值；本窗口无法从 git 重建该未提交中间态）",
+      "change": "D-004：citation_required 候选接地集合 = outcome.evidence(unit_id) ∪ outcome.retrieved(unit_ids)；三个拒绝分支与 trace_integrity 逐值相等语义未改"
+    }
+  },
+  "runs": {
+    "R1": {
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "execution_mode": "live",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_version": "mktkb.gate.v0.3",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "index_revision_binding": 11,
+      "pipeline_version": "d3ca88d2c515",
+      "pipeline_code_sha256": {
+        "p2_runner.py": "c1e336f0b3bebf621181c8a1cc08b94ca18c4b561ac5185b664efd2e010d01dc",
+        "product_adapter.py": "553e4ccf567653568d8b93812f75cc6ea440a33bc642bdbcfdedd8f69bb7d7eb"
+      },
+      "dataset_version": "p2-t207-public-20261111-v0.1",
+      "dataset_sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+      "corpus_manifest_sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+      "case_count": 52,
+      "max_published_revision": 11,
+      "ingest_published_revisions": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "outbound_network": 117,
+      "chat_sends": 40,
+      "attempts_reserved": 129,
+      "settled_cny": 0.28944000000000003,
+      "artifacts": {
+        "run_manifest.json": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result.json": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "cases.jsonl": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "dataset.jsonl(run)": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9",
+        "gate.json": "eb6540003cb67bc3dc563f271056435eb1e968da1b19d8686ae1906574410505",
+        "summary.json": "fe9bc19f9c169cb80ef6e42f960cacf4771f6bce20b01d9d3758b4415d721141",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "cases/R1.jsonl": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11"
+      }
+    },
+    "R2": {
+      "run_id": "p2-t207-r2-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01",
+      "execution_mode": "live",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "1370e34b4178c2cd162acb4260a101b96eca4cb7c1bb24a3722dea633b510c35",
+      "gate_version": "mktkb.gate.v0.3",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "index_revision_binding": 3,
+      "pipeline_version": "d3ca88d2c515",
+      "pipeline_code_sha256": {
+        "p2_runner.py": "c1e336f0b3bebf621181c8a1cc08b94ca18c4b561ac5185b664efd2e010d01dc",
+        "product_adapter.py": "553e4ccf567653568d8b93812f75cc6ea440a33bc642bdbcfdedd8f69bb7d7eb"
+      },
+      "dataset_version": "p2-t207-public-20261111-v0.1",
+      "dataset_sha256": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388",
+      "corpus_manifest_sha256": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388",
+      "case_count": 2,
+      "max_published_revision": 3,
+      "ingest_published_revisions": [
+        1,
+        2,
+        3
+      ],
+      "outbound_network": 9,
+      "chat_sends": 1,
+      "attempts_reserved": 10,
+      "settled_cny": 0.020004,
+      "artifacts": {
+        "run_manifest.json": "7139213b4f0e6038186e6f3c63b6d58dba99517c7821a05d058465db3e2ca290",
+        "run_result.json": "043b78c0e8ed9d4b3f86b6a0cfc70bc6d4ea32806cbe014d05a1ec6409e6b478",
+        "cases.jsonl": "f95ae56249ae08ab3c58497bc6b62ba56fae68c47c24d4716c2176343eb7ca9b",
+        "dataset.jsonl(run)": "e61c46b308ea076b12b42d98e0bac39147d209e88310f6f2c510ee32fab0cdf5",
+        "gate.json": "171969dfb46ce2026de2c9456ae856a871e592b52b8ccc2297c41b0b2be90017",
+        "summary.json": "501870c620dd6daf40df44475bb73dcea4db7dc56bef4268e0e9f71944e88c6a",
+        "trace_db": "e3daa407edf463207a3f6d8395810ab4511328a8736d77360f82e9956c4aa9e1",
+        "rag_index": "423de22bb8949c0cfcaf3fd8bd46cac1782bf9996d2147912251750372dd7b70",
+        "cases/R2.jsonl": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388",
+        "product_db": "59137a471f5c5ca8173f1ac320ec4f7439440216201c0a0413d6d27767e4d700"
+      }
+    },
+    "R4": {
+      "run_id": "p2-t207-r4-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01",
+      "execution_mode": "live",
+      "plan_id": "P2-T207-R4-20261111",
+      "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+      "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+      "gate_version": "mktkb.gate.v0.3",
+      "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "index_revision_binding": 5,
+      "pipeline_version": "d3ca88d2c515",
+      "pipeline_code_sha256": {
+        "p2_runner.py": "8c3ac535221222d5b99ecb6310263c01797315fbf8672392a5ad7c291c50f384",
+        "product_adapter.py": "f44692fbb2c34225d15a552090fbd9c5a22bd84f75e66a045e76f69306c4c851"
+      },
+      "dataset_version": "p2-t207-public-20261111-v0.1",
+      "dataset_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+      "corpus_manifest_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+      "case_count": 3,
+      "max_published_revision": 5,
+      "ingest_published_revisions": [
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "outbound_network": 10,
+      "chat_sends": 0,
+      "attempts_reserved": 13,
+      "settled_cny": 0.056064,
+      "artifacts": {
+        "run_manifest.json": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f",
+        "run_result.json": "977d65aa74e1c0cda79474af9c6b5818ff60727e2273edcb844568459bbabdc0",
+        "cases.jsonl": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4",
+        "dataset.jsonl(run)": "aefcb844a14ac83cb902279740b9aaf23d7ad4a144e376860a7c0fe266a73405",
+        "gate.json": "2fc62cdfcd2e2bcb0dd53e5644f6311001954a2ac75a848b003250c38772dcd8",
+        "summary.json": "87f87df4f1461019c8dd7aa4e1b09739a530d4cd3403d0622fbefc272731c75b",
+        "trace_db": "80136a27728123a10659b33f7e213836fc9768abd5360a9f19132e5446c2564e",
+        "rag_index": "fff685503e51c0121c3739e19bee915f7abc29c0f4abe34f3f615b3a283e7576",
+        "cases/R4.jsonl": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84"
+      }
+    }
+  },
+  "selection_policy": {
+    "frozen_scope": {
+      "R1": {
+        "N": [
+          "N01",
+          "N02",
+          "N03",
+          "N04",
+          "N05",
+          "N06",
+          "N07"
+        ],
+        "C": [
+          "C01",
+          "C02",
+          "C03",
+          "C04"
+        ]
+      },
+      "R4": {
+        "N": [
+          "N08"
+        ],
+        "C": [
+          "C05",
+          "C06"
+        ]
+      },
+      "R2": {
+        "U": [
+          "U01"
+        ]
+      }
+    },
+    "not_selected": {
+      "R2.C05": "R2 数据集内但不在冻结范围（R4 已替换 C05）",
+      "R1.Q01-Q40": "B0 组，不属于 N/C/U",
+      "R3": "未进入 N/C/U 范围"
+    },
+    "dedupe": "按冻结选题范围去重：同一 case 只取指定 run；R2.C05 不参与 C 组；run 级调用数按 run 身份计一次，不按题摊分。"
+  },
+  "tallies": {
+    "judged_pass": {
+      "N": "8/8",
+      "C": "6/6",
+      "U": "10/10",
+      "not_executed": 0
+    },
+    "adopted_unconditional": {
+      "label": "无条件可采（无任何机械 FAIL）",
+      "N": 7,
+      "C": 2,
+      "U": 9,
+      "planned": {
+        "N": 8,
+        "C": 6,
+        "U": 10
+      }
+    },
+    "adopted_with_binding_proof": {
+      "label": "带 D-005 绑定适用性证明（机械 FAIL 保留）",
+      "N": 1,
+      "C": 4,
+      "U": 1
+    },
+    "adopted_formal_total": {
+      "label": "正式可采（含 D-005 证明）= 无条件 + 证明档",
+      "N": 8,
+      "C": 6,
+      "U": 10,
+      "planned": {
+        "N": 8,
+        "C": 6,
+        "U": 10
+      },
+      "threshold_met": {
+        "N": true,
+        "C": true,
+        "U": true
+      }
+    },
+    "fail": {
+      "N": 0,
+      "C": 0,
+      "U": 0
+    },
+    "unknown": 0,
+    "planned": {
+      "N": 8,
+      "C": 6,
+      "U": 10
+    }
+  },
+  "hard_gate_min_sample": {
+    "unmet": {
+      "suite": "update_delete",
+      "evaluated": 1,
+      "required": 10
+    },
+    "approved_config_path": "docs/evaluation/gate_v0_3_approved.json",
+    "approved_min_sample": 10,
+    "why": "U 的 run 级 evaluated_count 只有 1（U01）；其余 9 条是本地控制（L），不是 run 行，八项硬门禁只能在 run 级逐题上评估。批准配置要求 update_delete 最小样本 10，故 U 的八门在批准最小样本口径下无法满足。",
+    "status": "PENDING-MASTER-DECISION",
+    "handling": "由经理另报主人裁量；本清单只如实记录，不自行放宽、不把 1R+9L 冒充 10 条 run 证据。"
+  },
+  "hard_gate_applicability": {
+    "run_recompute": {
+      "R1": {
+        "gate_status": {
+          "security_leak": "not_applicable",
+          "cross_entity": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "conflict_not_rejected": "not_applicable",
+          "exact_value_contract": "pass",
+          "pagination_contract": "not_applicable",
+          "citation_required": "pass",
+          "trace_integrity": "fail"
+        },
+        "exit_code": 1,
+        "evaluated_by_suite": {
+          "b0": 32,
+          "boundary": 4,
+          "negative": 8
+        }
+      },
+      "R2": {
+        "gate_status": {
+          "security_leak": "pass",
+          "cross_entity": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "conflict_not_rejected": "fail",
+          "exact_value_contract": "not_applicable",
+          "pagination_contract": "not_applicable",
+          "citation_required": "pass",
+          "trace_integrity": "fail"
+        },
+        "exit_code": 1,
+        "evaluated_by_suite": {
+          "boundary": 1,
+          "update_delete": 1
+        }
+      },
+      "R4": {
+        "gate_status": {
+          "security_leak": "pass",
+          "cross_entity": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "conflict_not_rejected": "pass",
+          "exact_value_contract": "not_applicable",
+          "pagination_contract": "not_applicable",
+          "citation_required": "not_applicable",
+          "trace_integrity": "fail"
+        },
+        "exit_code": 1,
+        "evaluated_by_suite": {
+          "boundary": 2,
+          "negative": 1
+        }
+      }
+    },
+    "recompute_engine": "evidence/gate_recompute_r2.json（新 gate.py + build_gate_rows(case_rows=...)）",
+    "gate_code": {
+      "path": "backend/src/mktkb/evaluation/gate.py",
+      "sha256_current": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7",
+      "sha256_head_97b00667": "7e54fbf672cbc1c02bbe746c164038613d5861070796794f6a41aae1595b7fe7",
+      "sha256_before_d004_reported": "10235099（任务 4 交接记录值；本窗口无法从 git 重建该未提交中间态）",
+      "change": "D-004：citation_required 候选接地集合 = outcome.evidence(unit_id) ∪ outcome.retrieved(unit_ids)；三个拒绝分支与 trace_integrity 逐值相等语义未改"
+    },
+    "historical_recompute_before_d004": "evidence/gate_recompute.json（改前引擎，仅作对照，不用于本清单 adopt）",
+    "note": "以当前批准门槛在隔离副本上重算；仅把诊断副本的 trace_store/dataset_path 指向隔离拷贝，原证据未改。"
+  },
+  "cases": [
+    {
+      "case_id": "N01",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N01; group=negative; category=None; reason=不存在该店资料; accepted_wording(any-of,not-scored)=没有|未找到",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 12,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "44f972179fd14605ab41e0fe36b89914",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "ea6cdd3eeb914509c0d2ff1e51418b2079f4e2a8983f32982b0a72126c77e53c",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "N01",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "44f972179fd14605ab41e0fe36b89914",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r1-20261111-01",
+                "index_revision": 11,
+                "manifest_sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+                "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r1-20261111-01",
+          "trace_id": "44f972179fd14605ab41e0fe36b89914",
+          "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+          "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 11,
+          "question_sha256": "ea6cdd3eeb914509c0d2ff1e51418b2079f4e2a8983f32982b0a72126c77e53c"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 11,
+          "product_response_revision": 11,
+          "rag_index_revision": 12,
+          "rag_product_revision": 11,
+          "trace_index_revision": 12,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N02",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N02; group=negative; category=None; reason=营业时间字段缺失; accepted_wording(any-of,not-scored)=未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "7985cc651c6f41f98748156fd867a996",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "1d6506949e9e8d5b47d138fb305ed2f27eeda67e519d9579395545a8f3de0d7f",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N03",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N03; group=negative; category=None; reason=物品负责人未记录，不得用店家联系人代替; accepted_wording(any-of,not-scored)=未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "a670fb2d36c7417fa346448c4669671e",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "62a9157be3361e976bed129c578d842f2c3a78dd83de7a4881b1f18ff873ec0e",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N04",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N04; group=negative; category=None; reason=无库存依据; accepted_wording(any-of,not-scored)=无|未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "bc216f46a56f422391fb1483a127b294",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "7c6cd01d54b2e7f2b244de3130e70bdd4b0802398911c9b8276b28a453e7c4f6",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N05",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N05; group=negative; category=None; reason=无销售资料; accepted_wording(any-of,not-scored)=无|未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "711096ea51214bf486cfa54daf1e66d8",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "d9bead9e92d02f84eba22eb42c4c67c54d38d72efbfb09516e210e531d3ad369",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N06",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N06; group=negative; category=None; reason=无采购价格; accepted_wording(any-of,not-scored)=无|未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "4447c9deb6e04a47ab8f68ce778fa349",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "4ec3b1dd41abfe6989bf108a53818291720a95d1eb335bc2d7280b5d46293b42",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N07",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N07; group=negative; category=None; reason=无该字段; accepted_wording(any-of,not-scored)=无|未记录",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "89ebddad27424826af414cf7bf8c4175",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "32313462366f8629b112db5c7f712a92c063a76090c08f3e5771a1d936214095",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "N08",
+      "group": "N",
+      "suite": "negative",
+      "stratum": "negative",
+      "expected_kind": "not_found",
+      "should_refuse": true,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=N08; group=negative; category=None; reason=图片不做实物识别; accepted_wording(any-of,not-scored)=范围外|无法",
+      "basis": "R",
+      "run_id": "p2-t207-r4-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01",
+      "plan_id": "P2-T207-R4-20261111",
+      "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+      "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 5,
+      "index_revision_trace": 5,
+      "index_revision_rag": 6,
+      "index_revision_product_response": 5,
+      "trace_id": "480d78fbe4494920993f9a9034b40066",
+      "trace_path": "legacy",
+      "trace_outcome": "not_found",
+      "question_sha256": "ac3b26924af1b848d7c6e98961a0794161f1fff5efb53912c09f7619993d4646",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "should_refuse"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R4/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R4.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R4\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R4\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R4\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4",
+        "run_manifest": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f",
+        "run_result": "977d65aa74e1c0cda79474af9c6b5818ff60727e2273edcb844568459bbabdc0",
+        "case_scores": "223e4c16b009c06a4bf5cbfcf128ca71ac7b4502014603d198a06f3b5205ef33",
+        "frozen_cases": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+        "trace_db": "80136a27728123a10659b33f7e213836fc9768abd5360a9f19132e5446c2564e",
+        "rag_index": "fff685503e51c0121c3739e19bee915f7abc29c0f4abe34f3f615b3a283e7576",
+        "run_dataset": "aefcb844a14ac83cb902279740b9aaf23d7ad4a144e376860a7c0fe266a73405"
+      }
+    },
+    {
+      "case_id": "C01",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "clarification",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C01; group=ambiguity_conflict; category=None; candidates=城东店|城西店; accepted_wording(any-of,not-scored)=城东店|城西店",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 12,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "32f8df962ae245ddaf15e2587b8e4396",
+      "trace_path": "legacy_with_rag_candidates",
+      "trace_outcome": "clarification",
+      "question_sha256": "8d8a2d5de5ea972505cb5b61d0a417197993c5c5b713fe82146a09e5aa358f62",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "no_expected_values"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "C01",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "32f8df962ae245ddaf15e2587b8e4396",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r1-20261111-01",
+                "index_revision": 11,
+                "manifest_sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+                "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r1-20261111-01",
+          "trace_id": "32f8df962ae245ddaf15e2587b8e4396",
+          "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+          "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 11,
+          "question_sha256": "8d8a2d5de5ea972505cb5b61d0a417197993c5c5b713fe82146a09e5aa358f62"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 11,
+          "product_response_revision": 11,
+          "rag_index_revision": 12,
+          "rag_product_revision": 11,
+          "trace_index_revision": 12,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "C02",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "clarification",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C02; group=ambiguity_conflict; category=None; candidates=城东店|城西店; accepted_wording(any-of,not-scored)=城东店|城西店",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 12,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "bdbe4e54c40d4b9692563c8a2e0c342c",
+      "trace_path": "legacy_with_rag_candidates",
+      "trace_outcome": "clarification",
+      "question_sha256": "f93d06397eac317e21ecb33cf3e8f4181b5690be084339442bea0a988e5a583c",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "no_expected_values"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "C02",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "bdbe4e54c40d4b9692563c8a2e0c342c",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r1-20261111-01",
+                "index_revision": 11,
+                "manifest_sha256": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+                "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r1-20261111-01",
+          "trace_id": "bdbe4e54c40d4b9692563c8a2e0c342c",
+          "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+          "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 11,
+          "question_sha256": "f93d06397eac317e21ecb33cf3e8f4181b5690be084339442bea0a988e5a583c"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 11,
+          "product_response_revision": 11,
+          "rag_index_revision": 12,
+          "rag_product_revision": 11,
+          "trace_index_revision": 12,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "C03",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "clarification",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C03; group=ambiguity_conflict; category=None; candidates=城东店|城西店|城北店|滨河店; accepted_wording(any-of,not-scored)=门店|店家",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "6904878e322743848f47593259bcb2b4",
+      "trace_path": "legacy",
+      "trace_outcome": "clarification",
+      "question_sha256": "00e339b5ef4a5578f0b8d4d5d8b4e4ced954129046fbc3c8c5ef99a57d5b284f",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "no_expected_values"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "C04",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "clarification",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [],
+      "gold_expected_sources": [],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C04; group=ambiguity_conflict; category=None; reason=新会话无上下文; accepted_wording(any-of,not-scored)=物品|门店",
+      "basis": "R",
+      "run_id": "p2-t207-r1-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "8bf2a7b738dbccc468f9f95418e575d45d65803bb35289a7594cc2f2ef38496b",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 11,
+      "index_revision_trace": 11,
+      "index_revision_rag": 12,
+      "index_revision_product_response": 11,
+      "trace_id": "e6ad0e356fbf4b0f9379f8826f2d8b0b",
+      "trace_path": "legacy",
+      "trace_outcome": "clarification",
+      "question_sha256": "465c51f596577b69e2c0f759e803e76ab08c1d8164bb1c12efa8c6e18ffc2183",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "reason": "no_expected_sources"
+        },
+        "value_hit": {
+          "reason": "no_expected_values"
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        }
+      },
+      "mechanical_gate_failures": [],
+      "binding_proof": null,
+      "adopt": "ADOPTED",
+      "adopt_reason": "八门禁对该题无任何机械 FAIL；身份/门槛/必要硬证据三条件齐备",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r1-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R1-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R1.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R1\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R1\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R1\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "704f37431e8dc5c176526cf780cf6c2f286a6731cf95c8695062988eb46183b6",
+        "run_manifest": "d9509b57e47fd82af1f8b4335784d3f571cbcdad6993ef5dc0845a6fd4313a40",
+        "run_result": "be3c31f334b6d4d6d1210cda044d88d5a2e8e53443e668f230b3d975635d977c",
+        "case_scores": "d22156becd06cddcb20a860e482a2499229bce21c0e72abcbcf114ac8fd3daf4",
+        "frozen_cases": "e44ab9ffd89ff32e846f3e895419f7580033e43041c4468baf05e22e44333c11",
+        "trace_db": "c65a7749e4a08843682964f099d8bc8d53e37166276c9de35d27de0a424a4f30",
+        "rag_index": "b9fa46f3cfae7c1d6dbf933dd009aff68ae2b066e29416896835cde10d65484f",
+        "run_dataset": "aab023a11a16ff279eb69d7ddd6eb63c382b72e84c3d735af3bb23e49e56aad9"
+      }
+    },
+    {
+      "case_id": "C05",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "conflict",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [
+        "B区1号货架第二层",
+        "D区暂存柜"
+      ],
+      "gold_expected_sources": [
+        {
+          "doc_code": "D01",
+          "record_code": "P01"
+        },
+        {
+          "doc_code": "V01",
+          "locator": {
+            "page": 1
+          }
+        }
+      ],
+      "gold_forbidden_sources": [
+        {
+          "doc_code": "V03"
+        }
+      ],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C05; group=ambiguity_conflict; category=None; dropped_free_text_locator=heading; scenario_actions=publish",
+      "basis": "R",
+      "run_id": "p2-t207-r4-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01",
+      "plan_id": "P2-T207-R4-20261111",
+      "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+      "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 5,
+      "index_revision_trace": 6,
+      "index_revision_rag": 6,
+      "index_revision_product_response": 5,
+      "trace_id": "321b0a5f378c41f49ac3e7c81e091c6a",
+      "trace_path": "legacy_with_rag_candidates",
+      "trace_outcome": "conflict",
+      "question_sha256": "14683ef33368ba0e3b1dfedd7ae8b5925e63595b3792f9a9d751c207064a1564",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "expected": 2,
+          "matched": 2
+        },
+        "value_hit": {
+          "expected": 2,
+          "missing": []
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": true,
+          "status": "pass"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": true,
+          "status": "pass"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "C05",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "321b0a5f378c41f49ac3e7c81e091c6a",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r4-20261111-01",
+                "index_revision": 5,
+                "manifest_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+                "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r4-20261111-01",
+          "trace_id": "321b0a5f378c41f49ac3e7c81e091c6a",
+          "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+          "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 5,
+          "question_sha256": "14683ef33368ba0e3b1dfedd7ae8b5925e63595b3792f9a9d751c207064a1564"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 5,
+          "product_response_revision": 5,
+          "rag_index_revision": 6,
+          "rag_product_revision": 5,
+          "trace_index_revision": 6,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R4/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R4.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R4\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R4\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R4\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4",
+        "run_manifest": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f",
+        "run_result": "977d65aa74e1c0cda79474af9c6b5818ff60727e2273edcb844568459bbabdc0",
+        "case_scores": "223e4c16b009c06a4bf5cbfcf128ca71ac7b4502014603d198a06f3b5205ef33",
+        "frozen_cases": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+        "trace_db": "80136a27728123a10659b33f7e213836fc9768abd5360a9f19132e5446c2564e",
+        "rag_index": "fff685503e51c0121c3739e19bee915f7abc29c0f4abe34f3f615b3a283e7576",
+        "run_dataset": "aefcb844a14ac83cb902279740b9aaf23d7ad4a144e376860a7c0fe266a73405"
+      }
+    },
+    {
+      "case_id": "C06",
+      "group": "C",
+      "suite": "boundary",
+      "stratum": "ambiguity_conflict",
+      "expected_kind": "conflict",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [
+        "010-00000001",
+        "010-00000099"
+      ],
+      "gold_expected_sources": [
+        {
+          "doc_code": "D02",
+          "record_code": "S01"
+        },
+        {
+          "doc_code": "V02",
+          "locator": {
+            "page": 1
+          }
+        }
+      ],
+      "gold_forbidden_sources": [
+        {
+          "doc_code": "V06"
+        }
+      ],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=C06; group=ambiguity_conflict; category=None; dropped_free_text_locator=heading; scenario_actions=publish",
+      "basis": "R",
+      "run_id": "p2-t207-r4-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01",
+      "plan_id": "P2-T207-R4-20261111",
+      "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+      "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 5,
+      "index_revision_trace": 6,
+      "index_revision_rag": 6,
+      "index_revision_product_response": 5,
+      "trace_id": "397a49ba242347539d1ed4901876ae52",
+      "trace_path": "legacy_with_rag_candidates",
+      "trace_outcome": "conflict",
+      "question_sha256": "6243f5684d6bf35aa9727d9dbc0c72312d5ddfcee1fa385001e4537440aec80b",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "expected": 2,
+          "matched": 2
+        },
+        "value_hit": {
+          "expected": 2,
+          "missing": []
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": true,
+          "status": "pass"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": true,
+          "status": "pass"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "C06",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "397a49ba242347539d1ed4901876ae52",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r4-20261111-01",
+                "index_revision": 5,
+                "manifest_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+                "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r4-20261111-01",
+          "trace_id": "397a49ba242347539d1ed4901876ae52",
+          "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+          "config_hash": "8de2f3b01cd4ae3fac3e63c5754ffd4e65a0c567297b9a6790a62c2fe433cd94",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 5,
+          "question_sha256": "6243f5684d6bf35aa9727d9dbc0c72312d5ddfcee1fa385001e4537440aec80b"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 5,
+          "product_response_revision": 5,
+          "rag_index_revision": 6,
+          "rag_product_revision": 5,
+          "trace_index_revision": 6,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r4-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R4/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R4.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R4\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R4\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R4\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4",
+        "run_manifest": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f",
+        "run_result": "977d65aa74e1c0cda79474af9c6b5818ff60727e2273edcb844568459bbabdc0",
+        "case_scores": "223e4c16b009c06a4bf5cbfcf128ca71ac7b4502014603d198a06f3b5205ef33",
+        "frozen_cases": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+        "trace_db": "80136a27728123a10659b33f7e213836fc9768abd5360a9f19132e5446c2564e",
+        "rag_index": "fff685503e51c0121c3739e19bee915f7abc29c0f4abe34f3f615b3a283e7576",
+        "run_dataset": "aefcb844a14ac83cb902279740b9aaf23d7ad4a144e376860a7c0fe266a73405"
+      }
+    },
+    {
+      "case_id": "U01",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "expected_kind": "answer",
+      "should_refuse": false,
+      "requires_ocr": false,
+      "gold_expected_values": [
+        "B区1号货架第二层"
+      ],
+      "gold_expected_sources": [
+        {
+          "doc_code": "D01",
+          "record_code": "P01"
+        }
+      ],
+      "gold_forbidden_sources": [],
+      "gold_notes": "source=fixtures/acceptance/questions.json id=U01; group=mutation; category=None; scenario_actions=upload_version|process; mirror=backend/tests/acceptance/test_t09_mutation.py::test_u01",
+      "basis": "R",
+      "run_id": "p2-t207-r2-20261111-01",
+      "run_dir": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01",
+      "plan_id": "P2-T207-MATRIX-20261111",
+      "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+      "config_hash": "1370e34b4178c2cd162acb4260a101b96eca4cb7c1bb24a3722dea633b510c35",
+      "gate_config_hash_original": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+      "gate_version": "mktkb.gate.v0.3",
+      "pipeline_version": "d3ca88d2c515",
+      "index_revision_binding": 3,
+      "index_revision_trace": 4,
+      "index_revision_rag": 4,
+      "index_revision_product_response": 3,
+      "trace_id": "edacbdb8d40040f7a1b27de9b72dd7ca",
+      "trace_path": "rag",
+      "trace_outcome": "answer",
+      "question_sha256": "f8ce79536fff3616adaf0a3e396f6c9b25c80e706b6010e7cd81b8e0908e5f24",
+      "score_status": "pass",
+      "score_failed_checks": [],
+      "check_evidence": {
+        "source_hit": {
+          "expected": 1,
+          "matched": 1
+        },
+        "value_hit": {
+          "expected": 1,
+          "missing": []
+        }
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable"
+        },
+        "citation_required": {
+          "applicable": true,
+          "status": "pass",
+          "failure": null
+        },
+        "trace_integrity": {
+          "applicable": true,
+          "status": "fail",
+          "failure": {
+            "case_id": "U01",
+            "check_id": "version_binding",
+            "evidence": {
+              "trace_id": "edacbdb8d40040f7a1b27de9b72dd7ca",
+              "mismatched": [
+                "index_revision"
+              ],
+              "expected": {
+                "dataset_version": "p2-t207-public-20261111-v0.1",
+                "pipeline_version": "d3ca88d2c515",
+                "run_id": "p2-t207-r2-20261111-01",
+                "index_revision": 3,
+                "manifest_sha256": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388",
+                "config_hash": "1370e34b4178c2cd162acb4260a101b96eca4cb7c1bb24a3722dea633b510c35",
+                "mode": "local"
+              }
+            }
+          }
+        }
+      },
+      "mechanical_gate_failures": [
+        {
+          "gate": "trace_integrity",
+          "check": "version_binding",
+          "status": "fail"
+        }
+      ],
+      "binding_proof": {
+        "decision": "D-005",
+        "decision_text": "接受历史绑定适用性证明作为正式 N/C/U 证据口径；全程保留并披露原始机械 FAIL；trace_integrity 逐值相等语义不改",
+        "identity": {
+          "run_id": "p2-t207-r2-20261111-01",
+          "trace_id": "edacbdb8d40040f7a1b27de9b72dd7ca",
+          "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+          "config_hash": "1370e34b4178c2cd162acb4260a101b96eca4cb7c1bb24a3722dea633b510c35",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision_binding": 3,
+          "question_sha256": "f8ce79536fff3616adaf0a3e396f6c9b25c80e706b6010e7cd81b8e0908e5f24"
+        },
+        "per_stage_index_versions": {
+          "ingest_published_max_revision": 3,
+          "product_response_revision": 3,
+          "rag_index_revision": 4,
+          "rag_product_revision": 3,
+          "trace_index_revision": 4,
+          "explanation": "trace 字段取 rag_meta.revision（仅 RAG 检索路径写入）；run 绑定取 product_revision。二者为不同计数器，本批三 run 恒差 1，且 57/57 条 trace 按有无 recall span 严格二分。"
+        },
+        "same_round_authoritative_evidence": [
+          "docs/reports/OBS-EVAL/P2/T207/scoring/closeout/matrix_observation.json（run 级 index_revision/real_calls）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/run_manifest.json#ingest（已发布 revision 最大值）",
+          "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/cases.jsonl（同轮 product.revision）",
+          "rag-index.sqlite3#rag_meta（product_revision / revision 并列）",
+          "evidence/trace-adjudication.json（逐阶段索引版本与闭合判定）"
+        ],
+        "old_version_applicability": {
+          "frozen_template_loader_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+          "approved_loader_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+          "semantic_keys_identical": [
+            "schema_version",
+            "gate_version",
+            "hard_gates",
+            "hard_gate_min_sample",
+            "suites",
+            "sensitive_patterns",
+            "metrics"
+          ],
+          "note": "批准配置仅加 status/approval/p2_standards/notes；硬门禁语义等价，故旧身份可保留。"
+        },
+        "note": "机械 FAIL 保留、按 D-005 以证明采信；不得表述为 clean pass"
+      },
+      "adopt": "ADOPTED_WITH_BINDING_PROOF",
+      "adopt_reason": "机械 FAIL 保留（trace_integrity:version_binding）；按 D-005 以绑定适用性证明采信；citation_required 已按 D-004 由 fail 转 pass",
+      "evidence_paths": {
+        "run_cases": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/cases.jsonl",
+        "run_manifest": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/run_manifest.json",
+        "run_result": "docs/reports/OBS-EVAL/P2/T207/p2-t207-r2-20261111-01/run_result.json",
+        "case_scores": "docs/reports/OBS-EVAL/P2/T207/scoring/R2-fixed/case_scores.json",
+        "frozen_cases": "docs/reports/OBS-EVAL/P2/T207/cases/R2.jsonl",
+        "trace_db": "D:\\mktkb-p2-run\\t207\\R2\\data\\observability\\qa-traces.sqlite3",
+        "rag_index": "D:\\mktkb-p2-run\\t207\\R2\\data\\rag-index.sqlite3",
+        "run_dataset": "D:\\mktkb-p2-run\\t207\\R2\\p2-run\\dataset.jsonl"
+      },
+      "evidence_sha256": {
+        "run_cases": "f95ae56249ae08ab3c58497bc6b62ba56fae68c47c24d4716c2176343eb7ca9b",
+        "run_manifest": "7139213b4f0e6038186e6f3c63b6d58dba99517c7821a05d058465db3e2ca290",
+        "run_result": "043b78c0e8ed9d4b3f86b6a0cfc70bc6d4ea32806cbe014d05a1ec6409e6b478",
+        "case_scores": "410efbef275501b82de2b7770c252f181712daaff8f41505d60473136e09af47",
+        "frozen_cases": "d5fb8cacac7b2d000fbe783a3cef0b6c9cf0154a330b4cfd95b5dc9a35691388",
+        "trace_db": "e3daa407edf463207a3f6d8395810ab4511328a8736d77360f82e9956c4aa9e1",
+        "rag_index": "423de22bb8949c0cfcaf3fd8bd46cac1782bf9996d2147912251750372dd7b70",
+        "run_dataset": "e61c46b308ea076b12b42d98e0bac39147d209e88310f6f2c510ee32fab0cdf5"
+      }
+    },
+    {
+      "case_id": "U02",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u02_publish_switches_answer_in_new_and_existing_conversation",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U03",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u03_phone_update_returns_new_value",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U04",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u04_removed_row_is_not_answerable",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U05",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u05_delete_only_source_of_store",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U06",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u06_delete_d01_but_remaining_notice_still_answers",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U07",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u07_knowledge_changed_when_knowledge_moves_during_generation[publish]",
+            "status": "pass",
+            "detail": ""
+          },
+          {
+            "name": "test_u07_knowledge_changed_when_knowledge_moves_during_generation[delete]",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U08",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u08_concurrent_publish_from_same_old_version",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U09",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u09_late_ocr_result_after_delete_cancel_or_lease_loss[delete]",
+            "status": "pass",
+            "detail": ""
+          },
+          {
+            "name": "test_u09_late_ocr_result_after_delete_cancel_or_lease_loss[cancel_pending_version]",
+            "status": "pass",
+            "detail": ""
+          },
+          {
+            "name": "test_u09_late_ocr_result_after_delete_cancel_or_lease_loss[lease_expired]",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    },
+    {
+      "case_id": "U10",
+      "group": "U",
+      "suite": "update_delete",
+      "stratum": "mutation",
+      "basis": "L",
+      "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+      "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+      "test_file_sha256": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+      "historical": {
+        "status": "pass",
+        "tests": [
+          {
+            "name": "test_u10_client_request_id_idempotency",
+            "status": "pass",
+            "detail": ""
+          }
+        ],
+        "exit_code": 0,
+        "generated_utc": "2026-11-11T07:17:40+00:00"
+      },
+      "rerun": {
+        "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+        "exit_code": 0,
+        "passed": 13,
+        "skipped": 0,
+        "failed": 0,
+        "network_guard": "模块级 t09_network_guard：外部出站尝试非空即失败；本次 13 passed"
+      },
+      "gates": {
+        "security_leak": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "cross_entity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "stale_bypass": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "conflict_not_rejected": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "exact_value_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "pagination_contract": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "citation_required": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        },
+        "trace_integrity": {
+          "applicable": false,
+          "status": "not_applicable",
+          "why": "本地控制无 run/trace，运行级硬门禁不适用；L 口径由测试结果承担"
+        }
+      },
+      "evidence_paths": {
+        "test_file": "backend/tests/acceptance/test_t09_mutation.py",
+        "u_controls": "docs/reports/OBS-EVAL/P2/T207/scoring/u-controls.json",
+        "netguard": "backend/tests/acceptance/support/netguard.py"
+      },
+      "evidence_sha256": {
+        "test_file": "31374667cf0d7fccb651dd51830d8f2a0bb7f1a4f56438c999e3aa01dbff9b82",
+        "u_controls": "11b1679f9c38a97d16918d1f5ace275fa8b71712857009327211dd3ef2dd243e",
+        "netguard": "7d5cb32a0f0e90a32c1c97baf819926b8d5aeebb80b7f229ad7c8d686614c668"
+      },
+      "adopt": "ADOPTED",
+      "adopt_reason": "L 口径（本地关键控制）历史记录 + 本次同命令复跑 13 passed；不作为真实模型全量更新能力",
+      "limits": "L 口径不得外推为真实模型能力；U01 的 R 口径证据独立成立"
+    }
+  ],
+  "commands": [
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q",
+      "exit_code": 0,
+      "output": "13 passed, 1 warning in 21.25s"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -m pytest backend/tests/acceptance/test_t09_mutation.py -q --collect-only",
+      "exit_code": 0,
+      "output": "13 tests collected"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\gate_recompute.py",
+      "exit_code": 0,
+      "output": "新 gate.py(e04990db) 重算：R1 exit1 trace_integrity 27；R2 exit1 conflict_not_rejected C05(范围外)+trace_integrity 2，citation_required pass；R4 exit1 trace_integrity 2"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\config_equivalence.py",
+      "exit_code": 0,
+      "output": "frozen=d1097573, approved=7fa6f47a, 7 类语义键全同"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\u01_reconstruct.py",
+      "exit_code": 0,
+      "output": "U01 citation chunk->record_unit->product evidence 重建成功"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\build_manifest.py",
+      "exit_code": 0,
+      "output": "四档 adopt + 两行 tallies + hard_gate_min_sample.unmet"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\verify_manifest.py <manifest>",
+      "exit_code": 0,
+      "output": "ok: true, cases: 24"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\negative_tests.py",
+      "exit_code": 0,
+      "output": "12 负例（A1-A6 + B1/B2/B5 + B7/B8/B9）全部 exit 1"
+    },
+    {
+      "command": ".\\.venv\\Scripts\\python.exe -X utf8 docs\\reports\\OBS-EVAL\\P2\\NCU-RELEASE-EVIDENCE\\scripts\\build_hashes.py",
+      "exit_code": 0,
+      "output": "重生成 artifact-hashes 与 SHA256SUMS"
+    }
+  ],
+  "network_evidence": {
+    "new_real_requests": 0,
+    "new_model_or_api_calls": 0,
+    "production_data_or_real_provider_execution": 0,
+    "l_basis_in_process_product_app": "pytest 经 TestClient 在进程内启动产品应用（Mock/替身 provider）；未启动监听端口服务，未对生产数据/真实 provider 执行。",
+    "pytest_network_guard": "backend/tests/acceptance/support/netguard.py::t09_network_guard 由模块 pytestmark 强制启用；外部出站非空即 teardown 失败。本次 13 passed，故 external=[]。",
+    "recompute_guard": "gate_recompute.py 在导入业务模块前把 socket.connect/connect_ex/create_connection 替换为抛错函数。"
+  },
+  "open_items": [
+    {
+      "id": "trace-dual-revision",
+      "severity": "high",
+      "scope": "6/24 N/C/U（N01,C01,C02,U01,C05,C06）；R1 全量 27/52",
+      "detail": "trace.index_revision 写的是 rag_meta.revision（R1=12/R2=4/R4=6），manifest.index_revision 是 product_revision（11/3/5）；门禁 _TRACE_BINDING 要求逐值相等。",
+      "status": "MECHANICAL-FAIL-RETAINED-WITH-D005-PROOF",
+      "resolution": "按 D-005 以绑定适用性证明采信（ADOPTED_WITH_BINDING_PROOF），机械 FAIL 原样保留；契约修复仍建议由任务 1/4 派工，不在本窗口改代码。"
+    },
+    {
+      "id": "u01-citation-retrieved-empty",
+      "severity": "high",
+      "scope": "U01",
+      "detail": "U01 同轮 product.retrieved=[] 但 product.evidence=1；重建证明引用 chunk a202ff9b… 的 record_unit_id=072d28f2… 与 evidence 单元一致。",
+      "status": "RESOLVED-BY-D004",
+      "resolution": "新 gate.py 把候选接地集合改为 evidence ∪ retrieved；同时 build_gate_rows 必须以 case_rows 投影 product.evidence。R2 重算 citation_required = pass（0 失败）。"
+    },
+    {
+      "id": "gold-locator-weak",
+      "severity": "medium",
+      "scope": "C05,C06,U01",
+      "detail": "gold expected_sources 用 record_code=P01，未给 unit_key；match_source_ref 退化为同文档即命中（文档级而非单元级）。",
+      "needs": "以同回合证据重建 P01→sheet:物品位置:row:8 作为补证；冻结题集不得改。"
+    },
+    {
+      "id": "wording-not-scored",
+      "severity": "low",
+      "scope": "N01-N08,C01-C04",
+      "detail": "accepted_wording(any-of) 明确 not-scored；C01-C04 无 expected_values/sources，仅 kind 判定。",
+      "needs": "报告标注；不得宣称措辞/内容合规。"
+    },
+    {
+      "id": "hard-gate-min-sample-u",
+      "severity": "high",
+      "scope": "U 组 update_delete",
+      "detail": "run 级 evaluated_count=1（U01），批准配置 hard_gate_min_sample.update_delete=10；1R+9L 不是 10 条 run 证据。",
+      "status": "PENDING-MASTER-DECISION",
+      "needs": "由经理另报主人裁量；本清单只记录，不自行放宽。"
+    }
+  ]
+}

@@ -817,3 +817,103 @@ def test_record_facts_accept_multi_field_and_missing_notice_under_role_binding()
         )
         is None
     ), "未记录说明仍只能点名本次真实缺失字段"
+
+# --------------------------------------------------------------------------- #
+# T207 第一步 A1：产品边界观察 hook 的定向反例（默认关闭，不改变业务判定）
+# --------------------------------------------------------------------------- #
+
+
+def _capture_context(db, conversation, before_seq, *, request_id="req-t207"):
+    from mktkb.observability.evaluation_capture import CaptureSink, capture_scope
+
+    sink = CaptureSink()
+    with capture_scope(sink):
+        questions, entities = service._load_context(
+            db, conversation, before_seq, capture_request_id=request_id
+        )
+    return sink, questions, entities
+
+
+def test_t207_capture_context_owner_and_empty_history_are_distinguishable():
+    import uuid
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    from mktkb.conversations.models import Base, Conversation, ConversationMessage
+
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    db = sessionmaker(bind=engine)()
+    try:
+        owner = uuid.uuid4()
+        conversation = Conversation(id=uuid.uuid4(), user_id=owner, title="capture")
+        db.add(conversation)
+        db.flush()
+
+        # 空历史必须是 observed count=0，而不是"没有事件"
+        sink, questions, entities = _capture_context(db, conversation, before_seq=1)
+        assert questions == () and entities == {}
+        assert sink.status == "active"
+        assert [event["kind"] for event in sink.events] == ["context_observed"]
+        assert sink.events[0]["payload"]["count"] == 0
+        assert sink.events[0]["payload"]["empty"] is True
+
+        # 多轮消息：owner/role/seq 原样记录；被篡改的 owner 也必须可见
+        first = ConversationMessage(
+            id=uuid.uuid4(),
+            conversation_id=conversation.id,
+            user_id=owner,
+            seq=1,
+            role="user",
+            text="城东店的宣传海报在哪里？",
+        )
+        second = ConversationMessage(
+            id=uuid.uuid4(),
+            conversation_id=conversation.id,
+            user_id=uuid.uuid4(),
+            seq=2,
+            role="user",
+            text="那城西店呢？",
+        )
+        db.add_all([first, second])
+        db.commit()
+
+        sink2, questions2, _ = _capture_context(db, conversation, before_seq=3)
+        assert questions2 == ("城东店的宣传海报在哪里？", "那城西店呢？")
+        messages = [event["payload"] for event in sink2.events if event["kind"] == "context_message"]
+        assert [item["message_id"] for item in messages] == [str(first.id), str(second.id)]
+        assert [item["role"] for item in messages] == ["user", "user"]
+        assert [item["owner_user_id"] for item in messages] == [str(owner), str(second.user_id)]
+        assert len({item["owner_user_id"] for item in messages}) == 2
+        observed = [event["payload"] for event in sink2.events if event["kind"] == "context_observed"][0]
+        assert observed["count"] == 2 and observed["empty"] is False
+    finally:
+        db.close()
+        engine.dispose()
+
+
+def test_t207_capture_is_noop_without_scope():
+    import uuid
+
+    from sqlalchemy import create_engine
+    from sqlalchemy.orm import sessionmaker
+
+    from mktkb.conversations.models import Base, Conversation
+    from mktkb.observability import evaluation_capture as cap
+
+    engine = create_engine("sqlite://")
+    Base.metadata.create_all(engine)
+    db = sessionmaker(bind=engine)()
+    try:
+        conversation = Conversation(id=uuid.uuid4(), user_id=uuid.uuid4(), title="default")
+        db.add(conversation)
+        db.flush()
+        assert cap.capture_enabled() is False
+        questions, entities = service._load_context(
+            db, conversation, before_seq=1, capture_request_id="req-t207"
+        )
+        assert questions == () and entities == {}
+    finally:
+        db.close()
+        engine.dispose()

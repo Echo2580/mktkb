@@ -93,8 +93,13 @@ def test_conflict_survives_narrow_rag_candidate_window(chat_app, chat_admin, cha
     original = qa.candidate_unit_ids_for_intent
     table_rows = _table_row_units(chat_app)
 
-    def record_rows_only(*, mode, terms=(), entity_filters=None):
-        ids = original(mode=mode, terms=terms, entity_filters=entity_filters)
+    def record_rows_only(*, mode, terms=(), entity_filters=None, document_terms=()):
+        ids = original(
+            mode=mode,
+            terms=terms,
+            entity_filters=entity_filters,
+            document_terms=document_terms,
+        )
         return {str(item) for item in ids if str(item) in table_rows}
 
     monkeypatch.setattr(qa, "candidate_unit_ids_for_intent", record_rows_only)
@@ -117,8 +122,13 @@ def test_phone_conflict_survives_narrow_rag_candidate_window(chat_app, chat_admi
     original = qa.candidate_unit_ids_for_intent
     table_rows = _table_row_units(chat_app)
 
-    def record_rows_only(*, mode, terms=(), entity_filters=None):
-        ids = original(mode=mode, terms=terms, entity_filters=entity_filters)
+    def record_rows_only(*, mode, terms=(), entity_filters=None, document_terms=()):
+        ids = original(
+            mode=mode,
+            terms=terms,
+            entity_filters=entity_filters,
+            document_terms=document_terms,
+        )
         return {str(item) for item in ids if str(item) in table_rows}
 
     monkeypatch.setattr(qa, "candidate_unit_ids_for_intent", record_rows_only)

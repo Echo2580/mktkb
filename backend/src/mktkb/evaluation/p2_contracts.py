@@ -99,7 +99,7 @@ ATTEMPTS_SCOPES = frozenset({ATTEMPTS_SCOPE_ALL, ATTEMPTS_SCOPE_UNAVAILABLE})
 """
 
 HARD_MAX_REQUESTS = 1600
-"""累计请求硬顶（= 现有 MAX_GO_REQUESTS，两处必须同值）。
+"""有限授权的累计请求硬顶（= 现有 MAX_GO_REQUESTS，两处必须同值）。
 
 2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 <=2000，且 GO 在 P2<=50 元、
 累计请求<=2000 内由经理拟定」落盘：**1000 -> 1600**（记录见
@@ -108,7 +108,7 @@ docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md 的 §3）。
 实算依据（逐项）：已用 547 + T207 公开 263 + H2 回合 144 + H2 灌库 <=20 +
 T208 judge <=160 + T900 独立复验 <=107 = 1,241；+20% 余量 ≈ 1,489 -> 取整 1600。
 
-**到值即停**：累计 reservation 到 1600 时，任何发送前的 request_limit（P2Gate）与
+有限授权**到值即停**：累计 reservation 到 1600 时，任何发送前的 request_limit（P2Gate）与
 go_max_requests_over_hard_cap（授权）都会拒绝；各计划自身的 max_requests 永远是更早的闸门。
 新增预算仍**不重置**已用计数。
 
@@ -116,6 +116,14 @@ go_max_requests_over_hard_cap（授权）都会拒绝；各计划自身的 max_r
 天花板」；P1 已签 GO 的 max_requests 仍各自生效（两侧取 min），因此**不构成**对 P1 的
 追加授权。
 """
+UNLIMITED_REQUESTS = "unlimited"
+
+
+def request_cap(value: Any, label: str, *, minimum: int = 1) -> int | str:
+    """Explicit P2 unlimited or a validated finite integer; missing never means unlimited."""
+    if isinstance(value, str) and value == UNLIMITED_REQUESTS:
+        return UNLIMITED_REQUESTS
+    return _plain_int(value, label, minimum=minimum)
 
 COST_CENTERS: tuple[str, ...] = ("answer_retrieval", "ocr", "judge", "independent")
 """四个内部成本中心（不是四个可各花满额的阶段）。"""
@@ -820,6 +828,12 @@ _PLAN_KEYS = (
     "items",
 )
 
+B0_BINDING_DIGESTS = (
+    "dataset_file_sha256", "dataset_sha256", "corpus_sha256", "gate_config_hash",
+    "pipeline_source_sha256",
+)
+B0_BINDING_FIELDS = frozenset(("run_id", "business_date", *B0_BINDING_DIGESTS))
+
 
 @dataclass(frozen=True)
 class P2RunPlan:
@@ -828,8 +842,8 @@ class P2RunPlan:
     - stage 只能是 P2-LIVE：旧 P1/S2 阶段名一律拒绝；
     - cost_centers_cny 必须恰好四个已注册中心、各自为正、合计等于 stage_limit_cny；
       因此阶段额度是**硬顶**，不是「每个中心各得一份」；
-    - max_requests 是**累计**口径（跨 kind/run，不因新增预算重置），上限
-      HARD_MAX_REQUESTS；items 的请求总数不得超过它。
+    - max_requests 是累计口径；有限正整数保持 HARD_MAX_REQUESTS 硬顶，明确的
+      "unlimited" 表示无累计次数上限；每个 item 的次数约束仍然有效。
     """
 
     schema_version: str
@@ -840,12 +854,24 @@ class P2RunPlan:
     created_utc: str
     project_total_limit_cny: float
     stage_limit_cny: float
-    max_requests: int
+    max_requests: int | str
     cost_centers_cny: Mapping[str, float]
     items: tuple[P2RequestItem, ...]
     scenario_binding: Mapping[str, str] | None = field(default=None, repr=False)
+    b0_binding: Mapping[str, str] | None = field(default=None, repr=False)
 
     def __post_init__(self) -> None:
+        if self.b0_binding is not None:
+            from types import MappingProxyType
+
+            if self.scenario_binding is not None:
+                raise P2ContractError("b0_scenario_binding_conflict", "B0 与 H2 绑定互斥")
+            _exact_keys(self.b0_binding, B0_BINDING_FIELDS, "b0_binding")
+            _plain_text(self.b0_binding["run_id"], "b0_binding.run_id", maximum=96)
+            _plain_text(self.b0_binding["business_date"], "b0_binding.business_date", maximum=10)
+            for name in B0_BINDING_DIGESTS:
+                _sha256_hex(self.b0_binding[name], f"b0_binding.{name}")
+            object.__setattr__(self, "b0_binding", MappingProxyType(dict(self.b0_binding)))
         if self.scenario_binding is not None:
             from types import MappingProxyType
             from .p2_holdout_scenarios import validate_plan_scenario_binding
@@ -869,8 +895,8 @@ class P2RunPlan:
         stage_limit = _positive_money(self.stage_limit_cny, "stage_limit_cny")
         if project_total < stage_limit:
             raise P2ContractError("plan_total_below_stage", "项目总上限不得小于 P2 阶段额度")
-        _plain_int(self.max_requests, "max_requests", minimum=1)
-        if self.max_requests > HARD_MAX_REQUESTS:
+        request_cap(self.max_requests, "max_requests")
+        if self.max_requests != UNLIMITED_REQUESTS and self.max_requests > HARD_MAX_REQUESTS:
             raise P2ContractError(
                 "request_cap_over_hard_limit",
                 f"plan.max_requests 不得超过累计硬顶 {HARD_MAX_REQUESTS}",
@@ -909,7 +935,7 @@ class P2RunPlan:
                     "center_budget_exceeded",
                     f"成本中心 {center} 的计划上界超过其额度 {canonical_decimal(limit)} 元",
                 )
-        if self.total_requests > self.max_requests:
+        if self.max_requests != UNLIMITED_REQUESTS and self.total_requests > self.max_requests:
             raise P2ContractError("plan_requests_over_cap", "计划请求总数超过 plan.max_requests")
         if Decimal(str(self.worst_case_cny)) > stage_limit + _EPS:
             raise P2ContractError("plan_exceeds_stage_limit", "计划总成本上界超过阶段额度")
@@ -994,7 +1020,7 @@ class P2RunPlan:
             "created_utc": self.created_utc,
             "project_total_limit_cny": float(self.project_total_limit_cny),
             "stage_limit_cny": float(self.stage_limit_cny),
-            "max_requests": int(self.max_requests),
+            "max_requests": self.max_requests,
             "cost_centers_cny": {
                 center: float(self.cost_centers_cny[center]) for center in COST_CENTERS
             },
@@ -1002,6 +1028,8 @@ class P2RunPlan:
         }
         if self.scenario_binding is not None:
             payload['scenario_binding'] = dict(self.scenario_binding)
+        if self.b0_binding is not None:
+            payload["b0_binding"] = dict(self.b0_binding)
         return payload
 
     @property
@@ -1010,7 +1038,7 @@ class P2RunPlan:
 
     @classmethod
     def from_dict(cls, data: Any) -> "P2RunPlan":
-        _optional_exact_keys(data, _PLAN_KEYS, frozenset({'scenario_binding'}), "plan")
+        _optional_exact_keys(data, _PLAN_KEYS, frozenset({"scenario_binding", "b0_binding"}), "plan")
         raw_items = data["items"]
         if not isinstance(raw_items, list):
             raise P2ContractError("items_required", "plan.items 必须是数组")
@@ -1028,13 +1056,14 @@ class P2RunPlan:
                 data["project_total_limit_cny"], "project_total_limit_cny", minimum=1e-12
             ),
             stage_limit_cny=_plain_float(data["stage_limit_cny"], "stage_limit_cny", minimum=1e-12),
-            max_requests=_plain_int(data["max_requests"], "max_requests", minimum=1),
+            max_requests=request_cap(data["max_requests"], "max_requests"),
             cost_centers_cny={
                 str(center): _plain_float(value, f"cost_centers_cny.{center}", minimum=1e-12)
                 for center, value in centers.items()
             },
             items=tuple(P2RequestItem.from_dict(item) for item in raw_items),
             scenario_binding=data.get('scenario_binding'),
+            b0_binding=data.get("b0_binding"),
         )
 
 
@@ -1204,9 +1233,9 @@ class P2PreflightResult:
     stage_remaining_cny: float
     total_limit_cny: float
     total_remaining_cny: float
-    max_requests: int
+    max_requests: int | str
     requests_used: int
-    requests_remaining: int
+    requests_remaining: int | str
     requests_planned: int
     worst_case_cny: float
     reserve_peak_cny: float
@@ -1235,10 +1264,10 @@ class P2PreflightResult:
             _positive_money(getattr(self, name), f"preflight.{name}")
         for name in ("stage_remaining_cny", "total_remaining_cny", "estimated_success_cny"):
             _non_negative_money(getattr(self, name), f"preflight.{name}")
-        for name in ("max_requests", "requests_planned"):
-            _plain_int(getattr(self, name), f"preflight.{name}", minimum=1)
-        for name in ("requests_used", "requests_remaining"):
-            _plain_int(getattr(self, name), f"preflight.{name}", minimum=0)
+        request_cap(self.max_requests, "preflight.max_requests")
+        _plain_int(self.requests_planned, "preflight.requests_planned", minimum=1)
+        _plain_int(self.requests_used, "preflight.requests_used", minimum=0)
+        request_cap(self.requests_remaining, "preflight.requests_remaining", minimum=0)
         if not isinstance(self.production_ready, bool):
             raise P2ContractError("bool_invalid", "preflight.production_ready 必须是布尔")
 
@@ -1254,9 +1283,9 @@ class P2PreflightResult:
             "stage_remaining_cny": float(self.stage_remaining_cny),
             "total_limit_cny": float(self.total_limit_cny),
             "total_remaining_cny": float(self.total_remaining_cny),
-            "max_requests": int(self.max_requests),
+            "max_requests": self.max_requests,
             "requests_used": int(self.requests_used),
-            "requests_remaining": int(self.requests_remaining),
+            "requests_remaining": self.requests_remaining,
             "requests_planned": int(self.requests_planned),
             "worst_case_cny": float(self.worst_case_cny),
             "reserve_peak_cny": float(self.reserve_peak_cny),
@@ -1322,9 +1351,9 @@ class P2Authorization:
     stage_remaining_cny: float
     cost_center_limits_cny: Mapping[str, float]
     center_remaining_cny: Mapping[str, float]
-    max_requests: int
+    max_requests: int | str
     requests_used: int
-    requests_remaining: int
+    requests_remaining: int | str
     max_request_cny: float
     operations: tuple[str, ...]
     production_ready: bool
@@ -1348,9 +1377,9 @@ class P2Authorization:
         _positive_money(self.stage_limit_cny, "authorization.stage_limit_cny")
         _non_negative_money(self.stage_remaining_cny, "authorization.stage_remaining_cny")
         _positive_money(self.max_request_cny, "authorization.max_request_cny")
-        _plain_int(self.max_requests, "authorization.max_requests", minimum=1)
+        request_cap(self.max_requests, "authorization.max_requests")
         _plain_int(self.requests_used, "authorization.requests_used", minimum=0)
-        _plain_int(self.requests_remaining, "authorization.requests_remaining", minimum=0)
+        request_cap(self.requests_remaining, "authorization.requests_remaining", minimum=0)
         if not self.operations:
             raise P2ContractError("operation_unregistered", "authorization.operations 不得为空")
         for operation in self.operations:
@@ -1392,9 +1421,9 @@ class P2Authorization:
                 center: float(self.center_remaining_cny.get(center, 0.0))
                 for center in COST_CENTERS
             },
-            "max_requests": int(self.max_requests),
+            "max_requests": self.max_requests,
             "requests_used": int(self.requests_used),
-            "requests_remaining": int(self.requests_remaining),
+            "requests_remaining": self.requests_remaining,
             "max_request_cny": float(self.max_request_cny),
             "operations": list(self.operations),
             "production_ready": bool(self.production_ready),

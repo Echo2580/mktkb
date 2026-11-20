@@ -1,0 +1,530 @@
+{
+  "schema_version": "p2-source-lifecycle/v1",
+  "dataset_version": "P2-HOLDOUT-v3",
+  "label_version_placeholder": "p2-holdout-v3-<D0>",
+  "corpus_root": "fixtures/acceptance-h2v3",
+
+  "declaration": {
+    "kind": "design_fixture",
+    "status": "frozen_design_fact",
+    "zh": "本表是出题时冻结的设计事实（design fact），不是对历史业务事实的断言，也不是从任何运行结果反推的取值。冻结后任何 run（含重跑、重评分、补采集）都不得回填、修订或据此调整本表任何字段；run 回执只能引用本表 SHA256。若发现日期或版本序有误，唯一变更路径是发布 P2-HOLDOUT-v3.1（新 dataset_version、新 label_version、新 lifecycle 文件、新密文、新 freeze 清单），v1 文件原样保留、不得原地改字节。",
+    "backfill_prohibited_sources": [
+      "plan_observed.as_of",
+      "db_projection.rag_business_date",
+      "db_projection.version.published_at",
+      "manifest.built_at",
+      "corpus 页眉常量 / OOXML core props / PDF CreationDate / 文件 mtime / 上传顺序"
+    ],
+    "basis_enum": ["design_fixture"],
+    "note_on_basis": "本批每一行的 basis 只能是 design_fixture；该值表示『出题时合成设定』，不是 owner_ruling、不是 custodian_transcription、不是从 runbook 转述。"
+  },
+
+  "pre_freeze_revision": {
+    "revision": "r3-2026-11-15",
+    "status": "pre_freeze（本表尚未进入任何 freeze 清单，故本轮可修；一旦冻结，只能出 v3.1 新件）",
+    "reason": "r3 追加（r2 的理由与改动见 r2_changes）：为拆掉端点脆弱性，run 0/1 的 business_date 从版本窗口端点（2026-10-31 / 2026-05-01）挪到中部（2026-10-15 / 2026-07-15），只给 T4 两题各留一个记录级端点（P08.to=2026-10-15、P02.from=2026-07-15）。版本级窗口与取代链一律未改。",
+    "r2_changes": [
+      {"source_id": "D05", "fields": "published_at, effective_from", "from": "2026-05-04", "to": "2026-04-13"},
+      {"source_id": "D06", "fields": "published_at, effective_from", "from": "2026-06-08", "to": "2026-04-20"},
+      {"source_id": "V01", "fields": "published_at, effective_from", "from": "2026-09-01", "to": "2026-04-27"}
+    ],
+    "r3_changes": [
+      {"record_code": "P02", "doc_code": "D01", "version_number": 2, "fields": "records[] 新增", "effective_from": "2026-07-15", "effective_to": "2026-10-31", "reason": "T4 左端断言：C24 在 run 1 的 2026-07-15 恰等于本记录 effective_from。窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。C04/C12 在 run 0（2026-10-15）使用本行，距两端 92/16 天。"},
+      {"record_code": "P08", "doc_code": "D01", "version_number": 2, "fields": "records[] 新增", "effective_from": "2026-05-01", "effective_to": "2026-10-15", "reason": "T4 右端断言：C23 在 run 0 的 2026-10-15 恰等于本记录 effective_to。窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。C07/C28 在 run 1（2026-07-15）使用本行，距两端 75/92 天。"}
+    ],
+    "not_changed": "版本级 effective_to 全部未改；D01/D02 两个表格槽位的版本窗口、取代链连续性（D01 v1→v2→v3→v4、D02 v1→v2）、version_number、doc_code、basis 全部未改；r3 只在 records[] 增加 2 条记录级行（P02/P08），P05/P06 原样保留。6 个字节不变的语料文件不受影响（它们是纯正文，无 L0 日期列，窗口只存在于本表）。",
+    "invariants_preserved": [
+      "published_at <= effective_from：12/12 成立",
+      "12 个版本窗口互不相同",
+      "无 built_at（2026-10-27）碰撞：0 处",
+      "anchor 2026-10-28 每槽位版本覆盖基数仍为 1",
+      "四个 run 的 27 个槽位版本覆盖基数全为 1，且窗口 active == 位置序 active",
+      "4 条 records[] 窗口全部 ⊆ 同版本 sources[] 窗口",
+      "records[] 的 (doc_code, version_number, record_code) 无重复"
+    ]
+  },
+
+  "interval": "closed",
+  "interval_rule": "覆盖 ⇔ effective_from <= as_of <= effective_to（两侧端点均含）。as_of == effective_from 有效；as_of == effective_to 有效；as_of == effective_to + 1 天过期；as_of == effective_from - 1 天未生效。",
+  "interval_binding_evidence": {
+    "frozen_classifier": "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+    "expired_test": "actual_date > date.fromisoformat(end) → source_expired（:1807-1808）",
+    "future_test": "actual_date < date.fromisoformat(start) → future_source_as_current（:1803-1806）",
+    "conclusion": "冻结分类器实现的是闭区间；v3 不修改分类语义（p2-hard-evidence-classification/v0.2 不变），故 fixture 必须按闭区间编写，否则边界日会系统性错一天。"
+  },
+  "null_semantics": "not_asserted",
+  "null_rule": "effective_to 为 null 表示『未声明失效日』，语义是 not_asserted，绝不等价于『无限有效』。判据在某侧为 null 时跳过该侧检查（:1803-1808），因此 null 只会削弱可判性，不会被当成永远有效。",
+  "business_day_timezone": "Asia/Shanghai",
+  "business_day_granularity": "date",
+  "per_scenario": false,
+  "per_scenario_rationale": "scenario 改变的是『本次上传了哪些版本』，不是『某版本的有效期』。同一 source_id 在四个 scenario 下窗口相同；若某题需要『该版本在这次 run 里不是 active』，用题 → scenario 分配表达，不改日期。",
+
+  "business_date_anchor": "2026-10-28",
+  "anchor_requirement": "该日每个 doc_code 槽位必须恰有一个版本覆盖（基数 == 1），不得 0 个、不得 ≥2 个。见 coverage_selfcheck.anchor_2026_10_28。",
+  "anchor_scope_after_ruling_2": "裁定 2（2026-11-15）之后：本字段只是**设计自检日**，不再是任何 run 的实际 business_date。v3 的日期粒度是 run（4 个 run 各一个 business_date），逐 run 实算见 coverage_selfcheck.per_run_dates。本字段不得被任何 run 计划当作默认值继承。",
+
+  "version_number_rule": {
+    "rule": "同一 doc_code 槽位内，version_number 由版本序唯一确定：槽内第 i 个版本（按 ingest plan 上传位次升序，i 从 1 起）= i。",
+    "verified": "该规则对 source-map v0.1 已声明的四个码逐值相等：V03=1、V04=3、V05=4、V06=2；并填补未声明的 D01=2、D02=1 与六个单版本槽（各 =1）。实测冲突数 0。",
+    "consequence": "p2-holdout-v3.source-map.json（v0.2）必须把 12 个码全部声明为 (base_doc_code, version_number)，才能与本表构成双射（设计规格 §3.1 要求 2）。v0.1 已声明的四个值不得改动。",
+    "position_order_note": "本规则只用『上传位次』作版本序，不把 version_number 的大小当作时间先后，也不读任何日期来排序。"
+  },
+  "supersession_rule": {
+    "contiguity": "同一 doc_code 槽位内，后继版本的 effective_from == 前驱 effective_to + 1 天（闭区间下连续、不重叠、不留缝）。",
+    "terminal": "槽位内版本序最大的版本 effective_to = null（not_asserted）。单版本槽只有一版，故其 effective_to 也是 null。",
+    "chain_fields": "supersedes / superseded_by / supersession_reason 只作审计（判据不消费）。",
+    "why_contiguous": "连续性是出题侧保证『边界日归属唯一』的手段：任一日最多落在一个版本的窗口内，anchor 日的 active 因此无歧义。"
+  },
+
+  "sources": [
+    {
+      "source_id": "V03",
+      "doc_code": "D01",
+      "version_number": 1,
+      "published_at": "2026-01-05",
+      "effective_from": "2026-01-05",
+      "effective_to": "2026-04-30",
+      "supersedes": null,
+      "superseded_by": "D01",
+      "supersession_reason": "new_version_published",
+      "basis": "design_fixture",
+      "note": ""
+    },
+    {
+      "source_id": "D01",
+      "doc_code": "D01",
+      "version_number": 2,
+      "published_at": "2026-04-28",
+      "effective_from": "2026-05-01",
+      "effective_to": "2026-10-31",
+      "supersedes": "V03",
+      "superseded_by": "V04",
+      "supersession_reason": "new_version_published",
+      "basis": "design_fixture",
+      "note": "anchor 2026-10-28 的 active 版本；source-map v0.1 未声明其号，本表按版本序定为 2。"
+    },
+    {
+      "source_id": "V04",
+      "doc_code": "D01",
+      "version_number": 3,
+      "published_at": "2026-10-24",
+      "effective_from": "2026-11-01",
+      "effective_to": "2026-11-30",
+      "supersedes": "D01",
+      "superseded_by": "V05",
+      "supersession_reason": "new_version_published",
+      "basis": "design_fixture",
+      "note": "短命修订版（窗口 30 天），用于把四个 scenario 的 as_of 带全部收敛在 2026 年内。"
+    },
+    {
+      "source_id": "V05",
+      "doc_code": "D01",
+      "version_number": 4,
+      "published_at": "2026-11-27",
+      "effective_from": "2026-12-01",
+      "effective_to": null,
+      "supersedes": "V04",
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "D01 槽位终端版本；effective_to 为 null 即 not_asserted。"
+    },
+    {
+      "source_id": "D02",
+      "doc_code": "D02",
+      "version_number": 1,
+      "published_at": "2026-02-02",
+      "effective_from": "2026-02-02",
+      "effective_to": "2026-11-15",
+      "supersedes": null,
+      "superseded_by": "V06",
+      "supersession_reason": "new_version_published",
+      "basis": "design_fixture",
+      "note": "anchor 2026-10-28 的 active 版本；source-map v0.1 未声明其号，本表按版本序定为 1。"
+    },
+    {
+      "source_id": "V06",
+      "doc_code": "D02",
+      "version_number": 2,
+      "published_at": "2026-11-12",
+      "effective_from": "2026-11-16",
+      "effective_to": null,
+      "supersedes": "D02",
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "D02 槽位终端版本。"
+    },
+    {
+      "source_id": "D03",
+      "doc_code": "D03",
+      "version_number": 1,
+      "published_at": "2026-03-02",
+      "effective_from": "2026-03-02",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；纯正文 docx，无表格行，不承载记录级窗口。"
+    },
+    {
+      "source_id": "D04",
+      "doc_code": "D04",
+      "version_number": 1,
+      "published_at": "2026-04-06",
+      "effective_from": "2026-04-06",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；纯正文 docx。"
+    },
+    {
+      "source_id": "D05",
+      "doc_code": "D05",
+      "version_number": 1,
+      "published_at": "2026-04-13",
+      "effective_from": "2026-04-13",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；纯正文 pdf-text。"
+    },
+    {
+      "source_id": "D06",
+      "doc_code": "D06",
+      "version_number": 1,
+      "published_at": "2026-04-20",
+      "effective_from": "2026-04-20",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；纯正文 pdf-text。"
+    },
+    {
+      "source_id": "V01",
+      "doc_code": "V01",
+      "version_number": 1,
+      "published_at": "2026-04-27",
+      "effective_from": "2026-04-27",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；pdf-text。仅在 base_b0_plus_v01 与 pre_v05_without_v07 上传。"
+    },
+    {
+      "source_id": "V07",
+      "doc_code": "V07",
+      "version_number": 1,
+      "published_at": "2026-07-06",
+      "effective_from": "2026-07-06",
+      "effective_to": null,
+      "supersedes": null,
+      "superseded_by": null,
+      "supersession_reason": "none",
+      "basis": "design_fixture",
+      "note": "单版本槽；pdf-text。仅在 post_v05_without_v01 上传。"
+    }
+  ],
+
+  "records": [
+    {
+      "doc_code": "D01",
+      "version_number": 2,
+      "record_code": "P02",
+      "effective_from": "2026-07-15",
+      "effective_to": "2026-10-31",
+      "basis": "design_fixture",
+      "note": "r3 新增：T4 左端断言。run 1 的 2026-07-15 == 本记录 effective_from；窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。C04/C12 在 run 0（2026-10-15）也使用本行，距两端 92/16 天（≥3）。"
+    },
+    {
+      "doc_code": "D01",
+      "version_number": 2,
+      "record_code": "P05",
+      "effective_from": "2026-05-01",
+      "effective_to": "2026-09-30",
+      "basis": "design_fixture",
+      "note": "记录级窗口早于版本窗口结束；供 stale T2（已过期）双向对照使用。窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。"
+    },
+    {
+      "doc_code": "D01",
+      "version_number": 2,
+      "record_code": "P06",
+      "effective_from": "2026-10-29",
+      "effective_to": "2026-10-31",
+      "basis": "design_fixture",
+      "note": "记录级窗口晚于版本窗口开始；供 stale T3（未生效）双向对照使用，anchor 日 2026-10-28 早于其生效首日。窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。"
+    },
+    {
+      "doc_code": "D01",
+      "version_number": 2,
+      "record_code": "P08",
+      "effective_from": "2026-05-01",
+      "effective_to": "2026-10-15",
+      "basis": "design_fixture",
+      "note": "r3 新增：T4 右端断言。run 0 的 2026-10-15 == 本记录 effective_to；窗口 ⊆ 版本窗口 [2026-05-01, 2026-10-31]。C07/C28 在 run 1（2026-07-15）也使用本行，距两端 75/92 天（≥3）。"
+    }
+  ],
+  "records_rule": {
+    "inheritance": "未列入 records[] 的记录行默认继承其版本的窗口；L0 语料中该行的 生效日期/失效日期 两列直接复制版本窗口值。",
+    "subset": "records[] 的窗口必须 ⊆ 同版本 sources[] 的窗口；越界即冻结拒绝。",
+    "minimality": "本批 4 条偏离行，各司其职：P05 只作 T2 陷阱、P06 只作 T3 陷阱，二者不得被任何非 T2/T3 的题引用；P02（from）与 P08（to）是 T4 两端的记录级断言行，不得再新增用途——其它引用它们的题（C04/C12 对 P02、C07/C28 对 P08）在其 run 日距该记录端点 ≥3 天（实测 92/16 与 75/92 天）。除这 4 行外，任何其它记录行必须严格继承版本窗口。",
+    "scope": "仅 D01/D02 两张表格有记录行。D03–D06/V01/V07 是纯正文，无 L0 行，其 L0↔L1 一致性为 vacuous（冻结清单记 l0_rows=0）。"
+  },
+
+  "coverage_selfcheck": {
+    "method": "纯本地复算：读 ingest plan + scenario 契约 + source map，按 R-AV-3 位置序求每 scenario 每槽位 active，再与本表窗口逐一比对。零出站、零真实调用。",
+    "totals": {
+      "sources_rows": 12,
+      "records_rows": 4,
+      "distinct_version_windows": 12,
+      "three_fields_complete": 12,
+      "published_at_gt_effective_from_violations": 0,
+      "contiguity_violations": 0,
+      "terminal_not_open_violations": 0,
+      "records_out_of_version_window_violations": 0,
+      "built_at_collisions": 0,
+      "built_at_value": "2026-10-27",
+      "built_at_collision_rule": "任何 effective_from / effective_to 等于 manifest.built_at 或语料页眉常量即整份拒收；本表 0 处命中。",
+      "all_same_window_detected": false,
+      "all_same_window_note": "12 个版本窗口互不相同，不触发『全 corpus 同值即拒收』。"
+    },
+    "anchor_2026_10_28": {
+      "requirement": "每个 doc_code 槽位的覆盖集合基数必须恰为 1。",
+      "per_doc_code": {
+        "D01": {"code": "D01", "version_number": 2, "covering_count": 1},
+        "D02": {"code": "D02", "version_number": 1, "covering_count": 1},
+        "D03": {"code": "D03", "version_number": 1, "covering_count": 1},
+        "D04": {"code": "D04", "version_number": 1, "covering_count": 1},
+        "D05": {"code": "D05", "version_number": 1, "covering_count": 1},
+        "D06": {"code": "D06", "version_number": 1, "covering_count": 1},
+        "V01": {"code": "V01", "version_number": 1, "covering_count": 1},
+        "V07": {"code": "V07", "version_number": 1, "covering_count": 1}
+      },
+      "unique_active_all_slots": true,
+      "status_after_ruling_2": "design_selfcheck_only",
+      "status_note": "2026-11-15 经理裁定 2 后，本 anchor 不再是任何 run 的实际 business_date；它只保留为『单一全局日期在 base_b0 家族上确实唯一』的设计自检。逐 run 实际日期见 per_run_dates。",
+      "records_effect_at_anchor": {
+        "P02": "覆盖 2026-10-28（窗口 [2026-07-15, 2026-10-31]）",
+        "P05": "不覆盖 2026-10-28（已于 2026-09-30 失效）",
+        "P06": "不覆盖 2026-10-28（2026-10-29 才生效）",
+        "P08": "不覆盖 2026-10-28（已于 2026-10-15 失效）"
+      }
+    },
+    "per_run_dates": {
+      "method": "经理裁定 2：每 run 一个 business_date。本块为纯本地复算（读 L1 + scenario 契约 + ingest plan，按 R-AV-3 求每槽位位置序 active，再按闭区间求该 business_date 下的 covering 基数）。零出站、零真实调用。复算脚本输出 problems=0。",
+      "run_rule": "同一 run 内全部 case 共用一个 business_date；注解 as_of、CaseSpec.business_date、产品实际 rag_business_date 三者与它逐字相等（p2_hard_evidence.py:1724-1725）。不同 run 之间不比较日期；不需要请求级入参，不改 p2_holdout_scenarios.py。",
+      "why_per_run": "C1 证明单一全局日期不可能（四个 scenario 的 D01 位置序 active 是 v2/v2/v3/v4）；p2_runner.py:2376-2383 又要求一个 run 内恰一个非空 business_date（否则 run manifest 该字段为空，p2_scoring.py:2258-2260 fail closed）。两者共同决定：日期粒度 = run。",
+      "runs": [
+        {
+          "run_index": 0,
+          "scenario_id": "base_b0",
+          "business_date": "2026-10-15",
+          "uploaded_slots": 6,
+          "per_doc_code_cardinality": {"D01": 1, "D02": 1, "D03": 1, "D04": 1, "D05": 1, "D06": 1},
+          "window_active_equals_position_active": true,
+          "cases": 12,
+          "turns": 14,
+          "stale_decidable_cases": 12,
+          "hosted_types": ["T2", "T4R"],
+          "boundary": "business_date == P08@D01v2 记录窗口的 effective_to（2026-10-15），即 T4 右端断言；D01 v2 版本窗口 [2026-05-01, 2026-10-31] 距该日 167/16 天，不是端点",
+          "note": "C21(T2) 的陷阱记录 P05 在此日已过期（P05 to=2026-09-30 < 2026-10-15）；C23(T4R) 断言 as_of == P08 记录 to 仍有效。其余 11 题所用目标窗口离端点 ≥16 天（最小为 P01/P02/P03 等行到版本 to 的 16 天）。"
+        },
+        {
+          "run_index": 1,
+          "scenario_id": "base_b0_plus_v01",
+          "business_date": "2026-07-15",
+          "uploaded_slots": 7,
+          "per_doc_code_cardinality": {"D01": 1, "D02": 1, "D03": 1, "D04": 1, "D05": 1, "D06": 1, "V01": 1},
+          "window_active_equals_position_active": true,
+          "cases": 8,
+          "turns": 10,
+          "stale_decidable_cases": 8,
+          "hosted_types": ["T3", "T4L"],
+          "boundary": "business_date == P02@D01v2 记录窗口的 effective_from（2026-07-15），即 T4 左端断言；D01 v2 版本窗口 [2026-05-01, 2026-10-31] 距该日 75/108 天，不是端点",
+          "note": "C22(T3) 的陷阱记录 P06 在此日尚未生效（P06 from=2026-10-29 > 2026-07-15）；C24(T4L) 断言 as_of == P02 记录 from 有效。V01 已在 2026-04-27 生效，故此日 7 个槽位覆盖基数全为 1（本表 D05/D06/V01 三行窗口为此在冻结前上调，见 pre_freeze_revision）。其余 7 题所用目标窗口离端点 ≥75 天。"
+        },
+        {
+          "run_index": 2,
+          "scenario_id": "pre_v05_without_v07",
+          "business_date": "2026-11-20",
+          "uploaded_slots": 7,
+          "per_doc_code_cardinality": {"D01": 1, "D02": 1, "D03": 1, "D04": 1, "D05": 1, "D06": 1, "V01": 1},
+          "window_active_equals_position_active": true,
+          "cases": 5,
+          "turns": 6,
+          "stale_decidable_cases": 5,
+          "hosted_types": ["T1"],
+          "note": "落在 [2026-11-16, 2026-11-30] 带内：D01 只有 V04(v3) 覆盖、D02 只有 V06(v2) 覆盖。C25(T1) 的目标改挂 D01 v3（V04 两侧非空，满足 R-AX-5），陷阱为已非 active 且已过期的 D01 v2。"
+        },
+        {
+          "run_index": 3,
+          "scenario_id": "post_v05_without_v01",
+          "business_date": "2026-12-15",
+          "uploaded_slots": 7,
+          "per_doc_code_cardinality": {"D01": 1, "D02": 1, "D03": 1, "D04": 1, "D05": 1, "D06": 1, "V07": 1},
+          "window_active_equals_position_active": true,
+          "cases": 5,
+          "turns": 6,
+          "stale_decidable_cases": 5,
+          "hosted_types": [],
+          "note": "D01 主动 v4 与 D02 主动 v2 均为终端版本（effective_to=null），R-AX-5 要求 stale_conflict 的 used unit 两侧非空 ⇒ 本 run 不承载 stale_conflict（只承载 T1 以外的常规与 T5 回合级对照）。"
+        }
+      ],
+      "totals": {
+        "cases": 30,
+        "turns": 36,
+        "slot_checks": 27,
+        "slot_cardinality_one": 27,
+        "window_active_equals_position_active": true,
+        "stale_decidable_cases": 30,
+        "undecidable_cases": 0
+      }
+    },
+    "per_scenario": [
+      {
+        "scenario_id": "base_b0",
+        "uploaded_slots": {"D01": ["V03", "D01"], "D02": ["D02"], "D03": ["D03"], "D04": ["D04"], "D05": ["D05"], "D06": ["D06"]},
+        "position_active": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}},
+        "lifecycle_active_at_anchor": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}},
+        "agrees_with_position_order_at_anchor": true,
+        "dated_as_of_band": ["2026-05-01", "2026-10-31"],
+        "band_contains_anchor": true,
+        "both_sides_non_null_slots": ["D01", "D02"]
+      },
+      {
+        "scenario_id": "base_b0_plus_v01",
+        "uploaded_slots": {"D01": ["V03", "D01"], "D02": ["D02"], "D03": ["D03"], "D04": ["D04"], "D05": ["D05"], "D06": ["D06"], "V01": ["V01"]},
+        "position_active": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}, "V01": {"code": "V01", "version_number": 1}},
+        "lifecycle_active_at_anchor": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}, "V01": {"code": "V01", "version_number": 1}},
+        "agrees_with_position_order_at_anchor": true,
+        "dated_as_of_band": ["2026-05-01", "2026-10-31"],
+        "band_contains_anchor": true,
+        "both_sides_non_null_slots": ["D01", "D02"]
+      },
+      {
+        "scenario_id": "pre_v05_without_v07",
+        "uploaded_slots": {"D01": ["V03", "D01", "V04"], "D02": ["D02", "V06"], "D03": ["D03"], "D04": ["D04"], "D05": ["D05"], "D06": ["D06"], "V01": ["V01"]},
+        "position_active": {"D01": {"code": "V04", "version_number": 3}, "D02": {"code": "V06", "version_number": 2}},
+        "lifecycle_active_at_anchor": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}},
+        "agrees_with_position_order_at_anchor": false,
+        "dated_as_of_band": ["2026-11-16", "2026-11-30"],
+        "band_contains_anchor": false,
+        "both_sides_non_null_slots": ["D01"],
+        "divergence_reason": "本 scenario 的 D01 主动版本是 v3（窗口自 2026-11-01 起）、D02 主动版本是 v2（窗口自 2026-11-16 起），两者在 anchor 日 2026-10-28 均未生效。结构必然，见 structural_constraints.C1。"
+      },
+      {
+        "scenario_id": "post_v05_without_v01",
+        "uploaded_slots": {"D01": ["V03", "D01", "V04", "V05"], "D02": ["D02", "V06"], "D03": ["D03"], "D04": ["D04"], "D05": ["D05"], "D06": ["D06"], "V07": ["V07"]},
+        "position_active": {"D01": {"code": "V05", "version_number": 4}, "D02": {"code": "V06", "version_number": 2}},
+        "lifecycle_active_at_anchor": {"D01": {"code": "D01", "version_number": 2}, "D02": {"code": "D02", "version_number": 1}},
+        "agrees_with_position_order_at_anchor": false,
+        "dated_as_of_band": ["2026-12-01", null],
+        "band_contains_anchor": false,
+        "both_sides_non_null_slots": [],
+        "divergence_reason": "D01 主动版本 v4 是终端版本（effective_to = null），D02 主动版本 v2 同为终端版本；本 scenario 没有任何两侧非空的表格版本，故不得承载 dated stale_conflict 题（只能承载 T1 版本态与 T5 无日期对照）。"
+      }
+    ],
+    "version_number_bijection": {
+      "with_source_map_v0_1_declared": {
+        "V03": {"design": 1, "declared": 1, "equal": true},
+        "V04": {"design": 3, "declared": 3, "equal": true},
+        "V05": {"design": 4, "declared": 4, "equal": true},
+        "V06": {"design": 2, "declared": 2, "equal": true}
+      },
+      "mismatch_count": 0,
+      "requires_source_map_v0_2_total": true
+    }
+  },
+
+  "structural_constraints": [
+    {
+      "id": "C1",
+      "statement": "在 per_scenario == false 的前提下，不可能让四个 scenario 的『位置序 active』同时等于同一个日期的『窗口 active』——即【单一全局 business_date 不可行】，必须按 run 分别声明日期。",
+      "proof": "四个 scenario 的 D01 位置序 active 是三个互不相同的版本（v2 / v2 / v3 / v4），而同一槽位的版本窗口按 S5 连续且互不重叠 ⇒ 任一日只可能落在其中一个版本的窗口内 ⇒ 至多一个 scenario 与之一致。",
+      "consequence_old_v1": "v1 原文写『anchor 2026-10-28 选定与 base_b0 / base_b0_plus_v01 一致；pre_v05 / post_v05 必须使用各自 dated_as_of_band 内的 as_of』。该写法隐含『逐题 as_of』，已被 2026-11-15 经理裁定 2 取代。",
+      "consequence": "【裁定 2 落地；r3 日期】v3 按 4 个 run 各声明一个 business_date。逐 run 实算见 coverage_selfcheck.per_run_dates：run 0 base_b0 = 2026-10-15、run 1 base_b0_plus_v01 = 2026-07-15、run 2 pre_v05_without_v07 = 2026-11-20、run 3 post_v05_without_v01 = 2026-12-15。四个 run 的『每个已上传槽位版本窗口覆盖基数恰为 1、且等于该槽位的位置序 active』全部成立（合计 27 个槽位 × 每 run，0 例外）。r3 把 run 0/1 从版本窗口端点挪到中部，端点只由 C23/C24 两条 records[] 行行使。因此 anchor 2026-10-28 此后**只作设计自检日**，不再是任何 run 的实际 business_date。",
+      "rejected_alternatives": [
+        "把 anchor 改到别的日期：只是换一个 scenario 一致，另两个仍不一致（零和）。",
+        "给 per_scenario 开例外：违反 S6 与 per_scenario=false，等于新语义版本。",
+        "让版本窗口重叠：违反 S5 连续性，且任何重叠日会出现 ≥2 覆盖 ⇒ active 歧义，判据会 fail-closed。",
+        "逐题下发 as_of：产品侧 business_date 是进程级配置、无请求级入参（product-date-recon.md §1/§3）；且 run manifest 要求一个 run 内恰一个非空 business_date（p2_runner.py:2376-2383；p2_scoring.py:2228-2260 缺即 fail closed）。故逐题路径既无入口也无必要。"
+      ]
+    },
+    {
+      "id": "C2",
+      "statement": "【已被 2026-11-15 经理裁定 2 取代】v1 原文要求『逐题 as_of 必须可下发』。现行事实是：产品侧 `business_date` 为进程级配置、无请求级入参；运行期只需『一个 run 一个 business_date』。",
+      "mechanism": "判据比较 plan_observed.as_of（缺失时回落 projection.rag_business_date）与注解 as_of（p2_hard_evidence.py:1724-1725）；两者不等产生 date_intent_conflict。因此必须满足『注解 as_of == 该 run 声明的 business_date == 产品实际 rag_business_date』三者逐字相等；同一 run 内所有 case 共用同一值。（同日边界口径按闭区间，见 criterion v1.1 §3.2 规则 2 与 p2_hard_evidence.py:1726-1732。）",
+      "consequence": "按 4 个 run 各一个 business_date 后，全部 30 题在各自 run 内均可判（逐 run 计数见上表与 coverage_selfcheck.per_run_dates）；不需要请求级入参，不改 p2_holdout_scenarios.py。",
+      "residual": "运行期把 run 级 business_date 送进 RagConfig 的接线仍属实现项（product-date-recon.md §3 C1），本轮零调用、不实现。"
+    },
+    {
+      "id": "C3",
+      "statement": "T2（已过期）与 T3（未生效）无法只靠版本级窗口构造『正确答案仍可用』的对照，必须借记录级窗口（records[]）。",
+      "reason": "同一版本的所有行共享版本窗口 ⇒ active 版本一旦整体过期/未生效，该表无任何可用行，正确答案只能是无事实（空使用集），cross_entity 亦无实体目标。records[] 的 P05/P06 两条偏离行使同版本内『一条失效 / 一条可用』成为可能。",
+      "consequence": "records[] 里 P05 / P06 两条记录不得被任何非 T2/T3 的题引用（否则那些题在其 run 日下会系统性违规）。r3 另增 P02/P08 两条记录级行，只服务 T4 两端断言；其它引用它们的题（C04/C12 对 P02、C07/C28 对 P08）必须离该记录端点 ≥3 天。"
+    },
+    {
+      "id": "C4",
+      "statement": "T1（被取代）的 violation 对照可能同时出现 source_not_active 与 source_expired。",
+      "reason": "被取代版本的窗口必然早于其接任者窗口结束，故任何落在接任者窗口内的 as_of 都在被取代版本窗口之后。",
+      "consequence": "若要 reason 唯一，T1 的 as_of 必须落在被取代版本自身窗口内；此时接任者尚未生效，正确答案须改用纯正文源，该题即降级为 T5 语义（不得计入 stale_conflict 覆盖）。"
+    }
+  ],
+
+  "semantics_conflicts": [
+    {
+      "id": "SC-1",
+      "status": "resolved_2026_11_15",
+      "resolved_by": "经理裁定 1：判据区间语义统一为闭区间，升版 p2-stale-source-criterion/v1.1。",
+      "with": "docs/evaluation/p2-stale-source-criterion-v1_1.md §3.2 规则 2（sha256 0ec6c392b48b4a731140021e147f86e01284a58b34a3a3c4f50f6312bb307715）",
+      "criterion_says": "date_window 模式的区间是闭区间：覆盖 ⇔ effective_from <= as_of <= effective_to；as_of == effective_from 有效，as_of == effective_to 仍有效。",
+      "this_file_says": "闭区间：覆盖 ⇔ effective_from <= as_of <= effective_to。",
+      "why_now_aligned": "v1 的半开区间已被 v1.1 撤销。三方读法现已一致：冻结分类器 p2_hard_evidence.py:1726-1732（actual_date > end 才过期、< start 才未生效）、产品检索过滤 rag/retrieval.py:205-211（from <= as_of、to >= as_of）、设计规格 S1/S4。",
+      "consequence": "闭区间端点日不再需要在 fixture 或出题侧隔离；可以出现在任何题上，只要按闭区间计算期望方向。v3 的端点策略见出题计划 §7.2：只保留 C23/C24 两条记录级端点（P08.to=2026-10-15、P02.from=2026-07-15），其余题离任一所引窗口端点 ≥3 天。任何仍按半开区间实现的消费者，都会在这些端点日系统性错一天，按 criterion v1.1 I-8 判 non-conformant。",
+      "historical_note": "v1 原文（sha256 c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaa9c7）仍原样保留为历史文件，不得据其半开读法实现。"
+    },
+    {
+      "id": "SC-2",
+      "status": "resolved_2026_11_15",
+      "resolved_by": "criterion v1.1 §3.4（2026-11-15 同一版本澄清：窗口单一真相源 = 本表 L1；不改区间语义、不改 21 码表）",
+      "with": "docs/evaluation/p2-stale-source-criterion-v1_1.md §3.2 的 fixture 形状（windows / open_ended / basis=owner_ruling|custodian_transcription）",
+      "criterion_says": "fixture 顶层用 windows 映射、open_ended 列表，basis 只允许 owner_ruling / custodian_transcription（适用于独立 p2-source-lifecycle-window/v1 fixture）。",
+      "this_file_says": "按设计规格 §3.3 的 p2-source-lifecycle/v1 形状（sources[] 逐版本行 + records[]），basis 固定为 design_fixture。",
+      "ruling": "L1 是 v3 窗口的**唯一真相源**。criterion 不内嵌任何窗口值；v3 不实例化独立的 windows 文件。§3.2 的 windows/open_ended 若被消费方在内存中投影，只是派生只读量，不是冻结件、不得落盘为可编辑真相。两者冲突时以 L1 为准，投影整份拒收。",
+      "basis_resolution": "§3.2 规则 4 的 owner_ruling / custodian_transcription 枚举只适用于独立 p2-source-lifecycle-window/v1 fixture；L1 的 declaration.kind = design_fixture 是其唯一合法 basis。把 L1 投影标成 owner_ruling/custodian_transcription = 伪造来源 → stale_window_unresolved + unknown；把非 L1 派生 fixture 标成 design_fixture = 冒充设计事实 → 同样拒收。",
+      "validation": "六步 fail-closed：V-1 sha256(L1 bytes) == grounding.fixture_sha256（且 == bindings.lifecycle_sha256）；V-2 schema_version/interval=closed/declaration.kind=design_fixture/basis_enum=[design_fixture]；V-3 sources[] 与 records[] 形状与键唯一；V-4 每个 used unit 的窗口逐字段重算并逐字相等；V-5 取代链连续、终端 null、records ⊆ 版本窗口、无 built_at 碰撞、版本窗口不全同值；V-6 冲突以 L1 为准并拒收投影/历史副本。任一失败 → stale_window_unresolved + unknown，不降级、不猜。",
+      "why_now": "上一轮（r2）把该冲突留作开放项，理由是『放宽 basis 枚举会改判据语义面』。本轮改走『L1 唯一真源、判据不内嵌 windows』，因此不需要放宽 §3.2 的枚举，也不需要第二份窗口表；只新增 §3.4 的读取/校验规则。",
+      "historical_note": "r2 原文（『由派生适配器生成 + 显式豁免 design_fixture』）已被本裁定取代：派生投影不再是冻结件，豁免改为『L1 不属于该 fixture 类型』的适用范围说明。",
+      "verdict_authority": "v3 的判定权威仍是冻结分类器（classification v0.2 不变）；它消费 L0 语料行的 生效日期/失效日期 两列，这两列由语料改动规格逐行抄 L1。本裁定不改变任何 verdict 路径。"
+    }
+  ],
+
+  "chain_of_authority": {
+    "upstream": [
+      {"path": "docs/superpowers/plans/2026-11-14-h2-v3-design-spec.md", "sha256_prefix": "E179B583"},
+      {"path": "docs/evaluation/p2-stale-source-criterion-v1_1.md", "sha256_prefix": "0EC6C392"},
+      {"path": "docs/evaluation/p2-stale-source-criterion-v1.md", "sha256_prefix": "C34D08AF", "role": "historical_only_not_to_be_implemented"},
+      {"path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/owner-decisions-2026-11-14.md", "sha256_prefix": "542FF955"},
+      {"path": "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/product-date-recon.md", "role": "process_level_business_date_fact"}
+    ],
+    "inputs_read_only": [
+      "docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-H2.json",
+      "docs/evaluation/p2-h2-scenarios-v0_2.json",
+      "docs/evaluation/p2-holdout-v2.source-map.json",
+      "fixtures/acceptance/manifest.json",
+      "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+      "backend/src/mktkb/retrieval/index.py",
+      "backend/src/mktkb/rag/chunking.py"
+    ],
+    "no_writeback": "本文件不修改上述任何输入；不写回 C 冻结 12；不进入任何 run 的 evidence 数值。"
+  }
+}

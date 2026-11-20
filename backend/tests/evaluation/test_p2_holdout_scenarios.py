@@ -511,3 +511,168 @@ def test_unresolved_target_rejects_other_invalid_syntax(package, field, value):
     with pytest.raises(scenario.ScenarioError) as caught:
         scenario.load_scenario_contract(dataset, **paths)
     assert caught.value.code == 'scenario_targets_invalid'
+
+# --------------------------------------------------------------------------- #
+# v0.2 四张派生卡：合成四场景封存 -> 逐卡校验 -> 组合结构/绑定/等式 + 负例
+# --------------------------------------------------------------------------- #
+
+V3_SOURCE_MAP = ROOT / 'docs/evaluation/p2-holdout-v3.source-map.json'
+
+
+def _document_identity(identity, label):
+    """从派生身份里取 (base_doc_code, version_number)：只按显式映射，不猜。"""
+    for key in (label, Path(label).stem):
+        code = identity.document_codes.get(key)
+        if code:
+            item = identity.source_map[code]
+            return item['base_doc_code'], item['version_number']
+    raise AssertionError('synthetic ingest label unmapped')
+
+
+def _derived_card(contract, annotation, name, *, identity, v01_case=False):
+    from mktkb.evaluation import p2_hard_evidence as hard
+    from mktkb.evaluation.p2_runner import holdout_document_codes
+    from mktkb.evaluation.p2_holdout_source_map import load_source_map
+    from test_p2_hard_evidence import build_evidence, make_audit
+
+    subset = contract.subset(name)
+    ingest = contract.ingest_plan(name)
+    codes = holdout_document_codes(ingest)
+    scenario_identity = identity or hard.build_forbidden_source_identity(
+        load_source_map(V3_SOURCE_MAP), codes
+    )
+    labels = [
+        str(getattr(source, 'name', None) or Path(source.path).name)
+        for source in ingest.sources
+    ]
+    v01_label = next((label for label in labels if Path(label).name.startswith('V01_')), None)
+    audits = []
+    for index, case in enumerate(subset.cases):
+        label = labels[0]
+        if v01_case and index == 0 and v01_label is not None:
+            label = v01_label
+        base, version = _document_identity(scenario_identity, label)
+        evidence = build_evidence(
+            units=[{'unit_id': 'unit-1', 'document_name': label, 'version_number': version}]
+        )
+        audits.append(make_audit(case, evidence))
+    plan_meta = {
+        'thresholds_approved': False,
+        'execution_mode': 'local_mock',
+        'real_calls': 0,
+        'run_id': 'syn-run-' + name,
+        'config_hash': 'a' * 64,
+        'expected_strata': dict(subset.identity['strata']),
+    }
+    card, _results = hard.recompute_hard_evidence(
+        tuple(subset.cases), annotation, audits, plan_meta=plan_meta,
+        source_identity=scenario_identity,
+    )
+    hard.validate_hard_evidence_scorecard(
+        card, total=len(subset.cases), run_id=plan_meta['run_id'],
+        config_hash=plan_meta['config_hash'], expected_strata=plan_meta['expected_strata'],
+    )
+    plan = contract.build_plan(
+        name, plan_id='syn-' + name, created_utc='2026-11-20T00:00:00+00:00'
+    )
+    return dict(
+        plan=plan,
+        aggregate=card,
+        status='succeeded',
+        run_id='syn-run-' + name,
+        turns_executed=subset.identity['turn_stats']['total_turns'],
+        binding=dict(
+            scenario_binding=contract.binding(name),
+            pipeline_version='syn-pipeline',
+            provider={'chat': 'mock'},
+            gate_config_hash='b' * 64,
+            config_hash='a' * 64,
+        ),
+    )
+
+
+def _derived_parts(package):
+    from mktkb.evaluation import p2_hard_evidence as hard
+
+    dataset, payload, paths, *_ = package
+    contract = scenario.load_scenario_contract(dataset, **paths)
+    annotation = hard.prepare_annotation(payload, dataset.cases)
+    parts = []
+    for name in contract.scenario_ids:
+        # 只有 base_b0_plus_v01 实际入库了 V01：该场景首题用 V01 来源 -> 文档级禁源违规。
+        parts.append(
+            _derived_card(
+                contract, annotation, name, identity=None,
+                v01_case=(name == 'base_b0_plus_v01'),
+            )
+        )
+    return contract, parts
+
+
+@pytest.mark.usefixtures('t09_network_guard')
+def test_four_synthetic_scenario_derived_cards_compose(package):
+    from mktkb.evaluation import p2_hard_evidence as hard
+
+    contract, parts = _derived_parts(package)
+    combined = scenario.compose_hard_evidence_runs(contract, parts)
+    scenario.validate_hard_evidence_composition(
+        combined, total=30, expected_strata=dict(contract._dataset.manifest.strata)
+    )
+    assert combined['total'] == 30
+    assert combined['turns_planned'] == combined['turns_executed'] == 36
+    assert combined['status'] == 'complete'
+    assert combined['not_started'] == 0
+    assert len({run['plan_sha256'] for run in combined['runs']}) == 4
+    assert len({run['aggregate_sha256'] for run in combined['runs']}) == 4
+    assert combined['thresholds_approved'] is False and combined['release_ready'] is False
+    # 文档级禁源在 V01 入库场景里判出 1 个硬失败（证明可信身份真的进了评分）。
+    assert combined['hard_failures_by_kind']['safety'] == 1
+    assert combined['hard_failures'] == 1
+    # 非必需未知如实保留：cross_entity 的 unknown 不被清成 pass。
+    assert combined['hard_evidence']['axes']['cross_entity']['unknown'] > 0
+    assert combined['hard_evidence']['verified'] is False
+    assert combined['annotation']['quality_readiness'] == 'BLOCKED'
+    assert 'holdout_hard_failure_unverified' in {block['code'] for block in combined['blocks']}
+    # 单卡也必须逐张过 v0.2 卡校验（组合内部已复核一次，这里独立再核）。
+    for part in parts:
+        hard.validate_hard_evidence_scorecard(
+            part['aggregate'], total=part['aggregate']['total'],
+            run_id=part['run_id'], config_hash='a' * 64,
+            expected_strata=None,
+        )
+    assert 'P2HS' not in json.dumps(combined)
+
+
+@pytest.mark.usefixtures('t09_network_guard')
+@pytest.mark.parametrize('mutation,expected_code', [
+    ('wrong_scenario', 'scenario_subset_mismatch'),
+    ('wrong_plan', 'scenario_subset_mismatch'),
+    ('wrong_run_digest', 'scenario_run_binding_mismatch'),
+    ('turn_overflow', 'scenario_turn_counts_invalid'),
+    ('duplicate_run', 'scenario_run_duplicate'),
+    ('v01_quality_aggregate', 'scenario_scorecard_invalid'),
+    ('hand_edited_verified', 'scenario_scorecard_invalid'),
+])
+def test_composition_rejects_bad_derived_cards(package, mutation, expected_code):
+    contract, parts = _derived_parts(package)
+    if mutation == 'wrong_scenario':      # 错场景：把两个场景的 run 顺序对调
+        parts[1], parts[2] = parts[2], parts[1]
+    elif mutation == 'wrong_plan':        # 错计划：plan 属于另一个场景
+        parts[0]['plan'] = contract.build_plan(
+            contract.scenario_ids[1], plan_id='syn-wrong',
+            created_utc='2026-11-20T00:00:00+00:00',
+        )
+    elif mutation == 'wrong_run_digest':  # 错摘要：绑定里的场景摘要被改
+        parts[-1]['binding']['scenario_binding'] = dict(parts[0]['binding']['scenario_binding'])
+    elif mutation == 'turn_overflow':      # 缺/多回合：回合数与 subset 不符
+        parts[0]['turns_executed'] = parts[0]['turns_executed'] + 1
+    elif mutation == 'duplicate_run':      # 重复 run 身份
+        parts[-1]['run_id'] = parts[0]['run_id']
+        parts[-1]['aggregate'] = dict(parts[-1]['aggregate'], run_id=parts[0]['run_id'])
+    elif mutation == 'v01_quality_aggregate':  # v0.1 质量聚合冒充 v0.2 派生卡
+        parts[0]['aggregate'] = _run_parts(contract)[0]['aggregate']
+    else:                                  # 手改 verified
+        parts[0]['aggregate']['hard_evidence']['verified'] = True
+    with pytest.raises(scenario.ScenarioError) as caught:
+        scenario.compose_hard_evidence_runs(contract, parts)
+    assert caught.value.code == expected_code

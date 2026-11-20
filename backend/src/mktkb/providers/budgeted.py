@@ -297,7 +297,11 @@ class BudgetedModelGateway:
             f"{request.purpose}|{upper_bytes}|{input_tokens}|{request_bound_cny:.10f}".encode("utf-8")
         ).hexdigest()
         try:
-            reservation = self._budget.reserve(
+            # R0-5：账本 reserve 是跨进程 O_EXCL 锁 + 轮询（最长 lock_timeout_seconds），
+            # 必须在工作线程里等，否则会独占事件循环、让 service._call_model 的
+            # wait_for 回合超时失效（锁被占用时表现为“挂死”而不是按时失败）。
+            reservation = await asyncio.to_thread(
+                self._budget.reserve,
                 kind="chat",
                 provider="deepseek",
                 model=self._inner._model,  # noqa: SLF001 - 同包内只读模型名，不含密钥
@@ -322,7 +326,7 @@ class BudgetedModelGateway:
                 )
             else:
                 # 旧替身不支持发送边界钩子：在调用 inner 之前复核（仍先于任何 POST）。
-                pre_send_check()
+                await pre_send_check()
                 output = await self._inner.complete(request, timeout_seconds=timeout_seconds)
         except asyncio.CancelledError:
             self._settle(
@@ -411,17 +415,21 @@ class BudgetedModelGateway:
 
     # ---------------------------------------------------------------- 内部
 
-    def _pre_send_check(self, reservation: Any) -> Callable[[], None]:
-        """构造“发送前最后一次复核”回调；只读账本、不清账、不重新预留。"""
+    def _pre_send_check(self, reservation: Any) -> Callable[[], Any]:
+        """构造“发送前最后一次复核”回调；只读账本、不清账、不重新预留。
+
+        R0-5：回调返回 awaitable，``recheck_reservation`` 在工作线程里等账本锁，避免
+        发送边界再次阻塞事件循环。旧 inner（不认可等待回调）由本模块直接 await。
+        """
         recheck = getattr(self._budget, "recheck_reservation", None)
 
-        def check() -> None:
+        async def check() -> None:
             if recheck is None:
                 # 既有测试/替身传入的自定义账本没有发送前复核能力。
                 self._counters["send_attempts"] += 1
                 return
             try:
-                recheck(reservation)
+                await asyncio.to_thread(recheck, reservation)
             except BudgetLedgerInvalid as exc:
                 self._counters["pre_send_refused"] += 1
                 raise ModelPostSendDenied(f"发送前授权/预算复核拒绝：{exc}") from None

@@ -5,7 +5,8 @@
 - 成功/失败/超时/结果不明都保留结果事件；保守占用默认等于预留额，不因失败自动退款。
 - `estimated_list_price_cny` 只按 usage 与官方标价估算，和保守占用、供应商账单分开。
 - 历史 0.03 元只从既有 `historical_import` 事件读取一次，不重置、不重复导入。
-- 锁使用 O_CREAT|O_EXCL 锁文件，跨线程/跨进程有效；崩溃遗留按时间判定 stale。
+- 锁使用 O_CREAT|O_EXCL 锁文件，跨线程/跨进程有效；崩溃遗留按**持有者 PID 是否
+  仍存活**判定 stale（mtime 只在锁文件缺少可解析 PID 时兜底，避免误删慢持有者）。
 """
 
 from __future__ import annotations
@@ -28,6 +29,7 @@ from ..numeric import (
     finite_positive,
     positive_int,
 )
+from ..proc_identity import process_identity
 from .errors import BudgetError, BudgetExceeded, BudgetLedgerInvalid, RequestLimitExceeded
 from .settlement_policy import (
     SETTLEMENT_VERSION,
@@ -228,6 +230,32 @@ def _parse_json_object(raw: str, label: str) -> Any:
     return json.loads(raw, parse_constant=_reject_constant)
 
 
+#: 既能读到 pid、又拿不到进程启动标记时的 stale 兜底上限（远大于任何持锁时长）。
+_LOCK_OWNER_UNKNOWN_MAX_AGE_SECONDS = 24 * 60 * 60.0
+
+
+def _lock_owner_line() -> str:
+    """锁文件内容：``<pid> <启动标记|-> <写入时刻>``（旧格式 ``<pid> <ISO>`` 仍可解析）。"""
+    marker = process_identity(os.getpid())[1] or "-"
+    return f"{os.getpid()} {marker} {utcnow_iso()}\n"
+
+
+def _parse_lock_owner(raw: bytes) -> tuple[int | None, str | None]:
+    text = raw.decode("utf-8", "replace").strip().splitlines()
+    if not text:
+        return (None, None)
+    parts = text[0].split()
+    if not parts or not parts[0].isdigit():
+        return (None, None)
+    pid = int(parts[0])
+    if pid <= 0:
+        return (None, None)
+    marker: str | None = None
+    if len(parts) >= 2 and parts[1] != "-" and not parts[1].startswith("20"):
+        marker = parts[1]
+    return (pid, marker)
+
+
 class BudgetLedger:
     """一个账本文件 + 一个预算文件；所有读写经文件锁串行化。"""
 
@@ -240,7 +268,7 @@ class BudgetLedger:
         stage_limit_cny: float = 3.0,
         lock_timeout_seconds: float = 10.0,
         stale_lock_seconds: float = 60.0,
-        max_requests: int = 0,
+        max_requests: int | str = 0,
         run_id: str | None = None,
         request_guard: Callable[[float, Mapping[str, Any]], tuple[float, int]] | None = None,
         post_reserve_guard: Callable[[float, Mapping[str, Any]], None] | None = None,
@@ -249,9 +277,11 @@ class BudgetLedger:
         self.budget_json_path = Path(budget_json_path)
         self.stage = stage
         self.stage_limit_cny = _ledger_number(stage_limit_cny, "stage_limit_cny")
-        if isinstance(max_requests, bool) or not isinstance(max_requests, int):
+        if max_requests == "unlimited" and isinstance(max_requests, str) and stage == "P2-LIVE":
+            pass
+        elif isinstance(max_requests, bool) or not isinstance(max_requests, int):
             raise BudgetLedgerInvalid("max_requests 必须是非负整数")
-        if max_requests < 0:
+        elif max_requests < 0:
             raise BudgetLedgerInvalid("max_requests 必须是非负整数")
         self.max_requests = max_requests
         # 请求期复核回调（由产品 LiveGate 注入）：参数为 (本次预留金额, 锁内账本事实)。
@@ -301,7 +331,7 @@ class BudgetLedger:
         while True:
             try:
                 fd = os.open(str(self.lock_path), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-                os.write(fd, f"{os.getpid()} {utcnow_iso()}\n".encode("utf-8"))
+                os.write(fd, _lock_owner_line().encode("utf-8"))
                 os.close(fd)
                 fd = None
                 break
@@ -324,11 +354,33 @@ class BudgetLedger:
                 pass
 
     def _stale_lock(self) -> bool:
+        """锁持有者是否可证明已经不在：死 PID / PID 被复用 / 无可解析 PID 且过期。
+
+        活着但很慢的持有者**不**回收——宁可等到 ``lock_timeout_seconds`` 报错，也不
+        制造双写窗口。锁文件缺 PID（旧格式损坏）时退回 mtime 兜底。
+        """
         try:
-            age = time.time() - self.lock_path.stat().st_mtime
+            stat = self.lock_path.stat()
+            raw = self.lock_path.read_bytes()[:512]
         except FileNotFoundError:
             return False
-        return age > self.stale_lock_seconds
+        except OSError:
+            return False
+        age = time.time() - stat.st_mtime
+        pid, marker = _parse_lock_owner(raw)
+        if pid is None:
+            return age > self.stale_lock_seconds
+        if pid == os.getpid():
+            # 同进程的另一线程持有：不是 stale（否则会自毁锁）。
+            return False
+        alive, current = process_identity(pid)
+        if not alive:
+            return True
+        if marker and current and marker != current:
+            return True  # PID 被复用：旧持有者确定已死
+        if marker is None and current is None and age > _LOCK_OWNER_UNKNOWN_MAX_AGE_SECONDS:
+            return True  # 无法证明身份时的有界兜底（远大于任何一次预留持锁时间）
+        return False
 
     def _events(self) -> list[dict[str, Any]]:
         if not self.ledger_path.exists():
@@ -547,7 +599,7 @@ class BudgetLedger:
         settlement_policy: SettlementPolicy | None = None,
         metadata: Mapping[str, Any] | None = None,
         stage_limit_cny: float | None = None,
-        max_requests: int | None = None,
+        max_requests: int | str | None = None,
         cost_center: str | None = None,
     ) -> Reservation:
         amount = _ledger_number(max_cny, "预留金额")
@@ -576,8 +628,11 @@ class BudgetLedger:
         effective_max_requests = (
             self.max_requests
             if max_requests is None
-            else _ledger_non_negative_int(max_requests, "请求期累计请求上限")
+            else ("unlimited" if max_requests == "unlimited" and isinstance(max_requests, str) and self.stage == "P2-LIVE"
+                  else _ledger_non_negative_int(max_requests, "请求期累计请求上限"))
         )
+        if effective_max_requests == "unlimited" and self.max_requests != "unlimited":
+            effective_max_requests = self.max_requests
         with self._locked():
             events = self._events()
             facts = self._accounting(events)
@@ -587,11 +642,14 @@ class BudgetLedger:
                 effective_stage_limit = min(
                     effective_stage_limit, _ledger_number(guarded_limit, "复核后的阶段额度")
                 )
-                effective_max_requests = min(
-                    effective_max_requests,
-                    _ledger_non_negative_int(guarded_requests, "复核后的累计请求上限"),
-                )
-            if facts["reservation_count"] >= effective_max_requests:
+                if guarded_requests == "unlimited" and isinstance(guarded_requests, str) and self.stage == "P2-LIVE":
+                    pass
+                else:
+                    guarded_requests = _ledger_non_negative_int(guarded_requests, "复核后的累计请求上限")
+                    effective_max_requests = guarded_requests if effective_max_requests == "unlimited" else min(effective_max_requests, guarded_requests)
+            elif effective_max_requests == "unlimited":
+                raise BudgetLedgerInvalid("无限请求必须有逐笔授权复核")
+            if effective_max_requests != "unlimited" and facts["reservation_count"] >= effective_max_requests:
                 raise RequestLimitExceeded(
                     f"请求数达到硬上限 {effective_max_requests}，未发请求"
                 )

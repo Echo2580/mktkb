@@ -1,0 +1,51 @@
+{
+  "real_coverage": {
+    "suite": "update_delete",
+    "suite_planned_cases": 10,
+    "required_min_sample": 10,
+    "run_level_evaluated": 1,
+    "basis": "suite_planned_cases",
+    "covered": true
+  },
+  "inflated_run_level_99": {
+    "suite": "update_delete",
+    "suite_planned_cases": 10,
+    "required_min_sample": 10,
+    "run_level_evaluated": 99,
+    "basis": "suite_planned_cases",
+    "covered": true
+  },
+  "forged_plan_total_9": {
+    "suite": "update_delete",
+    "suite_planned_cases": 9,
+    "required_min_sample": 10,
+    "run_level_evaluated": 10,
+    "basis": "suite_planned_cases",
+    "covered": false
+  },
+  "control": {
+    "decision": "pass",
+    "u.hard_gates": "pass",
+    "hard_gates": "pass"
+  },
+  "injected_run_level_failure": {
+    "decision": "blocked",
+    "u.hard_gates": "blocked",
+    "u.hard_gates_reasons": [
+      "release_hard_failure"
+    ],
+    "hard_gates": "blocked",
+    "hard_gates_reasons": [
+      "release_hard_failure"
+    ],
+    "u_gate_status": null,
+    "u_unknowns": null
+  },
+  "forged_self_report": {
+    "decision": "blocked",
+    "reason_codes": [
+      "release_inputs_invalid"
+    ],
+    "release_inputs_invalid": true
+  }
+}

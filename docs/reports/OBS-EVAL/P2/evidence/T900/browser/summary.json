@@ -1,0 +1,68 @@
+{
+  "checked_at": "2026-11-20T22:49:53+08:00",
+  "environment": "local, offline (no external egress)",
+  "tool": {
+    "playwright": "1.64.0",
+    "node": "24.16.0",
+    "browsers": "chromium-1248 (installed)",
+    "python": "3.12.7"
+  },
+  "run_1_t08_functional": {
+    "config": "frontend/playwright.config.ts",
+    "command": "npx playwright test --config playwright.config.ts e2e/02-chat.spec.ts e2e/04-kinds-and-isolation.spec.ts --project=functional --reporter=line",
+    "backend": "frontend/e2e/support/stub_server.py (real FastAPI + EchoGateway, no external model/OCR)",
+    "frontend": "vite dev 127.0.0.1:5173",
+    "exit_code": 0,
+    "passed": 10,
+    "failed": 0,
+    "skipped": 0,
+    "duration_seconds": 43.3,
+    "breakdown": {
+      "02-chat.spec.ts": 7,
+      "04-kinds-and-isolation.spec.ts": 3
+    },
+    "log": "browser/t08-run.log"
+  },
+  "run_2_acceptance05_sources": {
+    "config": "frontend/playwright.acceptance.config.ts",
+    "runner": "backend/tests/acceptance/support/run_browser_acceptance.py",
+    "command": ".venv/Scripts/python.exe -B backend/tests/acceptance/support/run_browser_acceptance.py --label t900-phase1 --evidence-root docs/reports/OBS-EVAL/P2/evidence/T900/browser/d3 --playwright-args \"e2e/acceptance-05-sources.spec.ts\"",
+    "backend": "real FastAPI + seeded B0 corpus + controlled model/OCR substitutes, 127.0.0.1:8188",
+    "frontend": "vite dev 127.0.0.1:5199",
+    "exit_code": 0,
+    "expected": 2,
+    "unexpected": 0,
+    "skipped": 0,
+    "duration_seconds": 5.543,
+    "outbound": {
+      "external": [],
+      "local_count": 131,
+      "external_count": 0
+    },
+    "assertions": {
+      "a14_protected_file_status": 200,
+      "a14_x_content_type_options": "nosniff",
+      "a19_delete_applied": true,
+      "a19_after_delete_source_410": true,
+      "a19_new_answer_cited_deleted_source": false
+    },
+    "screenshots": [
+      "browser/d3/screenshots/t900-phase1/05-sources/01-a14-answer.png",
+      "browser/d3/screenshots/t900-phase1/05-sources/02-a14-source-drawer.png",
+      "browser/d3/screenshots/t900-phase1/05-sources/03-a19-before-delete.png",
+      "browser/d3/screenshots/t900-phase1/05-sources/04-a19-expired-source.png",
+      "browser/d3/screenshots/t900-phase1/05-sources/05-a19-new-chat-no-evidence.png"
+    ],
+    "log": "browser/d3-run.log",
+    "playwright_json": "browser/d3/actual/playwright-t900-phase1.json"
+  },
+  "not_run": {
+    "acceptance-06-conflict": "not selected for phase 1; permission/visibility negatives already covered by 04-kinds and acceptance-05",
+    "acceptance-07-update": "not selected; update/delete browsers pending formal T900 list",
+    "other_acceptance_specs": "not selected; cumulative-state suite requires ordered full run"
+  },
+  "cleanup": {
+    "ports_8077_5173_8188_5199": "free after both runs",
+    "residual_processes": "none observed on the four ports"
+  }
+}

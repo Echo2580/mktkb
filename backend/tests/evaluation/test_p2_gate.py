@@ -230,6 +230,7 @@ def build_run(
     manifest_overrides: dict | None = None,
     trace_specs: dict[str, dict | None] | None = None,
     trace_store: bool = True,
+    raw_rows: bool = False,
 ):
     """写出 dataset/rows/traces，返回 (RunResult, scored)。"""
     run_dir = tmp_path / "run"
@@ -246,6 +247,7 @@ def build_run(
         merged.update(evidence or {})
         evidence = merged
     scored = []
+    raw_by_id: dict[str, dict] = {}
     for case, item in zip(cases, products):
         turns = [] if item is None else [
             {"turn": 1, "status": "ok", "error_code": None, "product": item}
@@ -261,6 +263,7 @@ def build_run(
             "turns_executed": len(turns),
             "turns": turns,
         }
+        raw_by_id[case.case_id] = case_row
         scored.append(
             score_public_case(
                 case,
@@ -271,7 +274,7 @@ def build_run(
                 evidence=(evidence or {}).get(case.case_id, ()),
             )
         )
-    rows = build_gate_rows(cases, scored)
+    rows = build_gate_rows(cases, scored, case_rows=raw_by_id if raw_rows else None)
     run = build_gate_run(
         run_dir=run_dir,
         manifest=manifest_map,
@@ -507,6 +510,83 @@ def test_citation_required_positive_and_negative(tmp_path: Path) -> None:
     )
     result = evaluate(run)
     assert result.gate_status["citation_required"] == GATE_STATUS_PASS
+
+
+# --------------------------------------------------------------------------- #
+# 主人 D-004（2026-11-20 授权）：citation 候选接地集合 = evidence ∪ retrieved
+# --------------------------------------------------------------------------- #
+
+
+def _d004_product(*, retrieved: tuple[str, ...], evidence: tuple[str, ...],
+                  citation_unit: str) -> dict:
+    payload = product(text="B区1号货架第二层", sources=(
+        {
+            "source_id": citation_unit,
+            "document_name": DOC_NAME,
+            "version_number": 1,
+            "status": "active",
+            "locator": {"sheet": "物品位置", "row": 8},
+        },
+    ))
+    payload["retrieved"] = [{"doc_code": "D01", "unit_ids": list(retrieved)}] if retrieved else []
+    payload["evidence"] = [{"unit_id": unit} for unit in evidence]
+    return payload
+
+
+def test_d004_evidence_field_grounds_citation_when_retrieved_empty(tmp_path: Path) -> None:
+    """D-004 正例：retrieved 为空、同轮 evidence 有该单元 → citation_required pass。"""
+    case = make_case("Q01", expected_values=())
+    run, _, _ = build_run(
+        tmp_path / "d004-evidence-only",
+        [case],
+        [_d004_product(retrieved=(), evidence=(UNIT_ID,), citation_unit=UNIT_ID)],
+        default_evidence=False,
+        raw_rows=True,
+    )
+    result = evaluate(run)
+    assert result.gate_status["citation_required"] == GATE_STATUS_PASS
+
+
+def test_d004_citation_outside_evidence_and_retrieved_still_fails(tmp_path: Path) -> None:
+    """D-004 负例：引用的 unit 既不在 evidence 也不在 retrieved → 仍 fail。"""
+    case = make_case("Q01", expected_values=())
+    run, _, _ = build_run(
+        tmp_path / "d004-outside",
+        [case],
+        [_d004_product(retrieved=(), evidence=("unit-other",), citation_unit=UNIT_ID)],
+        default_evidence=False,
+        raw_rows=True,
+    )
+    result = evaluate(run)
+    assert result.gate_status["citation_required"] == GATE_STATUS_FAIL
+    assert "citation_required" in result.hard_failures
+    failures = [item for item in result.failures if item.check_id == "citation_not_in_evidence"]
+    assert failures and failures[0].evidence["unit_ids"] == [UNIT_ID]
+
+
+def test_d004_citation_without_unit_ids_still_fails(tmp_path: Path) -> None:
+    """D-004 负例：引用没有 unit_ids（不是单位级）→ 仍 fail citation_not_unit_level。"""
+    import dataclasses
+
+    case = make_case("Q01", expected_values=())
+    run, _, _ = build_run(
+        tmp_path / "d004-no-units",
+        [case],
+        [_d004_product(retrieved=(), evidence=(UNIT_ID,), citation_unit=UNIT_ID)],
+        default_evidence=False,
+        raw_rows=True,
+    )
+    patched = []
+    for row in run.cases:
+        outcome = dict(row.get("outcome") or {})
+        citations = [dict(item) for item in outcome.get("citations") or ()]
+        for item in citations:
+            item["unit_ids"] = []
+        outcome["citations"] = citations
+        patched.append({**row, "outcome": outcome})
+    result = evaluate(dataclasses.replace(run, cases=tuple(patched)))
+    assert result.gate_status["citation_required"] == GATE_STATUS_FAIL
+    assert any(item.check_id == "citation_not_unit_level" for item in result.failures)
 
 
 def test_trace_integrity_positive_negative_and_unreadable(tmp_path: Path) -> None:

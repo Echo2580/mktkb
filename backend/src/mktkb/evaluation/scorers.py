@@ -47,6 +47,12 @@ chunk 只算一次。缺少 ``unit_ids`` 的引用项仍计入精确率分母（
 - ``expected_pagination`` 可给 ``total`` / ``returned`` / ``has_more`` /
   ``next_page`` 精确值，或 ``min_total`` 下界；契约违规优先于"与期望一致"。
 
+``value_no_fabricated`` 的允许数字默认只来自问题/金标/参考答案/业务日期。P2 路径
+另外显式传两类 opt-in 集合：**引用证据数字**（``citation_number_keys``）与**结构
+token**（``citation_structural_number_keys`` 的 locator 整数 + 分页计数）。结构
+token ≠ 业务值：它们只是定位坐标/页头计数，2026-11-17 主人批准的 P2 增量允许回答
+原样复述，但不放宽任何真值、金标或期望值判定；默认路径两者都不传，口径逐字不变。
+
 ``EvalOutcome.retrieved`` 是本包对计划接口的**最小扩展**：检索指标需要有序的
 "本轮检索到的 unit 列表"，而计划列出的 ``citations`` / ``facts`` 只有引用集、
 没有排名。该字段仍是归一化输入，不依赖任何 provider 返回类型。
@@ -85,6 +91,7 @@ __all__ = [
     "check_source",
     "check_value",
     "citation_number_keys",
+    "citation_structural_number_keys",
     "cost_metrics",
     "is_refusal",
     "latency_metrics",
@@ -463,6 +470,47 @@ def citation_number_keys(citations: Iterable[EvalCitation]) -> frozenset[str]:
     return frozenset(keys)
 
 
+def _locator_integer_keys(value: Any) -> Iterable[str]:
+    """深度收集 locator 里的**整数** key（``bool`` 不算整数；容器身份键照旧排除）。
+
+    locator 的字符串值（含单元格 ``display``）由 :func:`_locator_evidence_texts`
+    处理；这里只补"行号/表头行"这类以 int 形式出现的定位坐标，不与字符串口径重复。
+    """
+    if isinstance(value, bool):
+        return
+    if isinstance(value, int):
+        yield _number_key(str(value))
+        return
+    if isinstance(value, Mapping):
+        for key, item in value.items():
+            if str(key).strip().lower() in _NON_EVIDENCE_LOCATOR_KEYS:
+                continue
+            yield from _locator_integer_keys(item)
+    elif isinstance(value, Sequence) and not isinstance(value, (str, bytes)):
+        for item in value:
+            yield from _locator_integer_keys(item)
+
+
+def citation_structural_number_keys(citations: Iterable[EvalCitation]) -> frozenset[str]:
+    """本轮引用 locator 里的**结构 token**整数 key（P2 专用 opt-in，2026-11-17 主人批准）。
+
+    结构 token ≠ 业务值：``row`` / ``header_row`` 这类整数是产品自述的定位坐标
+    （"第 7 行"），不是被引用的业务数值，因此可以原样复述而**不**构成编造。本集合
+    只放进 ``score_case(..., structural_number_keys=...)`` 的允许集合；它不做任何
+    期望值/金标比对，也不放宽 ``value_hit`` / ``value_forbidden`` 的口径。
+
+    容器身份键（``document_name`` / ``path`` 等，见 ``_NON_EVIDENCE_LOCATOR_KEYS``）
+    仍然排除；``bool`` 不算整数。默认打分不使用本集合（``allowed_number_keys`` 的
+    P1 口径与 ``citation_number_keys`` 的口径都逐字不变）。
+    """
+    keys: set[str] = set()
+    for citation in citations:
+        if not isinstance(citation, EvalCitation):
+            raise TypeError("citation_structural_number_keys 只接受 EvalCitation")
+        keys.update(_locator_integer_keys(citation.locator))
+    return frozenset(keys)
+
+
 def _normalized_number_keys(keys: Collection[str] | None) -> frozenset[str]:
     """把调用方给的「额外允许数字」归一成与回答侧同口径的 key 集合（默认空集）。"""
     if not keys:
@@ -628,6 +676,7 @@ def _value_checks(
     *,
     cross_explicit_space: bool = False,
     allowed_number_keys: Collection[str] | None = None,
+    structural_number_keys: Collection[str] | None = None,
 ) -> tuple[CaseCheck, ...]:
     text = outcome.text
     expected = tuple(case.expected_values)
@@ -663,19 +712,23 @@ def _value_checks(
     elif not expected:
         checks.append(_skipped("value_no_fabricated", {"reason": "no_expected_values"}))
     else:
-        # opt-in：调用方给的「引用证据数字」与 gold 数字取并集后才判"编造"；默认空集
-        # 时集合与旧口径完全相同（P1 逐字不变）。
+        # opt-in：调用方给的「引用证据数字」与「结构 token」与 gold 数字取并集后才判
+        # "编造"；两者默认空集时集合与旧口径完全相同（P1 逐字不变）。结构 token 只
+        # 说明"这个数字有出处"，不放宽任何真值/业务值判定。
         evidence_keys = _normalized_number_keys(allowed_number_keys)
-        allowed = _gold_number_keys(case) | evidence_keys
+        structural_keys = _normalized_number_keys(structural_number_keys)
+        allowed = _gold_number_keys(case) | evidence_keys | structural_keys
         extra = sorted({key for key in _number_keys(text) if key not in allowed})
         # 默认路径的 evidence 键序与旧实现逐字相同（"extra" 在前、"checked" 在后）；
-        # 只有 opt-in 生效时才追加 "evidence_numbers"。
+        # 只有 opt-in 生效时才追加 "evidence_numbers" / "structural_numbers"。
         evidence: dict[str, Any] = {}
         if extra:
             evidence["extra"] = extra
         evidence["checked"] = len(expected)
         if evidence_keys:
             evidence["evidence_numbers"] = len(evidence_keys)
+        if structural_keys:
+            evidence["structural_numbers"] = len(structural_keys)
         if extra:
             checks.append(_fail("value_no_fabricated", evidence))
         else:
@@ -1121,6 +1174,7 @@ def score_case(
     *,
     cross_explicit_space: bool = False,
     allowed_number_keys: Collection[str] | None = None,
+    structural_number_keys: Collection[str] | None = None,
     compat_refusal_kind: bool = False,
 ) -> CaseResult:
     """对单条 case 做确定性打分，返回逐项 check + 可聚合指标 + 运行成本字段。
@@ -1136,6 +1190,11 @@ def score_case(
       与 ``_gold_number_keys(case)`` 取并集后才判"编造"。P2 传
       :func:`citation_number_keys`（本轮引用证据里的数字）；默认 ``None``/空 →
       只看问题/金标/参考答案/业务日期，P1 逐字不变（检查结果与 case 状态都不变）。
+    - ``structural_number_keys`` 是同类 opt-in 的**结构 token**集合（2026-11-17 主人
+      批准的 P2 增量）：引用 locator 的整数（见
+      :func:`citation_structural_number_keys`）与分页计数（由 P2 在构造时并入）。
+      结构 token ≠ 业务值——它们只说明"这个数字有出处"，不改变 ``value_hit`` /
+      ``value_forbidden`` / 期望值判定；默认 ``None``/空 → P1 逐字不变。
     - ``compat_refusal_kind`` 是 ``kind_correct`` 的 P2 专用 opt-in（T207-FIX-H2KIND）：
       打开后 ``expected_kind == "refusal"``（P1 兼容值）接受任一拒答结局
       （``no_answer``/``not_found``/``refusal``），显式 kind 仍严格相等。默认 ``False`` →
@@ -1183,6 +1242,7 @@ def score_case(
             outcome,
             cross_explicit_space=cross_explicit_space,
             allowed_number_keys=allowed_number_keys,
+            structural_number_keys=structural_number_keys,
         )
     )
     checks.extend(_source_checks(case, outcome, resolved))

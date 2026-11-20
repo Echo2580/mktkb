@@ -60,11 +60,18 @@ from ..errors import (
 )
 from ..observability import trace_attrs
 from ..observability.contracts import OutcomeKind, TracePath
+from ..observability.evaluation_capture import capture_enabled, emit_capture_event, safe_roles, safe_stores
 from ..observability.tracer import current_trace
 from ..qa import QaNotReady
 from ..rag.chunking import role_label as rag_role_label
 from ..rag.errors import KnowledgeChanged as RagKnowledgeChanged
-from ..rag.query import texts_support_financial_metric
+from ..rag.query import (
+    financial_metric_question,
+    metric_binding_identity,
+    metric_binding_values,
+    texts_support_financial_metric,
+    unattributed_metric_values,
+)
 from ..rag.types import QueryPlan, QueryState, RagAnswer
 from ..providers.types import (
     MAX_MODEL_TERM_CHARS,
@@ -403,9 +410,15 @@ def _add_user_message(db: Session, conversation: Conversation, user: UserContext
     return message
 
 
-def _load_context(db: Session, conversation: Conversation, before_seq: int) -> tuple[tuple[str, ...], dict[str, str]]:
+def _load_context(
+    db: Session,
+    conversation: Conversation,
+    before_seq: int,
+    *,
+    capture_request_id: str | None = None,
+) -> tuple[tuple[str, ...], dict[str, str]]:
     rows = db.execute(
-        select(ConversationMessage.text)
+        select(ConversationMessage)
         .where(
             ConversationMessage.conversation_id == conversation.id,
             ConversationMessage.role == "user",
@@ -413,8 +426,27 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
         )
         .order_by(ConversationMessage.seq.desc())
         .limit(MAX_CONTEXT_QUESTIONS)
-    ).all()
-    questions = tuple(reversed([row[0] for row in rows]))
+    ).scalars().all()
+    ordered = list(reversed(rows))
+    questions = tuple(str(row.text or "") for row in ordered)
+    if capture_enabled() and capture_request_id is not None:
+        emit_capture_event(
+            "context_observed",
+            request_id=str(capture_request_id),
+            count=len(ordered),
+            empty=not ordered,
+        )
+        for row in ordered:
+            emit_capture_event(
+                "context_message",
+                request_id=str(capture_request_id),
+                message_id=str(row.id),
+                owner_user_id=str(row.user_id),
+                role=str(row.role),
+                seq=int(row.seq),
+                text=str(row.text or ""),
+                origin="history_user_question",
+            )
 
     latest_assistant = db.scalar(
         select(ConversationMessage)
@@ -431,6 +463,7 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
         references = db.scalars(
             select(MessageSource).where(MessageSource.message_id == latest_assistant.id)
         ).all()
+        sources: list[tuple[object, dict[str, str]]] = []
         for reference in references:
             from ..retrieval.models import RetrievalUnitIndex
 
@@ -438,9 +471,30 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
                 select(RetrievalUnitIndex).where(RetrievalUnitIndex.unit_id == reference.source_id)
             )
             filters = dict((index_row.entity_filters or {})) if index_row is not None else {}
-            for key in ("store", "item"):
-                if filters.get(key):
-                    entities.setdefault(key, str(filters[key]))
+            sources.append((reference, {key: str(filters[key]) for key in ("store", "item") if filters.get(key)}))
+        for key in ("store", "item"):
+            values = {fields[key] for _, fields in sources if key in fields}
+            if len(values) == 1:
+                entities[key] = next(iter(values))
+        paired_reference = None
+        if len(entities) == 2:
+            paired_reference = next((ref for ref, fields in sources if all(
+                fields.get(key) == value for key, value in entities.items()
+            )), None)
+            if paired_reference is None:
+                entities.clear()
+        if capture_enabled() and capture_request_id is not None:
+            for key, value in entities.items():
+                reference = paired_reference or next(ref for ref, fields in sources if fields.get(key) == value)
+                emit_capture_event(
+                    "entity_inheritance",
+                    request_id=str(capture_request_id),
+                    entity_type=key,
+                    entity_key=value,
+                    source_message_id=str(latest_assistant.id),
+                    source_unit_id=str(reference.source_id),
+                    source="latest_assistant_message_source",
+                )
     return questions, entities
 
 
@@ -473,7 +527,21 @@ def _claim(
             if existing.payload_sha256 != digest:
                 raise RequestPayloadMismatch()
             if existing.status == "succeeded":
-                return _ReplayClaim(_replay(db, existing))
+                replay = _replay(db, existing)
+                if capture_enabled():
+                    emit_capture_event(
+                        "claim_observed",
+                        request_id=str(existing.id),
+                        conversation_id=str(conversation.id),
+                        attempt=int(existing.attempt),
+                        authenticated_user_id=str(user.id),
+                        owner_user_id=str(conversation.user_id),
+                        user_message_id=None,
+                        user_message_seq=None,
+                        initial_revision=int(get_revision(db)),
+                        replay=True,
+                    )
+                return _ReplayClaim(replay)
             if existing.status == "running":
                 if not _deadline_passed(existing.deadline_at, now):
                     raise QuestionInProgress()
@@ -521,7 +589,22 @@ def _claim(
 
         conversation.updated_at = now
         revision = get_revision(db)
-        questions, entities = _load_context(db, conversation, user_message.seq)
+        if capture_enabled():
+            emit_capture_event(
+                "claim_observed",
+                request_id=str(request_row.id),
+                conversation_id=str(conversation.id),
+                attempt=int(request_row.attempt),
+                authenticated_user_id=str(user.id),
+                owner_user_id=str(conversation.user_id),
+                user_message_id=str(user_message.id),
+                user_message_seq=int(user_message.seq),
+                initial_revision=int(revision),
+                replay=False,
+            )
+        questions, entities = _load_context(
+            db, conversation, user_message.seq, capture_request_id=str(request_row.id)
+        )
         return _Claim(
             conversation_id=conversation.id,
             request_id=request_row.id,
@@ -587,6 +670,79 @@ def expire_stale_requests(db_factory, *, now: datetime | None = None) -> int:
 # ---------------------------------------------------------------- 检索与证据
 
 
+def _legacy_evidence_as_of(qa, plan) -> str | None:
+    """legacy 证据面按业务日过滤时使用的日期（v3-fix-1/B）。
+
+    取值只来自产品本轮已解析的计划（``QueryPlan.as_of``：题面显式日期优先，否则是
+    Settings 级 ``rag_business_date``）；没有 RAG 装配或明确问“未来/调整后”时返回
+    ``None``，保持原行为、不臆造日期。
+    """
+    if qa is None or plan is None:
+        return None
+    if bool(getattr(plan, "include_future", False)):
+        return None
+    value = getattr(plan, "as_of", None)
+    return str(value) if value else None
+
+
+def _legacy_store_scope(rag_plan: QueryPlan | None) -> str | None:
+    """legacy 证据面的唯一门店作用域（T-R1-106a，C13 同形）。
+
+    只取本轮 rag 计划里的**结构化单店**条件：``filters['store']`` 优先，其次是回合状态
+    里唯一保留的门店（``state.store``／``state.stores``，即 T-R1-102b 的保留范围）。
+    多店枚举轮次按设计不写 ``store`` 过滤，``state.stores`` 也会有两个值，这里返回
+    ``None``——不把合法的多店枚举收窄。没有 RAG 装配（``rag_plan is None``）时同样不猜。
+    """
+    if rag_plan is None:
+        return None
+    filters = dict(getattr(rag_plan, "filters", None) or {})
+    store = filters.get("store") or filters.get("store_id")
+    if store:
+        return str(store)
+    state = getattr(rag_plan, "state", None)
+    current = getattr(state, "store", None)
+    if current:
+        return str(current)
+    stores = tuple(getattr(state, "stores", ()) or ())
+    if len(stores) == 1:
+        return str(stores[0])
+    return None
+
+
+def _unit_store_value(unit) -> str | None:
+    """单元自带的门店原值（没有门店列的行返回 ``None``，例如正文通知/政策段落）。"""
+
+    value = _role_value(getattr(unit, "fields", None) or {}, "store")
+    return normalize(value) if value else None
+
+
+def _apply_store_scope(evidence: EvidenceSet, store: str | None) -> EvidenceSet:
+    """把唯一门店作用域应用到 legacy 证据面：剔除明确属于其它门店的记录行。
+
+    只影响**证据面/引用**，不动召回、分组与排序：没有门店列的行（正文通知、政策段落等
+    共享背景）原样保留，本店行与空作用域逐值不变。剔除后没有可作答单元时：既有歧义
+    结论保留（仍是让用户选门店的澄清，不冒充答案），其它形态按 ``none`` 收口，让上层
+    沿用既有“无依据”分支，而不是拿异店行作答。
+    """
+    if not store or not evidence.units:
+        return evidence
+    wanted = normalize(store)
+    kept = [unit for unit in evidence.units if _unit_store_value(unit) in (None, wanted)]
+    if len(kept) == len(evidence.units):
+        return evidence
+    kind = evidence.kind
+    if not kept and kind != "ambiguous":
+        kind = "none"
+    return EvidenceSet(
+        units=kept,
+        kind=kind,
+        total_candidates=evidence.total_candidates,
+        revision=evidence.revision,
+        candidates=list(evidence.candidates),
+        truncated=evidence.truncated,
+    )
+
+
 def _retrieve(
     db_factory,
     intent: QueryIntent,
@@ -594,15 +750,24 @@ def _retrieve(
     limit: int = 20,
     *,
     candidate_ids: set[str] | None = None,
+    as_of: str | None = None,
 ) -> EvidenceSet:
     """产品证据入口。``candidate_ids`` 是 rag 内核本轮召回的产品来源单元集合（记录型问题）。
 
     rag 索引与本轮 revision 对齐后才给出候选；这里只把候选作为记录型检索的上界，
     分组/歧义/冲突/可见性仍由既有检索与提交事务复核。正文型问题不做该限制。
+    ``as_of`` 是业务日（仅时间维度过滤：过期/未生效的记录行不进入证据面）。
     """
     db = _session_factory(db_factory)()
     try:
-        return retrieve(db, intent, revision=revision, limit=limit, candidate_ids=candidate_ids)
+        return retrieve(
+            db,
+            intent,
+            revision=revision,
+            limit=limit,
+            candidate_ids=candidate_ids,
+            as_of=as_of,
+        )
     finally:
         db.close()
 
@@ -638,7 +803,12 @@ def _entity_filters(units: Iterable[SourceUnit]) -> dict[str, str]:
 
 
 def _same_entity_evidence(
-    db_factory, plan: intent_module.IntentPlan, units: Iterable[SourceUnit], revision: int
+    db_factory,
+    plan: intent_module.IntentPlan,
+    units: Iterable[SourceUnit],
+    revision: int,
+    *,
+    as_of: str | None = None,
 ) -> EvidenceSet | None:
     """同一实体的全部可见记录（不受 rag 候选窗口限制），供冲突复核。
 
@@ -657,7 +827,9 @@ def _same_entity_evidence(
         requested_fields=tuple(plan.requested_fields),
     )
     try:
-        return _retrieve(db_factory, probe, revision, limit=20, candidate_ids=None)
+        return _retrieve(
+            db_factory, probe, revision, limit=20, candidate_ids=None, as_of=as_of
+        )
     except (KnowledgeRevisionChanged, IndexNotReady, QueryRejected, OperationalError):
         # 复核失败不改变既有结论：原证据仍然有效，不把复核异常升级成用户可见错误。
         # OperationalError 与同文件其它 DB 入口同口径：只放弃本次复核（fail-closed，不披露冲突），
@@ -909,6 +1081,34 @@ def _validate_answer(
         unattested = sorted(token for token in _value_tokens(text_value) if token not in attested)
         if unattested:
             raise ModelOutputInvalid("回答包含引用来源中不存在的数据值")
+        # M2（T207-R1）：token 存在不足以证明取值正确。指标题里回答把某值绑到指标 A，
+        # 而被引证据把该值绑到指标 B（如营业收入值说成净利润），属于取值/来源不符。
+        # 只核对**本次实际引用**正文的值位置绑定；问题原文逐字出现的前提值
+        # 沿用 P-R1 放行口径，不在这里撤销。非指标题（question 未命中）完全跳过，不改既有行为。
+        # T207-R1 返工（R5/R6）：绑定按真同义身份细化（毛利≠净利润，净利/纯利=净利润，
+        # 营业收入/营收/营业额同义），并携带单位/倍率（“908 万元”≠“908 元”）；
+        # 回答把值绑到哪个身份，就必须由被引证据对该身份的绑定背书。
+        # T207-R1 返工（R4）：省略指标名/组外缩写的回答没有指标绑定，空绑定集不得
+        # 绕过核对——回答里未归属任何指标身份的“指标样取值”（带连接词或单位/倍率，
+        # 排除日期/编号内嵌数字）默认就是在回答所问指标，必须由所问指标的被引绑定
+        # 背书；问题前提值仍按 P-R1 放行。
+        metric = financial_metric_question(question)
+        if metric is not None:
+            question_values = _value_tokens(question)
+            corpus_bindings = metric_binding_values(cited_corpus)
+            for identity, values in metric_binding_values(text_value).items():
+                backed = corpus_bindings.get(identity, set())
+                for value in sorted(values):
+                    if value[0] in question_values:
+                        continue
+                    if value not in backed:
+                        raise ModelOutputInvalid("回答把数值绑定到了引用来源未支持的指标")
+            asked_backed = corpus_bindings.get(metric_binding_identity(metric), set())
+            for value in sorted(unattributed_metric_values(text_value)):
+                if value[0] in question_values:
+                    continue
+                if value not in asked_backed:
+                    raise ModelOutputInvalid("回答的指标取值未获得所问指标的被引绑定背书")
     else:
         evidence_units = None
     if store_scope is not None:
@@ -988,6 +1188,14 @@ def _is_store_level_request(plan) -> bool:
     return bool(entities.get("store")) and (not entities.get("item") or location_only)
 
 
+#: 只登记在店家信息行上的字段角色（物品位置行没有这些列）。R0/C12：一次提问同时要
+#: "物品字段 + 店家字段"时，承载店家字段的记录行天然没有物品值，不能按物品维度排除。
+_STORE_LEVEL_FACT_ROLES = frozenset({"contact", "phone", "address", "status"})
+
+#: 联系字段：本次问题未涉及联系字段时，不随行回显到正文；显式请求的字段仍由 validated 作答。
+_CONTACT_FIELD_ROLES = frozenset({"contact", "phone", "address"})
+
+
 def _record_units(
     units: Iterable[object],
     plan,
@@ -1002,6 +1210,10 @@ def _record_units(
     别的门店行）不能被拿来给回答背书。门店/物品条件命中与否只作为附加过滤，不再用
     "过滤为空就退回全部行"的兜底放宽范围。
 
+    R0/C12：跨表问法（物品字段 + 店家字段）里，物品维度只约束物品行；承载店家字段的
+    店家行没有物品列，按物品维度整行排除会让已取到的店家字段失去背书来源。此时按
+    "至少背书本问一个字段原值"收口，字段仍逐值判定，不因此放宽任何取值校验。
+
     T09-D4（F01）：同一字段同值可能来自多条已发布来源（表格记录行 + 正文通知单元）。
     为原值背书的行必须同时是模型实际引用的来源，因此这里按 ``cited`` 收口：没被引用的行
     不进入候选，也就不能为字段原值或回显字段背书。``cited=None`` 保持"不按引用收口"的原
@@ -1014,6 +1226,10 @@ def _record_units(
         role = resolve_requested_role(label)
         if role:
             asked.add((role, normalize(str(value))))
+    # 本问是否已从证据面取到店家级字段；只有这种跨表问法才需要放宽物品维度。
+    store_level_facts = bool({role for role, _value in asked} & _STORE_LEVEL_FACT_ROLES) and bool(
+        filters.get("item")
+    )
     selected: list[object] = []
     for unit in units:
         if cited_ids is not None and str(getattr(unit, "id", "")) not in cited_ids:
@@ -1022,7 +1238,7 @@ def _record_units(
         values = _role_values(fields)
         if filters.get("store") and values.get("store") != filters["store"]:
             continue
-        if filters.get("item") and values.get("item") != filters["item"]:
+        if filters.get("item") and not store_level_facts and values.get("item") != filters["item"]:
             continue
         if asked:
             attested = set()
@@ -1030,7 +1246,8 @@ def _record_units(
                 role = resolve_requested_role(str(name))
                 if role and raw not in (None, ""):
                     attested.add((role, normalize(str(raw).strip())))
-            if not asked.issubset(attested):
+            enough = bool(asked & attested) if store_level_facts else asked.issubset(attested)
+            if not enough:
                 continue
         selected.append(unit)
     return selected
@@ -1339,6 +1556,7 @@ def _record_facts(
     }
     parsed: list[tuple[str, str, str]] = []
     seen: set[str] = set()
+    seen_clauses: dict[str, str] = {}
     for index, clause in enumerate(clauses):
         if index == 0:
             stripped = _strip_record_preamble(clause)
@@ -1357,8 +1575,11 @@ def _record_facts(
             return None
         role, value, unit = found
         if role in seen:
+            if seen_clauses[role] == normalize(clause):
+                continue
             return None
         seen.add(role)
+        seen_clauses[role] = normalize(clause)
         parsed.append((label_by_role[role], value, str(getattr(unit, "id", ""))))
     core_roles = {role for role in label_by_role if role != _RECORD_IDENTIFIER_ROLE}
     if not core_roles or not core_roles.issubset(seen):
@@ -1451,11 +1672,14 @@ def _record_answer_text(
     missing: list[str],
     rows: Iterable[object] = (),
     subject_label: str = "",
+    *,
+    allow_contact_echo: bool,
 ) -> str:
     """用已验证字段构造记录型展示文本：对象 + 字段 + 原值（原样取值，不改写）。
 
-    回答以本次问题字段为主；同一记录行的其它字段以"原值回显"随行展示（如联系人），
+    回答以本次问题字段为主；同一记录行的其它公开字段以"原值回显"随行展示，
     这些值同样直接取自该行原值而不是模型文字，便于核对同一条资料。
+    店家单联系字段查询保留既有同行回显。多字段或物品查询只展示经本轮校验的联系字段。
     缺字段时追加"资料中未记录：…"说明；模型自由文本不进入回答与历史。
 
     ``subject_label`` 是"被校验字段所在记录行"的门店/物品原值；它与本问对象不一致时
@@ -1466,6 +1690,7 @@ def _record_answer_text(
     if prefix and not prefix.endswith("的"):
         prefix = f"{prefix}的"
     asked_roles = {resolve_requested_role(label) for label, _value, _row_id in validated}
+    echo_other_contact_fields = allow_contact_echo and bool(asked_roles & _CONTACT_FIELD_ROLES)
     row_by_id = {str(getattr(unit, "id", "")): unit for unit in rows}
     echo_fields: list[tuple[str, str]] = []
     seen_rows: set[str] = set()
@@ -1478,7 +1703,12 @@ def _record_answer_text(
         for name, raw in fields.items():
             role = resolve_requested_role(str(name))
             value = "" if raw in (None, "") else str(raw).strip()
-            if role in asked_roles or role in (_RECORD_IDENTIFIER_ROLE, None) or not value:
+            if (
+                role in asked_roles
+                or (role in _CONTACT_FIELD_ROLES and not echo_other_contact_fields)
+                or role in (_RECORD_IDENTIFIER_ROLE, None)
+                or not value
+            ):
                 continue
             pair = (str(name), value)
             if pair not in echo_fields:
@@ -1533,32 +1763,116 @@ def _classify_model_error(exc: ModelError) -> tuple[str, bool]:
     return code, bool(getattr(exc, "retryable", False))
 
 
+def _capture_model_input(request_id: str | None, payload: CompletionInput) -> None:
+    if not capture_enabled():
+        return
+    emit_capture_event(
+        "model_input",
+        request_id=str(request_id or ""),
+        purpose=str(payload.purpose),
+        question=str(payload.question),
+        context_questions=[str(item) for item in payload.context.questions],
+        context_entities={
+            str(key): str(value) for key, value in dict(payload.context.entities).items()
+        },
+        evidence=[
+            {
+                "source_id": str(item.source_id),
+                "text": str(item.text or ""),
+                "fields": dict(item.fields or {}),
+            }
+            for item in payload.evidence
+        ],
+    )
+
+
+def _capture_model_output(
+    request_id: str | None,
+    payload: CompletionInput,
+    *,
+    output: CompletionOutput | None = None,
+    error: ModelError | None = None,
+) -> None:
+    if not capture_enabled():
+        return
+    if output is not None:
+        emit_capture_event(
+            "model_output",
+            request_id=str(request_id or ""),
+            purpose=str(payload.purpose),
+            status="ok",
+            text=str(output.text),
+            source_ids=[str(item) for item in output.source_ids],
+            query_terms=[str(item) for item in output.query_terms],
+            provider_request_id=(
+                None
+                if output.provider_request_id is None
+                else str(output.provider_request_id)
+            ),
+            usage=(
+                None
+                if output.usage is None
+                else {str(key): int(value) for key, value in dict(output.usage).items()}
+            ),
+            error_code=None,
+            retryable=False,
+        )
+        return
+    emit_capture_event(
+        "model_output",
+        request_id=str(request_id or ""),
+        purpose=str(payload.purpose),
+        status="error",
+        text=None,
+        source_ids=[],
+        query_terms=[],
+        provider_request_id=None,
+        usage=None,
+        error_code=str(getattr(error, "code", "MODEL_CALL_FAILED")),
+        retryable=bool(getattr(error, "retryable", False)),
+    )
+
+
 async def _call_model(
     model: ModelGateway | None,
     payload: CompletionInput,
     deadline: float,
+    *,
+    request_id: str | None = None,
 ) -> CompletionOutput:
     if model is None:
         raise ModelNotConfigured()
     remaining = deadline - monotonic()
     if remaining <= 0:
-        raise ModelTimeout("总预算已用尽")
+        error = ModelTimeout("总预算已用尽")
+        _capture_model_input(request_id, payload)
+        _capture_model_output(request_id, payload, error=error)
+        raise error
     timeout = min(remaining, PER_CALL_TIMEOUT_SECONDS)
+    _capture_model_input(request_id, payload)
     try:
         # 同一个单调绝对 deadline 既作为单次调用预算传给网关，也作为在途等待的硬截止：
         # 网关挂起/慢响应时由这里取消并映射 MODEL_TIMEOUT，不依赖调用方的外层保护超时。
         output = await asyncio.wait_for(
             model.complete(payload, timeout_seconds=timeout), timeout=timeout
         )
-    except ModelError:
+    except ModelError as exc:
+        _capture_model_output(request_id, payload, error=exc)
         raise
     except asyncio.TimeoutError as exc:  # pragma: no cover - 由可控网关触发
-        raise ModelTimeout() from exc
+        error = ModelTimeout()
+        _capture_model_output(request_id, payload, error=error)
+        raise error from exc
     except Exception as exc:  # noqa: BLE001 - 外部调用统一映射，不透传原始异常
         # T104：无法归类的调用期异常按“未知”透传；不再一律冒充 provider 不可用。
-        raise ModelCallFailed(f"{type(exc).__name__}") from exc
+        error = ModelCallFailed(f"{type(exc).__name__}")
+        _capture_model_output(request_id, payload, error=error)
+        raise error from exc
     if monotonic() > deadline:
-        raise ModelTimeout("总预算已用尽")
+        error = ModelTimeout("总预算已用尽")
+        _capture_model_output(request_id, payload, error=error)
+        raise error
+    _capture_model_output(request_id, payload, output=output)
     return output
 
 
@@ -1618,12 +1932,15 @@ def _document_overshoot_evidence(
     evidence: EvidenceSet,
     intent: QueryIntent,
     revision: int,
+    *,
+    as_of: str | None = None,
 ) -> EvidenceSet:
     """正文型 overshoot：按单检索词复用 ``_retrieve`` 扩大证据面，再交既有排序取正文。
 
     正文检索结果按文档/序号截断；宽泛词面命中超过 100 条时，前 100 条可能压掉真正
     命中的小文档。逐词再取一次（仍走同一检索入口与同一 limit 上限）只扩大候选集合，
     不改变检索/排序语义。返回值仍标记 ``truncated``，由后续既有正文排序选取证据。
+    ``as_of`` 与主证据同一业务日口径（v3-fix-1/B），避免回退路径把过期行带回来。
     """
     terms = tuple(intent.terms)
     _annotate_overshoot_fallback(
@@ -1635,7 +1952,7 @@ def _document_overshoot_evidence(
     seen = {unit.id for unit in units}
     for term in terms:
         narrowed = QueryIntent(mode="document", terms=(term,), entity_filters=intent.entity_filters)
-        extra = _retrieve(db_factory, narrowed, revision, limit=100)
+        extra = _retrieve(db_factory, narrowed, revision, limit=100, as_of=as_of)
         for unit in extra.units:
             if unit.id not in seen:
                 seen.add(unit.id)
@@ -1685,6 +2002,7 @@ def _commit_result(
 
 
 def _commit_result_impl(db: Session, user: UserContext, claim: _Claim, result: _Result) -> AskResult:
+    requested_kind = str(result.kind)
     conversation = db.get(Conversation, claim.conversation_id) if claim.conversation_id else None
     if conversation is None or conversation.deleted_at is not None:
         raise RequestCancelled("会话已删除，本次回答未保存")
@@ -1799,6 +2117,23 @@ def _commit_result_impl(db: Session, user: UserContext, claim: _Claim, result: _
     request_row.finished_at = now
     conversation.updated_at = now
     db.flush()
+    if capture_enabled():
+        emit_capture_event(
+            "commit_observed",
+            request_id=str(claim.request_id),
+            message_id=str(message.id),
+            assistant_seq=int(seq),
+            kind=str(ask_result.kind),
+            requested_kind=requested_kind,
+            text=str(ask_result.text),
+            source_ids=[str(item.source_id) for item in summaries],
+            revision_before=int(claim.initial_revision),
+            revision_after=int(current_revision),
+            knowledge_changed=bool(
+                ask_result.kind == "knowledge_changed" and requested_kind != "knowledge_changed"
+            ),
+            error_code=ask_result.error_code,
+        )
     return ask_result
 
 
@@ -1831,10 +2166,16 @@ def _model_failure_result(exc: ModelError, revision: int) -> _Result:
     """T104：按异常真实原因返回稳定码 / 可重试性 / ERR-07 模板文案。"""
     code, retryable = _classify_model_error(exc)
     from ..providers.types import safe_model_failure_reason
-    with trace_attrs.span('model_failure', model_failure_reason=safe_model_failure_reason(
-            getattr(exc, 'failure_reason', None))):
+    reason = safe_model_failure_reason(getattr(exc, 'failure_reason', None))
+    with trace_attrs.span('model_failure', model_failure_reason=reason):
         pass
-    return _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
+    result = _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
+    if code == "MODEL_OUTPUT_INVALID":
+        # T207-REASON-CAPTURE：仅该码把安全固定子因承接到内部 reason，使既有
+        # answer_result.reason 保全；未登记/坏类型经 safe_model_failure_reason 归 unknown。
+        # 其余错误类型 reason 保持 None，不输出异常文本/message/repr/任意属性值。
+        result.reason = reason
+    return result
 
 
 def _internal_failure_result(revision: int) -> _Result:
@@ -1868,6 +2209,21 @@ def _model_input(
     plan: intent_module.IntentPlan,
     units: Iterable[SourceUnit] = (),
 ) -> CompletionInput:
+    record_answer = purpose == "answer" and plan.mode == "record"
+    asked_roles = {resolve_requested_role(label) for label in plan.requested_fields} if record_answer else set()
+    hidden_roles = _CONTACT_FIELD_ROLES - asked_roles
+    evidence = []
+    for unit in units:
+        fields = dict(unit.fields or {})
+        text = unit.text or ""
+        if record_answer:
+            fields = {
+                name: value for name, value in fields.items()
+                if resolve_requested_role(name) not in hidden_roles
+            }
+            # Record facts come from structured fields. Raw row text repeats contact values.
+            text = ""
+        evidence.append(ModelEvidence(source_id=str(unit.id), text=text, fields=fields))
     return CompletionInput(
         purpose=purpose,  # type: ignore[arg-type]
         question=question,
@@ -1875,10 +2231,7 @@ def _model_input(
             questions=tuple(claim.context_questions),
             entities=dict(plan.entities or {}),
         ),
-        evidence=tuple(
-            ModelEvidence(source_id=str(unit.id), text=unit.text or "", fields=dict(unit.fields or {}))
-            for unit in units
-        ),
+        evidence=tuple(evidence),
     )
 
 
@@ -1896,13 +2249,30 @@ def _rag_owns_turn(previous: QueryState, plan: QueryPlan) -> bool:
     """
     if plan.mode != "record":
         return False
+    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
+        return True
     if "identifier" in plan.filters:
         return True
     if plan.clarification:
         return False
+    if plan.reason == "MULTI_TARGET_ENUMERATE":
+        # v3-fix-1/A：单轮明确点名多个目标（例如两个门店/两个物品）由内核按枚举作答；
+        # 这类轮次可能没有任何单值实体过滤（多门店时 store 槽位按设计留空），
+        # 不能因为“filters 为空”退回 legacy 的“多个实体→澄清”。
+        return True
     if plan.enumerate and any(key in plan.filters for key in _RAG_ENTITY_FILTERS):
         return True
     if previous.pending_slot and not plan.state.pending_slot:
+        return True
+    if (
+        plan.mode == "record"
+        and previous.store is None
+        and len(previous.stores) == 1
+        and previous.stores[0] == plan.state.store
+    ):
+        # T-R1-102b（M3）：上一轮换话题后暂存的唯一门店范围在本轮被收回（``_new_state``）。
+        # 这一轮必须由内核按该结构化过滤作答：legacy 路径只读题面实体，不读 rag 状态，
+        # 会把同一物品在其它门店的记录一并列出来（cross_entity）。
         return True
     if previous.last_kind == "ambiguous" and plan.filters:
         # 多义澄清后的选择（例如同号候选按“门店的物品”追问）继续由内核按结构化
@@ -1979,7 +2349,13 @@ def _record_legacy_outcome(trace, result: _Result, ask_result: AskResult) -> Non
         )
     elif ask_result.kind == result.kind:
         # 未升级：解析级早退等结果自带稳定 reason；service_error 回落 error_code。
-        reason = result.reason or ask_result.error_code
+        if ask_result.kind == "service_error":
+            # T207-REASON-CAPTURE：固定子因只进 answer_result 证据与 model_failure Span；
+            # trace outcome reason 维持既有 error_code 口径（T104 契约），
+            # 本包不改变对外诊断契约。
+            reason = ask_result.error_code
+        else:
+            reason = result.reason or ask_result.error_code
     else:
         reason = ask_result.error_code
     trace.set_outcome(outcome, reason)
@@ -2118,7 +2494,40 @@ async def _answer(
                 True,
                 revision,
             )
-        if _rag_owns_turn(rag_previous, rag_plan):
+        rag_owns_turn = _rag_owns_turn(rag_previous, rag_plan)
+        if capture_enabled():
+            state = rag_plan.state
+            # R0-CAPTURE-ROLES：只补枚举级角色码（不含正文/字段中文名/实体/值），供离线
+            # 判定“计划里请求了哪些字段角色”。属性缺失时按未观测传 None/[]，不抛 AttributeError。
+            plan_field_role = getattr(rag_plan, "field_role", None)
+            role_values = getattr(rag_plan, "field_roles", None)
+            plan_field_roles, role_unknown_count = safe_roles(role_values)
+            primary_roles, primary_unknown = safe_roles([plan_field_role] if plan_field_role is not None else [])
+            stores_state, stores_count = safe_stores(state)
+            emit_capture_event(
+                "plan_observed",
+                request_id=str(claim.request_id),
+                path="rag" if rag_owns_turn else "legacy",
+                mode=str(rag_plan.mode),
+                filters={str(key): str(value) for key, value in dict(rag_plan.filters).items()},
+                terms=[str(item) for item in rag_plan.terms],
+                as_of=rag_plan.as_of,
+                include_future=bool(rag_plan.include_future),
+                enumerate=bool(rag_plan.enumerate),
+                clarification=bool(rag_plan.clarification),
+                state_keys=sorted(str(key) for key in state.to_dict().keys()),
+                state_as_of=state.as_of,
+                state_pending_slot=state.pending_slot,
+                state_last_kind=state.last_kind,
+                field_role=primary_roles[0] if primary_roles else None,
+                field_roles=plan_field_roles,
+                role_unknown_count=role_unknown_count + primary_unknown,
+                safe_roles=plan_field_roles,
+                roles_state="available" if type(role_values) in (list, tuple) else "unknown",
+                stores_state=stores_state,
+                stores_count=stores_count,
+            )
+        if rag_owns_turn:
             if trace is not None:
                 trace.set_path(TracePath.RAG)
             try:
@@ -2143,6 +2552,10 @@ async def _answer(
         except Exception:  # noqa: BLE001 - 状态写失败不应改变既有问答结果
             pass
 
+    # v3-fix-1/B：legacy 路径的证据面按业务日过滤过期/未生效的记录行（只做时间维度过滤，
+    # 不改变召回与排序）。日期只取产品本轮已解析的计划，不读数据集或报告字段。
+    legacy_as_of = _legacy_evidence_as_of(qa, rag_plan)
+
     if trace is not None:
         trace.set_path(TracePath.LEGACY)
 
@@ -2160,6 +2573,16 @@ async def _answer(
             has_intent=plan.intent is not None,
             clarification=bool(plan.clarification),
             requested_fields=len(plan.requested_fields),
+            security_refusal=bool(plan.security_refusal),
+        )
+    # v3-safety-fix：物品记录与店家个人联系信息（联系人/电话/地址）的跨资料合并请求，
+    # 在任何检索/模型调用之前按安全策略整体拒答；不按题号或固定整句特判。
+    if plan.security_refusal:
+        return _Result(
+            kind="not_found",
+            text=copy_module.text(plan.security_refusal),
+            revision=revision,
+            reason=plan.security_refusal,
         )
     if plan.unknown_identifier:
         return _Result(
@@ -2216,6 +2639,9 @@ async def _answer(
                 mode="record",
                 terms=plan.intent.terms,
                 entity_filters=plan.intent.entity_filters,
+                # R0/C12：记录型意图没有检索词，正文面要拿到题面派生的检索词才可能召回
+                # 正文通知单元；记录面计划不读这组词。
+                document_terms=intent_module.document_terms(question),
             )
             if trace is not None and rag_candidates:
                 # 实际拿到 rag 候选后才记 legacy_with_rag_candidates；空候选仍是纯 legacy。
@@ -2225,9 +2651,34 @@ async def _answer(
         except Exception:  # noqa: BLE001 - 稳定错误，不暴露内部细节
             return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
 
+    # T-R1-106a：legacy 路径只读题面实体，不读 rag 回合状态。唯一门店下的物品追问题面
+    # 往往不再重复门店，正文面检索就会按物品把**所有门店**的记录行一起召回并送进模型
+    # 证据/引用（C13 同形的 cross_entity）。这里只取本轮计划里的唯一门店作用域，且只用于
+    # 裁剪证据面：题面自己点名门店、多店枚举、政策/流程类无物品目标的轮次一律不受影响。
+    scope_store = None
+    intent_filters = dict(plan.intent.entity_filters or {})
+    has_item_target = "item" in intent_filters or "item_id" in intent_filters
+    if (
+        plan.unknown_store is None
+        and has_item_target
+        and "store" not in intent_filters
+        and "store_id" not in intent_filters
+    ):
+        scope_store = _legacy_store_scope(rag_plan)
+
     def _evidence(intent: QueryIntent, limit: int = 20) -> EvidenceSet:
         with trace_attrs.span("retrieve", limit=limit):
-            return _retrieve(db_factory, intent, revision, limit=limit, candidate_ids=rag_candidates)
+            return _apply_store_scope(
+                _retrieve(
+                    db_factory,
+                    intent,
+                    revision,
+                    limit=limit,
+                    candidate_ids=rag_candidates,
+                    as_of=legacy_as_of,
+                ),
+                scope_store,
+            )
 
     evidence: EvidenceSet | None = None
     extra_terms: tuple[str, ...] = ()
@@ -2241,13 +2692,29 @@ async def _answer(
                         total=evidence.total_candidates, strategy="record_candidates"
                     )
                     return _record_overshoot_result(evidence, revision, plan)
-                evidence = _document_overshoot_evidence(db_factory, evidence, plan.intent, revision)
+                evidence = _apply_store_scope(
+                    _document_overshoot_evidence(
+                        db_factory, evidence, plan.intent, revision, as_of=legacy_as_of
+                    ),
+                    scope_store,
+                )
     except KnowledgeRevisionChanged:
         return _Result(kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory))
     except IndexNotReady:
         return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
     except QueryRejected:
         return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+
+    if capture_enabled():
+        emit_capture_event(
+            "retrieval_observed",
+            request_id=str(claim.request_id),
+            scope="legacy_retrieve_initial",
+            unit_ids=[str(unit.id) for unit in evidence.units],
+            candidate=False,
+            truncated=bool(evidence.truncated),
+            empty=not evidence.units,
+        )
 
     # T207-FIX-CONFLICT/N08：图片/实物识别题（无图片输入通道）按范围外拒答。
     # 检索已真实执行（Span 事实保留），这里只决定用户可见结论，不调用模型、不编造。
@@ -2269,13 +2736,16 @@ async def _answer(
         and plan.requested_fields
     ):
         with trace_attrs.span("entity_conflict_check") as check_span:
-            widened = _same_entity_evidence(db_factory, plan, evidence.units, revision)
+            widened = _same_entity_evidence(
+                db_factory, plan, evidence.units, revision, as_of=legacy_as_of
+            )
             check_span.annotate(
                 kind=None if widened is None else widened.kind,
                 units=0 if widened is None else len(widened.units),
             )
         if widened is not None and widened.kind == "conflict":
-            evidence = widened
+            # 复核只补同实体来源，仍按本轮的唯一门店作用域收口（不把异店行带回来）。
+            evidence = _apply_store_scope(widened, scope_store)
 
     # P1-FIX/A：公司级经营/财务指标的资料支持判定。必须在 query_expansion/答案生成等
     # 任何模型调用之前完成；证据（含正文候选）里确有该指标数值时继续原有路径，不一律拒答。
@@ -2297,7 +2767,10 @@ async def _answer(
         try:
             with trace_attrs.span("query_expansion") as expansion_span:
                 output = await _call_model(
-                    model, _model_input("query_expansion", question, claim, plan), deadline
+                    model,
+                    _model_input("query_expansion", question, claim, plan),
+                    deadline,
+                    request_id=str(claim.request_id),
                 )
                 terms = _validate_terms(output)
                 expansion_span.annotate(terms=len(terms))
@@ -2322,8 +2795,11 @@ async def _answer(
                                 total=evidence.total_candidates, strategy="record_candidates"
                             )
                             return _record_overshoot_result(evidence, revision, plan)
-                        evidence = _document_overshoot_evidence(
-                            db_factory, evidence, expanded, revision
+                        evidence = _apply_store_scope(
+                            _document_overshoot_evidence(
+                                db_factory, evidence, expanded, revision, as_of=legacy_as_of
+                            ),
+                            scope_store,
                         )
             except KnowledgeRevisionChanged:
                 return _Result(
@@ -2333,6 +2809,17 @@ async def _answer(
                 return _service_error("INDEX_NOT_READY", _INDEX_NOT_READY_TEXT, True, revision)
             except QueryRejected:
                 return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+
+            if capture_enabled():
+                emit_capture_event(
+                    "retrieval_observed",
+                    request_id=str(claim.request_id),
+                    scope="legacy_retrieve_expanded",
+                    unit_ids=[str(unit.id) for unit in evidence.units],
+                    candidate=False,
+                    truncated=bool(evidence.truncated),
+                    empty=not evidence.units,
+                )
 
     if evidence.kind == "none":
         if plan.unknown_store:
@@ -2405,7 +2892,10 @@ async def _answer(
     try:
         with trace_attrs.span("model_answer"):
             output = await _call_model(
-                model, _model_input("answer", question, claim, plan, units), deadline
+                model,
+                _model_input("answer", question, claim, plan, units),
+                deadline,
+                request_id=str(claim.request_id),
             )
         with trace_attrs.span("answer_validate") as validate_span:
             if plan.mode == "record":
@@ -2446,7 +2936,10 @@ async def _answer(
                 if subject and not _subject_matches_plan(plan, subject):
                     raise ModelOutputInvalid("回答字段原值属于其它对象")
                 missing_rows = [label for label in missing if label not in {item[0] for item in validated}]
-                text = _record_answer_text(validated, missing_rows, record_rows, subject_label=subject)
+                text = _record_answer_text(
+                    validated, missing_rows, record_rows, subject_label=subject,
+                    allow_contact_echo=not plan.entities.get("item") and len(plan.requested_fields) == 1,
+                )
                 source_ids = [item for item in source_ids if item in cited]
             validate_span.annotate(mode=plan.mode, cited=len(source_ids), missing=len(missing_rows))
     except ModelError as exc:
@@ -2496,6 +2989,19 @@ async def ask(
             trace.annotate(replayed=True)
         return claim.replay
     result = await _answer(db_factory, user, claim, request.question, model, deadline, qa=qa)
+    if capture_enabled():
+        emit_capture_event(
+            "answer_result",
+            request_id=str(claim.request_id),
+            kind=str(result.kind),
+            text=str(result.text),
+            source_ids=[str(item) for item in result.source_ids],
+            candidates=len(result.candidates),
+            conflicts=len(result.conflicts),
+            missing_fields=[str(item) for item in result.missing_fields],
+            error_code=result.error_code,
+            reason=result.reason,
+        )
     if trace is not None and _trace_is_legacy(trace):
         # legacy 路径的产品提交阶段（RAG 路径的 commit 由 rag 内核产生）。
         with trace.span("commit"):
