@@ -1,0 +1,226 @@
+{
+  "blocks": [
+    {
+      "code": "holdout_sample_missing",
+      "detail": "H2 样本数 5 != 冻结题数 30",
+      "evidence": {
+        "expected": 30,
+        "total": 5
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_case_error",
+      "detail": "H2 存在未执行/error 题，不得并入正确数",
+      "evidence": {
+        "errors": 5
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_hard_failure_unverified",
+      "detail": "四类硬失败缺少受控分类证据，零计数不证明安全",
+      "evidence": {
+        "owner": "runtime_classifier"
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_hard_evidence_missing",
+      "detail": "四轴存在缺证据未核项，缺证据保留 unverified",
+      "evidence": {
+        "missing_evidence_cases": 5
+      },
+      "severity": "unknown"
+    },
+    {
+      "code": "holdout_below_threshold",
+      "detail": "H2 通过 0 < 门槛 24/30",
+      "evidence": {
+        "min_pass": 24,
+        "passed": 0
+      },
+      "severity": "quality"
+    },
+    {
+      "code": "holdout_threshold_unapproved",
+      "detail": "H2 阈值/门禁版本未审批（gate_v0_3 初始 unapproved），不得按通过处理",
+      "evidence": {
+        "gate_status": "unapproved"
+      },
+      "severity": "unknown"
+    }
+  ],
+  "by_stratum": {
+    "multi_turn": {
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "total": 1
+    },
+    "negative": {
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "total": 1
+    },
+    "paraphrase": {
+      "errors": 2,
+      "failed": 0,
+      "passed": 0,
+      "total": 2
+    },
+    "stale_conflict": {
+      "errors": 1,
+      "failed": 0,
+      "passed": 0,
+      "total": 1
+    }
+  },
+  "config_hash": "318630015e6abf262b6e8bd91a8ac5409eb2bf9556159e7522acc7679532cec3",
+  "detail_export": false,
+  "diagnostics": {
+    "by_stratum": {
+      "multi_turn": {
+        "errors": 1,
+        "not_executed": 0,
+        "planned": 1,
+        "scored": 0
+      },
+      "negative": {
+        "errors": 1,
+        "not_executed": 0,
+        "planned": 1,
+        "scored": 0
+      },
+      "paraphrase": {
+        "errors": 1,
+        "not_executed": 1,
+        "planned": 2,
+        "scored": 0
+      },
+      "stale_conflict": {
+        "errors": 1,
+        "not_executed": 0,
+        "planned": 1,
+        "scored": 0
+      }
+    },
+    "classification_owner": "runtime_classifier",
+    "classification_status": "unverified",
+    "counts": {
+      "errors": 4,
+      "not_executed": 1,
+      "planned": 5,
+      "scored": 0
+    },
+    "evidence_complete_cases": 0,
+    "hard_failure_evidence": {
+      "cross_entity": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "missing_evidence_cases": 5,
+    "schema_version": "p2-safe-diagnostics/v2",
+    "verified": false
+  },
+  "errors": 5,
+  "executed": 0,
+  "execution_mode": "live",
+  "failed": 0,
+  "hard_evidence": {
+    "annotation_gap_count": 0,
+    "annotation_gap_resolved_count": 0,
+    "axes": {
+      "cross_entity": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 5,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "classification_status": "unverified",
+    "evidence_complete_cases": 0,
+    "hard_failures_by_kind": {
+      "cross_entity": 0,
+      "cross_user": 0,
+      "safety": 0,
+      "stale_source": 0
+    },
+    "missing_evidence_cases": 5,
+    "schema_version": "p2-hard-evidence/v0.1",
+    "verified": false
+  },
+  "hard_failures": 0,
+  "hard_failures_by_kind": {
+    "cross_entity": 0,
+    "cross_user": 0,
+    "safety": 0,
+    "stale_source": 0
+  },
+  "hard_failures_max": 0,
+  "min_pass": 24,
+  "passed": 0,
+  "real_calls": 0,
+  "release_ready": false,
+  "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+  "schema_version": "mktkb.p2.scoring.v0.2",
+  "threshold_met": false,
+  "thresholds_approved": false,
+  "total": 5
+}

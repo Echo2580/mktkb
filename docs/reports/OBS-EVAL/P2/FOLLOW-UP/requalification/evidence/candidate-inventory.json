@@ -1,0 +1,1044 @@
+{
+  "branch": "codex/p2-e2e",
+  "candidate": {
+    "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+    "product_pipeline_version": "d3ca88d2c515"
+  },
+  "candidate_fingerprint_v2": {
+    "base_head": "93486b6590c6542f34dd70d20a19b792c659f416",
+    "delta_note": "v2 相对 v1 的字节差异只有 backend/tests/evaluation/test_p2_fu2_derive_cards.py（FU-2 目录依赖最小修正：用例内 monkeypatch.chdir(ROOT)）；产品代码字节与 v1 完全一致。",
+    "files": [
+      {
+        "after_bytes": 117714,
+        "after_sha256": "d3bd4d8961bd61cadfe5a385c406ff19d76040ae8314f2f8121d74b286dd5f9a",
+        "before_bytes": 116375,
+        "before_sha256": "93d0e54f9b6e564b12a120eb20babc64094df808b17582b8b54454daadb67459",
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/src/mktkb/evaluation/product_adapter.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 125075,
+        "after_sha256": "8c7fc54c301248fc7fa78d261b9f995a88eabf788b30cdcd7525a307aa6ed91c",
+        "before_bytes": 122464,
+        "before_sha256": "420e3b9db68691096fc2eece1c94449e8b34105783471c1a36a3c2367e2b4995",
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_runner.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 28011,
+        "after_sha256": "7cf2cfe797a9acdb19c73de668b4a91661b240529a5b78ca8eda7f32bdd5ca2e",
+        "before_bytes": 26904,
+        "before_sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_release_gate.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 25492,
+        "after_sha256": "c309f899449068dc2fda5d337f367eb66776a283ae3fd2f75a1568472e745a8c",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_release_provenance.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 11673,
+        "after_sha256": "1d3b29bd5104e70fa530d8de3982f0baf706a4ce31f84e897d6ec98ed63207f9",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_safe_output.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 145068,
+        "after_sha256": "b5a20caf32f12f0b6d1d170a75bbd39b2a3f0cf4a088b635f6d121fc587f94cf",
+        "before_bytes": 108460,
+        "before_sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+        "delta_vs_fingerprint_v1": null,
+        "path": "tools/p2_h2_v3_controlled_execute.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 151498,
+        "after_sha256": "6cfcb724da366912130d398f66c92423615de031653a3a183d1e80b952cfad86",
+        "before_bytes": 150917,
+        "before_sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+        "delta_vs_fingerprint_v1": null,
+        "path": "tools/p2_h2_controlled_execute.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 20046,
+        "after_sha256": "3eac899b113a8e8d489c04ea860b5a7ead191c954a53c762d798a2a3d29a3641",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu1_index_binding.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 47290,
+        "after_sha256": "b1b91e29e09974de7f5d8460c0b2869dbfcb787bb46e4404765ed2724f5acd15",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": "fu2_cwd_dependency_fix",
+        "path": "backend/tests/evaluation/test_p2_fu2_derive_cards.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 25844,
+        "after_sha256": "c1193d1827c0e23322725d3f9ab84d3cd464668f0c4f86a4b09680850f5aa40d",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu3_provenance.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 13858,
+        "after_sha256": "ab6007617654ab500459f649876abcb1302e11a83d3964609a957ca2e5d09f9e",
+        "before_bytes": null,
+        "before_sha256": null,
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu4_safe_output.py",
+        "status": "new"
+      },
+      {
+        "after_bytes": 84174,
+        "after_sha256": "cee84def437a26a826eec435821507c77b23204d697c6e86d14a4024362f9e86",
+        "before_bytes": 83921,
+        "before_sha256": "23f1d004c47074f589c70ef81a62aecec75ef6f20ab9fc0cdf34aa01b0fc78cb",
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/tests/evaluation/test_p2_runner.py",
+        "status": "modified"
+      },
+      {
+        "after_bytes": 76420,
+        "after_sha256": "a3f4a44e90d4313732ff28d7ed9512107f5d1fe52d548e0bf90058c6f64deeb4",
+        "before_bytes": 73626,
+        "before_sha256": "c34a07537245e25b2442f0a3c9295d76535fcb53c41cda7e898eac49b8c60fb6",
+        "delta_vs_fingerprint_v1": null,
+        "path": "backend/tests/evaluation/test_p2_live_wiring.py",
+        "status": "modified"
+      }
+    ],
+    "schema": "p2-followup-candidate-fingerprint/v0.2",
+    "supersedes": "docs/reports/OBS-EVAL/P2/FOLLOW-UP/candidate-fingerprint.json"
+  },
+  "extra_tracked_drift": [
+    {
+      "before_sha256": "acdcddf94123cdf9e4e46f79b442f8284dfbf267cd9956d31a9e2d35303ebd5b",
+      "bytes": 105484,
+      "category": "bookkeeping",
+      "note": "开工前既有的簿记追加（非本轮）。",
+      "path": ".claude/handoffs/_index.md",
+      "sha256": "4e68cd3f47852f5aaade83080b6b2c5830bebbd8a3008eaed8c41a76c7150ae9"
+    },
+    {
+      "before_sha256": "4ec060a7adab179bc18686ab4fc3e3d46600e28000e390b73bdbd44023530743",
+      "bytes": 39105,
+      "category": "product-gate-reregistration",
+      "note": "门禁**基线登记**常量：新 B0 接收后把已登记基线换成 2b40ee9b4740 及三份记录摘要；判据（批准配置/阈值/八项硬门禁）未改。该文件不在 pipeline_source_sha256 覆盖集内，已复核摘要仍为 13a962ed…，故不影响新 B0 绑定。",
+      "path": "backend/src/mktkb/evaluation/p2_release_inputs.py",
+      "sha256": "eaedb99d5988f9e7438435cd701795dad3027be954db2864b0f50c26a6a16e88"
+    },
+    {
+      "before_sha256": "29184ab32dddb5e8a7d03425e45c9701680013ea541fada1ad7fec0876c96120",
+      "bytes": 39995,
+      "category": "product",
+      "note": "产品代码：新增 S2-OWNER-ACCEPTANCE 阶段 + GO 请求窗口基线；在 backend/src/mktkb/*.py 内，**会改动 pipeline_source_sha256**，因此必须进候选。",
+      "path": "backend/src/mktkb/live_authorization.py",
+      "sha256": "022872e7018773c80f88e2fe8d30cd3ff7631cd20b9479097a8906dbfe71d9be"
+    },
+    {
+      "before_sha256": "1d47f467e4f8ac6c160fab866e8460f200593b33a4233c7718d125eaeb1d7ce5",
+      "bytes": 37737,
+      "category": "test-followup",
+      "note": "门禁夹具改为跟随「已登记基线」常量（不再写死旧基线 id/run id）；只改测试写法。",
+      "path": "backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+      "sha256": "5712806679e61e05e8f603ee32ddfc752444ab097c217ff39a9fcb1d8b96f8bd"
+    },
+    {
+      "before_sha256": "14ab76d9f52e8c972ad326b476b00e4d1ecf2420e6c7d16814987a8ec976d99c",
+      "bytes": 22069,
+      "category": "test-followup",
+      "note": "同一改动：负例里的假登记目录名改用 B0_BASELINE_ID；断言语义未变。",
+      "path": "backend/tests/evaluation/test_p2_release_gate_negative.py",
+      "sha256": "536e2d4af0614a212b296f8adfdf38db1072b904296df31e14fbd3886f6a17a5"
+    },
+    {
+      "before_sha256": "3d7ca62bf1ca217c02aa50ed70425015ffc08d1c34808ab54ebcfc539528f923",
+      "bytes": 12751,
+      "category": "gate-wiring-followup",
+      "note": "正式门禁接线脚本的 b0 块改为跟随「已登记基线」常量；不涉及判据。",
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+      "sha256": "7104aaf757e2380236ae9a064b25b01c6ac175f91e2a320c6a03710f9e061184"
+    },
+    {
+      "before_sha256": "01fcca4d89edf184b1779b01d7a059871ec35fd6f42dc9c2e2d14a390b50d9a7",
+      "bytes": 34603,
+      "category": "bookkeeping",
+      "note": "开工前既有的簿记追加（非本轮）。",
+      "path": "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md",
+      "sha256": "eea8e1bc31859f74ce70e64e625b612310e9ea27996bce0e31803dc59c8208d9"
+    },
+    {
+      "before_sha256": "5cb0eabf0a0b39ccd9f52bb3291d93f47331c08f202b77e163998af2271107dc",
+      "bytes": 13838,
+      "category": "test-followup",
+      "note": "浏览器验收断言跟随产品文案（copy.KNOWLEDGE_CHANGED 已扩充），断言更严不更松；修复前该条因断言过期失败。",
+      "path": "frontend/e2e/acceptance-07-update.spec.ts",
+      "sha256": "e3efcac008fa2ab9ee9c576ac1c729a14fbebac84c0e2839bdfae57eb3dbf214"
+    },
+    {
+      "before_sha256": "f0bc35af613317aed35c3eebd268eee6fcf48ab517c0028978cae0297bfe8496",
+      "bytes": 18285,
+      "category": "local-launcher",
+      "note": "本地启动器：--offline/--owner-live/--check-only 与亲验锁定；不在产品包内，不影响 pipeline_source_sha256；影响的是本地实例实际导入与运行身份。",
+      "path": "tools/start_local.py",
+      "sha256": "f1cc4f444cdcfe4253b43f880b71ec8ab70bada07adb7d5749120e483ff501f5"
+    },
+    {
+      "before_sha256": "828977e3f208edaf3d6a7d95ecb47f44159b59596ce097a2b2052b9792c92bf2",
+      "bytes": 360,
+      "category": "local-launcher",
+      "note": "本地启动器：改为 --offline（零出站离线演示）。",
+      "path": "一键启动.cmd",
+      "sha256": "ea9e0f70144bf21eb3ac781b88b635df981208005c5a6ed8e2bccec0a8dd1e73"
+    },
+    {
+      "before_sha256": "b907fcfc5e963ce7ab234c26dd8bc83aaa8c01e85beae6801574e1ff1be2a48d",
+      "bytes": 1441,
+      "category": "local-launcher",
+      "note": "本地启动器：改为 --owner-live + S2-OWNER-ACCEPTANCE 额度；直连真实调用。",
+      "path": "启动-真实问答.cmd",
+      "sha256": "3eceb61e9c76549694b06ff157cd79ee99ecefccc380015a3af383de80f9063b"
+    }
+  ],
+  "fingerprint": {
+    "after_mismatch": 1,
+    "before_mismatch": 0,
+    "file_count": 13,
+    "files": [
+      {
+        "actual_after_bytes": 117714,
+        "actual_after_sha256": "d3bd4d8961bd61cadfe5a385c406ff19d76040ae8314f2f8121d74b286dd5f9a",
+        "actual_before_bytes": 116375,
+        "actual_before_sha256": "93d0e54f9b6e564b12a120eb20babc64094df808b17582b8b54454daadb67459",
+        "after_match": true,
+        "before_match": true,
+        "path": "backend/src/mktkb/evaluation/product_adapter.py",
+        "recorded_after_bytes": 117714,
+        "recorded_after_sha256": "d3bd4d8961bd61cadfe5a385c406ff19d76040ae8314f2f8121d74b286dd5f9a",
+        "recorded_before_bytes": 116375,
+        "recorded_before_sha256": "93d0e54f9b6e564b12a120eb20babc64094df808b17582b8b54454daadb67459",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 125075,
+        "actual_after_sha256": "8c7fc54c301248fc7fa78d261b9f995a88eabf788b30cdcd7525a307aa6ed91c",
+        "actual_before_bytes": 122464,
+        "actual_before_sha256": "420e3b9db68691096fc2eece1c94449e8b34105783471c1a36a3c2367e2b4995",
+        "after_match": true,
+        "before_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_runner.py",
+        "recorded_after_bytes": 125075,
+        "recorded_after_sha256": "8c7fc54c301248fc7fa78d261b9f995a88eabf788b30cdcd7525a307aa6ed91c",
+        "recorded_before_bytes": 122464,
+        "recorded_before_sha256": "420e3b9db68691096fc2eece1c94449e8b34105783471c1a36a3c2367e2b4995",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 28011,
+        "actual_after_sha256": "7cf2cfe797a9acdb19c73de668b4a91661b240529a5b78ca8eda7f32bdd5ca2e",
+        "actual_before_bytes": 26904,
+        "actual_before_sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+        "after_match": true,
+        "before_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_gate.py",
+        "recorded_after_bytes": 28011,
+        "recorded_after_sha256": "7cf2cfe797a9acdb19c73de668b4a91661b240529a5b78ca8eda7f32bdd5ca2e",
+        "recorded_before_bytes": 26904,
+        "recorded_before_sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 25492,
+        "actual_after_sha256": "c309f899449068dc2fda5d337f367eb66776a283ae3fd2f75a1568472e745a8c",
+        "after_match": true,
+        "before_match": null,
+        "path": "backend/src/mktkb/evaluation/p2_release_provenance.py",
+        "recorded_after_bytes": 25492,
+        "recorded_after_sha256": "c309f899449068dc2fda5d337f367eb66776a283ae3fd2f75a1568472e745a8c",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 11673,
+        "actual_after_sha256": "1d3b29bd5104e70fa530d8de3982f0baf706a4ce31f84e897d6ec98ed63207f9",
+        "after_match": true,
+        "before_match": null,
+        "path": "backend/src/mktkb/evaluation/p2_safe_output.py",
+        "recorded_after_bytes": 11673,
+        "recorded_after_sha256": "1d3b29bd5104e70fa530d8de3982f0baf706a4ce31f84e897d6ec98ed63207f9",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 145068,
+        "actual_after_sha256": "b5a20caf32f12f0b6d1d170a75bbd39b2a3f0cf4a088b635f6d121fc587f94cf",
+        "actual_before_bytes": 108460,
+        "actual_before_sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+        "after_match": true,
+        "before_match": true,
+        "path": "tools/p2_h2_v3_controlled_execute.py",
+        "recorded_after_bytes": 145068,
+        "recorded_after_sha256": "b5a20caf32f12f0b6d1d170a75bbd39b2a3f0cf4a088b635f6d121fc587f94cf",
+        "recorded_before_bytes": 108460,
+        "recorded_before_sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 151498,
+        "actual_after_sha256": "6cfcb724da366912130d398f66c92423615de031653a3a183d1e80b952cfad86",
+        "actual_before_bytes": 150917,
+        "actual_before_sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+        "after_match": true,
+        "before_match": true,
+        "path": "tools/p2_h2_controlled_execute.py",
+        "recorded_after_bytes": 151498,
+        "recorded_after_sha256": "6cfcb724da366912130d398f66c92423615de031653a3a183d1e80b952cfad86",
+        "recorded_before_bytes": 150917,
+        "recorded_before_sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 20046,
+        "actual_after_sha256": "3eac899b113a8e8d489c04ea860b5a7ead191c954a53c762d798a2a3d29a3641",
+        "after_match": true,
+        "before_match": null,
+        "path": "backend/tests/evaluation/test_p2_fu1_index_binding.py",
+        "recorded_after_bytes": 20046,
+        "recorded_after_sha256": "3eac899b113a8e8d489c04ea860b5a7ead191c954a53c762d798a2a3d29a3641",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 47290,
+        "actual_after_sha256": "b1b91e29e09974de7f5d8460c0b2869dbfcb787bb46e4404765ed2724f5acd15",
+        "after_match": false,
+        "before_match": null,
+        "path": "backend/tests/evaluation/test_p2_fu2_derive_cards.py",
+        "recorded_after_bytes": 46557,
+        "recorded_after_sha256": "bc55fcf7ae5f68e709355153aaa01ceb73b5e2e622cabaeb25a5dd6186fbae03",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 25844,
+        "actual_after_sha256": "c1193d1827c0e23322725d3f9ab84d3cd464668f0c4f86a4b09680850f5aa40d",
+        "after_match": true,
+        "before_match": null,
+        "path": "backend/tests/evaluation/test_p2_fu3_provenance.py",
+        "recorded_after_bytes": 25844,
+        "recorded_after_sha256": "c1193d1827c0e23322725d3f9ab84d3cd464668f0c4f86a4b09680850f5aa40d",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 13858,
+        "actual_after_sha256": "ab6007617654ab500459f649876abcb1302e11a83d3964609a957ca2e5d09f9e",
+        "after_match": true,
+        "before_match": null,
+        "path": "backend/tests/evaluation/test_p2_fu4_safe_output.py",
+        "recorded_after_bytes": 13858,
+        "recorded_after_sha256": "ab6007617654ab500459f649876abcb1302e11a83d3964609a957ca2e5d09f9e",
+        "recorded_before_sha256": null,
+        "status": "new"
+      },
+      {
+        "actual_after_bytes": 84174,
+        "actual_after_sha256": "cee84def437a26a826eec435821507c77b23204d697c6e86d14a4024362f9e86",
+        "actual_before_bytes": 83921,
+        "actual_before_sha256": "23f1d004c47074f589c70ef81a62aecec75ef6f20ab9fc0cdf34aa01b0fc78cb",
+        "after_match": true,
+        "before_match": true,
+        "path": "backend/tests/evaluation/test_p2_runner.py",
+        "recorded_after_bytes": 84174,
+        "recorded_after_sha256": "cee84def437a26a826eec435821507c77b23204d697c6e86d14a4024362f9e86",
+        "recorded_before_bytes": 83921,
+        "recorded_before_sha256": "23f1d004c47074f589c70ef81a62aecec75ef6f20ab9fc0cdf34aa01b0fc78cb",
+        "status": "modified"
+      },
+      {
+        "actual_after_bytes": 76420,
+        "actual_after_sha256": "a3f4a44e90d4313732ff28d7ed9512107f5d1fe52d548e0bf90058c6f64deeb4",
+        "actual_before_bytes": 73626,
+        "actual_before_sha256": "c34a07537245e25b2442f0a3c9295d76535fcb53c41cda7e898eac49b8c60fb6",
+        "after_match": true,
+        "before_match": true,
+        "path": "backend/tests/evaluation/test_p2_live_wiring.py",
+        "recorded_after_bytes": 76420,
+        "recorded_after_sha256": "a3f4a44e90d4313732ff28d7ed9512107f5d1fe52d548e0bf90058c6f64deeb4",
+        "recorded_before_bytes": 73626,
+        "recorded_before_sha256": "c34a07537245e25b2442f0a3c9295d76535fcb53c41cda7e898eac49b8c60fb6",
+        "status": "modified"
+      }
+    ]
+  },
+  "fingerprint_base_head": "93486b6590c6542f34dd70d20a19b792c659f416",
+  "freeze_recheck": {
+    "artifact_frozen_commit_mismatch": 0,
+    "artifact_total": 47,
+    "artifact_unexpected_delta": 0,
+    "artifact_worktree_delta": 7,
+    "artifacts": [
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 148546,
+        "frozen_commit_blob_sha256": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/gate.py",
+        "recorded_bytes": 148546,
+        "recorded_sha256": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7",
+        "worktree_match": true,
+        "worktree_sha256": "e04990db52d72c06dcd4e87fea8f80644171fd5b686810bc0fa6aa3fa8c831b7"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 100309,
+        "frozen_commit_blob_sha256": "6e197bc3b0b3bd275bacb2af5f7f2a24acffe8927061ffa1e1d3bb9078234344",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_scoring.py",
+        "recorded_bytes": 100309,
+        "recorded_sha256": "6e197bc3b0b3bd275bacb2af5f7f2a24acffe8927061ffa1e1d3bb9078234344",
+        "worktree_match": true,
+        "worktree_sha256": "6e197bc3b0b3bd275bacb2af5f7f2a24acffe8927061ffa1e1d3bb9078234344"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 43024,
+        "frozen_commit_blob_sha256": "6a5edd87b8f73fb999a816096a25a005fcada63fc2e32c09147928182b45cb47",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_score_run.py",
+        "recorded_bytes": 43024,
+        "recorded_sha256": "6a5edd87b8f73fb999a816096a25a005fcada63fc2e32c09147928182b45cb47",
+        "worktree_match": true,
+        "worktree_sha256": "6a5edd87b8f73fb999a816096a25a005fcada63fc2e32c09147928182b45cb47"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 35898,
+        "frozen_commit_blob_sha256": "1f00d882d1e1de97a7977b3444fa7e32d0a10b5cf2ca764574694d9305c9f34e",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_b0.py",
+        "recorded_bytes": 35898,
+        "recorded_sha256": "1f00d882d1e1de97a7977b3444fa7e32d0a10b5cf2ca764574694d9305c9f34e",
+        "worktree_match": true,
+        "worktree_sha256": "1f00d882d1e1de97a7977b3444fa7e32d0a10b5cf2ca764574694d9305c9f34e"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 74595,
+        "frozen_commit_blob_sha256": "f2ca03ab8e84b1454d3f3173eb137aa5afae6e9952fed125415725ec956f82dc",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/cli.py",
+        "recorded_bytes": 74595,
+        "recorded_sha256": "f2ca03ab8e84b1454d3f3173eb137aa5afae6e9952fed125415725ec956f82dc",
+        "worktree_match": true,
+        "worktree_sha256": "f2ca03ab8e84b1454d3f3173eb137aa5afae6e9952fed125415725ec956f82dc"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 69780,
+        "frozen_commit_blob_sha256": "be873d7b38aa87e44189fedba135e415452d90f510f230d24e11102b824a7b73",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_contracts.py",
+        "recorded_bytes": 69780,
+        "recorded_sha256": "be873d7b38aa87e44189fedba135e415452d90f510f230d24e11102b824a7b73",
+        "worktree_match": true,
+        "worktree_sha256": "be873d7b38aa87e44189fedba135e415452d90f510f230d24e11102b824a7b73"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 193686,
+        "frozen_commit_blob_sha256": "3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+        "recorded_bytes": 193686,
+        "recorded_sha256": "3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd",
+        "worktree_match": true,
+        "worktree_sha256": "3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 63542,
+        "frozen_commit_blob_sha256": "a0061289d13921d212ba83e81d36fd46ce07c0f7636128701501f4323714ca1b",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_evidence_rescore.py",
+        "recorded_bytes": 63542,
+        "recorded_sha256": "a0061289d13921d212ba83e81d36fd46ce07c0f7636128701501f4323714ca1b",
+        "worktree_match": true,
+        "worktree_sha256": "a0061289d13921d212ba83e81d36fd46ce07c0f7636128701501f4323714ca1b"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 14173,
+        "frozen_commit_blob_sha256": "3aab5f06148cd58759b6675c62f8597eecf7953e8725b21040e86cb2502e3fdc",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_model.py",
+        "recorded_bytes": 14173,
+        "recorded_sha256": "3aab5f06148cd58759b6675c62f8597eecf7953e8725b21040e86cb2502e3fdc",
+        "worktree_match": true,
+        "worktree_sha256": "3aab5f06148cd58759b6675c62f8597eecf7953e8725b21040e86cb2502e3fdc"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 38318,
+        "frozen_commit_blob_sha256": "4ec060a7adab179bc18686ab4fc3e3d46600e28000e390b73bdbd44023530743",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_inputs.py",
+        "recorded_bytes": 38318,
+        "recorded_sha256": "4ec060a7adab179bc18686ab4fc3e3d46600e28000e390b73bdbd44023530743",
+        "worktree_match": false,
+        "worktree_sha256": "eaedb99d5988f9e7438435cd701795dad3027be954db2864b0f50c26a6a16e88"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 64664,
+        "frozen_commit_blob_sha256": "706dc3ad690f566acbcaec6f34033b420db4cb2a4ab4d9f56e94238d6cc44840",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_public.py",
+        "recorded_bytes": 64664,
+        "recorded_sha256": "706dc3ad690f566acbcaec6f34033b420db4cb2a4ab4d9f56e94238d6cc44840",
+        "worktree_match": true,
+        "worktree_sha256": "706dc3ad690f566acbcaec6f34033b420db4cb2a4ab4d9f56e94238d6cc44840"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 22358,
+        "frozen_commit_blob_sha256": "4a00a31366e8b2f95a4fe9358963478499b306561c030971c14c03bf53bb0474",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_h2.py",
+        "recorded_bytes": 22358,
+        "recorded_sha256": "4a00a31366e8b2f95a4fe9358963478499b306561c030971c14c03bf53bb0474",
+        "worktree_match": true,
+        "worktree_sha256": "4a00a31366e8b2f95a4fe9358963478499b306561c030971c14c03bf53bb0474"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 30825,
+        "frozen_commit_blob_sha256": "92a5e41a64bbb096b9190b9e5124eccc108e9b461bb1dd7b3cf6bc15ec46f4b0",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_h2_aggregate.py",
+        "recorded_bytes": 30825,
+        "recorded_sha256": "92a5e41a64bbb096b9190b9e5124eccc108e9b461bb1dd7b3cf6bc15ec46f4b0",
+        "worktree_match": true,
+        "worktree_sha256": "92a5e41a64bbb096b9190b9e5124eccc108e9b461bb1dd7b3cf6bc15ec46f4b0"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 27008,
+        "frozen_commit_blob_sha256": "a2481fffd2297aaa6b321c16d9c1b4c8f9f751d4e3a303567e4976019b3a819f",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_binding.py",
+        "recorded_bytes": 27008,
+        "recorded_sha256": "a2481fffd2297aaa6b321c16d9c1b4c8f9f751d4e3a303567e4976019b3a819f",
+        "worktree_match": true,
+        "worktree_sha256": "a2481fffd2297aaa6b321c16d9c1b4c8f9f751d4e3a303567e4976019b3a819f"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 26904,
+        "frozen_commit_blob_sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+        "frozen_commit_match": true,
+        "path": "backend/src/mktkb/evaluation/p2_release_gate.py",
+        "recorded_bytes": 26904,
+        "recorded_sha256": "552d6ff7cfe467bafeaea4b564d55c29a0a7d7dba44c727109154d5f3ee2e330",
+        "worktree_match": false,
+        "worktree_sha256": "7cf2cfe797a9acdb19c73de668b4a91661b240529a5b78ca8eda7f32bdd5ca2e"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 150917,
+        "frozen_commit_blob_sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+        "frozen_commit_match": true,
+        "path": "tools/p2_h2_controlled_execute.py",
+        "recorded_bytes": 150917,
+        "recorded_sha256": "2e442c6992eeae2383331fb41f76172e0edf66e102700292dcc5ca60da689f0a",
+        "worktree_match": false,
+        "worktree_sha256": "6cfcb724da366912130d398f66c92423615de031653a3a183d1e80b952cfad86"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 108460,
+        "frozen_commit_blob_sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+        "frozen_commit_match": true,
+        "path": "tools/p2_h2_v3_controlled_execute.py",
+        "recorded_bytes": 108460,
+        "recorded_sha256": "953fda08df6f0ce1121ded011aed4fd7724f5867bd9d61abc9f4402be1cc63f5",
+        "worktree_match": false,
+        "worktree_sha256": "b5a20caf32f12f0b6d1d170a75bbd39b2a3f0cf4a088b635f6d121fc587f94cf"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 5785,
+        "frozen_commit_blob_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+        "frozen_commit_match": true,
+        "path": "docs/evaluation/gate_v0_3_approved.json",
+        "recorded_bytes": 5785,
+        "recorded_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+        "worktree_match": true,
+        "worktree_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 2648,
+        "frozen_commit_blob_sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8",
+        "frozen_commit_match": true,
+        "path": "docs/evaluation/p2-holdout-v3.source-map.json",
+        "recorded_bytes": 2648,
+        "recorded_sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8",
+        "worktree_match": true,
+        "worktree_sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 1140,
+        "frozen_commit_blob_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+        "frozen_commit_match": true,
+        "path": "docs/evaluation/p2-h2-scenarios-H2v3.json",
+        "recorded_bytes": 1140,
+        "recorded_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+        "worktree_match": true,
+        "worktree_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 39691,
+        "frozen_commit_blob_sha256": "712fb0c3ca213c7057b6519f15d7a4095ac35d0add89f2dd3409b37481965d03",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_gate.py",
+        "recorded_bytes": 39691,
+        "recorded_sha256": "712fb0c3ca213c7057b6519f15d7a4095ac35d0add89f2dd3409b37481965d03",
+        "worktree_match": true,
+        "worktree_sha256": "712fb0c3ca213c7057b6519f15d7a4095ac35d0add89f2dd3409b37481965d03"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 37520,
+        "frozen_commit_blob_sha256": "1d47f467e4f8ac6c160fab866e8460f200593b33a4233c7718d125eaeb1d7ce5",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+        "recorded_bytes": 37520,
+        "recorded_sha256": "1d47f467e4f8ac6c160fab866e8460f200593b33a4233c7718d125eaeb1d7ce5",
+        "worktree_match": false,
+        "worktree_sha256": "5712806679e61e05e8f603ee32ddfc752444ab097c217ff39a9fcb1d8b96f8bd"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 8064,
+        "frozen_commit_blob_sha256": "3bbad536e63586f6b05ed2ecd404a188901713df98b73355853e7087c45c9ceb",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_release_gate_positive.py",
+        "recorded_bytes": 8064,
+        "recorded_sha256": "3bbad536e63586f6b05ed2ecd404a188901713df98b73355853e7087c45c9ceb",
+        "worktree_match": true,
+        "worktree_sha256": "3bbad536e63586f6b05ed2ecd404a188901713df98b73355853e7087c45c9ceb"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 21997,
+        "frozen_commit_blob_sha256": "14ab76d9f52e8c972ad326b476b00e4d1ecf2420e6c7d16814987a8ec976d99c",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_release_gate_negative.py",
+        "recorded_bytes": 21997,
+        "recorded_sha256": "14ab76d9f52e8c972ad326b476b00e4d1ecf2420e6c7d16814987a8ec976d99c",
+        "worktree_match": false,
+        "worktree_sha256": "536e2d4af0614a212b296f8adfdf38db1072b904296df31e14fbd3886f6a17a5"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 11510,
+        "frozen_commit_blob_sha256": "8901b9aedf5fcf9987ec1f2d43044a103370b8aceb87d6ea1136dc09988c54d7",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_release_gate_real_ncu.py",
+        "recorded_bytes": 11510,
+        "recorded_sha256": "8901b9aedf5fcf9987ec1f2d43044a103370b8aceb87d6ea1136dc09988c54d7",
+        "worktree_match": true,
+        "worktree_sha256": "8901b9aedf5fcf9987ec1f2d43044a103370b8aceb87d6ea1136dc09988c54d7"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 183239,
+        "frozen_commit_blob_sha256": "f82046612427cbbee1d1694e7a843b238f2756875b45bb253cb5d96f305d48de",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_hard_evidence.py",
+        "recorded_bytes": 183239,
+        "recorded_sha256": "f82046612427cbbee1d1694e7a843b238f2756875b45bb253cb5d96f305d48de",
+        "worktree_match": true,
+        "worktree_sha256": "f82046612427cbbee1d1694e7a843b238f2756875b45bb253cb5d96f305d48de"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 37029,
+        "frozen_commit_blob_sha256": "ea1a63dc8d5d6e67258160aeb1b3c4c2721a4033955a413a73d8ebc680d00199",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_holdout_scenarios.py",
+        "recorded_bytes": 37029,
+        "recorded_sha256": "ea1a63dc8d5d6e67258160aeb1b3c4c2721a4033955a413a73d8ebc680d00199",
+        "worktree_match": true,
+        "worktree_sha256": "ea1a63dc8d5d6e67258160aeb1b3c4c2721a4033955a413a73d8ebc680d00199"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 32592,
+        "frozen_commit_blob_sha256": "22004b466bca7b0154f527bc8ebe68caabc4d4e1419cc553ba2b4d665b086b8f",
+        "frozen_commit_match": true,
+        "path": "backend/tests/evaluation/test_p2_h2_docforbidden_identity.py",
+        "recorded_bytes": 32592,
+        "recorded_sha256": "22004b466bca7b0154f527bc8ebe68caabc4d4e1419cc553ba2b4d665b086b8f",
+        "worktree_match": true,
+        "worktree_sha256": "22004b466bca7b0154f527bc8ebe68caabc4d4e1419cc553ba2b4d665b086b8f"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 57118,
+        "frozen_commit_blob_sha256": "adc8cb0cc73902a7cb443d26b5ed81ef39433cad7623232fa0aa211c1b329499",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/report.md",
+        "recorded_bytes": 57118,
+        "recorded_sha256": "adc8cb0cc73902a7cb443d26b5ed81ef39433cad7623232fa0aa211c1b329499",
+        "worktree_match": true,
+        "worktree_sha256": "adc8cb0cc73902a7cb443d26b5ed81ef39433cad7623232fa0aa211c1b329499"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 63050,
+        "frozen_commit_blob_sha256": "0e074bcbf44dc1dbbf43b5dc2a4e95f218510fee46c4567abfb49bb9b6e9f48c",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/review.md",
+        "recorded_bytes": 63050,
+        "recorded_sha256": "0e074bcbf44dc1dbbf43b5dc2a4e95f218510fee46c4567abfb49bb9b6e9f48c",
+        "worktree_match": true,
+        "worktree_sha256": "0e074bcbf44dc1dbbf43b5dc2a4e95f218510fee46c4567abfb49bb9b6e9f48c"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 53053,
+        "frozen_commit_blob_sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/gate-result.real-ncu.json",
+        "recorded_bytes": 53053,
+        "recorded_sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461",
+        "worktree_match": true,
+        "worktree_sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 928,
+        "frozen_commit_blob_sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/inputs.template.json",
+        "recorded_bytes": 928,
+        "recorded_sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab",
+        "worktree_match": true,
+        "worktree_sha256": "a29b6426a1215daea909939277c884c43b84e7bd1546c8d4819f2c684c6d90ab"
+      },
+      {
+        "delta_class": "expected_fix_delta",
+        "frozen_commit_blob_bytes": 12674,
+        "frozen_commit_blob_sha256": "3d7ca62bf1ca217c02aa50ed70425015ffc08d1c34808ab54ebcfc539528f923",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+        "recorded_bytes": 12674,
+        "recorded_sha256": "3d7ca62bf1ca217c02aa50ed70425015ffc08d1c34808ab54ebcfc539528f923",
+        "worktree_match": false,
+        "worktree_sha256": "7104aaf757e2380236ae9a064b25b01c6ac175f91e2a320c6a03710f9e061184"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 2481,
+        "frozen_commit_blob_sha256": "314d8fb9146ab0067ce1c65d71473ef5bf3ef0ad073ba5021c6582bbbc433d32",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/build_template_inputs.py",
+        "recorded_bytes": 2481,
+        "recorded_sha256": "314d8fb9146ab0067ce1c65d71473ef5bf3ef0ad073ba5021c6582bbbc433d32",
+        "worktree_match": true,
+        "worktree_sha256": "314d8fb9146ab0067ce1c65d71473ef5bf3ef0ad073ba5021c6582bbbc433d32"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 36046,
+        "frozen_commit_blob_sha256": "bf448b0ebc4e2bf54207c0a442d0277256c2fd3f3dc3ae4155696c9c4b8a4127",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-DOC-REBUILD/report.md",
+        "recorded_bytes": 36046,
+        "recorded_sha256": "bf448b0ebc4e2bf54207c0a442d0277256c2fd3f3dc3ae4155696c9c4b8a4127",
+        "worktree_match": true,
+        "worktree_sha256": "bf448b0ebc4e2bf54207c0a442d0277256c2fd3f3dc3ae4155696c9c4b8a4127"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 35878,
+        "frozen_commit_blob_sha256": "9c0c641260c0c89fcd3e1af1f1d7253705e13373d8fc9e89a99fe8778079b0ac",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-DOC-REBUILD/review.md",
+        "recorded_bytes": 35878,
+        "recorded_sha256": "9c0c641260c0c89fcd3e1af1f1d7253705e13373d8fc9e89a99fe8778079b0ac",
+        "worktree_match": true,
+        "worktree_sha256": "9c0c641260c0c89fcd3e1af1f1d7253705e13373d8fc9e89a99fe8778079b0ac"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 46561,
+        "frozen_commit_blob_sha256": "1314683fac1cb31a7cc1206413d9fa1123e2107b25a3204a92547301de14a1d9",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/report.md",
+        "recorded_bytes": 46561,
+        "recorded_sha256": "1314683fac1cb31a7cc1206413d9fa1123e2107b25a3204a92547301de14a1d9",
+        "worktree_match": true,
+        "worktree_sha256": "1314683fac1cb31a7cc1206413d9fa1123e2107b25a3204a92547301de14a1d9"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 36330,
+        "frozen_commit_blob_sha256": "8deb31b48933278ac88f3ec4e6c069776b99a7c23f69491acebed811c7c55a11",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/review.md",
+        "recorded_bytes": 36330,
+        "recorded_sha256": "8deb31b48933278ac88f3ec4e6c069776b99a7c23f69491acebed811c7c55a11",
+        "worktree_match": true,
+        "worktree_sha256": "8deb31b48933278ac88f3ec4e6c069776b99a7c23f69491acebed811c7c55a11"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 1301,
+        "frozen_commit_blob_sha256": "f20661d23822b6ad2f11d70feb21b818dc8f08843da80c2ccd0e3e5a57e1e487",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/cards-index.json",
+        "recorded_bytes": 1301,
+        "recorded_sha256": "f20661d23822b6ad2f11d70feb21b818dc8f08843da80c2ccd0e3e5a57e1e487",
+        "worktree_match": true,
+        "worktree_sha256": "f20661d23822b6ad2f11d70feb21b818dc8f08843da80c2ccd0e3e5a57e1e487"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 4102,
+        "frozen_commit_blob_sha256": "096de42fd573c107f97fa247cc8157ed191bdce2b32a2e26eb6d3b9c680e1c94",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-composition-aggregate.json",
+        "recorded_bytes": 4102,
+        "recorded_sha256": "096de42fd573c107f97fa247cc8157ed191bdce2b32a2e26eb6d3b9c680e1c94",
+        "worktree_match": true,
+        "worktree_sha256": "096de42fd573c107f97fa247cc8157ed191bdce2b32a2e26eb6d3b9c680e1c94"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 6530,
+        "frozen_commit_blob_sha256": "359c9554ab78176abd0588c8d129a47f598c183d3e7eae1a93a3b28730461a90",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-source-proof.json",
+        "recorded_bytes": 6530,
+        "recorded_sha256": "359c9554ab78176abd0588c8d129a47f598c183d3e7eae1a93a3b28730461a90",
+        "worktree_match": true,
+        "worktree_sha256": "359c9554ab78176abd0588c8d129a47f598c183d3e7eae1a93a3b28730461a90"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 5167,
+        "frozen_commit_blob_sha256": "f6465fcb206821f26d51c5f93918aefe229908120cd4708917424e9ebb61d555",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/h2-source-proof.full.json",
+        "recorded_bytes": 5167,
+        "recorded_sha256": "f6465fcb206821f26d51c5f93918aefe229908120cd4708917424e9ebb61d555",
+        "worktree_match": true,
+        "worktree_sha256": "f6465fcb206821f26d51c5f93918aefe229908120cd4708917424e9ebb61d555"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 24149,
+        "frozen_commit_blob_sha256": "315a389cc174766340d03f006b308266a36cce6e4c56529afaf5ca0c98476861",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS/scripts/derive_v3_cards.py",
+        "recorded_bytes": 24149,
+        "recorded_sha256": "315a389cc174766340d03f006b308266a36cce6e4c56529afaf5ca0c98476861",
+        "worktree_match": true,
+        "worktree_sha256": "315a389cc174766340d03f006b308266a36cce6e4c56529afaf5ca0c98476861"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 58861,
+        "frozen_commit_blob_sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/report.md",
+        "recorded_bytes": 58861,
+        "recorded_sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3",
+        "worktree_match": true,
+        "worktree_sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 141097,
+        "frozen_commit_blob_sha256": "0129cd2ba6abf625c61afaaf958ae2e30e675977ad3045eb381d568ab4ab3fab",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/manifest.json",
+        "recorded_bytes": 141097,
+        "recorded_sha256": "0129cd2ba6abf625c61afaaf958ae2e30e675977ad3045eb381d568ab4ab3fab",
+        "worktree_match": true,
+        "worktree_sha256": "0129cd2ba6abf625c61afaaf958ae2e30e675977ad3045eb381d568ab4ab3fab"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 34045,
+        "frozen_commit_blob_sha256": "d59499741bfaab13b90ff6415234d0d0ca78af2c11818284dae54f6bb2005370",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/review.md",
+        "recorded_bytes": 34045,
+        "recorded_sha256": "d59499741bfaab13b90ff6415234d0d0ca78af2c11818284dae54f6bb2005370",
+        "worktree_match": true,
+        "worktree_sha256": "d59499741bfaab13b90ff6415234d0d0ca78af2c11818284dae54f6bb2005370"
+      },
+      {
+        "delta_class": "none",
+        "frozen_commit_blob_bytes": 1598,
+        "frozen_commit_blob_sha256": "746fa6633186356c0795583d8dccb84bb0414c94d39d7a5cb4a65f8dbac55b01",
+        "frozen_commit_match": true,
+        "path": "docs/reports/OBS-EVAL/P2/NCU-RELEASE-EVIDENCE/SHA256SUMS",
+        "recorded_bytes": 1598,
+        "recorded_sha256": "746fa6633186356c0795583d8dccb84bb0414c94d39d7a5cb4a65f8dbac55b01",
+        "worktree_match": true,
+        "worktree_sha256": "746fa6633186356c0795583d8dccb84bb0414c94d39d7a5cb4a65f8dbac55b01"
+      }
+    ],
+    "b0_admission": {
+      "file_sha256": "07d2b1e3c39da3eca3f81986691c5d1d0a075d2a7effa7cf730e3dcd50d12795",
+      "path": "var/eval/baselines/7981d4afc2d1/b0-admission.json",
+      "payload_match": true,
+      "payload_sha256": "2226fa208aec7db84ab69e5f7a068e94322414d38b90c14399979b96fcea8b5d",
+      "pipeline_version": "d3ca88d2c515+28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7",
+      "recorded_payload_sha256": "2226fa208aec7db84ab69e5f7a068e94322414d38b90c14399979b96fcea8b5d"
+    },
+    "formal_gate": {
+      "actual_bytes": 53053,
+      "actual_sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461",
+      "match": true,
+      "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/gate-result.real-ncu.json",
+      "recorded_bytes": 53053,
+      "recorded_sha256": "d4c98f92c0873addbda01b28394b292b3fcd4bdec2aa39a25af6b8384ba66461"
+    },
+    "frozen_commit": "93486b6590c6542f34dd70d20a19b792c659f416",
+    "gate_config": {
+      "actual_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961",
+      "match": true,
+      "path": "docs/evaluation/gate_v0_3_approved.json",
+      "recorded_canonical_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+      "recorded_sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961"
+    },
+    "records_append_only": [
+      {
+        "bytes_at_freeze": 16145,
+        "current_bytes": 19594,
+        "grew": true,
+        "match": true,
+        "path": "docs/reports/OBS-EVAL/P2/manager-decisions.md",
+        "prefix_sha256": "fee1f5ec4718aca2e40c4ca58ff6c703b515d33b549dd70d6123e9f24240dfbf",
+        "recorded_prefix_sha256": "fee1f5ec4718aca2e40c4ca58ff6c703b515d33b549dd70d6123e9f24240dfbf"
+      },
+      {
+        "bytes_at_freeze": 21633,
+        "current_bytes": 22440,
+        "grew": true,
+        "match": true,
+        "path": "docs/reports/OBS-EVAL/P2/manager-acceptance.md",
+        "prefix_sha256": "13339d09559f7ba48f5b78453d09a08b5c3561ece58b16cc99c0291b6248f14d",
+        "recorded_prefix_sha256": "13339d09559f7ba48f5b78453d09a08b5c3561ece58b16cc99c0291b6248f14d"
+      }
+    ]
+  },
+  "head": "93486b6590c6542f34dd70d20a19b792c659f416",
+  "head_matches_fingerprint_base": true,
+  "kind": "offline-read-only",
+  "line_endings": {
+    "backend/src/mktkb/evaluation/p2_release_gate.py": {
+      "head_blob": {
+        "bytes": 26904,
+        "cr_bytes": 600,
+        "crlf": 600,
+        "lf_only": 0
+      },
+      "worktree": {
+        "bytes": 28011,
+        "cr_bytes": 619,
+        "crlf": 619,
+        "lf_only": 0
+      }
+    },
+    "backend/src/mktkb/evaluation/p2_runner.py": {
+      "head_blob": {
+        "bytes": 122464,
+        "cr_bytes": 0,
+        "crlf": 0,
+        "lf_only": 2714
+      },
+      "worktree": {
+        "bytes": 125075,
+        "cr_bytes": 0,
+        "crlf": 0,
+        "lf_only": 2762
+      }
+    },
+    "backend/src/mktkb/evaluation/product_adapter.py": {
+      "head_blob": {
+        "bytes": 116375,
+        "cr_bytes": 0,
+        "crlf": 0,
+        "lf_only": 2629
+      },
+      "worktree": {
+        "bytes": 117714,
+        "cr_bytes": 0,
+        "crlf": 0,
+        "lf_only": 2652
+      }
+    }
+  },
+  "schema": "p2-requalification-candidate/v0.1",
+  "tracked_status": [
+    " M .claude/handoffs/_index.md",
+    " M backend/src/mktkb/evaluation/p2_release_gate.py",
+    " M backend/src/mktkb/evaluation/p2_release_inputs.py",
+    " M backend/src/mktkb/evaluation/p2_runner.py",
+    " M backend/src/mktkb/evaluation/product_adapter.py",
+    " M backend/src/mktkb/live_authorization.py",
+    " M backend/tests/evaluation/test_p2_live_wiring.py",
+    " M backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+    " M backend/tests/evaluation/test_p2_release_gate_negative.py",
+    " M backend/tests/evaluation/test_p2_runner.py",
+    " M docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+    " M docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md",
+    " M frontend/e2e/acceptance-07-update.spec.ts",
+    " M tools/p2_h2_controlled_execute.py",
+    " M tools/p2_h2_v3_controlled_execute.py",
+    " M tools/start_local.py",
+    " M 一键启动.cmd",
+    " M 启动-真实问答.cmd"
+  ],
+  "verdict": {
+    "b0_admission_payload_match": true,
+    "fingerprint_after_mismatch": 1,
+    "fingerprint_after_mismatch_paths": [
+      "backend/tests/evaluation/test_p2_fu2_derive_cards.py"
+    ],
+    "fingerprint_before_mismatch": 0,
+    "freeze_artifact_frozen_commit_mismatch": 0,
+    "freeze_artifact_unexpected_delta": 0,
+    "freeze_artifact_worktree_delta": 7,
+    "ok": true,
+    "tracked_change_count": 18
+  }
+}

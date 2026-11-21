@@ -12,7 +12,8 @@ import tempfile
 import threading
 import time
 import webbrowser
-from datetime import datetime
+from contextlib import contextmanager, nullcontext
+from datetime import datetime, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -185,7 +186,36 @@ def sanitize_no_proxy() -> None:
         os.environ[key] = ','.join(kept)
 
 
-def run(smoke: bool):
+def owner_acceptance_plan():
+    from mktkb.controlled_execution import ControlledRequestPlan
+    from mktkb.live_authorization import OWNER_ACCEPTANCE_STAGE
+
+    return ControlledRequestPlan(
+        stage=OWNER_ACCEPTANCE_STAGE,
+        chat_requests=12,
+        embedding_requests=64,
+        rerank_requests=24,
+        ocr_text_requests=4,
+        ocr_table_requests=2,
+    )
+
+
+@contextmanager
+def owner_acceptance_lock():
+    import msvcrt
+
+    lock_path = ROOT / 'var/eval/owner-acceptance-launch.lock'
+    lock_path.parent.mkdir(parents=True, exist_ok=True)
+    with lock_path.open('a+b') as lock:
+        lock.seek(0)
+        try:
+            msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+        except OSError:
+            raise RuntimeError('真实亲验实例已运行，请打开其启动地址。') from None
+        yield
+
+
+def run(smoke: bool, *, offline: bool = False, owner_live: bool = False, check_only: bool = False):
     import httpx
     import uvicorn
     from mktkb.config import Settings
@@ -225,10 +255,36 @@ def run(smoke: bool):
             'trusted_origins': list(dict.fromkeys([*settings.trusted_origins, base, origin])),
             'cookie_secure': False,
         })
+    if offline or smoke:
+        settings = settings.model_copy(update={
+            'rag_provider_mode': 'offline',
+            'model_base_url': None,
+            'model_name': None,
+            'model_api_key': None,
+            'ocr_disabled': True,
+        })
+    if owner_live:
+        from mktkb.controlled_execution import ControlledExecution
+
+        plan = owner_acceptance_plan()
+        settings = settings.model_copy(update={'rag_sync_on_startup': False, 'ocr_max_attempts': 1})
+        execution = ControlledExecution.build(
+            settings=settings,
+            plan=plan,
+            data_dir=settings.data_dir,
+            page_size=settings.rag_page_size,
+            top_k=settings.rag_top_k,
+            business_date=settings.rag_business_date,
+        )
+        if check_only:
+            print(f'真实亲验预检通过：最多 {plan.total_calls} 笔供应商请求，启动前发送 0 笔。')
+            return
+        app = execution.create_app(settings)
+    else:
+        app = create_app(settings)
     settings.data_dir.mkdir(parents=True, exist_ok=True)
     log_dir = settings.data_dir / 'launcher-logs'
     log_dir.mkdir(parents=True, exist_ok=True)
-    app = create_app(settings)
     server = uvicorn.Server(uvicorn.Config(app, host='127.0.0.1', port=backend_port, log_level='warning'))
     backend = threading.Thread(target=server.run, name='local-api', daemon=True)
     stop = threading.Event()
@@ -257,11 +313,20 @@ def run(smoke: bool):
         if smoke:
             result = smoke_check(base, origin)
         else:
-            print(f'\n主人，项目已启动：{origin}\n数据目录：{settings.data_dir.resolve()}\n前端日志：{log_path.resolve()}')
+            print(f'\n主人，项目已启动：{origin}\n数据目录：{settings.data_dir.resolve()}\n前端日志：{log_path.resolve()}', flush=True)
             print('登录账号使用 .env 中配置的管理员/员工用户名与口令。')
-            print('上传文件会自动处理；问答和扫描件使用现有真实服务配置。')
-            webbrowser.open(origin)
-            input('\n窗口保留期间服务持续运行。按回车或 Ctrl+C 停止本次服务：')
+            if offline:
+                print('离线模式：使用现有账号和资料，真实模型及 OCR 已关闭。')
+            elif owner_live:
+                print('真实亲验：生成、检索与 OCR 使用共享账本，受本次额度和请求数约束。')
+            else:
+                print('上传文件会自动处理；问答和扫描件使用现有真实服务配置。')
+            if owner_live and not sys.stdin.isatty():
+                expiration = execution.chat_gate.authorization.expires_utc
+                stop.wait(max(0.0, (expiration - datetime.now(timezone.utc)).total_seconds()))
+            else:
+                webbrowser.open(origin)
+                input('\n窗口保留期间服务持续运行。按回车或 Ctrl+C 停止本次服务：')
     except (KeyboardInterrupt, EOFError):
         pass
     finally:
@@ -305,9 +370,17 @@ def run(smoke: bool):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='市场部 AI 知识库本机启动')
     parser.add_argument('--smoke-test', action='store_true', help='临时空库检查，禁用真实模型/OCR，完成即停服')
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--offline', action='store_true', help='使用现有账号和资料，禁用真实模型/OCR')
+    mode.add_argument('--owner-live', action='store_true', help='使用已批准额度启动本机真实亲验')
+    parser.add_argument('--check-only', action='store_true', help='仅核对真实亲验配置，零发送')
     args = parser.parse_args()
+    if (args.owner_live and args.smoke_test) or (args.check_only and not args.owner_live):
+        parser.error('真实亲验预检只接受 --owner-live --check-only')
     try:
-        run(args.smoke_test)
+        lock = owner_acceptance_lock() if args.owner_live and not args.check_only else nullcontext()
+        with lock:
+            run(args.smoke_test, offline=args.offline, owner_live=args.owner_live, check_only=args.check_only)
     except Exception as exc:
         # Settings hides configuration inputs in its validation errors.
         if isinstance(exc, RuntimeError):

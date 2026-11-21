@@ -1,0 +1,38 @@
+{
+  "limit_cny": 100,
+  "historical_conservative_accounted_cny": 0.03,
+  "remaining_conservative_cny_at_start": 99.97,
+  "historical_success_estimated_list_price_cny": 3.52e-05,
+  "provider_billed_cny": null,
+  "stages": {
+    "S1-DEV": 0,
+    "S1-IA": 0,
+    "S2-DEV": 15.4,
+    "P1-RETRIEVAL": 0.5,
+    "later_shared_reserve": 50.07,
+    "P2-LIVE": 24.0,
+    "S2-OWNER-ACCEPTANCE": 10.0
+  },
+  "historical_sources": [
+    "docs/evidence/RAG-R1-20261101/preflight/live-ledger.jsonl",
+    "docs/evidence/RAG-R1-20261101/preflight-net02/live-ledger.jsonl"
+  ],
+  "ledger": "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl",
+  "note": "Historical import only once. Conservative accounting is not provider billing. Reconcile ledger before every live stage.",
+  "stage_revision": {
+    "revision": 9,
+    "revised_at": "2026-11-11T01:28:00+08:00",
+    "revised_by": "主人（预授权 2026-11-10：P2 新增上限 20 元、必要时可提至 50；经理按任务书 §12 在限额内签发 T206 GO）",
+    "previous_stages": {
+      "S1-DEV": 0,
+      "S1-IA": 0,
+      "S2-DEV": 15.4,
+      "P1-RETRIEVAL": 3,
+      "later_shared_reserve": 1.57
+    },
+    "change": "新增 P2-LIVE 阶段 20.0；项目总上限 20→40。历史 0.03 与全部已发生占用保留，不清账、不重置。",
+    "arithmetic": "0 + 0 + 15.4 + 3.0 + 1.57 + 20.0 = 39.97；39.97 + 0.03(历史) = 40.00",
+    "retained": "历史 0.03 与已发生占用 15.0709445 保留；累计请求 505 不重置。",
+    "metadata_fix_20261111": "Pilot 后仅修正两处元数据：remaining_conservative_cny_at_start 19.97→39.97（新 limit 40 - 历史 0.03）；revised_at 由未来时间改为实际签发时刻。limit/stages/history 未变，未影响已发生账本与 GO 绑定。"
+  }
+}

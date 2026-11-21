@@ -1766,3 +1766,67 @@ def test_run_live_p2_forwards_purge_flag_to_adapter_builder(
     with pytest.raises(_StopBuild):
         asyncio.run(go())
     assert seen["purge_traces_on_close"] is bool(flag)
+
+
+# --------------------------------------------------------------------------- #
+# 9. FU-1：live（隔离 Mock 传输）走同一通用入口时也绑定实际 RAG 索引版本
+# --------------------------------------------------------------------------- #
+
+
+def test_live_mode_binds_actual_rag_index_revision(
+    live_env: SimpleNamespace, tmp_path: Path
+) -> None:
+    """FU-1：live 分支的 ``binding_components`` 取 RAG 索引版本，且与 manifest 一致。
+
+    用隔离 Mock 传输（零真实外发、零费用）：先灌历史版、再发同一资料的**新版本**，
+    让"产品资料发布版本"与"RAG 索引版本"分开；绑定必须跟 RAG 走（不是产品计数）。
+    """
+    from mktkb.evaluation.p2_scoring import load_p2_gate_config
+
+    config = load_p2_gate_config()
+    chat = _UsageChatBackend(behaviors=(ChatBehavior(answer="位置：B区1号货架第二层"),))
+    plan = live_env.plan
+    gate = p2_live.open_live_gate(plan, run_id="p2-live-unit", now=NOW)
+    ingest = P2IngestPlan(
+        sources=(
+            IngestSource(
+                path=FIXTURES / "variants" / "V03_物品位置表_历史V1.xlsx", name=D01.name
+            ),
+            IngestSource(path=D01, document_ref=D01.name),
+        ),
+        label="fu1-live-publish-version-change",
+    )
+
+    async def go():
+        return await p2_live.run_live_p2(
+            plan,
+            run_id="p2-live-unit",
+            out_dir=tmp_path / "run",
+            dataset=_dataset("Q01"),
+            ingest_plan=ingest,
+            gate=gate,
+            env={"MKTKB_OCR_DISABLED": "0"},
+            env_overrides=LIVE_ENV_OVERRIDES,
+            transports=_transports(chat),
+            now=NOW,
+            gate_config=config,
+        )
+
+    result, build = asyncio.run(go())
+    assert result.status == "succeeded", result.stop_code
+    # 隔离传输：发生了 provider 调用，但出站 0（MockTransport 接住）。
+    assert build.adapter.provider_calls()["outbound_network"] == 0
+
+    # 两套计数器确实分开，否则这条用例没有证伪力。
+    product_revision = build.adapter.product_revision()
+    index_revision = build.adapter.index_status()["index_revision"]
+    assert product_revision == 2, product_revision
+    assert index_revision != product_revision, (product_revision, index_revision)
+
+    manifest = json.loads(
+        (build.adapter.paths.run_dir / "run_manifest.json").read_text(encoding="utf-8")
+    )
+    assert manifest["index_revision"] == manifest["binding"]["index_revision"] == index_revision
+    assert manifest["binding"]["complete"] is True
+    # 绑定同源：适配器组件与 manifest 值逐值相同（不是评测器另算一套）。
+    assert build.adapter.binding_components()["index_revision"] == index_revision

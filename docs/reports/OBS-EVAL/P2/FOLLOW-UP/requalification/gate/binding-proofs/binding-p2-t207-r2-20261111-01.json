@@ -1,0 +1,57 @@
+{
+  "attestation": {
+    "precedent": [
+      {
+        "artifact": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\T209-PREP\\b0-live-execution-attempt3-report.md",
+        "claim": "T209 attempt3 起正式 B0 采用'绑定=实际 RAG 索引版本'并通过 trace_integrity",
+        "sha256": "c67a9686100fdf5a57c7c92b83c1d25c3a0183e273e54ac454cfebda25abc21b"
+      },
+      {
+        "artifact": "D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\7981d4afc2d1\\b0-admission.json",
+        "claim": "T209 attempt3 起正式 B0 采用'绑定=实际 RAG 索引版本'并通过 trace_integrity",
+        "sha256": "07d2b1e3c39da3eca3f81986691c5d1d0a075d2a7effa7cf730e3dcd50d12795"
+      }
+    ],
+    "product_source": {
+      "cases_sha256": "f95ae56249ae08ab3c58497bc6b62ba56fae68c47c24d4716c2176343eb7ca9b",
+      "per_turn": [
+        {
+          "case_id": "U01",
+          "revision": 3,
+          "turn": 1
+        },
+        {
+          "case_id": "C05",
+          "revision": 3,
+          "turn": 1
+        }
+      ],
+      "values_sha256": "f4875d9e5f53e700e3ee32581f6b58596e233c3d5eef93b04b799de08f71ff43"
+    },
+    "rag_source": {
+      "db_path": "D:\\mktkb-p2-run\\t207\\R2\\data\\rag-index.sqlite3",
+      "db_sha256": "423de22bb8949c0cfcaf3fd8bd46cac1782bf9996d2147912251750372dd7b70",
+      "read_key": "rag_meta.revision",
+      "read_value": 4
+    }
+  },
+  "attested_index_revision": 4,
+  "gate_replay": {
+    "corrected_binding_failures": [],
+    "original_binding_failures": [
+      "C05",
+      "U01"
+    ],
+    "original_trace_db_sha256": "e3daa407edf463207a3f6d8395810ab4511328a8736d77360f82e9956c4aa9e1",
+    "post_update_not_at_attested": 0,
+    "rewritten_trace_rows": 0,
+    "trace_rows_not_at_attested": 0,
+    "trace_rows_total": 2
+  },
+  "manifest_sha256": "7139213b4f0e6038186e6f3c63b6d58dba99517c7821a05d058465db3e2ca290",
+  "plan_sha256": "0b4e55a4cd3a46f968e89fe495ffca3c6931c8f49f1f258a3dd753f83e24a194",
+  "recorded_index_revision": 3,
+  "rule": "adopted-standard:gate_binding_value_is_actual_rag_index_revision",
+  "run_id": "p2-t207-r2-20261111-01",
+  "schema_version": "p2-release-binding-applicability/v0.1"
+}

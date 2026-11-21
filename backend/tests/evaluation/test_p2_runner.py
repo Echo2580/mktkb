@@ -1525,7 +1525,9 @@ async def test_mock_dry_run_binds_identity_and_passes_trace_integrity(tmp_path: 
         assert gate_payload["binding"]["config_hash"] == binding["config_hash"]
         assert manifest["gate_version"] == config.gate_version
         assert manifest["gate_config_hash"] == config.config_hash
-        assert manifest["index_revision"] == adapter.product_revision()
+        # FU-1：绑定值 = 适配器解析出的**实际 RAG 索引版本**（与 trace 同一口径），
+        # 不是"产品资料发布版本"。本夹具未换版，两者恰好同值，所以断言的是来源而不是数字。
+        assert manifest["index_revision"] == adapter.index_status()["index_revision"]
         assert manifest["dataset_sha256"] == binding["dataset_sha256"]
         assert binding["trace_identity_bound"] is True
 

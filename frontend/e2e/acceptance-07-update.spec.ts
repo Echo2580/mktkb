@@ -214,7 +214,10 @@ test.describe('acceptance-07-update · A-17 旧会话追问新值 / A-21 knowled
 
     const card = await waitForSettledAnswer(page, before + 1);
     await expect(card.locator('.assistant-head .badge')).toHaveText('资料已更新');
-    await expect(card).toContainText('资料已更新，本次回答已中止，请重新查询。');
+    // 断言跟随产品文案（backend/src/mktkb/copy.py 的 KNOWLEDGE_CHANGED）：
+    // 原文"…已中止，请重新查询。"在后续提交里扩充为"…已中止，未保存旧版本答案；这不是服务故障，请基于最新资料重新查询。"
+    // 这里断言扩充后的完整句子（更严），不放松到只匹配关键词。
+    await expect(card).toContainText('资料已更新，本次回答已中止，未保存旧版本答案；这不是服务故障，请基于最新资料重新查询。');
     await expect(card).toContainText('回答生成期间资料版本发生变化');
     await expect(card.getByRole('button', { name: '重新查询' })).toBeVisible();
 

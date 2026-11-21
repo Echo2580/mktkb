@@ -88,11 +88,11 @@ def test_same_version_wrong_digest_is_rejected(tmp_path):
 
 def test_fake_b0_registry_is_rejected(tmp_path):
     path, payload = build_complete_inputs(tmp_path)
-    fake = tmp_path / "fake-registry" / "7981d4afc2d1"
+    fake = tmp_path / "fake-registry" / p2_release_inputs.B0_BASELINE_ID
     fake.mkdir(parents=True)
     for name in ("baseline.json", "b0-admission.json", "b0-approval-receipt.json"):
         shutil.copy2(Path(payload["b0"]["baseline_sha256"] and
-                          p2_release_inputs.B0_REGISTRY_ROOT / "7981d4afc2d1" / name), fake / name)
+                          p2_release_inputs.B0_REGISTRY_ROOT / p2_release_inputs.B0_BASELINE_ID / name), fake / name)
     payload["b0"]["baseline_root"] = str(fake.parent)
     for key, name in (("baseline_sha256", "baseline.json"),
                       ("admission_sha256", "b0-admission.json"),
@@ -105,9 +105,9 @@ def test_fake_b0_registry_is_rejected(tmp_path):
 
 def test_fake_registry_at_canonical_root_still_rejected_by_pinned_digest(tmp_path, monkeypatch):
     path, payload = build_complete_inputs(tmp_path)
-    fake_root = tmp_path / "pinned" / "7981d4afc2d1"
+    fake_root = tmp_path / "pinned" / p2_release_inputs.B0_BASELINE_ID
     fake_root.mkdir(parents=True)
-    source = p2_release_inputs.B0_REGISTRY_ROOT / "7981d4afc2d1"
+    source = p2_release_inputs.B0_REGISTRY_ROOT / p2_release_inputs.B0_BASELINE_ID
     for name in ("baseline.json", "b0-admission.json", "b0-approval-receipt.json"):
         raw = json.loads((source / name).read_text(encoding="utf-8"))
         raw["synthetic_marker"] = "fake"

@@ -322,6 +322,22 @@ def _assess_u(
                             cause=f"u_evidence_failed:{exc}"),), None
 
 
+def _provenance_rows(inputs: Any, *, project_root: Path | None) -> tuple[ReleaseRow, ...]:
+    """FU-3 回源校验行；任何异常都折成固定原因码的阻断行（fail closed）。"""
+    from .p2_release_model import R_EVIDENCE_MISSING, row_blocked
+    from .p2_release_provenance import check_evidence_provenance, provenance_rows
+
+    try:
+        report = check_evidence_provenance(inputs, project_root=project_root)
+    except Exception as exc:  # noqa: BLE001 - 回源失败一律阻断，不放过
+        return (row_blocked(
+            "evidence_provenance", "N/C/U 回源校验（题目/证据/trace）",
+            R_EVIDENCE_MISSING, cause=f"provenance_error:{type(exc).__name__}",
+            detail={"error": str(exc)[:200]},
+        ),)
+    return provenance_rows(report)
+
+
 def evaluate_release_gate(
     inputs_path: Path | str, *, project_root: Path | str | None = None
 ) -> ReleaseGateResult:
@@ -365,6 +381,9 @@ def evaluate_release_gate(
 
     if inputs.evidence_manifest is not None:
         rows.extend(cross_check_evidence_manifest(inputs, suites=suites, u_evidence=u_evidence))
+        # FU-3：送检清单默认做逐题回源（题目摘要/证据路径与摘要/trace 归属/U 类型）。
+        # 缺权威来源或任一项不符 → 固定原因码阻断；不以"清单自称"替代回源。
+        rows.extend(_provenance_rows(inputs, project_root=root))
 
     # 批准配置的硬门禁最小样本：D-011 后按 **suite 计划题数** 判覆盖；
     # 仅在覆盖不成立（计划题数 < 最小样本）时给固定行，交主人裁量。

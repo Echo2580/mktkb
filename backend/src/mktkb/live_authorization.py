@@ -38,6 +38,8 @@ _REPO_ROOT = Path(__file__).resolve().parents[3]
 SHARED_LEDGER_PATH = _REPO_ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "budget" / "live-ledger.jsonl"
 SHARED_BUDGET_PATH = _REPO_ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "budget" / "budget.json"
 PRODUCT_GO_PATH = _REPO_ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json"
+OWNER_ACCEPTANCE_STAGE = "S2-OWNER-ACCEPTANCE"
+OWNER_ACCEPTANCE_GO_PATH = PRODUCT_GO_PATH.with_name("S2-OWNER-ACCEPTANCE-GO.json")
 
 GO_DOCUMENT = "S2-LIVE-GO"
 # 全项目总上限：默认 10 元（历史值）；累计追加由主人显式授权时用环境变量提高，
@@ -160,11 +162,20 @@ class LiveAuthorization:
     ledger_sha256: str
     source_path: str
     bindings: Mapping[str, Any] | None = None
+    request_baseline: int = 0
 
     def __post_init__(self) -> None:
         _gate_number(self.stage_limit_cny, "GO 阶段额度")
         _gate_number(self.max_request_cny, "GO 单请求上界")
         _gate_int(self.max_requests, "GO 累计请求上限", maximum=MAX_GO_REQUESTS)
+        if type(self.request_baseline) is not int or self.request_baseline < 0 or (
+            self.request_baseline and self.stage != OWNER_ACCEPTANCE_STAGE
+        ):
+            raise LiveGateError("GO 请求起点无效")
+
+    @property
+    def cumulative_request_limit(self) -> int:
+        return self.request_baseline + self.max_requests
 
     def as_dict(self) -> dict[str, Any]:
         """可写入证据/诊断的摘要：不含 Key，也不含任何凭据。"""
@@ -204,7 +215,7 @@ class LiveGate:
         _gate_number(self.stage_limit_cny, "闸门阶段额度")
         _gate_number(self.max_request_cny, "闸门单请求上界")
         _gate_number(self.total_limit_cny, "闸门总预算")
-        _gate_int(self.max_requests, "闸门累计请求上限", maximum=MAX_GO_REQUESTS)
+        _gate_int(self.max_requests, "闸门累计请求上限", maximum=self.authorization.cumulative_request_limit)
 
     def ledger(self) -> BudgetLedger:
         return BudgetLedger(
@@ -499,6 +510,27 @@ def _read_go_payload(go_path: Path) -> dict[str, Any]:
     return payload
 
 
+def _product_go_path(stage: str) -> Path:
+    return OWNER_ACCEPTANCE_GO_PATH if stage == OWNER_ACCEPTANCE_STAGE else PRODUCT_GO_PATH
+
+
+def _owner_acceptance_baseline(scope: Mapping[str, Any], ledger: Path) -> int:
+    window = scope.get("request_window")
+    if not isinstance(window, dict) or set(window) != {"prefix_bytes", "prefix_sha256"}:
+        raise LiveGateError("亲验 GO 缺少账本请求窗口")
+    size = _gate_int(window["prefix_bytes"], "亲验账本前缀字节数")
+    if size > ledger.stat().st_size:
+        raise LiveGateError("亲验账本前缀长度不匹配")
+    with ledger.open("rb") as stream:
+        prefix = stream.read(size)
+    if not prefix.endswith(b"\n") or hashlib.sha256(prefix).hexdigest() != window["prefix_sha256"]:
+        raise LiveGateError("亲验账本前缀摘要不匹配")
+    try:
+        return sum(json.loads(line).get("event") == "reserved" for line in prefix.splitlines() if line.strip())
+    except (AttributeError, ValueError) as exc:
+        raise LiveGateError("亲验账本前缀格式无效") from exc
+
+
 def load_live_authorization(
     *,
     stage: str,
@@ -521,8 +553,8 @@ def load_live_authorization(
         "共享账本",
     )
     target = _ensure_fixed_file(
-        go_path if go_path is not None else PRODUCT_GO_PATH,
-        PRODUCT_GO_PATH,
+        go_path if go_path is not None else _product_go_path(requested_stage),
+        _product_go_path(requested_stage),
         "产品 GO",
     )
     payload = _read_go_payload(target)
@@ -587,6 +619,9 @@ def load_live_authorization(
         ledger_sha256=bound_hash,
         source_path=_relative(target),
         bindings=bindings,
+        request_baseline=(
+            _owner_acceptance_baseline(scope, fixed_ledger) if requested_stage == OWNER_ACCEPTANCE_STAGE else 0
+        ),
     )
 
 
@@ -643,7 +678,7 @@ def resolve_live_gate(
     stage_limit = min(requested_limit, authorization.stage_limit_cny, allocation)
     if not math.isfinite(stage_limit) or stage_limit <= 0:
         raise LiveGateError("阶段额度收敛后不是有限正数")
-    max_requests = min(requested_max_requests, authorization.max_requests)
+    max_requests = authorization.request_baseline + min(requested_max_requests, authorization.max_requests)
     if max_requests <= 0:
         raise LiveGateError("累计请求上限收敛后不是正数")
     if request_bound_cny is not None:
@@ -663,7 +698,7 @@ def resolve_live_gate(
         ledger_path=fixed_ledger,
         budget_path=fixed_budget,
         go_path=_ensure_fixed_file(
-            go_path if go_path is not None else PRODUCT_GO_PATH, PRODUCT_GO_PATH, "产品 GO"
+            go_path if go_path is not None else _product_go_path(stage), _product_go_path(stage), "产品 GO"
         ),
         stage_limit_cny=stage_limit,
         max_requests=max_requests,
@@ -687,6 +722,8 @@ def resolve_live_gate(
         raise LiveGateError("共享账本没有历史占用记录（拒绝无历史账本）")
     if summary.accounted_cny > summary.total_limit_cny + 1e-9:
         raise LiveGateError("共享账本已超总上限，拒绝真实调用")
+    if stage == OWNER_ACCEPTANCE_STAGE and summary.reservation_count >= gate.max_requests:
+        raise LiveGateError("亲验请求窗口已用完")
     return gate
 
 
@@ -714,10 +751,10 @@ def refresh_request_limits(
     try:
         bound = _gate_number(request_bound_cny, "单请求保守上界")
         _gate_number(gate.stage_limit_cny, "闸门阶段额度")
-        _gate_int(gate.max_requests, "闸门累计请求上限", maximum=MAX_GO_REQUESTS)
+        _gate_int(gate.max_requests, "闸门累计请求上限", maximum=gate.authorization.cumulative_request_limit)
         _ensure_fixed_file(gate.ledger_path, SHARED_LEDGER_PATH, "共享账本")
         _ensure_fixed_file(gate.budget_path, SHARED_BUDGET_PATH, "共享预算")
-        _ensure_fixed_file(gate.go_path, PRODUCT_GO_PATH, "产品 GO")
+        _ensure_fixed_file(gate.go_path, _product_go_path(gate.stage), "产品 GO")
         authorization = load_live_authorization(
             stage=gate.stage,
             service=gate.service,
@@ -725,6 +762,11 @@ def refresh_request_limits(
             ledger_path=gate.ledger_path,
             now=now,
         )
+        if gate.stage == OWNER_ACCEPTANCE_STAGE and (
+            authorization.nonce != gate.authorization.nonce
+            or authorization.request_baseline != gate.authorization.request_baseline
+        ):
+            raise LiveGateError("亲验授权已更换，请重新装配入口")
         budget = _load_budget_json(gate.budget_path)
         total_limit = _gate_number(budget.get("limit_cny"), "共享预算 limit_cny")
         expected_total_limit = project_total_limit_cny()
@@ -746,7 +788,7 @@ def refresh_request_limits(
         stage_limit = min(gate.stage_limit_cny, authorization.stage_limit_cny, allocation)
         if not math.isfinite(stage_limit) or stage_limit <= 0:
             raise LiveGateError("请求期阶段额度收敛后不是有限正数")
-        max_requests = min(gate.max_requests, authorization.max_requests)
+        max_requests = min(gate.max_requests, authorization.cumulative_request_limit)
         if max_requests <= 0:
             raise LiveGateError("请求期累计请求上限收敛后不是正数")
         if bound > authorization.max_request_cny + 1e-12:

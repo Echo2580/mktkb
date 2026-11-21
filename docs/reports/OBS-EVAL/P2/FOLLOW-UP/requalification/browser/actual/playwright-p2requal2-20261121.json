@@ -1,0 +1,1334 @@
+{
+  "config": {
+    "argv": [
+      "C:\\Program Files\\nodejs\\node.exe",
+      "D:\\GPT项目\\市场部AI知识库\\frontend\\node_modules\\@playwright\\test\\cli.js",
+      "test",
+      "--config",
+      "D:\\GPT项目\\市场部AI知识库\\frontend\\playwright.acceptance.config.ts"
+    ],
+    "configFile": "D:\\GPT项目\\市场部AI知识库\\frontend\\playwright.acceptance.config.ts",
+    "rootDir": "D:/GPT项目/市场部AI知识库/frontend/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": true,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "D:/GPT项目/市场部AI知识库/docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/browser/tmp/pw-p2requal2-20261121/results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "acceptance-chromium",
+        "name": "acceptance-chromium",
+        "testDir": "D:/GPT项目/市场部AI知识库/frontend/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "/acceptance-.*\\.spec\\.ts/"
+        ],
+        "timeout": 120000
+      }
+    ],
+    "filteredProjects": [
+      {
+        "grep": {},
+        "grepInvert": null,
+        "outputDir": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\FOLLOW-UP\\requalification\\browser\\tmp\\pw-p2requal2-20261121\\results",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "name": "acceptance-chromium",
+        "testDir": "D:\\GPT项目\\市场部AI知识库\\frontend\\e2e",
+        "snapshotDir": "D:\\GPT项目\\市场部AI知识库\\frontend\\e2e",
+        "testIgnore": [],
+        "testMatch": {},
+        "timeout": 120000,
+        "use": {
+          "baseURL": "http://127.0.0.1:5199",
+          "locale": "zh-CN",
+          "timezoneId": "Asia/Shanghai",
+          "trace": "retain-on-failure",
+          "screenshot": "only-on-failure",
+          "video": "off",
+          "actionTimeout": 10000,
+          "navigationTimeout": 20000,
+          "browserName": "chromium",
+          "viewport": {
+            "width": 1440,
+            "height": 900
+          },
+          "deviceScaleFactor": 1
+        },
+        "dependencies": [],
+        "ignoreSnapshots": false,
+        "__projectId": "acceptance-chromium"
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list",
+        null
+      ],
+      [
+        "json",
+        {
+          "outputFile": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\FOLLOW-UP\\requalification\\browser\\actual\\playwright-p2requal2-20261121.json"
+        }
+      ],
+      [
+        "html",
+        {
+          "outputFolder": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\FOLLOW-UP\\requalification\\browser\\tmp\\pw-p2requal2-20261121\\report",
+          "open": "never"
+        }
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "default",
+    "updateSourceMethod": "patch",
+    "version": "1.64.0",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "acceptance-01-auth.spec.ts",
+      "file": "acceptance-01-auth.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "A-01 未登录访问业务页面跳转登录",
+          "file": "acceptance-01-auth.spec.ts",
+          "line": 20,
+          "column": 6,
+          "specs": [
+            {
+              "title": "未登录访问 /chat 与 /documents 均跳 /login，auth/me=401",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1180,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:18.054Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b5098fca6a9492cdbacd-a1ec84db152e340923d6",
+              "file": "acceptance-01-auth.spec.ts",
+              "line": 21,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "A-02 角色入口与权限",
+          "file": "acceptance-01-auth.spec.ts",
+          "line": 39,
+          "column": 6,
+          "specs": [
+            {
+              "title": "管理员 UI 登录：资料管理入口 + 欢迎语 + 资料管理页",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 963,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:19.765Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b5098fca6a9492cdbacd-fab967fb77b77b279e1d",
+              "file": "acceptance-01-auth.spec.ts",
+              "line": 40,
+              "column": 3
+            },
+            {
+              "title": "员工 UI 登录：无资料管理入口，直达 /documents 受限且接口 403",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 830,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:20.736Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b5098fca6a9492cdbacd-3918b3877bda1e018509",
+              "file": "acceptance-01-auth.spec.ts",
+              "line": 54,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "A-25 会话与来源跨用户隔离",
+          "file": "acceptance-01-auth.spec.ts",
+          "line": 71,
+          "column": 6,
+          "specs": [
+            {
+              "title": "员工会话/来源对管理员不可见、直达 URL 被拒、跨用户来源接口非 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2430,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:21.572Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "b5098fca6a9492cdbacd-6d1ebd81af5ae665e670",
+              "file": "acceptance-01-auth.spec.ts",
+              "line": 72,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-02-kinds.spec.ts",
+      "file": "acceptance-02-kinds.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "结果类型与稳定文案",
+          "file": "acceptance-02-kinds.spec.ts",
+          "line": 17,
+          "column": 6,
+          "specs": [
+            {
+              "title": "answer（Q01）：回答值、结果标记与来源依据",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 914,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:24.018Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a96ba12a895d58802e4f-8277db34463f1d9c6026",
+              "file": "acceptance-02-kinds.spec.ts",
+              "line": 18,
+              "column": 3
+            },
+            {
+              "title": "clarification（C01）：需要确认 + 城东店/城西店候选按钮",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 930,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:24.941Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a96ba12a895d58802e4f-beb0c2006aa91bf14907",
+              "file": "acceptance-02-kinds.spec.ts",
+              "line": 39,
+              "column": 3
+            },
+            {
+              "title": "clarification（C02）：无候选时徽标诚实，历史消息不武断",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1323,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:25.880Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a96ba12a895d58802e4f-c2773f5e5d89a1a7b099",
+              "file": "acceptance-02-kinds.spec.ts",
+              "line": 55,
+              "column": 3
+            },
+            {
+              "title": "not_found（N01）：无匹配资料且无来源依据",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 991,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:27.211Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a96ba12a895d58802e4f-9f3098fbb34ee54460f0",
+              "file": "acceptance-02-kinds.spec.ts",
+              "line": 81,
+              "column": 3
+            },
+            {
+              "title": "service_error：fail-next 注入 → 服务调用失败 + 错误码 + 重新提问可恢复",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1304,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:28.210Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "a96ba12a895d58802e4f-cf445f3dba180d88eb3d",
+              "file": "acceptance-02-kinds.spec.ts",
+              "line": 96,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-03-upload.spec.ts",
+      "file": "acceptance-03-upload.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [
+        {
+          "title": "A-03 word：上传→检查→发布→问答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "acceptance-chromium",
+              "projectName": "acceptance-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5702,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T07:31:29.536Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "808b42cfbddda4c6a81f-4b3bf3ed55d72ec2bd46",
+          "file": "acceptance-03-upload.spec.ts",
+          "line": 112,
+          "column": 3
+        },
+        {
+          "title": "A-03 excel：上传→检查→发布→问答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "acceptance-chromium",
+              "projectName": "acceptance-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5142,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T07:31:35.248Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "808b42cfbddda4c6a81f-542fb0d43ce6cfac3504",
+          "file": "acceptance-03-upload.spec.ts",
+          "line": 112,
+          "column": 3
+        },
+        {
+          "title": "A-03 pdf_text：上传→检查→发布→问答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "acceptance-chromium",
+              "projectName": "acceptance-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5078,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T07:31:40.399Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "808b42cfbddda4c6a81f-76aae9d33cadb7125946",
+          "file": "acceptance-03-upload.spec.ts",
+          "line": 112,
+          "column": 3
+        },
+        {
+          "title": "A-03 pdf_scan：上传→检查→发布→问答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "acceptance-chromium",
+              "projectName": "acceptance-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5168,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T07:31:45.485Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "808b42cfbddda4c6a81f-767013c2d0bb7a3d188d",
+          "file": "acceptance-03-upload.spec.ts",
+          "line": 112,
+          "column": 3
+        },
+        {
+          "title": "A-03 image：上传→检查→发布→问答",
+          "ok": true,
+          "tags": [],
+          "tests": [
+            {
+              "timeout": 120000,
+              "annotations": [],
+              "expectedStatus": "passed",
+              "projectId": "acceptance-chromium",
+              "projectName": "acceptance-chromium",
+              "results": [
+                {
+                  "workerIndex": 0,
+                  "parallelIndex": 0,
+                  "status": "passed",
+                  "duration": 5183,
+                  "errors": [],
+                  "stdout": [],
+                  "stderr": [],
+                  "retry": 0,
+                  "startTime": "2026-11-21T07:31:50.662Z",
+                  "annotations": [],
+                  "attachments": []
+                }
+              ],
+              "status": "expected"
+            }
+          ],
+          "id": "808b42cfbddda4c6a81f-8c6701532d61311aeda0",
+          "file": "acceptance-03-upload.spec.ts",
+          "line": 112,
+          "column": 3
+        }
+      ]
+    },
+    {
+      "title": "acceptance-04-ambiguity.spec.ts",
+      "file": "acceptance-04-ambiguity.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "A-11 候选澄清后可继续完成问答",
+          "file": "acceptance-04-ambiguity.spec.ts",
+          "line": 12,
+          "column": 6,
+          "specs": [
+            {
+              "title": "C01：宣传海报在哪里？选择「城东店」得到位置 answer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1145,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:55.861Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72acb1b2e7d982c1a9b8-7c57ae5374afd960a962",
+              "file": "acceptance-04-ambiguity.spec.ts",
+              "line": 13,
+              "column": 3
+            },
+            {
+              "title": "C02：展架在哪里？选择「城西店」得到位置 answer",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1124,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:57.014Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "72acb1b2e7d982c1a9b8-08d2e0bd7ad9891d809c",
+              "file": "acceptance-04-ambiguity.spec.ts",
+              "line": 38,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-05-sources.spec.ts",
+      "file": "acceptance-05-sources.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "A-14 来源抽屉与受保护原件",
+          "file": "acceptance-05-sources.spec.ts",
+          "line": 22,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Q01 回答 → 来源详情定位 + 原件 200",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1280,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:58.155Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43ae53f9096e1d8a44a5-5e9cd0d9ef5ceddc7755",
+              "file": "acceptance-05-sources.spec.ts",
+              "line": 23,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "A-19 资料删除后历史来源失效与新问答无依据",
+          "file": "acceptance-05-sources.spec.ts",
+          "line": 66,
+          "column": 6,
+          "specs": [
+            {
+              "title": "删除 doc-guide：旧消息来源 410 失效，新会话 Q25 无匹配资料",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2654,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:31:59.442Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "43ae53f9096e1d8a44a5-de1184c1142ae9e1ca5c",
+              "file": "acceptance-05-sources.spec.ts",
+              "line": 67,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-06-conflict.spec.ts",
+      "file": "acceptance-06-conflict.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "C05 位置冲突：两个有效值、两条来源",
+          "file": "acceptance-06-conflict.spec.ts",
+          "line": 48,
+          "column": 6,
+          "specs": [
+            {
+              "title": "城东店宣传海报现在放在哪里 → 资料记载不一致 + 两值两来源",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2250,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:02.114Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "02bffb80d2ec92a6eede-6e048ee8438a2ea797ad",
+              "file": "acceptance-06-conflict.spec.ts",
+              "line": 49,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "C06 电话冲突：两个有效值、两条来源",
+          "file": "acceptance-06-conflict.spec.ts",
+          "line": 107,
+          "column": 6,
+          "specs": [
+            {
+              "title": "城东店联系电话 → 资料记载不一致 + 010-00000001/010-00000099 两来源",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 120000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2220,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:04.372Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "02bffb80d2ec92a6eede-85125ed488304bad8b58",
+              "file": "acceptance-06-conflict.spec.ts",
+              "line": 108,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-07-update.spec.ts",
+      "file": "acceptance-07-update.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "acceptance-07-update · A-17 旧会话追问新值 / A-21 knowledge_changed",
+          "file": "acceptance-07-update.spec.ts",
+          "line": 65,
+          "column": 6,
+          "specs": [
+            {
+              "title": "A-17 恢复 U02 前提后，旧会话追问返回新值且来源指向新版本",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2829,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:06.611Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "175b0f0f86a2f3bcf702-24f40d08eb331ed1bc75",
+              "file": "acceptance-07-update.spec.ts",
+              "line": 66,
+              "column": 3
+            },
+            {
+              "title": "A-21 回答生成期间资料更新 → knowledge_changed（中止回答且不带来源）",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 300000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1641,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:09.448Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "175b0f0f86a2f3bcf702-3d8235c9921b3153744e",
+              "file": "acceptance-07-update.spec.ts",
+              "line": 175,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-08-mobile.spec.ts",
+      "file": "acceptance-08-mobile.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "A-28 移动端 · 390×844 员工",
+          "file": "acceptance-08-mobile.spec.ts",
+          "line": 75,
+          "column": 6,
+          "specs": [
+            {
+              "title": "员工登录 / 单轮问答 / 来源抽屉 / 资料管理入口不可见不可用",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1960,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:11.107Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "60e63924b6b1e35a6c00-cefae7a5e70da92b8c2c",
+              "file": "acceptance-08-mobile.spec.ts",
+              "line": 78,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "A-28 移动端 · 375×844 员工",
+          "file": "acceptance-08-mobile.spec.ts",
+          "line": 144,
+          "column": 6,
+          "specs": [
+            {
+              "title": "员工登录 / 单轮问答 / 来源抽屉（375 宽度无横向溢出）",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1295,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:13.073Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "60e63924b6b1e35a6c00-510eb53beffbeea2ea65",
+              "file": "acceptance-08-mobile.spec.ts",
+              "line": 147,
+              "column": 3
+            }
+          ]
+        },
+        {
+          "title": "A-28 移动端 · 390×844 管理员资料管理提示",
+          "file": "acceptance-08-mobile.spec.ts",
+          "line": 176,
+          "column": 6,
+          "specs": [
+            {
+              "title": "管理员移动端 /documents 只显示「资料管理请在电脑上使用」",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1060,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:14.375Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "60e63924b6b1e35a6c00-6c1c565b9e894cba24d1",
+              "file": "acceptance-08-mobile.spec.ts",
+              "line": 179,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-09-layout.spec.ts",
+      "file": "acceptance-09-layout.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "布局 1440x900",
+          "file": "acceptance-09-layout.spec.ts",
+          "line": 100,
+          "column": 8,
+          "specs": [
+            {
+              "title": "1440x900 登录页/会话页/资料管理页真实导航与布局断言",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1544,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:15.451Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2332309002f70bba1783-d66c162f40f7ecb87d5c",
+              "file": "acceptance-09-layout.spec.ts",
+              "line": 103,
+              "column": 5
+            }
+          ]
+        },
+        {
+          "title": "布局 1366x768",
+          "file": "acceptance-09-layout.spec.ts",
+          "line": 100,
+          "column": 8,
+          "specs": [
+            {
+              "title": "1366x768 登录页/会话页/资料管理页真实导航与布局断言",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1475,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:17.001Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2332309002f70bba1783-5e8c8203c76b63b75f7c",
+              "file": "acceptance-09-layout.spec.ts",
+              "line": 103,
+              "column": 5
+            }
+          ]
+        },
+        {
+          "title": "布局 1440x720",
+          "file": "acceptance-09-layout.spec.ts",
+          "line": 100,
+          "column": 8,
+          "specs": [
+            {
+              "title": "1440x720 登录页/会话页/资料管理页真实导航与布局断言",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 180000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1488,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:18.483Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "2332309002f70bba1783-79d0f128f60f67cd9023",
+              "file": "acceptance-09-layout.spec.ts",
+              "line": 103,
+              "column": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "acceptance-10-a29.spec.ts",
+      "file": "acceptance-10-a29.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "acceptance-10-a29 · 无外部出站 / 无密钥泄漏",
+          "file": "acceptance-10-a29.spec.ts",
+          "line": 114,
+          "column": 6,
+          "specs": [
+            {
+              "title": "A-29 浏览器网络、DOM、存储、JS bundle 与后端 outbound 均无模型 Key 及外部直连",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 240000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "acceptance-chromium",
+                  "projectName": "acceptance-chromium",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 1977,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-11-21T07:32:19.987Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "4c4b84ae7f380047693e-f17db7df6c2c535d2208",
+              "file": "acceptance-10-a29.spec.ts",
+              "line": 115,
+              "column": 3
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-11-21T07:31:17.424Z",
+    "duration": 65669.976,
+    "expected": 29,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

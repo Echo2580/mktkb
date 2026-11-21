@@ -124,6 +124,9 @@ STOP_CANCELLED = "cancelled"
 STOP_INGEST_FAILED = "ingest_failed"
 STOP_B0_INDEX_NOT_READY = "b0_index_not_ready"
 STOP_B0_INDEX_CHANGED = "b0_index_changed"
+#: FU-1：通用（非 B0）run 在**同一测量窗口内**遇到 RAG 索引版本漂移/读数丢失 —— 保守停，
+#: 不把「绑定时一个版本、作答时另一个版本」的 run 当成功收尾（B0 有专用码，语义相同）。
+STOP_INDEX_CHANGED = "index_changed"
 STOP_PLAN_ITEM_MISSING = "plan_item_missing"
 STOP_PLAN_ITEM_AMBIGUOUS = "plan_item_ambiguous"
 STOP_PRE_SEND_REFUSED = "pre_send_refused"
@@ -695,6 +698,27 @@ def _b0_ready_revisions(adapter: ProductEvalAdapter) -> tuple[int, int] | None:
     return None
 
 
+def _current_index_revision(adapter: Any) -> int | None:
+    """读适配器**当前**实际使用的 RAG 索引版本（与绑定同源）；读不到 → None（缺证，不猜）。"""
+    getter = getattr(adapter, "binding_index_revision", None)
+    if not callable(getter):
+        return None
+    try:
+        value = getter()
+    except Exception:  # noqa: BLE001 - 观测面失败按缺证处理，不改产品结论
+        return None
+    if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+        return None
+    return int(value)
+
+
+def _index_revision_drifted(adapter: Any, bound: int | None) -> bool:
+    """同一测量窗口内 RAG 索引版本是否漂移或读数丢失（只有绑定时拿到权威版本才盯）。"""
+    if bound is None:
+        return False
+    return _current_index_revision(adapter) != bound
+
+
 def _binding_state(
     adapter: Any,
     dataset: P2RunDataset,
@@ -913,6 +937,12 @@ async def run_p2(
                     adapter, frozen_dataset, run_id, gate_config,
                     index_revision=b0_revisions[1] if b0_revisions is not None else None,
                 )
+                # FU-1：通用入口绑定的是适配器解析出的**实际 RAG 索引版本**
+                # （``binding_components().index_revision``，与 trace 同源）；
+                # B0 仍按自己的就绪/漂移码处理，这里只给通用路径用。
+                bound_index_revision = (
+                    None if b0_revisions is not None else binding.get("index_revision")
+                )
                 identity = _trace_identity_from_binding(binding)
                 bind = getattr(adapter, "bind_trace_identity", None)
                 if identity and callable(bind):
@@ -937,6 +967,7 @@ async def run_p2(
                         run_id=run_id,
                         settle_evidence=settle_evidence,
                         b0_revisions=b0_revisions,
+                        bound_index_revision=bound_index_revision,
                     )
         attempt_audit, attempt_code = _attempt_audit(plan, adapter, ledger)
         gate_reserved = _gate_reservation_count(gate)
@@ -1304,6 +1335,7 @@ async def _execute(
     run_id: str,
     settle_evidence: Callable[[Any, ProductTurn], Any] | None,
     b0_revisions: tuple[int, int] | None = None,
+    bound_index_revision: int | None = None,
 ) -> None:
     items = _answer_items(plan, dataset)
     include_question = dataset.public_details
@@ -1386,6 +1418,14 @@ async def _execute(
             if b0_revisions is not None and _b0_ready_revisions(adapter) != b0_revisions:
                 _case_item_failure(
                     ledger, stop_code=STOP_B0_INDEX_CHANGED, stage="index_before_turn",
+                    case_id=case.case_id, turn=turn, item_id=item_id,
+                )
+                break
+            if b0_revisions is None and _index_revision_drifted(adapter, bound_index_revision):
+                # FU-1：通用 run 绑定的 RAG 索引版本在测量窗口内变了（或读数丢失）→ 停，
+                # 不把混合版本的 run 记成成功；已发出的轮次保留在原位。
+                _case_item_failure(
+                    ledger, stop_code=STOP_INDEX_CHANGED, stage="index_before_turn",
                     case_id=case.case_id, turn=turn, item_id=item_id,
                 )
                 break
@@ -1696,7 +1736,15 @@ async def _execute(
                     case_id=case.case_id, turn=turn, item_id=item_id, ticket=ticket_payload,
                 )
                 break
-        if not case_row["turns"] and ledger.stop_code == STOP_B0_INDEX_CHANGED:
+            if b0_revisions is None and _index_revision_drifted(adapter, bound_index_revision):
+                _case_item_failure(
+                    ledger, stop_code=STOP_INDEX_CHANGED, stage="index_after_turn",
+                    case_id=case.case_id, turn=turn, item_id=item_id, ticket=ticket_payload,
+                )
+                break
+        if not case_row["turns"] and ledger.stop_code in (
+            STOP_B0_INDEX_CHANGED, STOP_INDEX_CHANGED
+        ):
             break
         case_row["turns_executed"] = len(case_row["turns"])
         ledger.record_case(case_row)

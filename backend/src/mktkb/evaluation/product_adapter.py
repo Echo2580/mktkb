@@ -1606,10 +1606,33 @@ class ProductEvalAdapter:
         """是否已绑定完整评测身份（未绑定 → trace_integrity 必然 fail-closed）。"""
         return bool(self._identity_bound)
 
+    def binding_index_revision(self) -> int | None:
+        """本次 run 实际使用的 **RAG 索引版本**（产品 trace 的 ``index_revision`` 同一口径）。
+
+        唯一来源是产品自己的索引状态 ``QaIndexStatus.index_revision``（内部即
+        ``rag_meta.revision``）：RAG 检索器把同一个值写进 TraceRecord，所以"绑定"与
+        "trace" 是同一测量，不再出现两套同名计数器互相比较。
+
+        不拿产品资料发布版本（``product_revision()``）顶替：换版/重建索引时两者本来就会
+        不同（FX-1 复现即 产品 3 / RAG 4），误把产品计数当索引身份会让每个走过 RAG 的
+        轮次机械地报 ``version_binding``。
+
+        索引未就绪或读数非法 → ``None``：调用方必须按"缺证"保守处理（绑定不完整 /
+        live 证据拒写），**不允许猜一个数字**。
+        """
+        status = self.index_status()
+        if not isinstance(status, Mapping) or status.get("ready") is not True:
+            return None
+        value = status.get("index_revision")
+        if isinstance(value, bool) or not isinstance(value, int) or value < 0:
+            return None
+        return int(value)
+
     def binding_components(self) -> dict[str, Any]:
         """本次 run 的**绑定组件**（不含摘要本身；摘要由评测侧确定性计算）。
 
-        只在 ``start()`` 之后调用：index_revision 取产品自己的 revision（灌库/发布后），
+        只在 ``start()`` 之后调用：index_revision 取产品**实际使用的 RAG 索引版本**
+        （``binding_index_revision``，与 trace 同源；不可得即 ``None``，不猜），
         pipeline_version 取产品 observability 的同一口径（qa/rag/tokenizer 版本），
         provider 段落只含模型/实现/传输名（**不含任何凭据**）。
         """
@@ -1629,7 +1652,7 @@ class ProductEvalAdapter:
                 "label_version": str(identity.get("label_version") or ""),
                 "suite": str(identity.get("suite") or ""),
                 "pipeline_version": str(product_pipeline_version()),
-                "index_revision": int(self.product_revision()),
+                "index_revision": self.binding_index_revision(),
                 "provider": {
                     "chat": {
                         "provider": "deepseek",
@@ -1657,8 +1680,8 @@ class ProductEvalAdapter:
             "label_version": str(identity.get("label_version") or ""),
             "suite": str(identity.get("suite") or ""),
             "pipeline_version": str(product_pipeline_version()),
-            # 索引身份 = revision + pipeline 组件里的 rag schema / index cache 版本（同一口径）。
-            "index_revision": int(self.product_revision()),
+            # 索引身份 = RAG 索引版本（trace 同一口径）+ pipeline 组件里的 rag schema / index cache 版本。
+            "index_revision": self.binding_index_revision(),
             "provider": {
                 "chat": {
                     # 显式 "none" 标记而不是 None：缺 chat 网关也是一种确定的身份，

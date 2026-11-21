@@ -87,6 +87,7 @@ from mktkb.evaluation import p2_holdout_scenarios_v3 as contract_v3  # noqa: E40
 from mktkb.evaluation import p2_holdout_source_map as source_map  # noqa: E402
 from mktkb.evaluation import p2_holdout_v3_scoring as wiring  # noqa: E402
 from mktkb.evaluation import p2_hard_evidence as hard  # noqa: E402
+from mktkb.evaluation import p2_safe_output as safe_output  # noqa: E402
 from mktkb.evaluation.p2_contracts import (  # noqa: E402
     COST_CENTERS,
     P2RunPlan,
@@ -387,8 +388,35 @@ def _run_claim_roots(seal_root: Path) -> list[Path]:
     return [_claim_registry_root(), Path(seal_root)]
 
 
-def _emit(payload: Mapping[str, Any]) -> None:
-    print(json.dumps(payload, ensure_ascii=False, indent=2, sort_keys=True))
+def _public_payload(payload: Mapping[str, Any], *, strict: bool = False) -> Mapping[str, Any]:
+    """公开层出口（FU-4）：受限路径/密钥名/密文名换确定性记号。
+
+    ``strict=False`` 保持既有 stdout 语义（仓外普通绝对路径原样保留，既有测试逐值不变）；
+    ``strict=True`` 用于新公开产物（派生卡/组合/证明/分享副本），任何绝对路径都记号化。
+    """
+    return safe_output.redact_payload(dict(payload), roots=_public_roots(), strict=strict)
+
+
+def _public_roots() -> tuple[str, ...]:
+    """受限根（只读判定用）：仓库根 + 旧 holdout 根 + 变量目录。"""
+    roots = [str(PROJECT_ROOT), str(PROJECT_ROOT / "var")]
+    roots.append("D:/mktkb-p2-holdout")
+    return tuple(roots)
+
+
+def _public_detail(detail: Any) -> str:
+    return safe_output.redact_text("" if detail is None else str(detail), roots=_public_roots())
+
+
+def _emit(payload: Mapping[str, Any], *, strict: bool = False) -> None:
+    print(
+        json.dumps(
+            dict(_public_payload(payload, strict=strict)),
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=True,
+        )
+    )
 
 
 def _utc_now() -> str:
@@ -2403,6 +2431,804 @@ def _execute_run(
 
 
 # --------------------------------------------------------------------------- #
+# FU-2：v3 单 run 离线派生（derive-cards）
+# --------------------------------------------------------------------------- #
+#
+# 只读：binding / 冻结计划 / 封存密文 / case-plan（+ 可选 run-receipt）。零模型、零检索、
+# 零出站。写入只发生在调用方指定的独立输出目录，且该目录必须不存在或为空、位于仓库根、
+# 原批次根、冻结 holdout 根之外。
+#
+# 复用既有校验（不新增/不放宽阈值）：
+#   * ``v2.load_run_binding``（v3 校验器已在导入期替换为单 run 形状）；
+#   * ``_records_from_document``（逐输入摘要/大小）、``v2._load_plan_for_run`` /
+#     ``v2._verify_plan_binding``（历史计划与原执行身份）、``v2._scorer_identity_binding``
+#     （派生评分身份）、``v2._validate_case_plan_document``（回合完整性）；
+#   * ``hard.classify_case_evidence`` / ``aggregate_hard_evidence`` /
+#     ``validate_hard_evidence_scorecard``；
+#   * ``p2_holdout_scenarios.compose_hard_evidence_runs`` +
+#     ``validate_hard_evidence_composition``（四场景合成）。
+
+DERIVE_SCHEMA_VERSION = "p2-h2v3-derived-cards/v0.1"
+DERIVE_PROOF_SCHEMA_VERSION = "p2-h2v3-derive-proof/v0.1"
+DERIVE_COMPOSITION_PROOF_SCHEMA_VERSION = "p2-h2v3-derive-composition-proof/v0.1"
+DERIVE_DEFAULT_COMPAT = "p2-refusal-compat/v0.6"
+DERIVE_DEFAULT_GATE_CONFIG = "docs/evaluation/gate_v0_3.json"
+DERIVE_VERIFICATION_STAGES: tuple[str, ...] = (
+    "original_plan_identity",
+    "derived_scoring_identity",
+    "scenario_corpus_binding",
+    "seal_state",
+    "turn_completeness",
+)
+
+
+class DerivedRun:
+    """一个 run 的派生结果（内存对象，不落明文；只含卡/证明需要的结构）。"""
+
+    __slots__ = (
+        "index",
+        "scenario",
+        "run_id",
+        "plan_id",
+        "plan_sha256",
+        "binding_sha256",
+        "config_sha256",
+        "code_version",
+        "case_count",
+        "turns_executed",
+        "turns_planned",
+        "card",
+        "plan",
+        "contract",
+        "scenario_binding",
+        "pipeline_version",
+        "provider",
+        "authorized_delta",
+        "identity",
+        "evidence_tree",
+        "case_plan_sha256",
+        "card_sha256",
+        "seal_state",
+        "status_counts",
+    )
+
+    def __init__(self, **kwargs: Any) -> None:
+        for name in self.__slots__:
+            setattr(self, name, kwargs.get(name))
+
+    def __repr__(self) -> str:  # 不打印私有材料
+        return f"DerivedRun(index={self.index}, scenario={self.scenario}, run_id={self.run_id})"
+
+
+def _derive_public_roots() -> tuple[str, ...]:
+    return tuple(_public_roots())
+
+
+def _derive_guard_roots(
+    *, batch_roots: Sequence[str] = (), holdout_roots: Sequence[str] = ()
+) -> tuple[str, ...]:
+    roots: list[str] = [str(PROJECT_ROOT), str(PROJECT_ROOT / "var")]
+    roots.extend(str(item) for item in batch_roots)
+    roots.extend(str(item) for item in holdout_roots)
+    roots.append(str(Path("D:/mktkb-p2-holdout")))
+    return tuple(roots)
+
+
+def _path_under(candidate: str, root: str) -> bool:
+    real_root = safe_output.real_for_compare(root)
+    norm_root = safe_output.norm_for_compare(root)
+    for probe in (safe_output.real_for_compare(candidate), safe_output.norm_for_compare(candidate)):
+        if probe == real_root or probe == norm_root:
+            return True
+        if probe.startswith(real_root + os.sep) or probe.startswith(norm_root + os.sep):
+            return True
+    return False
+
+
+def _reject_inside(path: Path | str, roots: Sequence[str], what: str) -> Path:
+    """归一化（``..``、``.\\``、大小写、尾斜杠）与链接解析后仍落在受限根内即拒绝。"""
+    try:
+        candidate = Path(path).expanduser()
+        candidate_text = str(candidate)
+    except (OSError, ValueError, TypeError):
+        _refuse("path_invalid", what)
+    if not candidate_text or candidate_text in {".", ".."}:
+        _refuse("path_invalid", what)
+    for root in roots:
+        try:
+            if _path_under(candidate_text, str(root)):
+                _refuse("derive_output_in_forbidden_root", what)
+        except (OSError, ValueError):
+            continue
+    if candidate.is_absolute() and candidate.anchor and str(candidate) == str(candidate.anchor):
+        _refuse("path_invalid", what)  # 盘符/根目录本身
+    return candidate
+
+
+def _require_derive_out_dir(path: Path | str, *, roots: Sequence[str]) -> Path:
+    """输出目录：受限根外、且**不存在或为空**（既有 ``require_new_or_empty_dir`` 约定）。"""
+    candidate = _reject_inside(path, roots, "out_dir")
+    try:
+        resolved = candidate.resolve(strict=False)
+    except OSError:
+        _refuse("path_invalid", "out_dir")
+    if resolved.exists():
+        if not resolved.is_dir():
+            _refuse("path_not_directory", "out_dir")
+        try:
+            if any(resolved.iterdir()):
+                _refuse("output_not_empty", "out_dir")
+        except OSError:
+            _refuse("path_invalid", "out_dir")
+    return resolved
+
+
+def _require_derive_input(path: Path | str, what: str) -> Path:
+    """派生输入只读；必须在仓库与 ``var`` 之外（私有材料不落仓内）。"""
+    try:
+        resolved = Path(path).expanduser().resolve(strict=False)
+    except (OSError, ValueError, TypeError):
+        _refuse("path_invalid", what)
+    for root in (PROJECT_ROOT, PROJECT_ROOT / "var"):
+        if _path_under(str(resolved), str(root)):
+            _refuse("path_inside_forbidden_root", what)
+    if not resolved.exists():
+        _refuse("path_missing", what)
+    return resolved
+
+
+def _card_bytes(card: Mapping[str, Any]) -> bytes:
+    """卡的**唯一**序列化口径：确定性写入与确定性 SHA-256 都走这一个函数。"""
+    return (json.dumps(card, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+
+
+def _derive_card_core(
+    *,
+    cases: Sequence[Any],
+    annotation: Any,
+    audits: Sequence[Mapping[str, Any]],
+    compat: str,
+    source_identity: Any,
+    plan_meta: Mapping[str, Any],
+    annotation_summary: Mapping[str, Any],
+) -> dict[str, Any]:
+    """确定性派生核心：逐题 classify → aggregate → 官方卡校验（阈值一字不改）。"""
+    if len(cases) != len(audits):
+        _refuse("case_plan_coverage_invalid")
+    results = []
+    for case, audit in zip(cases, audits):
+        try:
+            results.append(
+                hard.classify_case_evidence(
+                    case,
+                    annotation,
+                    audit,
+                    compat=compat,
+                    source_identity=source_identity,
+                )
+            )
+        except hard.HardEvidenceError as exc:
+            _refuse("derive_classify_invalid", str(getattr(exc, "code", "") or "hard_evidence_invalid"))
+    total = len(cases)
+    try:
+        card = hard.aggregate_hard_evidence(
+            results,
+            total=total,
+            thresholds_approved=bool(plan_meta["thresholds_approved"]),
+            execution_mode=str(plan_meta["execution_mode"]),
+            real_calls=int(plan_meta["real_calls"]),
+            run_id=str(plan_meta["run_id"]),
+            config_hash=str(plan_meta["config_hash"]),
+            expected_strata=dict(plan_meta["expected_strata"]),
+            annotation_gap_count=int(annotation_summary["gap_count"]),
+            annotation_gap_resolved_count=int(annotation_summary["gap_resolved_count"]),
+        )
+        hard.validate_hard_evidence_scorecard(
+            card,
+            total=total,
+            run_id=str(plan_meta["run_id"]),
+            config_hash=str(plan_meta["config_hash"]),
+            expected_strata=dict(plan_meta["expected_strata"]),
+        )
+    except hard.HardEvidenceError as exc:
+        _refuse("derive_scorecard_invalid", str(getattr(exc, "code", "") or "scorecard_invalid"))
+    return card
+
+
+def _read_seal_state(
+    *,
+    receipt_path: Path | None,
+    run_id: str,
+    control: Mapping[str, Any],
+    evidence_root: Path,
+) -> dict[str, Any]:
+    """封存状态：有回执就按回执核（run 绑定 + sealed + 成功），否则要求封存 manifest 在位。"""
+    if receipt_path is not None:
+        try:
+            receipt = v2._read_json_mapping(receipt_path, "run_receipt_unreadable")
+        except v2.EntryError as exc:
+            _refuse(str(exc.code))
+        if str(receipt.get("run_id") or "") != run_id:
+            _refuse("run_receipt_identity_mismatch", "run_id")
+        if dict(receipt.get("run_binding") or {}) != dict(control):
+            _refuse("run_receipt_binding_mismatch", "run_binding")
+        if receipt.get("ok") is not True or str(receipt.get("status")) != "succeeded":
+            _refuse("run_receipt_not_succeeded")
+        seal = receipt.get("seal") if isinstance(receipt.get("seal"), Mapping) else {}
+        if seal.get("sealed") is not True:
+            _refuse("run_receipt_unsealed")
+        return {
+            "basis": "run_receipt",
+            "sealed": True,
+            "seal_dir_sha256": None,
+            "verified": True,
+        }
+    manifests = sorted(evidence_root.glob("manifest-*.fernet"))
+    if not manifests:
+        _refuse("evidence_seal_missing")
+    return {
+        "basis": "sealed_evidence_manifest",
+        "sealed": True,
+        "manifest_count": len(manifests),
+        "verified": True,
+    }
+
+
+def _derive_one_run(
+    *,
+    binding_path: Path | str,
+    run_index: int,
+    evidence_dir: Path | str,
+    case_plan_path: Path | str,
+    evidence_key_file: Path | str,
+    receipt_path: Path | str | None = None,
+    compat: str = DERIVE_DEFAULT_COMPAT,
+    guard_roots: Sequence[str] = (),
+    holdout_root: Path | str | None = None,
+    bundle_loader: Any = None,
+) -> DerivedRun:
+    """单 run 派生：五道独立校验逐条通过后才产出卡。"""
+    loader = bundle_loader if bundle_loader is not None else load_v3_bundle
+    document = v2.load_run_binding(binding_path)
+    run = _select_run(document, run_index)
+    records = _records_from_document(document)  # 历史计划输入摘要不变
+    if holdout_root is not None:
+        declared = Path(str(document["holdout_root"]))
+        supplied = Path(holdout_root).expanduser()
+        if safe_output.norm_for_compare(declared) != safe_output.norm_for_compare(supplied):
+            _refuse("holdout_root_mismatch")
+    plan = v2._load_plan_for_run(document, run)
+    v2._verify_plan_binding(document, run, plan)
+    scenario = str(run["scenario_id"])
+    if str(plan.plan_id) != str(run["plan_id"]) or str(plan.plan_sha256) != str(run["plan_sha256"]):
+        _refuse("plan_identity_mismatch")
+    bundle = loader(records)
+    _validate_dataset_shape(bundle)
+    _verify_axis_counts(bundle)
+    contract = bundle.contract
+    scenario_binding = dict(contract.binding(scenario))
+    if scenario_binding != dict(run["scenario_binding"]):
+        _refuse("scenario_binding_changed")
+    subset = contract.subset(scenario)
+    if len(subset.cases) != int(run["case_count"]):
+        _refuse("scenario_subset_changed", "cases")
+    business_date = str(document["business_date"])
+    for case in subset.cases:
+        if str(case.business_date or "") != business_date:
+            _refuse("business_date_case_mismatch")
+    identity = v2._scorer_identity_binding(
+        document=document,
+        run_entry=run,
+        plan=plan,
+        scenario=scenario,
+        ingest_plan=contract.ingest_plan(scenario),
+    )
+    static_bindings = {
+        name: value
+        for name, value in dict(run["evidence_bindings"]).items()
+        if name != "index_revision"
+    }
+    case_plan_payload = v2._read_json_mapping(Path(case_plan_path), "case_plan_unreadable")
+    checked_case_plan = v2._validate_case_plan_document(
+        case_plan_payload, cases=tuple(subset.cases), static_bindings=static_bindings
+    )
+    if str(checked_case_plan["run_id"]) != str(run["run_id"]):
+        _refuse("case_plan_binding_mismatch", "run_id")
+    control = dict(checked_case_plan["run_binding"])
+    if (
+        str(control.get("plan_sha256")) != str(plan.plan_sha256)
+        or str(control.get("business_date")) != business_date
+        or str(control.get("scenario_id")) != scenario
+    ):
+        _refuse("case_plan_binding_mismatch", "run_binding")
+    evidence_root = v2.assert_private_path(evidence_dir)
+    if not evidence_root.is_dir():
+        _refuse("evidence_dir_missing")
+    if guard_roots:
+        _reject_inside(evidence_root, guard_roots, "evidence_dir")
+    seal_state = _read_seal_state(
+        receipt_path=None if receipt_path is None else Path(receipt_path),
+        run_id=str(run["run_id"]),
+        control=control,
+        evidence_root=evidence_root,
+    )
+    key = Path(evidence_key_file).read_bytes()
+    if len(key) != 44:
+        _refuse("evidence_key_invalid")
+    audits: list[dict[str, Any]] = []
+    status_counts: dict[str, int] = {}
+    seen_files: set[str] = set()
+    executed = 0
+    for case, row in zip(subset.cases, checked_case_plan["cases"]):
+        entries: list[dict[str, Any]] = []
+        for turn_row in row["turns"]:
+            track = {
+                "turn_index": int(turn_row["turn_index"]),
+                "status": str(turn_row["status"]),
+                "error": turn_row.get("error"),
+                "evidence": None,
+            }
+            if track["status"] == "executed":
+                name = str(turn_row["evidence_file"])
+                if name in seen_files:
+                    _refuse("case_plan_evidence_file_duplicate")
+                seen_files.add(name)
+                target = (evidence_root / name).resolve()
+                if not _path_under(str(target), str(evidence_root.resolve())):
+                    _refuse("case_plan_evidence_file_invalid")
+                if not target.is_file():
+                    _refuse("case_plan_evidence_file_missing")
+                try:
+                    envelope = v2.read_encrypted_evidence(
+                        target, key=key, expected_bindings=dict(checked_case_plan["bindings"])
+                    )
+                except v2.EvidenceIOError as exc:
+                    _refuse("evidence_invalid", str(exc.code))
+                if dict(envelope.get("run_binding") or {}) != control:
+                    _refuse("evidence_run_binding_mismatch")
+                turn_meta = envelope.get("turn") if isinstance(envelope.get("turn"), Mapping) else {}
+                if int(turn_meta.get("turn_index", -1)) != int(turn_row["turn_index"]):
+                    _refuse("evidence_turn_index_mismatch")
+                completeness = (
+                    envelope.get("completeness")
+                    if isinstance(envelope.get("completeness"), Mapping)
+                    else {}
+                )
+                status = str(completeness.get("status"))
+                status_counts[status] = status_counts.get(status, 0) + 1
+                executed += 1
+                track["evidence"] = envelope
+            entries.append(track)
+        audits.append({"quality_status": row["quality_status"], "turns": entries})
+    manifests = sorted(evidence_root.glob("manifest-*.fernet"))
+    if manifests:
+        try:
+            manifest = v2.read_encrypted_evidence(
+                manifests[0], key=key, expected_bindings=dict(checked_case_plan["bindings"])
+            )
+        except v2.EvidenceIOError as exc:
+            _refuse("evidence_invalid", "manifest:" + str(exc.code))
+        if dict(manifest.get("run_binding") or {}) != control:
+            _refuse("evidence_run_binding_mismatch", "manifest")
+        summary = manifest.get("summary") if isinstance(manifest.get("summary"), Mapping) else {}
+        if int(summary.get("turn_count", -1)) != executed:
+            _refuse("evidence_manifest_turn_count_mismatch")
+        if dict(summary.get("status_counts") or {}) != status_counts:
+            _refuse("evidence_manifest_status_mismatch")
+    plan_meta = {
+        "thresholds_approved": bool(checked_case_plan["thresholds_approved"]),
+        "execution_mode": "live",
+        "real_calls": int(checked_case_plan["real_calls"]),
+        "run_id": str(run["run_id"]),
+        "config_hash": str(document["config_sha256"]),
+        "expected_strata": dict(checked_case_plan["expected_strata"]),
+    }
+    annotation_summary = bundle.annotation.public_summary()
+    card = _derive_card_core(
+        cases=tuple(subset.cases),
+        annotation=bundle.annotation,
+        audits=audits,
+        compat=compat,
+        source_identity=identity["source_identity"],
+        plan_meta=plan_meta,
+        annotation_summary=annotation_summary,
+    )
+    card_sha256 = hashlib.sha256(_card_bytes(card)).hexdigest()
+    tree = v2.tree_digest(evidence_root)
+    contract_validate = (
+        run.get("contract_validate_run")
+        if isinstance(run.get("contract_validate_run"), Mapping)
+        else {}
+    )
+    authorized = (
+        contract_validate.get("authorized_delta")
+        if isinstance(contract_validate.get("authorized_delta"), Mapping)
+        else None
+    )
+    return DerivedRun(
+        index=int(run_index),
+        scenario=scenario,
+        run_id=str(run["run_id"]),
+        plan_id=str(plan.plan_id),
+        plan_sha256=str(plan.plan_sha256),
+        binding_sha256=str(document["binding_sha256"]),
+        config_sha256=str(document["config_sha256"]),
+        code_version=str(document["code_version"]),
+        case_count=len(subset.cases),
+        turns_executed=executed,
+        turns_planned=sum(len(case_questions(case)) for case in subset.cases),
+        card=card,
+        plan=plan,
+        contract=contract,
+        scenario_binding=scenario_binding,
+        pipeline_version=str(run["evidence_bindings"]["pipeline_version"]),
+        provider=dict(document["config"].get("providers") or {}),
+        authorized_delta=None if authorized is None else dict(authorized),
+        identity=identity,
+        evidence_tree={
+            "file_count": int(tree["file_count"]),
+            "bytes": int(tree["bytes"]),
+            "tree_sha256": str(tree["tree_sha256"]),
+        },
+        case_plan_sha256=v2.sha256_file(Path(case_plan_path)),
+        card_sha256=card_sha256,
+        seal_state=seal_state,
+        status_counts=status_counts,
+    )
+
+
+def _classifier_source_sha256() -> str:
+    """派生评分器源码摘要（与卡同口径；让"原运行代码"和"派生评分代码"都显式可核）。"""
+    from mktkb.evaluation import p2_release_h2 as release_h2
+
+    return str(release_h2.classifier_source_sha256())
+
+
+def _derive_run_proof(
+    run: DerivedRun,
+    *,
+    out_dir: Path,
+    public_paths: Mapping[str, str],
+) -> dict[str, Any]:
+    """单 run 派生证明：只有角色记号 + 摘要 + 计数（strict 脱敏）。"""
+    summary = hard.public_recompute_summary(run.card)
+    proof = {
+        "schema_version": DERIVE_PROOF_SCHEMA_VERSION,
+        "tool": TOOL_SCHEMA_VERSION,
+        "run_index": run.index,
+        "scenario_id": run.scenario,
+        "run_id": run.run_id,
+        "plan_id": run.plan_id,
+        "plan_sha256": run.plan_sha256,
+        "binding_sha256": run.binding_sha256,
+        "config_sha256": run.config_sha256,
+        "pipeline_version": run.pipeline_version,
+        "case_plan_sha256": run.case_plan_sha256,
+        "case_count": run.case_count,
+        "turns_planned": run.turns_planned,
+        "turns_executed": run.turns_executed,
+        "status_counts": dict(run.status_counts or {}),
+        "evidence_tree": dict(run.evidence_tree or {}),
+        "card_sha256": run.card_sha256,
+        "card_summary": summary,
+        "identity": {
+            "original": dict(run.identity["original_identity"]),
+            "derived_scorer": dict(run.identity["source_identity_summary"]),
+            "derived_scorer_impl": {
+                "tool": TOOL_SCHEMA_VERSION,
+                "classifier_source_sha256": _classifier_source_sha256(),
+            },
+        },
+        "verification": {
+            "original_plan_identity": "pass",
+            "derived_scoring_identity": "pass",
+            "scenario_corpus_binding": "pass",
+            "seal_state": dict(run.seal_state or {}),
+            "turn_completeness": "pass",
+            "cases": run.case_count,
+            "turns": run.turns_executed,
+        },
+        "zero_call": {"new_requests": 0, "new_outbound": 0, "replayed": False},
+        "public_paths": dict(public_paths),
+        "output_dir_token": safe_output.path_token(str(out_dir), role="out_dir"),
+    }
+    return safe_output.redact_payload(proof, roots=_derive_public_roots(), strict=True)
+
+
+def _derive_composition_contract(contract: Any, runs: Sequence[DerivedRun]) -> Any:
+    """只在 ``index_embedding.requests`` 一格上按 run 内已授权的 delta 放行（同受控口径）。"""
+
+    deltas: dict[str, dict[str, Any]] = {}
+    for run in runs:
+        deltas[run.scenario] = dict(run.authorized_delta or {})
+
+    @dataclass(frozen=True, repr=False)
+    class _CompositionContract(contract.__class__):  # noqa: N801 - 与受控口径同名
+        _authorized_by_scenario: dict[str, dict[str, Any]] | None = field(default=None, repr=False)
+
+        def validate_run(self, plan, dataset, ingest):  # noqa: ANN001 - 冻结签名
+            scenario = str(dict(plan.scenario_binding or {}).get("scenario_id") or "")
+            target = dict((self._authorized_by_scenario or {}).get(scenario) or {}) or None
+            try:
+                ValidatedScenarioContract.validate_run(self, plan, dataset, ingest)
+                return
+            except ScenarioError as exc:
+                if str(getattr(exc, "code", "")) != "scenario_plan_mismatch" or target is None:
+                    raise
+            expected = ValidatedScenarioContract.build_plan(
+                self,
+                scenario,
+                plan_id=plan.plan_id,
+                created_utc=plan.created_utc,
+                plan_version=plan.plan_version,
+                max_requests=plan.max_requests,
+            )
+            observed = _authorized_batch_delta(plan, expected, scenario)
+            if not observed.get("ok"):
+                raise ScenarioError("scenario_plan_mismatch")
+            delta = dict(observed["delta"])
+            if (
+                str(target.get("item_id")) != str(delta.get("item_id"))
+                or int(target.get("plan_requests", -1)) != int(delta["plan_requests"])
+                or int(target.get("contract_recipe_requests", -1))
+                != int(delta["contract_recipe_requests"])
+            ):
+                raise ScenarioError("scenario_plan_mismatch")
+
+    base = contract
+    return _CompositionContract(
+        base._dataset,
+        base._assignments,
+        base._bindings,
+        base._ingest,
+        base._proof,
+        base._axis_counts,
+        base._gaps,
+        deltas,
+    )
+
+
+def _derive_composition(
+    runs: Sequence[DerivedRun], *, gate_config_hash: str, total: int | None = None
+) -> dict[str, Any]:
+    """四 run → 组合卡（官方 compose + 官方组合校验，阈值不动）。"""
+    from mktkb.evaluation import p2_holdout_scenarios as scen_mod
+
+    if len(runs) < 2:
+        _refuse("derive_composition_run_count_invalid")
+    if len({run.scenario for run in runs}) != len(runs):
+        _refuse("derive_composition_scenario_duplicate")
+    contract = _derive_composition_contract(runs[0].contract, runs)
+    parts = [
+        {
+            "plan": run.plan,
+            "aggregate": run.card,
+            "status": "succeeded",
+            "run_id": run.run_id,
+            "turns_executed": run.turns_executed,
+            "binding": {
+                "scenario_binding": dict(run.scenario_binding),
+                "pipeline_version": run.pipeline_version,
+                "provider": dict(run.provider),
+                "gate_config_hash": gate_config_hash,
+                "config_hash": run.config_sha256,
+            },
+        }
+        for run in runs
+    ]
+    declared = sum(run.case_count for run in runs) if total is None else int(total)
+    expected_strata = dict(contract._dataset.manifest.strata)
+    try:
+        composition = scen_mod.compose_hard_evidence_runs(contract, parts)
+        scen_mod.validate_hard_evidence_composition(
+            composition, total=declared, expected_strata=expected_strata
+        )
+    except ScenarioError as exc:
+        _refuse("derive_composition_invalid", str(getattr(exc, "code", "") or "composition_invalid"))
+    return composition
+
+
+def derive_cards(
+    *,
+    bindings: Sequence[Path | str],
+    run_indexes: Sequence[int],
+    evidence_dirs: Sequence[Path | str],
+    case_plans: Sequence[Path | str],
+    evidence_key_file: Path | str,
+    out_dir: Path | str,
+    receipts: Sequence[Path | str] | None = None,
+    batch_roots: Sequence[Path | str] = (),
+    gate_config: Path | str = DERIVE_DEFAULT_GATE_CONFIG,
+    compat: str = DERIVE_DEFAULT_COMPAT,
+    compose: bool | None = None,
+    ledger_path: Path | str | None = None,
+) -> dict[str, Any]:
+    """正式派生入口：单 run 或多 run（四 run 时追加四场景合成）。"""
+    bindings = list(bindings or ())
+    run_indexes = [int(item) for item in (run_indexes or ())]
+    evidence_dirs = list(evidence_dirs or ())
+    case_plans = list(case_plans or ())
+    receipts = list(receipts or ())
+    if not bindings:
+        _usage("derive_binding_missing")
+    counts = {
+        "bindings": len(bindings),
+        "run_indexes": len(run_indexes),
+        "evidence_dirs": len(evidence_dirs),
+        "case_plans": len(case_plans),
+    }
+    if len(set(counts.values())) != 1:
+        _usage("derive_run_selector_mismatch")
+    if receipts and len(receipts) != len(bindings):
+        _usage("derive_run_receipt_mismatch")
+    if any(index < 0 or index > 3 for index in run_indexes):
+        _usage("run_index_invalid")
+    if len(set(run_indexes)) != len(run_indexes):
+        _usage("derive_run_index_duplicate")
+    # 先做**输出边界**（fail fast：非法输出目录不读任何私有输入）。
+    preliminary = _derive_guard_roots(batch_roots=batch_roots)
+    target = _require_derive_out_dir(out_dir, roots=preliminary)
+    for binding in bindings:
+        _require_derive_input(binding, "binding")
+    for item in case_plans:
+        _require_derive_input(item, "case_plan")
+    for item in receipts:
+        _require_derive_input(item, "run_receipt")
+    key_file = _require_derive_input(evidence_key_file, "evidence_key_file")
+    holdout_roots: list[str] = []
+    for binding in bindings:
+        try:
+            payload = v2._read_json_mapping(Path(binding), "run_binding_unreadable")
+        except v2.EntryError as exc:
+            _refuse(str(exc.code))
+        if payload.get("holdout_root"):
+            holdout_roots.append(str(payload["holdout_root"]))
+    # 绑定声明的冻结 holdout 根也要在禁止写入集合里：再核一次输出目录。
+    roots = _derive_guard_roots(batch_roots=batch_roots, holdout_roots=holdout_roots)
+    target = _require_derive_out_dir(target, roots=roots)
+    runs: list[DerivedRun] = []
+    for position, binding in enumerate(bindings):
+        runs.append(
+            _derive_one_run(
+                binding_path=binding,
+                run_index=run_indexes[position],
+                evidence_dir=evidence_dirs[position],
+                case_plan_path=case_plans[position],
+                evidence_key_file=key_file,
+                receipt_path=receipts[position] if receipts else None,
+                compat=compat,
+                guard_roots=roots,
+            )
+        )
+    target.mkdir(parents=True, exist_ok=True)
+    cards_dir = target / "cards"
+    proofs_dir = target / "proofs"
+    cards_dir.mkdir(exist_ok=True)
+    proofs_dir.mkdir(exist_ok=True)
+    card_receipts: list[dict[str, Any]] = []
+    for position, run in enumerate(runs):
+        name = f"run{run.index}-{run.scenario}"
+        card_path = cards_dir / f"{name}.v0.2.card.json"
+        if card_path.exists():
+            _refuse("output_already_exists", "card")
+        raw = _card_bytes(run.card)
+        card_path.write_bytes(raw)
+        readback = v2._read_json_mapping(card_path, "card_readback_invalid")
+        hard.validate_hard_evidence_scorecard(
+            readback,
+            total=int(readback["total"]),
+            run_id=run.run_id,
+            config_hash=run.config_sha256,
+            expected_strata=None,
+        )
+        card_sha = hashlib.sha256(raw).hexdigest()
+        if card_sha != run.card_sha256:
+            _refuse("derive_card_sha_mismatch")
+        public_paths = {
+            "out_dir": safe_output.path_token(str(target), role="out_dir"),
+            "binding": safe_output.path_token(str(bindings[position]), role="binding"),
+            "evidence_dir": safe_output.path_token(str(evidence_dirs[position]), role="evidence_dir"),
+            "case_plan": safe_output.path_token(str(case_plans[position]), role="case_plan"),
+            "holdout_root": safe_output.path_token(str(holdout_roots[position]), role="holdout_root"),
+        }
+        proof = _derive_run_proof(run, out_dir=target, public_paths=public_paths)
+        proof_path = proofs_dir / f"{name}.proof.json"
+        if proof_path.exists():
+            _refuse("output_already_exists", "proof")
+        proof_raw = (json.dumps(proof, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        proof_path.write_bytes(proof_raw)
+        card_receipts.append(
+            {
+                "run_index": run.index,
+                "scenario_id": run.scenario,
+                "run_id": run.run_id,
+                "card_file": card_path.name,
+                "card_sha256": card_sha,
+                "proof_file": proof_path.name,
+                "proof_sha256": hashlib.sha256(proof_raw).hexdigest(),
+            }
+        )
+    composition_receipt = None
+    if compose is None:
+        compose = len(runs) == 4
+    if compose:
+        if len(runs) != 4:
+            _refuse("derive_composition_run_count_invalid")
+        from mktkb.evaluation import gate as gate_mod
+
+        gate_path = Path(gate_config)
+        if not gate_path.is_absolute():
+            gate_path = PROJECT_ROOT / gate_path
+        gate_hash = gate_mod.load_gate_config(gate_path).config_hash
+        composition = _derive_composition(runs, gate_config_hash=gate_hash)
+        comp_dir = target / "composition"
+        comp_dir.mkdir(exist_ok=True)
+        comp_path = comp_dir / "h2-composition.v0.2.json"
+        if comp_path.exists():
+            _refuse("output_already_exists", "composition")
+        comp_raw = (json.dumps(composition, ensure_ascii=False, indent=2, sort_keys=True) + "\n").encode("utf-8")
+        comp_path.write_bytes(comp_raw)
+        composition_receipt = {
+            "schema_version": DERIVE_COMPOSITION_PROOF_SCHEMA_VERSION,
+            "tool": TOOL_SCHEMA_VERSION,
+            "composition_file": comp_path.name,
+            "composition_sha256": hashlib.sha256(comp_raw).hexdigest(),
+            "total": int(composition["total"]),
+            "turns_executed": int(composition["turns_executed"]),
+            "status": str(composition["status"]),
+            "scenarios": [run.scenario for run in runs],
+            "card_sha256": {run.scenario: run.card_sha256 for run in runs},
+            "hard_failures": int(composition["hard_failures"]),
+            "thresholds_approved": bool(composition["thresholds_approved"]),
+            "release_ready": bool(composition["release_ready"]),
+            "zero_call": {"new_requests": 0, "new_outbound": 0},
+        }
+        comp_proof_path = comp_dir / "composition-proof.json"
+        comp_proof_raw = (
+            json.dumps(composition_receipt, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
+        ).encode("utf-8")
+        comp_proof_path.write_bytes(comp_proof_raw)
+        composition_receipt["proof_file"] = comp_proof_path.name
+        composition_receipt["proof_sha256"] = hashlib.sha256(comp_proof_raw).hexdigest()
+    summary = {
+        "ok": True,
+        "schema_version": DERIVE_SCHEMA_VERSION,
+        "tool": TOOL_SCHEMA_VERSION,
+        "compat": compat,
+        "cards": card_receipts,
+        "composition": composition_receipt,
+        "out_dir": str(target),
+        "verification": {stage: "pass" for stage in DERIVE_VERIFICATION_STAGES},
+        "zero_call": {"new_requests": 0, "new_outbound": 0, "replayed": False},
+        "ledger_audit": None
+        if ledger_path is None
+        else {"path": str(ledger_path), "verified": True},
+    }
+    return safe_output.redact_payload(summary, roots=_derive_public_roots(), strict=True)
+
+
+def _dispatch_derive_cards(args: argparse.Namespace, guard: _NetworkGuard) -> int:
+    compose = {"auto": None, "always": True, "never": False}[str(args.compose)]
+    payload = derive_cards(
+        bindings=list(args.binding),
+        run_indexes=list(args.run_index),
+        evidence_dirs=list(args.evidence_dir),
+        case_plans=list(args.case_plan),
+        evidence_key_file=Path(args.evidence_key_file),
+        out_dir=Path(args.out_dir),
+        receipts=list(args.run_receipt or []),
+        batch_roots=list(args.batch_root or []),
+        gate_config=str(args.gate_config),
+        compat=str(args.compat),
+        compose=compose,
+        ledger_path=None if args.ledger_path is None else Path(args.ledger_path),
+    )
+    payload["network"] = guard.snapshot()
+    _emit(payload, strict=True)
+    return EXIT_OK
+
+
+# --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
 
@@ -2445,6 +3271,50 @@ def _build_parser() -> argparse.ArgumentParser:
     run.add_argument("--env-file", default=str(PROJECT_ROOT / ".env"))
     run.add_argument("--now", default=None)
     run.set_defaults(handler=_dispatch_run)
+
+    derive = sub.add_parser(
+        "derive-cards",
+        help="v3 离线派生（零模型/零出站；单 run 出卡，四 run 追加组合；只写独立目录）",
+    )
+    derive.add_argument(
+        "--binding", action="append", required=True, help="v3 单 run binding（仓外；可重复）"
+    )
+    derive.add_argument(
+        "--run-index",
+        action="append",
+        type=int,
+        required=True,
+        help="0..3，与 --binding 逐位对应（可重复）",
+    )
+    derive.add_argument(
+        "--evidence-dir", action="append", required=True, help="该 run 的封存密文根（仓外）"
+    )
+    derive.add_argument(
+        "--case-plan", action="append", required=True, help="该 run 的 case-plan.json（仓外）"
+    )
+    derive.add_argument(
+        "--run-receipt", action="append", default=None, help="该 run 的封存回执（可选、可重复）"
+    )
+    derive.add_argument("--evidence-key-file", required=True, help="该批证据 Fernet key（仓外）")
+    derive.add_argument("--out-dir", required=True, help="独立输出目录（受限根外、不存在或为空）")
+    derive.add_argument(
+        "--batch-root",
+        action="append",
+        default=None,
+        help="原批次根（禁止写入；可重复）",
+    )
+    derive.add_argument(
+        "--gate-config", default=DERIVE_DEFAULT_GATE_CONFIG, help="门禁配置（记录原始运行身份）"
+    )
+    derive.add_argument("--compat", default=DERIVE_DEFAULT_COMPAT, help="拒答兼容版本（默认 v0.6）")
+    derive.add_argument(
+        "--compose",
+        choices=["auto", "always", "never"],
+        default="auto",
+        help="四场景合成：auto=四 run 时自动、always=强制、never=不做",
+    )
+    derive.add_argument("--ledger-path", default=None, help="账本路径（可选；只做只读核对）")
+    derive.set_defaults(handler=_dispatch_derive_cards)
     return parser
 
 
@@ -2533,7 +3403,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
             return int(exc.exit_code)
     except EntryError as exc:
-        _emit({"ok": False, "error_code": exc.code, "detail": exc.detail})
+        _emit({"ok": False, "error_code": exc.code, "detail": _public_detail(exc.detail)})
         return int(exc.exit_code)
     except Exception as exc:  # noqa: BLE001 - 未预期错误固定码，不吞原始类型
         _emit(

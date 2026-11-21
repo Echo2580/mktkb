@@ -1,0 +1,1592 @@
+{
+  "b0_registration_change": {
+    "after": {
+      "admission_sha256": "bad2f990dab1a1c1b303ef59ee7562043c1b72834c51f0d9940f54f84d5932d4",
+      "approval_sha256": "b9f5a54440dc45862c496d616b79a888326d0b1814b75ac292d80ebbb5bed485",
+      "baseline_id": "2b40ee9b4740",
+      "baseline_root": "var/eval/baselines",
+      "baseline_sha256": "cb2852a97a432f61d7ca2f7e30790cb2df7491cf42641905b80711a600159d77",
+      "run_id": "p2-t209-b0-20261121-01"
+    },
+    "before": {
+      "admission_sha256": "bad2f990dab1a1c1b303ef59ee7562043c1b72834c51f0d9940f54f84d5932d4",
+      "approval_sha256": "b9f5a54440dc45862c496d616b79a888326d0b1814b75ac292d80ebbb5bed485",
+      "baseline_id": "2b40ee9b4740",
+      "baseline_root": "var/eval/baselines",
+      "baseline_sha256": "cb2852a97a432f61d7ca2f7e30790cb2df7491cf42641905b80711a600159d77",
+      "run_id": "p2-t209-b0-20261121-01"
+    }
+  },
+  "candidate_pipeline_version": "candidate-mktkb.gate.v0.3",
+  "counts": {
+    "blocked": 0,
+    "observed": 10,
+    "pass": 39,
+    "pending": 0
+  },
+  "decision": "pass",
+  "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+  "inputs_sha256": "2b18011370b65329fe45b5f2d9925bd200a03c783e4b37d9aa329a79b5127f04",
+  "notes": [
+    "技术门通过只作为 T900 独立总验收输入，不构成发布决定",
+    "缺证/未执行/必需未知/硬失败/版本不符/身份不符一律阻断",
+    "不许用调用方自报布尔或名称白名单当必要证据",
+    "硬门禁最小样本按 suite 计划题数计（主人 D-011），run 级子集由 hard_gate_min_sample.run_level_subset 披露；该行是要求的输出行，消费方不得删除，冻结时应把行数与行 id 集合一并入册",
+    "单看 technical_gate=pass 不读 disclosure 行，会误读为'10 条 run 级证据都过了门'——U 的八项硬门禁实际只在 1 条 run 级样本上评估"
+  ],
+  "owner_release_decision": "not_decided",
+  "pending": {},
+  "reason_codes": [],
+  "release_allowed": false,
+  "release_authority": "owner",
+  "rows": [
+    {
+      "decision": "pass",
+      "detail": {
+        "config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "gate_version": "mktkb.gate.v0.3",
+        "status": "approved"
+      },
+      "evidence": [
+        "gate_config:gate_v0_3_approved.json"
+      ],
+      "reasons": [],
+      "row_id": "gate_config",
+      "title": "已批准正式配置"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "inputs_sha256": "2b18011370b65329fe45b5f2d9925bd200a03c783e4b37d9aa329a79b5127f04",
+        "pending": {}
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "inputs",
+      "title": "输入契约（逐字节绑定）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "p2_release_status": "blocked_pending_n_c_u_h2_evidence",
+        "plan_sha256": "d38e3c7cdaf88f1bf7ed1d41f4e3c6bf4b4d96e867511a1a78c06662d5f71d2d",
+        "real_calls": 112,
+        "run_id": "p2-t209-b0-20261121-01"
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.admission",
+      "title": "原 B0 准入留存（便携证明重算）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "executed": 40,
+        "planned": 40
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.execution",
+      "title": "B0 执行 40/40"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "errors": 0,
+        "failed": 2,
+        "not_executed": 0,
+        "passed": 38
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.quality",
+      "title": "B0 正确 ≥36/40"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "exact_passed": 24,
+        "exact_planned": 24
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.exact",
+      "title": "B0 精确 24/24"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "ocr_executed": 8,
+        "ocr_passed": 7,
+        "ocr_planned": 8
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.ocr",
+      "title": "B0 OCR 8/8 执行"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+        "pipeline_version": "d3ca88d2c515+13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "candidate.pipeline",
+      "title": "候选流水线与 B0 绑定一致"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "expected_min_sample": 32,
+        "gate_status": {
+          "citation_required": "pass",
+          "conflict_not_rejected": "not_applicable",
+          "cross_entity": "not_applicable",
+          "exact_value_contract": "pass",
+          "pagination_contract": "not_applicable",
+          "security_leak": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "trace_integrity": "pass"
+        },
+        "min_sample": 32,
+        "min_sample_coverage": {
+          "basis": "suite_planned_cases",
+          "covered": true,
+          "required_min_sample": 32,
+          "run_level_evaluated": 40,
+          "suite": "b0",
+          "suite_planned_cases": 40
+        },
+        "scored_count": 40,
+        "source_hit_basis": "frozen_case_gold"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "hard_gates.b0",
+      "title": "B0 八项硬门禁（原最小样本）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "attested_index_revision": 12,
+        "binding_correction_applied": true,
+        "corrected_view": {
+          "binding_failures": [],
+          "exit_code": 3,
+          "gate_status": {
+            "citation_required": "pass",
+            "conflict_not_rejected": "not_applicable",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "pass",
+            "pagination_contract": "not_applicable",
+            "security_leak": "not_applicable",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "pass"
+          },
+          "min_sample": null,
+          "scored_count": 52,
+          "trace_integrity": "pass",
+          "unknowns": [
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "note": "原始机械失败如实保留；修正视图为派生 trace 视图重放，不写回原库",
+        "original_mechanical": {
+          "binding_failures": [
+            "C01",
+            "C02",
+            "N01",
+            "Q01",
+            "Q02",
+            "Q03",
+            "Q04",
+            "Q05",
+            "Q06",
+            "Q07",
+            "Q08",
+            "Q09",
+            "Q10",
+            "Q11",
+            "Q12",
+            "Q13",
+            "Q14",
+            "Q15",
+            "Q16",
+            "Q17",
+            "Q18",
+            "Q19",
+            "Q20",
+            "Q21",
+            "Q22",
+            "Q23",
+            "Q24"
+          ],
+          "exit_code": 1,
+          "gate_status": {
+            "citation_required": "pass",
+            "conflict_not_rejected": "not_applicable",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "pass",
+            "pagination_contract": "not_applicable",
+            "security_leak": "not_applicable",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "fail"
+          },
+          "min_sample": null,
+          "scored_count": 52,
+          "trace_integrity": "fail",
+          "unknowns": [
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "proof_sha256": "973cfd59f4fb2c471b576548d94b8cc11da92b330db8efaf61c68c2d4bc8a2a4",
+        "recorded_index_revision": 11,
+        "rewritten_trace_rows": 25,
+        "rule": "adopted-standard:gate_binding_value_is_actual_rag_index_revision",
+        "trace_rows_total": 52,
+        "zero_rewrite": {
+          "legal": false,
+          "post_update_not_at_attested": 0,
+          "rule": "rewritten == trace_rows_not_at_attested 且 post_update_not_at_attested == 0",
+          "trace_rows_not_at_attested": 25
+        }
+      },
+      "evidence": [
+        "binding_proof:973cfd59f4fb2c47"
+      ],
+      "reasons": [],
+      "row_id": "binding.p2-t207-r1-20261111-01",
+      "title": "历史绑定适用性 · p2-t207-r1-20261111-01"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "attested_index_revision": 6,
+        "binding_correction_applied": true,
+        "corrected_view": {
+          "binding_failures": [],
+          "exit_code": 3,
+          "gate_status": {
+            "citation_required": "not_applicable",
+            "conflict_not_rejected": "pass",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "not_applicable",
+            "pagination_contract": "not_applicable",
+            "security_leak": "pass",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "pass"
+          },
+          "min_sample": null,
+          "scored_count": 3,
+          "trace_integrity": "pass",
+          "unknowns": [
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "note": "原始机械失败如实保留；修正视图为派生 trace 视图重放，不写回原库",
+        "original_mechanical": {
+          "binding_failures": [
+            "C05",
+            "C06"
+          ],
+          "exit_code": 1,
+          "gate_status": {
+            "citation_required": "not_applicable",
+            "conflict_not_rejected": "pass",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "not_applicable",
+            "pagination_contract": "not_applicable",
+            "security_leak": "pass",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "fail"
+          },
+          "min_sample": null,
+          "scored_count": 3,
+          "trace_integrity": "fail",
+          "unknowns": [
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "proof_sha256": "7a38918e894d1b52ebbd07a806745eeaf9d82e25a955716d0379816edcd1de32",
+        "recorded_index_revision": 5,
+        "rewritten_trace_rows": 1,
+        "rule": "adopted-standard:gate_binding_value_is_actual_rag_index_revision",
+        "trace_rows_total": 3,
+        "zero_rewrite": {
+          "legal": false,
+          "post_update_not_at_attested": 0,
+          "rule": "rewritten == trace_rows_not_at_attested 且 post_update_not_at_attested == 0",
+          "trace_rows_not_at_attested": 1
+        }
+      },
+      "evidence": [
+        "binding_proof:7a38918e894d1b52"
+      ],
+      "reasons": [],
+      "row_id": "binding.p2-t207-r4-20261111-01",
+      "title": "历史绑定适用性 · p2-t207-r4-20261111-01"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "errors": 0,
+        "not_executed": 0,
+        "passed": 8,
+        "run_ids": [
+          "p2-t207-r1-20261111-01",
+          "p2-t207-r4-20261111-01"
+        ],
+        "selected_sha256": "ec3a64e4278092b052cf85b8a1972c86fff9cceae58609f452688b4faa877393",
+        "suite": "negative",
+        "total": 8
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "negative",
+      "title": "N 8/8（真实公开 run）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "expected_min_sample": 8,
+        "gate_status": {
+          "citation_required": "not_applicable",
+          "conflict_not_rejected": "not_applicable",
+          "cross_entity": "not_applicable",
+          "exact_value_contract": "not_applicable",
+          "pagination_contract": "not_applicable",
+          "security_leak": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "trace_integrity": "not_applicable"
+        },
+        "min_sample": 8,
+        "min_sample_coverage": {
+          "basis": "suite_planned_cases",
+          "covered": true,
+          "required_min_sample": 8,
+          "run_level_evaluated": 8,
+          "suite": "negative",
+          "suite_planned_cases": 8
+        },
+        "scored_count": 8,
+        "source_hit_basis": "frozen_case_gold"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "negative.hard_gates",
+      "title": "N 8/8（真实公开 run） · 八项硬门禁"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "errors": 0,
+        "not_executed": 0,
+        "passed": 6,
+        "run_ids": [
+          "p2-t207-r1-20261111-01",
+          "p2-t207-r4-20261111-01"
+        ],
+        "selected_sha256": "91bc6b3622a52fc293b1f8fc7c5d44556bcf085542f86f2634f70c109a55f5d8",
+        "suite": "boundary",
+        "total": 6
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "boundary",
+      "title": "C 6/6（真实公开 run）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "expected_min_sample": 6,
+        "gate_status": {
+          "citation_required": "not_applicable",
+          "conflict_not_rejected": "pass",
+          "cross_entity": "not_applicable",
+          "exact_value_contract": "not_applicable",
+          "pagination_contract": "not_applicable",
+          "security_leak": "pass",
+          "stale_bypass": "not_applicable",
+          "trace_integrity": "not_applicable"
+        },
+        "min_sample": 6,
+        "min_sample_coverage": {
+          "basis": "suite_planned_cases",
+          "covered": true,
+          "required_min_sample": 6,
+          "run_level_evaluated": 6,
+          "suite": "boundary",
+          "suite_planned_cases": 6
+        },
+        "resolved_unknowns": [
+          {
+            "basis": "record_reconstruction",
+            "case_id": "C05",
+            "check_id": "record_code_only_gold",
+            "gate_id": "gold",
+            "reason": "record_code 不是解析键：gold 引用只有 record_code，不得静默按整篇命中",
+            "row": 8,
+            "sheet": "物品位置",
+            "unit_key": "sheet:物品位置:row:8"
+          },
+          {
+            "basis": "record_reconstruction",
+            "case_id": "C06",
+            "check_id": "record_code_only_gold",
+            "gate_id": "gold",
+            "reason": "record_code 不是解析键：gold 引用只有 record_code，不得静默按整篇命中",
+            "row": 5,
+            "sheet": "店家信息",
+            "unit_key": "sheet:店家信息:row:5"
+          }
+        ],
+        "scored_count": 6,
+        "source_hit_basis": "record_reconstruction"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "boundary.hard_gates",
+      "title": "C 6/6（真实公开 run） · 八项硬门禁"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "cases_sha256": "51304fe96fb8077d46c7b24a46480cef6d43d869985e8e4b823690f06675ddd8",
+        "original_gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+        "scorer_source_sha256": "1438630da25160664438540b73911e2783f850737eb37c8c20efc2e0af651d65",
+        "statuses_sha256": "9c057dafd59c24ce49f6ac5e9c5fcc0f6346df01019d11c46430fdd25b7da55d",
+        "target_gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094"
+      },
+      "evidence": [
+        "applicability:5fc5ffe0525f6e12"
+      ],
+      "reasons": [],
+      "row_id": "applicability.p2-t207-r1-20261111-01",
+      "title": "旧版本适用性 · p2-t207-r1-20261111-01"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "cases_sha256": "c04b67c6f8a44c09eaa3c4fc56a6ceb8dc97ac7665aea6ed92ef0ea01897fd84",
+        "original_gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+        "scorer_source_sha256": "1438630da25160664438540b73911e2783f850737eb37c8c20efc2e0af651d65",
+        "statuses_sha256": "5b5fed8af4d5ec1a007ace5536df4f553e65aa580fa6f26979c3c6af4a1c3db5",
+        "target_gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094"
+      },
+      "evidence": [
+        "applicability:9959dda6c39e5804"
+      ],
+      "reasons": [],
+      "row_id": "applicability.p2-t207-r4-20261111-01",
+      "title": "旧版本适用性 · p2-t207-r4-20261111-01"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "attested_index_revision": 4,
+        "binding_correction_applied": true,
+        "corrected_view": {
+          "binding_failures": [],
+          "exit_code": 1,
+          "gate_status": {
+            "citation_required": "pass",
+            "conflict_not_rejected": "fail",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "not_applicable",
+            "pagination_contract": "not_applicable",
+            "security_leak": "pass",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "pass"
+          },
+          "min_sample": null,
+          "scored_count": 2,
+          "trace_integrity": "pass",
+          "unknowns": [
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "note": "原始机械失败如实保留；修正视图为派生 trace 视图重放，不写回原库",
+        "original_mechanical": {
+          "binding_failures": [
+            "C05",
+            "U01"
+          ],
+          "exit_code": 1,
+          "gate_status": {
+            "citation_required": "pass",
+            "conflict_not_rejected": "fail",
+            "cross_entity": "not_applicable",
+            "exact_value_contract": "not_applicable",
+            "pagination_contract": "not_applicable",
+            "security_leak": "pass",
+            "stale_bypass": "not_applicable",
+            "trace_integrity": "fail"
+          },
+          "min_sample": null,
+          "scored_count": 2,
+          "trace_integrity": "fail",
+          "unknowns": [
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "record_code_only_gold",
+              "gate_id": "gold"
+            },
+            {
+              "check_id": "min_sample_missing",
+              "gate_id": "min_sample"
+            }
+          ]
+        },
+        "proof_sha256": "a753d46638d48900a7835788f55d43fd0d5d8060b27648653bbaeee709585c24",
+        "recorded_index_revision": 3,
+        "rewritten_trace_rows": 0,
+        "rule": "adopted-standard:gate_binding_value_is_actual_rag_index_revision",
+        "trace_rows_total": 2,
+        "zero_rewrite": {
+          "legal": true,
+          "post_update_not_at_attested": 0,
+          "rule": "rewritten == trace_rows_not_at_attested 且 post_update_not_at_attested == 0",
+          "trace_rows_not_at_attested": 0
+        }
+      },
+      "evidence": [
+        "binding_proof:a753d46638d48900"
+      ],
+      "reasons": [],
+      "row_id": "binding.p2-t207-r2-20261111-01",
+      "title": "历史绑定适用性 · p2-t207-r2-20261111-01"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "basis": {
+          "U01": "R",
+          "U02": "L",
+          "U03": "L",
+          "U04": "L",
+          "U05": "L",
+          "U06": "L",
+          "U07": "L",
+          "U08": "L",
+          "U09": "L",
+          "U10": "L"
+        },
+        "local": {
+          "case_ids": [
+            "U01",
+            "U02",
+            "U03",
+            "U04",
+            "U05",
+            "U06",
+            "U07",
+            "U08",
+            "U09",
+            "U10"
+          ],
+          "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+          "statuses": {
+            "U01": "pass",
+            "U02": "pass",
+            "U03": "pass",
+            "U04": "pass",
+            "U05": "pass",
+            "U06": "pass",
+            "U07": "pass",
+            "U08": "pass",
+            "U09": "pass",
+            "U10": "pass"
+          }
+        },
+        "missing": [],
+        "overlap": [
+          "U01"
+        ],
+        "real": {
+          "case_ids": [
+            "U01"
+          ],
+          "run_id": "p2-t207-r2-20261111-01",
+          "statuses": {
+            "U01": "pass"
+          }
+        },
+        "rule": "同一题同时出现在真实 smoke 与本地控制时，bases 取 R（真实 smoke），L 记录但不计入",
+        "unknown": []
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "u.overlap",
+      "title": "U 逐题归属（R 优先，L 仅对照）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "basis": {
+          "U01": "R",
+          "U02": "L",
+          "U03": "L",
+          "U04": "L",
+          "U05": "L",
+          "U06": "L",
+          "U07": "L",
+          "U08": "L",
+          "U09": "L",
+          "U10": "L"
+        },
+        "local": {
+          "case_ids": [
+            "U01",
+            "U02",
+            "U03",
+            "U04",
+            "U05",
+            "U06",
+            "U07",
+            "U08",
+            "U09",
+            "U10"
+          ],
+          "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+          "statuses": {
+            "U01": "pass",
+            "U02": "pass",
+            "U03": "pass",
+            "U04": "pass",
+            "U05": "pass",
+            "U06": "pass",
+            "U07": "pass",
+            "U08": "pass",
+            "U09": "pass",
+            "U10": "pass"
+          }
+        },
+        "missing": [],
+        "overlap": [
+          "U01"
+        ],
+        "real": {
+          "case_ids": [
+            "U01"
+          ],
+          "run_id": "p2-t207-r2-20261111-01",
+          "statuses": {
+            "U01": "pass"
+          }
+        },
+        "unknown": []
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "u.coverage",
+      "title": "U 逐题覆盖 U01–U10（R/L 分列）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "basis": {
+          "U01": "R",
+          "U02": "L",
+          "U03": "L",
+          "U04": "L",
+          "U05": "L",
+          "U06": "L",
+          "U07": "L",
+          "U08": "L",
+          "U09": "L",
+          "U10": "L"
+        },
+        "local": {
+          "case_ids": [
+            "U01",
+            "U02",
+            "U03",
+            "U04",
+            "U05",
+            "U06",
+            "U07",
+            "U08",
+            "U09",
+            "U10"
+          ],
+          "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+          "statuses": {
+            "U01": "pass",
+            "U02": "pass",
+            "U03": "pass",
+            "U04": "pass",
+            "U05": "pass",
+            "U06": "pass",
+            "U07": "pass",
+            "U08": "pass",
+            "U09": "pass",
+            "U10": "pass"
+          }
+        },
+        "missing": [],
+        "overlap": [
+          "U01"
+        ],
+        "real": {
+          "case_ids": [
+            "U01"
+          ],
+          "run_id": "p2-t207-r2-20261111-01",
+          "statuses": {
+            "U01": "pass"
+          }
+        },
+        "unknown": []
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "u.local",
+      "title": "U 逐题通过（R/L 各自来源）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "basis": {
+          "U01": "R",
+          "U02": "L",
+          "U03": "L",
+          "U04": "L",
+          "U05": "L",
+          "U06": "L",
+          "U07": "L",
+          "U08": "L",
+          "U09": "L",
+          "U10": "L"
+        },
+        "local": {
+          "case_ids": [
+            "U01",
+            "U02",
+            "U03",
+            "U04",
+            "U05",
+            "U06",
+            "U07",
+            "U08",
+            "U09",
+            "U10"
+          ],
+          "source": "backend\\tests\\acceptance\\test_t09_mutation.py",
+          "statuses": {
+            "U01": "pass",
+            "U02": "pass",
+            "U03": "pass",
+            "U04": "pass",
+            "U05": "pass",
+            "U06": "pass",
+            "U07": "pass",
+            "U08": "pass",
+            "U09": "pass",
+            "U10": "pass"
+          }
+        },
+        "missing": [],
+        "overlap": [
+          "U01"
+        ],
+        "passed": 10,
+        "real": {
+          "case_ids": [
+            "U01"
+          ],
+          "run_id": "p2-t207-r2-20261111-01",
+          "statuses": {
+            "U01": "pass"
+          }
+        },
+        "unknown": []
+      },
+      "evidence": [
+        "u-controls:11b1679f9c38a97d"
+      ],
+      "reasons": [],
+      "row_id": "u",
+      "title": "U 10/10（1 真实 smoke 起，其余按 R/L 分列）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "disclosed": {
+          "check": "min_sample_not_met",
+          "note": "run 级子集小于 hard_gate_min_sample；按 D-011 以 suite 计划题数判定覆盖，该项只披露不阻断"
+        },
+        "expected_min_sample": 10,
+        "gate_status": {
+          "citation_required": "pass",
+          "conflict_not_rejected": "not_applicable",
+          "cross_entity": "not_applicable",
+          "exact_value_contract": "not_applicable",
+          "pagination_contract": "not_applicable",
+          "security_leak": "not_applicable",
+          "stale_bypass": "not_applicable",
+          "trace_integrity": "not_applicable"
+        },
+        "min_sample": 10,
+        "min_sample_coverage": {
+          "basis": "suite_planned_cases",
+          "covered": true,
+          "required_min_sample": 10,
+          "run_level_evaluated": 1,
+          "suite": "update_delete",
+          "suite_planned_cases": 10
+        },
+        "resolved_unknowns": [
+          {
+            "basis": "record_reconstruction",
+            "case_id": "U01",
+            "check_id": "record_code_only_gold",
+            "gate_id": "gold",
+            "reason": "record_code 不是解析键：gold 引用只有 record_code，不得静默按整篇命中",
+            "row": 8,
+            "sheet": "物品位置",
+            "unit_key": "sheet:物品位置:row:8"
+          }
+        ],
+        "scored_count": 1,
+        "source_hit_basis": "record_reconstruction",
+        "unknowns": [
+          {
+            "case_id": null,
+            "check_id": "min_sample_not_met",
+            "gate_id": "min_sample",
+            "reason": "evaluated_count（status ∈ {pass,fail} 且排除 OCR 与 error 行）不足硬门禁 hard_gate_min_sample"
+          }
+        ]
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "u.hard_gates",
+      "title": "U · 八项硬门禁"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "after_d004": "citation_required=pass（候选接地集合 = evidence ∪ retrieved）",
+        "cases": [
+          "U01"
+        ],
+        "decision": "D-004 已由主人授权；本行不再阻断",
+        "mechanical_before": "citation_required=fail（retrieved=[]）"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "u.citation",
+      "title": "U01 引用接地（D-004：evidence 字段）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "authority": "主人 D-011：按 suite 计划题数计覆盖，不改配置数值、不放宽判据",
+        "basis": "suite_planned_cases",
+        "covered": true,
+        "disclosed_limit": "U 的八项硬门禁在 1 条 run 级样本上评估，其余 9 条为本地控制",
+        "required_min_sample": 10,
+        "run_level_evaluated": 1,
+        "scored_count": 1,
+        "suite": "update_delete",
+        "suite_planned_cases": 10
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "hard_gate_min_sample.run_level_subset",
+      "title": "硬门禁最小样本：suite 计划题数口径（D-011）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "cases_sha256": "685e64448b035c26362ad3bacf1ea89f5f3e834e41a454a4c899e66292b89387",
+        "original_gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+        "scorer_source_sha256": "1438630da25160664438540b73911e2783f850737eb37c8c20efc2e0af651d65",
+        "statuses_sha256": "c856b3123caa4cb22e356d2474978bbe5831c82306dfa809f2f8b626dde8baeb",
+        "target_gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094"
+      },
+      "evidence": [
+        "applicability:cc432ffd406743fb"
+      ],
+      "reasons": [],
+      "row_id": "applicability.p2-t207-r2-20261111-01",
+      "title": "旧版本适用性 · p2-t207-r2-20261111-01"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "manifest_sha256": "0129cd2ba6abf625c61afaaf958ae2e30e675977ad3045eb381d568ab4ab3fab",
+        "report_sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3",
+        "scope_cases": 15,
+        "sha256sums": {
+          "mismatch": 0,
+          "missing": 0,
+          "sha256": "746fa6633186356c0795583d8dccb84bb0414c94d39d7a5cb4a65f8dbac55b01",
+          "verified": 17
+        },
+        "tallies_declared": {
+          "formal": {
+            "C": 6,
+            "N": 8,
+            "U": 10
+          },
+          "unconditional": {
+            "C": 2,
+            "N": 7,
+            "U": 9
+          },
+          "with_proof": {
+            "C": 4,
+            "N": 1,
+            "U": 1
+          }
+        },
+        "tallies_recomputed_pass": {
+          "C": 6,
+          "N": 8,
+          "U": 10
+        },
+        "tiers": {
+          "ADOPTED": {
+            "C": 2,
+            "N": 7,
+            "U": 9
+          },
+          "ADOPTED_WITH_BINDING_PROOF": {
+            "C": 4,
+            "N": 1,
+            "U": 1
+          },
+          "FAIL": {
+            "C": 0,
+            "N": 0,
+            "U": 0
+          },
+          "UNKNOWN": {
+            "C": 0,
+            "N": 0,
+            "U": 0
+          }
+        }
+      },
+      "evidence": [
+        "manifest:0129cd2ba6abf625"
+      ],
+      "reasons": [],
+      "row_id": "evidence_manifest",
+      "title": "任务 3 清单交叉核对（v3）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "counts": {
+          "C": 2,
+          "N": 7,
+          "U": 9
+        },
+        "label": "无条件可采（无任何机械 FAIL）",
+        "planned": {
+          "C": 6,
+          "N": 8,
+          "U": 10
+        }
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "tallies.unconditional",
+      "title": "无条件可采（无任何机械 FAIL）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "counts": {
+          "C": 6,
+          "N": 8,
+          "U": 10
+        },
+        "label": "正式可采（含 D-005 证明）= 无条件 + 证明档",
+        "note": "正式可采 = 无条件 + 证明档；证明档的 trace_integrity 机械 FAIL 原样保留",
+        "recomputed_pass": {
+          "C": 6,
+          "N": 8,
+          "U": 10
+        },
+        "unconditional": {
+          "C": 2,
+          "N": 7,
+          "U": 9
+        },
+        "with_binding_proof": {
+          "C": 4,
+          "N": 1,
+          "U": 1
+        }
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "tallies.formal",
+      "title": "正式可采（含 D-005 绑定适用性证明）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "cases_checked": 24,
+        "files_checked": 156,
+        "files_verified": 156,
+        "problem_count": 0,
+        "problems": [],
+        "schema_version": "p2-release-provenance/v0.1",
+        "source_unavailable": [],
+        "traces_checked": 15,
+        "u_local_cases": 9,
+        "u_real_cases": 1
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "evidence_provenance",
+      "title": "N/C/U 回源校验（题目/证据/trace）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "mixed": 0,
+        "u_local_cases": 9,
+        "u_real_cases": 1
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "evidence_provenance.u_types",
+      "title": "U 真实/本地证据类型（R/L 分列）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "aggregate_sha256": "096de42fd573c107f97fa247cc8157ed191bdce2b32a2e26eb6d3b9c680e1c94",
+        "boundary": "D-001：卡本体留在保管环境，本行只做聚合外层核验",
+        "composition_file_sha256": "00c44c75a5c7bff869a4f75f320cbc189ae583e4b439d4ba3e2191cc4b5b64b7",
+        "executed": 30,
+        "failed": 1,
+        "hard_failures": 0,
+        "non_required_unknowns": 0,
+        "not_started": 0,
+        "passed": 29,
+        "required_unknowns": 0,
+        "status": "complete",
+        "threshold_met": true,
+        "total": 30,
+        "turns_executed": 36,
+        "turns_planned": 36,
+        "verified": true
+      },
+      "evidence": [
+        "aggregate:096de42fd573c107"
+      ],
+      "reasons": [],
+      "row_id": "h2.aggregate",
+      "title": "H2 组合聚合（受限外层核验）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "card_file_sha256_note": "卡文件摘要由保管方提供，仓内不可复算（D-001 边界）；本门禁只能验证它 ≠ 聚合哈希，不能独立重算",
+        "cards": [
+          {
+            "card_file_sha256": "14888a0fcecdf145727f1a36c978587baca8e37c17dbd4c86047af7832de694a",
+            "hard_failures": 0,
+            "scenario_id": "base_b0",
+            "validate_hard_evidence_scorecard": "pass",
+            "verified": true
+          },
+          {
+            "card_file_sha256": "ccc9c12cdf34878af4c848b807e282c0694a568c569dd33926e57cb743a7b7fc",
+            "hard_failures": 0,
+            "scenario_id": "base_b0_plus_v01",
+            "validate_hard_evidence_scorecard": "pass",
+            "verified": true
+          },
+          {
+            "card_file_sha256": "15286a9665ae80dfc14c5e1d6985fe3ae069a8b361815c87d0497345fbc1aebf",
+            "hard_failures": 0,
+            "scenario_id": "pre_v05_without_v07",
+            "validate_hard_evidence_scorecard": "pass",
+            "verified": true
+          },
+          {
+            "card_file_sha256": "8e95138d2fa3c2bcc648e80ae7e139d9fda000b24fe52ff2960c1415956ef9a3",
+            "hard_failures": 0,
+            "scenario_id": "post_v05_without_v01",
+            "validate_hard_evidence_scorecard": "pass",
+            "verified": true
+          }
+        ],
+        "index_sha256": "f20661d23822b6ad2f11d70feb21b818dc8f08843da80c2ccd0e3e5a57e1e487",
+        "note": "card_file_sha256 只用于'拿到的就是那张卡'；卡内容聚合摘要另列为 card_aggregate_sha256，两者不可互换"
+      },
+      "evidence": [
+        "cards_index:f20661d23822b6ad"
+      ],
+      "reasons": [],
+      "row_id": "h2.cards_index",
+      "title": "H2 四卡索引（文件 SHA + 校验结果）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "card_aggregate_sha256": "6fd2a94c3baf3186e25fef6a7b80665718176a8fe8a8622440e6b29b42ee39d1",
+        "card_body_location": "仓外保管环境（本轮未读取）",
+        "card_file_sha256": "14888a0fcecdf145727f1a36c978587baca8e37c17dbd4c86047af7832de694a",
+        "card_file_sha256_note": "仓内不可复算（D-001）：只能验证 file≠aggregate，文件摘要来自保管方",
+        "case_count": 12,
+        "hard_failures": 0,
+        "scenario_id": "base_b0",
+        "turns_executed": 14,
+        "validate_hard_evidence_scorecard": "pass",
+        "verified": true
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.card.base_b0",
+      "title": "H2 场景卡 base_b0（受限外层核验）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "card_aggregate_sha256": "0d993f5db0f245eb11455e720c4cf5b8ba7c63a9977d81bdbea5b3c4de4a5e56",
+        "card_body_location": "仓外保管环境（本轮未读取）",
+        "card_file_sha256": "ccc9c12cdf34878af4c848b807e282c0694a568c569dd33926e57cb743a7b7fc",
+        "card_file_sha256_note": "仓内不可复算（D-001）：只能验证 file≠aggregate，文件摘要来自保管方",
+        "case_count": 8,
+        "hard_failures": 0,
+        "scenario_id": "base_b0_plus_v01",
+        "turns_executed": 10,
+        "validate_hard_evidence_scorecard": "pass",
+        "verified": true
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.card.base_b0_plus_v01",
+      "title": "H2 场景卡 base_b0_plus_v01（受限外层核验）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "card_aggregate_sha256": "f8798049f91b9c5272bdfff9480df27c2ee38f13ce64c9b738b0b55b50b3647a",
+        "card_body_location": "仓外保管环境（本轮未读取）",
+        "card_file_sha256": "15286a9665ae80dfc14c5e1d6985fe3ae069a8b361815c87d0497345fbc1aebf",
+        "card_file_sha256_note": "仓内不可复算（D-001）：只能验证 file≠aggregate，文件摘要来自保管方",
+        "case_count": 5,
+        "hard_failures": 0,
+        "scenario_id": "pre_v05_without_v07",
+        "turns_executed": 6,
+        "validate_hard_evidence_scorecard": "pass",
+        "verified": true
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.card.pre_v05_without_v07",
+      "title": "H2 场景卡 pre_v05_without_v07（受限外层核验）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "card_aggregate_sha256": "0fb46ecbbece682cf9141f4e0ac37700518f093091100fa31124b55b3bddda12",
+        "card_body_location": "仓外保管环境（本轮未读取）",
+        "card_file_sha256": "8e95138d2fa3c2bcc648e80ae7e139d9fda000b24fe52ff2960c1415956ef9a3",
+        "card_file_sha256_note": "仓内不可复算（D-001）：只能验证 file≠aggregate，文件摘要来自保管方",
+        "case_count": 5,
+        "hard_failures": 0,
+        "scenario_id": "post_v05_without_v01",
+        "turns_executed": 6,
+        "validate_hard_evidence_scorecard": "pass",
+        "verified": true
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.card.post_v05_without_v01",
+      "title": "H2 场景卡 post_v05_without_v01（受限外层核验）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "batch_binding": {
+          "assignment_sha256": "78940fd6e3c0e2ca64686590d3c418d5158ca8851204642cc253d65f4963e0ca",
+          "full_cases_sha256": "5c86fbfb7d076093d7487eef854f58ff893b622edd2ea778ac4c6b879a9c31d4",
+          "manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8"
+        },
+        "batch_id": "T207-20261119-retest",
+        "c25": {
+          "axes": [],
+          "case_id": "C25",
+          "count": 0
+        },
+        "derived_scorer_source_sha256": "0bbe9f88aeb7f95874fdd8e4e4bc7dd266d9c345aae8312cb12d838df90dd65a",
+        "proof_sha256": "f6465fcb206821f26d51c5f93918aefe229908120cd4708917424e9ebb61d555",
+        "scenarios": [
+          {
+            "derived_card_sha256": "6fd2a94c3baf3186e25fef6a7b80665718176a8fe8a8622440e6b29b42ee39d1",
+            "plan_sha256": "1877b65be00e59e6928f79de69a90206cbb2d544c7f13f415a52f61198485b7e",
+            "run_id": "p2-h2v3-20261115-r0-base_b0",
+            "scenario_id": "base_b0"
+          },
+          {
+            "derived_card_sha256": "0d993f5db0f245eb11455e720c4cf5b8ba7c63a9977d81bdbea5b3c4de4a5e56",
+            "plan_sha256": "1270957a7f0e54fcc2bd6f27d36cb2c46b742307dcc16c0ba4c2781566489d71",
+            "run_id": "p2-h2v3-20261115-r1-base_b0_plus_v01",
+            "scenario_id": "base_b0_plus_v01"
+          },
+          {
+            "derived_card_sha256": "f8798049f91b9c5272bdfff9480df27c2ee38f13ce64c9b738b0b55b50b3647a",
+            "plan_sha256": "d99a1393f6154fbdc203cbbb7eea12589c916e40ca2c996e7344d9b78d31668d",
+            "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+            "scenario_id": "pre_v05_without_v07"
+          },
+          {
+            "derived_card_sha256": "0fb46ecbbece682cf9141f4e0ac37700518f093091100fa31124b55b3bddda12",
+            "plan_sha256": "f3cc9bda0db56e2a94aebceef0268d3d2c377d58e66652549d939b9b27871175",
+            "run_id": "p2-h2v3-20261115-r3-post_v05_without_v01",
+            "scenario_id": "post_v05_without_v01"
+          }
+        ],
+        "zero_call": {
+          "new_outbound": 0,
+          "new_requests": 0,
+          "replayed": false
+        }
+      },
+      "evidence": [
+        "source_proof:f6465fcb206821f2"
+      ],
+      "reasons": [],
+      "row_id": "h2.source_proof",
+      "title": "H2 同批来源证明（完整版）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "applicability_reference": {
+          "note": "历史 run 的原配置口径与适用性由任务 3 旧版本适用性证明承接；不得用发布层摘要替换",
+          "task3_report_sha256": "52c33b1475eec177c017f5855afb6529be4afc89137ae492330ea91f05ca5cd3"
+        },
+        "dataset_version": "P2-HOLDOUT-v3.1",
+        "gate_config_hash": "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8",
+        "pipeline_version": "d3ca88d2c515"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.identity.original",
+      "title": "H2 原运行身份（批次当时 unapproved 模板）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "approved_config": "docs/evaluation/gate_v0_3_approved.json",
+        "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "note": "本行与 h2.identity.original 分列：一个是被评价对象的身份，一个是评价阈值；不得互相覆盖"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.identity.release",
+      "title": "发布门禁配置（获批阈值，由发布层施加）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "annotation.quality_readiness": "BLOCKED",
+        "annotation.runtime_axis_evidence_produced": false,
+        "blocks": [
+          "holdout_threshold_unapproved"
+        ],
+        "mapping": "v0.2 组合硬编码策略：thresholds_approved=false / release_ready=false / holdout_threshold_unapproved 均属注解层；获批阈值由发布门禁层单独施加，不据此判 blocked/pending",
+        "release_ready": false,
+        "thresholds_approved": false
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.annotation_metadata",
+      "title": "组合注解/策略元数据（非数据失败）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "not_started": 0,
+        "status": "complete",
+        "total": 30,
+        "turns_executed": 36,
+        "turns_planned": 36
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.coverage",
+      "title": "H2 同批 30 题 36 回合"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "strata": {
+          "cross_doc_security": 5,
+          "multi_turn": 5,
+          "negative": 5,
+          "paraphrase": 10,
+          "stale_conflict": 5
+        }
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.strata",
+      "title": "H2 五层齐全（10/5/5/5/5）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "failed": 1,
+        "passed": 29
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.quality",
+      "title": "H2 正确 ≥24/30"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "by_kind": {
+          "cross_entity": 0,
+          "cross_user": 0,
+          "safety": 0,
+          "stale_source": 0
+        },
+        "hard_failures": 0
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.hard_failures",
+      "title": "H2 硬失败 0"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "axes": {
+          "cross_entity": {
+            "checked": 30,
+            "not_applicable": 0,
+            "passed": 30,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          },
+          "cross_user": {
+            "checked": 30,
+            "not_applicable": 0,
+            "passed": 30,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 30,
+            "not_applicable": 25,
+            "passed": 5,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          },
+          "stale_source": {
+            "checked": 30,
+            "not_applicable": 0,
+            "passed": 30,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          }
+        },
+        "required_unknowns": 0
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.required_axes",
+      "title": "H2 必需轴无未知"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "c25": {
+          "axes": [],
+          "case_id": "C25",
+          "count": 0
+        },
+        "count_matches": true,
+        "non_required_unknowns": 0,
+        "note": "C25 派生 not_applicable=0 为合法闭合；历史 live unknown=1 见任务 2 报告 §5（复审后聚合取消），任务 3 清单无 C25 条目"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.non_required_axes",
+      "title": "H2 非必需轴未知（C25 原口径）"
+    },
+    {
+      "decision": "observed",
+      "detail": {
+        "aggregate_verified": true,
+        "cards_verified": [
+          true,
+          true,
+          true,
+          true
+        ],
+        "note": "四卡 verified=true 且聚合 verified=true；该行只展示，不单独改变总门"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "h2.card_verified",
+      "title": "H2 整卡 verified（如实展示）"
+    },
+    {
+      "decision": "pass",
+      "detail": {
+        "disclosed_unknowns": [
+          {
+            "case_id": null,
+            "check_id": "min_sample_not_met",
+            "gate_id": "min_sample",
+            "source": "update_delete"
+          }
+        ],
+        "min_sample": {
+          "b0": 32,
+          "badcase": 8,
+          "boundary": 6,
+          "p2-holdout": 30,
+          "regression": 7,
+          "update_delete": 10
+        },
+        "not_applicable_gates": [
+          "cross_entity",
+          "pagination_contract",
+          "stale_bypass"
+        ],
+        "per_gate": {
+          "citation_required": {
+            "b0": "pass",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "pass"
+          },
+          "conflict_not_rejected": {
+            "b0": "not_applicable",
+            "boundary": "pass",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "cross_entity": {
+            "b0": "not_applicable",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "exact_value_contract": {
+            "b0": "pass",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "pagination_contract": {
+            "b0": "not_applicable",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "security_leak": {
+            "b0": "not_applicable",
+            "boundary": "pass",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "stale_bypass": {
+            "b0": "not_applicable",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          },
+          "trace_integrity": {
+            "b0": "pass",
+            "boundary": "not_applicable",
+            "negative": "not_applicable",
+            "update_delete": "not_applicable"
+          }
+        },
+        "sources": [
+          "b0",
+          "negative",
+          "boundary",
+          "update_delete"
+        ]
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "hard_gates",
+      "title": "八项硬门禁汇总"
+    }
+  ],
+  "schema_version": "p2-release-gate-result/v0.1",
+  "technical_gate": "pass"
+}

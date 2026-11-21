@@ -54,15 +54,22 @@ from .p2_scoring import P2_BOUNDARY_IDS, P2_NEGATIVE_IDS, P2_UPDATE_DELETE_IDS
 
 PROJECT_ROOT = Path(__file__).resolve().parents[4]
 
-#: 已登记 B0 基线（T209 关项）。改这些常量等价于重新登记基线，属于发布动作。
-B0_BASELINE_ID = "7981d4afc2d1"
-B0_RUN_ID = "p2-t209-b0-20261120-02"
+#: 已登记 B0 基线。改这些常量等价于重新登记基线，属于发布动作。
+#: 2026-11-21 重新登记（主人当日授权）：FU-1..FU-4 修复与 live_authorization 改动后，候选流水线
+#: 13a962ed… 已不等于原基线 7981d4afc2d1 绑定的 28aae43c…。按同一流程新做一次真实 B0
+#: （run p2-t209-b0-20261121-01，上限 194 次 / 7.464016 元 / OCR 12 页），p2-admit 通过后接收为
+#: 基线 2b40ee9b4740。本次只改「已接收基线是谁」，**未改任何判据**：批准配置
+#: gate_v0_3_approved.json、八项硬门禁、分母与阈值全部原样；旧基线原件、旧门禁快照与历史证据保留。
+#: 本模块不在 ``pipeline_source_sha256()`` 的覆盖集内（evaluation 只含 p2_live/p2_runner/
+#: product_adapter/p2_ingestion），因此重新登记不会反过来改变新 B0 绑定的流水线摘要。
+B0_BASELINE_ID = "2b40ee9b4740"
+B0_RUN_ID = "p2-t209-b0-20261121-01"
 #: 登记处的规范位置（相对路径可以写，但解析后必须落在这里）。
 B0_REGISTRY_ROOT = PROJECT_ROOT / "var" / "eval" / "baselines"
 #: 已登记基线的三份记录摘要（钉死：任何"自洽的假登记处"都会在摘要处被拒）。
-B0_BASELINE_RECORD_SHA256 = "09cf747c2c8aca6ffe38fb0a035ac5bab63baa6abbb94e38ee427331cff03781"
-B0_ADMISSION_FILE_SHA256 = "07d2b1e3c39da3eca3f81986691c5d1d0a075d2a7effa7cf730e3dcd50d12795"
-B0_APPROVAL_FILE_SHA256 = "f760bf4f4a3147728395ae4b10c0a3b027e18dfdb3a6004de2f0d2e351998d8f"
+B0_BASELINE_RECORD_SHA256 = "cb2852a97a432f61d7ca2f7e30790cb2df7491cf42641905b80711a600159d77"
+B0_ADMISSION_FILE_SHA256 = "bad2f990dab1a1c1b303ef59ee7562043c1b72834c51f0d9940f54f84d5932d4"
+B0_APPROVAL_FILE_SHA256 = "b9f5a54440dc45862c496d616b79a888326d0b1814b75ac292d80ebbb5bed485"
 
 #: 冻结模板（未批准的 v0.3 原始配置）：历史 run 绑定它的加载器摘要 ``d1097573…``。
 FROZEN_TEMPLATE_PATH = PROJECT_ROOT / "docs" / "evaluation" / "gate_v0_3.json"

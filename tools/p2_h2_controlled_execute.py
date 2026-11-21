@@ -41,6 +41,7 @@ from mktkb.evaluation import p2_authorization as p2a  # noqa: E402
 from mktkb.evaluation import p2_hard_evidence as hard  # noqa: E402
 from mktkb.evaluation import p2_holdout_source_map as holdout_source_map  # noqa: E402
 from mktkb.evaluation import p2_live, p2_runner, p2_scoring  # noqa: E402
+from mktkb.evaluation import p2_safe_output as safe_output  # noqa: E402
 from mktkb.evaluation.p2_contracts import (  # noqa: E402
     CHAT_HOST,
     CHAT_MODEL,
@@ -240,8 +241,20 @@ def _utc_now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="seconds")
 
 
+def _public_payload(payload: Mapping[str, Any]) -> Mapping[str, Any]:
+    """公开层出口（FU-4）：受限路径/密钥名/密文名换确定性记号，其余字段逐值保留。"""
+    return safe_output.redact_payload(dict(payload))
+
+
+def _public_detail(detail: Any) -> str:
+    """自由文本 detail 只保留固定码/计数；内嵌路径与密钥名一律换记号。"""
+    return safe_output.redact_text("" if detail is None else str(detail))
+
+
 def _emit(payload: Mapping[str, Any]) -> None:
-    sys.stdout.write(json.dumps(dict(payload), ensure_ascii=False, sort_keys=True) + "\n")
+    sys.stdout.write(
+        json.dumps(dict(_public_payload(payload)), ensure_ascii=False, sort_keys=True) + "\n"
+    )
     sys.stdout.flush()
 
 
@@ -3610,7 +3623,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 "ok": False,
                 "schema_version": TOOL_SCHEMA_VERSION,
                 "error_code": exc.code,
-                "detail": exc.detail,
+                "detail": _public_detail(exc.detail),
                 "secrets_printed": False,
                 "real_sends": 0,
             }

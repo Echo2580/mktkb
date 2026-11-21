@@ -1,0 +1,499 @@
+{
+  "b0": {
+    "admission_evidence_sha256": "f94bbb5b346163c995a085a124d056dfcd1ddbcf74cbf78f5510a8d9b59cba46",
+    "b0_tally": {
+      "errors": 0,
+      "exact_passed": 24,
+      "exact_planned": 24,
+      "executed": 40,
+      "failed": 2,
+      "not_executed": 0,
+      "ocr_executed": 8,
+      "ocr_passed": 7,
+      "ocr_planned": 8,
+      "passed": 38,
+      "planned": 40,
+      "required_passed": true,
+      "scored": 40,
+      "skipped": 0,
+      "suite": "b0"
+    },
+    "baseline_id": "2b40ee9b4740",
+    "corpus_sha256": "9ea5a42232056bf57e567f547c90e41d96ddf56759622695a22bf32c0c849150",
+    "dataset_version": "b0:b0-2026-11-04:bd4f0f7ccc6e",
+    "go_sha256": "dd5bb581dbdbb68c03c9890cfe8483cda953bb7a92151430caccbce5820a24b2",
+    "hard_gate": {
+      "exit_code": 0,
+      "gate_status": {
+        "citation_required": "pass",
+        "conflict_not_rejected": "not_applicable",
+        "cross_entity": "not_applicable",
+        "exact_value_contract": "pass",
+        "pagination_contract": "not_applicable",
+        "security_leak": "not_applicable",
+        "stale_bypass": "not_applicable",
+        "trace_integrity": "pass"
+      },
+      "hard_failures": [],
+      "min_sample": 32,
+      "scored_count": 40,
+      "trace_sha256": "7f0fdfda4c7fe814f87eee3588eddc5173104b45ad316bf7b09f7b7c2acf4c5b",
+      "unknown_count": 0
+    },
+    "p2_release_status": "blocked_pending_n_c_u_h2_evidence",
+    "plan_sha256": "d38e3c7cdaf88f1bf7ed1d41f4e3c6bf4b4d96e867511a1a78c06662d5f71d2d",
+    "real_calls": 112,
+    "registry_files": {
+      "b0-admission.json": "bad2f990dab1a1c1b303ef59ee7562043c1b72834c51f0d9940f54f84d5932d4",
+      "b0-approval-receipt.json": "b9f5a54440dc45862c496d616b79a888326d0b1814b75ac292d80ebbb5bed485",
+      "baseline.json": "cb2852a97a432f61d7ca2f7e30790cb2df7491cf42641905b80711a600159d77"
+    },
+    "request_plan": {
+      "ocr_pages": 12,
+      "path": "docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/evidence/b0-request-plan.bound.json",
+      "requests_by_operation": {
+        "answer": 40,
+        "index_embedding": 22,
+        "ocr": 12,
+        "query_embedding": 40,
+        "query_expansion": 40,
+        "rerank": 40
+      },
+      "requests_total": 194,
+      "worst_case_cny": 7.464016
+    },
+    "run_artifacts": {
+      "cases.jsonl": "5375dfa03b0be213322188413354d1eb9d8b7666e6d52594fadf237188960dbb",
+      "dataset.jsonl": "264ce1f019e5ac9be0265676e9b9cd1aa6ce1598e3e87a0bc7d8b73f3f0dcee1",
+      "gate.json": "26f33367dce3ce2a129f6436ff984d8929ae37e82abecd3f898db9c0b874dde3",
+      "requests.jsonl": "c556c8a24438fdd60c55e7684184245773024f3d21f0e07e2ce2312a56cc8a89",
+      "run_manifest.json": "c8b1e06cbbd1fd1ab0e6094e412037352e2e0f2b2747a3df846333e93cd5cfff",
+      "run_result.json": "90a0aef3f7fc9a42a1ab8708d04fe3ce5399c8624867a0ba6b43a99beaedc3bb",
+      "summary.json": "8a8cbf8a705a23d30046e233062493c452755cc62f013599af400dfb24d8a43f"
+    },
+    "run_id": "p2-t209-b0-20261121-01"
+  },
+  "branch": "codex/p2-e2e",
+  "candidate": {
+    "b0_pipeline_version": "d3ca88d2c515+13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+    "extra_tracked_drift": [
+      {
+        "before_sha256": "acdcddf94123cdf9e4e46f79b442f8284dfbf267cd9956d31a9e2d35303ebd5b",
+        "bytes": 105484,
+        "category": "bookkeeping",
+        "note": "开工前既有的簿记追加（非本轮）。",
+        "path": ".claude/handoffs/_index.md",
+        "sha256": "4e68cd3f47852f5aaade83080b6b2c5830bebbd8a3008eaed8c41a76c7150ae9"
+      },
+      {
+        "before_sha256": "4ec060a7adab179bc18686ab4fc3e3d46600e28000e390b73bdbd44023530743",
+        "bytes": 39105,
+        "category": "product-gate-reregistration",
+        "note": "门禁**基线登记**常量：新 B0 接收后把已登记基线换成 2b40ee9b4740 及三份记录摘要；判据（批准配置/阈值/八项硬门禁）未改。该文件不在 pipeline_source_sha256 覆盖集内，已复核摘要仍为 13a962ed…，故不影响新 B0 绑定。",
+        "path": "backend/src/mktkb/evaluation/p2_release_inputs.py",
+        "sha256": "eaedb99d5988f9e7438435cd701795dad3027be954db2864b0f50c26a6a16e88"
+      },
+      {
+        "before_sha256": "29184ab32dddb5e8a7d03425e45c9701680013ea541fada1ad7fec0876c96120",
+        "bytes": 39995,
+        "category": "product",
+        "note": "产品代码：新增 S2-OWNER-ACCEPTANCE 阶段 + GO 请求窗口基线；在 backend/src/mktkb/*.py 内，**会改动 pipeline_source_sha256**，因此必须进候选。",
+        "path": "backend/src/mktkb/live_authorization.py",
+        "sha256": "022872e7018773c80f88e2fe8d30cd3ff7631cd20b9479097a8906dbfe71d9be"
+      },
+      {
+        "before_sha256": "1d47f467e4f8ac6c160fab866e8460f200593b33a4233c7718d125eaeb1d7ce5",
+        "bytes": 37737,
+        "category": "test-followup",
+        "note": "门禁夹具改为跟随「已登记基线」常量（不再写死旧基线 id/run id）；只改测试写法。",
+        "path": "backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+        "sha256": "5712806679e61e05e8f603ee32ddfc752444ab097c217ff39a9fcb1d8b96f8bd"
+      },
+      {
+        "before_sha256": "14ab76d9f52e8c972ad326b476b00e4d1ecf2420e6c7d16814987a8ec976d99c",
+        "bytes": 22069,
+        "category": "test-followup",
+        "note": "同一改动：负例里的假登记目录名改用 B0_BASELINE_ID；断言语义未变。",
+        "path": "backend/tests/evaluation/test_p2_release_gate_negative.py",
+        "sha256": "536e2d4af0614a212b296f8adfdf38db1072b904296df31e14fbd3886f6a17a5"
+      },
+      {
+        "before_sha256": "3d7ca62bf1ca217c02aa50ed70425015ffc08d1c34808ab54ebcfc539528f923",
+        "bytes": 12751,
+        "category": "gate-wiring-followup",
+        "note": "正式门禁接线脚本的 b0 块改为跟随「已登记基线」常量；不涉及判据。",
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+        "sha256": "7104aaf757e2380236ae9a064b25b01c6ac175f91e2a320c6a03710f9e061184"
+      },
+      {
+        "before_sha256": "01fcca4d89edf184b1779b01d7a059871ec35fd6f42dc9c2e2d14a390b50d9a7",
+        "bytes": 34603,
+        "category": "bookkeeping",
+        "note": "开工前既有的簿记追加（非本轮）。",
+        "path": "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md",
+        "sha256": "eea8e1bc31859f74ce70e64e625b612310e9ea27996bce0e31803dc59c8208d9"
+      },
+      {
+        "before_sha256": "5cb0eabf0a0b39ccd9f52bb3291d93f47331c08f202b77e163998af2271107dc",
+        "bytes": 13838,
+        "category": "test-followup",
+        "note": "浏览器验收断言跟随产品文案（copy.KNOWLEDGE_CHANGED 已扩充），断言更严不更松；修复前该条因断言过期失败。",
+        "path": "frontend/e2e/acceptance-07-update.spec.ts",
+        "sha256": "e3efcac008fa2ab9ee9c576ac1c729a14fbebac84c0e2839bdfae57eb3dbf214"
+      },
+      {
+        "before_sha256": "f0bc35af613317aed35c3eebd268eee6fcf48ab517c0028978cae0297bfe8496",
+        "bytes": 18285,
+        "category": "local-launcher",
+        "note": "本地启动器：--offline/--owner-live/--check-only 与亲验锁定；不在产品包内，不影响 pipeline_source_sha256；影响的是本地实例实际导入与运行身份。",
+        "path": "tools/start_local.py",
+        "sha256": "f1cc4f444cdcfe4253b43f880b71ec8ab70bada07adb7d5749120e483ff501f5"
+      },
+      {
+        "before_sha256": "828977e3f208edaf3d6a7d95ecb47f44159b59596ce097a2b2052b9792c92bf2",
+        "bytes": 360,
+        "category": "local-launcher",
+        "note": "本地启动器：改为 --offline（零出站离线演示）。",
+        "path": "一键启动.cmd",
+        "sha256": "ea9e0f70144bf21eb3ac781b88b635df981208005c5a6ed8e2bccec0a8dd1e73"
+      },
+      {
+        "before_sha256": "b907fcfc5e963ce7ab234c26dd8bc83aaa8c01e85beae6801574e1ff1be2a48d",
+        "bytes": 1441,
+        "category": "local-launcher",
+        "note": "本地启动器：改为 --owner-live + S2-OWNER-ACCEPTANCE 额度；直连真实调用。",
+        "path": "启动-真实问答.cmd",
+        "sha256": "3eceb61e9c76549694b06ff157cd79ee99ecefccc380015a3af383de80f9063b"
+      }
+    ],
+    "files": [
+      {
+        "bytes": 117714,
+        "category": "product",
+        "delta_vs_v1": null,
+        "path": "backend/src/mktkb/evaluation/product_adapter.py",
+        "sha256": "d3bd4d8961bd61cadfe5a385c406ff19d76040ae8314f2f8121d74b286dd5f9a",
+        "status": "modified"
+      },
+      {
+        "bytes": 125075,
+        "category": "product",
+        "delta_vs_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_runner.py",
+        "sha256": "8c7fc54c301248fc7fa78d261b9f995a88eabf788b30cdcd7525a307aa6ed91c",
+        "status": "modified"
+      },
+      {
+        "bytes": 28011,
+        "category": "product",
+        "delta_vs_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_release_gate.py",
+        "sha256": "7cf2cfe797a9acdb19c73de668b4a91661b240529a5b78ca8eda7f32bdd5ca2e",
+        "status": "modified"
+      },
+      {
+        "bytes": 25492,
+        "category": "product",
+        "delta_vs_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_release_provenance.py",
+        "sha256": "c309f899449068dc2fda5d337f367eb66776a283ae3fd2f75a1568472e745a8c",
+        "status": "new"
+      },
+      {
+        "bytes": 11673,
+        "category": "product",
+        "delta_vs_v1": null,
+        "path": "backend/src/mktkb/evaluation/p2_safe_output.py",
+        "sha256": "1d3b29bd5104e70fa530d8de3982f0baf706a4ce31f84e897d6ec98ed63207f9",
+        "status": "new"
+      },
+      {
+        "bytes": 145068,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "tools/p2_h2_v3_controlled_execute.py",
+        "sha256": "b5a20caf32f12f0b6d1d170a75bbd39b2a3f0cf4a088b635f6d121fc587f94cf",
+        "status": "modified"
+      },
+      {
+        "bytes": 151498,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "tools/p2_h2_controlled_execute.py",
+        "sha256": "6cfcb724da366912130d398f66c92423615de031653a3a183d1e80b952cfad86",
+        "status": "modified"
+      },
+      {
+        "bytes": 20046,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu1_index_binding.py",
+        "sha256": "3eac899b113a8e8d489c04ea860b5a7ead191c954a53c762d798a2a3d29a3641",
+        "status": "new"
+      },
+      {
+        "bytes": 47290,
+        "category": "test",
+        "delta_vs_v1": "fu2_cwd_dependency_fix",
+        "path": "backend/tests/evaluation/test_p2_fu2_derive_cards.py",
+        "sha256": "b1b91e29e09974de7f5d8460c0b2869dbfcb787bb46e4404765ed2724f5acd15",
+        "status": "new"
+      },
+      {
+        "bytes": 25844,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu3_provenance.py",
+        "sha256": "c1193d1827c0e23322725d3f9ab84d3cd464668f0c4f86a4b09680850f5aa40d",
+        "status": "new"
+      },
+      {
+        "bytes": 13858,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "backend/tests/evaluation/test_p2_fu4_safe_output.py",
+        "sha256": "ab6007617654ab500459f649876abcb1302e11a83d3964609a957ca2e5d09f9e",
+        "status": "new"
+      },
+      {
+        "bytes": 84174,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "backend/tests/evaluation/test_p2_runner.py",
+        "sha256": "cee84def437a26a826eec435821507c77b23204d697c6e86d14a4024362f9e86",
+        "status": "modified"
+      },
+      {
+        "bytes": 76420,
+        "category": "test",
+        "delta_vs_v1": null,
+        "path": "backend/tests/evaluation/test_p2_live_wiring.py",
+        "sha256": "a3f4a44e90d4313732ff28d7ed9512107f5d1fe52d548e0bf90058c6f64deeb4",
+        "status": "modified"
+      },
+      {
+        "bytes": 39105,
+        "category": "product-gate-reregistration",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "门禁**基线登记**常量：新 B0 接收后把已登记基线换成 2b40ee9b4740 及三份记录摘要；判据（批准配置/阈值/八项硬门禁）未改。该文件不在 pipeline_source_sha256 覆盖集内，已复核摘要仍为 13a962ed…，故不影响新 B0 绑定。",
+        "path": "backend/src/mktkb/evaluation/p2_release_inputs.py",
+        "sha256": "eaedb99d5988f9e7438435cd701795dad3027be954db2864b0f50c26a6a16e88",
+        "status": "modified"
+      },
+      {
+        "bytes": 39995,
+        "category": "product",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "产品代码：新增 S2-OWNER-ACCEPTANCE 阶段 + GO 请求窗口基线；在 backend/src/mktkb/*.py 内，**会改动 pipeline_source_sha256**，因此必须进候选。",
+        "path": "backend/src/mktkb/live_authorization.py",
+        "sha256": "022872e7018773c80f88e2fe8d30cd3ff7631cd20b9479097a8906dbfe71d9be",
+        "status": "modified"
+      },
+      {
+        "bytes": 37737,
+        "category": "test-followup",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "门禁夹具改为跟随「已登记基线」常量（不再写死旧基线 id/run id）；只改测试写法。",
+        "path": "backend/tests/evaluation/test_p2_release_gate_fixtures.py",
+        "sha256": "5712806679e61e05e8f603ee32ddfc752444ab097c217ff39a9fcb1d8b96f8bd",
+        "status": "modified"
+      },
+      {
+        "bytes": 22069,
+        "category": "test-followup",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "同一改动：负例里的假登记目录名改用 B0_BASELINE_ID；断言语义未变。",
+        "path": "backend/tests/evaluation/test_p2_release_gate_negative.py",
+        "sha256": "536e2d4af0614a212b296f8adfdf38db1072b904296df31e14fbd3886f6a17a5",
+        "status": "modified"
+      },
+      {
+        "bytes": 12751,
+        "category": "gate-wiring-followup",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "正式门禁接线脚本的 b0 块改为跟随「已登记基线」常量；不涉及判据。",
+        "path": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py",
+        "sha256": "7104aaf757e2380236ae9a064b25b01c6ac175f91e2a320c6a03710f9e061184",
+        "status": "modified"
+      },
+      {
+        "bytes": 13838,
+        "category": "test-followup",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "浏览器验收断言跟随产品文案（copy.KNOWLEDGE_CHANGED 已扩充），断言更严不更松；修复前该条因断言过期失败。",
+        "path": "frontend/e2e/acceptance-07-update.spec.ts",
+        "sha256": "e3efcac008fa2ab9ee9c576ac1c729a14fbebac84c0e2839bdfae57eb3dbf214",
+        "status": "modified"
+      },
+      {
+        "bytes": 18285,
+        "category": "local-launcher",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "本地启动器：--offline/--owner-live/--check-only 与亲验锁定；不在产品包内，不影响 pipeline_source_sha256；影响的是本地实例实际导入与运行身份。",
+        "path": "tools/start_local.py",
+        "sha256": "f1cc4f444cdcfe4253b43f880b71ec8ab70bada07adb7d5749120e483ff501f5",
+        "status": "modified"
+      },
+      {
+        "bytes": 360,
+        "category": "local-launcher",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "本地启动器：改为 --offline（零出站离线演示）。",
+        "path": "一键启动.cmd",
+        "sha256": "ea9e0f70144bf21eb3ac781b88b635df981208005c5a6ed8e2bccec0a8dd1e73",
+        "status": "modified"
+      },
+      {
+        "bytes": 1441,
+        "category": "local-launcher",
+        "delta_vs_v1": "not_in_v1_fingerprint",
+        "note": "本地启动器：改为 --owner-live + S2-OWNER-ACCEPTANCE 额度；直连真实调用。",
+        "path": "启动-真实问答.cmd",
+        "sha256": "3eceb61e9c76549694b06ff157cd79ee99ecefccc380015a3af383de80f9063b",
+        "status": "modified"
+      }
+    ],
+    "fingerprint_evidence": "docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/evidence/candidate-inventory.json",
+    "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+    "product_pipeline_version": "d3ca88d2c515"
+  },
+  "cost": {
+    "budget_stage_revision": 10,
+    "by_kind": {
+      "chat": 40,
+      "embedding": 36,
+      "ocr": 12,
+      "rerank": 24
+    },
+    "conservative_charged_cny": 5.719853,
+    "outstanding": 0,
+    "p2_live_stage_accounted_cny_after": 27.813622,
+    "p2_live_stage_limit_cny": 32.0,
+    "provider_billed_cny": 5.7198526,
+    "reservations": 112,
+    "reserved_cny": 6.586448,
+    "settled": 112
+  },
+  "evidence_index": {
+    "b0_acceptance_receipt": "evidence/b0-acceptance-receipt.json",
+    "b0_preflight": "evidence/b0-preflight.json",
+    "b0_preflight_request": "b0-preflight-request.md",
+    "b0_run_logs": "var/eval/t209-prep/b0-live-20261121/logs/",
+    "browser": "browser/actual/playwright-p2requal2-20261121.json",
+    "candidate_inventory": "evidence/candidate-inventory.json",
+    "fu2_e2e_cards": "evidence/fu2-e2e-cards/",
+    "fu2_e2e_derive": "evidence/fu2-e2e-derive.json",
+    "gate": "gate/gate-result.json",
+    "go_issue": "evidence/go-issue.json",
+    "legacy_freeze": "docs/reports/OBS-EVAL/P2/candidate-freeze.json",
+    "legacy_gate_snapshot": "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/gate-result.real-ncu.json",
+    "version_gate_isolation": "evidence/version-gate-isolation.json"
+  },
+  "formal_gate": {
+    "b0_admission_row": {
+      "decision": "pass",
+      "detail": {
+        "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+        "p2_release_status": "blocked_pending_n_c_u_h2_evidence",
+        "plan_sha256": "d38e3c7cdaf88f1bf7ed1d41f4e3c6bf4b4d96e867511a1a78c06662d5f71d2d",
+        "real_calls": 112,
+        "run_id": "p2-t209-b0-20261121-01"
+      },
+      "evidence": [
+        "b0-admission:f94bbb5b346163c9",
+        "run:p2-t209-b0-20261121-01"
+      ],
+      "reasons": [],
+      "row_id": "b0.admission",
+      "title": "原 B0 准入留存（便携证明重算）"
+    },
+    "candidate_pipeline_row": {
+      "decision": "pass",
+      "detail": {
+        "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+        "pipeline_version": "d3ca88d2c515+13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4"
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "candidate.pipeline",
+      "title": "候选流水线与 B0 绑定一致"
+    },
+    "counts": {
+      "blocked": 0,
+      "observed": 10,
+      "pass": 39,
+      "pending": 0
+    },
+    "decision": "pass",
+    "evidence_provenance_row": {
+      "decision": "pass",
+      "detail": {
+        "cases_checked": 24,
+        "files_checked": 156,
+        "files_verified": 156,
+        "problem_count": 0,
+        "problems": [],
+        "schema_version": "p2-release-provenance/v0.1",
+        "source_unavailable": [],
+        "traces_checked": 15,
+        "u_local_cases": 9,
+        "u_real_cases": 1
+      },
+      "evidence": [],
+      "reasons": [],
+      "row_id": "evidence_provenance",
+      "title": "N/C/U 回源校验（题目/证据/trace）"
+    },
+    "inputs": "docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/gate/inputs.json",
+    "inputs_sha256": "2b18011370b65329fe45b5f2d9925bd200a03c783e4b37d9aa329a79b5127f04",
+    "owner_release_decision": "not_decided",
+    "pending": {},
+    "reason_codes": [],
+    "release_allowed": false,
+    "result": "docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/gate/gate-result.json",
+    "result_sha256": "8cd28d36c0b04a0ce3049586674b335412659c3f070af5ec4abc56a9761c584d",
+    "row_count": 49,
+    "technical_gate": "pass"
+  },
+  "frozen_at_local": "2026-11-21T15:46:57+08:00",
+  "gate_config": {
+    "changed": false,
+    "path": "docs/evaluation/gate_v0_3_approved.json",
+    "sha256": "b1094cc726230be2ec22ec811d34a948ea4a2fe03aab2c0fcc4f20c99764d961"
+  },
+  "head": "93486b6590c6542f34dd70d20a19b792c659f416",
+  "payload_sha256": "13e9d0996c329f9da6c86a72b8759b1e357f8f379fcf8028847bd273359456af",
+  "reservations": [
+    "FU-2 端到端派生已跑通（4/4 卡 + 官方验卡 4/4 + 三目录确定性），但合成证据包为 incomplete → 四轴 unknown、卡的 verified=false；未伪造 pass。真实受限批次与四份真 binding 的 CLI 组合仍 NOT-RUN。",
+    "浏览器复验为隔离实例 + 受控替身网关（Mock 标注），不是真实模型生成；真实问答/OCR 亲验需另授权。",
+    "N/C/U 的 6 条原机械失败（N01/C01/C02/C05/C06/U01）与 D-011 披露行按原样保留。",
+    "H2 30 题历史聚合沿用原受限证据，未重跑。",
+    "供应商实账未出（OCR 后付费）；费用按应用保守记账披露。",
+    "`.claude/handoffs/**`、`docs/reports/OBS-EVAL/P2/FOLLOW-UP/**` 之外的未跟踪历史证据目录未纳入候选。"
+  ],
+  "schema_version": "p2-candidate-freeze/v0.3",
+  "supersedes": {
+    "freeze": "docs/reports/OBS-EVAL/P2/candidate-freeze.json",
+    "reason": "原冻结候选（93486b6 工作树）在 FU-1..FU-4 修复与 live_authorization 改动后流水线摘要变化；本轮按同一流程重做真实 B0 并重新登记基线后重新冻结。旧冻结件与旧基线原件保留不动。"
+  },
+  "verification": {
+    "thresholds": {
+      "b0_executed": 40,
+      "b0_passed": 38,
+      "b0_passed_min": 36,
+      "exact_passed": 24,
+      "exact_total": 24,
+      "hard_failures": [],
+      "ocr_executed": 8,
+      "ocr_planned": 8,
+      "unknown_count": 0
+    },
+    "version_gate_isolation": {
+      "negative_blocked_rows": [
+        "candidate.pipeline"
+      ],
+      "same_candidate_real_admission": "closed by the new B0 above",
+      "simulated_identity_decision": "pass"
+    }
+  }
+}

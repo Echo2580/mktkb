@@ -29,6 +29,7 @@ if str(ROOT / "backend" / "src") not in sys.path:
     sys.path.insert(0, str(ROOT / "backend" / "src"))
 
 from mktkb.evaluation.p2_b0 import pipeline_source_sha256  # noqa: E402
+from mktkb.evaluation.p2_release_inputs import B0_BASELINE_ID, B0_RUN_ID  # noqa: E402
 from mktkb.evaluation.p2_release_gate import (  # noqa: E402
     emit_applicability_proof,
     emit_binding_proof,
@@ -41,7 +42,7 @@ H2 = ROOT / "docs/reports/OBS-EVAL/P2/H2-REBUILT-CARDS"
 T207 = ROOT / "docs/reports/OBS-EVAL/P2/T207"
 FROZEN_CONFIG = ROOT / "docs/evaluation/gate_v0_3.json"
 APPROVED_CONFIG = ROOT / "docs/evaluation/gate_v0_3_approved.json"
-REGISTRY = ROOT / "var/eval/baselines/7981d4afc2d1"
+REGISTRY = ROOT / "var/eval/baselines" / B0_BASELINE_ID
 RAG_ROOTS = {
     "p2-t207-r1-20261111-01": Path(r"D:\mktkb-p2-run\t207\R1\data"),
     "p2-t207-r2-20261111-01": Path(r"D:\mktkb-p2-run\t207\R2\data"),
@@ -125,8 +126,8 @@ def build_inputs(work: Path) -> tuple[Path, dict]:
                                "pipeline_version": "candidate-mktkb.gate.v0.3"},
         "b0": {
             "baseline_root": "var/eval/baselines",
-            "baseline_id": "7981d4afc2d1",
-            "run_id": "p2-t209-b0-20261120-02",
+            "baseline_id": B0_BASELINE_ID,
+            "run_id": B0_RUN_ID,
             "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
             "admission_sha256": file_sha256(REGISTRY / "b0-admission.json"),
             "approval_sha256": file_sha256(REGISTRY / "b0-approval-receipt.json"),

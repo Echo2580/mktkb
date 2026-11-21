@@ -1,0 +1,62 @@
+{
+  "attestation": {
+    "precedent": [
+      {
+        "artifact": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\T209-PREP\\b0-live-execution-attempt3-report.md",
+        "claim": "T209 attempt3 起正式 B0 采用'绑定=实际 RAG 索引版本'并通过 trace_integrity",
+        "sha256": "c67a9686100fdf5a57c7c92b83c1d25c3a0183e273e54ac454cfebda25abc21b"
+      },
+      {
+        "artifact": "D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\7981d4afc2d1\\b0-admission.json",
+        "claim": "T209 attempt3 起正式 B0 采用'绑定=实际 RAG 索引版本'并通过 trace_integrity",
+        "sha256": "07d2b1e3c39da3eca3f81986691c5d1d0a075d2a7effa7cf730e3dcd50d12795"
+      }
+    ],
+    "product_source": {
+      "cases_sha256": "ec094ca8f155acafcd1358726abc5679a2cfeecd6e45d4f0ec018de57d63d2b4",
+      "per_turn": [
+        {
+          "case_id": "N08",
+          "revision": 5,
+          "turn": 1
+        },
+        {
+          "case_id": "C05",
+          "revision": 5,
+          "turn": 1
+        },
+        {
+          "case_id": "C06",
+          "revision": 5,
+          "turn": 1
+        }
+      ],
+      "values_sha256": "eb56d0a72d63e2f509285dd9cac440e7899b63edf9426a061864a5f9b29c167b"
+    },
+    "rag_source": {
+      "db_path": "D:\\mktkb-p2-run\\t207\\R4\\data\\rag-index.sqlite3",
+      "db_sha256": "fff685503e51c0121c3739e19bee915f7abc29c0f4abe34f3f615b3a283e7576",
+      "read_key": "rag_meta.revision",
+      "read_value": 6
+    }
+  },
+  "attested_index_revision": 6,
+  "gate_replay": {
+    "corrected_binding_failures": [],
+    "original_binding_failures": [
+      "C05",
+      "C06"
+    ],
+    "original_trace_db_sha256": "80136a27728123a10659b33f7e213836fc9768abd5360a9f19132e5446c2564e",
+    "post_update_not_at_attested": 0,
+    "rewritten_trace_rows": 1,
+    "trace_rows_not_at_attested": 1,
+    "trace_rows_total": 3
+  },
+  "manifest_sha256": "45dd17e36f7abf42b22f222c9ddfd987e18c783ed6cbc3896ad688da7ab5d51f",
+  "plan_sha256": "00b9fdefd8cc8220178745f0806486eaf3a70818be4068dd0fd2307303b5d2b9",
+  "recorded_index_revision": 5,
+  "rule": "adopted-standard:gate_binding_value_is_actual_rag_index_revision",
+  "run_id": "p2-t207-r4-20261111-01",
+  "schema_version": "p2-release-binding-applicability/v0.1"
+}

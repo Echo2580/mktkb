@@ -18,6 +18,7 @@ from typing import Any, Mapping, Sequence
 
 from mktkb.evaluation.dataset import CaseSpec, cases_to_jsonl
 from mktkb.evaluation.p2_b0 import B0_DOCUMENT_CODES, frozen_b0_cases
+from mktkb.evaluation import p2_release_inputs as _release_inputs
 from mktkb.evaluation.p2_release_model import (
     file_sha256,
     payload_sha256,
@@ -29,8 +30,9 @@ APPROVED_CONFIG = ROOT / "docs" / "evaluation" / "gate_v0_3_approved.json"
 FROZEN_CONFIG = ROOT / "docs" / "evaluation" / "gate_v0_3.json"
 FROZEN_CONFIG_SHA256 = "3af301dba2d4dbd1bcc9d8f17c656f8a80755820fa2a8559b787974f20b5619d"
 FROZEN_CONFIG_HASH = "d10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8"
-REGISTRY = ROOT / "var" / "eval" / "baselines" / "7981d4afc2d1"
-B0_RUN_DIR = ROOT / "var" / "eval" / "runs" / "p2-t209-b0-20261120-02" / "p2-run"
+#: 跟随门禁「已登记基线」常量，而不是写死某一轮基线：重新登记后夹具自动对齐。
+REGISTRY = ROOT / "var" / "eval" / "baselines" / _release_inputs.B0_BASELINE_ID
+B0_RUN_DIR = ROOT / "var" / "eval" / "runs" / _release_inputs.B0_RUN_ID / "p2-run"
 H2_AUTHORITY = ROOT / "docs" / "superpowers" / "plans" / "2026-11-20-p2-closeout-2-h2-cards.md"
 SELECTION_AUTHORITY = ROOT / "docs" / "reports" / "OBS-EVAL" / "P2" / "T207" / "PM" / "T207-PM-decisions-01.md"
 
@@ -590,8 +592,8 @@ def base_inputs(*, public: Mapping[str, Any] | None, u: Mapping[str, Any] | None
         },
         "b0": {
             "baseline_root": str(REGISTRY.parent),
-            "baseline_id": "7981d4afc2d1",
-            "run_id": "p2-t209-b0-20261120-02",
+            "baseline_id": _release_inputs.B0_BASELINE_ID,
+            "run_id": _release_inputs.B0_RUN_ID,
             "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
             "admission_sha256": file_sha256(REGISTRY / "b0-admission.json"),
             "approval_sha256": file_sha256(REGISTRY / "b0-approval-receipt.json"),

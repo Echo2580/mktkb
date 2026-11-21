@@ -1,0 +1,51 @@
+{
+  "annotation_validator": {
+    "ok": true,
+    "public_summary": {
+      "axis_counts": {
+        "cross_entity": {
+          "not_applicable": 0,
+          "required": 30,
+          "unknown": 0
+        },
+        "cross_user": {
+          "not_applicable": 0,
+          "required": 30,
+          "unknown": 0
+        },
+        "safety": {
+          "not_applicable": 30,
+          "required": 0,
+          "unknown": 0
+        },
+        "stale_source": {
+          "not_applicable": 0,
+          "required": 30,
+          "unknown": 0
+        }
+      },
+      "case_count": 30,
+      "gap_count": 0,
+      "gap_resolved_count": 0,
+      "schema_version": "p2-h2-custody/v0.2"
+    }
+  },
+  "dataset": {
+    "cases": 30,
+    "manifest_sha256": "246f751e51238b84310bcb2affadbf24649439d8cf0726c68c63b15ba5379c1d",
+    "turns": 36
+  },
+  "end_to_end_derive_cards": {
+    "reason": "端到端还需再构造：v3 case-plan（36 回合逐题行）、每回合 Fernet 密文证据（须与 run_binding/control 逐值一致并满足 classify_case_evidence 的事件结构）、封存回执或封存 manifest，以及 14 项 inputs 记录的绑定文档。本轮未完成，未产出评分卡；不得据此声称 FU-2 成功分支已独立复现。",
+    "status": "NOT-RUN"
+  },
+  "kind": "offline-feasibility-probe",
+  "private_material_read": false,
+  "real_inputs_used": {
+    "annotation_schema": "docs/evaluation/p2-h2-custody-annotations-v0_2.md",
+    "corpus_root": "fixtures/acceptance-h2v3",
+    "scenario_contract": "docs/evaluation/p2-h2-scenarios-H2v3.json"
+  },
+  "schema": "p2-fu2-feasibility/v0.1",
+  "scope": "confirms the synthetic v3 bundle passes the real annotation validator; NOT an end-to-end derive-cards run"
+}

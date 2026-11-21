@@ -1,0 +1,77 @@
+{
+  "candidate_pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+  "kind": "offline-isolated-experiment",
+  "runs": {
+    "declared_only_align_refused": {
+      "detail": {
+        "observed_in_debug": {
+          "cause": "候选流水线与当前字节不一致",
+          "reason": "release_version_mismatch",
+          "row": "inputs"
+        }
+      },
+      "note": "只改输入清单 declared 值（当前字节不变）时，``inputs`` 行以 ``release_version_mismatch`` 拒绝：门禁双向 fail-closed 的实测。"
+    },
+    "negative_current_candidate": {
+      "blocked_rows": [
+        "candidate.pipeline"
+      ],
+      "bound_vs_candidate": {
+        "bound": "28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7",
+        "candidate": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4"
+      },
+      "candidate_pipeline_row": {
+        "decision": "blocked",
+        "detail": {
+          "cause": "candidate_pipeline_mismatch",
+          "evidence": {
+            "bound": "28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7",
+            "candidate": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4"
+          }
+        },
+        "evidence": [],
+        "reasons": [
+          "release_version_mismatch"
+        ],
+        "row_id": "candidate.pipeline",
+        "title": "候选流水线与 B0 绑定一致"
+      },
+      "counts": {
+        "blocked": 1,
+        "observed": 6,
+        "pass": 31,
+        "pending": 0
+      },
+      "decision": "blocked",
+      "pending": {}
+    },
+    "positive_simulated_identity": {
+      "blocked_rows": [],
+      "candidate_pipeline_row": {
+        "decision": "pass",
+        "detail": {
+          "pipeline_source_sha256": "28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7",
+          "pipeline_version": "d3ca88d2c515+28aae43c4696db2bfdfd440bf974cdec5392c8c732314366a91407fb1f5ee8e7"
+        },
+        "evidence": [],
+        "reasons": [],
+        "row_id": "candidate.pipeline",
+        "title": "候选流水线与 B0 绑定一致"
+      },
+      "counts": {
+        "blocked": 0,
+        "observed": 6,
+        "pass": 32,
+        "pending": 0
+      },
+      "decision": "pass",
+      "note": "**模拟**：进程内把 '当前字节摘要' 与被准入摘要对齐（不改任何真实文件）。用途仅为证明除身份门外没有其它阻断；不等于该候选已通过真实 B0。",
+      "pending": {}
+    },
+    "same_candidate_real_admission": {
+      "reason": "同候选身份的正例要求一份把 pipeline_version 绑到当前候选的真实 B0 准入；基线登记目录受规范路径约束（副本会被 release_baseline_unregistered 拒绝），改写真实登记处属禁止写入。待新 B0 获批并执行后补。",
+      "status": "NOT-RUN"
+    }
+  },
+  "schema": "p2-version-gate-isolation/v0.1"
+}

@@ -1,0 +1,161 @@
+{
+  "candidate": {
+    "b0_binding": {
+      "business_date": "2026-10-28",
+      "corpus_sha256": "9ea5a42232056bf57e567f547c90e41d96ddf56759622695a22bf32c0c849150",
+      "dataset_file_sha256": "bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f",
+      "dataset_sha256": "bd4f0f7ccc6e9f50ba630598c01b3519804447d4e0f3bfbc2facd54a5a521e4f",
+      "gate_config_hash": "7fa6f47a445f9643eb7f2e5ae78a72411007da38a56fca1082657870b2eab094",
+      "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4",
+      "run_id": "p2-t209-b0-20261121-01"
+    },
+    "binding_payload_sha256": "01cdf4c4bbdb7f92c675e72c944ab3e996f0daa928cf3064d5612f89b145962c",
+    "pipeline_source_sha256": "13a962ed103e18ec775de9f0f2764af2a2de325392df1194b09c76932814f4e4"
+  },
+  "kind": "offline-read-only",
+  "ledger_snapshot": {
+    "accounted_cny": 37.175129099999936,
+    "budget_sha256": "9071591990866cb22ac5f1c5cb51da299b6d0e72f8cdf723b4b5798ba10b396e",
+    "ledger_sha256": "0e8d39054983a32f40d3742c4a0e22d7cc99948fb9895d261ba3dcf386b76a97",
+    "p2_center_accounted_cny": {
+      "answer_retrieval": 4.586781200000022,
+      "judge": 0.056988000000000004,
+      "ocr": 17.45
+    },
+    "p2_stage_accounted_cny": 22.093769199999787,
+    "reservation_count": 2689,
+    "stage_allocations_cny": {
+      "P1-RETRIEVAL": 0.5,
+      "P2-LIVE": 24.0,
+      "S1-DEV": 0.0,
+      "S1-IA": 0.0,
+      "S2-DEV": 15.4,
+      "S2-OWNER-ACCEPTANCE": 10.0,
+      "later_shared_reserve": 50.07
+    },
+    "total_limit_cny": 100.0
+  },
+  "plan_scale": {
+    "cases": 40,
+    "ocr_documents": 4,
+    "ocr_pages": 12,
+    "ocr_questions_standard": 8,
+    "requests_by_operation": {
+      "answer": 40,
+      "index_embedding": 22,
+      "ocr": 12,
+      "query_embedding": 40,
+      "query_expansion": 40,
+      "rerank": 40
+    },
+    "requests_total": 194
+  },
+  "post_run_residual_ceiling": {
+    "center_remaining_cny": {
+      "answer_retrieval": 0.599203,
+      "independent": 1.0,
+      "judge": 0.443012,
+      "ocr": 0.4
+    },
+    "note": "按计划逐项上限（worst case）执行后的余量；实际以账本结算为准。",
+    "project_remaining_cny": 55.360855,
+    "stage_remaining_cny": 2.442215
+  },
+  "preflight_as_last_approved": {
+    "center_limits_cny": {
+      "answer_retrieval": 6.5,
+      "independent": 1.0,
+      "judge": 0.5,
+      "ocr": 12.0
+    },
+    "center_needs_cny": {
+      "answer_retrieval": 1.814016,
+      "independent": 0.0,
+      "judge": 0.0,
+      "ocr": 5.65
+    },
+    "center_remaining_cny": {
+      "answer_retrieval": 1.913218799999978,
+      "independent": 1.0,
+      "judge": 0.443012,
+      "ocr": 0.0
+    },
+    "inputs": {
+      "cost_centers_cny": {
+        "answer_retrieval": 6.5,
+        "independent": 1.0,
+        "judge": 0.5,
+        "ocr": 12.0
+      },
+      "stage_limit_cny": 20.0
+    },
+    "ok": false,
+    "plan_sha256": "10809a8ce842e8da05c74f0cfb0e36bf281f54eaeab46717f04a50a81b4eddbc",
+    "reasons": [
+      "stage_budget_insufficient",
+      "center_budget_insufficient:ocr"
+    ],
+    "stage_remaining_cny": 0.0,
+    "total_remaining_cny": 62.824870900000064,
+    "worst_case_cny": 7.464016
+  },
+  "preflight_proposed_adjustment": {
+    "center_limits_cny": {
+      "answer_retrieval": 7.0,
+      "independent": 1.0,
+      "judge": 0.5,
+      "ocr": 23.5
+    },
+    "center_needs_cny": {
+      "answer_retrieval": 1.814016,
+      "independent": 0.0,
+      "judge": 0.0,
+      "ocr": 5.65
+    },
+    "center_remaining_cny": {
+      "answer_retrieval": 2.413218799999978,
+      "independent": 1.0,
+      "judge": 0.443012,
+      "ocr": 6.050000000000001
+    },
+    "inputs": {
+      "cost_centers_cny": {
+        "answer_retrieval": 7.0,
+        "independent": 1.0,
+        "judge": 0.5,
+        "ocr": 23.5
+      },
+      "note": "stage 分配为拟议值，尚未写入 budget.json；执行前须先按主人授权落盘。",
+      "stage_limit_cny": 32.0
+    },
+    "max_requests": "unlimited",
+    "ok": true,
+    "plan_sha256": "d38e3c7cdaf88f1bf7ed1d41f4e3c6bf4b4d96e867511a1a78c06662d5f71d2d",
+    "reasons": [],
+    "requests_planned": 194,
+    "requests_used": 2689,
+    "stage_remaining_cny": 9.906230800000213,
+    "total_remaining_cny": 62.824870900000064,
+    "worst_case_cny": 7.464016
+  },
+  "quota_change_request": {
+    "cost_centers_before": {
+      "answer_retrieval": 6.5,
+      "independent": 1.0,
+      "judge": 0.5,
+      "ocr": 12.0
+    },
+    "cost_centers_proposed": {
+      "answer_retrieval": 7.0,
+      "independent": 1.0,
+      "judge": 0.5,
+      "ocr": 23.5
+    },
+    "delta_cny": 8.0,
+    "from_cny": 24.0,
+    "project_total_unchanged_cny": 100.0,
+    "stage": "P2-LIVE",
+    "to_cny": 32.0
+  },
+  "schema": "p2-b0-preflight-request/v0.1"
+}
