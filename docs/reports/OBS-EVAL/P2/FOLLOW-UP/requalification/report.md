@@ -179,7 +179,39 @@ chore(p2): requalify candidate with new real B0 and refreeze
 - freeze: candidate-freeze.v0_3.json payload_sha256=13e9d099…
 ```
 
-## 12. 证据索引
+## 12. 交付后追加：一键启动修复（本地启动器，非评测面）
+
+交付发现问题：主人双击 `一键启动.cmd` 得到的是**离线演示**（模型/OCR 关闭），不是真实可运行版本；
+真实实例也起不来。逐项定位到 **4 个独立原因**：
+
+| # | 现象 | 根因 |
+|---|---|---|
+| 1 | `一键启动.cmd` 能起，但问答报"模型未配置" | 上一轮把它改成了 `--offline`（零费用演示），`start_local.py --offline` 会显式清空 model/ocr 配置 |
+| 2 | 真实模式报“真实亲验实例已运行” | 机器上残留 3 个未退出的 `start_local.py` 实例（13:36 / 14:24 / 15:08），`msvcrt` 亲验锁被占用 |
+| 3 | 清掉残留后真实模式报 `ControlledBindingError: chat GO 闸门拒绝：亲验请求窗口已用完` | `S2-OWNER-ACCEPTANCE-GO.json` 的 `request_window` 按签发时账本前缀计数；当天新 B0 的 **112 笔**预留推进了共享账本（预留数 2689→2801），把该窗口 106 个名额耗尽 |
+| 4 | 不带任何开关的"默认真实模式"报 `GO stage 'P1-RETRIEVAL' 与请求阶段 'S2-DEV' 不一致` | 默认槽 `S2-LIVE-GO.json` 是历史 P1 GO，与产品默认阶段不匹配——因此**只有 `--owner-live` 是当前可用真实路径** |
+
+处置（`一键启动.cmd` 为标准 CRLF + UTF-8，与仓库既有 .cmd 一致）：
+
+1. **脚本改为"真实优先、离线兜底"**：先按真实参数（deepseek-flash、百炼 embedding/rerank、腾讯 OCR、
+   阶段 `S2-OWNER-ACCEPTANCE`、10 元阶段额度、106 次、单请求 2.103552 元）调 `--owner-live`；
+   失败时打印原因并**自动转离线模式**启动，明确告知"问答不调用真实模型、不伪造答案"。
+   （顺带修掉一个真 bug：我首版写成 LF 行尾，cmd.exe 把中文 echo 行拆成命令执行。）
+2. **清理残留实例**：结束 6 个 `start_local.py` 进程及其 3 个 Vite 子进程（均为历史残留，非用户在用）。
+3. **重签亲验 GO 的请求窗口**（脚本 `var/eval/t209-prep/issue_owner_acceptance_go.py`，旧 GO 已备份）：
+   阶段/额度/计划摘要/单请求上界**全部不变**，只把窗口基线换成当前账本前缀并重给 106 个名额、24 小时：
+   `max_requests=106`、`prefix_bytes=6008252`、`prefix_sha256=fa0e175c…`、`stage_limits={S2-OWNER-ACCEPTANCE:10.0}`、
+   计划摘要 `961d475b…`（未变）、到期 `2026-11-22T08:43Z`；阶段已用 0.010415 元，余 9.989585 元，**无新增预算**。
+
+验证：`tools/start_local.py --owner-live --check-only` → **exit 0**，"真实亲验预检通过：最多 106 笔供应商请求，
+启动前发送 0 笔"（零发送）；`--smoke-test` → `SMOKE_RESULT={"backend":true,"frontend":true,"login":true,"word_import":true,"ports_released":true}`；
+`一键启动.cmd` 实跑（GO 未续期时）确认走真实→失败的提示→离线兜底并正常提供服务。
+
+对已发布候选的影响：`一键启动.cmd` 是**本地启动便利文件**，不在 `pipeline_source_sha256()` 覆盖集内，
+复核仍为 `13a962ed…`；新 B0 准入与正式门禁结论**不受影响**。本文件的字节因此**取代**冻结件
+`candidate.files` 中该条目的旧摘要（其余 21 个文件不变）。
+
+## 13. 证据索引
 
 | 证据 | 路径 |
 |---|---|
