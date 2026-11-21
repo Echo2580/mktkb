@@ -187,16 +187,32 @@ def sanitize_no_proxy() -> None:
 
 
 def owner_acceptance_plan():
+    """本机真实亲验的受控请求计划。
+
+    2026-11-21 按主人「方案 A」扩容：原 12 chat/6 OCR 只够小范围冒烟，撑不起
+    用户视角验收（40 题 + 场景题 + P1 遗留回归）。这里按**仍能通过 10 元阶段**
+    串行峰值校验（peak_include_history ≤ 10.00 元）的最大规模取整：
+    chat 83 / embedding 105 / rerank 88 / OCR 文本 11 页 + 表格 1 页 = 288 次请求，
+    峰值 9.953408 元，实际结算会显著低于峰值（chat 实测约 0.0024 元/次、OCR 为固定 0.5/页）。
+    可用 MKTKB_UA_PLAN_* 环境变量覆盖（仅调小或微调，仍受阶段峰值校验约束）。
+    """
     from mktkb.controlled_execution import ControlledRequestPlan
     from mktkb.live_authorization import OWNER_ACCEPTANCE_STAGE
 
+    def _size(name, default):
+        raw = os.environ.get(name)
+        try:
+            return int(raw) if raw is not None and str(raw).strip() else default
+        except ValueError:
+            return default
+
     return ControlledRequestPlan(
         stage=OWNER_ACCEPTANCE_STAGE,
-        chat_requests=12,
-        embedding_requests=64,
-        rerank_requests=24,
-        ocr_text_requests=4,
-        ocr_table_requests=2,
+        chat_requests=_size("MKTKB_UA_PLAN_CHAT", 83),
+        embedding_requests=_size("MKTKB_UA_PLAN_EMBEDDING", 105),
+        rerank_requests=_size("MKTKB_UA_PLAN_RERANK", 88),
+        ocr_text_requests=_size("MKTKB_UA_PLAN_OCR_TEXT", 11),
+        ocr_table_requests=_size("MKTKB_UA_PLAN_OCR_TABLE", 1),
     )
 
 

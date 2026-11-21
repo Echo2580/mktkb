@@ -11,7 +11,7 @@ rem ============================================================================
 rem 真实问答运行参数（只影响本进程；不修改 .env）
 rem   - 官方 deepseek-flash（.env 里仍是旧 deepseek-chat 别名，这里显式覆盖）
 rem   - 官方峰值价格 2/8 元每百万 token；上下文上限 1048576；max_tokens 800
-rem   - 阶段 S2-OWNER-ACCEPTANCE：项目上限 100、阶段上限 10、106 次请求、单请求上界 2.103552
+rem   - 阶段 S2-OWNER-ACCEPTANCE：项目上限 100、阶段上限 10、300 次请求（计划 288 次）、单请求上界 2.103552
 rem   - 说明：真实模式需要一份**有效且未用尽**的亲验 GO（docs/evidence/.../PM/S2-OWNER-ACCEPTANCE-GO.json）
 rem ============================================================================
 set PYTHONUTF8=1
@@ -28,7 +28,7 @@ set MKTKB_MODEL_RESERVE_PROFILE=model_context_ceiling
 set MKTKB_PROJECT_TOTAL_LIMIT_CNY=100.0
 set MKTKB_LIVE_STAGE=S2-OWNER-ACCEPTANCE
 set MKTKB_RAG_STAGE_LIMIT_CNY=10.0
-set MKTKB_RAG_MAX_REQUESTS=106
+set MKTKB_RAG_MAX_REQUESTS=300
 set MKTKB_RAG_MAX_REQUEST_CNY=2.103552
 set MKTKB_RAG_MAX_RETRIES=0
 set DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com
