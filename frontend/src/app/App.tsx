@@ -5,6 +5,9 @@ import { Icon } from '../components/Icon';
 import { LoginPage } from '../features/auth/LoginPage';
 import { ChatPage } from '../features/chat/ChatPage';
 import { DocumentsPage } from '../features/documents/DocumentsPage';
+import { OperationsOverviewPage } from '../features/operations/OperationsOverviewPage';
+import { OperationsRequestsPage } from '../features/operations/RequestsPlaceholderPage';
+import { OperationsDocumentsPage } from '../features/operations/DocumentsPlaceholderPage';
 
 function NotFoundPage() {
   return (
@@ -37,6 +40,9 @@ export function App() {
           <Route path="chat" element={<ChatPage />} />
           <Route path="chat/:conversationId" element={<ChatPage />} />
           <Route path="documents" element={<DocumentsPage />} />
+          <Route path="operations" element={<OperationsOverviewPage />} />
+          <Route path="operations/requests" element={<OperationsRequestsPage />} />
+          <Route path="operations/documents" element={<OperationsDocumentsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Route>

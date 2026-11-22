@@ -132,6 +132,16 @@ function SidebarContent({
               <span>资料管理</span>
             </NavLink>
           ) : null}
+          {role === 'admin' ? (
+            <NavLink
+              to="/operations"
+              className={({ isActive }) => `nav-item${isActive ? ' is-active' : ''}`}
+              onClick={onNavigate}
+            >
+              <Icon name="layout-grid" size={17} className="nav-icon" />
+              <span>知识运营</span>
+            </NavLink>
+          ) : null}
         </nav>
       </div>
 
@@ -272,6 +282,7 @@ export function AppShell() {
   const match = useMatch('/chat/:conversationId');
   const activeId = match?.params.conversationId ?? null;
   const isDocuments = location.pathname.startsWith('/documents');
+  const isOperations = location.pathname.startsWith('/operations');
 
   const [conversations, setConversations] = useState<ConversationSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -504,9 +515,13 @@ export function AppShell() {
             >
               <Icon name="menu" size={18} />
             </button>
-            <h1 className="topbar-title">{isDocuments ? '资料管理' : 'AI 助手'}</h1>
+            <h1 className="topbar-title">
+              {isDocuments ? '资料管理' : isOperations ? '知识运营' : 'AI 助手'}
+            </h1>
             {isDocuments ? (
               <span className="topbar-badge">资料维护</span>
+            ) : isOperations ? (
+              <span className="topbar-badge">运营总览</span>
             ) : (
               <span className="topbar-badge">{roleLabel(role)}</span>
             )}

@@ -317,6 +317,176 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/observability/metrics": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 按 path/outcome 聚合 Trace 指标 */
+        get: operations["get_metrics_api_v1_observability_metrics_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/observability/requests/{request_id}/traces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 查询同一产品请求的全部 Trace 尝试 */
+        get: operations["get_request_traces_api_v1_observability_requests__request_id__traces_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/observability/runs/{run_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 查询评测 run 的 manifest/summary/gate 聚合 */
+        get: operations["get_run_api_v1_observability_runs__run_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/observability/traces/{trace_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 查询单次执行 Trace（仅哈希/计数/时长/状态） */
+        get: operations["get_trace_api_v1_observability_traces__trace_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/documents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 知识资产列表（当前版本、最近导入、窗口最终引用与相关问答） */
+        get: operations["get_documents_api_v1_operations_documents_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/documents/{document_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 资料详情（全部版本、导入摘要、失败原因与按文档/版本下钻条件） */
+        get: operations["get_document_detail_api_v1_operations_documents__document_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/evaluation-runs": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 评测批次列表（白名单摘要；holdout 只回聚合，详情扣留） */
+        get: operations["get_evaluation_runs_api_v1_operations_evaluation_runs_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/overview": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 运营总览（窗口指标、趋势、六类分布、Trace 覆盖率、待处理项） */
+        get: operations["get_overview_api_v1_operations_overview_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 窗口内已完成问答列表（keyset 分页，可按结果类型/文档/版本过滤） */
+        get: operations["get_requests_api_v1_operations_requests_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/operations/requests/{request_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** 问答详情（问题、结果、可展示引用、冲突两方来源、Trace attempts） */
+        get: operations["get_request_detail_api_v1_operations_requests__request_id__get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -351,6 +521,7 @@ export interface components {
             message_id: string;
             /** Missing Fields */
             missing_fields?: string[];
+            pagination?: components["schemas"]["PaginationView"] | null;
             /**
              * Request Id
              * Format: uuid
@@ -392,6 +563,27 @@ export interface components {
             /** Label */
             label: string;
         };
+        /** CitationItem */
+        CitationItem: {
+            /** Document Id */
+            document_id: string;
+            /** Document Name */
+            document_name?: string | null;
+            /** Locator */
+            locator?: {
+                [key: string]: unknown;
+            } | null;
+            /** Published At */
+            published_at?: string | null;
+            /** Source Id */
+            source_id: string;
+            /** Status */
+            status: string;
+            /** Version Id */
+            version_id: string;
+            /** Version Number */
+            version_number?: number | null;
+        };
         /** ConflictEntry */
         ConflictEntry: {
             /**
@@ -401,6 +593,42 @@ export interface components {
             source_id: string;
             /** Value */
             value: string;
+        };
+        /** ConflictEntryItem */
+        ConflictEntryItem: {
+            /** Document Id */
+            document_id?: string | null;
+            /** Document Name */
+            document_name?: string | null;
+            /** Source Id */
+            source_id: string;
+            /** Status */
+            status?: string | null;
+            /**
+             * Value
+             * @default
+             */
+            value: string;
+            /** Version Id */
+            version_id?: string | null;
+            /** Version Number */
+            version_number?: number | null;
+        };
+        /** ConflictGroupItem */
+        ConflictGroupItem: {
+            /**
+             * Conflict Flag
+             * @default true
+             * @constant
+             */
+            conflict_flag: true;
+            /** Entries */
+            entries?: components["schemas"]["ConflictEntryItem"][];
+            /**
+             * Field
+             * @default
+             */
+            field: string;
         };
         /** ConflictView */
         ConflictView: {
@@ -460,6 +688,31 @@ export interface components {
             /** Revision */
             revision: number;
         };
+        /** DocumentBasic */
+        DocumentBasic: {
+            /** Active Version Id */
+            active_version_id?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /**
+             * Deleted
+             * @default false
+             */
+            deleted: boolean;
+            /** Document Id */
+            document_id: string;
+            /** File Type */
+            file_type: string;
+            /** Last Published At */
+            last_published_at?: string | null;
+            /**
+             * Latest Version Number
+             * @default 0
+             */
+            latest_version_number: number;
+            /** Name */
+            name: string;
+        };
         /** DocumentDetail */
         DocumentDetail: {
             document: components["schemas"]["DocumentSummary"];
@@ -473,6 +726,15 @@ export interface components {
             /** Versions */
             versions: components["schemas"]["VersionSummary"][];
         };
+        /** DocumentDetailResponse */
+        DocumentDetailResponse: {
+            document: components["schemas"]["DocumentBasic"];
+            drilldown: components["schemas"]["RequestsDrilldown"];
+            /** Imports */
+            imports?: components["schemas"]["ImportDetail"][];
+            /** Versions */
+            versions?: components["schemas"]["VersionDetail"][];
+        };
         /** DocumentList */
         DocumentList: {
             /** Items */
@@ -483,6 +745,27 @@ export interface components {
             offset: number;
             /** Total */
             total: number;
+        };
+        /** DocumentListItem */
+        DocumentListItem: {
+            current_version?: components["schemas"]["DocumentVersionSummary"] | null;
+            /** Document Id */
+            document_id: string;
+            /** File Type */
+            file_type: string;
+            /**
+             * Final Citations
+             * @default 0
+             */
+            final_citations: number;
+            latest_import?: components["schemas"]["ImportSummary"] | null;
+            /** Name */
+            name: string;
+            /**
+             * Related Requests Count
+             * @default 0
+             */
+            related_requests_count: number;
         };
         /** DocumentSummary */
         DocumentSummary: {
@@ -510,10 +793,189 @@ export interface components {
             /** Name */
             name: string;
         };
+        /** DocumentVersionSummary */
+        DocumentVersionSummary: {
+            /** Number */
+            number: number;
+            /** Published At */
+            published_at?: string | null;
+            /** State */
+            state: string;
+            /** Version Id */
+            version_id: string;
+        };
+        /** DocumentsPage */
+        DocumentsPage: {
+            /** Items */
+            items?: components["schemas"]["DocumentListItem"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Size
+             * @default 20
+             */
+            page_size: number;
+            window: components["schemas"]["WindowBlock"];
+        };
+        /** EvaluationRunItem */
+        EvaluationRunItem: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /**
+             * Details Withheld
+             * @default false
+             */
+            details_withheld: boolean;
+            gate?: components["schemas"]["GateSummary"] | null;
+            /**
+             * Holdout Detected
+             * @default false
+             */
+            holdout_detected: boolean;
+            manifest?: components["schemas"]["RunManifestSummary"] | null;
+            /** Run Id */
+            run_id: string;
+            summary?: components["schemas"]["RunSummaryBlock"] | null;
+        };
+        /** EvaluationRunsResponse */
+        EvaluationRunsResponse: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /** Runs */
+            runs?: components["schemas"]["EvaluationRunItem"][];
+            /**
+             * Skipped
+             * @default 0
+             */
+            skipped: number;
+            /**
+             * Status
+             * @default empty
+             * @enum {string}
+             */
+            status: "ok" | "empty";
+        };
+        /**
+         * GateSummary
+         * @description ``gate.json`` 的聚合白名单；不返回 failures / unknowns 的 evidence 明细。
+         */
+        GateSummary: {
+            /** Exit Code */
+            exit_code?: number | null;
+            /**
+             * Failure Count
+             * @default 0
+             */
+            failure_count: number;
+            /** Gate Status */
+            gate_status?: {
+                [key: string]: string;
+            };
+            /** Gate Version */
+            gate_version?: string | null;
+            /** Hard Failures */
+            hard_failures?: string[];
+            /** Min Sample */
+            min_sample?: number | null;
+            /** Mode */
+            mode?: string | null;
+            /**
+             * Not Applicable Count
+             * @default 0
+             */
+            not_applicable_count: number;
+            /** Quality Status */
+            quality_status?: string | null;
+            /** Run Id */
+            run_id?: string | null;
+            /** Scored Count */
+            scored_count?: number | null;
+            /** Suite */
+            suite?: string | null;
+            /**
+             * Unknown Count
+             * @default 0
+             */
+            unknown_count: number;
+            /**
+             * Warnings Count
+             * @default 0
+             */
+            warnings_count: number;
+        };
         /** HTTPValidationError */
         HTTPValidationError: {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
+        };
+        /**
+         * HoldoutSummary
+         * @description holdout 只保留聚合与哈希；不返回逐题 / 题干 / 答案 / 审计正文。
+         */
+        HoldoutSummary: {
+            /** Aggregate Only */
+            aggregate_only?: boolean | null;
+            /** Details Written */
+            details_written?: boolean | null;
+            /** Label Version */
+            label_version?: string | null;
+            /** Labels Sha256 */
+            labels_sha256?: string | null;
+            /** Metadata Mismatch Count */
+            metadata_mismatch_count?: number | null;
+            /** Questions Sha256 */
+            questions_sha256?: string | null;
+            /** Strata */
+            strata?: {
+                [key: string]: number;
+            };
+            /** Traces Persisted */
+            traces_persisted?: boolean | null;
+        };
+        /** ImportDetail */
+        ImportDetail: {
+            /**
+             * Attempts
+             * @default 0
+             */
+            attempts: number;
+            /** Created At */
+            created_at?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Message */
+            message?: string | null;
+            /**
+             * Retryable
+             * @default true
+             */
+            retryable: boolean;
+            /** Stage */
+            stage: string;
+            /** State */
+            state: string;
+            /** Version Id */
+            version_id: string;
+        };
+        /** ImportSummary */
+        ImportSummary: {
+            /**
+             * Attempts
+             * @default 0
+             */
+            attempts: number;
+            /** Error Code */
+            error_code?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Retryable */
+            retryable?: boolean | null;
+            /** Stage */
+            stage: string;
+            /** State */
+            state: string;
         };
         /** JobStatus */
         JobStatus: {
@@ -585,6 +1047,7 @@ export interface components {
             kind?: ("answer" | "clarification" | "not_found" | "conflict" | "service_error" | "knowledge_changed") | null;
             /** Missing Fields */
             missing_fields?: string[];
+            pagination?: components["schemas"]["PaginationView"] | null;
             /** Revision */
             revision?: number | null;
             /**
@@ -596,6 +1059,170 @@ export interface components {
             sources?: components["schemas"]["SourceSummary"][];
             /** Text */
             text: string;
+        };
+        /** MetricGroup */
+        MetricGroup: {
+            /**
+             * Cost Cny
+             * @default 0
+             */
+            cost_cny: number;
+            /** Count */
+            count: number;
+            /**
+             * Degraded Count
+             * @default 0
+             */
+            degraded_count: number;
+            /**
+             * Error Count
+             * @default 0
+             */
+            error_count: number;
+            /** Latency Ms P50 */
+            latency_ms_p50?: number | null;
+            /** Latency Ms P95 */
+            latency_ms_p95?: number | null;
+            /** Latency Samples */
+            latency_samples: number;
+            /** Outcome */
+            outcome: string;
+            /** Path */
+            path: string;
+            /**
+             * Tokens Input
+             * @default 0
+             */
+            tokens_input: number;
+            /**
+             * Tokens Output
+             * @default 0
+             */
+            tokens_output: number;
+            /**
+             * Tokens Total
+             * @default 0
+             */
+            tokens_total: number;
+        };
+        /** MetricsResponse */
+        MetricsResponse: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /** Groups */
+            groups?: components["schemas"]["MetricGroup"][];
+            /**
+             * Invalid Created At Count
+             * @default 0
+             */
+            invalid_created_at_count: number;
+            /**
+             * Invalid Payload Count
+             * @default 0
+             */
+            invalid_payload_count: number;
+            /** Since */
+            since: string;
+            /** Total Traces */
+            total_traces: number;
+            /** Until */
+            until: string;
+            /** Window */
+            window: string;
+        };
+        /** OverviewMetrics */
+        OverviewMetrics: {
+            /**
+             * Active Documents
+             * @default 0
+             */
+            active_documents: number;
+            /**
+             * Basis
+             * @default current
+             * @constant
+             */
+            basis: "current";
+            /**
+             * Completed Requests
+             * @default 0
+             */
+            completed_requests: number;
+            /**
+             * Conflict
+             * @default 0
+             */
+            conflict: number;
+            /**
+             * Interrupted
+             * @default 0
+             */
+            interrupted: number;
+            /**
+             * Not Found
+             * @default 0
+             */
+            not_found: number;
+            /**
+             * Review Required Versions
+             * @default 0
+             */
+            review_required_versions: number;
+        };
+        /** OverviewResponse */
+        OverviewResponse: {
+            metrics: components["schemas"]["OverviewMetrics"];
+            /** Pending */
+            pending?: components["schemas"]["PendingItem"][];
+            /** Result Distribution */
+            result_distribution?: {
+                [key: string]: number;
+            };
+            trace_coverage: components["schemas"]["TraceCoverage"];
+            /** Trend */
+            trend?: components["schemas"]["TrendPoint"][];
+            window: components["schemas"]["WindowBlock"];
+        };
+        /**
+         * PaginationView
+         * @description S2：枚举分页（向后兼容扩展；旧客户端忽略该字段）。
+         */
+        PaginationView: {
+            /** Has More */
+            has_more: boolean;
+            /** Next Page */
+            next_page?: number | null;
+            /** Page */
+            page: number;
+            /** Page Size */
+            page_size: number;
+            /** Returned */
+            returned: number;
+            /** Total */
+            total: number;
+        };
+        /** PendingItem */
+        PendingItem: {
+            /** Document Id */
+            document_id?: string | null;
+            /** Drilldown */
+            drilldown?: {
+                [key: string]: string | null;
+            };
+            /** Error Code */
+            error_code?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Request Id */
+            request_id?: string | null;
+            /** State */
+            state?: string | null;
+            /** Type */
+            type: string;
+            /** Version Id */
+            version_id?: string | null;
         };
         /** PreviewResponse */
         PreviewResponse: {
@@ -641,6 +1268,223 @@ export interface components {
             expected_active_version_id: string | null;
             /** Expected Revision */
             expected_revision: number;
+        };
+        /** RequestDetailResponse */
+        RequestDetailResponse: {
+            /**
+             * Citation Count
+             * @default 0
+             */
+            citation_count: number;
+            /** Citations */
+            citations?: components["schemas"]["CitationItem"][];
+            /** Conflicts */
+            conflicts?: components["schemas"]["ConflictGroupItem"][];
+            /** Conversation Id Hash */
+            conversation_id_hash: string;
+            /** Question */
+            question: string;
+            /** Request Id */
+            request_id: string;
+            result: components["schemas"]["ResultBlock"];
+            trace: components["schemas"]["TraceBlock"];
+        };
+        /** RequestListItem */
+        RequestListItem: {
+            /**
+             * Citation Count
+             * @default 0
+             */
+            citation_count: number;
+            /**
+             * Conflict Flag
+             * @default false
+             */
+            conflict_flag: boolean;
+            /** Conversation Id Hash */
+            conversation_id_hash: string;
+            /** Error Code */
+            error_code?: string | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Request Id */
+            request_id: string;
+            /** Revision */
+            revision?: number | null;
+            /** Status */
+            status: string;
+            /** Trace Status */
+            trace_status: string;
+        };
+        /** RequestTracesResponse */
+        RequestTracesResponse: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /** Request Id */
+            request_id: string;
+            /** Traces */
+            traces?: components["schemas"]["TraceSummary"][];
+        };
+        /** RequestsDrilldown */
+        RequestsDrilldown: {
+            /** Requests Filter */
+            requests_filter?: {
+                [key: string]: string;
+            };
+        };
+        /** RequestsPage */
+        RequestsPage: {
+            /** Items */
+            items?: components["schemas"]["RequestListItem"][];
+            /** Next Cursor */
+            next_cursor?: string | null;
+            /**
+             * Page Size
+             * @default 20
+             */
+            page_size: number;
+            window: components["schemas"]["WindowBlock"];
+        };
+        /** ResultBlock */
+        ResultBlock: {
+            /** Error Code */
+            error_code?: string | null;
+            /** Kind */
+            kind?: string | null;
+            /** Missing Fields */
+            missing_fields?: string[];
+            /** Revision */
+            revision?: number | null;
+            /**
+             * Text
+             * @default
+             */
+            text: string;
+        };
+        /**
+         * RunManifestSummary
+         * @description ``run_manifest.json`` 的聚合白名单；不返回 dataset_path / corpus_dir 等路径。
+         */
+        RunManifestSummary: {
+            /** Business Date */
+            business_date?: string | null;
+            /** Case Count */
+            case_count?: number | null;
+            /** Config Hash */
+            config_hash?: string | null;
+            /** Corpus Manifest Sha256 */
+            corpus_manifest_sha256?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Dataset Sha256 */
+            dataset_sha256?: string | null;
+            /** Dataset Version */
+            dataset_version?: string | null;
+            /** Gate Version */
+            gate_version?: string | null;
+            /**
+             * Holdout Details
+             * @default false
+             */
+            holdout_details: boolean;
+            /** Holdout Labels Sha256 */
+            holdout_labels_sha256?: string | null;
+            /** Index Revision */
+            index_revision?: number | null;
+            /** Label Version */
+            label_version?: string | null;
+            /** Mode */
+            mode?: string | null;
+            /**
+             * Multi Turn Case Count
+             * @default 0
+             */
+            multi_turn_case_count: number;
+            /**
+             * Multi Turn Turns Executed
+             * @default 0
+             */
+            multi_turn_turns_executed: number;
+            /** Pipeline Version */
+            pipeline_version?: string | null;
+            /** Run Id */
+            run_id?: string | null;
+            /** Scope */
+            scope?: string | null;
+            /** Suite */
+            suite?: string | null;
+        };
+        /** RunResponse */
+        RunResponse: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /**
+             * Details Withheld
+             * @default false
+             */
+            details_withheld: boolean;
+            gate?: components["schemas"]["GateSummary"] | null;
+            /**
+             * Holdout Detected
+             * @default false
+             */
+            holdout_detected: boolean;
+            manifest?: components["schemas"]["RunManifestSummary"] | null;
+            /** Run Id */
+            run_id: string;
+            summary?: components["schemas"]["RunSummaryBlock"] | null;
+        };
+        /**
+         * RunSummaryBlock
+         * @description ``summary.json`` 的聚合白名单；不返回 metrics_scope / declarations 等明细。
+         */
+        RunSummaryBlock: {
+            /** Business Date */
+            business_date?: string | null;
+            /** Case Count */
+            case_count?: number | null;
+            /** Corpus Manifest Sha256 */
+            corpus_manifest_sha256?: string | null;
+            /** Dataset Sha256 */
+            dataset_sha256?: string | null;
+            /** Dataset Version */
+            dataset_version?: string | null;
+            /** Error Count */
+            error_count?: number | null;
+            /** Gate Version */
+            gate_version?: string | null;
+            holdout?: components["schemas"]["HoldoutSummary"] | null;
+            /** Index Revision */
+            index_revision?: number | null;
+            /** Metrics */
+            metrics?: {
+                [key: string]: number;
+            };
+            /** Mode */
+            mode?: string | null;
+            /** Pipeline Version */
+            pipeline_version?: string | null;
+            /**
+             * Retrieval Only
+             * @default false
+             */
+            retrieval_only: boolean;
+            /** Run Id */
+            run_id?: string | null;
+            /** Scope */
+            scope?: string | null;
+            /** Scored Count */
+            scored_count?: number | null;
+            /** Skipped Ocr Count */
+            skipped_ocr_count?: number | null;
+            /** Status Counts */
+            status_counts?: {
+                [key: string]: number;
+            };
+            /** Suite */
+            suite?: string | null;
         };
         /** SessionResponse */
         SessionResponse: {
@@ -739,6 +1583,184 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
+        /**
+         * SpanSummary
+         * @description 单个 Span 的只读摘要；``attributes_json`` 原文不返回。
+         */
+        SpanSummary: {
+            /**
+             * Attribute Count
+             * @default 0
+             */
+            attribute_count: number;
+            /** Attribute Keys */
+            attribute_keys?: string[];
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Name */
+            name?: string | null;
+            /** Parent Span Id */
+            parent_span_id?: string | null;
+            /** Span Id */
+            span_id?: string | null;
+            /** Started At */
+            started_at?: string | null;
+            /** Status */
+            status?: string | null;
+        };
+        /** TraceAttemptItem */
+        TraceAttemptItem: {
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt: number;
+            /** Error Code */
+            error_code?: string | null;
+            /** Outcome */
+            outcome?: string | null;
+            /** Path */
+            path?: string | null;
+            /** Previous Trace Id */
+            previous_trace_id?: string | null;
+            /**
+             * Replayed
+             * @default false
+             */
+            replayed: boolean;
+            /** Spans */
+            spans?: components["schemas"]["SpanSummary"][];
+            /** Status */
+            status?: string | null;
+            /** Trace Id */
+            trace_id?: string | null;
+        };
+        /** TraceBlock */
+        TraceBlock: {
+            /** Attempts */
+            attempts?: components["schemas"]["TraceAttemptItem"][];
+            /** Note */
+            note?: string | null;
+            /**
+             * Status
+             * @default not_recorded
+             */
+            status: string;
+        };
+        /** TraceCoverage */
+        TraceCoverage: {
+            /** Covered */
+            covered?: number | null;
+            /** Note */
+            note?: string | null;
+            /**
+             * Status
+             * @default not_recorded
+             */
+            status: string;
+            /** Total */
+            total?: number | null;
+        };
+        /** TraceDetailResponse */
+        TraceDetailResponse: {
+            /** Degraded Reason */
+            degraded_reason?: string | null;
+            /** Spans */
+            spans?: components["schemas"]["SpanSummary"][];
+            trace?: components["schemas"]["TraceSummary"] | null;
+        };
+        /**
+         * TraceSummary
+         * @description 一条 trace 的只读摘要；不含问题/答案/上下文原文与 ``*_json``。
+         */
+        TraceSummary: {
+            /** Answer Source */
+            answer_source?: string | null;
+            /**
+             * Attempt
+             * @default 1
+             */
+            attempt: number;
+            /** Config Hash */
+            config_hash?: string | null;
+            /**
+             * Content Mode
+             * @default hash
+             */
+            content_mode: string;
+            /** Conversation Id Hash */
+            conversation_id_hash?: string | null;
+            /** Created At */
+            created_at?: string | null;
+            /** Error Code */
+            error_code?: string | null;
+            /** Go Decision */
+            go_decision?: string | null;
+            /** Hash Algo */
+            hash_algo?: string | null;
+            /** Hmac Key Id */
+            hmac_key_id?: string | null;
+            /** Http Request Id */
+            http_request_id?: string | null;
+            /** Index Revision */
+            index_revision?: string | null;
+            /** Latency Ms */
+            latency_ms?: number | null;
+            /** Manifest Sha256 */
+            manifest_sha256?: string | null;
+            /** Mode */
+            mode?: string | null;
+            /** Outcome Kind */
+            outcome_kind?: string | null;
+            /** Path */
+            path?: string | null;
+            /** Pipeline Version */
+            pipeline_version?: string | null;
+            /** Previous Trace Id */
+            previous_trace_id?: string | null;
+            /** Query Kind */
+            query_kind?: string | null;
+            /** Question Chars */
+            question_chars?: number | null;
+            /** Question Hash */
+            question_hash?: string | null;
+            /** Reason */
+            reason?: string | null;
+            /**
+             * Replayed
+             * @default false
+             */
+            replayed: boolean;
+            /** Request Id */
+            request_id?: string | null;
+            /** Scope */
+            scope?: string | null;
+            /** Span Count */
+            span_count?: number | null;
+            /** Status */
+            status?: string | null;
+            /** Trace Id */
+            trace_id?: string | null;
+            /** User Id Hash */
+            user_id_hash?: string | null;
+        };
+        /** TrendPoint */
+        TrendPoint: {
+            /**
+             * Citations
+             * @default 0
+             */
+            citations: number;
+            /**
+             * Completed
+             * @default 0
+             */
+            completed: number;
+            /** Date */
+            date: string;
+        };
         /** UploadResponse */
         UploadResponse: {
             document: components["schemas"]["DocumentSummary"];
@@ -773,6 +1795,23 @@ export interface components {
             /** Error Type */
             type: string;
         };
+        /** VersionDetail */
+        VersionDetail: {
+            /** Error Code */
+            error_code?: string | null;
+            /** Message */
+            message?: string | null;
+            /** Number */
+            number: number;
+            /** Published At */
+            published_at?: string | null;
+            /** State */
+            state: string;
+            /** Uploaded At */
+            uploaded_at?: string | null;
+            /** Version Id */
+            version_id: string;
+        };
         /** VersionSummary */
         VersionSummary: {
             /**
@@ -800,6 +1839,21 @@ export interface components {
              * Format: date-time
              */
             uploaded_at: string;
+        };
+        /** WindowBlock */
+        WindowBlock: {
+            /** Since Utc */
+            since_utc: string;
+            /**
+             * Timezone
+             * @default Asia/Shanghai
+             * @constant
+             */
+            timezone: "Asia/Shanghai";
+            /** Until Utc */
+            until_utc: string;
+            /** Window */
+            window: string;
         };
     };
     responses: never;
@@ -1474,6 +2528,465 @@ export interface operations {
         responses: {
             /** @description Successful Response */
             200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_metrics_api_v1_observability_metrics_get: {
+        parameters: {
+            query?: {
+                /** @description 聚合窗口，如 24h / 30m */
+                window?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MetricsResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_request_traces_api_v1_observability_requests__request_id__traces_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestTracesResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_run_api_v1_observability_runs__run_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_trace_api_v1_observability_traces__trace_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                trace_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TraceDetailResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_documents_api_v1_operations_documents_get: {
+        parameters: {
+            query?: {
+                window?: string | null;
+                since?: string | null;
+                until?: string | null;
+                file_type?: string | null;
+                version_state?: string | null;
+                processing_state?: string | null;
+                cursor?: string | null;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentsPage"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_document_detail_api_v1_operations_documents__document_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                document_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DocumentDetailResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_evaluation_runs_api_v1_operations_evaluation_runs_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EvaluationRunsResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    get_overview_api_v1_operations_overview_get: {
+        parameters: {
+            query?: {
+                /** @description today / 7d / 30d */
+                window?: string | null;
+                /** @description 自定义起始日 YYYY-MM-DD */
+                since?: string | null;
+                /** @description 自定义结束日 YYYY-MM-DD（含当天） */
+                until?: string | null;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OverviewResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_requests_api_v1_operations_requests_get: {
+        parameters: {
+            query?: {
+                window?: string | null;
+                since?: string | null;
+                until?: string | null;
+                kind?: string | null;
+                document_id?: string | null;
+                version_id?: string | null;
+                cursor?: string | null;
+                page_size?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestsPage"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_request_detail_api_v1_operations_requests__request_id__get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RequestDetailResponse"];
+                };
+            };
+            /** @description 未登录 */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description 需要管理员权限 */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };

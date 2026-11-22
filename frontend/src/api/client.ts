@@ -33,6 +33,20 @@ export type Publication = Schema['Publication'];
 export type Deletion = Schema['Deletion'];
 export type VersionState = NonNullable<VersionSummary['state']>;
 
+// T303：运营只读接口类型（直接取 T302 生成的 schema，不手写重复模型）。
+export type OperationsOverview = Schema['OverviewResponse'];
+export type OperationsRequestsPage = Schema['RequestsPage'];
+export type OperationsDocumentsPage = Schema['DocumentsPage'];
+export type OperationsQuery = { window?: string; since?: string; until?: string };
+
+function operationsWindowSearch(params: OperationsQuery): URLSearchParams {
+  const search = new URLSearchParams();
+  if (params.window) search.set('window', params.window);
+  if (params.since) search.set('since', params.since);
+  if (params.until) search.set('until', params.until);
+  return search;
+}
+
 export type ApiErrorPayload = {
   code: string;
   message: string;
@@ -290,5 +304,43 @@ export const api = {
     return request<Deletion>(`/documents/${documentId}?expected_revision=${expectedRevision}`, {
       method: 'DELETE',
     });
+  },
+  operationsOverview(params: OperationsQuery = {}): Promise<OperationsOverview> {
+    const search = operationsWindowSearch(params);
+    return request<OperationsOverview>(`/operations/overview?${search.toString()}`);
+  },
+  operationsRequests(
+    params: OperationsQuery & {
+      kind?: string;
+      documentId?: string;
+      versionId?: string;
+      cursor?: string;
+      pageSize?: number;
+    } = {},
+  ): Promise<OperationsRequestsPage> {
+    const search = operationsWindowSearch(params);
+    if (params.kind) search.set('kind', params.kind);
+    if (params.documentId) search.set('document_id', params.documentId);
+    if (params.versionId) search.set('version_id', params.versionId);
+    if (params.cursor) search.set('cursor', params.cursor);
+    if (params.pageSize) search.set('page_size', String(params.pageSize));
+    return request<OperationsRequestsPage>(`/operations/requests?${search.toString()}`);
+  },
+  operationsDocuments(
+    params: OperationsQuery & {
+      fileType?: string;
+      versionState?: string;
+      processingState?: string;
+      cursor?: string;
+      pageSize?: number;
+    } = {},
+  ): Promise<OperationsDocumentsPage> {
+    const search = operationsWindowSearch(params);
+    if (params.fileType) search.set('file_type', params.fileType);
+    if (params.versionState) search.set('version_state', params.versionState);
+    if (params.processingState) search.set('processing_state', params.processingState);
+    if (params.cursor) search.set('cursor', params.cursor);
+    if (params.pageSize) search.set('page_size', String(params.pageSize));
+    return request<OperationsDocumentsPage>(`/operations/documents?${search.toString()}`);
   },
 };
