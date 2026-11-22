@@ -1,0 +1,225 @@
+{
+  "note": "T304 controlled seed (受控样本)；只写隔离目录，不含真实业务数据。",
+  "frontend_base": "http://127.0.0.1:5300",
+  "trace_closed_base": "http://127.0.0.1:5302",
+  "dates": {
+    "today": "2026-11-22",
+    "yesterday": "2026-11-21",
+    "ten_days_ago": "2026-11-12",
+    "empty_since": "2020-01-01",
+    "empty_until": "2020-01-02"
+  },
+  "accounts": {
+    "admin": {
+      "username": "admin",
+      "password": "AdminPass-1"
+    },
+    "employee": {
+      "username": "employee",
+      "password": "EmployeePass-1"
+    }
+  },
+  "request_ids": {
+    "answer_multi": "45ef26c5-6554-445d-8d8b-ed93be0a9f7f",
+    "answer_superseded": "a0039d24-7b16-486f-adba-84949415a840",
+    "not_found": "e61d3c60-12c5-4aec-8998-1fcd7b1d7710",
+    "conflict": "b570ae0f-a6c7-4995-87f4-88486d3d708f",
+    "service_error": "f69bdfee-e9c6-489b-b54e-dac020c5ce89",
+    "knowledge_changed": "612d5144-1148-413f-92fb-63de1061496b",
+    "replayed": "9abcfa20-5f17-452f-89bf-6e916ec7ed77",
+    "no_trace": "1dd2ec0f-e66b-48c2-9e43-8d5f4c2ea370",
+    "clarification": "18015f52-12dd-43f2-8b07-7f94e0c77f0a",
+    "answer_yesterday": "3eddddb4-6885-40c0-855f-56d27e698d89",
+    "fill_today_0": "109d4c75-7238-48f1-a1d6-a2263ce31ebc",
+    "fill_today_1": "4766468f-a120-4206-bd2e-dc796c31e6db",
+    "fill_today_2": "4bdf2874-1a20-4155-8858-837c8be80341",
+    "fill_today_3": "548264cf-28d5-4496-9561-f595c1631b47",
+    "fill_today_4": "b9fd9f5e-f8bf-4931-b65f-386dfe9ba281",
+    "fill_today_5": "5bee79c4-f392-4c05-8712-ede0b286c8db",
+    "fill_today_6": "efb6cb4a-f77c-473b-b8c1-01e2160f6f5c",
+    "fill_today_7": "71f7e085-5abf-4a1e-871b-8519bd46b60d",
+    "fill_yesterday_0": "af6a807e-1d44-41b4-a31d-8ea7c55b52ff",
+    "fill_yesterday_1": "966c4b37-bd05-414d-bd2e-702925843312",
+    "fill_yesterday_2": "17067b5d-4212-47db-aa7c-b523a62ae870",
+    "fill_yesterday_3": "3cd45139-280a-48cc-b38b-98ba94b5b428",
+    "fill_yesterday_4": "81ffeb23-59a9-4647-86e4-6da1ef27eaeb",
+    "fill_yesterday_5": "9bffaffd-5025-46dd-91a7-288561780a8c",
+    "answer_ten_days": "9f4f9bd0-a2ad-4d32-b242-d5a992816450"
+  },
+  "totals": {
+    "week7d": 24,
+    "today": 16,
+    "month30d": 25,
+    "empty": 0,
+    "conflict_week": 1,
+    "page_size": 20,
+    "first_page_rows": 20,
+    "pages": 2
+  },
+  "detail": {
+    "answer_multi": {
+      "citation_count": 1,
+      "citation": {
+        "source_id": "6ab68c31-0857-4972-8e5e-9d7aec381432",
+        "document_id": "fa302ea4-6578-4a8f-bdeb-07dc54f52678",
+        "version_id": "9cceb756-c7e6-445f-962d-c41580c68c19",
+        "version_number": 2,
+        "document_name": "门店产品价目表",
+        "status": "active",
+        "published_at": "2026-11-21T01:00:00.000+00:00",
+        "locator": {
+          "sheet": "Sheet1",
+          "row": 1
+        }
+      },
+      "trace_status": "recorded",
+      "stage_labels": [
+        "解析计划",
+        "检索召回",
+        "向量召回",
+        "融合排序",
+        "重排",
+        "答案生成",
+        "状态持久化"
+      ],
+      "stage_durations": {
+        "parse": 42,
+        "recall": 380,
+        "vector_recall": 210,
+        "exact_recall": 60,
+        "lexical_recall": 90,
+        "embedding_query": 120,
+        "hard_filter": 35,
+        "fuse": 95,
+        "rerank": 150,
+        "answer": 2400,
+        "fact_validate": 70,
+        "commit": 88
+      },
+      "attempts": 1
+    },
+    "answer_superseded": {
+      "citation_count": 1,
+      "citation": {
+        "source_id": "a06912a3-3f06-49ca-86f6-7035ccb06c9e",
+        "document_id": "fa302ea4-6578-4a8f-bdeb-07dc54f52678",
+        "version_id": "a93cdd9e-c559-410d-8035-15d3fe5f9ac0",
+        "version_number": 1,
+        "document_name": "门店产品价目表",
+        "status": "superseded",
+        "published_at": "2026-11-21T01:00:00.000+00:00",
+        "locator": null
+      },
+      "stage_labels": [
+        "意图解析",
+        "证据检索",
+        "模型作答",
+        "答案校验",
+        "结果提交"
+      ]
+    },
+    "conflict": {
+      "citation_count": 0,
+      "citations": [],
+      "conflicts": [
+        {
+          "field": "退换货时限",
+          "conflict_flag": true,
+          "entries": [
+            {
+              "value": "3 个工作日",
+              "source_id": "e15613a0-a204-4ab5-a94c-966192831add",
+              "document_id": "81b7481b-4205-4c77-8358-235629ce12ca",
+              "version_id": "250be68e-b12d-43ef-bbe8-67ad9e07ee90",
+              "document_name": "门店服务手册",
+              "version_number": 1,
+              "status": "active"
+            },
+            {
+              "value": "5 个工作日",
+              "source_id": "3619b758-3134-489a-a773-d6cf3ec5ebe5",
+              "document_id": "58a0585c-f403-434a-85c8-786f771bc960",
+              "version_id": "8ee6d271-7d2d-4e3e-ae4d-275c49fbcf5a",
+              "document_name": "市场活动补充通知",
+              "version_number": 1,
+              "status": "active"
+            }
+          ]
+        }
+      ]
+    },
+    "service_error": {
+      "error_code": "MODEL_TIMEOUT",
+      "stages": [
+        "intent_parse",
+        "retrieve",
+        "model_answer",
+        "commit"
+      ]
+    },
+    "no_trace": {
+      "trace_status": "not_recorded",
+      "attempts": 0
+    },
+    "replayed": {
+      "attempts": [
+        {
+          "attempt": 1,
+          "replayed": false,
+          "spans": 5
+        },
+        {
+          "attempt": 2,
+          "replayed": true,
+          "spans": 0
+        }
+      ],
+      "previous_trace_id": "61914f8c953c420cb8338d1da576e3e9"
+    }
+  },
+  "eval": {
+    "run_ids": [
+      "qa-eval-b0-01",
+      "qa-eval-b0-02",
+      "qa-eval-holdout-01"
+    ],
+    "skipped_dirs": [
+      "qa-eval-empty"
+    ],
+    "api_status": "ok",
+    "api_skipped": 1,
+    "runs": {
+      "qa-eval-b0-01": {
+        "case_count": 20,
+        "holdout_detected": false,
+        "details_withheld": false,
+        "scored_count": 20,
+        "error_count": 0,
+        "expected_status": "已完成"
+      },
+      "qa-eval-b0-02": {
+        "case_count": 20,
+        "holdout_detected": false,
+        "details_withheld": false,
+        "scored_count": 14,
+        "error_count": 6,
+        "expected_status": "评测失败"
+      },
+      "qa-eval-holdout-01": {
+        "case_count": 12,
+        "holdout_detected": true,
+        "details_withheld": true,
+        "scored_count": 12,
+        "error_count": 0,
+        "expected_status": "已完成"
+      }
+    }
+  },
+  "documents": {
+    "price_document_id": "fa302ea4-6578-4a8f-bdeb-07dc54f52678",
+    "price_v1_version_id": "a93cdd9e-c559-410d-8035-15d3fe5f9ac0",
+    "price_v2_version_id": "9cceb756-c7e6-445f-962d-c41580c68c19",
+    "manual_document_id": "81b7481b-4205-4c77-8358-235629ce12ca",
+    "notice_document_id": "58a0585c-f403-434a-85c8-786f771bc960"
+  }
+}

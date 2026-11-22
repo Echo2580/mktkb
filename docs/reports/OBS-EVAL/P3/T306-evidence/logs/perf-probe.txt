@@ -1,0 +1,370 @@
+{
+  "integration": {
+    "label": "T306 集成隔离库（受控种子）",
+    "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P3\\T306-evidence\\isolated-var\\mktkb.sqlite3",
+    "reference_date": "2026-11-22",
+    "windows": {
+      "today": {
+        "utc": [
+          "2026-11-21T16:00:00+00:00",
+          "2026-11-22T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 8,
+          "total_documents": 4,
+          "total_message_sources": 5,
+          "requests_in_window": 6
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.009,
+            "max_ms": 0.095,
+            "min_ms": 0.008,
+            "samples_ms": [
+              0.095,
+              0.012,
+              0.009,
+              0.008,
+              0.008
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.012,
+            "max_ms": 0.044,
+            "min_ms": 0.012,
+            "samples_ms": [
+              0.044,
+              0.013,
+              0.012,
+              0.012,
+              0.012
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.012,
+            "max_ms": 0.097,
+            "min_ms": 0.012,
+            "samples_ms": [
+              0.097,
+              0.015,
+              0.012,
+              0.012,
+              0.012
+            ]
+          }
+        }
+      },
+      "7d": {
+        "utc": [
+          "2026-11-15T16:00:00+00:00",
+          "2026-11-22T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 8,
+          "total_documents": 4,
+          "total_message_sources": 5,
+          "requests_in_window": 8
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.008,
+            "max_ms": 0.012,
+            "min_ms": 0.008,
+            "samples_ms": [
+              0.012,
+              0.009,
+              0.008,
+              0.008,
+              0.008
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.014,
+            "max_ms": 0.018,
+            "min_ms": 0.014,
+            "samples_ms": [
+              0.018,
+              0.014,
+              0.014,
+              0.016,
+              0.014
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.013,
+            "max_ms": 0.017,
+            "min_ms": 0.013,
+            "samples_ms": [
+              0.017,
+              0.014,
+              0.013,
+              0.013,
+              0.013
+            ]
+          }
+        }
+      },
+      "30d": {
+        "utc": [
+          "2026-10-23T16:00:00+00:00",
+          "2026-11-22T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 8,
+          "total_documents": 4,
+          "total_message_sources": 5,
+          "requests_in_window": 8
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.009,
+            "max_ms": 0.158,
+            "min_ms": 0.008,
+            "samples_ms": [
+              0.158,
+              0.01,
+              0.009,
+              0.008,
+              0.009
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.014,
+            "max_ms": 0.016,
+            "min_ms": 0.014,
+            "samples_ms": [
+              0.016,
+              0.014,
+              0.014,
+              0.014,
+              0.014
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.013,
+            "max_ms": 0.016,
+            "min_ms": 0.013,
+            "samples_ms": [
+              0.016,
+              0.015,
+              0.013,
+              0.013,
+              0.013
+            ]
+          }
+        }
+      }
+    }
+  },
+  "t301": {
+    "label": "T301 隔离基准库（冻结只读）",
+    "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P3\\T301-isolated\\evidence\\data\\mktkb.sqlite3",
+    "reference_date": "2026-11-21",
+    "windows": {
+      "today": {
+        "utc": [
+          "2026-11-20T16:00:00+00:00",
+          "2026-11-21T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 16,
+          "total_documents": 7,
+          "total_message_sources": 16,
+          "requests_in_window": 13
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.012,
+            "max_ms": 0.094,
+            "min_ms": 0.011,
+            "samples_ms": [
+              0.094,
+              0.014,
+              0.012,
+              0.011,
+              0.011
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.026,
+            "max_ms": 0.071,
+            "min_ms": 0.025,
+            "samples_ms": [
+              0.071,
+              0.029,
+              0.026,
+              0.025,
+              0.025
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.043,
+            "max_ms": 0.105,
+            "min_ms": 0.02,
+            "samples_ms": [
+              0.105,
+              0.074,
+              0.043,
+              0.023,
+              0.02
+            ]
+          }
+        }
+      },
+      "7d": {
+        "utc": [
+          "2026-11-14T16:00:00+00:00",
+          "2026-11-21T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 16,
+          "total_documents": 7,
+          "total_message_sources": 16,
+          "requests_in_window": 15
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.012,
+            "max_ms": 0.016,
+            "min_ms": 0.012,
+            "samples_ms": [
+              0.016,
+              0.013,
+              0.012,
+              0.012,
+              0.012
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.032,
+            "max_ms": 0.238,
+            "min_ms": 0.029,
+            "samples_ms": [
+              0.238,
+              0.062,
+              0.032,
+              0.029,
+              0.029
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.02,
+            "max_ms": 0.029,
+            "min_ms": 0.019,
+            "samples_ms": [
+              0.029,
+              0.021,
+              0.02,
+              0.019,
+              0.019
+            ]
+          }
+        }
+      },
+      "30d": {
+        "utc": [
+          "2026-10-22T16:00:00+00:00",
+          "2026-11-21T16:00:00+00:00"
+        ],
+        "scale": {
+          "total_requests": 16,
+          "total_documents": 7,
+          "total_message_sources": 16,
+          "requests_in_window": 15
+        },
+        "timings": {
+          "overview_completed": {
+            "runs": 5,
+            "median_ms": 0.012,
+            "max_ms": 0.015,
+            "min_ms": 0.012,
+            "samples_ms": [
+              0.015,
+              0.013,
+              0.012,
+              0.012,
+              0.012
+            ]
+          },
+          "requests_page": {
+            "runs": 5,
+            "median_ms": 0.028,
+            "max_ms": 0.031,
+            "min_ms": 0.028,
+            "samples_ms": [
+              0.031,
+              0.029,
+              0.028,
+              0.028,
+              0.028
+            ]
+          },
+          "documents_citations": {
+            "runs": 5,
+            "median_ms": 0.019,
+            "max_ms": 0.022,
+            "min_ms": 0.019,
+            "samples_ms": [
+              0.022,
+              0.019,
+              0.019,
+              0.019,
+              0.019
+            ]
+          }
+        }
+      }
+    }
+  }
+}
+[integration] EXPLAIN QUERY PLAN
+  overview_completed:
+    USE TEMP B-TREE FOR count(DISTINCT)
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+  requests_page:
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+    USE TEMP B-TREE FOR ORDER BY
+  documents_citations:
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH m USING INDEX sqlite_autoindex_conversation_messages_1 (id=?)
+    SEARCH s USING INDEX ix_conversation_message_sources_message (message_id=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+    USE TEMP B-TREE FOR GROUP BY
+    USE TEMP B-TREE FOR count(DISTINCT)
+    USE TEMP B-TREE FOR ORDER BY
+[t301] EXPLAIN QUERY PLAN
+  overview_completed:
+    USE TEMP B-TREE FOR count(DISTINCT)
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+  requests_page:
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+    USE TEMP B-TREE FOR ORDER BY
+  documents_citations:
+    SEARCH r USING INDEX ix_conversation_requests_status_deadline (status=?)
+    SEARCH m USING INDEX sqlite_autoindex_conversation_messages_1 (id=?)
+    SEARCH s USING INDEX ix_conversation_message_sources_message (message_id=?)
+    SEARCH c USING INDEX sqlite_autoindex_conversations_1 (id=?) LEFT-JOIN
+    USE TEMP B-TREE FOR GROUP BY
+    USE TEMP B-TREE FOR count(DISTINCT)
+    USE TEMP B-TREE FOR ORDER BY
+PERF_JSON=D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T306-evidence\perf\perf-results.json
+PERF_OK

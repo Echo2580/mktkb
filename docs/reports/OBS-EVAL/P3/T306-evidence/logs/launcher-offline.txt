@@ -1,0 +1,29 @@
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+正在启动本机后端……
+INFO:httpx:HTTP Request: GET http://127.0.0.1:8077/api/v1/healthz "HTTP/1.1 200 OK"
+正在启动前台页面……
+INFO:httpx:HTTP Request: GET http://127.0.0.1:5673/api/v1/healthz "HTTP/1.1 200 OK"
+正在启动文件自动处理……
+
+主人，项目已启动：http://127.0.0.1:5673
+数据目录：D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T306-evidence\isolated-var-launcher
+前端日志：D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T306-evidence\isolated-var-launcher\launcher-logs\frontend-20261122-144419-085338-try1.log
+登录账号使用 .env 中配置的管理员/员工用户名与口令。
+离线模式：使用现有账号和资料，真实模型及 OCR 已关闭。
+
+窗口保留期间服务持续运行。按回车或 Ctrl+C 停止本次服务：正在停止本次服务……

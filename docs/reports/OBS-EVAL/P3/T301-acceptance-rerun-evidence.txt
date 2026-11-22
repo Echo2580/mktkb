@@ -1,0 +1,36 @@
+独立验收复跑（项目经理，副本目录，未触碰 B 交付原件）
+命令原文: ..\.venv\Scripts\python.exe -B -m pytest -c pyproject.toml "../docs/reports/OBS-EVAL/P3/T301-acceptance-rerun/tests/test_t301_isolated.py" -v
+工作目录: D:\GPT项目\市场部AI知识库\backend
+退出码: 0
+
+---- 原始输出 ----
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 1 item
+
+::test_t301_isolated_acceptance_matrix_and_recompute PASSED              [100%]
+
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+..\.venv\Lib\site-packages\jieba\__init__.py:44
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\jieba\__init__.py:44: SyntaxWarning: invalid escape sequence '\.'
+    re_han_default = re.compile("([\u4E00-\u9FD5a-zA-Z0-9+#&\._%\-]+)", re.U)
+
+..\.venv\Lib\site-packages\jieba\__init__.py:46
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\jieba\__init__.py:46: SyntaxWarning: invalid escape sequence '\s'
+    re_skip_default = re.compile("(\r\n|\s)", re.U)
+
+..\.venv\Lib\site-packages\jieba\finalseg\__init__.py:78
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\jieba\finalseg\__init__.py:78: SyntaxWarning: invalid escape sequence '\.'
+    re_skip = re.compile("([a-zA-Z0-9]+(?:\.\d+)?%?)")
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 1 passed, 4 warnings in 7.38s ========================
+

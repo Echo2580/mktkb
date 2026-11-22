@@ -1,0 +1,408 @@
+D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=today&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=today&page_size=20&cursor=eyJpZCI6ImNhZDFiN2U1LTY5MTEtNDdkOS1iODg3LTA5YzJlNzM1NDM1ZSJ9 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&page_size=20&cursor=eyJpZCI6ImNhZDFiN2U1LTY5MTEtNDdkOS1iODg3LTA5YzJlNzM1NDM1ZSJ9 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=30d&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=30d&page_size=20&cursor=eyJpZCI6ImNhZDFiN2U1LTY5MTEtNDdkOS1iODg3LTA5YzJlNzM1NDM1ZSJ9 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&page_size=20&cursor=eyJpZCI6ImNhZDFiN2U1LTY5MTEtNDdkOS1iODg3LTA5YzJlNzM1NDM1ZSJ9 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&version_state=review_required&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&processing_state=failed&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents/bb7a50bd-b987-411e-953a-2584f57bfb17 "HTTP/1.1 200 OK"
+{
+  "note": "T305 controlled seed（受控样本）；只写隔离目录，不含真实业务数据。",
+  "dates": {
+    "today": "2026-11-22",
+    "yesterday": "2026-11-21",
+    "ten_days_ago": "2026-11-12",
+    "empty_since": "2020-01-01",
+    "empty_until": "2020-01-02"
+  },
+  "accounts": {
+    "admin": {
+      "username": "admin",
+      "password": "AdminPass-1"
+    },
+    "employee": {
+      "username": "employee",
+      "password": "EmployeePass-1"
+    }
+  },
+  "documents": {
+    "price": {
+      "document_id": "1a702f75-6fd6-40eb-a848-0bd9dab13ec2",
+      "name": "门店产品价目表",
+      "file_type": "xlsx",
+      "citations": {
+        "today": {
+          "final_citations": 2,
+          "related_requests": 2,
+          "current_version": {
+            "version_id": "4a69b5d9-00f2-4d53-aa6e-4a87a2c34b70",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 2,
+          "related_requests": 3,
+          "current_version": {
+            "version_id": "4a69b5d9-00f2-4d53-aa6e-4a87a2c34b70",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 3,
+          "related_requests": 4,
+          "current_version": {
+            "version_id": "4a69b5d9-00f2-4d53-aa6e-4a87a2c34b70",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    },
+    "flow": {
+      "document_id": "843e670b-7b2d-484e-a8fe-624f893b6b79",
+      "name": "活动策划流程",
+      "file_type": "docx",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "cf4a7c8e-afd1-40d0-9036-585cb1a4867c",
+          "state": "superseded"
+        },
+        {
+          "number": 2,
+          "version_id": "d9a18168-f1ab-44aa-a372-e16062c97b98",
+          "state": "published"
+        }
+      ],
+      "active_version_id": "d9a18168-f1ab-44aa-a372-e16062c97b98",
+      "citations": {
+        "today": {
+          "final_citations": 0,
+          "related_requests": 0,
+          "current_version": {
+            "version_id": "d9a18168-f1ab-44aa-a372-e16062c97b98",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "d9a18168-f1ab-44aa-a372-e16062c97b98",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "d9a18168-f1ab-44aa-a372-e16062c97b98",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    },
+    "material": {
+      "document_id": "66e1daba-92b0-43db-8a8b-699fbbf1d3f2",
+      "name": "物料领用流程",
+      "file_type": "docx",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "7a850f5e-aa36-467c-9be8-621cd761134c",
+          "state": "published"
+        },
+        {
+          "number": 2,
+          "version_id": "3187a528-a9d0-42b6-8c27-1569402714a7",
+          "state": "review_required"
+        }
+      ],
+      "active_version_id": "7a850f5e-aa36-467c-9be8-621cd761134c",
+      "citations": {
+        "today": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "7a850f5e-aa36-467c-9be8-621cd761134c",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "7a850f5e-aa36-467c-9be8-621cd761134c",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "7a850f5e-aa36-467c-9be8-621cd761134c",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    },
+    "notice": {
+      "document_id": "bb7a50bd-b987-411e-953a-2584f57bfb17",
+      "name": "活动申请通知",
+      "file_type": "pdf",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+          "state": "published"
+        },
+        {
+          "number": 2,
+          "version_id": "5c854b7f-b743-48b5-af9e-ec2bc3ae3c00",
+          "state": "failed"
+        }
+      ],
+      "active_version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+      "import": {
+        "state": "failed",
+        "stage": "ocr",
+        "error_code": "PARSE_INCOMPLETE",
+        "message": "解析未完成：图片缺页，未发布新版本"
+      },
+      "citations": {
+        "today": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    },
+    "launch": {
+      "document_id": "cad1b7e5-6911-47d9-b887-09c2e735435e",
+      "name": "新品宣传初稿",
+      "file_type": "pdf",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "c92e5c68-aa2f-465a-86a9-e6a6c3c9eb09",
+          "state": "review_required"
+        }
+      ],
+      "active_version_id": null
+    },
+    "shop": {
+      "document_id": "7701f301-1e80-464d-8fb0-8d5e477c0401",
+      "name": "合作店家信息",
+      "file_type": "xlsx",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "e6728536-e214-4b81-ba8c-e2ac37c96e9c",
+          "state": "deleted"
+        },
+        {
+          "number": 2,
+          "version_id": "92383df2-7a85-4001-9b5d-1c6484e6d388",
+          "state": "published"
+        }
+      ],
+      "active_version_id": "92383df2-7a85-4001-9b5d-1c6484e6d388",
+      "citations": {
+        "today": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "92383df2-7a85-4001-9b5d-1c6484e6d388",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "92383df2-7a85-4001-9b5d-1c6484e6d388",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "92383df2-7a85-4001-9b5d-1c6484e6d388",
+            "number": 2,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    },
+    "manual": {
+      "document_id": "e504cbaa-0c6f-4ebb-97b2-e12559312128",
+      "name": "门店服务手册",
+      "file_type": "docx",
+      "citations": {
+        "today": {
+          "final_citations": 1,
+          "related_requests": 1,
+          "current_version": {
+            "version_id": "4f8c83a0-064f-464f-ac03-133d564ff0c6",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "7d": {
+          "final_citations": 1,
+          "related_requests": 2,
+          "current_version": {
+            "version_id": "4f8c83a0-064f-464f-ac03-133d564ff0c6",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        },
+        "30d": {
+          "final_citations": 2,
+          "related_requests": 3,
+          "current_version": {
+            "version_id": "4f8c83a0-064f-464f-ac03-133d564ff0c6",
+            "number": 1,
+            "state": "published",
+            "published_at": "2026-11-22T04:00:00.000+00:00"
+          }
+        }
+      }
+    }
+  },
+  "totals": {
+    "documents": 25,
+    "pages": 2,
+    "page_size": 20,
+    "review_total": 2,
+    "failed_total": 1,
+    "filler_documents": 18
+  },
+  "detail_snapshot": {
+    "notice": {
+      "document": {
+        "document_id": "bb7a50bd-b987-411e-953a-2584f57bfb17",
+        "name": "活动申请通知",
+        "file_type": "pdf",
+        "latest_version_number": 2,
+        "active_version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+        "deleted": false,
+        "created_at": "2026-11-22T04:00:00.000+00:00",
+        "last_published_at": null
+      },
+      "versions": [
+        {
+          "version_id": "b90d020d-5153-4b04-9749-24ec58b52719",
+          "number": 1,
+          "state": "published",
+          "uploaded_at": "2026-11-22T04:00:00.000+00:00",
+          "published_at": "2026-11-22T04:00:00.000+00:00",
+          "error_code": null,
+          "message": null
+        },
+        {
+          "version_id": "5c854b7f-b743-48b5-af9e-ec2bc3ae3c00",
+          "number": 2,
+          "state": "failed",
+          "uploaded_at": "2026-11-22T04:00:00.000+00:00",
+          "published_at": null,
+          "error_code": "PARSE_INCOMPLETE",
+          "message": "解析未完成：图片缺页，未发布新版本"
+        }
+      ],
+      "imports": [
+        {
+          "version_id": "5c854b7f-b743-48b5-af9e-ec2bc3ae3c00",
+          "state": "failed",
+          "stage": "ocr",
+          "error_code": "PARSE_INCOMPLETE",
+          "message": "解析未完成：图片缺页，未发布新版本",
+          "attempts": 1,
+          "retryable": true,
+          "created_at": "2026-11-21T04:00:00.000+00:00",
+          "finished_at": "2026-11-22T04:00:00.000+00:00"
+        }
+      ],
+      "drilldown": {
+        "requests_filter": {
+          "document_id": "bb7a50bd-b987-411e-953a-2584f57bfb17",
+          "version_id": "b90d020d-5153-4b04-9749-24ec58b52719"
+        }
+      }
+    }
+  }
+}
+SEED_SUMMARY=D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T305-evidence\isolated-assets\seed-summary.json
+SEED_OK

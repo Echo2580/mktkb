@@ -1,0 +1,308 @@
+{
+  "scope": {
+    "request_rows_total": 16,
+    "in_scope_requests": 15,
+    "deleted_excluded": 1
+  },
+  "answer_volume": {
+    "completed_requests": 13,
+    "distinct_client_requests": 13,
+    "note": "重放复用同一请求行，不新增请求；无重复请求 ID 需二次去重。"
+  },
+  "six_distribution": {
+    "answer": 8,
+    "clarification": 1,
+    "not_found": 1,
+    "conflict": 1,
+    "service_error": 1,
+    "knowledge_changed": 1
+  },
+  "other_kind": {},
+  "interrupted": [
+    {
+      "request_id": "58b7d319b4c74fca8a60a53e20dfa394",
+      "status": "running",
+      "error_code": null
+    },
+    {
+      "request_id": "4fcac56c86ad4579a96b387039dc35ad",
+      "status": "expired",
+      "error_code": null
+    }
+  ],
+  "daily_trend_shanghai": {
+    "2026-11-21": 12,
+    "2026-11-20": 1
+  },
+  "citations": {
+    "raw_rows_in_scope": 15,
+    "raw_rows_non_conflict": 13,
+    "conflict_message_rows_excluded": 2,
+    "document_dedup_pairs": 6,
+    "version_dedup_pairs": 6,
+    "conflict_records": [
+      {
+        "request_id": "418f5bf3094b4a73a2d2d4f0394e4ab0",
+        "message_id": "702edeae2976427aa46e8b21bc35d2c9",
+        "conflicts": [
+          {
+            "field": "位置",
+            "entries": [
+              {
+                "value": "B区1号货架第二层",
+                "source_id": "f0ce9435-1292-42e4-a17a-927f209646e1"
+              },
+              {
+                "value": "D区暂存柜",
+                "source_id": "8e240a72-85f5-45ec-8192-ffc2d4512c62"
+              }
+            ]
+          }
+        ],
+        "persisted_source_rows": 2
+      }
+    ]
+  },
+  "inventory": {
+    "review_required_versions": 1,
+    "active_published_versions": 5,
+    "failed_versions": 1,
+    "failed_jobs": [
+      {
+        "job_id": "76059b468a7f48ac8b7f8d8816ceee0a",
+        "version_id": "92e07bed596c4e2192e8fae592761346",
+        "error_code": "PARSE_INCOMPLETE"
+      }
+    ]
+  },
+  "trace_coverage": {
+    "completed_denominator": 13,
+    "covered": 10,
+    "coverage_ratio": 0.7692,
+    "replay_traces": [
+      {
+        "trace_id": "adfc151cc84142b89f7c36211aa1551e",
+        "request_id": "611adc1b999c474c87260ba7c2a60fa3",
+        "http_request_id": "ee49be38-80d0-4054-bc70-5795772460a6",
+        "previous_trace_id": null
+      }
+    ],
+    "states": {
+      "covered": 10,
+      "disabled": 1,
+      "untracked": 2
+    },
+    "state_requests": {
+      "covered": [
+        "ae0239d6450545d6b4ccb221d4edae8c",
+        "b9a9552247fe4619a9da065c735b5ce7",
+        "d6ef7cf6fca946d4a924a7c54c66cc12",
+        "611adc1b999c474c87260ba7c2a60fa3",
+        "d18a950ac0544569a3d6c34b81b0a791",
+        "2b6b9c62e96f4964b6e9229ee1c38be4",
+        "418f5bf3094b4a73a2d2d4f0394e4ab0",
+        "c0bdfa3435724d2daf96c2188604a33d",
+        "ddc6db28ee084b5db07f57a80e6c40c5",
+        "b15a802b1d3e4245bc7493ca6fb5abf8"
+      ],
+      "disabled": [
+        "cefe80a6b57540b9acc38d5d333dd223"
+      ],
+      "untracked": [
+        "f195169f27a14f649d8206310bb82304",
+        "1cce9b1dd6024db0b580079a9723c4ea"
+      ]
+    }
+  },
+  "midnight_boundary": [
+    {
+      "sample_id": "S17",
+      "expected_shanghai_day": "2026-11-20",
+      "actual_shanghai_day": "2026-11-20",
+      "finished_at": "2026-11-20 15:59:59.750000",
+      "consistent": true
+    },
+    {
+      "sample_id": "S18",
+      "expected_shanghai_day": "2026-11-21",
+      "actual_shanghai_day": "2026-11-21",
+      "finished_at": "2026-11-20 16:00:00.250000",
+      "consistent": true
+    }
+  ],
+  "deleted_conversation": [
+    {
+      "sample_id": "S10",
+      "request_id": "797cb7d6a1004604a3904370dd0189a9",
+      "conversation_deleted": true,
+      "excluded_from_statistics": true,
+      "consistent": true
+    }
+  ],
+  "expected_vs_actual": {
+    "expected": {
+      "completed_requests": 13,
+      "completed_distinct_client_requests": 13,
+      "six_distribution": {
+        "answer": 8,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 1
+      },
+      "interrupted_count": 2,
+      "deleted_excluded_count": 1,
+      "citation_raw_non_conflict": 13,
+      "citation_document_dedup": 6,
+      "citation_version_dedup": 6,
+      "conflict_persisted_rows_actual": 2,
+      "review_required_versions": 1,
+      "failed_jobs": 1,
+      "trace_covered": 10,
+      "trace_replay_traces": 1,
+      "trace_disabled": 1,
+      "trace_untracked": 2
+    },
+    "actual": {
+      "completed_requests": 13,
+      "completed_distinct_client_requests": 13,
+      "six_distribution": {
+        "answer": 8,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 1
+      },
+      "interrupted_count": 2,
+      "deleted_excluded_count": 1,
+      "citation_raw_non_conflict": 13,
+      "citation_document_dedup": 6,
+      "citation_version_dedup": 6,
+      "conflict_persisted_rows_actual": 2,
+      "review_required_versions": 1,
+      "failed_jobs": 1,
+      "trace_covered": 10,
+      "trace_replay_traces": 1,
+      "trace_disabled": 1,
+      "trace_untracked": 2
+    },
+    "checks": [
+      {
+        "metric": "completed_requests",
+        "expected": 13,
+        "actual": 13,
+        "consistent": true
+      },
+      {
+        "metric": "completed_distinct_client_requests",
+        "expected": 13,
+        "actual": 13,
+        "consistent": true
+      },
+      {
+        "metric": "interrupted_count",
+        "expected": 2,
+        "actual": 2,
+        "consistent": true
+      },
+      {
+        "metric": "deleted_excluded_count",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "citation_raw_non_conflict",
+        "expected": 13,
+        "actual": 13,
+        "consistent": true
+      },
+      {
+        "metric": "citation_document_dedup",
+        "expected": 6,
+        "actual": 6,
+        "consistent": true
+      },
+      {
+        "metric": "citation_version_dedup",
+        "expected": 6,
+        "actual": 6,
+        "consistent": true
+      },
+      {
+        "metric": "review_required_versions",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "failed_jobs",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "trace_covered",
+        "expected": 10,
+        "actual": 10,
+        "consistent": true
+      },
+      {
+        "metric": "trace_replay_traces",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "trace_disabled",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "trace_untracked",
+        "expected": 2,
+        "actual": 2,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.answer",
+        "expected": 8,
+        "actual": 8,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.clarification",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.not_found",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.conflict",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.service_error",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      },
+      {
+        "metric": "six_distribution.knowledge_changed",
+        "expected": 1,
+        "actual": 1,
+        "consistent": true
+      }
+    ]
+  }
+}

@@ -1,0 +1,322 @@
+D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=7d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=today "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=30d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=custom&since=2026-11-21&until=2026-11-21 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=custom&since=2020-01-01&until=2020-01-02 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests/c671b827-8c80-4b8b-9804-2c984134d5eb "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests/b445c2d6-852b-4cd2-b4f9-68460d4641c7 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents/7470ce08-d717-4d8b-8070-9f93cbff3937 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents/5c53f08c-5ff3-4516-bcd3-38207374856d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/evaluation-runs "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=today&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=7d&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=7d&kind=conflict&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=7d&document_id=7470ce08-d717-4d8b-8070-9f93cbff3937&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&processing_state=failed&page_size=20 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&version_state=review_required&page_size=20 "HTTP/1.1 200 OK"
+{
+  "note": "T306 集成受控种子（受控样本，非真实业务数据）；只写隔离目录。",
+  "main_base": "http://127.0.0.1:5303",
+  "trace_off_base": "http://127.0.0.1:5304",
+  "dates": {
+    "today": "2026-11-22",
+    "yesterday": "2026-11-21",
+    "ten_days_ago": "2026-11-12",
+    "empty_since": "2020-01-01",
+    "empty_until": "2020-01-02"
+  },
+  "accounts": {
+    "admin": {
+      "username": "admin",
+      "password": "AdminPass-1"
+    },
+    "employee": {
+      "username": "employee",
+      "password": "EmployeePass-1"
+    }
+  },
+  "request_ids": {
+    "answer_multi": "c671b827-8c80-4b8b-9804-2c984134d5eb",
+    "answer_manual": "075e4657-8b29-4488-a38e-b66489b61026",
+    "not_found": "6b4b036e-e722-4b99-a419-536d9570dd09",
+    "conflict": "b445c2d6-852b-4cd2-b4f9-68460d4641c7",
+    "service_error": "59ff7069-0bd2-499d-bdd8-ac56e70f61a9",
+    "no_trace": "c61cab41-2f6b-4a7b-875d-44333578625d",
+    "clarification": "6e228540-ba30-444c-8ad2-e183fe712baa",
+    "answer_yesterday": "2f7c0cfa-78c2-4b46-827b-92b35864cb9b"
+  },
+  "metrics": {
+    "week7d": {
+      "completed": 8,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 3,
+      "pending": 4,
+      "trend": [
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        },
+        {
+          "date": "2026-11-22",
+          "completed": 6,
+          "citations": 3
+        }
+      ],
+      "distribution": {
+        "answer": 4,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trace_status": "partial"
+    },
+    "today": {
+      "completed": 6,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 3,
+      "pending": 4,
+      "trend": [
+        {
+          "date": "2026-11-22",
+          "completed": 6,
+          "citations": 3
+        }
+      ],
+      "distribution": {
+        "answer": 3,
+        "clarification": 0,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trace_status": "partial"
+    },
+    "yesterday": {
+      "completed": 2,
+      "not_found": 0,
+      "conflict": 0,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 3,
+      "pending": 1,
+      "trend": [
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        }
+      ],
+      "distribution": {
+        "answer": 1,
+        "clarification": 1,
+        "not_found": 0,
+        "conflict": 0,
+        "service_error": 0,
+        "knowledge_changed": 0
+      },
+      "trace_status": "partial"
+    },
+    "month30d": {
+      "completed": 8,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 3,
+      "pending": 4,
+      "trend": [
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        },
+        {
+          "date": "2026-11-22",
+          "completed": 6,
+          "citations": 3
+        }
+      ],
+      "distribution": {
+        "answer": 4,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trace_status": "partial"
+    },
+    "empty": {
+      "completed": 0,
+      "not_found": 0,
+      "conflict": 0,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 3,
+      "pending": 1,
+      "trend": [],
+      "distribution": {
+        "answer": 0,
+        "clarification": 0,
+        "not_found": 0,
+        "conflict": 0,
+        "service_error": 0,
+        "knowledge_changed": 0
+      },
+      "trace_status": "not_recorded"
+    }
+  },
+  "requests": {
+    "today": 6,
+    "week7d": 8,
+    "conflict_week": 1,
+    "notice_document": 2
+  },
+  "documents_count": {
+    "week7d": 4,
+    "failed": 1,
+    "review": 1
+  },
+  "detail": {
+    "answer_multi": {
+      "question": "A 套餐单店价格是多少，含不含饮品？",
+      "result_kind": "answer",
+      "citation_count": 1,
+      "citation": {
+        "source_id": "4378a9c8-885b-4c30-bae5-eead86220494",
+        "document_id": "b4e37965-6fb6-4a43-aab9-560235f5dc90",
+        "version_id": "95cc421c-7ad7-48bf-8296-2a2b04b794de",
+        "version_number": 1,
+        "document_name": "门店产品价目表",
+        "status": "active",
+        "published_at": "2026-11-22T00:00:00.000+00:00",
+        "locator": {
+          "sheet": "Sheet1",
+          "row": 1
+        }
+      },
+      "trace_status": "recorded"
+    },
+    "conflict": {
+      "question": "退换货时限是 3 个工作日还是 5 个工作日？",
+      "citation_count": 0,
+      "conflicts": [
+        {
+          "field": "退换货时限",
+          "conflict_flag": true,
+          "entries": [
+            {
+              "value": "3 个工作日",
+              "source_id": "b6c5c858-b474-4c1b-b160-2120fc74d5ca",
+              "document_id": "5c53f08c-5ff3-4516-bcd3-38207374856d",
+              "version_id": "36f11543-1e27-4dac-a94c-2019a50f9038",
+              "document_name": "门店服务手册",
+              "version_number": 1,
+              "status": "active"
+            },
+            {
+              "value": "5 个工作日",
+              "source_id": "cb5b48e2-960e-4406-9bb4-e966b50a3405",
+              "document_id": "7470ce08-d717-4d8b-8070-9f93cbff3937",
+              "version_id": "86c22b6f-6068-4f83-bbb2-ae0608a224b3",
+              "document_name": "市场活动补充通知",
+              "version_number": 1,
+              "status": "active"
+            }
+          ]
+        }
+      ]
+    },
+    "notice": {
+      "document_id": "7470ce08-d717-4d8b-8070-9f93cbff3937",
+      "name": "市场活动补充通知",
+      "versions": [
+        {
+          "number": 1,
+          "version_id": "86c22b6f-6068-4f83-bbb2-ae0608a224b3",
+          "state": "published"
+        },
+        {
+          "number": 2,
+          "version_id": "d35809bf-5a2d-4198-9032-fe1ca918c9bf",
+          "state": "failed"
+        }
+      ],
+      "import_error_code": "PARSE_INCOMPLETE",
+      "import_stage": "parse",
+      "related_requests_count": 2,
+      "failed_total": 1
+    },
+    "manual": {
+      "document_id": "5c53f08c-5ff3-4516-bcd3-38207374856d",
+      "name": "门店服务手册",
+      "active_version_number": 1
+    },
+    "launch": {
+      "document_id": "c93301f4-bd09-4cbe-abe1-9d1dfcce76a1",
+      "name": "新品宣传初稿",
+      "review_state": "review_required"
+    }
+  },
+  "eval": {
+    "run_ids": [
+      "t306-eval-b0-01",
+      "t306-eval-holdout-01"
+    ],
+    "skipped_dirs": [
+      "t306-eval-empty"
+    ],
+    "api_status": "ok",
+    "api_skipped": 1,
+    "runs": {
+      "t306-eval-b0-01": {
+        "case_count": 20,
+        "holdout_detected": false,
+        "details_withheld": false,
+        "scored_count": 20,
+        "error_count": 0,
+        "expected_status": "已完成"
+      },
+      "t306-eval-holdout-01": {
+        "case_count": 12,
+        "holdout_detected": true,
+        "details_withheld": true,
+        "scored_count": 12,
+        "error_count": 0,
+        "expected_status": "已完成"
+      }
+    }
+  }
+}
+SEED_SUMMARY=D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T306-evidence\isolated-var\seed-summary.json
+SEED_OK

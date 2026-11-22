@@ -1,0 +1,44 @@
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+[WebServer] INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+[WebServer] INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+[WebServer] INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+[WebServer] INFO:     Started server process [10312]
+[WebServer] INFO:     Waiting for application startup.
+[WebServer] INFO:     Application startup complete.
+[WebServer] INFO:     Uvicorn running on http://127.0.0.1:8288 (Press CTRL+C to quit)
+
+Running 26 tests using 1 worker
+
+  ok  1 [desktop] › e2e\operations-overview.spec.ts:91:3 › T303 运营总览 › P1 admin 登录后从侧栏进入总览，卡片/两图/待处理与种子一致 (866ms)
+  ok  2 [desktop] › e2e\operations-overview.spec.ts:122:3 › T303 运营总览 › P2 employee 无入口、直达被门禁，接口直调 403 (519ms)
+  ok  3 [desktop] › e2e\operations-overview.spec.ts:145:3 › T303 运营总览 › P3 日期切换 today/7d/30d/自定义，趋势与分布同步更新且请求参数一致 (1.2s)
+  ok  4 [desktop] › e2e\operations-overview.spec.ts:204:3 › T303 运营总览 › P4 点击趋势某天 → 该日窗口，占位页总数 == 总览该日完成量 (759ms)
+  ok  5 [desktop] › e2e\operations-overview.spec.ts:224:3 › T303 运营总览 › P5 只用 Tab/Enter 完成日期下钻与类别下钻，结果与鼠标一致 (1.4s)
+  ok  6 [desktop] › e2e\operations-overview.spec.ts:269:3 › T303 运营总览 › P6 点击分布 conflict → URL 带 kind 与当前窗口，占位页总数 == conflict 计数 (665ms)
+  ok  7 [desktop] › e2e\operations-overview.spec.ts:282:3 › T303 运营总览 › P7 点击待处理导入失败项 → documents 占位页带 document_id/state，总数一致 (711ms)
+  ok  8 [desktop] › e2e\operations-overview.spec.ts:295:3 › T303 运营总览 › P8 刷新与浏览器返回保留筛选 (1.0s)
+  ok  9 [desktop] › e2e\operations-overview.spec.ts:318:3 › T303 运营总览 › P9 空窗口：计 0、图表与列表空态、无假百分比 (841ms)
+  ok 10 [desktop] › e2e\operations-overview.spec.ts:348:3 › T303 运营总览 › P10 移动端 390 完成日期切换与一次下钻 (802ms)
+  ok 11 [desktop] › e2e\operations-overview.spec.ts:364:3 › T303 运营总览 › P11 运营接口 500/断网显示错误，恢复后重试成功 (701ms)
+  ok 12 [desktop] › e2e\operations-overview.spec.ts:384:3 › T303 运营总览 › P12 三页签均在位、可切换且高亮正确，往返不丢筛选 (1.0s)
+  ok 13 [desktop] › e2e\operations-overview.spec.ts:416:3 › T303 运营总览 › P13 未找到副注百分比与卡片数值一致，空窗口无样本；Trace 中文映射无英文回显 (960ms)
+  ok 14 [mobile] › e2e\operations-overview.spec.ts:91:3 › T303 运营总览 › P1 admin 登录后从侧栏进入总览，卡片/两图/待处理与种子一致 (1.1s)
+  ok 15 [mobile] › e2e\operations-overview.spec.ts:122:3 › T303 运营总览 › P2 employee 无入口、直达被门禁，接口直调 403 (582ms)
+  ok 16 [mobile] › e2e\operations-overview.spec.ts:145:3 › T303 运营总览 › P3 日期切换 today/7d/30d/自定义，趋势与分布同步更新且请求参数一致 (1.2s)
+  ok 17 [mobile] › e2e\operations-overview.spec.ts:204:3 › T303 运营总览 › P4 点击趋势某天 → 该日窗口，占位页总数 == 总览该日完成量 (727ms)
+  ok 18 [mobile] › e2e\operations-overview.spec.ts:224:3 › T303 运营总览 › P5 只用 Tab/Enter 完成日期下钻与类别下钻，结果与鼠标一致 (1.1s)
+  ok 19 [mobile] › e2e\operations-overview.spec.ts:269:3 › T303 运营总览 › P6 点击分布 conflict → URL 带 kind 与当前窗口，占位页总数 == conflict 计数 (709ms)
+  ok 20 [mobile] › e2e\operations-overview.spec.ts:282:3 › T303 运营总览 › P7 点击待处理导入失败项 → documents 占位页带 document_id/state，总数一致 (731ms)
+  ok 21 [mobile] › e2e\operations-overview.spec.ts:295:3 › T303 运营总览 › P8 刷新与浏览器返回保留筛选 (971ms)
+  ok 22 [mobile] › e2e\operations-overview.spec.ts:318:3 › T303 运营总览 › P9 空窗口：计 0、图表与列表空态、无假百分比 (812ms)
+  ok 23 [mobile] › e2e\operations-overview.spec.ts:348:3 › T303 运营总览 › P10 移动端 390 完成日期切换与一次下钻 (824ms)
+  ok 24 [mobile] › e2e\operations-overview.spec.ts:364:3 › T303 运营总览 › P11 运营接口 500/断网显示错误，恢复后重试成功 (741ms)
+  ok 25 [mobile] › e2e\operations-overview.spec.ts:384:3 › T303 运营总览 › P12 三页签均在位、可切换且高亮正确，往返不丢筛选 (1.0s)
+  ok 26 [mobile] › e2e\operations-overview.spec.ts:416:3 › T303 运营总览 › P13 未找到副注百分比与卡片数值一致，空窗口无样本；Trace 中文映射无英文回显 (942ms)
+
+  26 passed (46.3s)

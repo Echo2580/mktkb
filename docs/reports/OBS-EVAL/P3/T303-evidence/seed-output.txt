@@ -1,0 +1,207 @@
+D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient  # noqa
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.schemas
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.tables
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.types
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.constraints
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.defaults
+INFO:alembic.runtime.plugins:setup plugin alembic.autogenerate.comments
+INFO:alembic.runtime.plugins:setup plugin alembic.ext.checkconstraint_byname
+INFO:alembic.runtime.migration:Context impl SQLiteImpl.
+INFO:alembic.runtime.migration:Will assume non-transactional DDL.
+INFO:alembic.runtime.migration:Running upgrade  -> 0001_auth, T02 初始迁移：账号与登录会话。
+INFO:alembic.runtime.migration:Running upgrade 0001_auth -> 0002_documents, T03 迁移：逻辑文件/版本、来源单元与导入任务。
+INFO:alembic.runtime.migration:Running upgrade 0002_documents -> 0003_lifecycle, T04 迁移：知识库 revision/有效总量、发布与删除幂等凭据。
+INFO:alembic.runtime.migration:Running upgrade 0003_lifecycle -> 0004_retrieval, T05 迁移：检索索引结构（版本就绪状态、单元映射、字段索引、FTS5 正文索引）。
+INFO:alembic.runtime.migration:Running upgrade 0004_retrieval -> 0005_conversations, T06 迁移：个人会话、消息、来源引用与问答请求。
+INFO:alembic.runtime.migration:Running upgrade 0005_conversations -> 0006_ocr_call_records, T07 迁移：OCR 调用记录/成功检查点。
+INFO:mktkb:accounts_initialized count=2
+INFO:httpx:HTTP Request: POST http://testserver/api/v1/auth/login "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=7d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=today "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?window=30d "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?since=2026-11-21&until=2026-11-21 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/overview?since=2020-01-01&until=2020-01-02 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=7d&page_size=100 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=today&page_size=100 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?since=2026-11-21&until=2026-11-21&page_size=100 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/requests?window=7d&kind=conflict&page_size=100 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&version_state=review_required&page_size=100 "HTTP/1.1 200 OK"
+INFO:httpx:HTTP Request: GET http://testserver/api/v1/operations/documents?window=7d&processing_state=failed&page_size=100 "HTTP/1.1 200 OK"
+{
+  "note": "T303 controlled seed (受控样本)；只写隔离目录，不含真实业务数据。",
+  "dates": {
+    "today": "2026-11-22",
+    "yesterday": "2026-11-21",
+    "ten_days_ago": "2026-11-12",
+    "empty_since": "2020-01-01",
+    "empty_until": "2020-01-02"
+  },
+  "accounts": {
+    "admin": {
+      "username": "admin",
+      "password": "AdminPass-1"
+    },
+    "employee": {
+      "username": "employee",
+      "password": "EmployeePass-1"
+    }
+  },
+  "metrics": {
+    "week7d": {
+      "completed": 7,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 2,
+      "active_documents": 2,
+      "pending": 4,
+      "trend_days": 2,
+      "distribution": {
+        "answer": 3,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trend": [
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        },
+        {
+          "date": "2026-11-22",
+          "completed": 5,
+          "citations": 2
+        }
+      ]
+    },
+    "today": {
+      "completed": 5,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 1,
+      "active_documents": 2,
+      "pending": 4,
+      "trend_days": 1,
+      "distribution": {
+        "answer": 2,
+        "clarification": 0,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trend": [
+        {
+          "date": "2026-11-22",
+          "completed": 5,
+          "citations": 2
+        }
+      ]
+    },
+    "month30d": {
+      "completed": 8,
+      "not_found": 1,
+      "conflict": 1,
+      "review": 1,
+      "interrupted": 2,
+      "active_documents": 2,
+      "pending": 4,
+      "trend_days": 3,
+      "distribution": {
+        "answer": 4,
+        "clarification": 1,
+        "not_found": 1,
+        "conflict": 1,
+        "service_error": 1,
+        "knowledge_changed": 0
+      },
+      "trend": [
+        {
+          "date": "2026-11-12",
+          "completed": 1,
+          "citations": 1
+        },
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        },
+        {
+          "date": "2026-11-22",
+          "completed": 5,
+          "citations": 2
+        }
+      ]
+    },
+    "yesterday": {
+      "completed": 2,
+      "not_found": 0,
+      "conflict": 0,
+      "review": 1,
+      "interrupted": 1,
+      "active_documents": 2,
+      "pending": 1,
+      "trend_days": 1,
+      "distribution": {
+        "answer": 1,
+        "clarification": 1,
+        "not_found": 0,
+        "conflict": 0,
+        "service_error": 0,
+        "knowledge_changed": 0
+      },
+      "trend": [
+        {
+          "date": "2026-11-21",
+          "completed": 2,
+          "citations": 1
+        }
+      ]
+    },
+    "empty": {
+      "completed": 0,
+      "not_found": 0,
+      "conflict": 0,
+      "review": 1,
+      "interrupted": 0,
+      "active_documents": 2,
+      "pending": 1,
+      "trend_days": 0,
+      "distribution": {
+        "answer": 0,
+        "clarification": 0,
+        "not_found": 0,
+        "conflict": 0,
+        "service_error": 0,
+        "knowledge_changed": 0
+      },
+      "trend": []
+    }
+  },
+  "requests": {
+    "week": 7,
+    "today": 5,
+    "yesterday": 2,
+    "conflict_week": 1
+  },
+  "documents": {
+    "review_total": 1,
+    "failed_total": 1,
+    "failed_document_id": "9bb6625a-1132-449c-af5d-6ecff61dfb9f",
+    "failed_version_id": "6ad08913-837e-4d53-a05e-d5839ce9ddea",
+    "failed_state": "failed",
+    "review_document_id": "19223721-2096-4ab2-8974-5a34a5ed3561"
+  },
+  "documents_count": {
+    "published_active": 2,
+    "review_required": 1,
+    "failed_import": 1
+  }
+}
+SEED_SUMMARY=D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P3\T303-evidence\isolated-var\seed-summary.json
+SEED_OK

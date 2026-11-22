@@ -1,0 +1,973 @@
+{
+  "trace_db": "evidence\\data\\qa-traces.sqlite3",
+  "trace_count": 12,
+  "linkage": {
+    "request_id": "Trace.request_id = ConversationRequest.id（产品请求 ID）",
+    "http_request_id": "Trace.http_request_id 对应响应头 X-Request-ID；重放为新 HTTP 请求，故 http_request_id 不同",
+    "checks": [
+      {
+        "trace_id": "544aeb967dab4d6ab54a0fb074844d2d",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "90c49b38740c4ae8ac3824a3a1f43e7e",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "b4d91c9d37c04dedbd2d1c83cb71c467",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "27d553c9896b4b11bacac70fb898ee30",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "f6f0c7c2d71b4003b94a2bc3d42ee4e3",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "f24d55c387204242b6461f8c125d072d",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "b5ca4581b7b54e0c9394d5574962c3b8",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "adfc151cc84142b89f7c36211aa1551e",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "1f1e92bab6654bad9c768a706d740f47",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "19c1a8c249d24658814026f9f96ab137",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "0af55d95f1924468a98e63c5e2d1e4bf",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      },
+      {
+        "trace_id": "65379559a5c848baabe985d0c07d4b22",
+        "request_id_in_business_db": true,
+        "http_request_id_recorded": true
+      }
+    ]
+  },
+  "path_span_inventory": {
+    "legacy_with_rag_candidates": {
+      "span_names": [
+        "answer_validate",
+        "commit",
+        "embedding_query",
+        "entity_conflict_check",
+        "exact_recall",
+        "fuse",
+        "hard_filter",
+        "intent_parse",
+        "lexical_recall",
+        "model_answer",
+        "recall",
+        "rerank",
+        "retrieve",
+        "vector_recall"
+      ],
+      "examples": [
+        {
+          "trace_id": "544aeb967dab4d6ab54a0fb074844d2d",
+          "request_id": "ae0239d6-4505-45d6-b4cc-b221d4edae8c",
+          "outcome_kind": "answer",
+          "status": "ok",
+          "spans": [
+            {
+              "name": "intent_parse",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 6,
+              "status": "ok"
+            },
+            {
+              "name": "exact_recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 6,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 5,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 5,
+              "status": "ok"
+            },
+            {
+              "name": "retrieve",
+              "duration_ms": 36,
+              "status": "ok"
+            },
+            {
+              "name": "entity_conflict_check",
+              "duration_ms": 9,
+              "status": "ok"
+            },
+            {
+              "name": "model_answer",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "answer_validate",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 9,
+              "status": "ok"
+            }
+          ]
+        },
+        {
+          "trace_id": "90c49b38740c4ae8ac3824a3a1f43e7e",
+          "request_id": "b9a95522-47fe-4619-a9da-065c735b5ce7",
+          "outcome_kind": "answer",
+          "status": "ok",
+          "spans": [
+            {
+              "name": "intent_parse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "exact_recall",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 4,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 5,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 5,
+              "status": "ok"
+            },
+            {
+              "name": "retrieve",
+              "duration_ms": 23,
+              "status": "ok"
+            },
+            {
+              "name": "entity_conflict_check",
+              "duration_ms": 7,
+              "status": "ok"
+            },
+            {
+              "name": "model_answer",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "answer_validate",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 5,
+              "status": "ok"
+            }
+          ]
+        }
+      ]
+    },
+    "rag": {
+      "span_names": [
+        "answer",
+        "commit",
+        "embedding_query",
+        "exact_recall",
+        "fact_validate",
+        "fuse",
+        "hard_filter",
+        "lexical_recall",
+        "parse",
+        "recall",
+        "rerank",
+        "vector_recall"
+      ],
+      "examples": [
+        {
+          "trace_id": "b4d91c9d37c04dedbd2d1c83cb71c467",
+          "request_id": "d6ef7cf6-fca9-46d4-a924-a7c54c66cc12",
+          "outcome_kind": "answer",
+          "status": "ok",
+          "spans": [
+            {
+              "name": "parse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 8,
+              "status": "ok"
+            },
+            {
+              "name": "exact_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 3,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "answer",
+              "duration_ms": 13,
+              "status": "ok"
+            },
+            {
+              "name": "fact_validate",
+              "duration_ms": 10,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 2,
+              "status": "ok"
+            }
+          ]
+        },
+        {
+          "trace_id": "b5ca4581b7b54e0c9394d5574962c3b8",
+          "request_id": "418f5bf3-094b-4a73-a2d2-d4f0394e4ab0",
+          "outcome_kind": "conflict",
+          "status": "ok",
+          "spans": [
+            {
+              "name": "parse",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "recall",
+              "duration_ms": 6,
+              "status": "ok"
+            },
+            {
+              "name": "exact_recall",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "lexical_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "vector_recall",
+              "duration_ms": 2,
+              "status": "ok"
+            },
+            {
+              "name": "embedding_query",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "fuse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "hard_filter",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "rerank",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "answer",
+              "duration_ms": 7,
+              "status": "ok"
+            },
+            {
+              "name": "fact_validate",
+              "duration_ms": 5,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 1,
+              "status": "ok"
+            }
+          ]
+        }
+      ]
+    },
+    "legacy": {
+      "span_names": [
+        "answer_validate",
+        "commit",
+        "intent_parse",
+        "model_answer",
+        "model_failure",
+        "retrieve"
+      ],
+      "examples": [
+        {
+          "trace_id": "1f1e92bab6654bad9c768a706d740f47",
+          "request_id": "c0bdfa34-3572-4d2d-af96-c2188604a33d",
+          "outcome_kind": "answer",
+          "status": "ok",
+          "spans": [
+            {
+              "name": "intent_parse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "retrieve",
+              "duration_ms": 10,
+              "status": "ok"
+            },
+            {
+              "name": "model_answer",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "answer_validate",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 5,
+              "status": "ok"
+            }
+          ]
+        },
+        {
+          "trace_id": "19c1a8c249d24658814026f9f96ab137",
+          "request_id": "ddc6db28-ee08-4b5d-b07f-57a80e6c40c5",
+          "outcome_kind": "service_error",
+          "status": "error",
+          "spans": [
+            {
+              "name": "intent_parse",
+              "duration_ms": 1,
+              "status": "ok"
+            },
+            {
+              "name": "retrieve",
+              "duration_ms": 7,
+              "status": "ok"
+            },
+            {
+              "name": "model_answer",
+              "duration_ms": 0,
+              "status": "error"
+            },
+            {
+              "name": "model_failure",
+              "duration_ms": 0,
+              "status": "ok"
+            },
+            {
+              "name": "commit",
+              "duration_ms": 4,
+              "status": "ok"
+            }
+          ]
+        }
+      ]
+    }
+  },
+  "traces": [
+    {
+      "trace_id": "544aeb967dab4d6ab54a0fb074844d2d",
+      "request_id": "ae0239d6-4505-45d6-b4cc-b221d4edae8c",
+      "http_request_id": "67753cb1-df7d-44b7-9f7b-aa6d46602be4",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 135,
+      "question_chars": 12,
+      "span_count": 21,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "entity_conflict_check",
+        "model_answer",
+        "answer_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "90c49b38740c4ae8ac3824a3a1f43e7e",
+      "request_id": "b9a95522-47fe-4619-a9da-065c735b5ce7",
+      "http_request_id": "a78bdc9e-f81a-4486-8a2b-6b18011ed629",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 83,
+      "question_chars": 12,
+      "span_count": 21,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "entity_conflict_check",
+        "model_answer",
+        "answer_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "b4d91c9d37c04dedbd2d1c83cb71c467",
+      "request_id": "d6ef7cf6-fca9-46d4-a924-a7c54c66cc12",
+      "http_request_id": "6d73e2d7-279d-4197-805e-e037e3757924",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "rag",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 70,
+      "question_chars": 19,
+      "span_count": 12,
+      "span_names": [
+        "parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "answer",
+        "fact_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "27d553c9896b4b11bacac70fb898ee30",
+      "request_id": "611adc1b-999c-474c-8726-0ba7c2a60fa3",
+      "http_request_id": "9de1af0a-fe42-4340-8c7e-7a3c67fa9326",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 65,
+      "question_chars": 12,
+      "span_count": 21,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "entity_conflict_check",
+        "model_answer",
+        "answer_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "f6f0c7c2d71b4003b94a2bc3d42ee4e3",
+      "request_id": "d18a950a-c054-4569-a3d6-c34b81b0a791",
+      "http_request_id": "91a292a4-25f0-40ca-b5b5-e55c066ca88f",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "not_found",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 50,
+      "question_chars": 9,
+      "span_count": 17,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "f24d55c387204242b6461f8c125d072d",
+      "request_id": "2b6b9c62-e96f-4964-b6e9-229ee1c38be4",
+      "http_request_id": "578d241c-5174-4995-a8f1-95b481340f8a",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "clarification",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 52,
+      "question_chars": 8,
+      "span_count": 18,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "b5ca4581b7b54e0c9394d5574962c3b8",
+      "request_id": "418f5bf3-094b-4a73-a2d2-d4f0394e4ab0",
+      "http_request_id": "ade85138-2bb8-4571-b7ae-de2eed6351a8",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "rag",
+      "outcome_kind": "conflict",
+      "status": "ok",
+      "reason": "CONFLICTING_VALUES",
+      "latency_ms": 40,
+      "question_chars": 9,
+      "span_count": 12,
+      "span_names": [
+        "parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "answer",
+        "fact_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "adfc151cc84142b89f7c36211aa1551e",
+      "request_id": "611adc1b-999c-474c-8726-0ba7c2a60fa3",
+      "http_request_id": "ee49be38-80d0-4054-bc70-5795772460a6",
+      "attempt": 1,
+      "replayed": true,
+      "previous_trace_id": null,
+      "path": "rag",
+      "outcome_kind": null,
+      "status": "replayed",
+      "reason": null,
+      "latency_ms": 7,
+      "question_chars": 12,
+      "span_count": 0,
+      "span_names": []
+    },
+    {
+      "trace_id": "1f1e92bab6654bad9c768a706d740f47",
+      "request_id": "c0bdfa34-3572-4d2d-af96-c2188604a33d",
+      "http_request_id": "faeaa4dd-42ca-4921-bc4e-a837bf199dd1",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 33,
+      "question_chars": 13,
+      "span_count": 5,
+      "span_names": [
+        "intent_parse",
+        "retrieve",
+        "model_answer",
+        "answer_validate",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "19c1a8c249d24658814026f9f96ab137",
+      "request_id": "ddc6db28-ee08-4b5d-b07f-57a80e6c40c5",
+      "http_request_id": "0e0feed2-8775-4438-b4f2-1d6c5aa39d53",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy",
+      "outcome_kind": "service_error",
+      "status": "error",
+      "reason": "MODEL_UNAVAILABLE",
+      "latency_ms": 29,
+      "question_chars": 13,
+      "span_count": 5,
+      "span_names": [
+        "intent_parse",
+        "retrieve",
+        "model_answer",
+        "model_failure",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "0af55d95f1924468a98e63c5e2d1e4bf",
+      "request_id": "b15a802b-1d3e-4245-bc74-93ca6fb5abf8",
+      "http_request_id": "77dfeb1b-1ae1-4a2d-bcbb-23b1c9a2ccb8",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "knowledge_changed",
+      "status": "ok",
+      "reason": "KNOWLEDGE_CHANGED",
+      "latency_ms": 45,
+      "question_chars": 10,
+      "span_count": 18,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "commit"
+      ]
+    },
+    {
+      "trace_id": "65379559a5c848baabe985d0c07d4b22",
+      "request_id": "797cb7d6-a100-4604-a390-4370dd0189a9",
+      "http_request_id": "b73fa69a-0e2a-43ff-a7ac-c9e25c476157",
+      "attempt": 1,
+      "replayed": false,
+      "previous_trace_id": null,
+      "path": "legacy_with_rag_candidates",
+      "outcome_kind": "answer",
+      "status": "ok",
+      "reason": null,
+      "latency_ms": 61,
+      "question_chars": 11,
+      "span_count": 21,
+      "span_names": [
+        "intent_parse",
+        "recall",
+        "exact_recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "recall",
+        "lexical_recall",
+        "vector_recall",
+        "embedding_query",
+        "fuse",
+        "hard_filter",
+        "rerank",
+        "retrieve",
+        "entity_conflict_check",
+        "model_answer",
+        "answer_validate",
+        "commit"
+      ]
+    }
+  ],
+  "replay": {
+    "pairs": [
+      {
+        "request_id": "611adc1b999c474c87260ba7c2a60fa3",
+        "replay_trace_id": "adfc151cc84142b89f7c36211aa1551e",
+        "replay_http_request_id": "ee49be38-80d0-4054-bc70-5795772460a6",
+        "replay_status": "replayed",
+        "replay_span_count": 0,
+        "original_trace_ids": [
+          "27d553c9896b4b11bacac70fb898ee30"
+        ],
+        "original_http_request_ids": [
+          "9de1af0a-fe42-4340-8c7e-7a3c67fa9326"
+        ]
+      }
+    ],
+    "note": "重放 Trace：replayed=1、status=replayed、Span 为空；复用同一产品请求 ID；previous_trace_id 在本重放链路中未回填（实测为 null）。"
+  },
+  "disabled_state": [
+    {
+      "sample_id": "S15",
+      "request_id": "cefe80a6b57540b9acc38d5d333dd223",
+      "business_request_exists": true,
+      "trace_row_found": false,
+      "trace_header_present": false,
+      "state": "disabled"
+    }
+  ],
+  "old_version_citation_fields": {
+    "sample": {
+      "sample_id": "S11",
+      "version_number": 1,
+      "document_name_present": true,
+      "status": "active",
+      "locator_present": true,
+      "published_at_present": true
+    },
+    "field_keys": [
+      "document_name",
+      "locator",
+      "published_at",
+      "source_id",
+      "status",
+      "version_number"
+    ],
+    "note": "旧版引用结果 JSON 来源条目仍携带 document_name/version_number/status/locator/published_at；版本号 1 在换版后历史消息中保持可展示。"
+  }
+}

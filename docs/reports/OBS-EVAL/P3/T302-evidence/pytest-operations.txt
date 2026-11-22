@@ -1,0 +1,85 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+cachedir: .pytest_cache
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 69 items
+
+tests/operations/test_documents.py::test_document_filters_and_deleted_exclusion PASSED [  1%]
+tests/operations/test_documents.py::test_document_list_cursor_pagination PASSED [  2%]
+tests/operations/test_documents.py::test_document_detail_versions_and_retry_summary PASSED [  4%]
+tests/operations/test_documents.py::test_failure_message_with_internal_path_is_reduced_to_code PASSED [  5%]
+tests/operations/test_documents.py::test_deleted_document_detail_is_404 PASSED [  7%]
+tests/operations/test_documents.py::test_conflict_request_counts_related_but_not_final PASSED [  8%]
+tests/operations/test_evaluation_runs.py::test_controlled_run_matches_existing_run_endpoint PASSED [ 10%]
+tests/operations/test_evaluation_runs.py::test_holdout_details_are_withheld PASSED [ 11%]
+tests/operations/test_evaluation_runs.py::test_empty_dirs_are_skipped_and_all_empty_is_200 PASSED [ 13%]
+tests/operations/test_evaluation_runs.py::test_invalid_json_only_marks_that_entry PASSED [ 14%]
+tests/operations/test_evaluation_runs.py::test_runs_sorted_by_created_at_then_id_desc PASSED [ 15%]
+tests/operations/test_evaluation_runs.py::test_employee_cannot_read_evaluation_runs PASSED [ 17%]
+tests/operations/test_overview.py::test_interrupted_is_listed_separately_not_in_distribution PASSED [ 18%]
+tests/operations/test_overview.py::test_pending_items_carry_drilldown_conditions PASSED [ 20%]
+tests/operations/test_overview.py::test_overview_counts_equal_drilldown_totals PASSED [ 21%]
+tests/operations/test_overview.py::test_trend_days_cover_only_actual_data PASSED [ 23%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[overview] PASSED [ 24%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[requests] PASSED [ 26%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[requests/{request_id}] PASSED [ 27%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[documents] PASSED [ 28%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[documents/{document_id}] PASSED [ 30%]
+tests/operations/test_permissions.py::test_unauthenticated_gets_401[evaluation-runs] PASSED [ 31%]
+tests/operations/test_permissions.py::test_employee_gets_403[overview] PASSED [ 33%]
+tests/operations/test_permissions.py::test_employee_gets_403[requests] PASSED [ 34%]
+tests/operations/test_permissions.py::test_employee_gets_403[requests/{request_id}] PASSED [ 36%]
+tests/operations/test_permissions.py::test_employee_gets_403[documents] PASSED [ 37%]
+tests/operations/test_permissions.py::test_employee_gets_403[documents/{document_id}] PASSED [ 39%]
+tests/operations/test_permissions.py::test_employee_gets_403[evaluation-runs] PASSED [ 40%]
+tests/operations/test_permissions.py::test_deleted_conversation_is_excluded_on_both_sides PASSED [ 42%]
+tests/operations/test_permissions.py::test_invalid_ids_are_404[/api/v1/operations/requests/not-a-uuid-REQUEST_NOT_FOUND] PASSED [ 43%]
+tests/operations/test_permissions.py::test_invalid_ids_are_404[/api/v1/operations/requests/bad..id-REQUEST_NOT_FOUND] PASSED [ 44%]
+tests/operations/test_permissions.py::test_invalid_ids_are_404[/api/v1/operations/documents/not-a-uuid-DOCUMENT_NOT_FOUND] PASSED [ 46%]
+tests/operations/test_permissions.py::test_missing_document_is_404 PASSED [ 47%]
+tests/operations/test_permissions.py::test_responses_are_whitelisted_and_secret_free PASSED [ 49%]
+tests/operations/test_permissions.py::test_all_six_gets_are_read_only PASSED [ 50%]
+tests/operations/test_permissions.py::test_openapi_only_six_get_paths_and_initialize_false_writes_nothing PASSED [ 52%]
+tests/operations/test_reconciliation.py::test_t301_reconciliation PASSED [ 53%]
+tests/operations/test_reconciliation.py::test_t301_reference_rows_and_dimension_dedup PASSED [ 55%]
+tests/operations/test_reconciliation.py::test_t301_midnight_attribution_and_deleted_exclusion PASSED [ 56%]
+tests/operations/test_reconciliation.py::test_t301_failed_import_and_pending PASSED [ 57%]
+tests/operations/test_reconciliation.py::test_t301_trace_coverage_details PASSED [ 59%]
+tests/operations/test_requests.py::test_pagination_has_no_duplicates_or_gaps PASSED [ 60%]
+tests/operations/test_requests.py::test_kind_filter_matches_distribution PASSED [ 62%]
+tests/operations/test_requests.py::test_same_document_multiple_rows_counts_once PASSED [ 63%]
+tests/operations/test_requests.py::test_replay_keeps_counts_stable_and_marks_attempts PASSED [ 65%]
+tests/operations/test_requests.py::test_document_filter_includes_conflict_and_flags_it PASSED [ 66%]
+tests/operations/test_requests.py::test_superseded_and_deleted_citations_only_metadata PASSED [ 68%]
+tests/operations/test_requests.py::test_list_does_not_return_question_or_conversation_id PASSED [ 69%]
+tests/operations/test_trace_states.py::test_empty_window_with_trace_enabled_is_vacuous_not_percentage PASSED [ 71%]
+tests/operations/test_trace_states.py::test_trace_disabled_keeps_business_data PASSED [ 72%]
+tests/operations/test_trace_states.py::test_trace_unavailable_does_not_report_coverage PASSED [ 73%]
+tests/operations/test_trace_states.py::test_not_recorded_when_no_trace_rows PASSED [ 75%]
+tests/operations/test_trace_states.py::test_partial_coverage_when_some_requests_have_trace PASSED [ 76%]
+tests/operations/test_trace_states.py::test_replay_only_does_not_count_towards_coverage PASSED [ 78%]
+tests/operations/test_trace_states.py::test_span_summary_whitelists_attributes PASSED [ 79%]
+tests/operations/test_windows.py::test_midnight_boundary_is_left_closed_right_open PASSED [ 81%]
+tests/operations/test_windows.py::test_current_inventory_is_window_independent PASSED [ 82%]
+tests/operations/test_windows.py::test_empty_window_returns_zero_and_no_fake_percentages PASSED [ 84%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params0-INVALID_WINDOW] PASSED [ 85%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params1-INVALID_WINDOW] PASSED [ 86%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params2-INVALID_WINDOW] PASSED [ 88%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params3-INVALID_WINDOW] PASSED [ 89%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params4-INVALID_WINDOW] PASSED [ 91%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params5-INVALID_WINDOW] PASSED [ 92%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params6-INVALID_PAGE_SIZE] PASSED [ 94%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params7-INVALID_PAGE_SIZE] PASSED [ 95%]
+tests/operations/test_windows.py::test_invalid_window_and_paging_are_422[params8-INVALID_KIND] PASSED [ 97%]
+tests/operations/test_windows.py::test_ninety_day_custom_window_is_allowed PASSED [ 98%]
+tests/operations/test_windows.py::test_long_window_does_not_shift_inventory_drilldown PASSED [100%]
+
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================= 69 passed, 1 warning in 38.95s ========================

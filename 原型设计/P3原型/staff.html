@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+
+<html class="h-full w-full overflow-hidden" lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>员工角色 · 市场部 AI 知识库</title>
+<script src="https://modao.cc/agent-py/static/source/js/tailwindcss.js"></script>
+<script src="https://modao.cc/agent-py/static/source/js/iconify-icon.min.js"></script>
+<style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Segoe UI", sans-serif; -webkit-font-smoothing: antialiased; }
+    .no-scrollbar { scrollbar-width: none; -ms-overflow-style: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; width: 0; height: 0; }
+  </style>
+</head>
+<body class="m-0 h-full w-full overflow-hidden bg-[#F8FAFC] text-[#0F172A]">
+<div class="flex h-full w-full">
+<aside class="flex h-full w-[224px] shrink-0 flex-col border-r border-[#E2E8F0] bg-white">
+<div class="flex h-16 shrink-0 items-center gap-2.5 border-b border-[#E2E8F0] px-4">
+<div class="grid h-9 w-9 place-items-center rounded-lg bg-[#2563EB] text-white">
+<iconify-icon icon="solar:layers-minimalistic-linear" width="20"></iconify-icon>
+</div>
+<div class="min-w-0 leading-tight">
+<p class="truncate text-[13.5px] font-semibold text-slate-900">市场部 AI 知识库</p>
+<p class="truncate text-[11px] text-slate-400">部门知识查询</p>
+</div>
+</div>
+<div class="px-3 pt-4">
+<a class="flex h-9 items-center justify-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white text-[13px] font-medium text-slate-700 hover:bg-slate-50" href="staff.html">
+<iconify-icon icon="solar:add-circle-linear" width="16"></iconify-icon>新建对话
+      </a>
+</div>
+<nav class="mt-4 space-y-1 px-3">
+<a class="flex h-[38px] items-center gap-2.5 rounded-lg bg-[#EFF6FF] px-3 text-[13.5px] font-medium text-[#2563EB]" href="staff.html">
+<iconify-icon icon="solar:chat-round-dots-linear" width="18"></iconify-icon>AI 助手
+      </a>
+<a class="flex h-[38px] items-center gap-2.5 rounded-lg px-3 text-[13.5px] text-slate-600 hover:bg-[#F8FAFC]" href="states.html">
+<iconify-icon class="text-slate-400" icon="solar:widget-4-linear" width="18"></iconify-icon>状态画板
+      </a>
+<a class="flex h-[38px] items-center gap-2.5 rounded-lg px-3 text-[13.5px] text-slate-600 hover:bg-[#F8FAFC]" href="staff.html">
+<iconify-icon class="text-slate-400" icon="solar:user-circle-linear" width="18"></iconify-icon>员工角色
+        <span class="ml-auto rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1 text-[10px] leading-4 text-slate-400">只读</span>
+</a>
+</nav>
+<div class="mx-3 mt-4 rounded-lg border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-2">
+<p class="flex items-center gap-1.5 text-[11px] font-medium text-slate-500">
+<iconify-icon class="text-slate-400" icon="solar:lock-keyhole-minimalistic-linear" width="13"></iconify-icon>员工视图
+      </p>
+<p class="mt-1 text-[10.5px] leading-relaxed text-slate-400">资料管理与知识运营仅管理员可用。</p>
+</div>
+<div class="no-scrollbar mt-5 min-h-0 flex-1 overflow-y-auto px-3">
+<p class="flex items-center justify-between px-2 pb-1 text-[11px] font-medium text-slate-400"><span>我的历史</span><span id="historyCount">3</span></p>
+<ul class="space-y-0.5" id="historyList">
+<li class="group flex items-center gap-1 rounded-lg px-2 py-2 hover:bg-[#F8FAFC]">
+<a class="min-w-0 flex-1 truncate text-[12.5px] text-slate-600 group-hover:text-slate-800" href="session.html">城东店的宣传海报位置</a>
+<button class="grid h-6 w-6 shrink-0 place-items-center rounded text-slate-300 opacity-0 transition hover:bg-slate-100 hover:text-[#B91C1C] group-hover:opacity-100" onclick="askDeleteHistory('城东店的宣传海报位置', this)" title="删除会话" type="button">
+<iconify-icon icon="solar:trash-bin-trash-linear" width="13"></iconify-icon>
+</button>
+</li>
+<li class="group flex items-center gap-1 rounded-lg px-2 py-2 hover:bg-[#F8FAFC]">
+<a class="min-w-0 flex-1 truncate text-[12.5px] text-slate-600 group-hover:text-slate-800" href="session.html">物料领用流程</a>
+<button class="grid h-6 w-6 shrink-0 place-items-center rounded text-slate-300 opacity-0 transition hover:bg-slate-100 hover:text-[#B91C1C] group-hover:opacity-100" onclick="askDeleteHistory('物料领用流程', this)" title="删除会话" type="button">
+<iconify-icon icon="solar:trash-bin-trash-linear" width="13"></iconify-icon>
+</button>
+</li>
+<li class="group flex items-center gap-1 rounded-lg px-2 py-2 hover:bg-[#F8FAFC]">
+<a class="min-w-0 flex-1 truncate text-[12.5px] text-slate-600 group-hover:text-slate-800" href="session.html">十一月内容排期口径</a>
+<button class="grid h-6 w-6 shrink-0 place-items-center rounded text-slate-300 opacity-0 transition hover:bg-slate-100 hover:text-[#B91C1C] group-hover:opacity-100" onclick="askDeleteHistory('十一月内容排期口径', this)" title="删除会话" type="button">
+<iconify-icon icon="solar:trash-bin-trash-linear" width="13"></iconify-icon>
+</button>
+</li>
+</ul>
+<p class="mt-4 px-2 text-[10.5px] leading-relaxed text-slate-400">左侧历史会话可删除，删除前需二次确认；仅影响本人历史。</p>
+</div>
+<div class="shrink-0 border-t border-[#E2E8F0] p-3">
+<div class="flex items-center gap-2.5 px-1 py-1.5">
+<div class="grid h-8 w-8 place-items-center rounded-full bg-[#F1F5F9] text-[12px] font-medium text-slate-600">周</div>
+<div class="min-w-0 flex-1 leading-tight">
+<p class="truncate text-[13px] font-medium text-slate-800">周敏</p>
+<p class="truncate text-[11px] text-slate-400">市场部 · 员工</p>
+</div>
+<button class="grid h-7 w-7 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-600" onclick="openLogout()" title="退出登录" type="button">
+<iconify-icon icon="solar:logout-3-linear" width="16"></iconify-icon>
+</button>
+</div>
+</div>
+</aside>
+<div class="flex min-w-0 flex-1 flex-col">
+<header class="flex h-16 shrink-0 items-center justify-between border-b border-[#E2E8F0] bg-white px-8">
+<div class="flex items-center gap-2 text-[13px] text-slate-400">
+<span>工作台</span>
+<iconify-icon icon="solar:alt-arrow-right-linear" width="14"></iconify-icon>
+<span class="font-medium text-slate-700">员工角色</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1.5 rounded-full border border-[#E2E8F0] bg-[#F8FAFC] px-2.5 py-1 text-[12px] text-slate-500">
+<span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>资料库已同步 · 10 月 27 日
+        </span>
+<a class="inline-flex h-8 items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-2.5 text-[12px] text-slate-600 hover:bg-slate-50" href="home.html">
+<iconify-icon icon="solar:user-check-rounded-linear" width="15"></iconify-icon>返回管理员视角
+        </a>
+</div>
+</header>
+<main class="no-scrollbar min-h-0 flex-1 overflow-y-auto overflow-x-hidden">
+<div class="mx-auto w-full max-w-[1120px] px-8 py-6">
+<div class="flex items-start justify-between gap-4">
+<div>
+<div class="flex items-center gap-2">
+<h1 class="text-[21px] font-semibold leading-tight text-slate-900">员工角色</h1>
+<span class="rounded-full border border-[#E2E8F0] bg-white px-2 py-0.5 text-[11px] text-slate-500">只读角色</span>
+<span class="inline-flex items-center gap-1 rounded-full border border-[#E2E8F0] bg-[#F1F5F9] px-2 py-0.5 text-[11px] text-slate-500">
+<iconify-icon icon="solar:lock-keyhole-minimalistic-linear" width="11"></iconify-icon>不可切换
+              </span>
+</div>
+<p class="mt-1.5 text-[13px] text-slate-500">员工登录后隐藏「资料管理」与「知识运营」，只保留 AI 助手、新建对话、本人历史与退出。</p>
+</div>
+<a class="inline-flex h-9 shrink-0 items-center gap-1.5 rounded-lg border border-[#E2E8F0] bg-white px-3 text-[13px] font-medium text-slate-700 hover:bg-slate-50" href="states.html">
+<iconify-icon icon="solar:widget-4-linear" width="16"></iconify-icon>状态画板
+          </a>
+</div>
+<div class="mt-4 grid grid-cols-3 gap-5">
+<section class="col-span-2 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
+<div class="flex items-center justify-between border-b border-[#E2E8F0] px-5 py-3">
+<div class="flex items-center gap-2">
+<p class="text-[13.5px] font-medium text-slate-800">AI 助手</p>
+<span class="rounded border border-[#E2E8F0] bg-[#F1F5F9] px-1.5 py-0.5 text-[10.5px] text-slate-500">员工 · 只读角色</span>
+</div>
+<p class="text-[11.5px] text-slate-400">只可查询已发布资料</p>
+</div>
+<div class="space-y-5 px-5 py-5" id="staffThread">
+<div class="flex justify-end gap-3">
+<div class="max-w-[76%] rounded-xl rounded-tr-sm bg-[#EFF6FF] px-4 py-3">
+<p class="text-[13.5px] leading-relaxed text-slate-800">城东店的宣传海报放在哪里？</p>
+<p class="mt-1 text-right text-[10.5px] text-slate-400">发送于 10:30 · 周敏</p>
+</div>
+<div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#F1F5F9] text-[12px] font-medium text-slate-600">周</div>
+</div>
+<div class="flex gap-3">
+<div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#2563EB] text-[11px] font-medium text-white">AI</div>
+<div class="min-w-0 flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4">
+<div class="flex flex-wrap items-center gap-2">
+<p class="text-[13px] font-medium text-slate-800">知识库回答</p>
+<span class="rounded border border-[#A7F3D0] bg-[#ECFDF5] px-1.5 py-0.5 text-[10.5px] text-[#047857]">基于已发布资料</span>
+<span class="ml-auto text-[11px] text-slate-400">10:30</span>
+</div>
+<p class="mt-2.5 text-[14px] leading-relaxed text-slate-800">城东店的宣传海报位于 B区1号货架第二层。</p>
+<div class="mt-3 grid grid-cols-2 gap-3 rounded-lg bg-[#F8FAFC] px-3 py-2.5 text-[12px]">
+<div>
+<p class="text-slate-400">资料生效时间</p>
+<p class="mt-0.5 text-slate-700">2026-10-27 10:30</p>
+</div>
+<div>
+<p class="text-slate-400">记录位置</p>
+<p class="mt-0.5 text-slate-700">物品位置工作表 · 第 8 行</p>
+</div>
+</div>
+<div class="mt-3 rounded-lg border border-[#E2E8F0] p-3">
+<p class="text-[11px] text-slate-400">来源与依据</p>
+<div class="mt-2 flex items-center justify-between gap-2">
+<div class="flex min-w-0 items-center gap-2">
+<span class="grid h-8 w-8 shrink-0 place-items-center rounded-md border border-[#E2E8F0] bg-[#F8FAFC] text-[#15803D]">
+<iconify-icon icon="solar:file-text-linear" width="15"></iconify-icon>
+</span>
+<div class="min-w-0">
+<p class="truncate text-[12.5px] font-medium text-slate-800">物品位置表.xlsx · V2</p>
+<p class="truncate text-[11px] text-slate-400">Excel · 生效 2026-10-27 10:30</p>
+</div>
+</div>
+<button class="h-7 shrink-0 rounded-md border border-[#E2E8F0] bg-white px-2 text-[11.5px] font-medium text-[#2563EB] hover:bg-[#EFF6FF]" onclick="openSource()" type="button">查看依据</button>
+</div>
+</div>
+<p class="mt-3 text-[11.5px] text-slate-400">员工角色仅可查询已发布资料，无法维护资料。</p>
+</div>
+</div>
+</div>
+<div class="border-t border-[#E2E8F0] px-5 py-4">
+<div class="rounded-xl border border-[#E2E8F0] p-2.5 focus-within:border-[#2563EB]">
+<textarea class="w-full resize-none border-0 px-1.5 py-1 text-[13.5px] leading-relaxed text-slate-800 outline-none placeholder:text-slate-400" id="staffInput" placeholder="输入你的问题（员工仅可查询）" rows="1"></textarea>
+<div class="mt-1 flex items-center justify-between gap-3 px-1">
+<p class="text-[11px] text-slate-400">Shift + Enter 换行 · 示例数据</p>
+<button class="inline-flex h-8 items-center gap-1 rounded-lg bg-[#2563EB] px-3.5 text-[12.5px] font-medium text-white hover:bg-[#1D4ED8]" onclick="sendStaff()" type="button">
+<iconify-icon icon="solar:plain-2-linear" width="14"></iconify-icon>发送
+                  </button>
+</div>
+</div>
+</div>
+</section>
+<aside class="col-span-1 space-y-4">
+<section class="rounded-xl border border-[#E2E8F0] bg-white p-4">
+<div class="flex items-center justify-between">
+<h2 class="text-[13.5px] font-semibold text-slate-800">当前角色能力</h2>
+<span class="rounded border border-[#E2E8F0] bg-[#F1F5F9] px-1.5 py-0.5 text-[10.5px] text-slate-500">只读</span>
+</div>
+<p class="mt-2 text-[11.5px] leading-relaxed text-slate-400">角色由系统分配，此处仅展示当前账号可用的导航与操作。</p>
+<div class="mt-3 space-y-3">
+<div>
+<p class="flex items-center gap-1.5 text-[11.5px] font-medium text-[#047857]">
+<iconify-icon icon="solar:check-circle-linear" width="13"></iconify-icon>可用
+                  </p>
+<div class="mt-1.5 flex flex-wrap gap-1.5">
+<span class="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1.5 py-0.5 text-[11px] text-slate-600">AI 助手</span>
+<span class="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1.5 py-0.5 text-[11px] text-slate-600">新建对话</span>
+<span class="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1.5 py-0.5 text-[11px] text-slate-600">本人历史</span>
+<span class="rounded border border-[#E2E8F0] bg-[#F8FAFC] px-1.5 py-0.5 text-[11px] text-slate-600">退出</span>
+</div>
+</div>
+<div>
+<p class="flex items-center gap-1.5 text-[11.5px] font-medium text-[#B45309]">
+<iconify-icon icon="solar:lock-keyhole-minimalistic-linear" width="13"></iconify-icon>未开放
+                  </p>
+<div class="mt-1.5 space-y-1 text-[11.5px] text-slate-500">
+<p class="flex items-center justify-between rounded border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-1"><span>资料管理</span><span class="text-[10.5px] text-slate-400">仅管理员</span></p>
+<p class="flex items-center justify-between rounded border border-[#E2E8F0] bg-[#F8FAFC] px-2 py-1"><span>知识运营</span><span class="text-[10.5px] text-slate-400">仅管理员</span></p>
+</div>
+</div>
+<div>
+<p class="flex items-center gap-1.5 text-[11.5px] font-medium text-slate-500">
+<iconify-icon icon="solar:close-circle-linear" width="13"></iconify-icon>不提供
+                  </p>
+<p class="mt-1.5 text-[11.5px] leading-relaxed text-slate-400">角色切换 · 分享 · 团队会话 · 导出</p>
+</div>
+</div>
+<div class="mt-3 rounded-lg bg-[#F8FAFC] px-3 py-2">
+<p class="text-[11px] leading-relaxed text-slate-400">员工不显示任何提权入口；如需维护资料，请联系市场部管理员。</p>
+</div>
+</section>
+<section class="rounded-xl border border-[#E2E8F0] bg-white p-4">
+<h2 class="text-[13.5px] font-semibold text-slate-800">角色说明</h2>
+<dl class="mt-2.5 space-y-2 text-[12px]">
+<div class="flex items-center justify-between"><dt class="text-slate-400">账号</dt><dd class="text-slate-600">周敏</dd></div>
+<div class="flex items-center justify-between"><dt class="text-slate-400">部门</dt><dd class="text-slate-600">市场部</dd></div>
+<div class="flex items-center justify-between"><dt class="text-slate-400">角色</dt><dd class="text-slate-600">员工（只读）</dd></div>
+<div class="flex items-center justify-between"><dt class="text-slate-400">分配方式</dt><dd class="text-slate-600">系统分配</dd></div>
+</dl>
+<a class="mt-3 inline-flex h-8 w-full items-center justify-center gap-1.5 rounded-lg border border-[#E2E8F0] text-[12px] font-medium text-slate-700 hover:bg-slate-50" href="home.html">
+<iconify-icon icon="solar:user-check-rounded-linear" width="14"></iconify-icon>返回管理员视角
+              </a>
+</section>
+</aside>
+</div>
+</div>
+</main>
+</div>
+</div>
+<!-- 来源详情 -->
+<div class="fixed inset-0 z-40 hidden" id="sourceDrawer">
+<div class="absolute inset-0 bg-slate-900/30" onclick="closeSource()"></div>
+<aside class="absolute right-0 top-0 flex h-full w-[520px] flex-col border-l border-[#E2E8F0] bg-white shadow-2xl">
+<div class="flex h-16 shrink-0 items-center justify-between border-b border-[#E2E8F0] px-5">
+<div>
+<h2 class="text-[15px] font-semibold text-slate-900">来源详情</h2>
+<p class="mt-0.5 text-[11.5px] text-slate-400">物品位置表.xlsx · V2 · 只读</p>
+</div>
+<button class="grid h-8 w-8 place-items-center rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-600" onclick="closeSource()" type="button">
+<iconify-icon icon="solar:close-circle-linear" width="20"></iconify-icon>
+</button>
+</div>
+<div class="no-scrollbar min-h-0 flex-1 overflow-y-auto px-5 py-5">
+<div class="rounded-lg border border-[#BFDBFE] bg-[#EFF6FF] px-3.5 py-3">
+<p class="text-[11.5px] text-[#1D4ED8]">城东店：B区1号货架第二层</p>
+<p class="mt-1 text-[11px] text-[#60A5FA]">工作表：物品位置 · 原始行号 8 · 生效 2026-10-27 10:30</p>
+</div>
+<div class="mt-3 overflow-hidden rounded-lg border border-[#E2E8F0]">
+<table class="w-full text-left text-[12.5px]">
+<thead><tr class="bg-[#F8FAFC] text-[11.5px] text-slate-500"><th class="px-2.5 py-2 font-medium">行号</th><th class="px-2.5 py-2 font-medium">门店</th><th class="px-2.5 py-2 font-medium">物品</th><th class="px-2.5 py-2 font-medium">位置</th></tr></thead>
+<tbody class="divide-y divide-[#E2E8F0]">
+<tr><td class="px-2.5 py-2 text-slate-400">6</td><td class="px-2.5 py-2 text-slate-600">城东店</td><td class="px-2.5 py-2 text-slate-600">易拉宝</td><td class="px-2.5 py-2 text-slate-600">B区1号货架第一层</td></tr>
+<tr class="bg-[#EFF6FF]"><td class="px-2.5 py-2 font-medium text-[#2563EB]">8 引用</td><td class="px-2.5 py-2 text-slate-700">城东店</td><td class="px-2.5 py-2 text-slate-700">宣传海报</td><td class="px-2.5 py-2 font-medium text-slate-800">B区1号货架第二层</td></tr>
+<tr><td class="px-2.5 py-2 text-slate-400">9</td><td class="px-2.5 py-2 text-slate-600">城西店</td><td class="px-2.5 py-2 text-slate-600">宣传海报</td><td class="px-2.5 py-2 text-slate-600">A区2号货架第一层</td></tr>
+</tbody>
+</table>
+</div>
+<p class="mt-3 rounded-lg border border-dashed border-[#E2E8F0] bg-[#F8FAFC] px-3 py-2.5 text-[11.5px] leading-relaxed text-slate-500">来源为只读资料，员工角色不支持编辑或导出。</p>
+</div>
+<div class="flex shrink-0 justify-end border-t border-[#E2E8F0] px-5 py-3">
+<button class="h-8 rounded-lg bg-[#2563EB] px-3 text-[12.5px] font-medium text-white hover:bg-[#1D4ED8]" onclick="closeSource()" type="button">关闭来源</button>
+</div>
+</aside>
+</div>
+<!-- 删除历史会话 -->
+<div class="fixed inset-0 z-50 hidden" id="deleteHistoryModal">
+<div class="absolute inset-0 bg-slate-900/40" onclick="closeDeleteHistory()"></div>
+<div class="absolute left-1/2 top-1/2 w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
+<h3 class="text-[16px] font-semibold text-slate-900">删除这条历史会话？</h3>
+<p class="mt-2 text-[13px] leading-relaxed text-slate-500">会话「<span id="delHistoryName"></span>」将从你的历史中移除，删除后无法恢复。</p>
+<p class="mt-2 text-[11.5px] leading-relaxed text-slate-400">仅影响你本人的历史记录，不影响知识库资料。</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="h-9 rounded-lg border border-[#E2E8F0] bg-white px-3.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50" onclick="closeDeleteHistory()" type="button">取消</button>
+<button class="h-9 rounded-lg bg-[#DC2626] px-3.5 text-[13px] font-medium text-white hover:bg-[#B91C1C]" onclick="confirmDeleteHistory()" type="button">删除会话</button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 hidden" id="logoutModal">
+<div class="absolute inset-0 bg-slate-900/40" onclick="closeLogout()"></div>
+<div class="absolute left-1/2 top-1/2 w-[380px] -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white p-5 shadow-xl">
+<h3 class="text-[16px] font-semibold text-slate-900">退出登录？</h3>
+<p class="mt-2 text-[13px] leading-relaxed text-slate-500">退出后需要重新登录才能继续使用 AI 知识库。</p>
+<div class="mt-5 flex justify-end gap-2">
+<button class="h-9 rounded-lg border border-[#E2E8F0] bg-white px-3.5 text-[13px] font-medium text-slate-700 hover:bg-slate-50" onclick="closeLogout()" type="button">取消</button>
+<a class="inline-flex h-9 items-center rounded-lg bg-[#2563EB] px-3.5 text-[13px] font-medium text-white hover:bg-[#1D4ED8]" href="login.html">退出登录</a>
+</div>
+</div>
+</div>
+<script>
+  function openSource() { document.getElementById('sourceDrawer').classList.remove('hidden'); }
+  function closeSource() { document.getElementById('sourceDrawer').classList.add('hidden'); }
+  function openLogout() { document.getElementById('logoutModal').classList.remove('hidden'); }
+  function closeLogout() { document.getElementById('logoutModal').classList.add('hidden'); }
+
+  let pendingHistory = null;
+  function askDeleteHistory(name, btn) {
+    pendingHistory = btn.closest('li');
+    document.getElementById('delHistoryName').textContent = name;
+    document.getElementById('deleteHistoryModal').classList.remove('hidden');
+  }
+  function closeDeleteHistory() { document.getElementById('deleteHistoryModal').classList.add('hidden'); }
+  function confirmDeleteHistory() {
+    if (pendingHistory) {
+      pendingHistory.remove();
+      pendingHistory = null;
+      const count = document.querySelectorAll('#historyList li').length;
+      document.getElementById('historyCount').textContent = count;
+    }
+    closeDeleteHistory();
+  }
+
+  const STAFF_ANSWERS = {
+    '联系人': '城东店的联系人为陈宁（模拟联系人），电话 010-00000001（模拟）。',
+    '负责人': '城东店的负责人为陈宁（模拟联系人），日常对接以门店联系人为准。',
+    '物料': '领取活动物料：填写领用单 → 部门负责人审批 → 到 B 区库房领取并登记。',
+    '海报': '城东店的宣传海报位于 B区1号货架第二层（依据物品位置表 V2）。'
+  };
+
+  function sendStaff() {
+    const input = document.getElementById('staffInput');
+    const text = input.value.trim();
+    if (!text) { input.focus(); return; }
+    const thread = document.getElementById('staffThread');
+
+    const userRow = document.createElement('div');
+    userRow.className = 'flex justify-end gap-3';
+    userRow.innerHTML = '<div class="max-w-[76%] rounded-xl rounded-tr-sm bg-[#EFF6FF] px-4 py-3">' +
+      '<p data-q class="text-[13.5px] leading-relaxed text-slate-800"></p>' +
+      '<p class="mt-1 text-right text-[10.5px] text-slate-400">发送于 10:32 · 周敏</p></div>' +
+      '<div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#F1F5F9] text-[12px] font-medium text-slate-600">周</div>';
+    userRow.querySelector('[data-q]').textContent = text;
+    thread.appendChild(userRow);
+
+    let answer = '当前已发布资料中未找到相关内容。员工角色仅可查询，如需补充资料请联系管理员。';
+    Object.keys(STAFF_ANSWERS).forEach(function (key) {
+      if (text.indexOf(key) !== -1) answer = STAFF_ANSWERS[key];
+    });
+
+    const row = document.createElement('div');
+    row.className = 'flex gap-3';
+    row.innerHTML = '<div class="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#2563EB] text-[11px] font-medium text-white">AI</div>' +
+      '<div class="min-w-0 flex-1 rounded-xl border border-[#E2E8F0] bg-white p-4">' +
+      '<div class="flex flex-wrap items-center gap-2"><p class="text-[13px] font-medium text-slate-800">知识库回答</p>' +
+      '<span class="rounded border border-[#A7F3D0] bg-[#ECFDF5] px-1.5 py-0.5 text-[10.5px] text-[#047857]">基于已发布资料</span></div>' +
+      '<p data-a class="mt-2.5 text-[14px] leading-relaxed text-slate-800"></p>' +
+      '<p class="mt-3 text-[11.5px] text-slate-400">员工角色仅可查询已发布资料，无法维护资料。</p></div>';
+    row.querySelector('[data-a]').textContent = answer;
+    thread.appendChild(row);
+
+    input.value = '';
+    row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  document.getElementById('staffInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendStaff(); }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      closeSource();
+      closeDeleteHistory();
+      closeLogout();
+    }
+  });
+</script>
+</body>
+</html>

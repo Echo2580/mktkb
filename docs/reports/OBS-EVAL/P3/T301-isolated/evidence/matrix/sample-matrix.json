@@ -1,0 +1,630 @@
+{
+  "generated_at": "2026-11-21T15:42:48.597386+00:00",
+  "trace_db": "evidence\\data\\qa-traces.sqlite3",
+  "business_db": "evidence\\data\\mktkb.sqlite3",
+  "corpus": {
+    "positions": {
+      "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+      "v1_version_id": "a76c0f4f-0cf2-4fa3-af21-c4fb2580e41e",
+      "v1_job_id": "6f618257-561a-4975-b586-64a34c102e6d",
+      "job_state": "succeeded",
+      "v2_version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+    },
+    "stores": {
+      "document_id": "4f547aa6-be99-4c61-80cf-bb9dd23d82e2",
+      "version_id": "c1a8a06d-34a0-4a47-8ce7-005609e92326",
+      "job_id": "b530910b-7163-4db9-b8ed-9b3ab2a52b76",
+      "job_state": "succeeded"
+    },
+    "guide": {
+      "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+      "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374",
+      "job_id": "0212ab7b-42ef-4575-9113-362cfe66d666",
+      "job_state": "succeeded"
+    },
+    "conflict_a": {
+      "document_id": "d8b45f8f-f8b3-4c16-bcb2-ef14aa67419b",
+      "version_id": "34bdecd2-8dd7-4aa1-bc09-9ce05621313f"
+    },
+    "conflict_b": {
+      "document_id": "79e67969-3c38-4b7c-ab69-4682ecf43445",
+      "version_id": "5bae5fb1-9ae5-4c06-b096-a066a92b18b9"
+    }
+  },
+  "samples": [
+    {
+      "sample_id": "S11",
+      "scenario": "换版前：引用历史 v1",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "9525ad89-abb0-471d-a8ef-2933d546970b",
+      "question": "城东店的宣传海报在哪里？",
+      "http_request_id": "6ab8f25e-2fa3-429a-ad3e-a4abe86f9bef",
+      "trace_id": "3fa6794f546545c193d479a318704ff5",
+      "request": {
+        "request_id": "a78d316d-9573-41fc-93b5-6be0ac25cc23",
+        "client_request_id": "9b06d5cf-e5f3-4382-84d2-7712042bcd6f",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "c75742f5-9f1b-479e-bc2a-6f28863bcbe3",
+        "result_message_id": "ee4c4d63-8a8c-4d25-a8a6-7fe5857e894a",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.286969"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "93af3e04-65be-48d8-aac0-4bed4657a2cd",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "a76c0f4f-0cf2-4fa3-af21-c4fb2580e41e"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:47.286969",
+      "extra": {
+        "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+        "version_number": 1
+      }
+    },
+    {
+      "sample_id": "S12",
+      "scenario": "换版后：引用生效 v2；旧版引用标识仍可展示",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "9afe209e-2a35-442d-81be-00b6b320696e",
+      "question": "城东店的宣传海报在哪里？",
+      "http_request_id": "c14e9817-51f0-4d92-be76-19b8605a6b34",
+      "trace_id": "5294bd4560b141fa8abc3768e3ef4f00",
+      "request": {
+        "request_id": "55e53ba6-20ff-4c72-ba06-fc33281ce58f",
+        "client_request_id": "04b04863-e25a-4b9e-a0d8-da71cddffc64",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "fedcb11b-bcd9-431d-bf14-60c1ed5bd749",
+        "result_message_id": "b6115723-7c58-48dd-9f76-da38d3051dd5",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.642160"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "5e907722-4c55-4489-8804-437e3ac125b5",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:47.642160",
+      "extra": {
+        "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+        "version_number": 2
+      }
+    },
+    {
+      "sample_id": "S01",
+      "scenario": "RAG 正常作答 + 同文档多条引用行",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "ec909740-0201-4a1f-82c1-eba8b88d05ed",
+      "question": "把城东店和城西店的宣传海报记录都列出来",
+      "http_request_id": "93a38582-96c5-4c97-b8be-9afc2a01a563",
+      "trace_id": "bfef1d602057430f88207d1a319a42a7",
+      "request": {
+        "request_id": "2a475be9-61a4-4305-9ec7-8b6022b0ad1a",
+        "client_request_id": "d261e76d-3700-4e8e-a13b-4d8312d29f8d",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "316b2a39-bc86-4510-b136-a15f124fe564",
+        "result_message_id": "9cda51e5-0c6a-42ba-81ef-c6fcb1ff3e64",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.729276"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "5e907722-4c55-4489-8804-437e3ac125b5",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        },
+        {
+          "source_id": "52b98572-3b53-4b86-947f-313cd2301158",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:47.729276",
+      "extra": {}
+    },
+    {
+      "sample_id": "S02",
+      "scenario": "正常带引用（单引用）",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "2de25a21-621d-475b-bd3d-603ac2f3d391",
+      "question": "城东店的宣传海报在哪里？",
+      "http_request_id": "a42d88d7-65f1-4da8-9164-c212fc26031e",
+      "trace_id": "01c0a79e64b54e85a5a3e3ab1fe291a4",
+      "request": {
+        "request_id": "cccba3ae-9d2e-459a-a3b9-92c6a512192f",
+        "client_request_id": "ff5d239e-b3f0-436a-8eab-c090f2083930",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "011987fd-d147-4833-bd8e-679eebab446a",
+        "result_message_id": "04c4cb1f-f05c-4aeb-855d-6ed4fd14754c",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.819324"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "5e907722-4c55-4489-8804-437e3ac125b5",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:47.819324",
+      "extra": {}
+    },
+    {
+      "sample_id": "S03",
+      "scenario": "未找到 not_found",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "52d59965-8ddc-4d0d-ab1e-a3de19b7ac42",
+      "question": "城南店联系人是谁？",
+      "http_request_id": "e7afdb9f-914c-48c5-89ac-63878b0c0ea4",
+      "trace_id": "b77d4460507e48a1a2e9e8efc5f2c76f",
+      "request": {
+        "request_id": "f4924893-00f8-43d1-b709-ad8b570dc430",
+        "client_request_id": "9c00ade4-e6bd-4e95-9176-3797989b894d",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "dc5a3f22-cc01-4533-84be-8d1f2b1eec09",
+        "result_message_id": "b1dbdd22-d675-4936-86a5-0e2e49e3c741",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.893368"
+      },
+      "response_kind": "not_found",
+      "response_error_code": null,
+      "citations": [],
+      "conflicts": [],
+      "expected_kind": "not_found",
+      "finished_at": "2026-11-21T15:42:47.893368",
+      "extra": {}
+    },
+    {
+      "sample_id": "S04",
+      "scenario": "澄清 clarification",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "eb06008b-8461-454c-97ab-dd6390485c70",
+      "question": "宣传海报在哪里？",
+      "http_request_id": "64ceafe7-021c-431d-aa3a-4e3ccfc9e2fa",
+      "trace_id": "8484e0b9932f4cffa98773db698507f0",
+      "request": {
+        "request_id": "8049844b-d402-4a3f-9e6b-a6786c93196c",
+        "client_request_id": "202275bf-977a-485a-9198-728418ac7bf4",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "7db1c21c-36c5-4978-a53f-c6c345d2ca7b",
+        "result_message_id": "9baf6ed6-f88e-4d74-934d-2815332e9db8",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.961437"
+      },
+      "response_kind": "clarification",
+      "response_error_code": null,
+      "citations": [],
+      "conflicts": [],
+      "expected_kind": "clarification",
+      "finished_at": "2026-11-21T15:42:47.961437",
+      "extra": {}
+    },
+    {
+      "sample_id": "S05",
+      "scenario": "冲突 conflict（两方来源取自 conflicts）",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "4e4965fb-cf7d-44bf-8edf-e9f0005a2c2f",
+      "question": "QF001在哪里？",
+      "http_request_id": "871539e7-0085-4cb5-8bc9-9ef8abc6392b",
+      "trace_id": "bb450d83cdf1400aa5841267541611b5",
+      "request": {
+        "request_id": "f8ca2e46-dfe1-498e-b2da-1edbcdbae639",
+        "client_request_id": "b216d2f2-62df-47fd-be56-969bb8bd0d8e",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "55677741-3816-4dc8-b769-8bf987902007",
+        "result_message_id": "f64d7637-78d8-4907-8271-5637c37aa801",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:48.019948"
+      },
+      "response_kind": "conflict",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "5770bc79-5be2-4b38-a5ea-4cf6adfdf95b",
+          "document_id": "d8b45f8f-f8b3-4c16-bcb2-ef14aa67419b",
+          "version_id": "34bdecd2-8dd7-4aa1-bc09-9ce05621313f"
+        },
+        {
+          "source_id": "3bf79864-f5d8-4b25-b8a4-d5d75c32fb7d",
+          "document_id": "79e67969-3c38-4b7c-ab69-4682ecf43445",
+          "version_id": "5bae5fb1-9ae5-4c06-b096-a066a92b18b9"
+        }
+      ],
+      "conflicts": [
+        {
+          "field": "位置",
+          "entries": [
+            {
+              "value": "B区1号货架第二层",
+              "source_id": "5770bc79-5be2-4b38-a5ea-4cf6adfdf95b"
+            },
+            {
+              "value": "D区暂存柜",
+              "source_id": "3bf79864-f5d8-4b25-b8a4-d5d75c32fb7d"
+            }
+          ]
+        }
+      ],
+      "expected_kind": "conflict",
+      "finished_at": "2026-11-21T15:42:48.019948",
+      "extra": {}
+    },
+    {
+      "sample_id": "S06",
+      "scenario": "幂等重放（同请求 ID 二次提交不增量）",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "2de25a21-621d-475b-bd3d-603ac2f3d391",
+      "question": "城东店的宣传海报在哪里？",
+      "http_request_id": "acf9fae1-963d-4ad3-8548-99658dfa30e2",
+      "trace_id": "48ecd3cdd47a4869a1b75fa60931fd11",
+      "request": {
+        "request_id": "cccba3ae-9d2e-459a-a3b9-92c6a512192f",
+        "client_request_id": "ff5d239e-b3f0-436a-8eab-c090f2083930",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "011987fd-d147-4833-bd8e-679eebab446a",
+        "result_message_id": "04c4cb1f-f05c-4aeb-855d-6ed4fd14754c",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:47.819324"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "5e907722-4c55-4489-8804-437e3ac125b5",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:47.819324",
+      "extra": {
+        "replay_of_sample": "S02"
+      }
+    },
+    {
+      "sample_id": "S07",
+      "scenario": "legacy 路径正文作答",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "2b592ae6-447a-4343-a58b-1791aeac988d",
+      "question": "领取活动物料需要哪些步骤？",
+      "http_request_id": "1e54a5bf-9594-4f36-9aca-1815692cf9d5",
+      "trace_id": "0a327cd522e042beb58f08ac21689e2c",
+      "request": {
+        "request_id": "59943519-a6b8-4519-b058-0cc6a9f3463d",
+        "client_request_id": "f585bb7c-826c-4797-aa86-26d0e95b7dd1",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "7ea4dd2b-7752-4cab-a86b-8a12ab5cde11",
+        "result_message_id": "04016dd1-d18c-4d94-8fff-5f7bd58570e7",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:48.080494"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "cbf51c57-6ecb-4b7e-9437-e79aec3cd399",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "95588e1e-5bd6-44c1-b55c-54c2e443a96f",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "03cad18e-c211-4c30-a51a-e363ede01ea6",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "544141f7-12cf-4d28-988b-6aaf9bf5ff9d",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:48.080494",
+      "extra": {}
+    },
+    {
+      "sample_id": "S08",
+      "scenario": "服务错误 service_error",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "95dad05e-efbe-4c3f-addc-e1eaee14f3c9",
+      "question": "领取活动物料需要哪些步骤？",
+      "http_request_id": "9d6b0608-7880-45f3-b549-f07d79c77eb1",
+      "trace_id": "6f7956f1a43349a891bb9bbf291cca34",
+      "request": {
+        "request_id": "940d39aa-ff4a-4512-9ae8-4f101fbef94b",
+        "client_request_id": "751684b4-354c-4f23-ab61-7dd1bb76e0ab",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "4f82082e-050f-4e12-8cbc-8e8c5ea39b16",
+        "result_message_id": "b330791b-39fd-48ee-a7f6-729a835f3e99",
+        "error_code": "MODEL_UNAVAILABLE",
+        "finished_at": "2026-11-21T15:42:48.124501"
+      },
+      "response_kind": "service_error",
+      "response_error_code": "MODEL_UNAVAILABLE",
+      "citations": [],
+      "conflicts": [],
+      "expected_kind": "service_error",
+      "finished_at": "2026-11-21T15:42:48.124501",
+      "extra": {}
+    },
+    {
+      "sample_id": "S09",
+      "scenario": "知识库已变更 knowledge_changed",
+      "source": "normal_entry_injected_seam",
+      "trace_enabled": true,
+      "conversation_id": "2902ba6e-935d-449f-88f0-f8d32ec65125",
+      "question": "城东店的展架在哪里？",
+      "http_request_id": "bf117ba1-10bb-48a5-af0f-61c99edf634b",
+      "trace_id": "4fbaec4b157c4c38918f8378089a02be",
+      "request": {
+        "request_id": "5b945b87-58ea-4bfe-b003-947212ca45ad",
+        "client_request_id": "0b3c0ff5-5f83-41c7-b685-5905d69b4f49",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "7bc20dcd-af1e-4b47-a530-38c07d5d5312",
+        "result_message_id": "512665c7-67a8-4c01-965f-f9d404151b41",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:48.189191"
+      },
+      "response_kind": "knowledge_changed",
+      "response_error_code": null,
+      "citations": [],
+      "conflicts": [],
+      "expected_kind": "knowledge_changed",
+      "finished_at": "2026-11-21T15:42:48.189191",
+      "extra": {}
+    },
+    {
+      "sample_id": "S10",
+      "scenario": "已逻辑删除会话（两侧排除）",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "conversation_id": "60534a30-46d9-445b-9e61-85c23e94a98e",
+      "question": "城西店的易拉宝在哪里？",
+      "http_request_id": "c6aedc34-e732-43f5-b480-0106d2277f67",
+      "trace_id": "d9c6c5b00d034a4284d64c7e66774f99",
+      "request": {
+        "request_id": "36902409-01a0-4100-a48f-f8b688d49913",
+        "client_request_id": "a8e89520-0a98-4c59-9586-be637a3e9651",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "7fd05159-e7e0-44f0-9a2f-b189ff1803d0",
+        "result_message_id": "e42e5bb3-b902-4131-8689-529e1ea51076",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:48.270513"
+      },
+      "response_kind": "answer",
+      "response_error_code": null,
+      "citations": [
+        {
+          "source_id": "28c29a49-2904-4a9a-a6c9-5413f5258622",
+          "document_id": "3a860d39-76a4-451e-9741-86e19ae4498a",
+          "version_id": "85bb6e10-27ac-44a8-90bd-8e7ef9cb46ab"
+        }
+      ],
+      "conflicts": [],
+      "expected_kind": "answer",
+      "finished_at": "2026-11-21T15:42:48.270513",
+      "extra": {
+        "delete_status_code": 204
+      }
+    },
+    {
+      "sample_id": "S13",
+      "scenario": "失败导入任务",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "document_id": "7ebe167c-c6c5-4285-b9e0-0704094d2133",
+      "version_id": "706f4010-06d9-4664-8c0a-dc859b6326af",
+      "job_id": "b4ca9912-c19b-4364-a9c0-0e90d192259b",
+      "job_state": "failed",
+      "job_error_code": "PARSE_INCOMPLETE",
+      "finished_at": null,
+      "extra": {
+        "expected_version_state": "failed"
+      }
+    },
+    {
+      "sample_id": "S14",
+      "scenario": "待审核版本 review_required",
+      "source": "normal_entry",
+      "trace_enabled": true,
+      "document_id": "30b26507-6530-450d-a4ce-f945e74da4f9",
+      "version_id": "03e840b9-755c-4f0c-b34e-2af2658877de",
+      "job_id": "07f9bc4b-26b4-4391-9319-16e559c7107c",
+      "job_state": "succeeded",
+      "finished_at": null,
+      "extra": {
+        "expected_version_state": "review_required"
+      }
+    },
+    {
+      "sample_id": "S15",
+      "scenario": "Trace 关闭状态：不产生执行 Trace",
+      "source": "normal_entry",
+      "trace_enabled": false,
+      "conversation_id": "66bed4e1-a898-476f-b2f8-5ee1e55c2f29",
+      "question": "领取活动物料需要哪些步骤？",
+      "http_request_id": "2b01e5a1-d43a-4ddb-b333-d8ee52226310",
+      "trace_id": null,
+      "request": {
+        "request_id": "600161b5-1939-4b6e-bd67-2e63f9f1a2e6",
+        "client_request_id": "54f7d47d-eb02-44b8-a781-cfc318c9074f",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "9d0476af-06ba-4e8c-8ee5-73e3699982c0",
+        "result_message_id": "e9f64419-2f91-481e-b841-7d91d3976c64",
+        "error_code": null,
+        "finished_at": "2026-11-21T15:42:48.565273"
+      },
+      "response_kind": "answer",
+      "citations": [
+        {
+          "source_id": "cbf51c57-6ecb-4b7e-9437-e79aec3cd399",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "95588e1e-5bd6-44c1-b55c-54c2e443a96f",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "03cad18e-c211-4c30-a51a-e363ede01ea6",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        },
+        {
+          "source_id": "544141f7-12cf-4d28-988b-6aaf9bf5ff9d",
+          "document_id": "846589a9-c60c-4500-8ae7-6780e236dc0a",
+          "version_id": "8db0842c-d115-4cd2-b6d6-0bca5fcb4374"
+        }
+      ],
+      "conflicts": [],
+      "finished_at": "2026-11-21T15:42:48.565273",
+      "extra": {
+        "trace_header_present": false
+      }
+    },
+    {
+      "sample_id": "S16",
+      "scenario": "未提交中断：running 请求无结果消息（不入六类）",
+      "source": "controlled",
+      "trace_enabled": true,
+      "conversation_id": "21092df1-1562-43c1-92e3-58fc7f9534f0",
+      "request": {
+        "request_id": "6553c983-07e2-48cc-a4db-a5146353abf6",
+        "client_request_id": "6f5a6aef-def2-4f93-84f7-5a5621d8ee3f",
+        "status": "running",
+        "attempt": 1,
+        "user_message_id": "0a9de8e8-793f-4e38-b1ab-5afed6e9f733",
+        "result_message_id": null,
+        "finished_at": null
+      },
+      "response_kind": null,
+      "citations": [],
+      "conflicts": [],
+      "finished_at": null,
+      "extra": {
+        "controlled_construction": "直接写隔离库；非正常入口产物"
+      }
+    },
+    {
+      "sample_id": "S19",
+      "scenario": "未提交中断：过期请求（不入六类）",
+      "source": "controlled",
+      "trace_enabled": true,
+      "conversation_id": "048434f4-ba30-4242-ac7f-814071d5f44e",
+      "request": {
+        "request_id": "3fb57dbe-caed-45e7-8680-950fd55de4ab",
+        "client_request_id": "bbc00272-9688-40f9-be2a-dc1789e58ec3",
+        "status": "expired",
+        "attempt": 1,
+        "user_message_id": "32736d7f-aaf3-427d-a9e0-5b0820ff9a4c",
+        "result_message_id": null,
+        "finished_at": "2026-11-21T15:42:48.573391+00:00"
+      },
+      "response_kind": null,
+      "citations": [],
+      "conflicts": [],
+      "finished_at": "2026-11-21T15:42:48.573391+00:00",
+      "extra": {
+        "controlled_construction": "直接写隔离库；非正常入口产物"
+      }
+    },
+    {
+      "sample_id": "S17",
+      "scenario": "午夜边界：2026-11-20",
+      "source": "controlled",
+      "trace_enabled": true,
+      "conversation_id": "54d4a499-3ef8-43e9-9c29-e9597620089c",
+      "request": {
+        "request_id": "dbc296bc-a471-45ba-a70d-5d4c21902332",
+        "client_request_id": "dc5a0aa1-828b-4d5b-b0f3-20aa0ff766b6",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "90538c1e-b692-4556-8bde-f26ceea99707",
+        "result_message_id": "d9bad5d0-b3cf-4ebb-a972-72bbd8d516e4",
+        "finished_at": "2026-11-20T15:59:59.750000+00:00"
+      },
+      "response_kind": "answer",
+      "citations": [],
+      "conflicts": [],
+      "finished_at": "2026-11-20T15:59:59.750000+00:00",
+      "extra": {
+        "expected_shanghai_day": "2026-11-20",
+        "finished_at_shanghai": "2026-11-20T23:59:59.750000+08:00",
+        "controlled_construction": "直接写隔离库；完成时间按边界固定，非真实墙钟"
+      }
+    },
+    {
+      "sample_id": "S18",
+      "scenario": "午夜边界：2026-11-21",
+      "source": "controlled",
+      "trace_enabled": true,
+      "conversation_id": "f565c6d2-9722-4992-ac1a-c34ffcf1cad3",
+      "request": {
+        "request_id": "c73f5013-dee9-4ee8-8a41-42b321e364dd",
+        "client_request_id": "c18700b4-a3b5-4f82-b779-056197bf2dfd",
+        "status": "succeeded",
+        "attempt": 1,
+        "user_message_id": "68eb476d-602d-437f-ae0a-b79fc2c8dc93",
+        "result_message_id": "90d0e9f3-2a85-418b-a671-27da2731410c",
+        "finished_at": "2026-11-20T16:00:00.250000+00:00"
+      },
+      "response_kind": "answer",
+      "citations": [],
+      "conflicts": [],
+      "finished_at": "2026-11-20T16:00:00.250000+00:00",
+      "extra": {
+        "expected_shanghai_day": "2026-11-21",
+        "finished_at_shanghai": "2026-11-21T00:00:00.250000+08:00",
+        "controlled_construction": "直接写隔离库；完成时间按边界固定，非真实墙钟"
+      }
+    }
+  ]
+}
