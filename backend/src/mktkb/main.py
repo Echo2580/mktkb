@@ -21,6 +21,7 @@ from .ingestion.routes import router as ingestion_router
 from .observability import TraceMode, start_trace
 from .observability.routes import router as observability_router
 from .observability.store import TraceRepository
+from .operations.routes import router as operations_router
 from .providers import build_gateway, build_ocr_gateway
 from .qa import QaEngine, QaNotReady, resolve_rag_config
 from .sources.routes import router as sources_router
@@ -186,6 +187,7 @@ def create_app(
     api.include_router(conversations_router)
     api.include_router(sources_router)
     api.include_router(observability_router)
+    api.include_router(operations_router)
 
     @api.get("/healthz", tags=["health"], summary="最小健康检查")
     def healthz() -> dict[str, str]:
