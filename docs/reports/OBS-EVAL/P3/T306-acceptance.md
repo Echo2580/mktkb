@@ -88,3 +88,20 @@
 - 主人回复「A」。按上报清单理解为对 **上报 A 的裁决：接受现测口径**——维持 T305「当前库存」口径与 I6「空窗口引用全 0 + 无匹配筛选空态」测法，不改代码、不另立任务；与 §五 PM 裁决一致，至此 A 闭环。
 - B/C/D 与 T302 补充单按 §五 建议维持（接受/挂待决/暂不立单），均不阻塞发布；D 的发布说明义务（双击默认写 var）保留。
 - **P3 发布决定与 git 提交仍未获明确批准**：本次未执行任何 git 写操作、未改任何代码。待主人明确「批准发布」后，按 `T306-release-candidate.md` §1.5 四组拆分执行提交并回报 sha；真实环境验证仍须单独授权。
+
+## 十、发布执行记录（主人「批准发布」，2026-11-22）
+
+按候选 §1.5 四组拆分执行，分支 `codex/p2-e2e`，基线 `0d6ba61`：
+
+| 组 | 提交 | 内容 | 文件数 |
+| --- | --- | --- | --- |
+| 1 | `206d40f` | feat(operations): backend read-only operations API | 16 |
+| 2 | `546ae88` | feat(operations-ui): operations overview / Q&A diagnosis / assets pages | 26 |
+| 3 | `f17fe69` | test(operations-e2e): T303-T306 acceptance suites & Playwright configs | 12 |
+| 4 | `828ce5f` | docs(p3): taskbook, design, evidence, delivery, release candidate, prototype | 336 |
+
+- 提交前校验：staged 无 `*.sqlite3*`、`.env`、`var/`、`.tmp-*`（.gitignore 已覆盖隔离库）；无 P2/handoffs/requirements-ragas 混入。
+- 提交后剩余 58 项 status 全为非 P3 在途改动（P2 证据、handoffs、临时目录、ragas lock、P2 任务书），按候选 §1.4 保留未提交；P3 路径工作区干净。
+- 回退方式：对 `206d40f`/`546ae88`/`f17fe69`/`828ce5f` 逐组 `git revert <sha>`（保留历史），须主人批准后执行；本次未执行任何 revert/reset。
+- 三列状态更新：开发自测 PASS；独立验收 PASS；**真实环境 NOT-RUN**（`--owner-live`、真实模型/OCR/Ragas、真实部署须主人单独授权后另立验证单）。
+- 发布说明义务（裁决 D）：双击 `一键启动.cmd`/`启动-真实问答.cmd` 默认写真实 `var\`；安全隔离须先设 `MKTKB_DATA_DIR`。
