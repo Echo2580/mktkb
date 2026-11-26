@@ -40,6 +40,7 @@ from .types import (
     CompletionOutput,
     ModelBudgetRefused,
     ModelError,
+    ModelInputTooLarge,
     ModelTimeout,
     ModelUnavailable,
 )
@@ -229,6 +230,15 @@ class BudgetedModelGateway:
         """当前生效的版本化结算策略（None = 历史旧结算语义，成功也按全额预留留账）。"""
         return self._settlement_policy
 
+    @property
+    def input_byte_limit(self) -> int:
+        """本次请求 messages 内容的 UTF-8 字节上界（装配阶段据此裁剪证据）。
+
+        与 ``complete`` 里的硬闸门同一数值、同一序列化口径；仅暴露上界本身，
+        不是 token 数，也不是可发送证明。
+        """
+        return int(self._pricing.max_input_tokens)
+
     def attach_settlement_policy(self, policy: SettlementPolicy) -> None:
         """把版本化结算策略挂到已构造的网关上（真实应用路径用；校验与构造期同一套）。
 
@@ -280,7 +290,10 @@ class BudgetedModelGateway:
         upper_bytes = self._inner.request_upper_bytes(request)
         if upper_bytes > self._pricing.max_input_tokens:
             self._counters["refused"] += 1
-            raise ModelUnavailable("chat 输入超过官方最大输入上界，禁发")
+            # 本地输入超限：不是供应商故障，必须用独立稳定码；且发生在任何预留/HTTP 之前。
+            raise ModelInputTooLarge(
+                f"chat 输入 {upper_bytes} 字节超过单次模型输入上界 {self._pricing.max_input_tokens}"
+            )
         # S2-H-R2：保守 profile —— 预留永远按官方 context 上限全额输入，
         # 不使用本地 tokenizer 的小额上界（该 artifact 与当前模型匹配未证）。
         input_tokens = int(self._pricing.context_ceiling_tokens)
@@ -290,8 +303,10 @@ class BudgetedModelGateway:
         )
         if request_bound_cny > self._gate.max_request_cny + 1e-12:
             self._counters["refused"] += 1
-            raise ModelUnavailable(
-                f"chat 本次 token 上界 {request_bound_cny:.8f} 元超过 GO 单请求上限"
+            # 单请求预留超过 GO 上限属本地授权/计划问题（构造期已拦一次，这里兜底）：
+            # 与供应商可用性无关，不得再冒充 MODEL_UNAVAILABLE。
+            raise ModelBudgetRefused(
+                f"chat 本次按官方 context 上限预留 {request_bound_cny:.8f} 元超过 GO 单请求上限"
             )
         request_sha = hashlib.sha256(
             f"{request.purpose}|{upper_bytes}|{input_tokens}|{request_bound_cny:.10f}".encode("utf-8")

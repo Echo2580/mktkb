@@ -53,6 +53,39 @@ EXPANSION_SYSTEM_PROMPT = (
 )
 
 
+def _message_contents(request: CompletionInput) -> tuple[str, str]:
+    """真实 POST 的 (system, user) 内容；装配期预算与网关闸门共用同一序列化。"""
+    if request.purpose == "query_expansion":
+        system = EXPANSION_SYSTEM_PROMPT
+        body: dict[str, Any] = {
+            "question": request.question,
+            "context_questions": list(request.context.questions),
+            "entities": dict(request.context.entities),
+        }
+    else:
+        system = ANSWER_SYSTEM_PROMPT
+        body = {
+            "question": request.question,
+            "context_questions": list(request.context.questions),
+            "entities": dict(request.context.entities),
+            "evidence": [
+                {"source_id": item.source_id, "text": item.text, "fields": dict(item.fields)}
+                for item in request.evidence
+            ],
+        }
+    return system, json.dumps(body, ensure_ascii=False)
+
+
+def completion_message_bytes(request: CompletionInput) -> int:
+    """本次真实 POST 的 messages 内容 UTF-8 字节数（system + user JSON，无附加常数）。
+
+    装配阶段（证据预算）与网关最后防线共用本函数，避免“预算按一种序列化、
+    闸门按另一种序列化”导致预算内仍被拒，或同名数字被误称为 token 数。
+    """
+    system, user = _message_contents(request)
+    return len(system.encode("utf-8")) + len(user.encode("utf-8"))
+
+
 class DeepSeekClient:
     """异步 DeepSeek 文本适配器；测试可通过 ``transport`` 注入本地 HTTP 模拟。"""
 
@@ -164,10 +197,7 @@ class DeepSeekClient:
         仅供 byte 闸门/兼容调用；真实 smoke 的 token/费用上界由
         ``prompt_token_upper_bound`` 用官方 tokenizer artifact 计算。
         """
-        payload = self._payload(request)
-        system = payload["messages"][0]["content"]
-        user = payload["messages"][1]["content"]
-        return len(str(system).encode("utf-8")) + len(str(user).encode("utf-8"))
+        return completion_message_bytes(request)
 
     def prompt_token_upper_bound(self, request: CompletionInput) -> int | None:
         """官方 tokenizer artifact 下的输入 token 上界（含 chat 模板协议开销）。
@@ -183,29 +213,12 @@ class DeepSeekClient:
         return int(self._prompt_meter.prompt_token_upper_bound(system, user))
 
     def _payload(self, request: CompletionInput) -> dict[str, Any]:
-        if request.purpose == "query_expansion":
-            system = EXPANSION_SYSTEM_PROMPT
-            body = {
-                "question": request.question,
-                "context_questions": list(request.context.questions),
-                "entities": dict(request.context.entities),
-            }
-        else:
-            system = ANSWER_SYSTEM_PROMPT
-            body = {
-                "question": request.question,
-                "context_questions": list(request.context.questions),
-                "entities": dict(request.context.entities),
-                "evidence": [
-                    {"source_id": item.source_id, "text": item.text, "fields": dict(item.fields)}
-                    for item in request.evidence
-                ],
-            }
+        system, user = _message_contents(request)
         payload = {
             "model": self._model,
             "messages": [
                 {"role": "system", "content": system},
-                {"role": "user", "content": json.dumps(body, ensure_ascii=False)},
+                {"role": "user", "content": user},
             ],
             "stream": False,
             "temperature": 0,

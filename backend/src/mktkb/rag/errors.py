@@ -72,6 +72,17 @@ class ChatUnavailable(ChatError):
     code = "CHAT_UNAVAILABLE"
 
 
+class ChatInputTooLarge(ChatError):
+    """本次问题 + 证据的最终 payload 超过单次输入上界：本地拒绝，未预留、未发 HTTP。
+
+    与 ``ChatUnavailable`` 分开：供应商可用，真实原因是本次输入体积；缩小范围即可恢复，
+    重复原样发送不会，因此不可自动重试（``retryable=False``）。
+    """
+
+    code = "MODEL_INPUT_TOO_LARGE"
+    retryable = False
+
+
 class BudgetError(RagError):
     code = "BUDGET_ERROR"
 

@@ -31,6 +31,7 @@ from .controlled_usage import (
 )
 from .errors import (
     BudgetPricingUnknown,
+    ChatInputTooLarge,
     ChatUnavailable,
     EmbeddingDimensionError,
     EmbeddingRateLimited,
@@ -956,7 +957,10 @@ class DeepSeekChatProvider:
             raise BudgetPricingUnknown("context 上限小于 payload 输入闸门，配置矛盾")
         input_bytes = len(str(system).encode("utf-8")) + len(str(user).encode("utf-8"))
         if input_bytes > int(self.config.chat_max_input_tokens):
-            raise ChatUnavailable("chat 输入超过保守官方最大输入上界，禁发")
+            # 本地输入超限：独立稳定码；仍在任何预留/HTTP 之前。
+            raise ChatInputTooLarge(
+                f"chat 输入 {input_bytes} 字节超过单次模型输入上界 {self.config.chat_max_input_tokens}"
+            )
         if max_tokens > self.config.chat_max_output_tokens:
             raise RagConfigError("max_output_tokens 超过官方输出上界")
         # S2-H-R2：预留按官方 context 上限全额输入 + 固定 800 输出，

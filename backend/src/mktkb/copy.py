@@ -109,6 +109,16 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
         service_error=True,
     ),
     _entry(
+        "MODEL_INPUT_TOO_LARGE",
+        "本次问题所需资料内容超过单次模型输入上限，未调用模型。"
+        "这是服务调用失败，不是资料中没有答案；"
+        "请缩小问题范围（例如指定门店、物品或文件名）后重新提问。"
+        "重复发送同样的问题不会自行恢复；服务端不会因重试而重复保存同一条回答。",
+        retryable=False,
+        material_related=False,
+        service_error=True,
+    ),
+    _entry(
         "MODEL_TIMEOUT",
         "模型服务响应超时，本次回答未完成。这是服务调用失败，不是资料中没有答案；"
         "可稍后重新提问。服务端不会因重试而重复保存同一条回答。",
@@ -667,6 +677,7 @@ REASON_ALIASES: dict[str, str] = {
 SERVICE_ERROR_CODES: tuple[str, ...] = (
     "MODEL_NOT_CONFIGURED",
     "MODEL_BUDGET_REFUSED",
+    "MODEL_INPUT_TOO_LARGE",
     "MODEL_TIMEOUT",
     "MODEL_UNAVAILABLE",
     "MODEL_OUTPUT_INVALID",

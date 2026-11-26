@@ -120,6 +120,18 @@ class ModelUnavailable(ModelError):
     retryable = True
 
 
+class ModelInputTooLarge(ModelError):
+    """本次最终输入超过单次模型输入上界：本地装配阶段拒绝，未预留、未发 HTTP。
+
+    与 ``ModelUnavailable`` 分开的原因：供应商本身可能完全可用，真实原因是本次证据/问题
+    体积超过上界；界面若显示“服务不可用”会把可修复的输入问题伪装成外部故障。
+    缩小问题范围后同一问题即可成功，重复发送同样内容不会自行恢复，因此 ``retryable=False``。
+    """
+
+    code = "MODEL_INPUT_TOO_LARGE"
+    retryable = False
+
+
 class ModelBudgetRefused(ModelError):
     """预留/授权阶段拒绝：阶段额度、累计请求或账本不可用，本次**没有**发出任何请求。
 

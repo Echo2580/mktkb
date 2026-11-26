@@ -16,7 +16,7 @@ import re
 import time
 import uuid
 from contextlib import contextmanager
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import datetime, timedelta, timezone
 from typing import Iterable, Iterator
 
@@ -73,6 +73,7 @@ from ..rag.query import (
     unattributed_metric_values,
 )
 from ..rag.types import QueryPlan, QueryState, RagAnswer
+from ..providers.deepseek import completion_message_bytes
 from ..providers.types import (
     MAX_MODEL_TERM_CHARS,
     MAX_MODEL_TERMS,
@@ -82,6 +83,7 @@ from ..providers.types import (
     ModelError,
     ModelEvidence,
     ModelGateway,
+    ModelInputTooLarge,
     ModelNotConfigured,
     ModelOutputInvalid,
     ModelTimeout,
@@ -1743,6 +1745,7 @@ class ModelCallFailed(ModelError):
 _MODEL_RETRYABLE_BY_CODE: dict[str, bool] = {
     "MODEL_NOT_CONFIGURED": False,
     "MODEL_BUDGET_REFUSED": False,
+    "MODEL_INPUT_TOO_LARGE": False,
     "MODEL_TIMEOUT": True,
     "MODEL_OUTPUT_INVALID": True,
     "MODEL_UNAVAILABLE": True,
@@ -2235,6 +2238,41 @@ def _model_input(
     )
 
 
+def _fit_model_input(
+    model: ModelGateway,
+    payload: CompletionInput,
+    *,
+    allow_trim: bool = True,
+) -> CompletionInput:
+    """按最终 payload 的真实 UTF-8 字节预算装配证据（不重排、不截断单条）。
+
+    - 预算上界取自网关公开的 ``input_byte_limit``（与网关硬闸门同值同序列化口径）；
+      没有该属性的替身/注入网关保持原样，既有测试与离线替身行为不变。
+    - 逐条保留能进入预算的**完整**证据，顺序与检索优先级一致；至少保留 1 条才发送。
+    - 第一条完整证据自身超限，或调用方明确不允许裁剪（记录型枚举少一条就会把
+      “完整枚举”静默变成不完整答案）时抛 ``ModelInputTooLarge``：此时 HTTP 与预算预留
+      都必须为 0，且不得被显示为供应商不可用。
+    """
+    limit = getattr(model, "input_byte_limit", None)
+    if limit is None:
+        return payload
+    limit = int(limit)
+    evidence = tuple(payload.evidence)
+    if completion_message_bytes(payload) <= limit:
+        return payload
+    if not allow_trim or not evidence:
+        raise ModelInputTooLarge(f"本次输入超过单次模型输入上界 {limit} 字节")
+    keep = 0
+    for count in range(1, len(evidence) + 1):
+        candidate = replace(payload, evidence=evidence[:count])
+        if completion_message_bytes(candidate) > limit:
+            break
+        keep = count
+    if keep == 0:
+        raise ModelInputTooLarge(f"首条证据已超过单次模型输入上界 {limit} 字节")
+    return replace(payload, evidence=evidence[:keep])
+
+
 _RAG_ENTITY_FILTERS = ("store", "item", "product", "channel", "price_type", "identifier")
 
 
@@ -2438,8 +2476,14 @@ def _rag_turn_result(answer: RagAnswer, revision: int) -> _Result:
     retryable = False
     if kind == "service_error":
         reason = str(answer.reason or "")
-        error_code = "INDEX_NOT_READY" if "NOT_READY" in reason else "RETRIEVAL_ERROR"
-        retryable = True
+        if reason == "MODEL_INPUT_TOO_LARGE":
+            # 本地输入超限与供应商不可用分开：稳定码透传、不可重试，
+            # 文案由 rag 层按 copy 表给出，不在这里改写。
+            error_code = "MODEL_INPUT_TOO_LARGE"
+            retryable = False
+        else:
+            error_code = "INDEX_NOT_READY" if "NOT_READY" in reason else "RETRIEVAL_ERROR"
+            retryable = True
     missing_fields: list[str] = []
     if kind == "not_found" and answer.reason == "FIELD_NOT_RECORDED":
         # P1-FIX/C：记录存在但缺所问字段时，把缺失字段名带出来，前端徽标可据此显示
@@ -2888,12 +2932,27 @@ async def _answer(
             "MODEL_NOT_CONFIGURED", _model_error_text("MODEL_NOT_CONFIGURED"), False, revision
         )
 
-    allowed = {str(unit.id) for unit in units}
     try:
-        with trace_attrs.span("model_answer"):
-            output = await _call_model(
+        with trace_attrs.span("model_answer") as model_span:
+            # 装配阶段先按最终 payload 字节预算保留完整证据；记录型枚举不允许裁剪
+            # （少发一条记录会让“完整枚举”静默变成不完整答案），一律明确报输入超限。
+            payload = _fit_model_input(
                 model,
                 _model_input("answer", question, claim, plan, units),
+                allow_trim=plan.mode != "record",
+            )
+            # 来源白名单收紧为本次真实发送的证据：未被发送的来源不得被引用。
+            allowed = {item.source_id for item in payload.evidence} or {
+                str(unit.id) for unit in units
+            }
+            model_span.annotate(
+                input_bytes=completion_message_bytes(payload),
+                evidence_sent=len(payload.evidence),
+                evidence_total=len(units),
+            )
+            output = await _call_model(
+                model,
+                payload,
                 deadline,
                 request_id=str(claim.request_id),
             )
