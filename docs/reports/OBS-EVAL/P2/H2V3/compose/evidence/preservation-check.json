@@ -1,0 +1,22 @@
+{
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "staged_entries": 0,
+  "freeze_verify_exit": 1,
+  "freeze_verify_checked": 32,
+  "freeze_verify_diffs": [
+    "DIFF freeze_a_manager_acceptance: bytes expected=1116 actual=1178",
+    "DIFF freeze_a_review_aggregate: bytes expected=11515 actual=11615",
+    "DIFF 2/32 artifact(s) differ"
+  ],
+  "freeze_drift_note": "2/32 为 PM 保管记录（manager-acceptance.json / review-aggregate.json）：它们在 freeze B 之后（2026-11-15T04:43，真实 run 之前）补入了 review 密文绑定；freeze.json 的 artifacts[] 与 changes_to_freeze_a 都未再回填。本包未改这两件（mtime 早于本会话）。",
+  "ledger_sha256": "22a4e85cfe8627bc8fc4e4711d07b67bb41f8ef8a12445f402097a11fa0a931e",
+  "ledger_lines": 2199,
+  "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+  "budget_limit_cny": 40,
+  "c_frozen_12_touched": false,
+  "v2_v3_corpus_and_ciphertext_touched": false,
+  "evaluation_modules_touched": false,
+  "hidden_30_cases_or_labels_or_thresholds_touched": false,
+  "go_or_budget_content_touched": false
+}

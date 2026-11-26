@@ -1,0 +1,37 @@
+T209-PREP 独立验收命令日志（全部在新目录 independent/ 下留证）
+环境：MKTKB_NO_DOTENV=1 / PYTHONDONTWRITEBYTECODE=1 / PYTHONIOENCODING=utf-8 / pytest -p no:cacheprovider
+cwd：D:\GPT项目\市场部AI知识库
+branch=codex/p2-e2e  head=97b0066726e5b8d6f94cbc0b63a890084550c106
+
+01  .venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_candidate_report.py -p no:cacheprovider -q -rs --junitxml=independent\junit-new-34.xml
+    exit=0  34 passed, 1 warning；junit tests=34 failures=0 errors=0 skipped=0
+02  .venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_report.py backend/tests/evaluation/test_baseline_portability.py backend/tests/evaluation/test_diff_release_gate.py backend/tests/evaluation/test_p2_gate.py -p no:cacheprovider -q -rs --junitxml=independent\junit-existing-80.xml
+    exit=0  80 passed；junit tests=80 failures=0 errors=0 skipped=0
+03  .venv\Scripts\python.exe -m pytest <new + 4 existing> -p no:cacheprovider --collect-only -q
+    exit=0  114 tests collected（34+80）
+04  .venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_candidate_report.py -p no:cacheprovider -q --setup-show
+    exit=0  34 passed；t09_network_guard SETUP=34 / TEARDOWN=34
+05  .venv\Scripts\python.exe -m pytest independent\guard_canary.py -q -p no:cacheprovider
+    exit=1（预期负向 canary）teardown AssertionError：检测到真实外部出站尝试 ["socket.create_connection ('example.com', 80)"]，证明 guard 非空
+06  .venv\Scripts\python.exe independent\01_protected_recheck.py
+    exit=0  42/42 显式/指纹对象一致；compare-pre/post IDENTICAL（42/42）
+07  .venv\Scripts\python.exe independent\02_report_probe.py
+    exit=0  checks=74 failed=0（分列 A、对照 B、口径反例 C）
+08  .venv\Scripts\python.exe independent\03_candidate_probe.py
+    exit=0  checks=52 failed=0（archive→verify→restore→list→diff；不可发布；跨轮/跨 pipeline/跨 scope）
+09  .venv\Scripts\python.exe independent\04_bad_inputs_probe.py
+    exit=0  checks=22 failed=0（18 类坏输入，含 junction/审批/摘要/类型/路径/已存在/缺 artifact）
+10  .venv\Scripts\python.exe independent\05_zero_calls_probe.py
+    exit=0  checks=7 failed=0（源码扫描 0；import+渲染尝试 0；完整 candidate 链尝试 0）
+11  .venv\Scripts\python.exe independent\06_freeze_recheck.py
+    exit=0  checks=9 failed=0（18/18 冻结 hash；04-report-example 逐字节复现；chain demo 文本一致）
+12  .venv\Scripts\python.exe independent\08_contract_probe.py
+    exit=0  checks=30 failed=0（报告/契约/证据日志/测试名一致）
+13  .venv\Scripts\python.exe independent\09_edge_probe.py
+    exit=0  OBSERVATIONS_RECORDED（执行状态聚合缺陷、伪造报告残余、自由文本边界）
+14  git rev-parse / status / diff --cached / diff --name-only
+    branch=codex/p2-e2e；head=97b00…；staged_files=0；unstaged_tracked=15（全部 mtime ≤2026-11-14T05:36:54，早于 T209 窗口 13:12 起）
+    reused 7 文件（report/baseline/gate + 4 测试）git diff 干净，hash 与 00-protected-pre 一致
+
+T209 窗口：00-protected-pre=13:12:36；模块=13:19:01；测试=13:20:26；09-protected-post=13:20:06；dev-report=13:22:02；11-freeze=13:22:18。
+独立验收写入时间：2026-11-14 13:23 之后；未 stage/commit/push/reset/clean/切分支/worktree。

@@ -1,0 +1,45 @@
+{
+  "schema_version": "p2-h2v3-v3-run-conclusion/v0.1",
+  "conclusion": "NOT-RUN",
+  "stop_point": "r0_gate_refusal",
+  "failure_code": "code_changed_since_plan",
+  "attempted_runs": [0],
+  "completed_runs": [],
+  "requests_spent": 0,
+  "cny_spent": 0.0,
+  "requests_cap_package": 185,
+  "requests_used_cumulative_before": 952,
+  "requests_used_cumulative_after": 952,
+  "requests_cap_go": 1137,
+  "project_total_limit_cny": 40.0,
+  "ledger": {
+    "file_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+    "file_sha256_after": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+    "lines": 1905,
+    "reservation_count": 952,
+    "result_count": 952,
+    "paired": true,
+    "chain_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "accounted_cny": 22.203382799999936,
+    "p2_stage_accounted_cny": 7.132438300000006
+  },
+  "real_calls": 0,
+  "hard_failures": null,
+  "four_axis": null,
+  "artifacts": {
+    "run_report": "run-report.md",
+    "code_identity": "code-identity.json",
+    "option_a_shadow_check": "option-a-shadow-check.json",
+    "preflight": ["preflight/check-r0.json", "preflight/check-r1.json", "preflight/check-r2.json", "preflight/check-r3.json"],
+    "attempt": "r0/attempt.json",
+    "per_run_status": ["r0/status.json", "r1/status.json", "r2/status.json", "r3/status.json"],
+    "cards": null,
+    "case_plans": null,
+    "run_manifests": null
+  },
+  "residual": [
+    "无任何真实请求/金额，四轴与 pass/fail/error 无数据，不得据此判断质量。",
+    "rollback-40 计划集生成于 fix-1r1 之前（06:30:39），其 binding 绑定 pre-R1 代码 efe1c66e…；当前代码 1e5930…。",
+    "选项 A 的 shadow 计划集在仓外，未安装；四份 plan 与 rollback-40 逐字节相同，GO 的 plan_sha 绑定仍有效。"
+  ]
+}

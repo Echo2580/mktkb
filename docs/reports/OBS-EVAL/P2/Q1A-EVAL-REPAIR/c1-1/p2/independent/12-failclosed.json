@@ -1,0 +1,3402 @@
+{
+ "schema_version": "c1p2-independent-failclosed/v0.1",
+ "probe_count": 267,
+ "failed_count": 0,
+ "failed": [],
+ "ast": {
+  "proven_true_keyword_lines": [
+   854
+  ],
+  "proven_false_keyword_lines": [
+   720
+  ],
+  "return_true_lines": [
+   426,
+   430
+  ],
+  "imports": [
+   "__future__",
+   "functools",
+   "re",
+   "dataclasses",
+   "typing",
+   "copy",
+   "observability.evaluation_capture"
+  ],
+  "imports_forbidden": [],
+  "single_proven_true": true,
+  "no_bare_return_true": false,
+  "no_network_imports": true
+ },
+ "probes": [
+  {
+   "name": "input:NoneType:None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:list:[]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:dict:{}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "completeness_not_complete",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:int:0",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:str:'x'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:object:<object object at 0x000001FBB0DCA000>",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:bool:True",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "input:float:1.5",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "evidence_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "baseline_default_proven",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": ""
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_no_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_no_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_no_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_no_model:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_no_model:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:model_output.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_output",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_legacy_model:model_input.evidence",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_input",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:direct_rag.facts",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:direct_rag_answer",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:direct_rag.fact_count",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:direct_rag_answer",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_rag:direct_rag.cited_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:direct_rag_answer",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:model_output.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_output",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_clarification:model_input.evidence",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_input",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_no_answer:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_no_answer:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_no_answer:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_no_answer:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_no_answer:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_with_unresolved:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_with_unresolved:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_with_unresolved:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_with_unresolved:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_with_unresolved:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_knowledge_changed:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_knowledge_changed:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_knowledge_changed:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_knowledge_changed:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:retrieval_candidates_unused_knowledge_changed:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:model_output.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_output",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:query_state_candidates_unused:model_input.evidence",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_input",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:model_output.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_output",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:multi_turn_partial_empty:model_input.evidence",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:model_input",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_legacy_no_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_legacy_no_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_legacy_no_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_legacy_no_model:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_legacy_no_model:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_with_context:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_with_context:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_with_context:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:message_sources",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_with_context:projection.units",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:units",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "remove:no_retrieval_positive_snapshot_with_context:projection.unresolved_unit_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:unresolved_unit_ids",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "usage 容器缺失必须 fail-closed"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "projection_query_state_candidates"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "projection_query_state_candidates"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "projection_query_state_candidates",
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "projection_query_state_candidates",
+    "retrieval_observed"
+   ],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:answer_result.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:commit_observed.source_ids",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:projection.message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:projection.unit_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:projection.unresolved_unattributable",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "使用层非空必须不 proven"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_no_model:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_legacy_model:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_rag:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "rag_direct/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_clarification:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_no_answer:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_with_unresolved:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:retrieval_candidates_unused_knowledge_changed:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:query_state_candidates_unused:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:multi_turn_partial_empty:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_legacy_no_model:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:entity_inheritance",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:entity_inheritance=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "entity_inheritance"
+   ],
+   "candidate_sources": [],
+   "note": "实体继承按使用处理（更严）"
+  },
+  {
+   "name": "inject:no_retrieval_positive_snapshot_with_context:message_sources",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:projection_message_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "projection_message_sources"
+   ],
+   "candidate_sources": [],
+   "note": "DB 结果消息来源即使用"
+  },
+  {
+   "name": "badtype:answer_result.source_ids='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=1",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=True",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids={'u': 1}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=['', '  ']",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "answer_result.source_ids_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=[1]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer_result.source_ids=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:commit_observed.source_ids=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:commit_observed.source_ids='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:commit_observed.source_ids=0",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:commit_observed.source_ids=['']",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "commit_observed.source_ids_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources=[{'source_id': ''}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources.source_id_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources=[{'source_id': 1}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources.source_id_not_str",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.message_sources=['u1']",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.message_sources_row_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units_row_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units=[{'unit_id': ''}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units.unit_id_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.units=[{'unit_id': 1}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.units.unit_id_not_str",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.unresolved=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.unresolved_unit_ids_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.unresolved='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.unresolved_unit_ids_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.unresolved={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.unresolved_unit_ids_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.unresolved=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.unresolved_unit_ids_row_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.unresolved=[{'unit_id': ''}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.unresolved_unit_ids.unit_id_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:retrieval_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids='u1'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:retrieval_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids=1",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:retrieval_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids=[1]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:retrieval_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:retrieval_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:retrieval.unit_ids=['']",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "retrieval_observed.unit_ids_blank",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json=[]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json='x'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json=1",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json={'candidates': 'u1'}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "query_state_observed.state_json.candidates_not_list",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json={'candidates': {}}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "query_state_observed.state_json.candidates_not_list",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.state_json={'candidates': [1]}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "query_state_observed.candidates_not_str",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.row_present=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.row_present=1",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.row_present='true'",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:query_state.row_present=0",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:query_state_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker=None",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v0.1'}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v0.1', 're",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v9', 'retr",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v0.1', 're",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v0.1', 're",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:marker={'schema_version': 'p2-runtime-snapshot/v0.1', 're",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:completeness=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "completeness_not_complete",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:completeness=[]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "completeness_not_complete",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:completeness.status=incomplete",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "completeness_not_complete",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.events=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "capture.events_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.events={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "capture.events_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.events=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.events=[{}]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_missing_kind_or_payload",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.events=['x']",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.errors=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "capture.errors_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture.errors=nonempty",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "capture_errors_present",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_key_missing:query_states",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states={}",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states_not_list",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states=[None]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states_row_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states.state_json=[]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states.state_json_not_mapping",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states_available=1",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states_unavailable",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.query_states_available=False",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states_unavailable",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.truncations=nonempty",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_truncations_present",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:projection.errors=nonempty",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_errors_present",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:plan.path=other",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_plan_path",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:plan.path=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_invalid:plan_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.envelope",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_envelope_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.capture",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_capture_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.turn",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_turn_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.event",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_event_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.event.payload",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_event_field:claim_observed",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.projection",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_projection_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:unknown.projection.row",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.conversation_unknown_key",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:event.kind=unknown",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "unknown_event_kind",
+   "shape": "unknown_usage_field",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:event.payload=missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_missing_kind_or_payload",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:event.payload=[]",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "event_payload_not_mapping",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:required_event.missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "required_event_count:commit_observed",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:required_event.duplicate",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "required_event_count:answer_result",
+   "shape": "branch_evidence_missing",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:capture_error.event",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "capture_error_event",
+   "shape": "evidence_incomplete",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:template.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "answer_commit_text_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer/commit.text.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "answer_commit_text_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:answer/commit.kind.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "answer_commit_kind_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:claim.conversation.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "claim_conversation_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:claim.request.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "claim_request_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "badtype:request.result_message.mismatch",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "commit_message_mismatch",
+   "shape": "branch_evidence_inconsistent",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏类型/缺字段/未知键必须 fail-closed"
+  },
+  {
+   "name": "qs.projection.empty_candidates",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "显式空候选是合法空值"
+  },
+  {
+   "name": "qs.projection.state_json_missing",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection.query_states.state_json_not_mapping",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "state_json 缺失必须 fail-closed"
+  },
+  {
+   "name": "qs.projection.empty_state",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "显式空状态 {} 合法"
+  },
+  {
+   "name": "qs.projection.candidates_unused",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [
+    "projection_query_state_candidates"
+   ],
+   "note": "候选层非空、使用层空 → 本实现扩展 proven"
+  },
+  {
+   "name": "qs.projection.unknown_key_with_source",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "已知缺口：state_json 内部未知键不 fail-closed（冻结原语同）"
+  },
+  {
+   "name": "qs.event.empty_state_row_absent",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_empty/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "显式空 {} + row_present=False 是合法无行"
+  },
+  {
+   "name": "qs.event.empty_candidates_row_absent",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "query_state_observed_present_false_with_state",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "行不存在却带非空状态 → 矛盾 fail-closed（冻结原语同）"
+  },
+  {
+   "name": "noretr.no_marker",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "无检索事件且无正标记 → fail-closed"
+  },
+  {
+   "name": "noretr.marker_ok",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_absent/not_found",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "v0.3 正标记 + 使用层空 → 本实现扩展 proven"
+  },
+  {
+   "name": "noretr.marker_ok_but_usage",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:answer_result_sources=1,commit_observed_sources=1",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [
+    "answer_result_sources",
+    "commit_observed_sources"
+   ],
+   "candidate_sources": [],
+   "note": "正标记不能覆盖非空使用层"
+  },
+  {
+   "name": "noretr.marker_schema_v9",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_availability_partial",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_reason_nonnull",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_candidates_nonempty",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_candidate_observed",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_candidate_reason_other",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [],
+   "note": "坏正标记必须 fail-closed"
+  },
+  {
+   "name": "noretr.marker_with_model_usage",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "usage_layers_nonempty:model_evidence=1",
+   "shape": "legacy_model_answer/unknown/unknown",
+   "usage_layers": [
+    "model_evidence"
+   ],
+   "candidate_sources": [],
+   "note": "有模型使用 → 不 proven"
+  },
+  {
+   "name": "retr.candidates_unused",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_candidates_unused/not_found",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "候选非空、使用层空 → 扩展 proven"
+  },
+  {
+   "name": "retr.candidates_unused_projected",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_candidates_unused/not_found",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "候选投影行可归因候选层"
+  },
+  {
+   "name": "retr.candidate_unattributable_row",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_units_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "投影行不可归因 → fail-closed"
+  },
+  {
+   "name": "retr.candidate_unattributable_unresolved",
+   "expected_proven": false,
+   "actual_proven": false,
+   "pass": true,
+   "code": "empty_set_not_proven",
+   "detail": "projection_unresolved_unit_ids_unattributable",
+   "shape": "legacy_no_model/unknown/unknown",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "未解析行不可归因 → fail-closed"
+  },
+  {
+   "name": "retr.candidate_flag_true",
+   "expected_proven": true,
+   "actual_proven": true,
+   "pass": true,
+   "code": "empty_use_scope_ok",
+   "detail": "usage_layers_explicit_empty",
+   "shape": "legacy_no_model/retrieval_candidates_unused/not_found",
+   "usage_layers": [],
+   "candidate_sources": [
+    "retrieval_observed"
+   ],
+   "note": "candidate=True 仍是候选层"
+  }
+ ]
+}

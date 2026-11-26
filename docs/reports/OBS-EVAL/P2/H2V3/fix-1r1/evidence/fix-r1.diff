@@ -1,0 +1,402 @@
+# v3-fix-1/R1 修复 diff（仅本轮改动；上面两个 tracked 文件由哈希自证重建）
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -86,8 +86,29 @@
+     "多少笔",
+     "总共有多少",
+ )
+ ANAPHORA_WORDS = ("它", "这个", "那个", "该", "上述", "刚才", "前面", "这家", "那家", "这种", "该项", "其")
++#: v3-fix-1/R1：量化指代（“这两个/这几个/那两家”）**没有点名目标**，不是“本轮显式列出
++#: 多个目标”。fix-1/A 的多目标判定只认 ``ANAPHORA_WORDS`` 里的“这个/那个”，漏掉了
++#: “这 + 两 + 个”这种形式，导致“城东店和城西店的这两个……”被当成多目标放行。
++#: 复指限定语（“海报和易拉宝这两个”“这两个店”）指代的是本轮已点名的对象，不算纯指代。
++_QUANTIFIED_ANAPHORA = re.compile(r"(?:这|那)\s*(?:两|几|俩)\s*(?:个|家)")
++_QUANTIFIED_ANAPHORA_HEADS = (
++    "门店",
++    "店铺",
++    "店家",
++    "物品",
++    "商品",
++    "产品",
++    "东西",
++    "资料",
++    "字段",
++    "记录",
++    "目标",
++    "条目",
++    "店",
++)
++_QUANTIFIED_ANAPHORA_JOINERS = "和与及跟同"
+ SWITCH_WORDS = ("换成", "改为", "另外", "其他", "不说", "重新问", "换个", "再问一个", "换一个话题")
+ #: T102/ERR-02：无显式实体、无记录字段时，哪些问法仍应按“政策/制度/流程题”独立检索，
+ #: 而不是继承上一轮门店/物品。法规名词由 ``is_regulation_question`` 统一覆盖，这里只补
+ #: 流程与提交时限类说法（如“档期物料要提前多少天提报需求”）。
+@@ -384,8 +405,39 @@
+         return False
+     return any(word in text for word in ANAPHORA_WORDS)
+ 
+ 
++def _bare_quantified_anaphora(question: str, lexicon: Lexicon) -> bool:
++    """v3-fix-1/R1：问题里是否有**未点名目标**的量化指代（“这两个/这几个/那两家”）。
++
++    两种复指用法不算纯指代（它们指代的对象在同一轮里已点名）：
++    - **后置名词**：``这两个店`` / ``这几个物品``（量化词后面紧跟目标名词或词表实体）；
++    - **前置枚举**：``海报和易拉宝这两个`` / ``城东店、城西店这两家``（量化词前面只隔
++      标点/空白就是已点名的目标；``…和这两个`` 这类用连接词另起一个目标的仍算纯指代）。
++
++    其余位置（``城东店和城西店的这两个分别……``、``这两个分别……``）都是纯指代：
++    本轮没有说清“这两个”是哪两个目标。
++    """
++    text = _norm(question)
++    heads = tuple(
++        dict.fromkeys(
++            [_norm(head) for head in _QUANTIFIED_ANAPHORA_HEADS]
++            + [_norm(label) for label in lexicon.all_entity_labels()]
++        )
++    )
++    heads = tuple(head for head in heads if head)
++    for match in _QUANTIFIED_ANAPHORA.finditer(text):
++        following = text[match.end() :].lstrip()
++        if any(following.startswith(head) for head in heads):
++            continue
++        preceding = text[: match.start()].rstrip(" \t,，、/|｜")
++        if preceding and preceding[-1] not in _QUANTIFIED_ANAPHORA_JOINERS:
++            if any(preceding.endswith(head) for head in heads):
++                continue
++        return True
++    return False
++
++
+ def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
+     """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
+     不判记录字段。
+ 
+@@ -1096,8 +1148,10 @@
+     为空即“那个海报呢/前面那个呢”这类纯指代追问——只有指代词与（可继承的）实体，没有
+     新的问法；此时才需要判断“问什么”。带“打印材质/陈列要求”等新内容的问题不走本分支。
+     """
+     text = _norm(question)
++    # v3-fix-1/R1：量化指代（“这两个/这几个”）本身不是新内容；去掉后再看还剩什么检索词。
++    text = _QUANTIFIED_ANAPHORA.sub(" ", text)
+     labels = [*lexicon.all_entity_labels(), *lexicon.identifiers]
+     labels.extend(str(alias) for alias in (lexicon.alias_map or {}))
+     for label in sorted({item for item in labels if item}, key=len, reverse=True):
+         key = _norm(label)
+@@ -1394,9 +1448,10 @@
+     overlap = any(
+         slots.get(key) and slots.get(key) == getattr(previous, key)
+         for key in ("store", "item", "product", "identifier", "doc_id")
+     )
+-    anaphora = any(word in question for word in ANAPHORA_WORDS)
++    quantified_anaphora = _bare_quantified_anaphora(question, lexicon)
++    anaphora = quantified_anaphora or any(word in question for word in ANAPHORA_WORDS)
+     anaphora_residual = _anaphora_residual_terms(question, lexicon) if anaphora else ()
+     # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
+     # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
+     # 普通字段追问（“电话呢”“数量呢”）仍保留实体，裸补槽、指代与分页也不在此重置。
+@@ -1754,8 +1809,42 @@
+         state.field_roles = ()
+         state.enumerate = True
+         plan_reason = "POLICY_TOPIC_FOLLOWUP"
+ 
++    # v3-fix-1/R1：纯指代不能当成本轮“显式列出多个目标”。已点名多个门店（或含词表外
++    # 门店）时，“这两个/这几个”到底指哪两个仍不能唯一确定：按“多个对象”先澄清，
++    # 既不回退成整表枚举，也不静默只答显式那一维。复指用法（“海报和易拉宝这两个”）
++    # 已在 ``_bare_quantified_anaphora`` 里排除；带显式物品目标的混合问句保持原路由。
++    if (
++        quantified_anaphora
++        and stores
++        and not item_hits
++        and (multi_stores or unknown_stores)
++        and field_role in RECORD_FIELD_ROLES
++        and identifier is None
++        and plan_reason is None
++    ):
++        labels = list(stores)
++        state.pending_slot = None
++        state.candidates = ()
++        return QueryPlan(
++            question=question,
++            mode="record",
++            query_text=question,
++            field_role=state.field_role,
++            field_label=state.field_role,
++            filters={},
++            terms=_terms(question),
++            state=state,
++            enumerate=state.enumerate,
++            page=state.page,
++            page_size=state.page_size,
++            clarification=copy_module.multiple_entities_text(labels),
++            candidates=(),
++            include_future=include_future,
++            reason="MULTIPLE_ENTITIES",
++        )
++
+     if multi_target and plan_reason is None:
+         # 只作“本轮由内核按多目标枚举作答”的标记（产品层据此把轮次交给 rag 内核），
+         # 不参与事实判定，也不改写任何拒绝/澄清原因。
+         plan_reason = "MULTI_TARGET_ENUMERATE"
+--- a/backend/tests/observability/test_paths_e2e.py
++++ b/backend/tests/observability/test_paths_e2e.py
+@@ -51,8 +51,10 @@
+ #: 触发 query_expansion 的问题：无实体命中、有正文词项、证据为空。
+ EXPANSION_QUESTION = "打印机怎么用？"
+ #: 单轮多目标（两个已知门店 + 一个物品 + 位置字段）：v3-fix-1/A 后按多目标枚举作答。
+ MULTI_TARGET_QUESTION = "滨江店和城东店的展架在哪里？"
++#: v3-fix-1/R1：已点名多门店 + 纯指代（“这两个”）→ 改前 legacy 澄清，不得被多目标放行。
++PURE_ANAPHORA_QUESTION = "滨江店和城东店的这两个分别放在哪里？"
+ #: 真歧义（两个已知门店，但没点名字段/目标）→ 产品意图层直接澄清（不检索）。
+ CLARIFICATION_QUESTION = "滨江店和城东店的物料都有哪些？"
+ #: 检索前拒答：RAG 内核对未收录资料名直接 no_answer（DOCUMENT_NOT_FOUND）。
+ MISSING_DOCUMENT_QUESTION = "促销活动台账在哪里？"
+@@ -382,8 +384,26 @@
+     # 多目标轮由内核真实执行检索与作答（不伪造 legacy 的 intent_parse/retrieve）。
+     assert {"parse", "recall", "fuse", "answer", "commit"} <= names
+     assert not {"intent_parse", "retrieve", "model_answer", "answer_validate"} & names
+     assert validate_required_spans(trace, names) == []
++
++
++def test_pure_anaphora_with_named_stores_still_clarifies(trace_chat_app):
++    """v3-fix-1/R1：纯指代（“这两个”）没有点名目标，不能被多目标放行成整表枚举。"""
++    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
++    _dataset(trace_chat_app, admin)
++    conversation_id = _conversation(employee)
++
++    response = _ask(employee, conversation_id, PURE_ANAPHORA_QUESTION)
++    assert response.status_code == 200, response.text
++    body = response.json()
++    assert body["kind"] == "clarification", body
++    trace, spans = _trace_of(trace_chat_app, response)
++
++    assert trace.path == TracePath.LEGACY.value
++    assert trace.outcome_kind == OutcomeKind.CLARIFICATION.value
++    assert _names(spans) == {"intent_parse", "commit"}
++    assert validate_required_spans(trace, _names(spans)) == []
+ 
+ 
+ def test_legacy_service_error_sets_outcome_error_code_and_spans(trace_chat_app, chat_model):
+     admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+--- /dev/null
++++ b/backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py
+@@ -0,0 +1,220 @@
++"""v3-fix-1/R1：纯指代（“这两个/这几个”）不得被当成本轮显式多目标放行。
++
++回归面（独立验收 N2/N2b）：``城东店和城西店的这两个分别放在哪里？`` 在 fix-1/A 之后被
++``MULTI_TARGET_ENUMERATE`` 放行、由内核按“两店全部物品”作答；改前 legacy 是澄清。
++本文件锁定：
++
++- 纯指代 + 已点名门店 → 仍澄清（planner ``MULTIPLE_ENTITIES``，不归内核）；
++- 纯指代 + 未点名 → 仍澄清（既有 ``MISSING_SLOT``）；
++- 混合（显式目标 + 指代）→ 不冒充多目标（物品维回到 ``ITEM_AMBIGUOUS``）；
++- 跨轮指代 → 不重新枚举整表（只延续上一轮已点名的目标）；
++- 指代 + 词表外门店 → 澄清（不静默只答已知门店）；
++- 复指限定语（“海报和易拉宝这两个物品”）→ 仍按显式多目标作答（不过度拦截）；
++- fix-1/A 正例（两店一物品 / 一店两物品 / 两店电话）保持 ``MULTI_TARGET_ENUMERATE``。
++
++全部为离线合成：临时 SQLite + 确定性 offline provider；不建产品库、不调模型/embedding/
++rerank、不开端口、不发请求。
++"""
++
++from __future__ import annotations
++
++import pytest
++
++from mktkb.conversations.service import _rag_owns_turn
++from mktkb.rag.query import Lexicon, _bare_quantified_anaphora, parse_query
++from mktkb.rag.types import QueryState
++
++LEXICON = Lexicon(
++    stores=("城东店", "城西店"),
++    items=("宣传海报", "易拉宝"),
++    field_labels=("位置", "电话"),
++)
++
++
++def _plan(question: str, previous: QueryState | None = None):
++    return parse_query(
++        question, previous=previous, lexicon=LEXICON, business_date="2026-10-15"
++    )
++
++
++def _seed(add_records, make_doc) -> None:
++    doc = make_doc(title="物品位置表")
++    add_records(
++        [
++            {"门店": "城东店", "物品": "宣传海报", "位置": "A区1号货架", "电话": "010-00000001"},
++            {"门店": "城西店", "物品": "宣传海报", "位置": "B区2号货架", "电话": "010-00000002"},
++            {"门店": "城东店", "物品": "易拉宝", "位置": "C区门口", "电话": "010-00000001"},
++            {"门店": "城西店", "物品": "易拉宝", "位置": "D区立柱", "电话": "010-00000002"},
++        ],
++        doc=doc,
++    )
++
++
++# ------------------------------------------------------------- 纯指代（回归面）
++
++
++@pytest.mark.parametrize(
++    "question",
++    [
++        "城东店和城西店的这两个分别放在哪里？",
++        "城东店和城西店的这几个分别放在哪里？",
++    ],
++)
++def test_pure_anaphora_with_named_stores_clarifies(question: str):
++    plan = _plan(question)
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++    assert plan.reason == "MULTIPLE_ENTITIES"
++    assert plan.clarification is not None
++    # 产品层不得把该轮交给 rag 内核（否则会按整表/多目标作答）。
++    assert _rag_owns_turn(QueryState(), plan) is False
++
++
++def test_pure_anaphora_with_named_stores_clarifies_in_kernel(rag_index, add_records, make_doc):
++    _seed(add_records, make_doc)
++    answer = rag_index.ask(
++        "城东店和城西店的这两个分别放在哪里？", user_id="u", conversation_id="c-r1-anaphora"
++    )
++    assert answer.kind == "clarification", (answer.kind, answer.reason, answer.text)
++    # 不得以两店全部物品作答（改前回归是 4 行整表）。
++    assert "A区1号货架" not in answer.text
++    assert "C区门口" not in answer.text
++
++
++def test_bare_anaphora_without_targets_still_clarifies(rag_index, add_records, make_doc):
++    _seed(add_records, make_doc)
++    plan = _plan("这两个分别放在哪里？")
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++    assert plan.clarification is not None
++    assert _rag_owns_turn(QueryState(), plan) is False
++
++    answer = rag_index.ask("这两个分别放在哪里？", user_id="u", conversation_id="c-r1-bare")
++    assert answer.kind == "clarification"
++
++
++def test_existing_anaphor_word_they_still_not_multi_target():
++    """“它们”在 fix-1/A 之前就不进多目标；本包不改它的既有澄清口径。"""
++    plan = _plan("城东店和城西店的它们分别放在哪里？")
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++    assert _rag_owns_turn(QueryState(), plan) is False
++
++
++# ----------------------------------------------------------------- 混合（显式 + 指代）
++
++
++def test_mixed_explicit_items_plus_anaphora_clarifies(rag_index, add_records, make_doc):
++    """两个显式物品 + “这两个”：不能把这一轮当显式多目标（改前会按 2 行作答）。"""
++    _seed(add_records, make_doc)
++    plan = _plan("城东店的宣传海报、易拉宝和这两个分别放在哪里？")
++    assert plan.reason == "ITEM_AMBIGUOUS"
++    assert plan.clarification is not None
++    assert _rag_owns_turn(QueryState(), plan) is False
++
++    answer = rag_index.ask(
++        "城东店的宣传海报、易拉宝和这两个分别放在哪里？",
++        user_id="u",
++        conversation_id="c-r1-mixed-items",
++    )
++    assert answer.kind == "clarification", (answer.kind, answer.reason, answer.text)
++
++
++def test_mixed_explicit_item_plus_anaphora_does_not_expand(rag_index, add_records, make_doc):
++    """一个显式物品 + “这两个”：不冒充多目标，也不把指代扩成整表（只答显式物品）。"""
++    _seed(add_records, make_doc)
++    plan = _plan("城东店和城西店的宣传海报和这两个分别放在哪里？")
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++
++    answer = rag_index.ask(
++        "城东店和城西店的宣传海报和这两个分别放在哪里？",
++        user_id="u",
++        conversation_id="c-r1-mixed-store",
++    )
++    assert answer.diagnostics["returned"] == 2
++    assert "A区1号货架" in answer.text and "B区2号货架" in answer.text
++    # 指代没有被扩展成“两店全部物品”。
++    assert "C区门口" not in answer.text and "D区立柱" not in answer.text
++
++
++# --------------------------------------------------------------------- 跨轮指代
++
++
++def test_cross_turn_anaphora_does_not_reenumerate_table(rag_index, add_records, make_doc):
++    _seed(add_records, make_doc)
++    first = rag_index.ask(
++        "城东店和城西店的宣传海报在哪里？", user_id="u", conversation_id="c-r1-cross"
++    )
++    assert first.kind == "answer", (first.kind, first.reason, first.text)
++    assert first.diagnostics["returned"] == 2
++
++    plan = _plan(
++        "这两个分别放在哪里？",
++        previous=QueryState.from_dict(first.state),
++    )
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++
++    second = rag_index.ask(
++        "这两个分别放在哪里？", user_id="u", conversation_id="c-r1-cross"
++    )
++    assert second.kind == "answer", (second.kind, second.reason, second.text)
++    # 延续上一轮已点名的“宣传海报”两个目标，不重开整表（不含易拉宝行）。
++    assert second.diagnostics["returned"] == 2
++    assert "C区门口" not in second.text and "D区立柱" not in second.text
++
++
++# ------------------------------------------------------------- 词表外门店 + 指代
++
++
++def test_anaphora_with_unknown_store_clarifies(rag_index, add_records, make_doc):
++    _seed(add_records, make_doc)
++    plan = _plan("城东店和城南店的这两个分别放在哪里？")
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++    assert plan.clarification is not None
++    assert _rag_owns_turn(QueryState(), plan) is False
++
++    answer = rag_index.ask(
++        "城东店和城南店的这两个分别放在哪里？",
++        user_id="u",
++        conversation_id="c-r1-unknown",
++    )
++    assert answer.kind == "clarification", (answer.kind, answer.reason, answer.text)
++    assert "城南店" not in answer.text
++
++
++# --------------------------------------------------- 复指限定语（不过度拦截）与 A 正例
++
++
++@pytest.mark.parametrize(
++    "question",
++    [
++        "城东店的宣传海报和易拉宝这两个物品分别放在哪里？",  # 前置枚举 + 后置名词
++        "城东店的宣传海报、易拉宝这两个分别放在哪里？",  # 前置枚举（标点）
++        "城东店和城西店这两家的电话是多少？",  # 前置枚举（“这两家”）
++    ],
++)
++def test_resumptive_quantifier_is_not_treated_as_bare_anaphora(question: str):
++    assert _bare_quantified_anaphora(question, LEXICON) is False
++    plan = _plan(question)
++    assert plan.reason == "MULTI_TARGET_ENUMERATE"
++    assert _rag_owns_turn(QueryState(), plan) is True
++
++
++def test_store_resumptive_phrase_is_not_bare_anaphora():
++    """“这两个店”形态由既有未知门店守卫处理（本包不改），但也不能被记成纯指代。"""
++    question = "城东店和城西店这两个店的电话是多少？"
++    assert _bare_quantified_anaphora(question, LEXICON) is False
++    plan = _plan(question)
++    assert plan.reason != "MULTI_TARGET_ENUMERATE"
++
++
++@pytest.mark.parametrize(
++    "question",
++    [
++        "城东店和城西店的宣传海报在哪里？",  # 两店一物品
++        "城东店的宣传海报和易拉宝在哪里？",  # 一店两物品
++        "城东店和城西店的电话是多少？",  # 两店门店级字段
++    ],
++)
++def test_fix1_positive_cases_stay_released(question: str):
++    plan = _plan(question)
++    assert plan.reason == "MULTI_TARGET_ENUMERATE"
++    assert plan.clarification is None
++    assert _rag_owns_turn(QueryState(), plan) is True

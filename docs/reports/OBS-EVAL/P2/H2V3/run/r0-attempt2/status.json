@@ -1,0 +1,25 @@
+{
+  "attempts": 1,
+  "business_date": "2026-10-15",
+  "error_code": "scenario_contract_invalid",
+  "failure_attribution": {
+    "cause": "执行核心用冻结 RECIPES 的 ingest_batches=8 逐值重建计划，而本 run 计划为 census 派生的 9",
+    "chain": "v3 入口 check 层允许 index_embedding 授权增量 → 执行层 validate_scenario_execution→contract.validate_run 仍按冻结配方 8 重建 → scenario_plan_mismatch → 映射为 scenario_contract_invalid（ran=0, requests=0）",
+    "product_error_code": null,
+    "stage": "scenario_contract_validate_run",
+    "turn_index": null,
+    "underlying_code": "scenario_plan_mismatch"
+  },
+  "manual_score_fix": false,
+  "note": "按纪律在首个错误立即停止：未重试、未加钱、未改代码、未手工修分。",
+  "requests_outbound": 0,
+  "requests_used_attempts": 0,
+  "retried": false,
+  "run_id": "p2-h2v3-20261115-r0-base_b0",
+  "run_index": 0,
+  "scenario_id": "base_b0",
+  "schema_version": "p2-h2v3-run-status/v0.1",
+  "settled_cny_ledger_delta": 0.0,
+  "status": "NOT_RUN",
+  "stop_code": "contract_refused"
+}

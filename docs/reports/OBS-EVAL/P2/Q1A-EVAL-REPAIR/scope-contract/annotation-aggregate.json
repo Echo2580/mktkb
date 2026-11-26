@@ -1,0 +1,368 @@
+{
+  "axis_counts": {
+    "cross_entity": {
+      "not_applicable": 0,
+      "required": 30,
+      "unknown": 0
+    },
+    "cross_user": {
+      "not_applicable": 0,
+      "required": 30,
+      "unknown": 0
+    },
+    "safety": {
+      "not_applicable": 28,
+      "required": 2,
+      "unknown": 0
+    },
+    "stale_source": {
+      "not_applicable": 0,
+      "required": 30,
+      "unknown": 0
+    }
+  },
+  "basis_by_axis": {
+    "cross_entity": {
+      "frozen_label_target": 19,
+      "frozen_question_scope": 4,
+      "public_corpus_structure": 7
+    },
+    "cross_user": {
+      "frozen_question_scope": 30
+    },
+    "safety": {
+      "frozen_label_target": 2,
+      "frozen_question_scope": 28
+    },
+    "stale_source": {
+      "case_business_date_baseline": 5,
+      "public_corpus_structure": 25
+    }
+  },
+  "basis_distribution": {
+    "case_business_date_baseline": 5,
+    "frozen_label_target": 21,
+    "frozen_question_scope": 62,
+    "public_corpus_structure": 32
+  },
+  "basis_rule_version": "q1a-scope-targets-basis/v1",
+  "bindings": {
+    "addendum_acceptance_v3_sha256": "f873d2ba79e097d7e189d96df9c6b09b9c0b217dbf4b4607d998917ebaed8809",
+    "annotation_manager_acceptance_v2_sha256": "8821948ca29dc4f7945d913d230039e881969e5f7da3457949d0864106497235",
+    "annotation_review_aggregate_v2_sha256": "207b2f9fe6676020b9fce454b8cf8f600753b1c23720b8b34ac222e5b3d61723",
+    "annotation_review_v0_2_ciphertext_sha256": "963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3",
+    "annotation_schema_sha256": "9fbe4b337510dc87e1205f4e72371d834f4fc0e29edc2cacea34f56307e9c189",
+    "annotation_v0_2_ciphertext_sha256": "3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0",
+    "annotation_v0_3_ciphertext_sha256": "80a8c4a11aa452cde86dc7887642ea05c374eaaf40b668a0692faa8ac37c9b2f",
+    "cases_sha256": "a0ad48c9bbab96ac683e325c773dfee2dc247708fea7ddeefb08f567b102c3c3",
+    "contract_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "dataset_version": "P2-HOLDOUT-v2",
+    "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+    "label_version": "p2-holdout-v2-2026-11-10",
+    "manifest_sha256": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+    "old_run_binding_file_sha256": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+    "old_run_binding_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+    "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+    "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+  },
+  "contract": {
+    "schema_path": "docs/evaluation/q1a-scope-targets-contract-v1.md",
+    "schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "schema_version": "q1a-scope-targets-contract/v1"
+  },
+  "coverage": {
+    "axes_per_case": 4,
+    "axis_count": 120,
+    "axis_coverage": "120/120",
+    "case_count": 30,
+    "case_coverage": "30/30"
+  },
+  "date": "2026-11-14",
+  "input_preservation": {
+    "after": {
+      "c_freeze:backend/src/mktkb/evaluation/cli.py": "7c93cf435a56a9cab8cd9efbfea15be3d8caea59be3392eb22ec95bf38b56e86",
+      "c_freeze:backend/src/mktkb/evaluation/p2_evidence_capture.py": "601096bc3b37180e77332d53d15647cc4998c33e44bef4c56cf411509f26e2fb",
+      "c_freeze:backend/src/mktkb/evaluation/p2_evidence_io.py": "1c16a3da1a14becf844207f9de4d031e40622d6096082dd2170a31395944f8a3",
+      "c_freeze:backend/src/mktkb/evaluation/p2_hard_evidence.py": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "c_freeze:backend/src/mktkb/evaluation/product_adapter.py": "c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_contract_v02.py": "fc024cb7d7c772790b11c085755b8208f559f4f3fc54f8a1a66263b275a4dd6f",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py": "81d5505334a136935c344178160775bc9d80109cb3124fcf2e3043d432a99573",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py": "6c9cbc7cf055c80b923ae24aab26c89d6aef4d03fd886e22f27d8c12f1d564cb",
+      "c_freeze:backend/tests/evaluation/test_p2_cross_entity_scope_v02.py": "882024744812aa90eac3d8dae65251ebd25a0f842ebe7258c133fa8107514b4e",
+      "c_freeze:docs/evaluation/p2-hard-evidence-capture-v0_2.md": "ad2b5a728117145519acfd8b5fd84c407f48883c7be9d31d24191ce9937638ca",
+      "c_freeze:docs/evaluation/p2-hard-evidence-classification-v0_2.md": "fb40f90af5afa06f28c3d101bf550f7742f307519003412feb01cbf63a115bce",
+      "c_freeze:tools/p2_h2_historical_audit.py": "e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35",
+      "funding:docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json": "c72dc7abf6ba135fb6c53f77c35b40dda34e97cf535d3be212467c6734b27324",
+      "funding:docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+      "funding:docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+      "input:custody_v0_2_annotation": "3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0",
+      "input:custody_v0_2_annotation_aggregate": "16f3d6f496afb2c6db6f74d34c9256a03f3104eea2e0ac6a08598c5846d86ecf",
+      "input:custody_v0_2_annotation_report": "2590964bf7218b5f760d79892fc1970e657cf41576f16ceb89aa223272979ef7",
+      "input:custody_v0_2_manager_acceptance": "8821948ca29dc4f7945d913d230039e881969e5f7da3457949d0864106497235",
+      "input:custody_v0_2_review": "963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3",
+      "input:custody_v0_2_review_aggregate": "207b2f9fe6676020b9fce454b8cf8f600753b1c23720b8b34ac222e5b3d61723",
+      "input:custody_v0_3_addendum": "80a8c4a11aa452cde86dc7887642ea05c374eaaf40b668a0692faa8ac37c9b2f",
+      "input:custody_v0_3_annotation_aggregate": "262679cfef6661f7cbdfe13daa8e887c87f0971c3a1bff1f3561b8f3f21d9dca",
+      "input:custody_v0_3_annotation_report": "25efa5286010bc4c0a984af5fdec29070bff428dfecffd6e1f85a2930cb601b4",
+      "input:custody_v0_3_manager_acceptance": "f873d2ba79e097d7e189d96df9c6b09b9c0b217dbf4b4607d998917ebaed8809",
+      "input:holdout_labels_ciphertext": "d51478fdc28960cfe99034e1e97919681ca32c3c89c2224e24e04c1101082e09",
+      "input:holdout_manifest": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+      "input:holdout_questions_ciphertext": "36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07",
+      "old_run:plans2/run-binding.json": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run:r0/card.json": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+      "old_run:r0/case-plan.json": "dee407712d0742e4020bb3392a3f5dccce54edd0425ce62b5b45913dd9e5c1c1",
+      "old_run:r0/evidence/p2-h2-20261114-r1-r1-base_b0/manifest": "18220a760d9309fc2b2ecfdaf4273cd30b62f5555cbbd8c9fd984d074775cce6",
+      "old_run:r0/seal/p2-h2-20261114-r1-r1-base_b0/run-receipt.json": "6fcd57cb3beda78d8e9c06c1faa4679f9c91301b39ffaa9f99edaad439b4ec29",
+      "old_run:r0/seal/p2-h2-20261114-r1-r1-base_b0/seal-manifest.json": "2eea43c9843653d71f7c94e6d7811ad7ab18bb9460d62cb41600350c8746dc2a",
+      "old_run:r1/card.json": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+      "old_run:r1/case-plan.json": "a6552529ba974c753328e9caf2e07c0b3445553dffe15d8c649465edbeed1198",
+      "old_run:r1/evidence/p2-h2-20261114-r1-r2-base_b0_plus_v01/manifest": "5333be20f563d85e099af900cf9ac465020a8f6c61e91c4bcd3471ee3b513a00",
+      "old_run:r1/seal/p2-h2-20261114-r1-r2-base_b0_plus_v01/run-receipt.json": "5c0f5d2bef4b39287e032fd3f50da0a5be5cf67e9f43119788d2a5394a3121e9",
+      "old_run:r1/seal/p2-h2-20261114-r1-r2-base_b0_plus_v01/seal-manifest.json": "d9a20f17e6c346c2d140275069e3dc682443ac55f4cc730616f79eae5e897a73",
+      "old_run:r2/card.json": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+      "old_run:r2/case-plan.json": "c933cda4715a26349208f743a1398374db730f8851b8b4f8f05934e490ace711",
+      "old_run:r2/evidence/p2-h2-20261114-r1-r3-pre_v05_without_v07/manifest": "a816854cea65aeaf80ff85d52734e955650abd042c5b0e9e7fd9e6a3737f1a39",
+      "old_run:r2/seal/p2-h2-20261114-r1-r3-pre_v05_without_v07/run-receipt.json": "10f6464214c35100602f37bc1c09a7c025ffbf5dd7fde44039577cc09122ef7a",
+      "old_run:r2/seal/p2-h2-20261114-r1-r3-pre_v05_without_v07/seal-manifest.json": "42c1e0533bbc8651dc099137c0e7d8cdebaebc99aee2f78557ce31ec88a04091",
+      "old_run:r3/card.json": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+      "old_run:r3/case-plan.json": "41feeb034461f0c71cd0ed824fc0fc458f6c86d92981572097dd6d07e9d3b63f",
+      "old_run:r3/evidence/p2-h2-20261114-r1-r4-post_v05_without_v01/manifest": "a69479b49711269d08f3952b09f69d1a6cb6c99b9408375108a1c4f13a8010a1",
+      "old_run:r3/seal/p2-h2-20261114-r1-r4-post_v05_without_v01/run-receipt.json": "799a418de8c1cb76abe6abd532017cfcf7e480d297e14ad5f25b5b809a17f14b",
+      "old_run:r3/seal/p2-h2-20261114-r1-r4-post_v05_without_v01/seal-manifest.json": "fd9131ca0a8fc90a1c0bdc6f8138f0a6ae6d101780bc390b534d884d4355730f"
+    },
+    "before": {
+      "c_freeze:backend/src/mktkb/evaluation/cli.py": "7c93cf435a56a9cab8cd9efbfea15be3d8caea59be3392eb22ec95bf38b56e86",
+      "c_freeze:backend/src/mktkb/evaluation/p2_evidence_capture.py": "601096bc3b37180e77332d53d15647cc4998c33e44bef4c56cf411509f26e2fb",
+      "c_freeze:backend/src/mktkb/evaluation/p2_evidence_io.py": "1c16a3da1a14becf844207f9de4d031e40622d6096082dd2170a31395944f8a3",
+      "c_freeze:backend/src/mktkb/evaluation/p2_hard_evidence.py": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "c_freeze:backend/src/mktkb/evaluation/product_adapter.py": "c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_contract_v02.py": "fc024cb7d7c772790b11c085755b8208f559f4f3fc54f8a1a66263b275a4dd6f",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py": "81d5505334a136935c344178160775bc9d80109cb3124fcf2e3043d432a99573",
+      "c_freeze:backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py": "6c9cbc7cf055c80b923ae24aab26c89d6aef4d03fd886e22f27d8c12f1d564cb",
+      "c_freeze:backend/tests/evaluation/test_p2_cross_entity_scope_v02.py": "882024744812aa90eac3d8dae65251ebd25a0f842ebe7258c133fa8107514b4e",
+      "c_freeze:docs/evaluation/p2-hard-evidence-capture-v0_2.md": "ad2b5a728117145519acfd8b5fd84c407f48883c7be9d31d24191ce9937638ca",
+      "c_freeze:docs/evaluation/p2-hard-evidence-classification-v0_2.md": "fb40f90af5afa06f28c3d101bf550f7742f307519003412feb01cbf63a115bce",
+      "c_freeze:tools/p2_h2_historical_audit.py": "e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35",
+      "funding:docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json": "c72dc7abf6ba135fb6c53f77c35b40dda34e97cf535d3be212467c6734b27324",
+      "funding:docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+      "funding:docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+      "input:custody_v0_2_annotation": "3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0",
+      "input:custody_v0_2_annotation_aggregate": "16f3d6f496afb2c6db6f74d34c9256a03f3104eea2e0ac6a08598c5846d86ecf",
+      "input:custody_v0_2_annotation_report": "2590964bf7218b5f760d79892fc1970e657cf41576f16ceb89aa223272979ef7",
+      "input:custody_v0_2_manager_acceptance": "8821948ca29dc4f7945d913d230039e881969e5f7da3457949d0864106497235",
+      "input:custody_v0_2_review": "963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3",
+      "input:custody_v0_2_review_aggregate": "207b2f9fe6676020b9fce454b8cf8f600753b1c23720b8b34ac222e5b3d61723",
+      "input:custody_v0_3_addendum": "80a8c4a11aa452cde86dc7887642ea05c374eaaf40b668a0692faa8ac37c9b2f",
+      "input:custody_v0_3_annotation_aggregate": "262679cfef6661f7cbdfe13daa8e887c87f0971c3a1bff1f3561b8f3f21d9dca",
+      "input:custody_v0_3_annotation_report": "25efa5286010bc4c0a984af5fdec29070bff428dfecffd6e1f85a2930cb601b4",
+      "input:custody_v0_3_manager_acceptance": "f873d2ba79e097d7e189d96df9c6b09b9c0b217dbf4b4607d998917ebaed8809",
+      "input:holdout_labels_ciphertext": "d51478fdc28960cfe99034e1e97919681ca32c3c89c2224e24e04c1101082e09",
+      "input:holdout_manifest": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+      "input:holdout_questions_ciphertext": "36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07",
+      "old_run:plans2/run-binding.json": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run:r0/card.json": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+      "old_run:r0/case-plan.json": "dee407712d0742e4020bb3392a3f5dccce54edd0425ce62b5b45913dd9e5c1c1",
+      "old_run:r0/evidence/p2-h2-20261114-r1-r1-base_b0/manifest": "18220a760d9309fc2b2ecfdaf4273cd30b62f5555cbbd8c9fd984d074775cce6",
+      "old_run:r0/seal/p2-h2-20261114-r1-r1-base_b0/run-receipt.json": "6fcd57cb3beda78d8e9c06c1faa4679f9c91301b39ffaa9f99edaad439b4ec29",
+      "old_run:r0/seal/p2-h2-20261114-r1-r1-base_b0/seal-manifest.json": "2eea43c9843653d71f7c94e6d7811ad7ab18bb9460d62cb41600350c8746dc2a",
+      "old_run:r1/card.json": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+      "old_run:r1/case-plan.json": "a6552529ba974c753328e9caf2e07c0b3445553dffe15d8c649465edbeed1198",
+      "old_run:r1/evidence/p2-h2-20261114-r1-r2-base_b0_plus_v01/manifest": "5333be20f563d85e099af900cf9ac465020a8f6c61e91c4bcd3471ee3b513a00",
+      "old_run:r1/seal/p2-h2-20261114-r1-r2-base_b0_plus_v01/run-receipt.json": "5c0f5d2bef4b39287e032fd3f50da0a5be5cf67e9f43119788d2a5394a3121e9",
+      "old_run:r1/seal/p2-h2-20261114-r1-r2-base_b0_plus_v01/seal-manifest.json": "d9a20f17e6c346c2d140275069e3dc682443ac55f4cc730616f79eae5e897a73",
+      "old_run:r2/card.json": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+      "old_run:r2/case-plan.json": "c933cda4715a26349208f743a1398374db730f8851b8b4f8f05934e490ace711",
+      "old_run:r2/evidence/p2-h2-20261114-r1-r3-pre_v05_without_v07/manifest": "a816854cea65aeaf80ff85d52734e955650abd042c5b0e9e7fd9e6a3737f1a39",
+      "old_run:r2/seal/p2-h2-20261114-r1-r3-pre_v05_without_v07/run-receipt.json": "10f6464214c35100602f37bc1c09a7c025ffbf5dd7fde44039577cc09122ef7a",
+      "old_run:r2/seal/p2-h2-20261114-r1-r3-pre_v05_without_v07/seal-manifest.json": "42c1e0533bbc8651dc099137c0e7d8cdebaebc99aee2f78557ce31ec88a04091",
+      "old_run:r3/card.json": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+      "old_run:r3/case-plan.json": "41feeb034461f0c71cd0ed824fc0fc458f6c86d92981572097dd6d07e9d3b63f",
+      "old_run:r3/evidence/p2-h2-20261114-r1-r4-post_v05_without_v01/manifest": "a69479b49711269d08f3952b09f69d1a6cb6c99b9408375108a1c4f13a8010a1",
+      "old_run:r3/seal/p2-h2-20261114-r1-r4-post_v05_without_v01/run-receipt.json": "799a418de8c1cb76abe6abd532017cfcf7e480d297e14ad5f25b5b809a17f14b",
+      "old_run:r3/seal/p2-h2-20261114-r1-r4-post_v05_without_v01/seal-manifest.json": "fd9131ca0a8fc90a1c0bdc6f8138f0a6ae6d101780bc390b534d884d4355730f"
+    },
+    "c_freeze": {
+      "items": 12,
+      "match": 12,
+      "reference": "docs/reports/OBS-EVAL/P2/T207-H2-OFFLINE-READINESS/evidence/c-freeze.txt"
+    },
+    "custody_v0_2_v0_3_ciphertexts_preserved": true,
+    "entry_files": {
+      "backend/src/mktkb/evaluation/p2_contracts.py": "f8cd8083e958b783c589c541eecef473c5c57cb2ed9b3f795c476a85962a607e",
+      "backend/src/mktkb/evaluation/p2_dataset.py": "5ddb3d4d3cb52a33c88b3461b171a99409e6dc89556c7d2839fb1a7b10203d1c",
+      "backend/src/mktkb/evaluation/p2_hard_evidence.py": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "backend/src/mktkb/evaluation/p2_holdout_scenarios.py": "bb9ae59a5ff30bfbba259d251b1bbb0e6bb67cd6d50016179bfe97143689178f",
+      "backend/src/mktkb/evaluation/product_adapter.py": "c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787",
+      "tools/p2_h2_controlled_execute.py": "ad215251a778352789ece459524f5b7a9e14770af006e9debfdf478df8db70e2",
+      "tools/p2_h2_historical_audit.py": "e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35"
+    },
+    "inputs": {
+      "annotation_review_v0_2_ciphertext": "963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3",
+      "annotation_schema_v0_2": "9fbe4b337510dc87e1205f4e72371d834f4fc0e29edc2cacea34f56307e9c189",
+      "annotation_v0_2_ciphertext": "3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0",
+      "annotation_v0_3_ciphertext": "80a8c4a11aa452cde86dc7887642ea05c374eaaf40b668a0692faa8ac37c9b2f",
+      "contract_schema": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+      "custody_v0_2_manager_acceptance": "8821948ca29dc4f7945d913d230039e881969e5f7da3457949d0864106497235",
+      "custody_v0_2_review_aggregate": "207b2f9fe6676020b9fce454b8cf8f600753b1c23720b8b34ac222e5b3d61723",
+      "custody_v0_3_manager_acceptance": "f873d2ba79e097d7e189d96df9c6b09b9c0b217dbf4b4607d998917ebaed8809",
+      "holdout_labels_ciphertext": "d51478fdc28960cfe99034e1e97919681ca32c3c89c2224e24e04c1101082e09",
+      "holdout_manifest": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+      "holdout_questions_ciphertext": "36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07",
+      "ingest_plan_h2": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+      "old_run_binding_file": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run_binding_payload": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+      "scenario_contract_v0_2": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+      "source_map_v0_2": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+    },
+    "old_run_cards_caseplans_receipts_seals_ciphertexts_preserved": true,
+    "protected_changed": [],
+    "protected_item_count": 49,
+    "protected_unchanged": true
+  },
+  "not_claimed": [
+    "T207 pass",
+    "Q1A overall pass",
+    "quality/B0 pass",
+    "threshold or release approval",
+    "runtime axis evidence"
+  ],
+  "privacy_scan": {
+    "files": 3,
+    "key_material_hits": 0,
+    "match_kinds": {
+      "label_value:public_or_substring_only": 1,
+      "target_entity_type:public_or_substring_only": 2
+    },
+    "needle_count": 135,
+    "note": "3 个 substring-only 命中均为公开 schema 词或 4 字符类型作为更长 token 的子串；无逐题值/题干/答案/目标值/key 材命中。",
+    "sensitive_hits": 0,
+    "substring_hits": 3
+  },
+  "private_ciphertext": {
+    "bytes": 47012,
+    "path": "D:\\mktkb-q1a2-scope-contract\\scope-targets-contract-v1.fernet",
+    "sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461"
+  },
+  "process_deviations": [
+    "入口使用既有受控入口 tools/p2_h2_controlled_execute.py::load_private_bundle（内部调用 load_p2_dataset 与 load_scenario_contract，并按 v0.3 manager acceptance 校验 addendum）；未新写解密/dump 工具，明文只在进程内存。该入口及其依赖的 C 冻结 loader 的 SHA256 已记录在 input_preservation.entry_files。",
+    "basis 是本次按公开 schema §4 的确定性规则新增的“来源分类”，不改变 7 字段轴值；v0.3 的 4 个 gap 轴 basis 逐值保留，其余 116 轴只加 basis 分类。",
+    "合并后 unknown 总数为 0 来自 v0.2+v0.3 冻结标注的既有状态（v0.3 已解析 4 个 gap）；本次没有把任何 unknown 改成 not_applicable，也没有新增 unknown。",
+    "未读产品回答/最终输出/评分/trace/runbook/scoring/.env/旧助手会话；未从答案反推 scope/targets；未调用模型/检索/embedding/rerank/OCR/裁判。",
+    "未执行 Q1a-1b/Q1a-3；合同尚未与真实旧 evidence 对接；运行期 owner/实体/日期/禁值禁源证据仍为 0。",
+    "未派子助手；未 stage/commit/push/合并/部署；未新建 worktree/切分支；只新建本包 3 个公开文件与仓外新密文。"
+  ],
+  "quality_readiness": "BLOCKED",
+  "quality_released": false,
+  "repo": {
+    "baseline_entries_preserved": true,
+    "branch": "codex/p2-e2e",
+    "branch_switched": false,
+    "commits_created": 0,
+    "existing_entries_after_canonical_sha256": "2836b82cfdce5c7a33230fc0cea9c999547624fb3278271293664d5ca1020833",
+    "existing_entries_unchanged": true,
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "new_public_paths": [
+      "docs/evaluation/q1a-scope-targets-contract-v1.md",
+      "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-aggregate.json",
+      "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-report.md"
+    ],
+    "parallel_role_new_paths": [
+      "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py",
+      "backend/tests/evaluation/test_p2_evidence_rescore_axes.py",
+      "docs/evaluation/p2-evidence-rescore-v0_2.md"
+    ],
+    "parallel_role_note": "Q1a-1b 开发包并行新增的三个 untracked 文件；保管 A 未读取、未修改，不计入本包产物或保护件。",
+    "staged_entries": 0,
+    "status_after_total_entries": 220,
+    "status_before": {
+      "canonical_sha256": "2836b82cfdce5c7a33230fc0cea9c999547624fb3278271293664d5ca1020833",
+      "entries": 216,
+      "tracked_modified": 15,
+      "untracked": 201
+    },
+    "worktree_created": false
+  },
+  "runs": [
+    {
+      "plan_id": "P2-T207-H2-20261114-r1-r1-base_b0",
+      "plan_sha256": "932927a46dddf312c072269a8e82f4bad83c400741f0bcc6e8578ee2ea637755",
+      "run_id": "p2-h2-20261114-r1-r1-base_b0",
+      "run_index": 0,
+      "scenario_id": "base_b0"
+    },
+    {
+      "plan_id": "P2-T207-H2-20261114-r1-r2-base_b0_plus_v01",
+      "plan_sha256": "473d60ee631c407388cd13421c4c9fbd28c969ff3e6ae6808862dd934e45914c",
+      "run_id": "p2-h2-20261114-r1-r2-base_b0_plus_v01",
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01"
+    },
+    {
+      "plan_id": "P2-T207-H2-20261114-r1-r3-pre_v05_without_v07",
+      "plan_sha256": "18e4335d84afa8d084e8f536c48f776e8d89bec7ad7ae6a434e380caa428d0e2",
+      "run_id": "p2-h2-20261114-r1-r3-pre_v05_without_v07",
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07"
+    },
+    {
+      "plan_id": "P2-T207-H2-20261114-r1-r4-post_v05_without_v01",
+      "plan_sha256": "110c425384a31b8bbb33bea8b66efda81add7fe571f5f50bd006fcb8371c6f4a",
+      "run_id": "p2-h2-20261114-r1-r4-post_v05_without_v01",
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01"
+    }
+  ],
+  "runtime_axis_evidence_produced": false,
+  "scenario_counts": {
+    "base_b0": 26,
+    "base_b0_plus_v01": 1,
+    "post_v05_without_v01": 1,
+    "pre_v05_without_v07": 2
+  },
+  "schema_version": "q1a-scope-targets-contract-aggregate/v1",
+  "status": "PENDING_CUSTODY_B_INDEPENDENT_REVIEW",
+  "t207_pass": false,
+  "unknown_counts": {
+    "by_axis": {
+      "cross_entity": 0,
+      "cross_user": 0,
+      "safety": 0,
+      "stale_source": 0
+    },
+    "total": 0
+  },
+  "unverified": [
+    "待保管 B 独立复核：逐题 30/30、逐轴 120/120、7 字段、basis、绑定、密文 SHA256；复核前不得作为质量通过或真实运行依据。",
+    "合同尚未被 Q1a-1b 的 matcher/适配器实际消费，也未在 Q1a-3 的真实旧 evidence 上运行；消费可行性仍未验证。",
+    "运行期 cross_user owner、cross_entity 实体/记录身份、stale_source 实际日期使用、全局禁值禁源仍未验证；合同本身不产生 checked/violations。",
+    "basis 只表示来源分类，不是质量结论；0 unknown 不代表运行期证据充分。",
+    "未证明真实产品通过；未产生 verified/threshold_met/release_ready。"
+  ],
+  "validation": {
+    "axes_120_exact_7_fields": true,
+    "axes_equal_merged_annotation": true,
+    "cases_30_same_order": true,
+    "gap_basis_verbatim": true,
+    "public_plaintext_written": false,
+    "roundtrip_equal": true,
+    "unknown_downgraded": 0
+  },
+  "zero_real_calls": {
+    "dns_attempts": 0,
+    "dotenv_opens": 0,
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "network": 0,
+    "new_go": 0,
+    "ocr": 0,
+    "product_tests": 0,
+    "provider_entry_attempts": 0,
+    "real": 0,
+    "real_reservations": 0,
+    "rerank": 0,
+    "retrieval": 0,
+    "socket_attempts": 0,
+    "subagent_count": 0
+  }
+}

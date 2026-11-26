@@ -1,0 +1,644 @@
+{
+  "conclusion": {
+    "basis": [
+      "realistic case-level pass = 0; optimistic upper bound = 3/30; 24/30 unreachable",
+      "stale_source has no pass route under adapter v2 without per-source lifecycle evidence",
+      "cross_entity gain 1 -> 13 is reproducible zero-call; a rerun does not increase judgeability"
+    ],
+    "line": "C1-2 不值得签 GO（应转 C2）"
+  },
+  "forecast": {
+    "baseline_q1a3_r2": {
+      "case_level_pass": 1,
+      "case_level_unknown": 29,
+      "cross_entity": {
+        "passed": 1,
+        "unknown": 29,
+        "violations": 0
+      },
+      "source": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-aggregate-r2.json",
+      "stale_source": {
+        "passed": 13,
+        "unknown": 17,
+        "violations": 0
+      }
+    },
+    "empty_use_axes": [
+      "N09",
+      "N24",
+      "N05"
+    ],
+    "optimistic": {
+      "assumption": "v0.3 capture complete + all 16 matchable axes key-align + empty-use turns fully observed; contract/adapter unchanged",
+      "case_level_pass": 3,
+      "cross_entity_judged": 16,
+      "cross_entity_passed": 16,
+      "stale_source_judged": 3,
+      "stale_source_passed": 3
+    },
+    "realistic": {
+      "case_level_pass": 0,
+      "cross_entity_judged": 13,
+      "cross_entity_passed": 13,
+      "stale_source_judged": 0,
+      "stale_source_passed": 0
+    },
+    "threshold_reference": {
+      "meets_24_of_30_optimistic": false,
+      "meets_24_of_30_realistic": false,
+      "min_pass": 24,
+      "total_cases": 30
+    }
+  },
+  "inputs": {
+    "contract_ciphertext_bytes": 99128,
+    "contract_ciphertext_sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260",
+    "contract_schema_sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+    "old_evidence_runs": [
+      "r0",
+      "r1",
+      "r2",
+      "r3"
+    ],
+    "old_run_binding_payload_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+    "public_structure_hashes": {
+      "fixture_manifest_sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+      "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+      "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+      "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+    }
+  },
+  "key_space": {
+    "aligned": 13,
+    "axes": [
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N14",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N07",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 3,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N16",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N13",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N04",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "multi_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N12",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:2"
+        ],
+        "matchable_targets": 2,
+        "record_classes": {
+          "matched": 2
+        },
+        "records_used": 2,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 3,
+        "unobserved_use_layer_count": 6,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N26",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 2,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N08",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 2,
+        "unobserved_use_layer_count": 6,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N30",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_no_positive_refs",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record",
+          "unmatchable"
+        ],
+        "target_key_spaces": [
+          "corpus_name",
+          "id_key"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "unknown",
+        "cross_reason": "empty_set_not_proven",
+        "label": "N09",
+        "match_codes": [],
+        "matchable_targets": 1,
+        "record_classes": {},
+        "records_used": 0,
+        "stale_reason": "empty_set_not_proven",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 6,
+        "verdict": "missing_v03_field"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N20",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "unknown",
+        "cross_reason": "empty_set_not_proven",
+        "label": "N24",
+        "match_codes": [],
+        "matchable_targets": 1,
+        "record_classes": {},
+        "records_used": 0,
+        "stale_reason": "empty_set_not_proven",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 6,
+        "verdict": "missing_v03_field"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N18",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "multi_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N10",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 2,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item",
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      },
+      {
+        "criterion": "multi_target",
+        "cross_entity": "unknown",
+        "cross_reason": "empty_set_not_proven",
+        "label": "N05",
+        "match_codes": [],
+        "matchable_targets": 2,
+        "record_classes": {},
+        "records_used": 0,
+        "stale_reason": "empty_set_not_proven",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "item",
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 6,
+        "verdict": "missing_v03_field"
+      },
+      {
+        "criterion": "structured_target",
+        "cross_entity": "passed",
+        "cross_reason": "cross_entity_targets_match_ok",
+        "label": "N02",
+        "match_codes": [
+          "matched:key_space_aligned_by_role_filters:1"
+        ],
+        "matchable_targets": 1,
+        "record_classes": {
+          "matched": 1
+        },
+        "records_used": 1,
+        "stale_reason": "stale_lifecycle_evidence_missing",
+        "stale_source": "unknown",
+        "target_entity_types": [
+          "store"
+        ],
+        "target_granularities": [
+          "record"
+        ],
+        "target_key_spaces": [
+          "corpus_name"
+        ],
+        "turns": 1,
+        "unobserved_use_layer_count": 4,
+        "verdict": "aligned"
+      }
+    ],
+    "counts": {
+      "aligned": 13,
+      "missing_v03_field": 3
+    },
+    "entity_key_space_incompatible": 0,
+    "independent_recheck": {
+      "agrees_with_adapter": true,
+      "counts": {
+        "aligned": 13,
+        "missing_v03_field": 3
+      },
+      "matchable_axes": 16,
+      "used_rows_total": 86
+    },
+    "missing_v03_field": 3,
+    "other_fixed_code": 0
+  },
+  "not_claimed": [
+    "T207 pass",
+    "quality pass",
+    "release",
+    "threshold met",
+    "GO / C1-2 authorization",
+    "real H2 score",
+    "product correctness",
+    "v0.3 capture availability on a rerun"
+  ],
+  "package": "C1-P5",
+  "preservation": {
+    "branch_ok": true,
+    "c_freeze_12_all_match": true,
+    "head_ok": true,
+    "old_run_intact": true,
+    "p5_new_file_count_at_check": 20,
+    "preserved": true,
+    "readonly_all_untouched": true,
+    "staged_empty": true,
+    "tracked_modified_all_match": true
+  },
+  "privacy": {
+    "clean": true,
+    "embedded_fernet_key_pattern_files": [],
+    "files_scanned": 19,
+    "hits": {}
+  },
+  "residual_marks": [
+    "multi-turn composition is undefined by the adapter (one snapshot per case); forecast unions used units across turns",
+    "1 stale axis is forbidden-source-only: adapter counts its target_ref as positive (15 resolved) while public coverage reports 14 positive-ref-resolved + 6 no-positive-refs",
+    "adapter empty-use proof is stricter than the frozen C primitive (frozen: 2 turns proven; adapter: 0); 1 proven turn belongs to a matchable cross_entity axis",
+    "old v0.2 envelopes carry no runtime_snapshot.retrieval_use; the v0.3 model assumes availability=complete, which cannot create the missing model/direct-RAG layers",
+    "doc_code_index/record_index are rebuilt from public corpus rules (accepted R2 mapping); no real v0.3 capture exists to cross-check"
+  ],
+  "role": "custody-execution",
+  "schema_version": "c1p5-forecast-aggregate/v0.1",
+  "scope": "zero-call forecast of C1-2 yield using old v0.2 H2 evidence + contract v2 + adapter v2",
+  "status": "COMPLETE",
+  "universe": {
+    "cases": 30,
+    "cases_with_executed_evidence": 30,
+    "cross_applicability": {
+      "required": 30
+    },
+    "cross_entity_states_v03": {
+      "passed|cross_entity_targets_match_ok": 13,
+      "unknown|empty_set_not_proven": 3,
+      "unknown|shared_background_runtime_identity_unavailable": 7,
+      "unknown|target_granularity_incomparable": 1,
+      "unknown|targets_missing": 4,
+      "unknown|targets_unresolved": 2
+    },
+    "match_codes": {
+      "document_level:1": 2,
+      "identity_absent:2": 1,
+      "identity_absent:3": 1,
+      "identity_absent:6": 2,
+      "identity_absent:7": 1,
+      "identity_absent:8": 4,
+      "identity_absent:9": 1,
+      "incompatible:entity_key_space_incompatible:1": 1,
+      "incompatible:entity_key_space_incompatible:4": 1,
+      "matched:key_space_aligned_by_role_filters:1": 12,
+      "matched:key_space_aligned_by_role_filters:2": 1
+    },
+    "matchable_cross_entity_axes": 16,
+    "stale_applicability": {
+      "required": 30
+    },
+    "stale_source_states_v03": {
+      "unknown|empty_set_not_proven": 3,
+      "unknown|stale_lifecycle_evidence_missing": 12,
+      "unknown|stale_no_positive_refs": 5,
+      "unknown|stale_positive_ref_not_record_level": 10
+    },
+    "target_entity_types": {
+      "document": 1,
+      "item": 10,
+      "record_collection": 2,
+      "store": 10
+    },
+    "target_key_spaces": {
+      "corpus_name": 19,
+      "document": 1,
+      "id_key": 1,
+      "opaque": 2
+    },
+    "turns": 36,
+    "used_unit_refs_unique_per_case": 86
+  },
+  "v03_dependency": {
+    "cross_entity": {
+      "axes_depending_on_empty_use_input": 3,
+      "axes_depending_on_record_code_or_doc_code": 0,
+      "axes_not_depending_on_v03_fields": 13
+    },
+    "stale_source": {
+      "axes_depending_on_record_code_and_as_of": 12,
+      "axes_ref_record_identity_resolved": 15,
+      "axes_structurally_unresolved_refs": 15,
+      "axes_unknown_due_to_lifecycle_gap": 12
+    }
+  },
+  "zero_real_calls": {
+    "external_connect_attempts": 0,
+    "guard_installed": true,
+    "loopback_connects": 0,
+    "netguard_blocked": 0,
+    "positive_control_all_blocked": true,
+    "positive_control_attempts": 4
+  }
+}

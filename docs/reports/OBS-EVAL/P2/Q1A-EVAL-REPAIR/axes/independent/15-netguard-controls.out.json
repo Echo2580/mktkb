@@ -1,0 +1,46 @@
+{
+  "probe": "15-netguard-controls",
+  "assertions_total": 2,
+  "assertions_failed": 0,
+  "checks": [
+    {
+      "label": "positive control: guard tests pass (exit 0)",
+      "ok": true,
+      "detail": {
+        "file": "test_15_netguard_controls.py",
+        "exit_code": 0,
+        "stdout_tail": [
+          "...                                                                      [100%]",
+          "3 passed in 1.87s"
+        ],
+        "stderr_tail": [],
+        "teardown_assert_hit": false
+      }
+    },
+    {
+      "label": "negative control: uncleared external attempt fails teardown (exit 1 + assertion)",
+      "ok": true,
+      "detail": {
+        "file": "_test_netguard_negative.py",
+        "exit_code": 1,
+        "stdout_tail": [
+          "    ",
+          "        yield attempts",
+          "    ",
+          "        snapshot = attempts.snapshot()",
+          ">       assert snapshot[\"external\"] == [], f\"检测到真实外部出站尝试（本轮应为 0）：{snapshot['external']}\"",
+          "               ^^^^^^^^^^^^^^^^^^^^^^^^^^",
+          "E       AssertionError: 检测到真实外部出站尝试（本轮应为 0）：[\"socket.create_connection ('203.0.113.9', 80)\"]",
+          "",
+          "backend\\tests\\acceptance\\support\\netguard.py:126: AssertionError",
+          "=========================== short test summary info ===========================",
+          "ERROR docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/independent/_test_netguard_negative.py::test_leaves_external_attempt_uncleared",
+          "1 passed, 1 error in 0.22s"
+        ],
+        "stderr_tail": [],
+        "teardown_assert_hit": true
+      }
+    }
+  ],
+  "verdict": "PASS"
+}

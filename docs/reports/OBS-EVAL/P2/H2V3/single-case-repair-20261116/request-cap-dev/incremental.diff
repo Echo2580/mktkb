@@ -1,0 +1,642 @@
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_contracts.py" "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_contracts.py"
+index 82327a3..f0b60eb 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_contracts.py"
++++ "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_contracts.py"
+@@ -99,7 +99,7 @@ ATTEMPTS_SCOPES = frozenset({ATTEMPTS_SCOPE_ALL, ATTEMPTS_SCOPE_UNAVAILABLE})
+ """
+ 
+ HARD_MAX_REQUESTS = 1600
+-"""累计请求硬顶（= 现有 MAX_GO_REQUESTS，两处必须同值）。
++"""有限授权的累计请求硬顶（= 现有 MAX_GO_REQUESTS，两处必须同值）。
+ 
+ 2026-11-11 经理按主人 2026-11-10 预授权「必要时应实算提至 <=2000，且 GO 在 P2<=50 元、
+ 累计请求<=2000 内由经理拟定」落盘：**1000 -> 1600**（记录见
+@@ -108,7 +108,7 @@ docs/reports/OBS-EVAL/P2/T207/PM/T207-PM-decisions-01.md 的 §3）。
+ 实算依据（逐项）：已用 547 + T207 公开 263 + H2 回合 144 + H2 灌库 <=20 +
+ T208 judge <=160 + T900 独立复验 <=107 = 1,241；+20% 余量 ≈ 1,489 -> 取整 1600。
+ 
+-**到值即停**：累计 reservation 到 1600 时，任何发送前的 request_limit（P2Gate）与
++有限授权**到值即停**：累计 reservation 到 1600 时，任何发送前的 request_limit（P2Gate）与
+ go_max_requests_over_hard_cap（授权）都会拒绝；各计划自身的 max_requests 永远是更早的闸门。
+ 新增预算仍**不重置**已用计数。
+ 
+@@ -116,6 +116,14 @@ go_max_requests_over_hard_cap（授权）都会拒绝；各计划自身的 max_r
+ 天花板」；P1 已签 GO 的 max_requests 仍各自生效（两侧取 min），因此**不构成**对 P1 的
+ 追加授权。
+ """
++UNLIMITED_REQUESTS = "unlimited"
++
++
++def request_cap(value: Any, label: str, *, minimum: int = 1) -> int | str:
++    """Explicit P2 unlimited or a validated finite integer; missing never means unlimited."""
++    if isinstance(value, str) and value == UNLIMITED_REQUESTS:
++        return UNLIMITED_REQUESTS
++    return _plain_int(value, label, minimum=minimum)
+ 
+ COST_CENTERS: tuple[str, ...] = ("answer_retrieval", "ocr", "judge", "independent")
+ """四个内部成本中心（不是四个可各花满额的阶段）。"""
+@@ -828,8 +836,8 @@ class P2RunPlan:
+     - stage 只能是 P2-LIVE：旧 P1/S2 阶段名一律拒绝；
+     - cost_centers_cny 必须恰好四个已注册中心、各自为正、合计等于 stage_limit_cny；
+       因此阶段额度是**硬顶**，不是「每个中心各得一份」；
+-    - max_requests 是**累计**口径（跨 kind/run，不因新增预算重置），上限
+-      HARD_MAX_REQUESTS；items 的请求总数不得超过它。
++    - max_requests 是累计口径；有限正整数保持 HARD_MAX_REQUESTS 硬顶，明确的
++      "unlimited" 表示无累计次数上限；每个 item 的次数约束仍然有效。
+     """
+ 
+     schema_version: str
+@@ -840,7 +848,7 @@ class P2RunPlan:
+     created_utc: str
+     project_total_limit_cny: float
+     stage_limit_cny: float
+-    max_requests: int
++    max_requests: int | str
+     cost_centers_cny: Mapping[str, float]
+     items: tuple[P2RequestItem, ...]
+     scenario_binding: Mapping[str, str] | None = field(default=None, repr=False)
+@@ -869,8 +877,8 @@ class P2RunPlan:
+         stage_limit = _positive_money(self.stage_limit_cny, "stage_limit_cny")
+         if project_total < stage_limit:
+             raise P2ContractError("plan_total_below_stage", "项目总上限不得小于 P2 阶段额度")
+-        _plain_int(self.max_requests, "max_requests", minimum=1)
+-        if self.max_requests > HARD_MAX_REQUESTS:
++        request_cap(self.max_requests, "max_requests")
++        if self.max_requests != UNLIMITED_REQUESTS and self.max_requests > HARD_MAX_REQUESTS:
+             raise P2ContractError(
+                 "request_cap_over_hard_limit",
+                 f"plan.max_requests 不得超过累计硬顶 {HARD_MAX_REQUESTS}",
+@@ -909,7 +917,7 @@ class P2RunPlan:
+                     "center_budget_exceeded",
+                     f"成本中心 {center} 的计划上界超过其额度 {canonical_decimal(limit)} 元",
+                 )
+-        if self.total_requests > self.max_requests:
++        if self.max_requests != UNLIMITED_REQUESTS and self.total_requests > self.max_requests:
+             raise P2ContractError("plan_requests_over_cap", "计划请求总数超过 plan.max_requests")
+         if Decimal(str(self.worst_case_cny)) > stage_limit + _EPS:
+             raise P2ContractError("plan_exceeds_stage_limit", "计划总成本上界超过阶段额度")
+@@ -994,7 +1002,7 @@ class P2RunPlan:
+             "created_utc": self.created_utc,
+             "project_total_limit_cny": float(self.project_total_limit_cny),
+             "stage_limit_cny": float(self.stage_limit_cny),
+-            "max_requests": int(self.max_requests),
++            "max_requests": self.max_requests,
+             "cost_centers_cny": {
+                 center: float(self.cost_centers_cny[center]) for center in COST_CENTERS
+             },
+@@ -1028,7 +1036,7 @@ class P2RunPlan:
+                 data["project_total_limit_cny"], "project_total_limit_cny", minimum=1e-12
+             ),
+             stage_limit_cny=_plain_float(data["stage_limit_cny"], "stage_limit_cny", minimum=1e-12),
+-            max_requests=_plain_int(data["max_requests"], "max_requests", minimum=1),
++            max_requests=request_cap(data["max_requests"], "max_requests"),
+             cost_centers_cny={
+                 str(center): _plain_float(value, f"cost_centers_cny.{center}", minimum=1e-12)
+                 for center, value in centers.items()
+@@ -1204,9 +1212,9 @@ class P2PreflightResult:
+     stage_remaining_cny: float
+     total_limit_cny: float
+     total_remaining_cny: float
+-    max_requests: int
++    max_requests: int | str
+     requests_used: int
+-    requests_remaining: int
++    requests_remaining: int | str
+     requests_planned: int
+     worst_case_cny: float
+     reserve_peak_cny: float
+@@ -1235,10 +1243,10 @@ class P2PreflightResult:
+             _positive_money(getattr(self, name), f"preflight.{name}")
+         for name in ("stage_remaining_cny", "total_remaining_cny", "estimated_success_cny"):
+             _non_negative_money(getattr(self, name), f"preflight.{name}")
+-        for name in ("max_requests", "requests_planned"):
+-            _plain_int(getattr(self, name), f"preflight.{name}", minimum=1)
+-        for name in ("requests_used", "requests_remaining"):
+-            _plain_int(getattr(self, name), f"preflight.{name}", minimum=0)
++        request_cap(self.max_requests, "preflight.max_requests")
++        _plain_int(self.requests_planned, "preflight.requests_planned", minimum=1)
++        _plain_int(self.requests_used, "preflight.requests_used", minimum=0)
++        request_cap(self.requests_remaining, "preflight.requests_remaining", minimum=0)
+         if not isinstance(self.production_ready, bool):
+             raise P2ContractError("bool_invalid", "preflight.production_ready 必须是布尔")
+ 
+@@ -1254,9 +1262,9 @@ class P2PreflightResult:
+             "stage_remaining_cny": float(self.stage_remaining_cny),
+             "total_limit_cny": float(self.total_limit_cny),
+             "total_remaining_cny": float(self.total_remaining_cny),
+-            "max_requests": int(self.max_requests),
++            "max_requests": self.max_requests,
+             "requests_used": int(self.requests_used),
+-            "requests_remaining": int(self.requests_remaining),
++            "requests_remaining": self.requests_remaining,
+             "requests_planned": int(self.requests_planned),
+             "worst_case_cny": float(self.worst_case_cny),
+             "reserve_peak_cny": float(self.reserve_peak_cny),
+@@ -1322,9 +1330,9 @@ class P2Authorization:
+     stage_remaining_cny: float
+     cost_center_limits_cny: Mapping[str, float]
+     center_remaining_cny: Mapping[str, float]
+-    max_requests: int
++    max_requests: int | str
+     requests_used: int
+-    requests_remaining: int
++    requests_remaining: int | str
+     max_request_cny: float
+     operations: tuple[str, ...]
+     production_ready: bool
+@@ -1348,9 +1356,9 @@ class P2Authorization:
+         _positive_money(self.stage_limit_cny, "authorization.stage_limit_cny")
+         _non_negative_money(self.stage_remaining_cny, "authorization.stage_remaining_cny")
+         _positive_money(self.max_request_cny, "authorization.max_request_cny")
+-        _plain_int(self.max_requests, "authorization.max_requests", minimum=1)
++        request_cap(self.max_requests, "authorization.max_requests")
+         _plain_int(self.requests_used, "authorization.requests_used", minimum=0)
+-        _plain_int(self.requests_remaining, "authorization.requests_remaining", minimum=0)
++        request_cap(self.requests_remaining, "authorization.requests_remaining", minimum=0)
+         if not self.operations:
+             raise P2ContractError("operation_unregistered", "authorization.operations 不得为空")
+         for operation in self.operations:
+@@ -1392,9 +1400,9 @@ class P2Authorization:
+                 center: float(self.center_remaining_cny.get(center, 0.0))
+                 for center in COST_CENTERS
+             },
+-            "max_requests": int(self.max_requests),
++            "max_requests": self.max_requests,
+             "requests_used": int(self.requests_used),
+-            "requests_remaining": int(self.requests_remaining),
++            "requests_remaining": self.requests_remaining,
+             "max_request_cny": float(self.max_request_cny),
+             "operations": list(self.operations),
+             "production_ready": bool(self.production_ready),
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_authorization.py" "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_authorization.py"
+index dc174ee..9b675a0 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_authorization.py"
++++ "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_authorization.py"
+@@ -42,6 +42,8 @@ from ..rag.settlement_policy import SettlementPolicy, UsageEvidence
+ from .p2_contracts import (
+     COST_CENTERS,
+     HARD_MAX_REQUESTS,
++    UNLIMITED_REQUESTS,
++    request_cap,
+     OPERATION_COST_CENTER,
+     OPERATIONS,
+     P2_AUTHORIZATION_SCHEMA_VERSION,
+@@ -362,13 +364,14 @@ def preflight_p2(plan: P2RunPlan, snapshot: P2LedgerSnapshot) -> P2PreflightResu
+         effective_stage_limit = min(allocation, frozen_plan.stage_limit_cny)
+         stage_remaining = max(0.0, effective_stage_limit - frozen_snapshot.p2_stage_accounted_cny)
+     total_remaining = max(0.0, frozen_snapshot.total_limit_cny - frozen_snapshot.accounted_cny)
+-    requests_remaining = max(0, frozen_plan.max_requests - frozen_snapshot.reservation_count)
++    requests_remaining = (UNLIMITED_REQUESTS if frozen_plan.max_requests == UNLIMITED_REQUESTS
++                          else max(0, frozen_plan.max_requests - frozen_snapshot.reservation_count))
+ 
+     if frozen_plan.worst_case_cny > stage_remaining + _EPS:
+         reasons.append("stage_budget_insufficient")
+     if frozen_plan.worst_case_cny > total_remaining + _EPS:
+         reasons.append("total_budget_insufficient")
+-    if frozen_plan.total_requests > requests_remaining:
++    if requests_remaining != UNLIMITED_REQUESTS and frozen_plan.total_requests > requests_remaining:
+         reasons.append("request_budget_insufficient")
+ 
+     needs = frozen_plan.center_needs_cny()
+@@ -397,9 +400,9 @@ def preflight_p2(plan: P2RunPlan, snapshot: P2LedgerSnapshot) -> P2PreflightResu
+         stage_remaining_cny=float(stage_remaining),
+         total_limit_cny=float(frozen_snapshot.total_limit_cny),
+         total_remaining_cny=float(total_remaining),
+-        max_requests=int(frozen_plan.max_requests),
++        max_requests=frozen_plan.max_requests,
+         requests_used=int(frozen_snapshot.reservation_count),
+-        requests_remaining=int(requests_remaining),
++        requests_remaining=requests_remaining,
+         requests_planned=int(frozen_plan.total_requests),
+         worst_case_cny=float(frozen_plan.worst_case_cny),
+         reserve_peak_cny=float(frozen_plan.reserve_peak_cny),
+@@ -499,14 +502,17 @@ def _check_go_payload(payload: Mapping[str, Any], plan: P2RunPlan, now: datetime
+     go_stage_limit = _number(stage_limits[P2_STAGE], f"GO 阶段 {P2_STAGE} 额度", allow_zero=False)
+     if go_stage_limit + _EPS < plan.stage_limit_cny:
+         raise P2AuthorizationError("go_stage_limit_below_plan", "GO 阶段额度低于计划阶段额度")
+-    go_max_requests = _int_value(scope.get("max_requests"), "GO scope.max_requests", minimum=1)
+-    if go_max_requests > HARD_MAX_REQUESTS:
++    try:
++        go_max_requests = request_cap(scope.get("max_requests"), "GO scope.max_requests")
++    except P2ContractError:
++        raise P2AuthorizationError("go_max_requests_invalid", "GO 累计请求上限非法") from None
++    if go_max_requests != UNLIMITED_REQUESTS and go_max_requests > HARD_MAX_REQUESTS:
+         raise P2AuthorizationError(
+             "go_max_requests_over_hard_cap", f"GO 累计请求上限不得超过 {HARD_MAX_REQUESTS}"
+         )
+-    if go_max_requests < plan.total_requests:
++    if go_max_requests != UNLIMITED_REQUESTS and go_max_requests < plan.total_requests:
+         raise P2AuthorizationError("go_max_requests_below_plan", "GO 累计请求上限小于计划请求数")
+-    if plan.max_requests > go_max_requests:
++    if go_max_requests != UNLIMITED_REQUESTS and (plan.max_requests == UNLIMITED_REQUESTS or plan.max_requests > go_max_requests):
+         raise P2AuthorizationError("go_max_requests_below_plan", "计划累计请求上限高于 GO")
+     go_max_request = _number(scope.get("max_request_cny"), "GO scope.max_request_cny", allow_zero=False)
+     if go_max_request + _EPS < plan.reserve_peak_cny:
+@@ -617,7 +623,7 @@ def authorize_p2(
+         center: max(0.0, center_limits[center] - float(snapshot.p2_center_accounted_cny.get(center, 0.0)))
+         for center in COST_CENTERS
+     }
+-    max_requests = min(frozen_plan.max_requests, int(scope["max_requests"]))
++    max_requests = frozen_plan.max_requests
+     requests_used = int(snapshot.reservation_count)
+     return P2Authorization(
+         schema_version=P2_AUTHORIZATION_SCHEMA_VERSION,
+@@ -637,9 +643,9 @@ def authorize_p2(
+         stage_remaining_cny=float(stage_remaining),
+         cost_center_limits_cny=center_limits,
+         center_remaining_cny=center_remaining,
+-        max_requests=int(max_requests),
++        max_requests=max_requests,
+         requests_used=requests_used,
+-        requests_remaining=max(0, max_requests - requests_used),
++        requests_remaining=(UNLIMITED_REQUESTS if max_requests == UNLIMITED_REQUESTS else max(0, max_requests - requests_used)),
+         max_request_cny=float(scope["max_request_cny"]),
+         operations=tuple(sorted(frozen_plan.operations)),
+         # 生产就绪 = GO/预算来自固定路径 + 环境总上限已核 + 账本快照真的来自固定共享账本。
+@@ -769,6 +775,7 @@ class P2Gate:
+         self._lock = threading.Lock()
+         self._now_hint: datetime | None = now
+         self._pending_center: str | None = None
++        self._pending_item: P2RequestItem | None = None
+         self._inflight: P2RequestTicket | None = None
+         #: T206-LIVE：与主请求同时在飞/先于主请求的**从属尝试**（embedding/rerank/ocr）。
+         #: 每次底层尝试都必须单独预留并带成本中心，因此不能复用主 ticket。
+@@ -922,9 +929,11 @@ class P2Gate:
+             if float(declared) + _EPS < float(self._plan.cost_centers_cny[center]):
+                 raise P2GateError("cost_center_unauthorized", f"GO 成本中心 {center} 额度低于计划")
+         max_requests = scope.get("max_requests")
+-        if isinstance(max_requests, bool) or not isinstance(max_requests, int):
++        try:
++            max_requests = request_cap(max_requests, "GO scope.max_requests")
++        except P2ContractError:
+             raise P2GateError("request_cap_changed", "GO 请求上限已变")
+-        if max_requests > HARD_MAX_REQUESTS or max_requests < self._plan.total_requests:
++        if max_requests != UNLIMITED_REQUESTS and (max_requests > HARD_MAX_REQUESTS or max_requests < self._plan.total_requests or self._plan.max_requests == UNLIMITED_REQUESTS or self._plan.max_requests > max_requests):
+             raise P2GateError("request_cap_changed", "GO 请求上限已变")
+         max_request_cny = scope.get("max_request_cny")
+         if isinstance(max_request_cny, bool) or not isinstance(max_request_cny, (int, float)):
+@@ -974,20 +983,37 @@ class P2Gate:
+         count = facts.get("reservation_count")
+         if isinstance(count, bool) or not isinstance(count, int) or count < 0:
+             raise P2GateError("ledger_count_invalid", "账本累计请求数非法")
+-        if count > self._authorization.max_requests:
++        if self._authorization.max_requests != UNLIMITED_REQUESTS and count > self._authorization.max_requests:
+             raise P2GateError("request_limit", "累计请求数已超过授权上限")
+ 
+-    def _request_guard(self, amount: float, facts: Mapping[str, Any]) -> tuple[float, int]:
++    def _request_guard(self, amount: float, facts: Mapping[str, Any]) -> tuple[float, int | str]:
+         from ..rag.errors import BudgetLedgerInvalid
+ 
+         try:
+             now = self._now_hint or self._clock()
+             self._guard_common(now, facts)
+             self._assert_center_room(amount, facts)
++            if self._authorization.max_requests == UNLIMITED_REQUESTS:
++                item = self._pending_item
++                if item is None:
++                    raise P2GateError("item_unknown", "缺少计划项")
++                used = 0
++                for event in self._ledger._events():  # noqa: SLF001 - called under ledger lock
++                    if event.get("event") != "reserved" or event.get("run_id") != self._run_id:
++                        continue
++                    metadata = event.get("metadata")
++                    if not isinstance(metadata, Mapping) or not isinstance(metadata.get("plan_sha256"), str):
++                        raise P2GateError("run_plan_unknown", "历史预留缺少计划身份")
++                    if metadata["plan_sha256"] != self._plan.plan_sha256:
++                        continue
++                    if metadata.get("item_id") == item.item_id:
++                        used += 1
++                if used >= item.requests:
++                    raise P2GateError("attempt_quota_exhausted", "计划项请求次数已用完")
+         except P2GateError as exc:
+             self._last_guard_reason = exc.reason
+             raise BudgetLedgerInvalid(f"P2 预留前门控拒绝：{exc.reason}") from None
+-        return float(self._authorization.stage_limit_cny), int(self._authorization.max_requests)
++        return float(self._authorization.stage_limit_cny), self._authorization.max_requests
+ 
+     def _post_reserve_guard(self, amount: float, facts: Mapping[str, Any]) -> None:
+         from ..rag.errors import BudgetLedgerInvalid
+@@ -1042,6 +1068,7 @@ class P2Gate:
+         moment = (now or self._clock()).astimezone(timezone.utc)
+         self._now_hint = moment
+         self._pending_center = item.cost_center
++        self._pending_item = item
+         self._last_guard_reason = None
+         try:
+             self._assert_authorization_live(moment)
+@@ -1068,6 +1095,7 @@ class P2Gate:
+             raise P2GateError(reason, type(exc).__name__) from None
+         finally:
+             self._pending_center = None
++            self._pending_item = None
+         ticket = P2RequestTicket(
+             reservation=reservation,
+             request_id="p2req-" + hashlib.sha256(
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_holdout_plan.py" "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_holdout_plan.py"
+index 2ae10ac..7935374 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_holdout_plan.py"
++++ "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_holdout_plan.py"
+@@ -279,7 +279,7 @@ def build_holdout_plan(
+     plan_id: str,
+     plan_version: str,
+     created_utc: str,
+-    max_requests: int = H2_MAX_REQUESTS,
++    max_requests: int | str = H2_MAX_REQUESTS,
+     cost_centers_cny: Mapping[str, float] | None = None,
+     stage_limit_cny: float = H2_STAGE_LIMIT_CNY,
+     project_total_limit_cny: float = H2_PROJECT_TOTAL_LIMIT_CNY,
+@@ -336,7 +336,7 @@ def build_holdout_plan(
+         "created_utc": str(created_utc),
+         "project_total_limit_cny": float(project_total_limit_cny),
+         "stage_limit_cny": float(stage_limit_cny),
+-        "max_requests": int(max_requests),
++        "max_requests": max_requests,
+         "cost_centers_cny": {
+             center: float((cost_centers_cny or H2_COST_CENTERS_CNY)[center])
+             for center in COST_CENTERS
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_runner.py" "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_runner.py"
+index 0f2eb2b..5265e3e 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\evaluation\\p2_runner.py"
++++ "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_runner.py"
+@@ -543,9 +543,9 @@ def build_dry_run_authorization(
+         center_remaining_cny={
+             center: float(plan.cost_centers_cny[center]) for center in COST_CENTERS
+         },
+-        max_requests=int(plan.max_requests),
++        max_requests=plan.max_requests,
+         requests_used=0,
+-        requests_remaining=max(0, int(plan.max_requests) - int(plan.total_requests)),
++        requests_remaining=("unlimited" if plan.max_requests == "unlimited" else max(0, plan.max_requests - int(plan.total_requests))),
+         max_request_cny=float(plan.reserve_peak_cny),
+         operations=tuple(plan.operations),
+         production_ready=False,
+@@ -599,7 +599,7 @@ def _prepare(
+     add("operations", not unauthorized, f"未授权操作: {unauthorized}" if unauthorized else "")
+     add(
+         "request_cap",
+-        int(plan.total_requests) <= int(authorization.requests_remaining),
++        authorization.requests_remaining == "unlimited" or int(plan.total_requests) <= authorization.requests_remaining,
+         "计划请求数超出授权剩余",
+     )
+     if gate is None:
+@@ -2432,8 +2432,8 @@ def _write_artifacts(
+             "stage": authorization.stage,
+             "production_ready": bool(authorization.production_ready),
+             "operations": list(authorization.operations),
+-            "max_requests": int(authorization.max_requests),
+-            "requests_remaining": int(authorization.requests_remaining),
++            "max_requests": authorization.max_requests,
++            "requests_remaining": authorization.requests_remaining,
+             "ledger_path": authorization.ledger_path,
+         },
+         "pipeline": {
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\rag\\budget.py" "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\rag\\budget.py"
+index 8ef0c92..2b13bcc 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-src\\backend\\src\\mktkb\\rag\\budget.py"
++++ "b/D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\rag\\budget.py"
+@@ -240,7 +240,7 @@ class BudgetLedger:
+         stage_limit_cny: float = 3.0,
+         lock_timeout_seconds: float = 10.0,
+         stale_lock_seconds: float = 60.0,
+-        max_requests: int = 0,
++        max_requests: int | str = 0,
+         run_id: str | None = None,
+         request_guard: Callable[[float, Mapping[str, Any]], tuple[float, int]] | None = None,
+         post_reserve_guard: Callable[[float, Mapping[str, Any]], None] | None = None,
+@@ -249,9 +249,11 @@ class BudgetLedger:
+         self.budget_json_path = Path(budget_json_path)
+         self.stage = stage
+         self.stage_limit_cny = _ledger_number(stage_limit_cny, "stage_limit_cny")
+-        if isinstance(max_requests, bool) or not isinstance(max_requests, int):
++        if max_requests == "unlimited" and isinstance(max_requests, str) and stage == "P2-LIVE":
++            pass
++        elif isinstance(max_requests, bool) or not isinstance(max_requests, int):
+             raise BudgetLedgerInvalid("max_requests 必须是非负整数")
+-        if max_requests < 0:
++        elif max_requests < 0:
+             raise BudgetLedgerInvalid("max_requests 必须是非负整数")
+         self.max_requests = max_requests
+         # 请求期复核回调（由产品 LiveGate 注入）：参数为 (本次预留金额, 锁内账本事实)。
+@@ -547,7 +549,7 @@ class BudgetLedger:
+         settlement_policy: SettlementPolicy | None = None,
+         metadata: Mapping[str, Any] | None = None,
+         stage_limit_cny: float | None = None,
+-        max_requests: int | None = None,
++        max_requests: int | str | None = None,
+         cost_center: str | None = None,
+     ) -> Reservation:
+         amount = _ledger_number(max_cny, "预留金额")
+@@ -576,8 +578,11 @@ class BudgetLedger:
+         effective_max_requests = (
+             self.max_requests
+             if max_requests is None
+-            else _ledger_non_negative_int(max_requests, "请求期累计请求上限")
++            else ("unlimited" if max_requests == "unlimited" and isinstance(max_requests, str) and self.stage == "P2-LIVE"
++                  else _ledger_non_negative_int(max_requests, "请求期累计请求上限"))
+         )
++        if effective_max_requests == "unlimited" and self.max_requests != "unlimited":
++            effective_max_requests = self.max_requests
+         with self._locked():
+             events = self._events()
+             facts = self._accounting(events)
+@@ -587,11 +592,14 @@ class BudgetLedger:
+                 effective_stage_limit = min(
+                     effective_stage_limit, _ledger_number(guarded_limit, "复核后的阶段额度")
+                 )
+-                effective_max_requests = min(
+-                    effective_max_requests,
+-                    _ledger_non_negative_int(guarded_requests, "复核后的累计请求上限"),
+-                )
+-            if facts["reservation_count"] >= effective_max_requests:
++                if guarded_requests == "unlimited" and isinstance(guarded_requests, str) and self.stage == "P2-LIVE":
++                    pass
++                else:
++                    guarded_requests = _ledger_non_negative_int(guarded_requests, "复核后的累计请求上限")
++                    effective_max_requests = guarded_requests if effective_max_requests == "unlimited" else min(effective_max_requests, guarded_requests)
++            elif effective_max_requests == "unlimited":
++                raise BudgetLedgerInvalid("无限请求必须有逐笔授权复核")
++            if effective_max_requests != "unlimited" and facts["reservation_count"] >= effective_max_requests:
+                 raise RequestLimitExceeded(
+                     f"请求数达到硬上限 {effective_max_requests}，未发请求"
+                 )
+diff --git "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-v3.py.txt" "b/D:\\GPT项目\\市场部AI知识库\\tools\\p2_h2_v3_controlled_execute.py"
+index f51c5d3..8c267f4 100644
+--- "a/D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\single-case-repair-20261116\\request-cap-dev\\baseline-v3.py.txt"
++++ "b/D:\\GPT项目\\市场部AI知识库\\tools\\p2_h2_v3_controlled_execute.py"
+@@ -142,17 +142,12 @@ EXIT_REFUSED = 2
+ EXIT_USAGE = 3
+ 
+ TAG = "P2-H2V3-20261115"
+-MAX_REQUESTS = 1500
+-"""v3 四 run 的累计请求上限。
+-
+-2026-11-15 终局执行：主人把授权总量提到 1500（原 1160 时已用 1099、余 61 < 全量复跑约 126，
+-四 run 无法开跑），因此把计划/GO 的固定上限从 1160 提到 1500；`GOVERNANCE_REQUEST_CAP`
+-本来就是 1500，钱闸（项目 40 / 阶段 20 / 单请求 0.5）与 30 题/标签/阈值均未动。
+-"""
++MAX_REQUESTS = "unlimited"
++"""v3 新计划显式取消累计次数上限；金额和逐计划项次数仍受约束。"""
+ STAGE_LIMIT_CNY = 20.0
+ TURN_TIMEOUT_SECONDS = 60.0
+ DEFAULT_CREATED_UTC = "2026-11-15T05:00:00+08:00"
+-GOVERNANCE_REQUEST_CAP = 1500
++GOVERNANCE_REQUEST_CAP = MAX_REQUESTS
+ 
+ V3_SCENARIO_COUNTS: Mapping[str, int] = {
+     "base_b0": 12,
+@@ -615,7 +610,7 @@ def _v3_config(
+         "providers": v2._provider_config(),
+         "project_total_limit_cny": float(V3_PROJECT_TOTAL_LIMIT_CNY),
+         "stage_limit_cny": float(STAGE_LIMIT_CNY),
+-        "max_requests": int(MAX_REQUESTS),
++        "max_requests": MAX_REQUESTS,
+         "cost_centers_cny": {center: float(value) for center, value in v2._h2_centers().items()},
+         "turn_timeout_seconds": float(TURN_TIMEOUT_SECONDS),
+         "purge_traces_on_close": True,
+@@ -667,7 +662,7 @@ def _validate_binding_document(document: Any) -> None:
+         _refuse("run_binding_invalid", "config_anchor_business_date")
+     if abs(float(config.get("project_total_limit_cny", -1)) - V3_PROJECT_TOTAL_LIMIT_CNY) > 1e-9:
+         _refuse("run_binding_invalid", "config_project_total_limit_cny")
+-    if int(config.get("max_requests", -1)) != MAX_REQUESTS:
++    if config.get("max_requests") != MAX_REQUESTS:
+         _refuse("run_binding_invalid", "config_max_requests")
+     if list(config.get("scenario_order") or ()) != list(v2.SCENARIO_ORDER):
+         _refuse("run_binding_invalid", "config_scenario_order")
+@@ -1309,7 +1304,7 @@ class PlanOptions:
+     created_utc: str
+     plan_id_prefix: str = TAG
+     run_id_prefix: str = TAG.lower()
+-    max_requests: int = MAX_REQUESTS
++    max_requests: str = MAX_REQUESTS
+ 
+ 
+ def _plan_identity(index: int, scenario: str, options: PlanOptions) -> tuple[str, str]:
+@@ -1361,7 +1356,7 @@ def _build_v3_plan(
+     plan_id: str,
+     created_utc: str,
+     plan_version: str,
+-    max_requests: int,
++    max_requests: str,
+     scenario_binding: Mapping[str, str],
+ ) -> P2RunPlan:
+     """用 v3 派生批数建计划（与 ``ValidatedScenarioContract.build_plan`` 同一生成器）。"""
+@@ -1372,7 +1367,7 @@ def _build_v3_plan(
+             plan_id=plan_id,
+             plan_version=plan_version,
+             created_utc=created_utc,
+-            max_requests=int(max_requests),
++            max_requests=max_requests,
+             scenario_binding=scenario_binding,
+         )
+     except Exception as exc:  # noqa: BLE001 - 生成失败只报固定码
+@@ -1403,7 +1398,7 @@ def _check_plan_v3(
+         _refuse("plan_project_limit_mismatch", scenario)
+     if abs(float(plan.stage_limit_cny) - STAGE_LIMIT_CNY) > 1e-9:
+         _refuse("plan_stage_limit_mismatch", scenario)
+-    if int(plan.max_requests) != int(options.max_requests):
++    if plan.max_requests != options.max_requests:
+         _refuse("plan_max_requests_mismatch", scenario)
+     if "ocr" in plan.operations:
+         _refuse("plan_unexpected_ocr_operation", scenario)
+@@ -1462,7 +1457,7 @@ def plan_private(
+             plan_id=plan_id,
+             created_utc=created_utc,
+             plan_version="v0.1",
+-            max_requests=int(options.max_requests),
++            max_requests=options.max_requests,
+             scenario_binding=bundle.contract.binding(scenario),
+         )
+         _check_plan_v3(
+@@ -1475,7 +1470,7 @@ def plan_private(
+                 created_utc=created_utc,
+                 plan_id_prefix=options.plan_id_prefix,
+                 run_id_prefix=options.run_id_prefix,
+-                max_requests=int(options.max_requests),
++                max_requests=options.max_requests,
+             ),
+             expected_turns=V3_SCENARIO_TURNS[scenario],
+             expected_batches=batches,
+@@ -1605,7 +1600,7 @@ def plan_private(
+         "created_utc": created_utc,
+         "code_version": code_version,
+         "project_total_limit_cny": float(V3_PROJECT_TOTAL_LIMIT_CNY),
+-        "max_requests": int(options.max_requests),
++        "max_requests": options.max_requests,
+         "ingest_batches_source": {
+             "path": str(Path(V3_BATCH_CENSUS).relative_to(PROJECT_ROOT)).replace("\\", "/"),
+             "sha256": str(_load_batch_census()["sha256"]),
+@@ -1738,7 +1733,7 @@ def check_only(
+     scenario = str(run_entry["scenario_id"])
+     dial_ok = (
+         abs(float(plan.project_total_limit_cny) - V3_PROJECT_TOTAL_LIMIT_CNY) <= 1e-9
+-        and int(plan.max_requests) == MAX_REQUESTS
++        and plan.max_requests == MAX_REQUESTS
+         and int(plan.total_requests) == int(run_entry["total_requests"])
+         and int(plan.case_count) - 1 == int(run_entry["case_count"])
+         and int(plan.turn_count) - 1 == int(run_entry["turn_count"])
+@@ -1818,7 +1813,7 @@ def check_only(
+         "fixed_go_path_original": str(p2a.P2_GO_PATH) if slot_simulated else str(go_path),
+         "plan_id": str(go_scope.get("plan_id") or ""),
+         "plan_sha256": str(go_scope.get("plan_sha256") or ""),
+-        "max_requests": int(go_scope.get("max_requests") or 0),
++        "max_requests": go_scope.get("max_requests"),
+         "plan_sha_match": str(go_scope.get("plan_sha256") or "") == plan.plan_sha256,
+         "plan_id_match": str(go_scope.get("plan_id") or "") == plan.plan_id,
+         "expires_utc": str(go_payload.get("expires_utc") or ""),
+@@ -1857,7 +1852,7 @@ def check_only(
+     add("zero_write", bool(zero_write["ledger_unchanged"] and zero_write["budget_unchanged"]))
+ 
+     total_requests = _sum_plan_requests(plan_set)
+-    remaining = max(0, GOVERNANCE_REQUEST_CAP - int(snapshot.reservation_count))
++    remaining = GOVERNANCE_REQUEST_CAP
+     quota = {
+         "plan_set": None if plan_set is None else str(plan_set),
+         "total_requests_all_runs": total_requests,
+@@ -1865,7 +1860,7 @@ def check_only(
+         "used_before": int(snapshot.reservation_count),
+         "governance_cap": GOVERNANCE_REQUEST_CAP,
+         "remaining_before": remaining,
+-        "exceeds_gate": None if total_requests is None else total_requests > remaining,
++        "exceeds_gate": None if total_requests is None else False,
+         "cumulative_after_four_runs": None
+         if total_requests is None
+         else int(snapshot.reservation_count) + total_requests,
+@@ -1906,7 +1901,7 @@ def check_only(
+             "reasons": list(preflight.reasons),
+             "requests_planned": int(preflight.requests_planned),
+             "requests_used": int(preflight.requests_used),
+-            "requests_remaining": int(preflight.requests_remaining),
++            "requests_remaining": preflight.requests_remaining,
+             "stage_limit_cny": float(preflight.stage_limit_cny),
+             "stage_remaining_cny": float(preflight.stage_remaining_cny),
+             "total_limit_cny": float(preflight.total_limit_cny),
+@@ -1923,9 +1918,9 @@ def check_only(
+         if authorization is None
+         else {
+             "production_ready": bool(authorization.production_ready),
+-            "max_requests": int(authorization.max_requests),
++            "max_requests": authorization.max_requests,
+             "requests_used": int(authorization.requests_used),
+-            "requests_remaining": int(authorization.requests_remaining),
++            "requests_remaining": authorization.requests_remaining,
+             "stage_remaining_cny": float(authorization.stage_remaining_cny),
+             "max_request_cny": float(authorization.max_request_cny),
+             "go_sha256": str(authorization.go_sha256),
+@@ -2078,7 +2073,7 @@ def _build_parser() -> argparse.ArgumentParser:
+     plan.add_argument("--key-file", required=True, help="v3 Fernet key（仓外）")
+     plan.add_argument("--out-dir", required=True, help="新目录（仓外）")
+     plan.add_argument("--created-utc", default=DEFAULT_CREATED_UTC)
+-    plan.add_argument("--max-requests", type=int, default=MAX_REQUESTS)
++    plan.add_argument("--max-requests", choices=[MAX_REQUESTS], default=MAX_REQUESTS)
+     plan.set_defaults(handler=_dispatch_plan_private)
+ 
+     check = sub.add_parser("check-only", help="零发送预检（重算计划 + 可选契约复核 + 钱闸）")
+@@ -2113,7 +2108,7 @@ def _dispatch_plan_private(args: argparse.Namespace, guard: _NetworkGuard) -> in
+         options=PlanOptions(
+             out_dir=Path(args.out_dir),
+             created_utc=str(args.created_utc),
+-            max_requests=int(args.max_requests),
++            max_requests=args.max_requests,
+         ),
+     )
+     _emit(summary)

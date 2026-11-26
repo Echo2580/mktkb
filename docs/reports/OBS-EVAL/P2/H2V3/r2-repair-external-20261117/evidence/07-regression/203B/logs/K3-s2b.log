@@ -1,0 +1,27 @@
+..F.....                                                                 [100%]
+================================== FAILURES ===================================
+________________ test_ambiguous_identifier_candidates_converge ________________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A774695FA0>, 'admin': <starlette.testclient.TestClient object ...60c1ad170133b369be748a0bf8830abd218'}, 'employee': <starlette.testclient.TestClient object at 0x000001A7748F3140>, ...}
+
+    def test_ambiguous_identifier_candidates_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        opening = _ask(client, conversation, "标识 IB-777 在哪里？")
+>       assert opening["kind"] == "clarification", opening
+E       AssertionError: {'request_id': '0c2917bd-0c45-4b94-bc2b-205b1e6aea1a', 'message_id': '9108c8fc-15a2-4e6b-84dc-8f2183adc0d2', 'kind': 'conflict', 'text': '资料中存在冲突：江湾店的立牌的位置有多个有效值：C区一层（来源：dup.xlsx）；C区二层（来源：dup.xlsx）。未按上传时间自动选择其一。', ...}
+E       assert 'conflict' == 'clarification'
+E         
+E         - clarification
+E         + conflict
+
+tests\integration\test_s2b_intent_semantics.py:196: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge
+1 failed, 7 passed, 1 warning in 7.15s

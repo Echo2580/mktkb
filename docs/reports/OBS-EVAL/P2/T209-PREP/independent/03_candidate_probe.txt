@@ -1,0 +1,56 @@
+﻿[PASS] S0 源 baseline 未审批
+[PASS] S1 干净报告派生 candidate
+[PASS] S2 archive state=candidate
+[PASS] S3 CandidateArchive 五项发布属性恒 false
+[PASS] S4 archive files=5 :: ['payload/archive_manifest.json', 'payload/baseline/baseline.json', 'payload/run/cases.jsonl', 'payload/run/run_manifest.json', 'payload/run/summary.json']
+[PASS] S5 归档 payload 无 approval.json
+[PASS] S6 manifest 18 字段固定
+[PASS] S7 manifest 四项恒 false
+[PASS] S8 manifest 报告 release_ready=false
+[PASS] S9 manifest 绑定 payload 身份/run
+[PASS] S10 verify 重算身份/run 一致
+[PASS] S11 verify state/candidate + has_approval=false
+[PASS] S12 restore 不改源归档字节
+[PASS] S13 恢复后 approval=None / approved=False
+[PASS] S14 恢复目录无 approval.json
+[PASS] S15 恢复身份/run 一致
+[PASS] S16 RestoreResult 发布属性 false
+[PASS] S17 diff_runs 不放行 candidate
+[PASS] S18 release_blocked_reason=baseline_unapproved :: baseline_unapproved
+[PASS] S19 require_release_baseline 拒绝
+[PASS] S20 质量 FAIL 归档 state=blocked 且不可发布
+[PASS] S21 blocked manifest 保留 FAIL/27 缺证据
+[PASS] S22 list 两次结果一致
+[PASS] S23 list 按 archive_dir 排序
+[PASS] S24 list 覆盖 candidate/blocked :: ['blocked', 'candidate']
+[PASS] S25 list 行发布属性 false
+[PASS] S26 自 diff 同身份/同轮/无变化
+[PASS] S27 同身份可对比但禁止合并
+[PASS] S28 跨轮 scores_comparable=false / merge=false
+[PASS] S29 跨轮原因显式
+[PASS] S30 同轮不同 pipeline identity 不同
+[PASS] S31 跨 pipeline 不可比/禁合并
+[PASS] S32 identity_changes 含 pipeline_version
+[PASS] S32b 同轮不同 scope identity 不同
+[PASS] S32c 跨 scope 不可比/禁合并
+[PASS] S32d identity_changes 含 scope
+[PASS] S33 改 publishable=true 被拒绝 :: rejected=candidate_manifest.publishable 必须为 false（candidate/blocked 不可发布）
+[PASS] S33 改 release_baseline=true 被拒绝 :: rejected=candidate_manifest.release_baseline 必须为 false（candidate/blocked 不可发布）
+[PASS] S33 改 gate_approved=true 被拒绝 :: rejected=candidate_manifest.gate_approved 必须为 false（candidate/blocked 不可发布）
+[PASS] S33 改 has_approval=true 被拒绝 :: rejected=candidate_manifest.has_approval 必须为 false（候选归档不携带审批、不冒充 approved）
+[PASS] S34 加 approved 字段被拒绝 :: rejected=candidate_manifest 字段集合不符（缺 []；多 ['approved']）；候选归档字段结构固定，不接受额外发布字段
+[PASS] S35 state 翻转被拒绝 :: rejected=candidate_manifest.state='blocked' 与报告事实派生状态 'candidate' 不一致（改元数据不能把 blocked 抬升成 candidate）
+[PASS] S36 报告 release_ready=true 抬升被拒绝 :: rejected=candidate_manifest.report 被拒绝: report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] S37 归档到正式 registry 被拒绝 :: rejected=候选归档目标位于正式 registry 或受保护证据/报告目录内，拒绝写入: D:\GPT项目\市场部AI知识库\var\eval\baselines\t209-indep-should-not-exist（保护根 D:\GPT项目\市场部AI知识库\var\eval\baselines）
+[PASS] S38 归档到受保护 docs/reports 被拒绝 :: rejected=候选归档目标位于正式 registry 或受保护证据/报告目录内，拒绝写入: D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P2\T209-PREP\independent\should-not-exist（保护根 D:\GPT项目\市场部AI知识库\docs\reports）
+[PASS] S39 正式 registry/受保护目录无任何新写入
+[PASS] S40 恢复到正式 registry 被拒绝 :: rejected=候选恢复目标根位于正式 registry 或受保护证据/报告目录内，拒绝写入: D:\GPT项目\市场部AI知识库\var\eval\baselines\t209-indep-restore（保护根 D:\GPT项目\市场部AI知识库\var\eval\baselines）
+[PASS] S41 正式 registry 无恢复残留
+[PASS] S42 恢复到归档内部被拒绝 :: rejected=候选恢复目标根不能位于源归档目录内部（归档只读）: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-cand-_7h1un2g\candidates\candidate-a\inside
+[PASS] S43 candidate 全链 approve_baseline 调用次数=0 :: {'n': 0}
+[PASS] S44 新模块未绑定 approve_baseline 名称
+[PASS] S45 临时树无 approval.json :: []
+
+checks=52 failed=0
+RESULT=PASS
+

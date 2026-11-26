@@ -1,0 +1,45 @@
+{
+  "after": {
+    "bytes": 15914,
+    "sha256": "2366945b61209ba46bb1ef7525c52952a58f8b750e9bb07ccdfeafc396586f3d",
+    "source": "worktree"
+  },
+  "before": {
+    "bytes": 15634,
+    "sha256": "d0cb23de2cff80a743c086a8723edd80654d64b22f4e18f97973dd83b153cd25",
+    "source": "git show HEAD:backend/src/mktkb/evaluation/p2_holdout_plan.py"
+  },
+  "changed_lines": [
+    "+import os",
+    "-H2_PROJECT_TOTAL_LIMIT_CNY = 40.0",
+    "+#: 项目总上限：默认 40.0 逐值不变；主人显式追加预算时用 MKTKB_PROJECT_TOTAL_LIMIT_CNY",
+    "+#: 在**导入期**覆盖（同一进程内 build_plan 与 validate_run 必须看到同一个值）。",
+    "+H2_PROJECT_TOTAL_LIMIT_CNY = float(os.environ.get(\"MKTKB_PROJECT_TOTAL_LIMIT_CNY\", \"40.0\"))"
+  ],
+  "default_40": {
+    "code": "scenario_plan_mismatch",
+    "constant": 40.0,
+    "differing_keys": [
+      "project_total_limit_cny"
+    ],
+    "expected_values": {
+      "project_total_limit_cny": 40.0
+    },
+    "ok": false,
+    "plan_project_total_limit_cny": 50.0,
+    "plan_values": {
+      "project_total_limit_cny": 50.0
+    }
+  },
+  "diff_numstat": "4\t1\tbackend/src/mktkb/evaluation/p2_holdout_plan.py",
+  "env_50": {
+    "code": null,
+    "constant": 50.0,
+    "differing_keys": [],
+    "ok": true,
+    "plan_project_total_limit_cny": 50.0
+  },
+  "schema_version": "h2v3-limit-alignment-probe/v0.1",
+  "semantic_change_claim": "唯一语义变化：H2_PROJECT_TOTAL_LIMIT_CNY 的值来源由字面量 40.0 改为 MKTKB_PROJECT_TOTAL_LIMIT_CNY（缺省 40.0）；新增 import os 与注释不改变行为。",
+  "target": "backend/src/mktkb/evaluation/p2_holdout_plan.py"
+}

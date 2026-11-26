@@ -1,0 +1,82 @@
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 48%]
+........................................................................ [ 60%]
+........................................................................ [ 72%]
+........................................................F..F............ [ 84%]
+........................................................................ [ 96%]
+.....................                                                    [100%]
+================================== FAILURES ===================================
+________ test_same_value_single_cited_source_answers_with_that_source _________
+
+chat_app = <fastapi.applications.FastAPI object at 0x0000022E60226B10>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x0000022E62C280E0>, csrf='0fcfe3ebf9fa535fa3096ed97109743...d9710974337b6eea16b3bf8861bddcccf74aba0779'}, upload=<function _write_session.<locals>.<lambda> at 0x0000022E65582AC0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000022E5972CFE0>, csrf='271ba8eba6538af3a5ca9be43dbfb54...e43dbfb549f2611506440177aa42ce62d44b34e158'}, upload=<function _write_session.<locals>.<lambda> at 0x0000022E6108B560>)
+
+    def test_same_value_single_cited_source_answers_with_that_source(chat_app, chat_admin, chat_employee):
+        """同值双来源、模型只引用其中一条（正文通知）：必须 answer，来源就是被引用的那一条。"""
+        _seed_same_value_state(chat_app, chat_admin, chat_employee)
+        gateway = chat_app.state.model_gateway
+        gateway.answer_text = STATEMENT
+        first = _ask(chat_employee, QUESTION)
+        assert first["kind"] == "answer", first
+        evidence = _answer_evidence(gateway)
+>       notice_id = _notice_source_id(evidence)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+evidence = [{'source_id': '45892118-6fbc-4cf7-a878-8ec951885d0b', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', ...'source_id': '6bc98840-87fc-4c7d-aafb-9416d5a84f56', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+    def _notice_source_id(evidence: list[dict]) -> str:
+        """正文通知单元：证据里正文含“临时调整至”的那一条（fixture 正文，非产品常量）。"""
+        for item in evidence:
+            if "临时调整至" in item["text"]:
+                return item["source_id"]
+>       raise AssertionError(evidence)
+E       AssertionError: [{'source_id': '45892118-6fbc-4cf7-a878-8ec951885d0b', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', '别名': '海报', '位置': 'D区暂存柜'}}, {'source_id': '6bc98840-87fc-4c7d-aafb-9416d5a84f56', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:128: AssertionError
+________________ test_same_value_rejects_echo_from_uncited_row ________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x0000022E5EF52810>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x0000022E663971A0>, csrf='b952e2ac16a3023f30be02d0dbcd819...d0dbcd819327a5e3af84790c266cbf5ea7d9d6b85d'}, upload=<function _write_session.<locals>.<lambda> at 0x0000022E6639E840>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000022E663A08F0>, csrf='6a09a251a570138329758d9995c11d1...9995c11d1a8a571a08800876936355894c3b028a97'}, upload=<function _write_session.<locals>.<lambda> at 0x0000022E6639FC40>)
+
+    def test_same_value_rejects_echo_from_uncited_row(chat_app, chat_admin, chat_employee):
+        """未引用行不能为回答背书：只引用正文通知，却回显表格行的标识，仍必须拒绝。"""
+        _seed_same_value_state(chat_app, chat_admin, chat_employee)
+        gateway = chat_app.state.model_gateway
+        gateway.answer_text = STATEMENT
+        first = _ask(chat_employee, QUESTION)
+        assert first["kind"] == "answer", first
+        evidence = _answer_evidence(gateway)
+>       notice_id = _notice_source_id(evidence)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+evidence = [{'source_id': '26d21af0-3c0d-400b-8387-680fd026ffba', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', ...'source_id': '43526191-fbdd-4a35-be22-cfd661ba0eb4', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+    def _notice_source_id(evidence: list[dict]) -> str:
+        """正文通知单元：证据里正文含“临时调整至”的那一条（fixture 正文，非产品常量）。"""
+        for item in evidence:
+            if "临时调整至" in item["text"]:
+                return item["source_id"]
+>       raise AssertionError(evidence)
+E       AssertionError: [{'source_id': '26d21af0-3c0d-400b-8387-680fd026ffba', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', '别名': '海报', '位置': 'D区暂存柜'}}, {'source_id': '43526191-fbdd-4a35-be22-cfd661ba0eb4', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:128: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\integration\test_t09_d4_same_value_sources.py::test_same_value_single_cited_source_answers_with_that_source
+FAILED backend\tests\integration\test_t09_d4_same_value_sources.py::test_same_value_rejects_echo_from_uncited_row
+2 failed, 595 passed, 1 warning in 501.16s (0:08:21)

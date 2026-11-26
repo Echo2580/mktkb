@@ -1,0 +1,721 @@
+{
+  "probe": "14-q1a2-adapter",
+  "assertions_total": 93,
+  "assertions_failed": 0,
+  "failures": [],
+  "results": [
+    {
+      "label": "positive: 5/17/4/30 accepted",
+      "ok": true,
+      "detail": {
+        "cases": 30,
+        "runs": 4,
+        "bindings": 17
+      }
+    },
+    {
+      "label": "positive: schema_version",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "positive: case view resolved",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "positive: run_for_scenario",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "positive: missing case returns None",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "positive: axis objects keep exactly 7 fields",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "positive: expected_axes deep-equal accepted",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "expected_axes value changed -> contract_semantics_changed",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "expected_axes missing field -> contract_semantics_changed",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "expected_axes extra field -> contract_semantics_changed",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "expected_axes case set mismatch -> contract_coverage_invalid",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "expected_axes case missing axis -> contract_semantics_changed",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "expected_axes not a mapping -> contract_semantics_changed",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "with expected_axes: schema still rejected by own code",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "with expected_axes: basis still rejected by own code",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "with expected_axes: axis still rejected by own code",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "with expected_axes: unknown downgrade still rejected",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "unknown -> N/A benign rewrite is NOT caught without expected_axes (deferral; expected_axes catches it)",
+      "ok": true,
+      "detail": "accepted by design; schema §5 deep compare / expected_axes is the consumer's duty"
+    },
+    {
+      "label": "unknown -> N/A benign rewrite caught by expected_axes",
+      "ok": true,
+      "detail": {
+        "expected": "contract_semantics_changed",
+        "actual": "contract_semantics_changed"
+      }
+    },
+    {
+      "label": "N/A + insufficient_annotation -> contract_unknown_downgraded",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "schema_version missing",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "top-level extra key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "top-level not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "bindings missing key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "bindings extra key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "bindings hash not 64 hex",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "bindings hash short",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "dataset_version wrong",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "label_version wrong",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "bindings not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_binding_mismatch",
+        "actual": "contract_binding_mismatch"
+      }
+    },
+    {
+      "label": "runs length 3",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "runs length 5",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "runs order wrong",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "run_index wrong",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "run_id empty",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "run plan_sha256 bad",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "run extra key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "case_count 29",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "case_count bool",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "cases length 29",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "cases not list",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "case duplicate id",
+      "ok": true,
+      "detail": {
+        "expected": "contract_coverage_invalid",
+        "actual": "contract_coverage_invalid"
+      }
+    },
+    {
+      "label": "case_index wrong",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "case extra key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "case scenario_id unknown",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "case_id empty",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "case not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_schema_invalid",
+        "actual": "contract_schema_invalid"
+      }
+    },
+    {
+      "label": "axes missing axis",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "axes extra axis",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "axes not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "axis object missing field",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "axis object extra field",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "applicability invalid",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "criterion invalid for axis",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "reason not in 18 codes",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "temporal_intent invalid",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs not list",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs negative index",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs bool index",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs invalid collection",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs extra key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "target_refs duplicate pair",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "targets not list",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "targets entry missing key",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "targets entity_type empty",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "targets filters not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "targets filters list value",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "as_of not ISO",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "as_of impossible date",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "cross_user not required",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "stale_source unknown applicability",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "cross_entity N/A with wrong criterion",
+      "ok": true,
+      "detail": {
+        "expected": "contract_axis_invalid",
+        "actual": "contract_axis_invalid"
+      }
+    },
+    {
+      "label": "N/A + ambiguous_semantics -> unknown downgraded",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "N/A + unresolved_target -> unknown downgraded",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "N/A + source_state_conflict -> unknown downgraded",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "N/A + third_state_required -> unknown downgraded",
+      "ok": true,
+      "detail": {
+        "expected": "contract_unknown_downgraded",
+        "actual": "contract_unknown_downgraded"
+      }
+    },
+    {
+      "label": "basis missing axis",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "basis extra axis",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "basis value out of enum",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "no_provable_basis_keep_unknown with required",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "basis not mapping",
+      "ok": true,
+      "detail": {
+        "expected": "contract_basis_invalid",
+        "actual": "contract_basis_invalid"
+      }
+    },
+    {
+      "label": "adapter: run bindings injected from scenario",
+      "ok": true,
+      "detail": {
+        "run_id": "RUN-0",
+        "plan_id": "PLAN-0",
+        "plan_sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+      }
+    },
+    {
+      "label": "adapter: basis injected per axis",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "adapter: source marker default frozen_contract",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "adapter: cross_entity mode entity_bound",
+      "ok": true,
+      "detail": "entity_bound"
+    },
+    {
+      "label": "adapter: real-marker contract scores cross_entity pass",
+      "ok": true,
+      "detail": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "provenance": "rescored"
+      }
+    },
+    {
+      "label": "adapter: cross_user pass",
+      "ok": true,
+      "detail": {
+        "state": "passed",
+        "reason": "all_user_contexts_ok",
+        "provenance": "rescored"
+      }
+    },
+    {
+      "label": "adapter: stale_source pass",
+      "ok": true,
+      "detail": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "provenance": "rescored"
+      }
+    },
+    {
+      "label": "basis only provenance: verdict unchanged",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "basis only provenance: axis_basis changed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "adapter: synthetic marker denied by default",
+      "ok": true,
+      "detail": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "provenance": "rescored"
+      }
+    },
+    {
+      "label": "adapter: unknown case -> contract_coverage_invalid",
+      "ok": true,
+      "detail": "contract_coverage_invalid"
+    },
+    {
+      "label": "adapter: target_ref beyond frozen collection -> unknown (fail-closed, not pass)",
+      "ok": true,
+      "detail": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "provenance": "rescored"
+      }
+    }
+  ],
+  "verdict": "PASS"
+}

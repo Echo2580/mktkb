@@ -1,0 +1,883 @@
+{
+  "cases": {
+    "A1_doc_word_qingdan": {
+      "checks": {
+        "absent:北区一排货架": true,
+        "absent:收银台正面": true,
+        "absent:生鲜区端头": true,
+        "absent:西区二排货架": true,
+        "clarification_none": true,
+        "enumerate": true,
+        "kind": true,
+        "owns": true,
+        "present:前台内侧墙面": true,
+        "present:电梯口立柱": true,
+        "reason": true,
+        "returned": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 2,
+        "kind": "answer",
+        "reason": null,
+        "returned": 2,
+        "text_len": 98,
+        "values_present": {
+          "前台内侧墙面": true,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": true,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_positive",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "易拉宝"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的易拉宝那个位置，查物料清单确认下"
+    },
+    "A2_two_doc_codes": {
+      "checks": {
+        "absent:前台内侧墙面": true,
+        "absent:电梯口立柱": true,
+        "clarification_none": true,
+        "enumerate": true,
+        "kind": true,
+        "owns": true,
+        "present:北区一排货架": true,
+        "present:西区二排货架": true,
+        "reason": true,
+        "returned": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 2,
+        "kind": "answer",
+        "reason": null,
+        "returned": 2,
+        "text_len": 101,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": true,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": true
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_positive",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的宣传海报那个位置在D01和D02里分别是怎么写的"
+    },
+    "A3_doc_word_ziliao": {
+      "checks": {
+        "absent:前台内侧墙面": true,
+        "absent:电梯口立柱": true,
+        "clarification_none": true,
+        "enumerate": true,
+        "kind": true,
+        "owns": true,
+        "present:北区一排货架": true,
+        "present:西区二排货架": true,
+        "reason": true,
+        "returned": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 2,
+        "kind": "answer",
+        "reason": null,
+        "returned": 2,
+        "text_len": 101,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": true,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": true
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_positive",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的宣传海报那个位置，对照存档资料核一下"
+    },
+    "A4_contact_merge_refused": {
+      "checks": {
+        "citations": true,
+        "clarification_none": true,
+        "kind": true,
+        "no_values": true,
+        "owns": true,
+        "reason": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "no_answer",
+        "reason": "SECURITY_RESTRICTED_CONTACT",
+        "returned": null,
+        "text_len": 98,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_positive_security",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "易拉宝"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": "SECURITY_RESTRICTED_CONTACT",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的易拉宝那个位置，连门店的联系电话一起发我"
+    },
+    "B1_first_turn_explicit": {
+      "checks": {
+        "absent:生鲜区端头": true,
+        "absent:电梯口立柱": true,
+        "citations_min": true,
+        "clarification_none": true,
+        "enumerate": true,
+        "kind": true,
+        "owns": true,
+        "present:前台内侧墙面": true,
+        "reason_not": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 1,
+        "kind": "answer",
+        "reason": null,
+        "returned": 1,
+        "text_len": 102,
+        "values_present": {
+          "前台内侧墙面": true,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "B_positive",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": null,
+        "filters": {
+          "item": "易拉宝",
+          "store": "城东店"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": null,
+        "stores": [
+          "城东店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店的易拉宝那个张贴要求是怎么说的"
+    },
+    "B2_first_turn_explicit": {
+      "checks": {
+        "absent:前台内侧墙面": true,
+        "citations_min": true,
+        "clarification_none": true,
+        "enumerate": true,
+        "kind": true,
+        "owns": true,
+        "present:电梯口立柱": true,
+        "reason_not": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 1,
+        "kind": "answer",
+        "reason": null,
+        "returned": 1,
+        "text_len": 101,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": true,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "B_positive",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": null,
+        "filters": {
+          "item": "易拉宝",
+          "store": "城西店"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": null,
+        "stores": [
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城西店的易拉宝那个补给节奏如何安排"
+    },
+    "B3_no_coverage_not_found": {
+      "checks": {
+        "citations": true,
+        "kind": true,
+        "no_values": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "no_answer",
+        "reason": "NO_RECORD_FOR_ENTITY",
+        "returned": 0,
+        "text_len": 56,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "B_negative",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": null,
+        "filters": {
+          "item": "价签卡纸",
+          "store": "城东店"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": null,
+        "stores": [
+          "城东店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店的价签卡纸那个张贴要求是怎么说的"
+    },
+    "B4_followup_collapse_kept": {
+      "checks": {
+        "f_citations": true,
+        "f_kind": true,
+        "f_no_values": true,
+        "f_reason": true,
+        "kind": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 1,
+        "kind": "answer",
+        "reason": null,
+        "returned": 1,
+        "text_len": 23,
+        "values_present": {
+          "前台内侧墙面": true,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": {
+        "e2e": {
+          "any_value_present": false,
+          "citations": 0,
+          "kind": "no_answer",
+          "reason": "ANAPHORA_NEW_CONTENT",
+          "returned": 1,
+          "text_len": 66,
+          "values_present": {
+            "前台内侧墙面": false,
+            "北区一排货架": false,
+            "收银台正面": false,
+            "生鲜区端头": false,
+            "电梯口立柱": false,
+            "西区二排货架": false
+          }
+        },
+        "planner": {
+          "clarification": null,
+          "enumerate": true,
+          "field_role": "location",
+          "filters": {
+            "item": "易拉宝",
+            "store": "城东店"
+          },
+          "missing_stores": [],
+          "mode": "record",
+          "rag_owns_turn": true,
+          "reason": "ANAPHORA_NEW_CONTENT",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 2
+        },
+        "question": "城东店的易拉宝那个印刷材质呢"
+      },
+      "group": "B_negative",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "易拉宝",
+          "store": "城东店"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店的易拉宝在哪里？"
+    },
+    "B5_first_turn_bare_anaphora": {
+      "checks": {
+        "kind": true,
+        "no_values": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "clarification",
+        "reason": "MISSING_SLOT",
+        "returned": null,
+        "text_len": 41,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "B_negative",
+      "ok": true,
+      "planner": {
+        "clarification": "请补充要查询的门店；这不是资料中没有答案，补充后可重新提问。",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": "MISSING_SLOT",
+        "stores": [],
+        "turn": 1
+      },
+      "question": "这两个分别摆在哪"
+    },
+    "N1_two_stores_two_items": {
+      "checks": {
+        "clarification_required": true,
+        "kind": true,
+        "no_values": true,
+        "owns": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "clarification",
+        "reason": "ITEM_AMBIGUOUS",
+        "returned": null,
+        "text_len": 42,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_negative",
+      "ok": true,
+      "planner": {
+        "clarification": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": "ITEM_AMBIGUOUS",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的易拉宝和宣传海报分别摆在哪"
+    },
+    "N2_bare_anaphora": {
+      "checks": {
+        "clarification_required": true,
+        "kind": true,
+        "no_values": true,
+        "owns": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "clarification",
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null,
+        "text_len": 58,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_negative",
+      "ok": true,
+      "planner": {
+        "clarification": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店、城西店",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的这两个分别摆在哪"
+    },
+    "N3_unknown_store_anaphora": {
+      "checks": {
+        "clarification_required": true,
+        "kind": true,
+        "no_values": true,
+        "owns": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "clarification",
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null,
+        "text_len": 54,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_negative",
+      "ok": true,
+      "planner": {
+        "clarification": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "stores": [
+          "城东店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和郊野店的这几个分别摆在哪"
+    },
+    "N4_missing_document_still": {
+      "checks": {
+        "clarification_required": true,
+        "owns": true,
+        "reason": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "no_answer",
+        "reason": "DOCUMENT_NOT_FOUND",
+        "returned": null,
+        "text_len": 48,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "A_negative",
+      "ok": true,
+      "planner": {
+        "clarification": "资料“促销活动台账”未收录，未使用其它资料替代；这不是资料中没有答案，请核对资料名称后重新查询。",
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "document",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_NOT_FOUND",
+        "stores": [],
+        "turn": 1
+      },
+      "question": "促销活动台账在哪"
+    },
+    "R1_fix1_multi_target": {
+      "checks": {
+        "kind": true,
+        "owns": true,
+        "present:北区一排货架": true,
+        "present:西区二排货架": true,
+        "reason": true,
+        "returned": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 2,
+        "kind": "answer",
+        "reason": null,
+        "returned": 2,
+        "text_len": 101,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": true,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": true
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "regression_fix1",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的宣传海报分别摆在哪"
+    },
+    "R2_fix1r1_pure_anaphora_with_store_pair": {
+      "checks": {
+        "clarification_required": true,
+        "kind": true,
+        "no_values": true,
+        "owns": true,
+        "reason": true
+      },
+      "e2e": {
+        "any_value_present": false,
+        "citations": 0,
+        "kind": "clarification",
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null,
+        "text_len": 58,
+        "values_present": {
+          "前台内侧墙面": false,
+          "北区一排货架": false,
+          "收银台正面": false,
+          "生鲜区端头": false,
+          "电梯口立柱": false,
+          "西区二排货架": false
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "regression_fix1r1",
+      "ok": true,
+      "planner": {
+        "clarification": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店、城西店",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的这几个分别摆在哪"
+    },
+    "R3_fix1_anaphora_they_planner": {
+      "checks": {
+        "owns": true,
+        "reason_not": true
+      },
+      "e2e": {
+        "any_value_present": true,
+        "citations": 6,
+        "kind": "answer",
+        "reason": null,
+        "returned": 6,
+        "text_len": 244,
+        "values_present": {
+          "前台内侧墙面": true,
+          "北区一排货架": true,
+          "收银台正面": true,
+          "生鲜区端头": true,
+          "电梯口立柱": true,
+          "西区二排货架": true
+        }
+      },
+      "failed_checks": [],
+      "followup": null,
+      "group": "regression_fix1",
+      "ok": true,
+      "planner": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "missing_stores": [],
+        "mode": "record",
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "turn": 1
+      },
+      "question": "城东店和城西店的它们分别摆在哪"
+    }
+  },
+  "cases_passed": 16,
+  "cases_total": 16,
+  "failures": [],
+  "groups": {
+    "A_negative": {
+      "cases": 4,
+      "failed": [],
+      "passed": 4
+    },
+    "A_positive": {
+      "cases": 3,
+      "failed": [],
+      "passed": 3
+    },
+    "A_positive_security": {
+      "cases": 1,
+      "failed": [],
+      "passed": 1
+    },
+    "B_negative": {
+      "cases": 3,
+      "failed": [],
+      "passed": 3
+    },
+    "B_positive": {
+      "cases": 2,
+      "failed": [],
+      "passed": 2
+    },
+    "regression_fix1": {
+      "cases": 2,
+      "failed": [],
+      "passed": 2
+    },
+    "regression_fix1r1": {
+      "cases": 1,
+      "failed": [],
+      "passed": 1
+    }
+  },
+  "lexicon": {
+    "items": [
+      "宣传海报",
+      "易拉宝",
+      "促销贴纸",
+      "价签卡纸"
+    ],
+    "stores": [
+      "城东店",
+      "城西店",
+      "城北店"
+    ]
+  },
+  "notes": [
+    "本包自建问句与记录值，未复用开发用例的输入/断言；未读取真实 H2 题面/答案。",
+    "A 类正例必须 MULTI_TARGET_ENUMERATE + 内核作答 + 只含目标内取值。",
+    "A/B 反例要求真歧义仍澄清、真无覆盖仍 not_found 且零引用零取值。",
+    "B4 为多轮：第 2 轮追问口径必须仍是 ANAPHORA_NEW_CONTENT 收口。"
+  ],
+  "outbound_attempts": [],
+  "records": [
+    {
+      "位置": "北区一排货架",
+      "标识": "K01",
+      "物品": "宣传海报",
+      "门店": "城东店"
+    },
+    {
+      "位置": "西区二排货架",
+      "标识": "K02",
+      "物品": "宣传海报",
+      "门店": "城西店"
+    },
+    {
+      "位置": "前台内侧墙面",
+      "标识": "K03",
+      "物品": "易拉宝",
+      "门店": "城东店"
+    },
+    {
+      "位置": "电梯口立柱",
+      "标识": "K04",
+      "物品": "易拉宝",
+      "门店": "城西店"
+    },
+    {
+      "位置": "收银台正面",
+      "标识": "K05",
+      "物品": "促销贴纸",
+      "门店": "城东店"
+    },
+    {
+      "位置": "生鲜区端头",
+      "标识": "K06",
+      "物品": "价签卡纸",
+      "门店": "城西店"
+    }
+  ],
+  "schema_version": "v3-fix2-independent-probe/v0.1",
+  "src_used": "D:\\GPT项目\\市场部AI知识库\\backend\\src"
+}

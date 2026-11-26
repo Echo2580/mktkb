@@ -1,0 +1,45 @@
+{
+  "mode": "guard_socketpair",
+  "exit": 1,
+  "timeout": true,
+  "limit_seconds": 12,
+  "elapsed_ms": 12000,
+  "child_terminated": true,
+  "markers": [
+    {
+      "stage": "CHILD_STARTED"
+    },
+    {
+      "stage": "T09_GUARD_ACTIVE"
+    },
+    {
+      "stage": "SOCKETPAIR_ENTER"
+    },
+    {
+      "stage": "SOCKETPAIR_BIND",
+      "count": 1
+    },
+    {
+      "stage": "SOCKETPAIR_CONNECT",
+      "count": 1
+    }
+  ],
+  "frames": [
+    {
+      "line": 295,
+      "function": "accept"
+    },
+    {
+      "line": 627,
+      "function": "_fallback_socketpair"
+    },
+    {
+      "line": 72,
+      "function": "child"
+    }
+  ],
+  "stdout_sha256": "958a32f8b8ca609f6bafef52a753f05e76a35fe9701a9dfbe677f63acb636ff4",
+  "stderr_sha256": "54b6783fea922968dc5a618ef9aa6d37a94628d580d099dceb3fac14aceba435",
+  "stdout_lines": 5,
+  "stderr_lines": 6
+}

@@ -1,0 +1,130 @@
+{
+  "probe": "reviewer-fu1",
+  "label": "fixed-tree",
+  "checkout_root": "D:\\GPT项目\\市场部AI知识库",
+  "work_dir": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\fu1-probe-fixed-tree-idv3zo2v",
+  "python": "3.12.7",
+  "scenarios": [
+    {
+      "scenario": "positive",
+      "run_status": "succeeded",
+      "stop_code": null,
+      "product_revision": 3,
+      "index_status_index_revision": 4,
+      "counters_differ": true,
+      "manifest_index_revision": 4,
+      "binding_index_revision": 4,
+      "binding_complete": true,
+      "binding_missing": [],
+      "trace_identity_bound": true,
+      "manifest_equals_rag_index": true,
+      "manifest_differs_from_product": true,
+      "config_hash_recompute_matches": true,
+      "summary_binding_equals_manifest_binding": true,
+      "traces": [
+        {
+          "case_id": "R01",
+          "turn": 1,
+          "path": "rag",
+          "index_revision": "4",
+          "config_hash_matches_binding": true
+        },
+        {
+          "case_id": "R02",
+          "turn": 1,
+          "path": "legacy",
+          "index_revision": "4",
+          "config_hash_matches_binding": true
+        }
+      ],
+      "all_traces_equal_manifest": true,
+      "trace_paths": [
+        "legacy",
+        "rag"
+      ],
+      "gate_trace_integrity": "pass",
+      "gate_hard_failures": [],
+      "gate_version_binding_failures": [],
+      "gate_exit_code": 3,
+      "negative_tamper": [
+        {
+          "wrong_value": 3,
+          "trace_integrity": "fail",
+          "version_binding_rows": 2,
+          "mismatched_fields": [
+            "index_revision"
+          ],
+          "exit_code": 1
+        },
+        {
+          "wrong_value": 99,
+          "trace_integrity": "fail",
+          "version_binding_rows": 2,
+          "mismatched_fields": [
+            "index_revision"
+          ],
+          "exit_code": 1
+        }
+      ]
+    },
+    {
+      "scenario": "index_version_unavailable",
+      "run_status": "succeeded",
+      "manifest_index_revision": null,
+      "binding_complete": false,
+      "binding_missing": [
+        "index_revision",
+        "trace_identity"
+      ],
+      "binding_config_hash": null,
+      "trace_identity_bound": false,
+      "trace_identity_fields": [
+        {
+          "run_id": null,
+          "config_hash": null,
+          "manifest_sha256": null,
+          "pipeline_version": null,
+          "index_revision": "4"
+        }
+      ],
+      "gate_rejects_incomplete_manifest": true,
+      "gate_reject_reason": "run_manifest_incomplete: manifest 缺少 ['index_revision', 'config_hash']"
+    },
+    {
+      "scenario": "index_drift_mid_run",
+      "run_status": "aborted",
+      "stop_code": "index_changed",
+      "asks_issued": 1,
+      "failure": {
+        "case_id": "D01",
+        "error_code": "index_changed",
+        "item_id": "D01:turn1:answer",
+        "stage": "index_after_turn",
+        "stop_code": "index_changed",
+        "ticket": {
+          "bound_cny": 0.018688,
+          "case_id": "D01",
+          "cost_center": "answer_retrieval",
+          "dry_run": true,
+          "item_id": "D01:turn1:answer",
+          "kind": "chat",
+          "model": "deepseek-flash",
+          "nonce_len": 0,
+          "operation": "answer",
+          "page": 0,
+          "plan_id": null,
+          "plan_sha256": null,
+          "provider": "deepseek",
+          "request_id": "p2dry-6ad4a17ec661201c1d2a43e4",
+          "reservation_id": null,
+          "turn": 1
+        },
+        "turn": 1
+      },
+      "binding_index_revision": 4,
+      "request_lines": 1,
+      "turns_emitted": 1,
+      "cases_emitted": 1
+    }
+  ]
+}

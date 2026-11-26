@@ -1,0 +1,496 @@
+{
+ "schema_version": "c1p1impl-gaps/v0.1",
+ "rules": [
+  {
+   "name": "reason_order.mixed_unknown_units_stable",
+   "pass": false,
+   "actual": [
+    [
+     "unknown",
+     "version_unresolved"
+    ],
+    [
+     "unknown",
+     "stale_active_version_ambiguous"
+    ]
+   ],
+   "expected": "same fixed reason regardless of unit order"
+  },
+  {
+   "name": "reason_order.source_vs_version_stable",
+   "pass": false,
+   "actual": [
+    [
+     "unknown",
+     "source_unresolved"
+    ],
+    [
+     "unknown",
+     "version_unresolved"
+    ]
+   ],
+   "expected": "P-5 source_unresolved before R-J-7 version_unresolved"
+  },
+  {
+   "name": "usage.partial_turn_with_units_not_pass",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_active_version_used"
+   ],
+   "expected": "unknown per R-J-3 ('回合 partial')"
+  },
+  {
+   "name": "binding.fixture_sha_content_checked",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_source_dates_ok"
+   ],
+   "expected": "unknown if fixture_sha256 is not a content digest of the payload"
+  },
+  {
+   "name": "binding.source_map_content_checked",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_source_dates_ok"
+   ],
+   "expected": "unknown if the source-map payload changed under a stale declared hash"
+  },
+  {
+   "name": "binding.source_map_declared_mismatch",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "stale_window_unresolved"
+   ],
+   "expected": null
+  },
+  {
+   "name": "binding.version_state_rejects_silently",
+   "pass": true,
+   "actual": "broken optional fixture is dropped in version_state",
+   "expected": null
+  },
+  {
+   "name": "F-10.corpus_header_dates",
+   "pass": true,
+   "actual": "version_state drops constant-valued fixture",
+   "expected": null
+  },
+  {
+   "name": "F-10.evidence_ref_missing",
+   "pass": true,
+   "actual": "empty evidence_ref rejects the fixture in date_window",
+   "expected": null
+  },
+  {
+   "name": "F-10.open_ended_conflict",
+   "pass": true,
+   "actual": "code both open_ended and closed is rejected",
+   "expected": null
+  },
+  {
+   "name": "boundary.slot_base_conflict",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "stale_active_version_ambiguous"
+   ],
+   "expected": null
+  },
+  {
+   "name": "boundary.slot_base_conflict_audit",
+   "pass": true,
+   "actual": [
+    "stale_batch_count_opaque",
+    "stale_slot_base_conflict"
+   ],
+   "expected": null
+  },
+  {
+   "name": "boundary.ingest_path_missing",
+   "pass": true,
+   "actual": "missing path",
+   "expected": null
+  },
+  {
+   "name": "boundary.source_map_row_invalid",
+   "pass": true,
+   "actual": "base_doc_code missing",
+   "expected": null
+  },
+  {
+   "name": "boundary.invalid_as_of_date_window",
+   "pass": true,
+   "actual": "invalid as_of",
+   "expected": null
+  },
+  {
+   "name": "boundary.invalid_annotation_as_of",
+   "pass": true,
+   "actual": "invalid annotation as_of",
+   "expected": null
+  },
+  {
+   "name": "boundary.citation_row_malformed",
+   "pass": true,
+   "actual": "citation row not a mapping",
+   "expected": null
+  },
+  {
+   "name": "boundary.empty_turns",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "turn_not_executed"
+   ],
+   "expected": null
+  },
+  {
+   "name": "boundary.turns_not_list",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "evidence_incomplete"
+   ],
+   "expected": null
+  },
+  {
+   "name": "window.member_missing",
+   "pass": true,
+   "actual": "K20 window missing while used group K10 has K20",
+   "expected": null
+  },
+  {
+   "name": "window.open_ended_accepts",
+   "pass": true,
+   "actual": "open ended source covers as_of",
+   "expected": null
+  },
+  {
+   "name": "na.no_assignment",
+   "pass": true,
+   "actual": [],
+   "expected": "no state='not_applicable' assignment"
+  },
+  {
+   "name": "na.guard_present",
+   "pass": true,
+   "actual": [
+    [
+     56,
+     "词表但**一律不产出**。`not_applicable` 在本轴不可达（§5.7），计数硬不变量恒为 0。"
+    ],
+    [
+     127,
+     "{\"violation\": 3, \"unknown\": 2, \"not_applicable\": 1, \"passed\": 0}"
+    ],
+    [
+     797,
+     "if self.state == \"not_applicable\":"
+    ],
+    [
+     798,
+     "raise CriterionError(\"criterion_not_applicable_unreachable\")"
+    ],
+    [
+     1212,
+     "if self.state == \"not_applicable\":"
+    ],
+    [
+     1213,
+     "raise CriterionError(\"criterion_not_applicable_unreachable\")"
+    ],
+    [
+     1234,
+     "\"\"\"§5.6：violation > unknown > not_applicable > passed；并列取回合序最小。\"\"\""
+    ],
+    [
+     1394,
+     "not_applicable = states.count(\"not_applicable\")"
+    ],
+    [
+     1412,
+     "\"not_applicable\": not_applicable,"
+    ],
+    [
+     1415,
+     "\"checked\": passed + not_applicable + violations,"
+    ],
+    [
+     1419,
+     "if counts[\"planned\"] != passed + not_applicable + unknown + violations:"
+    ],
+    [
+     1421,
+     "if counts[\"checked\"] != passed + not_applicable + violations:"
+    ],
+    [
+     1425,
+     "if not_applicable != 0:"
+    ],
+    [
+     1426,
+     "# §5.7：本轴 not_applicable 不可达；产出即 non-conformant。"
+    ],
+    [
+     1427,
+     "raise CriterionError(\"not_applicable_unreachable\")"
+    ]
+   ],
+   "expected": null
+  },
+  {
+   "name": "output.forbidden_token_input_returns_fixed_code",
+   "pass": false,
+   "actual": [
+    {
+     "case_id": "release-1",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:release"
+    },
+    {
+     "case_id": "verified-x",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:verified"
+    },
+    {
+     "case_id": "threshold-y",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:threshold"
+    }
+   ],
+   "expected": "string case_id containing a conclusion token should not crash"
+  },
+  {
+   "name": "old_shape.snapshot_as_evidence",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "evidence_incomplete"
+   ],
+   "expected": "P4 snapshot v0.3 is not a §8.1 evidence object"
+  },
+  {
+   "name": "old_shape.contract_as_grounding",
+   "pass": true,
+   "actual": [
+    "unknown",
+    "stale_grounding_mode_invalid"
+   ],
+   "expected": "contract v2 is not a §8.1 grounding object"
+  }
+ ],
+ "failures": [
+  {
+   "name": "reason_order.mixed_unknown_units_stable",
+   "pass": false,
+   "actual": [
+    [
+     "unknown",
+     "version_unresolved"
+    ],
+    [
+     "unknown",
+     "stale_active_version_ambiguous"
+    ]
+   ],
+   "expected": "same fixed reason regardless of unit order"
+  },
+  {
+   "name": "reason_order.source_vs_version_stable",
+   "pass": false,
+   "actual": [
+    [
+     "unknown",
+     "source_unresolved"
+    ],
+    [
+     "unknown",
+     "version_unresolved"
+    ]
+   ],
+   "expected": "P-5 source_unresolved before R-J-7 version_unresolved"
+  },
+  {
+   "name": "usage.partial_turn_with_units_not_pass",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_active_version_used"
+   ],
+   "expected": "unknown per R-J-3 ('回合 partial')"
+  },
+  {
+   "name": "binding.fixture_sha_content_checked",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_source_dates_ok"
+   ],
+   "expected": "unknown if fixture_sha256 is not a content digest of the payload"
+  },
+  {
+   "name": "binding.source_map_content_checked",
+   "pass": false,
+   "actual": [
+    "passed",
+    "stale_source_dates_ok"
+   ],
+   "expected": "unknown if the source-map payload changed under a stale declared hash"
+  },
+  {
+   "name": "output.forbidden_token_input_returns_fixed_code",
+   "pass": false,
+   "actual": [
+    {
+     "case_id": "release-1",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:release"
+    },
+    {
+     "case_id": "verified-x",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:verified"
+    },
+    {
+     "case_id": "threshold-y",
+     "exception": "CriterionError",
+     "message": "criterion_forbidden_output_token:threshold"
+    }
+   ],
+   "expected": "string case_id containing a conclusion token should not crash"
+  }
+ ],
+ "findings": [
+  {
+   "id": "P1-IMPL-F1",
+   "severity": "low",
+   "claim": "R-J-10 reason ordering",
+   "detail": {
+    "unit_order_1": [
+     "unknown",
+     "version_unresolved"
+    ],
+    "unit_order_2": [
+     "unknown",
+     "stale_active_version_ambiguous"
+    ],
+    "expected": "R-J-6 stale_active_version_ambiguous before R-J-7 version_unresolved",
+    "impact": "state stays unknown; only reason changes with unit order"
+   }
+  },
+  {
+   "id": "P1-IMPL-F2",
+   "severity": "low",
+   "claim": "R-J-10 reason ordering across identity failures",
+   "detail": {
+    "unit_order_1": [
+     "unknown",
+     "source_unresolved"
+    ],
+    "unit_order_2": [
+     "unknown",
+     "version_unresolved"
+    ],
+    "expected": "P-5 source_unresolved always first",
+    "impact": "state stays unknown; reason is unit-order dependent"
+   }
+  },
+  {
+   "id": "P1-IMPL-F3",
+   "severity": "medium",
+   "claim": "R-J-3 partial turn",
+   "detail": {
+    "input": "usage.observed=true, units=[K21], turn_status=partial",
+    "actual": [
+     "passed",
+     "stale_active_version_used"
+    ],
+    "expected": "unknown stale_usage_set_missing (or evidence_incomplete) per R-J-3",
+    "impact": "false pass on a partially executed turn"
+   }
+  },
+  {
+   "id": "P1-IMPL-F4",
+   "severity": "low",
+   "claim": "I-5 output guard on echoed input",
+   "detail": {
+    "cases": [
+     {
+      "case_id": "release-1",
+      "exception": "CriterionError",
+      "message": "criterion_forbidden_output_token:release"
+     },
+     {
+      "case_id": "verified-x",
+      "exception": "CriterionError",
+      "message": "criterion_forbidden_output_token:verified"
+     },
+     {
+      "case_id": "threshold-y",
+      "exception": "CriterionError",
+      "message": "criterion_forbidden_output_token:threshold"
+     }
+    ],
+    "expected": "fixed code + unknown, or sanitized echo",
+    "impact": "a case_id/scenario_id containing verified/threshold/release raises CriterionError out of determine_stale_case"
+   }
+  }
+ ],
+ "limitations": [
+  {
+   "id": "P1-IMPL-L1",
+   "severity": "medium",
+   "claim": "§3.2 rule 3 fixture SHA binding",
+   "detail": {
+    "input": "fixture_sha256='f'*64 with the default payload",
+    "actual": [
+     "passed",
+     "stale_source_dates_ok"
+    ],
+    "gap": "the module only checks the 64-hex shape; it does not hash the windows payload",
+    "mitigation": "caller must verify the frozen fixture bytes before passing the payload"
+   }
+  },
+  {
+   "id": "P1-IMPL-L2",
+   "severity": "medium",
+   "claim": "§3.2 fixture bindings",
+   "detail": {
+    "input": "source_map mutated (K20 version_number 1->99) while declared source_map_sha256 is unchanged",
+    "actual": [
+     "passed",
+     "stale_source_dates_ok"
+    ],
+    "gap": "declared source_map_sha256/ingest_plan_sha256 are compared to the fixture header, not recomputed from the payload"
+   }
+  }
+ ],
+ "tensions": [
+  {
+   "id": "P1-IMPL-T1",
+   "topic": "duplicate source_indices",
+   "R-AV-1": "stale_scenario_undeclared",
+   "F-2": "stale_active_version_ambiguous",
+   "implemented": "stale_active_version_ambiguous (explicitly documented in module docstring §1)",
+   "state": "unknown either way"
+  },
+  {
+   "id": "P1-IMPL-T2",
+   "topic": "empty units + turn partial",
+   "R-J-3": "stale_usage_set_missing",
+   "F-8": "empty_set_not_proven",
+   "implemented": "empty_set_not_proven (explicitly documented in module docstring §2)",
+   "state": "unknown either way"
+  },
+  {
+   "id": "P1-IMPL-T3",
+   "topic": "scenario_id not in dataset contract",
+   "input_shape": "§8.1 carries the scenario object inline; no dataset-level scenario registry is an input",
+   "implemented": "missing/invalid inline scenario -> stale_scenario_undeclared; membership in a registry cannot be checked"
+  }
+ ]
+}

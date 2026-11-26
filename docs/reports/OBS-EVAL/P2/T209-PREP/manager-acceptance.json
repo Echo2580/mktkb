@@ -1,0 +1,135 @@
+{
+  "schema_version": "p2-t209-prep-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "timezone": "Asia/Shanghai",
+  "package": "E2 T209-PREP",
+  "verdict": "T209_PREP_PASS",
+  "manager_gate_marker": "T209_PREP_PASS",
+  "accepted_scope": [
+    "split_report_execution_quality_evidence_soft_funding",
+    "candidate_blocked_archive_verify_restore_list_diff",
+    "candidate_not_publishable",
+    "bad_input_fail_closed",
+    "zero_real_calls_and_zero_reservations"
+  ],
+  "independent_review": {
+    "path": "docs/reports/OBS-EVAL/P2/T209-PREP/independent-review.md",
+    "sha256": "eacfed3ce101ceb0f38664e64f90a20bcd67a17972035e1da6b868e5daed3cd7",
+    "aggregate_path": "docs/reports/OBS-EVAL/P2/T209-PREP/review-aggregate.json",
+    "aggregate_sha256": "63888d880c6a55672ea6f8245ff0ceadacd7d7f876b1dfefad3496f559743e47",
+    "verdict": "PASS",
+    "rounds": 2,
+    "round1": "PASS (10/10); D1 non-blocking found",
+    "round2": "PASS (D1 resolved; 40/80/120; freeze 20/20)"
+  },
+  "dev_frozen_objects": {
+    "module_sha256": "597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405",
+    "test_sha256": "f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811",
+    "dev_report_sha256": "2493ef09d294602c2a7fbdc324abbcf50a37b1a20da44c41d845146957de5d98",
+    "freeze_sha256": "005c240c83011ee623a1d7c5a538dfa3fb61bce7dfefb3a630a1ff1d78e55ce1",
+    "freeze_items": 20,
+    "freeze_mismatches": 0
+  },
+  "tests": {
+    "new_file": {
+      "path": "backend/tests/evaluation/test_p2_candidate_report.py",
+      "collected": 40,
+      "passed": 40,
+      "failed": 0,
+      "skipped": 0
+    },
+    "existing_four": {
+      "files": [
+        "test_report.py",
+        "test_baseline_portability.py",
+        "test_diff_release_gate.py",
+        "test_p2_gate.py"
+      ],
+      "collected": 80,
+      "passed": 80,
+      "failed": 0,
+      "skipped": 0
+    },
+    "collect_total": 120,
+    "d1_regression": {"selected": 6, "passed": 6},
+    "netguard_tests": 40
+  },
+  "candidate_semantics": {
+    "publishable": false,
+    "release_baseline": false,
+    "gate_approved": false,
+    "has_approval": false,
+    "restore_approval_is_none": true,
+    "restore_writes_formal_registry": false,
+    "diff_runs_release_blocked_reason": "baseline_unapproved",
+    "approve_baseline_calls": 0,
+    "bad_input_classes_rejected": 18,
+    "staging_half_products": 0
+  },
+  "defects": [
+    {
+      "id": "D1",
+      "status": "resolved",
+      "summary": "all-failed execution aggregate was not_run and failed was unreachable; round-2 mapping fixed (all_failed->failed, mixed->partial, all_not_run/zero_run->not_run, all_succeeded->succeeded) and independently re-verified 50/50."
+    }
+  ],
+  "residuals": [
+    {
+      "code": "R1",
+      "summary": "Candidate archives have no external signature or round-run membership binding; a forged report can be made to verify but remains non-publishable, restores approval=None, and diff_runs still returns baseline_unapproved."
+    },
+    {
+      "code": "R2",
+      "summary": "Free-text note/detail is not content-scanned; only field-level private payload rejection is provided."
+    },
+    {
+      "code": "R3",
+      "summary": "Real run card not consumed; no external signature; no round-run binding; POSIX symlink not tested (Windows junction tested)."
+    },
+    {
+      "code": "R4",
+      "summary": "diff_candidates does not reuse diff_runs; it is a read-only candidate-archive comparison with no gate/approval logic and no score summation/merge."
+    },
+    {
+      "code": "R5",
+      "summary": "LOCAL-R1 is fingerprinted by metadata only (48,814 files / 5.10 GB); the four funding/GO files are byte-hashed."
+    }
+  ],
+  "observations": [
+    {
+      "id": "O2",
+      "summary": "The dev approval sentinel only patches baseline_module.approve_baseline; independent runtime count and source scan still show zero calls."
+    }
+  ],
+  "protected": {
+    "pre_post_lines": "67/67",
+    "pre_post_changed_lines": 0,
+    "funding_4_unchanged": true,
+    "production_locks_2_unchanged": true,
+    "c_freeze_12_unchanged": true,
+    "e0_safety_6_unchanged": true,
+    "e1_t208_frozen_5_unchanged": true,
+    "formal_baseline_2_unchanged": true,
+    "real_h2_public_1_unchanged": true,
+    "tracked_modified_count": 15,
+    "tracked_modified_inside_t209_window": 0
+  },
+  "zero_real": {
+    "external_network_attempts": 0,
+    "product_calls": 0,
+    "model_embedding_rerank_ocr_judge_calls": 0,
+    "real_reservations": 0,
+    "real_ledger_budget_go_touched": false,
+    "supplier_balance_queried": false,
+    "private_h2_or_dotenv_read": false
+  },
+  "not_claimed": [
+    "formal T209 pass",
+    "T207/P2 quality pass",
+    "release baseline approval",
+    "release or production readiness"
+  ],
+  "next": "Pause per taskbook; Q1-Q3 require separate authorization. No real rerun, paid judge, formal baseline, GO or deployment.",
+  "real_calls": 0,
+  "reservations": 0
+}

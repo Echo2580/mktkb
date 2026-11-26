@@ -1,0 +1,652 @@
+{
+  "acceptance": {
+    "A_planner_multi_target": {
+      "evidence": [
+        "independent/A-planner-multi-target.json",
+        "independent/A-anaphora-regression.json"
+      ],
+      "failures": [
+        "N2_pure_anaphora_this_two",
+        "N2b_pure_anaphora_these"
+      ],
+      "negatives": {
+        "N1_two_stores_two_items_cross": {
+          "kind": "clarification",
+          "ok": true,
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null
+        },
+        "N1b_cross_with_store_per_item": {
+          "kind": "clarification",
+          "ok": true,
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null
+        },
+        "N2_pure_anaphora_this_two": {
+          "kind": "answer",
+          "ok": false,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 4
+        },
+        "N2b_pure_anaphora_these": {
+          "kind": "answer",
+          "ok": false,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 4
+        },
+        "N2c_pure_anaphora_bare": {
+          "kind": "clarification",
+          "ok": true,
+          "reason": "MISSING_SLOT",
+          "returned": null
+        },
+        "N3_unknown_store": {
+          "kind": "answer",
+          "ok": true,
+          "reason": null,
+          "returned": 1
+        },
+        "N4_no_field_role": {
+          "kind": "clarification",
+          "ok": true,
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null
+        },
+        "N5_anaphora_they": {
+          "kind": "answer",
+          "ok": true,
+          "reason": null,
+          "returned": 4
+        },
+        "N6_two_by_two_with_enumerate_word": {
+          "kind": "clarification",
+          "ok": true,
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null
+        }
+      },
+      "positives": {
+        "P1_two_stores_one_item": {
+          "kind": "answer",
+          "ok": true,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 2
+        },
+        "P2_one_store_two_items": {
+          "kind": "answer",
+          "ok": true,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 2
+        },
+        "P3_two_stores_phone": {
+          "kind": "answer",
+          "ok": true,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 2
+        },
+        "P4_two_stores_one_item_enumerate_word": {
+          "kind": "answer",
+          "ok": true,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "returned": 2
+        }
+      },
+      "regression": {
+        "baseline_planner": {
+          "clarification": null,
+          "enumerate": true,
+          "filters": {},
+          "items": [],
+          "rag_owns_turn": false,
+          "reason": null,
+          "stores": [
+            "城东店",
+            "城西店"
+          ]
+        },
+        "current_planner": {
+          "clarification": null,
+          "enumerate": true,
+          "filters": {},
+          "items": [],
+          "rag_owns_turn": true,
+          "reason": "MULTI_TARGET_ENUMERATE",
+          "stores": [
+            "城东店",
+            "城西店"
+          ]
+        },
+        "legacy_intent": {
+          "candidates": [
+            "城东店",
+            "城西店"
+          ],
+          "clarification": "问题中包含多个门店，请选择要查询的门店。"
+        },
+        "question": "城东店和城西店的这两个分别放在哪里？"
+      },
+      "regression_note": "N2/N2b：改前 legacy 判“多个门店”澄清；改后 planner 置 MULTI_TARGET_ENUMERATE 且 _rag_owns_turn=True，产品走 rag 内核并以 4 条（两店全部物品）作答——纯指代目标被放行。",
+      "status": "FAIL"
+    },
+    "B_business_date_filter": {
+      "after": {
+        "kind": "matches",
+        "locations": [
+          "现C柜"
+        ],
+        "units": 1
+      },
+      "before": {
+        "kind": "conflict",
+        "locations": [
+          "旧A架",
+          "现C柜",
+          "旧B架",
+          "新D区"
+        ],
+        "units": 4
+      },
+      "endpoints": {
+        "2026-02-28_end_of_v1": {
+          "kind": "matches",
+          "locations": [
+            "旧A架"
+          ]
+        },
+        "2026-03-01_start_of_v2": {
+          "kind": "matches",
+          "locations": [
+            "旧B架"
+          ]
+        },
+        "2026-08-31_end_of_v2": {
+          "kind": "matches",
+          "locations": [
+            "旧B架"
+          ]
+        },
+        "2026-09-01_start_of_v3": {
+          "kind": "matches",
+          "locations": [
+            "现C柜"
+          ]
+        },
+        "2026-10-15_inside_v3": {
+          "kind": "matches",
+          "locations": [
+            "现C柜"
+          ]
+        },
+        "2026-12-31_end_of_v3": {
+          "kind": "matches",
+          "locations": [
+            "现C柜"
+          ]
+        },
+        "2027-01-01_start_of_v4": {
+          "kind": "matches",
+          "locations": [
+            "新D区"
+          ]
+        },
+        "2028-01-01_undeclared_end": {
+          "kind": "matches",
+          "locations": [
+            "新D区"
+          ]
+        }
+      },
+      "evidence": [
+        "independent/B-business-date-filter.json"
+      ],
+      "failures": [],
+      "invalid_as_of": {
+        "2026-02-30": "QueryRejected",
+        "2026-1-5": "QueryRejected",
+        "2026/10/15": "QueryRejected",
+        "int:20261015": "QueryRejected",
+        "not-a-date": "QueryRejected"
+      },
+      "no_fts_or_sort_changes": true,
+      "order_subsequence": true,
+      "service_forwarding": {
+        "dated": true,
+        "none": true
+      },
+      "single_current": [
+        "西区唯一架"
+      ],
+      "status": "PASS",
+      "undeclared_start": [
+        "北区无起点架"
+      ],
+      "visible_units_unchanged": true,
+      "wire": {
+        "as_of_date": "2026-10-15",
+        "as_of_none": null,
+        "include_future": null,
+        "plan_none": null,
+        "qa_none": null
+      }
+    },
+    "no_revert_of_existing_work": {
+      "evidence": [
+        "independent/A-query-baseline-reconstruct.json",
+        "independent/A-service-baseline-reconstruct.json",
+        "independent/preservation-compare.json"
+      ],
+      "other_baseline_paths_unchanged": true,
+      "query_py": {
+        "baseline_sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1",
+        "byte_exact": true,
+        "bytes": 78740,
+        "current_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+        "reconstructed_sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1"
+      },
+      "service_py": {
+        "baseline_sha256": "fd04136b6b450b45a98045bcb9b16c21531d35070e73529263a1507690dae75a",
+        "byte_exact": true,
+        "bytes": 123283,
+        "current_sha256": "29b0a29582ee08298c842087ce9f50b4b2c2ccba4103fa03e0c3920bb48984f0",
+        "reconstructed_sha256": "fd04136b6b450b45a98045bcb9b16c21531d35070e73529263a1507690dae75a"
+      },
+      "status": "PASS"
+    },
+    "preservation": {
+      "branch_same": true,
+      "c_freeze_12_all_equal": true,
+      "commits": 172,
+      "external_ciphertext_corpus_changed": [],
+      "fixtures_changed": [],
+      "head_same": true,
+      "ledger_unchanged": true,
+      "protected_changes_expected": true,
+      "scenarios_py_unchanged": true,
+      "scenarios_v3_py_unchanged": true,
+      "staged_after": 0,
+      "status": "PASS",
+      "tracked_added": [],
+      "tracked_modified_after": 22,
+      "tracked_modified_before": 23,
+      "tracked_removed": [
+        "backend/src/mktkb/evaluation/p2_holdout_plan.py"
+      ],
+      "v3_freeze_32": {
+        "changed": [],
+        "matched_after": 30,
+        "matched_before": 30,
+        "mismatched_ids": [
+          "freeze_a_manager_acceptance",
+          "freeze_a_review_aggregate"
+        ]
+      }
+    },
+    "tests": {
+      "drift_failures": [
+        "tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 — 未设 MKTKB_PROJECT_TOTAL_LIMIT_CNY 时 live_authorization 默认 10.0 vs budget 40；env=40 时通过（14/14）。",
+        "tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan — 第 208 行硬编码 budget['limit_cny']==20.0；40/50 都不通过；sum(stages)+historical=40 的断言现已通过。"
+      ],
+      "drift_two_env40": {
+        "collected": 22,
+        "exit": 1,
+        "failed": 1,
+        "log": "pytest-drift2-with-env40.log",
+        "passed": 21
+      },
+      "drift_two_no_env": {
+        "collected": 22,
+        "exit": 1,
+        "failed": 2,
+        "log": "pytest-drift-2-after-rollback.log",
+        "passed": 20
+      },
+      "fix_touched_3": {
+        "collected": 23,
+        "exit": 0,
+        "failed": 0,
+        "log": "pytest-fix-touched-tests.log",
+        "passed": 23
+      },
+      "new_22": {
+        "collected": 22,
+        "exit": 0,
+        "failed": 0,
+        "log": "pytest-new-22-after-rollback.log",
+        "passed": 22
+      },
+      "status": "FAIL",
+      "unit_rag": {
+        "collected": 740,
+        "exit": 1,
+        "failed": 2,
+        "log": "pytest-unit-rag-after-rollback.log",
+        "passed": 738
+      }
+    },
+    "zero_call": {
+      "negative": {
+        "probes_outbound": {
+          "A": [],
+          "B": []
+        },
+        "tests22_external_count": 0,
+        "unit_rag_external_count": 0,
+        "unit_rag_loopback_calls": 55
+      },
+      "note": "不依赖本机代理：所有出站在 socket 层被拦；Windows 注册表代理 127.0.0.1:7897 未被使用。",
+      "positive_control": {
+        "all_blocked": true,
+        "proxy_env_removed": [
+          "ALL_PROXY",
+          "HTTP_PROXY",
+          "HTTPS_PROXY",
+          "NO_PROXY",
+          "NODE_USE_ENV_PROXY"
+        ],
+        "results": {
+          "direct_tcp": "OSError: netguard-independent: outbound blocked",
+          "dns_getaddrinfo": "OSError: netguard-independent: outbound blocked",
+          "httpx_trust_env_false": "ConnectError: netguard-independent: outbound blocked",
+          "urllib_proxyhandler_empty": "URLError: <urlopen error netguard-independent: outbound blocked>"
+        },
+        "urllib_getproxies": {
+          "ftp": "http://127.0.0.1:7897",
+          "http": "http://127.0.0.1:7897",
+          "https": "http://127.0.0.1:7897"
+        }
+      },
+      "status": "PASS"
+    }
+  },
+  "baseline": {
+    "branch": "codex/p2-e2e",
+    "commits": 172,
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged_after": 0,
+    "staged_before": 0
+  },
+  "blockers": [
+    "A 纯指代反例 N2/N2b 必须修复（指代守卫 + 回归用例）后才能重跑独立验收。"
+  ],
+  "disagreements": [
+    {
+      "evidence": "independent/preservation-compare.json",
+      "id": "D1",
+      "what": "tracked modified 回退后为 22（15 既有 + 7 fix-1），不是 15；dev-report 的 16 条为笔误"
+    },
+    {
+      "evidence": "independent/pytest-drift-2-after-rollback.log; pytest-drift2-with-env40.log",
+      "id": "D2",
+      "what": "2 条漂移测试未恢复绿：1 条需 MKTKB_PROJECT_TOTAL_LIMIT_CNY=40，1 条硬编码 limit_cny==20.0"
+    },
+    {
+      "evidence": "independent/A-anaphora-regression.json",
+      "id": "D3",
+      "what": "A 的纯指代守卫不完整：带已点名门店的“这两个/这几个”被放行，且是 fix-1 引入的澄清→作答回归"
+    },
+    {
+      "evidence": "fix-1/dev-report.md",
+      "id": "D4",
+      "what": "dev-report §0.1/§4.2 的 status 集合描述与 §4.1 的 7 条 tracked 文件自相矛盾"
+    },
+    {
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/v3-go/report.md",
+      "id": "D5",
+      "what": "v3-go 的 report/plan-index 仍是 50 时代历史件；真实跑须用 rollback-40 下的计划/绑定"
+    }
+  ],
+  "evidence_files": [
+    "independent-review.md",
+    "independent/00-snapshot-start.json",
+    "independent/00-snapshot-end.json",
+    "independent/preservation-compare.json",
+    "independent/budget-rollback.json",
+    "independent/rollback-summary.json",
+    "independent/A-planner-multi-target.json",
+    "independent/A-anaphora-regression.json",
+    "independent/A-query-baseline-reconstruct.json",
+    "independent/A-service-baseline-reconstruct.json",
+    "independent/B-business-date-filter.json",
+    "independent/rollback-40/plan-index.json",
+    "independent/rollback-40/go-regeneration.json",
+    "independent/rollback-40/go-install.json",
+    "independent/rollback-40/check/run0.json",
+    "independent/rollback-40/check/run1.json",
+    "independent/rollback-40/check/run2.json",
+    "independent/rollback-40/check/run3.json",
+    "independent/netguard/netguard-positive-control.json",
+    "independent/netguard/netguard-tests22-run.json",
+    "independent/netguard/netguard-unitrag-run.json",
+    "independent/pytest-unit-rag-after-rollback.log",
+    "independent/pytest-new-22-after-rollback.log",
+    "independent/pytest-drift-2-after-rollback.log",
+    "independent/pytest-drift2-with-env40.log",
+    "independent/pytest-fix-touched-tests.log",
+    "independent/pytest-unit-rag-netguard.log"
+  ],
+  "real_run_decision": "不可进入真实 v3 跑：唯一阻塞为 A 的纯指代回归；预算/计划/GO 闸门本身已 4/4 对齐。",
+  "reviewer": "v3-fix-verify",
+  "rollback": {
+    "budget": {
+      "after": {
+        "bytes": 1738,
+        "sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+      },
+      "before": {
+        "bytes": 1738,
+        "sha256": "5fcb4be5a68bb9437ff82be8dc73794bc712a5e5fe3b6312f70a4218f3d0b25f"
+      },
+      "byte_before_after": {
+        "after": "4",
+        "before": "5"
+      },
+      "byte_offset": 17,
+      "ledger_field_unchanged": true,
+      "only_changed_leaf": [
+        "/limit_cny"
+      ],
+      "sha_matches_original": true,
+      "stages_unchanged": true
+    },
+    "companion_tool_change": {
+      "after_sha256": "465cc07aa5676b7d0e9087a02b0955306811bac6753507805a41b5f4eed2ac02",
+      "before_sha256": "aa8e8cb44c16adc57dc00d6db8a9769662bee88700280b270d021e85cd7e97cb",
+      "change": "V3_PROJECT_TOTAL_LIMIT_CNY 50.0 -> 40.0（另改同行注释）",
+      "path": "tools/p2_h2_v3_controlled_execute.py",
+      "reason": "唯一受控 v3 入口在导入期把该值写入 MKTKB_PROJECT_TOTAL_LIMIT_CNY；不改则 check-only 会以 env_total_limit_mismatch 拒绝 40 预算。",
+      "tracked": false
+    },
+    "drift_counts": {
+      "env40": {
+        "collected": 22,
+        "exit": 1,
+        "failed": 1,
+        "log": "pytest-drift2-with-env40.log",
+        "passed": 21
+      },
+      "no_env": {
+        "collected": 22,
+        "exit": 1,
+        "failed": 2,
+        "log": "pytest-drift-2-after-rollback.log",
+        "passed": 20
+      }
+    },
+    "drift_tests": [
+      "tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 — 未设 MKTKB_PROJECT_TOTAL_LIMIT_CNY 时 live_authorization 默认 10.0 vs budget 40；env=40 时通过（14/14）。",
+      "tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan — 第 208 行硬编码 budget['limit_cny']==20.0；40/50 都不通过；sum(stages)+historical=40 的断言现已通过。"
+    ],
+    "p2_holdout_plan": {
+      "current_bytes": 15634,
+      "current_sha256": "d0cb23de2cff80a743c086a8723edd80654d64b22f4e18f97973dd83b153cd25",
+      "expected_baseline_sha256": "d0cb23de2cff80a743c086a8723edd80654d64b22f4e18f97973dd83b153cd25",
+      "git_diff_empty": true,
+      "head_content_matches": true,
+      "head_content_sha256": "d0cb23de2cff80a743c086a8723edd80654d64b22f4e18f97973dd83b153cd25",
+      "matches": true
+    },
+    "plans_and_go": {
+      "check_only": [
+        {
+          "ok": true,
+          "run_index": 0,
+          "zero_send": {
+            "external": [],
+            "external_attempts": 0,
+            "local": [],
+            "local_attempts": 0
+          },
+          "zero_write": {
+            "budget_sha256_after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_unchanged": true,
+            "ledger_sha256_after": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_unchanged": true,
+            "reservation_count": 952,
+            "result_count": 952
+          }
+        },
+        {
+          "ok": true,
+          "run_index": 1,
+          "zero_send": {
+            "external": [],
+            "external_attempts": 0,
+            "local": [],
+            "local_attempts": 0
+          },
+          "zero_write": {
+            "budget_sha256_after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_unchanged": true,
+            "ledger_sha256_after": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_unchanged": true,
+            "reservation_count": 952,
+            "result_count": 952
+          }
+        },
+        {
+          "ok": true,
+          "run_index": 2,
+          "zero_send": {
+            "external": [],
+            "external_attempts": 0,
+            "local": [],
+            "local_attempts": 0
+          },
+          "zero_write": {
+            "budget_sha256_after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_unchanged": true,
+            "ledger_sha256_after": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_unchanged": true,
+            "reservation_count": 952,
+            "result_count": 952
+          }
+        },
+        {
+          "ok": true,
+          "run_index": 3,
+          "zero_send": {
+            "external": [],
+            "external_attempts": 0,
+            "local": [],
+            "local_attempts": 0
+          },
+          "zero_write": {
+            "budget_sha256_after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+            "budget_unchanged": true,
+            "ledger_sha256_after": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+            "ledger_unchanged": true,
+            "reservation_count": 952,
+            "result_count": 952
+          }
+        }
+      ],
+      "contract_validate_run_all_ok": true,
+      "dial": {
+        "max_request_cny": 0.5,
+        "max_requests": 1137,
+        "project_total_limit_cny": 40.0,
+        "stage_limit_cny": 20.0
+      },
+      "go_dir": "D:\\mktkb-p2-h2v3-20261115\\rollback-40\\go",
+      "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+      "ledger_unchanged": true,
+      "plans_dir": "D:\\mktkb-p2-h2v3-20261115\\rollback-40\\plans",
+      "reservation_count": 952,
+      "runs": [
+        {
+          "archive_sha256": "8effb4b1545afcfd939892803bd93b9303be6cd155a8236563f2f374785ffdbf",
+          "before_go_sha256": "8effb4b1545afcfd939892803bd93b9303be6cd155a8236563f2f374785ffdbf",
+          "budget_total_limit_cny": 40.0,
+          "go_sha256": "dbc198c8bf8ee11c844d0393c9091b25a0b5e6d1281c872cd6b254854fe5217d",
+          "max_requests": 1137,
+          "plan_file_sha256": "3f1c0014c766e1317ecaa018ff3352ea30d38b0e5cee197319984eee5e5dad81",
+          "plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+          "preflight_ok": true,
+          "requests_remaining": 185,
+          "run_index": 0,
+          "scenario_id": "base_b0"
+        },
+        {
+          "archive_sha256": "5cdde637baf0e6a9319bb0245196d1407d51f80408b9d244b507ddd6b8d4c578",
+          "before_go_sha256": "5cdde637baf0e6a9319bb0245196d1407d51f80408b9d244b507ddd6b8d4c578",
+          "budget_total_limit_cny": 40.0,
+          "go_sha256": "a8516ac3d71a9fd9595a000652c534b4809b6cc288cc505a40773688a82fb1b2",
+          "max_requests": 1137,
+          "plan_file_sha256": "b1ba1ffc4e173906371d445ce1d60d8d0c8f3cbc94e765d3efba686ac3b4f577",
+          "plan_sha256": "4691e9c366fa4393640f7bbf4d5e25de7b012b8f9fd4a5425f519867d281ad97",
+          "preflight_ok": true,
+          "requests_remaining": 121,
+          "run_index": 1,
+          "scenario_id": "base_b0_plus_v01"
+        },
+        {
+          "archive_sha256": "cbce4ba4ceff02794e94eb76361763f157262154840245380824edbe80274af8",
+          "before_go_sha256": "cbce4ba4ceff02794e94eb76361763f157262154840245380824edbe80274af8",
+          "budget_total_limit_cny": 40.0,
+          "go_sha256": "d7edf6d256cd19882a682604bb31689e9f0be9ed76a8d8d6f8f09de2a3e4d4e1",
+          "max_requests": 1137,
+          "plan_file_sha256": "59ae317b34d72a459606d23ff80faa0a05421193eb7273cd8f9a0643b146b6e2",
+          "plan_sha256": "9896ae4ecb30ea5c696dcc160bb9a318194808f15badccde4f92e75980f857bb",
+          "preflight_ok": true,
+          "requests_remaining": 72,
+          "run_index": 2,
+          "scenario_id": "pre_v05_without_v07"
+        },
+        {
+          "archive_sha256": "8a4c94fb5df1a1bd76c70dd26651624ec3696b14979de0367f2c22f6b5d78bc0",
+          "before_go_sha256": "8a4c94fb5df1a1bd76c70dd26651624ec3696b14979de0367f2c22f6b5d78bc0",
+          "budget_total_limit_cny": 40.0,
+          "go_sha256": "d681b673837d681574dfcf18a11984463599d1856c0641411580146916e3b1a4",
+          "max_requests": 1137,
+          "plan_file_sha256": "989cdc94852190bc4e657c831000a2be189c3db2127787a9560edec0f7c01293",
+          "plan_sha256": "8f662d59f9a8988f601e5c8de419ba46f118fae498f48b0c5e74ff25c0e48e9f",
+          "preflight_ok": true,
+          "requests_remaining": 37,
+          "run_index": 3,
+          "scenario_id": "post_v05_without_v01"
+        }
+      ]
+    },
+    "status": "DONE_WITH_DISAGREEMENTS",
+    "tracked_modified": {
+      "baseline_15_missing": [],
+      "count": 22,
+      "decomposition": "15 pre-existing baseline + 7 fix-1 files = 22; p2_holdout_plan no longer modified",
+      "expected_baseline_15_present": true,
+      "extra": [],
+      "fix1_7_missing": [],
+      "fix1_7_present": true
+    }
+  },
+  "schema_version": "v3-fix1-independent-review-aggregate/v0.1",
+  "verdict": "FAIL",
+  "verdict_scope": "窄口径：A 的纯指代硬性反例失败（N2/N2b），其余项绿。"
+}

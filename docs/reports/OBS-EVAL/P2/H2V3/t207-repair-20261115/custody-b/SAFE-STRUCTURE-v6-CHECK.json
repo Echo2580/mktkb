@@ -1,0 +1,48 @@
+{
+  "status": "controlled_metadata_projection_may_execute",
+  "scope": "v6_receipt_fix_and_v5_diff_synthetic_only",
+  "inputs": [
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_structure_v6.py",
+      "sha256": "957043e6b49bc23dbcabe4d2fa6bc5f37defbd84f46952d0075c18d0b5b2da81"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-STRUCTURE-v6-REPORT.md",
+      "sha256": "2896f079dc0e12438502fddf6fdbfcdb5ad930d2a5a4537fc11e534189a1d85d"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-STRUCTURE-v6-SELFTEST.json",
+      "sha256": "03531278b5b8acdca7c5d8c53e1cd8a3705a004eb444da48b9cae67f91f0b0a4"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_structure_v5.py",
+      "sha256": "e8cd039bb6c106d9ec98c95805c4467a9112aa10329a50f9b7c080dd027c97d4"
+    }
+  ],
+  "receipt_date_check_matches_existing_entry": true,
+  "receipt_check_before_case_projection": true,
+  "synthetic_checks": {
+    "matching_date_accepted": true,
+    "mismatching_date_rejected": true,
+    "missing_receipt_date_rejected": true,
+    "failure_fixed_code": true,
+    "v6_self_test_exit_code": 0
+  },
+  "v5_reviewed_output_logic_preserved": true,
+  "network_controls": {
+    "socket": true,
+    "urllib": true,
+    "httpx": true
+  },
+  "real_evidence_read": false,
+  "real_projection_run": false,
+  "product_test_run": false,
+  "protected_hash_before": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  },
+  "protected_hash_after": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  }
+}

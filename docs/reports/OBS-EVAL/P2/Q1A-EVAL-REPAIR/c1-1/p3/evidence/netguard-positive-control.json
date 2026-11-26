@@ -1,0 +1,33 @@
+{
+ "socket_connect_external": 0,
+ "socket_connect_ex": 0,
+ "create_connection_external": 1,
+ "dns_getaddrinfo_external": 1,
+ "http_client_external": 0,
+ "httpx_transport_external": 0,
+ "loopback_connects": 0,
+ "blocked": 2,
+ "details": [
+  {
+   "kind": "create_connection_external",
+   "detail": "('203.0.113.1', 9)"
+  },
+  {
+   "kind": "dns_getaddrinfo_external",
+   "detail": "example.invalid"
+  }
+ ],
+ "positive_control": {
+  "connect_blocked": true,
+  "dns_blocked": true,
+  "errors": [
+   "OSError",
+   "OSError"
+  ]
+ },
+ "installed": true,
+ "httpx_patched": false,
+ "modules_at_exit": [
+  "http.client"
+ ]
+}

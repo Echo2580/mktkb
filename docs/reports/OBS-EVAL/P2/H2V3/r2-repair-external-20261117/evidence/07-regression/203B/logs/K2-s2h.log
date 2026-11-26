@@ -1,0 +1,205 @@
+...........F..                                                           [100%]
+================================== FAILURES ===================================
+__ test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 ___
+
+data_dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/K2/test_official_profile_accepted0/app')
+provider_mode = 'live', page_size = 10, top_k = 8, business_date = None
+
+    def resolve_rag_config(
+        *,
+        data_dir: Path,
+        provider_mode: str,
+        page_size: int,
+        top_k: int,
+        business_date: str | None,
+    ) -> tuple[RagConfig, Any | None]:
+        """构造产品侧 rag 配置；live 必须显式预算入口，默认拒绝真实请求。"""
+        if provider_mode == "offline":
+            return (
+                RagConfig(
+                    provider_mode="offline",
+                    data_dir=data_dir,
+                    page_size=page_size,
+                    top_k=top_k,
+                    business_date=business_date,
+                ),
+                None,
+            )
+        if provider_mode != "live":
+            raise ValueError("rag_provider_mode 只允许 offline/live")
+        # live：阶段额度/请求上限显式，账本/预算/GO 固定锚定；缺一不启动，避免不受控付费路径。
+        from ..live_authorization import (
+            LiveGateError,
+            assert_fixed_env_paths,
+            product_stage,
+            resolve_live_gate,
+        )
+        from ..rag.config import positive_float_env, positive_int_env
+    
+        stage = product_stage()
+        stage_limit = positive_float_env("MKTKB_RAG_STAGE_LIMIT_CNY")
+        max_requests = positive_int_env("MKTKB_RAG_MAX_REQUESTS")
+        if stage_limit is None or max_requests is None:
+            raise ValueError(
+                "rag live 必须显式提供 MKTKB_RAG_STAGE_LIMIT_CNY>0 与 MKTKB_RAG_MAX_REQUESTS>0，"
+                "并通过固定共享账本/预算与产品 GO 授权；默认拒绝真实请求"
+            )
+        # GAP-1/1b：环境变量只能“指名”固定共享账本/预算，不能换成新账本或仓库外/软链路径。
+        try:
+            assert_fixed_env_paths(
+                os.environ.get("MKTKB_RAG_BUDGET_LEDGER"),
+                os.environ.get("MKTKB_RAG_BUDGET_JSON"),
+            )
+        except LiveGateError as exc:
+            raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+        default_request_bound = RagConfig(provider_mode="offline", data_dir=data_dir).max_request_cny
+        try:
+>           gate = resolve_live_gate(
+                stage=stage,
+                service="rag",
+                requested_stage_limit_cny=stage_limit,
+                requested_max_requests=max_requests,
+                request_bound_cny=default_request_bound,
+            )
+
+src\mktkb\qa\service.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+stage = 'S2-H-R3-UNIT', service = 'rag', requested_stage_limit_cny = 5.0
+requested_max_requests = 5, request_bound_cny = 0.1, go_path = None
+ledger_path = None, budget_path = None, now = None
+
+    def resolve_live_gate(
+        *,
+        stage: str,
+        service: str,
+        requested_stage_limit_cny: float,
+        requested_max_requests: int,
+        request_bound_cny: float | None = None,
+        go_path: Path | None = None,
+        ledger_path: Path | None = None,
+        budget_path: Path | None = None,
+        now: datetime | None = None,
+    ) -> LiveGate:
+        """把“环境请求值 + GO + 共享预算分配”收敛成唯一闸门。
+    
+        环境请求值只能收窄 GO：阶段额度与累计请求上限取三者最小值；省略/0/负数由调用方
+        先行拒绝（这里也再校验一次），不允许回落到 GO 额度。
+        """
+        requested_limit = _gate_number(requested_stage_limit_cny, "阶段额度")
+        requested_max_requests = _gate_int(requested_max_requests, "累计请求上限")
+        fixed_budget = _ensure_fixed_file(
+            budget_path if budget_path is not None else SHARED_BUDGET_PATH,
+            SHARED_BUDGET_PATH,
+            "共享预算",
+        )
+        authorization = load_live_authorization(
+            stage=stage, service=service, go_path=go_path, ledger_path=ledger_path, now=now
+        )
+        budget = _load_budget_json(fixed_budget)
+        total_limit = _gate_number(budget.get("limit_cny"), "共享预算 limit_cny")
+        expected_total_limit = project_total_limit_cny()
+        if abs(total_limit - expected_total_limit) > 1e-9:
+>           raise LiveGateError(
+                f"共享预算总上限必须等于当前项目上限 {expected_total_limit} 元"
+                f"（当前 {total_limit}，拒绝替换/放大预算）"
+            )
+E           mktkb.live_authorization.LiveGateError: 共享预算总上限必须等于当前项目上限 20.0 元（当前 40.0，拒绝替换/放大预算）
+
+src\mktkb\live_authorization.py:627: LiveGateError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/K2/test_official_profile_accepted0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000297ECF0FAA0>
+
+    def test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552(tmp_path, monkeypatch) -> None:
+        env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(),
+        )
+>       config, _budget = resolve_rag_config(
+            data_dir=env["root"] / "app",
+            provider_mode="live",
+            page_size=10,
+            top_k=8,
+            business_date=None,
+        )
+
+tests\unit\test_s2h_r3_official_profile.py:302: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+data_dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/K2/test_official_profile_accepted0/app')
+provider_mode = 'live', page_size = 10, top_k = 8, business_date = None
+
+    def resolve_rag_config(
+        *,
+        data_dir: Path,
+        provider_mode: str,
+        page_size: int,
+        top_k: int,
+        business_date: str | None,
+    ) -> tuple[RagConfig, Any | None]:
+        """构造产品侧 rag 配置；live 必须显式预算入口，默认拒绝真实请求。"""
+        if provider_mode == "offline":
+            return (
+                RagConfig(
+                    provider_mode="offline",
+                    data_dir=data_dir,
+                    page_size=page_size,
+                    top_k=top_k,
+                    business_date=business_date,
+                ),
+                None,
+            )
+        if provider_mode != "live":
+            raise ValueError("rag_provider_mode 只允许 offline/live")
+        # live：阶段额度/请求上限显式，账本/预算/GO 固定锚定；缺一不启动，避免不受控付费路径。
+        from ..live_authorization import (
+            LiveGateError,
+            assert_fixed_env_paths,
+            product_stage,
+            resolve_live_gate,
+        )
+        from ..rag.config import positive_float_env, positive_int_env
+    
+        stage = product_stage()
+        stage_limit = positive_float_env("MKTKB_RAG_STAGE_LIMIT_CNY")
+        max_requests = positive_int_env("MKTKB_RAG_MAX_REQUESTS")
+        if stage_limit is None or max_requests is None:
+            raise ValueError(
+                "rag live 必须显式提供 MKTKB_RAG_STAGE_LIMIT_CNY>0 与 MKTKB_RAG_MAX_REQUESTS>0，"
+                "并通过固定共享账本/预算与产品 GO 授权；默认拒绝真实请求"
+            )
+        # GAP-1/1b：环境变量只能“指名”固定共享账本/预算，不能换成新账本或仓库外/软链路径。
+        try:
+            assert_fixed_env_paths(
+                os.environ.get("MKTKB_RAG_BUDGET_LEDGER"),
+                os.environ.get("MKTKB_RAG_BUDGET_JSON"),
+            )
+        except LiveGateError as exc:
+            raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+        default_request_bound = RagConfig(provider_mode="offline", data_dir=data_dir).max_request_cny
+        try:
+            gate = resolve_live_gate(
+                stage=stage,
+                service="rag",
+                requested_stage_limit_cny=stage_limit,
+                requested_max_requests=max_requests,
+                request_bound_cny=default_request_bound,
+            )
+        except LiveGateError as exc:
+>           raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+E           ValueError: rag live 授权闸门拒绝：共享预算总上限必须等于当前项目上限 20.0 元（当前 40.0，拒绝替换/放大预算）
+
+src\mktkb\qa\service.py:820: ValueError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552
+1 failed, 13 passed, 1 warning in 0.76s

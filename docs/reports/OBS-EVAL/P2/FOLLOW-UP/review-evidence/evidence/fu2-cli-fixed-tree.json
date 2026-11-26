@@ -1,0 +1,349 @@
+{
+  "probe": "reviewer-fu2-cli",
+  "root": "D:\\GPT项目\\市场部AI知识库",
+  "cases": {
+    "v3_help": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_tail": "  -h, --help            show this help message and exit",
+      "stdout_lines": 15,
+      "stderr_tail": "",
+      "error_code": null,
+      "command": null,
+      "ok": null,
+      "payload": null
+    },
+    "v3_derive_help": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_tail": "                        账本路径（可选；只做只读核对）",
+      "stdout_lines": 37,
+      "stderr_tail": "",
+      "error_code": null,
+      "command": null,
+      "ok": null,
+      "payload": null
+    },
+    "v2_help": {
+      "argv": [
+        "tools/p2_h2_controlled_execute.py",
+        "--help"
+      ],
+      "exit": 0,
+      "stdout_tail": "  -h, --help            show this help message and exit",
+      "stdout_lines": 14,
+      "stderr_tail": "",
+      "error_code": null,
+      "command": null,
+      "ok": null,
+      "payload": null
+    },
+    "v2_derive_rejected": {
+      "argv": [
+        "tools/p2_h2_controlled_execute.py",
+        "derive-cards",
+        "--help"
+      ],
+      "exit": 3,
+      "stdout_tail": "{\"detail\": \"argument command: invalid choice: 'derive-cards' (choose from 'plan-private', 'preflight', 'run', 'recompute')\", \"error_code\": \"usage_invalid\", \"ok\": false, \"real_sends\": 0, \"schema_version\": \"p2-h2-controlled-entry/v0.1\", \"secrets_printed\": false}",
+      "stdout_lines": 1,
+      "stderr_tail": "",
+      "error_code": "usage_invalid",
+      "command": null,
+      "ok": false,
+      "payload": {
+        "detail": "argument command: invalid choice: 'derive-cards' (choose from 'plan-private', 'preflight', 'run', 'recompute')",
+        "error_code": "usage_invalid",
+        "ok": false,
+        "real_sends": 0,
+        "schema_version": "p2-h2-controlled-entry/v0.1",
+        "secrets_printed": false
+      }
+    },
+    "v3_no_args": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py"
+      ],
+      "exit": 2,
+      "stdout_tail": "",
+      "stdout_lines": 0,
+      "stderr_tail": "p2_h2_v3_controlled_execute.py: error: the following arguments are required: command",
+      "error_code": null,
+      "command": null,
+      "ok": null,
+      "payload": null
+    },
+    "illegal_out_dir::repo_root_child": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\GPT项目\\市场部AI知识库\\__review_derive_out__"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "derive_output_in_forbidden_root",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "out_dir",
+        "error_code": "derive_output_in_forbidden_root",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false,
+      "out_dir": "D:\\GPT项目\\市场部AI知识库\\__review_derive_out__"
+    },
+    "illegal_out_dir::repo_root_dotdot": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\GPT项目\\市场部AI知识库\\tmp-review-x\\..\\__review_derive_out__"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "derive_output_in_forbidden_root",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "out_dir",
+        "error_code": "derive_output_in_forbidden_root",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false,
+      "out_dir": "D:\\GPT项目\\市场部AI知识库\\tmp-review-x\\..\\__review_derive_out__"
+    },
+    "illegal_out_dir::repo_root_case_variant": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\GPT项目\\市场部AI知识库\\DOCS\\__review_derive_out__"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "derive_output_in_forbidden_root",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "out_dir",
+        "error_code": "derive_output_in_forbidden_root",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false,
+      "out_dir": "D:\\GPT项目\\市场部AI知识库\\DOCS\\__review_derive_out__"
+    },
+    "illegal_out_dir::repo_var": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\GPT项目\\市场部AI知识库\\var\\__review_derive_out__"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "derive_output_in_forbidden_root",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "out_dir",
+        "error_code": "derive_output_in_forbidden_root",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false,
+      "out_dir": "D:\\GPT项目\\市场部AI知识库\\var\\__review_derive_out__"
+    },
+    "illegal_out_dir::repo_trailing_slash": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\GPT项目\\市场部AI知识库\\__review_derive_out_2__/"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "derive_output_in_forbidden_root",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "out_dir",
+        "error_code": "derive_output_in_forbidden_root",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false,
+      "out_dir": "D:\\GPT项目\\市场部AI知识库\\__review_derive_out_2__/"
+    },
+    "legal_out_dir_with_missing_input": {
+      "argv": [
+        "tools/p2_h2_v3_controlled_execute.py",
+        "derive-cards",
+        "--binding",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\binding.json",
+        "--run-index",
+        "0",
+        "--evidence-dir",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence",
+        "--case-plan",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\case-plan.json",
+        "--evidence-key-file",
+        "D:\\mktkb-fu-review\\probes\\__nonexistent__\\evidence.key",
+        "--out-dir",
+        "D:\\mktkb-fu-review\\runs\\fu2-legal-out"
+      ],
+      "exit": 2,
+      "stdout_tail": "}",
+      "stdout_lines": 10,
+      "stderr_tail": "",
+      "error_code": "path_missing",
+      "command": "derive-cards",
+      "ok": false,
+      "payload": {
+        "command": "derive-cards",
+        "detail": "binding",
+        "error_code": "path_missing",
+        "network": {
+          "external": [],
+          "local": []
+        },
+        "ok": false
+      },
+      "created": false
+    }
+  },
+  "repo_entries_after": [
+    "%SystemDrive%",
+    ".claude",
+    ".env",
+    ".env.example",
+    ".git",
+    ".gitignore",
+    ".pytest_cache",
+    ".tmp-r2-obs-acceptance-contracts",
+    ".tmp-r2-obs-acceptance-contracts-repair1",
+    ".tmp-r2-obs-acceptance-index",
+    ".tmp-r2-obs-acceptance-index-repair1",
+    ".tmp-r2-obs-acceptance-scope-http",
+    ".tmp-r2-obs-acceptance-scope-repair1",
+    ".tmp-r2-obs-baseline",
+    ".tmp-r2-obs-diag2",
+    ".tmp-r2-obs-revision2-tests",
+    ".tmp-r2-obs-synthetic",
+    ".tmp-t3review-isolated",
+    ".venv",
+    "40题矩阵-记录表-20261104.xlsx",
+    "40题矩阵-题目与标准答案-20261104.md",
+    "README.md",
+    "backend",
+    "corpus",
+    "docs",
+    "fixtures",
+    "frontend",
+    "tools",
+    "undefined",
+    "var",
+    "一键启动-使用说明.md",
+    "一键启动.cmd",
+    "原型设计",
+    "启动-真实问答.cmd",
+    "墨刀AI-原型设计提示词.md",
+    "墨刀AI-最后一轮-资料管理核心流程.md",
+    "市场部AI知识库-产品需求文档.md",
+    "市场部AI知识库-技术方案.md",
+    "本地交付说明-20261104.md",
+    "测试场景对照与注意事项-20261104.md",
+    "错误记录-20261104.md",
+    "项目详解与面试学习资料.md"
+  ]
+}

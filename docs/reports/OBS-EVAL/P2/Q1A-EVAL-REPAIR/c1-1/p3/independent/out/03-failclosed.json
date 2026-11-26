@@ -1,0 +1,491 @@
+{
+ "probe": "fail-closed",
+ "counterexamples": 53,
+ "defensive_experiments": 6,
+ "expected_families": 49,
+ "triggered_families": 49,
+ "untouched_code_families": [],
+ "unexpected_families_not_in_table": [],
+ "failures": [],
+ "results": [
+  {
+   "name": "missing_field",
+   "kind": "counterexample",
+   "expected": "snapshot_missing_field:record_identities[0].record_code",
+   "observed": "snapshot_missing_field:record_identities[0].record_code",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "type_error",
+   "kind": "counterexample",
+   "expected": "snapshot_type_invalid:turn_ref.turn_index",
+   "observed": "snapshot_type_invalid:turn_ref.turn_index",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "null_not_allowed",
+   "kind": "counterexample",
+   "expected": "snapshot_null_not_allowed:binding.run_id",
+   "observed": "snapshot_null_not_allowed:binding.run_id",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "enum_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_enum_invalid:fixture_kind",
+   "observed": "snapshot_enum_invalid:fixture_kind",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "unknown_key",
+   "kind": "counterexample",
+   "expected": "snapshot_unknown_field:binding.extra_note",
+   "observed": "snapshot_unknown_field:binding.extra_note",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "cross_run_read",
+   "kind": "counterexample",
+   "expected": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+   "observed": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "cross_run_write",
+   "kind": "counterexample",
+   "expected": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+   "observed": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "cross_turn",
+   "kind": "counterexample",
+   "expected": "snapshot_turn_binding_mismatch:turn_ref.conversation_id",
+   "observed": "snapshot_turn_binding_mismatch:turn_ref.conversation_id",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "manifest_cross_run",
+   "kind": "counterexample",
+   "expected": "snapshot_manifest_binding_mismatch:bindings_sha256",
+   "observed": "snapshot_manifest_binding_mismatch:bindings_sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "undeclared_runtime_id",
+   "kind": "counterexample",
+   "expected": "snapshot_runtime_id_not_declared:record_identities[0].unit_id",
+   "observed": "snapshot_runtime_id_not_declared:record_identities[0].unit_id",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "credential_key",
+   "kind": "counterexample",
+   "expected": "snapshot_forbidden_field:request_owner.session_token",
+   "observed": "snapshot_forbidden_field:request_owner.session_token",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "credential_key_in_filters",
+   "kind": "counterexample",
+   "expected": "snapshot_forbidden_field:record_identities[0].entity_filters.password_hash",
+   "observed": "snapshot_forbidden_field:record_identities[0].entity_filters.password_hash",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "plaintext_secret_bearer",
+   "kind": "counterexample",
+   "expected": "snapshot_plaintext_secret_rejected:request_owner.user_ref",
+   "observed": "snapshot_plaintext_secret_rejected:request_owner.user_ref",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "plaintext_secret_fernet",
+   "kind": "counterexample",
+   "expected": "snapshot_plaintext_secret_rejected:binding.run_id",
+   "observed": "snapshot_plaintext_secret_rejected:binding.run_id",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "plaintext_file",
+   "kind": "counterexample",
+   "expected": "snapshot_decrypt_failed",
+   "observed": "snapshot_decrypt_failed",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "content_digest_tamper",
+   "kind": "counterexample",
+   "expected": "snapshot_content_digest_mismatch:content_sha256",
+   "observed": "snapshot_content_digest_mismatch:content_sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "source_evidence_mismatch",
+   "kind": "counterexample",
+   "expected": "snapshot_source_evidence_mismatch:source_evidence.sha256",
+   "observed": "snapshot_source_evidence_mismatch:source_evidence.sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "baseline_impersonation_flag",
+   "kind": "counterexample",
+   "expected": "snapshot_effective_temporal_inconsistent:effective_temporal.baseline_used_as_effective",
+   "observed": "snapshot_effective_temporal_inconsistent:effective_temporal.baseline_used_as_effective",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "auth_material_collected",
+   "kind": "counterexample",
+   "expected": "snapshot_credential_material_forbidden:request_owner.auth_material_collected",
+   "observed": "snapshot_credential_material_forbidden:request_owner.auth_material_collected",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "empty_use_self_contradiction",
+   "kind": "counterexample",
+   "expected": "snapshot_empty_use_input_inconsistent:empty_use_scope_input.empty_set_candidate",
+   "observed": "snapshot_empty_use_input_inconsistent:empty_use_scope_input.empty_set_candidate",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "all_layers_observed_contradiction",
+   "kind": "counterexample",
+   "expected": "snapshot_empty_use_input_inconsistent:empty_use_scope_input.all_use_layers_observed",
+   "observed": "snapshot_empty_use_input_inconsistent:empty_use_scope_input.all_use_layers_observed",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "entity_matchable_forgery",
+   "kind": "counterexample",
+   "expected": "snapshot_entity_matchability_inconsistent:record_identities[0].entity_matchable",
+   "observed": "snapshot_entity_matchability_inconsistent:record_identities[0].entity_matchable",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "entity_code_forgery",
+   "kind": "counterexample",
+   "expected": "snapshot_entity_code_inconsistent:record_identities[0].entity_code",
+   "observed": "snapshot_entity_code_inconsistent:record_identities[0].entity_code",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "public_boundary_keys",
+   "kind": "counterexample",
+   "expected": "snapshot_public_boundary_violation:public_boundary.public_summary_keys",
+   "observed": "snapshot_public_boundary_violation:public_boundary.public_summary_keys",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "public_boundary_digest",
+   "kind": "counterexample",
+   "expected": "snapshot_public_boundary_violation:public_boundary.public_summary_sha256",
+   "observed": "snapshot_public_boundary_violation:public_boundary.public_summary_sha256",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "public_boundary_runtime_id",
+   "kind": "counterexample",
+   "expected": "snapshot_runtime_id_not_declared:public_boundary.document_id",
+   "observed": "snapshot_runtime_id_not_declared:public_boundary.document_id",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "summary_mismatch",
+   "kind": "counterexample",
+   "expected": "snapshot_summary_mismatch:record_identity_summary.total",
+   "observed": "snapshot_summary_mismatch:record_identity_summary.total",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "record_identity_inconsistent",
+   "kind": "counterexample",
+   "expected": "snapshot_record_identity_inconsistent:record_identities[0].record_code",
+   "observed": "snapshot_record_identity_inconsistent:record_identities[0].record_code",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "document_version_inconsistent",
+   "kind": "counterexample",
+   "expected": "snapshot_document_version_inconsistent:effective_temporal.document_versions[0].runtime_version_number",
+   "observed": "snapshot_document_version_inconsistent:effective_temporal.document_versions[0].runtime_version_number",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "list_order_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_list_order_invalid:record_identity_summary.doc_codes",
+   "observed": "snapshot_list_order_invalid:record_identity_summary.doc_codes",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "runtime_identity_inconsistent",
+   "kind": "counterexample",
+   "expected": "snapshot_runtime_identity_inconsistent:runtime_identity.unit_ids",
+   "observed": "snapshot_runtime_identity_inconsistent:runtime_identity.unit_ids",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "owner_inconsistent",
+   "kind": "counterexample",
+   "expected": "snapshot_owner_inconsistent:request_owner.user_ref",
+   "observed": "snapshot_owner_inconsistent:request_owner.user_ref",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "expected_bindings_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_expected_bindings_invalid",
+   "observed": "snapshot_expected_bindings_invalid",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "envelope_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_envelope_invalid",
+   "observed": "snapshot_envelope_invalid",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "contract_version_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_contract_version_invalid:contract_version",
+   "observed": "snapshot_contract_version_invalid:contract_version",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "schema_version_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_schema_version_invalid:schema_version",
+   "observed": "snapshot_schema_version_invalid:schema_version",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "fixture_binding_mismatch",
+   "kind": "counterexample",
+   "expected": "snapshot_fixture_binding_mismatch",
+   "observed": "snapshot_fixture_binding_mismatch",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "source_evidence_unsupported",
+   "kind": "counterexample",
+   "expected": "snapshot_source_evidence_unsupported:source_evidence.schema_version",
+   "observed": "snapshot_source_evidence_unsupported:source_evidence.schema_version",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "source_evidence_replayed",
+   "kind": "counterexample",
+   "expected": "snapshot_source_evidence_unsupported:source_evidence.completeness_status",
+   "observed": "snapshot_source_evidence_unsupported:source_evidence.completeness_status",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "source_evidence_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_source_evidence_invalid",
+   "observed": "snapshot_source_evidence_invalid",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "evidence_not_supported",
+   "kind": "counterexample",
+   "expected": "snapshot_evidence_not_supported",
+   "observed": "snapshot_evidence_not_supported",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "bindings_incomplete",
+   "kind": "counterexample",
+   "expected": "snapshot_bindings_incomplete",
+   "observed": "snapshot_bindings_incomplete",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "doc_code_index_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_doc_code_index_invalid",
+   "observed": "snapshot_doc_code_index_invalid",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "record_index_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_record_index_invalid:sheet",
+   "observed": "snapshot_record_index_invalid:sheet",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "record_index_conflict",
+   "kind": "counterexample",
+   "expected": "snapshot_record_index_conflict:S01|独立验收仓储|2",
+   "observed": "snapshot_record_index_conflict:S01|独立验收仓储|2",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "size_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_size_invalid:ciphertext",
+   "observed": "snapshot_size_invalid:ciphertext",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "read_failed",
+   "kind": "counterexample",
+   "expected": "snapshot_read_failed",
+   "observed": "snapshot_read_failed",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "json_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_json_invalid:json",
+   "observed": "snapshot_json_invalid:json",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "unknown_schema",
+   "kind": "counterexample",
+   "expected": "snapshot_schema_version_invalid:schema_version",
+   "observed": "snapshot_schema_version_invalid:schema_version",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "fixture_kind_invalid",
+   "kind": "counterexample",
+   "expected": "snapshot_fixture_kind_invalid",
+   "observed": "snapshot_fixture_kind_invalid",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "encryption_required",
+   "kind": "counterexample",
+   "expected": "snapshot_encryption_required",
+   "observed": "snapshot_encryption_required",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "write_failed",
+   "kind": "counterexample",
+   "expected": "snapshot_write_failed:writer_not_active",
+   "observed": "snapshot_write_failed:writer_not_active",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "manifest_count_mismatch",
+   "kind": "counterexample",
+   "expected": "snapshot_manifest_count_mismatch:snapshot_count",
+   "observed": "snapshot_manifest_count_mismatch:snapshot_count",
+   "ok": true,
+   "detail": null
+  },
+  {
+   "name": "io_failed_reachable",
+   "kind": "defensive-reachability",
+   "expected": "snapshot_io_failed",
+   "observed": "snapshot_io_failed",
+   "ok": true,
+   "detail": "以文件占位 run 目录，mkpath 抛 OSError，收敛为 snapshot_io_failed"
+  },
+  {
+   "name": "readback_mismatch_fault_injection",
+   "kind": "defensive-reachability",
+   "expected": "snapshot_readback_mismatch",
+   "observed": "snapshot_readback_mismatch",
+   "ok": true,
+   "detail": "读回对象被注入一处篡改；写后逐字节比对触发"
+  },
+  {
+   "name": "run_binding_absent_shadowed",
+   "kind": "defensive-shadowing",
+   "expected": "snapshot_source_evidence_invalid",
+   "observed": "snapshot_source_evidence_invalid",
+   "ok": true,
+   "detail": "冻结 validate_turn_evidence 的 live 必填 run_binding 先行拒绝"
+  },
+  {
+   "name": "run_binding_unexpected_shadowed",
+   "kind": "defensive-shadowing",
+   "expected": "snapshot_source_evidence_invalid",
+   "observed": "snapshot_source_evidence_invalid",
+   "ok": true,
+   "detail": "冻结校验对 local_mock 的 run_binding_not_allowed 先行拒绝"
+  },
+  {
+   "name": "run_binding_absent_fault_injection",
+   "kind": "defensive-reachability",
+   "expected": "snapshot_run_binding_absent:binding.run_binding_sha256",
+   "observed": "snapshot_run_binding_absent:binding.run_binding_sha256",
+   "ok": true,
+   "detail": "仅当冻结前置校验被旁路时可达（证明分支非死码）"
+  },
+  {
+   "name": "run_binding_unexpected_fault_injection",
+   "kind": "defensive-reachability",
+   "expected": "snapshot_run_binding_unexpected:binding.run_binding_sha256",
+   "observed": "snapshot_run_binding_unexpected:binding.run_binding_sha256",
+   "ok": true,
+   "detail": "仅当冻结前置校验被旁路时可达"
+  }
+ ],
+ "netguard": {
+  "counts": {},
+  "ledger": [],
+  "external_attempts": 0,
+  "installed": true
+ },
+ "verdict": "PASS"
+}

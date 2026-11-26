@@ -1,0 +1,35 @@
+{
+  "document": "P2-LIVE-GO",
+  "schema_version": "p2-live-go/v0.1",
+  "stage": "P2-LIVE",
+  "authorization": "Owner 2026-11-16 full H2 verification (OWNER-APPROVAL-UPDATE-20261116-FULL.md): r3 post_v05_without_v01 at most once; 40/20/0.5 CNY; 1500 requests; 5 ops; zero retry",
+  "issued_by": "PM (lead) — delegated by owner 2026-11-16 (scope: r0+r1+r2+r3 full H2 verification)",
+  "nonce": "36337d7d7ab55a30894ade7411e051ad",
+  "issued_utc": "2026-11-16T09:48:33+08:00",
+  "expires_utc": "2026-11-17T23:59:59+08:00",
+  "budget_ledger_path": "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl",
+  "budget_ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+  "budget_total_limit_cny": 40.0,
+  "scope": {
+    "plan_id": "P2-H2V3-20261115-r3-post_v05_without_v01",
+    "plan_sha256": "275d65dbdf4a2e802bf13d766b5f7f98f71b0bba24ed24fc791091b519901e18",
+    "operations": [
+      "answer",
+      "index_embedding",
+      "query_embedding",
+      "query_expansion",
+      "rerank"
+    ],
+    "cost_centers_cny": {
+      "answer_retrieval": 8.5,
+      "ocr": 6.5,
+      "judge": 3.0,
+      "independent": 2.0
+    },
+    "stage_limits_cny": {
+      "P2-LIVE": 20.0
+    },
+    "max_requests": 1500,
+    "max_request_cny": 0.5
+  }
+}

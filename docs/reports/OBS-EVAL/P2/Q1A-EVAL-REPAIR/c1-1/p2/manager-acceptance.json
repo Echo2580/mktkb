@@ -1,0 +1,50 @@
+{
+  "schema_version": "c1p2-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "package": "C1-P2 空使用集闭包证明全覆盖",
+  "manager_decision": "ACCEPTED_WITH_CONDITION_AND_PRESERVED_DISAGREEMENTS",
+  "independent_verdict": "PASS_WITH_DISAGREEMENTS",
+  "deliverables": {
+    "module": "backend/src/mktkb/evaluation/p2_empty_scope_proof.py",
+    "tests": "backend/tests/evaluation/test_p2_empty_scope_proof.py",
+    "dev_report": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p2/dev-report.md",
+    "independent_review": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p2/independent-review.md",
+    "independent_aggregate": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p2/review-aggregate.json"
+  },
+  "verified": {
+    "coverage": "7/7 要求形状、72 例、22 标签成立（22 = 17 组合 + 5 缺口标签）",
+    "coverage_gaps": "query_state 事件路径、多轮当前使用、RAG query_expansion 带证据 未覆盖",
+    "divergence_rulings": { "legitimate": 10, "over_permissive": 2, "undecidable": 0, "note": "10 = 9 覆盖扩展 + 1 更严" },
+    "fail_closed": "267 探针 0 偏离；仅 1 处 proven=True；缺字段/坏类型/未知键全拒",
+    "tests": "88/88、0 skip/xfail/恒真；差分真用冻结原语并断言其 SHA",
+    "protection": "C 冻结 12/12、R2 28、Q1a-1 38+2、15 tracked modified、2086 外来 untracked 全一致；暂存空、0 commit",
+    "zero_calls": "socket/DNS/httpx 三路正对照全部拦截并记账；external 全 0",
+    "private_reread": "合同密文 467dbf77…/47012B、holdout、custody、old run tree 72、R1 树 13、R1 私有明细 2f6f4d85…/74488B、NOT-RUN 19 全部与 R2 基线逐字节一致"
+  },
+  "manager_ruling": {
+    "id": "M-C1P2-01",
+    "topic": "class C 过度宽松（无检索 marker 2 例）",
+    "finding": "合同 §3.2 明确 `not_observed` + `candidates=[]` 不是空集证据，而该 marker 正是 2 例翻 proven 的唯一差别",
+    "ruling": "P4 及任何消费侧实现：class C 形状必须保留 `empty_set_not_proven`（unknown）；若要采用，必须改为要求 `retrieval_observed` 携带空 `unit_ids` 才算证明。按 11 例全量接入 = FAIL。",
+    "status": "硬条件，非建议"
+  },
+  "score_impact": {
+    "adoption_upper_bound": "stale 6 + cross_entity 1 = 7 条轴可翻上界",
+    "confirmed_valid": 0,
+    "partially_valid": "<=3",
+    "confirmed_invalid": 2,
+    "undecidable": "<=2",
+    "case_level_pass_upper_bound": "2/30",
+    "manager_note": "本包对干净分数的贡献≈0；它的价值是可判性与严格性，不是提分。不得把 P2 当作 C1-2 的收益来源。"
+  },
+  "preserved_disagreements": {
+    "items": [
+      "开发称 12 分歧、验收裁 10 合法 + 2 过度宽松 + 0 无法判定",
+      "开发自报『本实现更严 1 例』被验收归入合法（更严不构成宽松风险）",
+      "汇总未钉 11 的分歧数（逐例已钉）"
+    ],
+    "voting": "none"
+  },
+  "not_accepted_as": ["T207 pass", "quality pass", "release/threshold", "C1-2 authorization", "score improvement"],
+  "next": "P4 必须同时遵守 M-C1P1-01（document 级目标不得判 violation）与 M-C1P2-01（class C 保持 unknown）"
+}

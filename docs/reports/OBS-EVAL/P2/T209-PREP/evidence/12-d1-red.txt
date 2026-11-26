@@ -1,0 +1,126 @@
+.F.FFF                                                                   [100%]
+================================== FAILURES ===================================
+____________ test_execution_aggregate_status_mapping[runs1-failed] ____________
+
+runs = (RunOutcome(run_id='failed-1', scenario='synthetic', status='failed', questions=1, turns=1, errors=1, retries=0, abort...utcome(run_id='failed-4', scenario='synthetic', status='failed', questions=1, turns=1, errors=1, retries=0, aborted=0))
+expected = 'failed'
+
+    @pytest.mark.parametrize(
+        ("runs", "expected"),
+        [
+            (_outcomes("succeeded", 4), "succeeded"),
+            (_outcomes("failed", 4), "failed"),
+            ((*_outcomes("succeeded", 2), *_outcomes("failed", 2)), "partial"),
+            (_outcomes("not_run", 2), "not_run"),
+            ((), "not_run"),
+        ],
+    )
+    def test_execution_aggregate_status_mapping(runs, expected: str) -> None:
+        """D1 回归：全部 failed 必须聚合为 failed，不得误述为 not_run；0 run 为 not_run。"""
+        execution = pr.build_execution(round_id=ROUND, runs=runs)
+>       assert execution.status == expected
+E       AssertionError: assert 'not_run' == 'failed'
+E         
+E         - failed
+E         + not_run
+
+backend\tests\evaluation\test_p2_candidate_report.py:462: AssertionError
+___________ test_execution_aggregate_status_mapping[runs3-not_run] ____________
+
+runs = (RunOutcome(run_id='not_run-1', scenario='synthetic', status='not_run', questions=1, turns=1, errors=0, retries=0, abo...come(run_id='not_run-2', scenario='synthetic', status='not_run', questions=1, turns=1, errors=0, retries=0, aborted=0))
+expected = 'not_run'
+
+    @pytest.mark.parametrize(
+        ("runs", "expected"),
+        [
+            (_outcomes("succeeded", 4), "succeeded"),
+            (_outcomes("failed", 4), "failed"),
+            ((*_outcomes("succeeded", 2), *_outcomes("failed", 2)), "partial"),
+            (_outcomes("not_run", 2), "not_run"),
+            ((), "not_run"),
+        ],
+    )
+    def test_execution_aggregate_status_mapping(runs, expected: str) -> None:
+        """D1 回归：全部 failed 必须聚合为 failed，不得误述为 not_run；0 run 为 not_run。"""
+        execution = pr.build_execution(round_id=ROUND, runs=runs)
+        assert execution.status == expected
+        payload = execution.to_dict()
+        assert payload["status"] == expected
+        if expected == "failed":
+            assert execution.failed_runs == 4
+            assert execution.succeeded_runs == 0
+        if expected == "not_run":
+>           assert execution.succeeded_runs == 0 and execution.failed_runs == 0
+E           AssertionError: assert (0 == 0 and 2 == 0)
+E            +  where 0 = ExecutionStatus(round_id='P2-T207-H2-20261114-r1', runs=(RunOutcome(run_id='not_run-1', scenario='synthetic', status='...', succeeded_runs=0, failed_runs=2, total_questions=2, total_turns=2, total_errors=0, total_retries=0, total_aborted=0).succeeded_runs
+E            +  and   2 = ExecutionStatus(round_id='P2-T207-H2-20261114-r1', runs=(RunOutcome(run_id='not_run-1', scenario='synthetic', status='...', succeeded_runs=0, failed_runs=2, total_questions=2, total_turns=2, total_errors=0, total_retries=0, total_aborted=0).failed_runs
+
+backend\tests\evaluation\test_p2_candidate_report.py:469: AssertionError
+___________ test_execution_aggregate_status_mapping[runs4-not_run] ____________
+
+runs = (), expected = 'not_run'
+
+    @pytest.mark.parametrize(
+        ("runs", "expected"),
+        [
+            (_outcomes("succeeded", 4), "succeeded"),
+            (_outcomes("failed", 4), "failed"),
+            ((*_outcomes("succeeded", 2), *_outcomes("failed", 2)), "partial"),
+            (_outcomes("not_run", 2), "not_run"),
+            ((), "not_run"),
+        ],
+    )
+    def test_execution_aggregate_status_mapping(runs, expected: str) -> None:
+        """D1 回归：全部 failed 必须聚合为 failed，不得误述为 not_run；0 run 为 not_run。"""
+>       execution = pr.build_execution(round_id=ROUND, runs=runs)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_candidate_report.py:461: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+round_id = 'P2-T207-H2-20261114-r1', runs = ()
+
+    def build_execution(*, round_id: str, runs: Sequence[RunOutcome]) -> ExecutionStatus:
+        round_id = _require_text(round_id, "execution.round_id")
+        if not isinstance(runs, (list, tuple)) or not runs:
+>           raise CandidateReportError("execution.runs 必须是非空数组")
+E           mktkb.evaluation.p2_candidate_report.CandidateReportError: execution.runs 必须是非空数组
+
+backend\src\mktkb\evaluation\p2_candidate_report.py:353: CandidateReportError
+___________ test_failed_execution_report_renders_failed_not_not_run ___________
+
+    def test_failed_execution_report_renders_failed_not_not_run() -> None:
+        """D1 回归：渲染层不得把执行失败写成未执行，且要写明聚合映射。"""
+        template = clean_report()
+        report = pr.build_split_report(
+            reference=template.reference,
+            execution=pr.build_execution(round_id=ROUND, runs=_outcomes("failed", 4)),
+            quality=template.quality,
+            evidence=template.evidence,
+            soft=template.soft,
+            funding=template.funding,
+        )
+        text = pr.render_split_markdown(report)
+>       assert "状态: failed（执行失败" in text
+E       AssertionError: assert '状态: failed（执行失败' in '# T209-PREP 报告：执行 / 质量 / 证据 / 软评分 / 资金 分列\n\n## 0. 阅读约定\n\n- 本报告把执行、质量、证据、软评分、资金**分列**，不合成单一 overall success/ready。\n...roved=false\n- publication 原因: T209-PREP 分列报告只用于工程准备：不批准阈值、不写正式 gate approved、不建立可发布基线；正式发布需质量门 + 独立审批（仍属 T209 正式阶段）\n'
+
+backend\tests\evaluation\test_p2_candidate_report.py:486: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs1-failed]
+FAILED backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs3-not_run]
+FAILED backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs4-not_run]
+FAILED backend\tests\evaluation\test_p2_candidate_report.py::test_failed_execution_report_renders_failed_not_not_run
+4 failed, 2 passed, 34 deselected, 1 warning in 0.55s
+
+[meta]
+command=.venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_candidate_report.py -p no:cacheprovider -q -k "execution_aggregate or failed_execution_report"
+cwd=D:\GPT项目\市场部AI知识库
+exit_code=1
+env=MKTKB_NO_DOTENV=1 PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8
+note=D1 reproduction before fix (all-failed->not_run; 0 run rejected).

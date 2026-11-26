@@ -1,0 +1,386 @@
+{
+  "authorization": {
+    "expires_utc": "2026-11-29T05:00:00+08:00",
+    "go_max_requests_each": 1137,
+    "go_schema_version": "p2-live-go/v0.1",
+    "issued_by": "PM (lead) — pre-authorized by owner 2026-11-15",
+    "issued_utc": "2026-11-15T05:00:00+08:00",
+    "max_request_cny": 0.5,
+    "stage": "P2-LIVE",
+    "stage_limits_cny": {
+      "P2-LIVE": 20.0
+    }
+  },
+  "baseline": {
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged": 0,
+    "tracked_modified": 15,
+    "untracked_status_entries": 249
+  },
+  "deviations_from_brief": [
+    {
+      "evidence": "D:\\mktkb-p2-h2v3-20261115\\work\\probe_plan_zero.json",
+      "id": "D-A-max_requests",
+      "what": "GO/plan 的 max_requests 取 1137（=952 已用 + 185 四 run 实数），未取该 run 的 total_requests",
+      "why": "max_requests 是累计口径：plan 侧低于 952 会让 preflight 报 request_budget_insufficient；GO 侧低于 plan.max_requests 会报 go_max_requests_below_plan；用 v2 的 1100 则 run3 开工余量为 0"
+    },
+    {
+      "evidence": "D:\\mktkb-p2-h2v3-20261115\\evidence\\budget-change.json",
+      "id": "D-B-budget-field-name",
+      "what": "budget.json 的实名字段是 limit_cny（无 total_limit_cny 字段），改的是它",
+      "why": "BudgetLedger 与 _check_budget_payload 都读 limit_cny"
+    }
+  ],
+  "go_archive": {
+    "archive_byte_identical": true,
+    "archive_name": "P2-LIVE-GO.t207-h2-20261114-r3.done.archived.json",
+    "old_go_bytes": 1233,
+    "old_go_sha256": "c72dc7abf6ba135fb6c53f77c35b40dda34e97cf535d3be212467c6734b27324"
+  },
+  "prerequisites": {
+    "mock_dryrun": {
+      "path": "docs/reports/OBS-EVAL/P2/H2V3/dryrun/",
+      "summary_sha256": "7973f00f36ba29ca29c5daf55643ce8122247da818254e71321572ac98ebf551"
+    },
+    "preregistration": {
+      "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/pre-registration.json",
+      "sha256": "23cb3c08a8098557f27e8ad3bf433ce8a69111afcfca4aa587073ed9d60d4bce"
+    },
+    "v3_freeze": {
+      "artifacts": 32,
+      "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-freeze/p2-holdout-v3.freeze.json",
+      "sha256": "f7c484d3687edcde470b49ff708da3de75bc546dccb8aa4eb8a581da01129533",
+      "verification": "OK 32/32"
+    }
+  },
+  "quota_gate": {
+    "cumulative_after_four_runs": 1137,
+    "exceeds_gate": false,
+    "governance_cap": 1500,
+    "hard_cap_constant": 1600,
+    "headroom_after": 363,
+    "remaining_before": 548,
+    "total_requests_all_runs": 185,
+    "used_before": 952
+  },
+  "residuals": [
+    "R1 契约复算 scenario_plan_mismatch：plan.project_total_limit_cny=50 与 p2_holdout_plan.H2_PROJECT_TOTAL_LIMIT_CNY=40.0 冲突；仅该键不同；CLI live 路径会在首个 HTTP 前 fail-closed；一行修法未执行",
+    "R2 budget 两处元数据陈旧（remaining_conservative_cny_at_start=39.97、stage_revision.arithmetic 按 40 描述）；按仅改一字段未动，无代码读取",
+    "R3 旧 v2 GO 在预算改 50 后已不可授权（budget_total_mismatch）；归档件 c72dc7ab… 可取回",
+    "R4 仓内无 v3 专用 live 入口（tools/p2_h2_controlled_execute.py 是 v2 件）",
+    "R5 运行期必须显式设 MKTKB_PROJECT_TOTAL_LIMIT_CNY=50（代码默认 10.0）",
+    "R6 四 run 跑完后累计恰好 1137，任何重跑需新 GO",
+    "R7 dryrun 遗留的 Dxx_ 前缀文档标题项仍 OPEN（产品/ingest 命名侧）"
+  ],
+  "role": "v3 run 计划与 GO 生成（普通角色；经理代签，主人 2026-11-15 预授权）",
+  "runs": [
+    {
+      "business_date": "2026-10-15",
+      "by_operation": {
+        "answer": 14,
+        "index_embedding": 8,
+        "query_embedding": 14,
+        "query_expansion": 14,
+        "rerank": 14
+      },
+      "case_count": 12,
+      "center_needs_cny": {
+        "answer_retrieval": 0.63552,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "contract_validate_run": {
+        "code": "scenario_plan_mismatch",
+        "differing_keys": [
+          "project_total_limit_cny"
+        ],
+        "expected_values": {
+          "project_total_limit_cny": 40.0
+        },
+        "ok": false,
+        "plan_values": {
+          "project_total_limit_cny": 50.0
+        }
+      },
+      "cost_centers_cny": {
+        "answer_retrieval": 8.5,
+        "independent": 2.0,
+        "judge": 3.0,
+        "ocr": 6.5
+      },
+      "dataset_version": "P2-HOLDOUT-v3.1",
+      "estimated_success_cny": 0.1326,
+      "go": {
+        "expires_utc": "2026-11-29T05:00:00+08:00",
+        "issued_utc": "2026-11-15T05:00:00+08:00",
+        "max_requests": 1137,
+        "nonce_len": 32,
+        "path": "D:\\mktkb-p2-h2v3-20261115\\go\\P2-LIVE-GO.v3-r0.json",
+        "sha256": "8effb4b1545afcfd939892803bd93b9303be6cd155a8236563f2f374785ffdbf",
+        "slot": "fixed"
+      },
+      "ingest_batches": 8,
+      "label_version": "p2-holdout-v3.1-2026-11-15",
+      "operations": [
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "query_expansion",
+        "rerank"
+      ],
+      "plan_file_path_outside_repo": "D:\\mktkb-p2-h2v3-20261115\\plans\\run0-base_b0.plan.json",
+      "plan_file_sha256": "3c1ce5fbb26f11a7ce86506a6e157fca8d24aee07468cc766d54c622a457e0eb",
+      "plan_id": "P2-H2V3-20261115-r0-base_b0",
+      "plan_max_requests": 1137,
+      "plan_sha256": "349d424434bcd9742f76f05feb29b0fab56fb74f8a686ad56b3522626a960884",
+      "preflight_ok": true,
+      "preflight_reasons": [],
+      "project_total_limit_cny": 50.0,
+      "requests_headroom_for_this_run": 185,
+      "requests_used_before_run": 952,
+      "reserve_peak_cny": 0.018688,
+      "run_id": "p2-h2v3-20261115-r0-base_b0",
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "stage_limit_cny": 20.0,
+      "total_requests": 64,
+      "turn_count": 14,
+      "worst_case_cny": 0.63552
+    },
+    {
+      "business_date": "2026-07-15",
+      "by_operation": {
+        "answer": 10,
+        "index_embedding": 9,
+        "query_embedding": 10,
+        "query_expansion": 10,
+        "rerank": 10
+      },
+      "case_count": 8,
+      "center_needs_cny": {
+        "answer_retrieval": 0.460672,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "contract_validate_run": {
+        "code": "scenario_plan_mismatch",
+        "differing_keys": [
+          "project_total_limit_cny"
+        ],
+        "expected_values": {
+          "project_total_limit_cny": 40.0
+        },
+        "ok": false,
+        "plan_values": {
+          "project_total_limit_cny": 50.0
+        }
+      },
+      "cost_centers_cny": {
+        "answer_retrieval": 8.5,
+        "independent": 2.0,
+        "judge": 3.0,
+        "ocr": 6.5
+      },
+      "dataset_version": "P2-HOLDOUT-v3.1",
+      "estimated_success_cny": 0.0957,
+      "go": {
+        "expires_utc": "2026-11-29T05:00:00+08:00",
+        "issued_utc": "2026-11-15T05:00:00+08:00",
+        "max_requests": 1137,
+        "nonce_len": 32,
+        "path": "D:\\mktkb-p2-h2v3-20261115\\go\\P2-LIVE-GO.v3-r1.json",
+        "sha256": "5cdde637baf0e6a9319bb0245196d1407d51f80408b9d244b507ddd6b8d4c578",
+        "slot": "pending"
+      },
+      "ingest_batches": 9,
+      "label_version": "p2-holdout-v3.1-2026-11-15",
+      "operations": [
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "query_expansion",
+        "rerank"
+      ],
+      "plan_file_path_outside_repo": "D:\\mktkb-p2-h2v3-20261115\\plans\\run1-base_b0_plus_v01.plan.json",
+      "plan_file_sha256": "c65600790ff77e70b6055c74f3def7ab2021bb3319dce033e57abbcc72d17f03",
+      "plan_id": "P2-H2V3-20261115-r1-base_b0_plus_v01",
+      "plan_max_requests": 1137,
+      "plan_sha256": "cd1dcdecb26a6b4dfcf23d7ef513a180785fd5e6265b17ae7b8187a89a962d39",
+      "preflight_ok": true,
+      "preflight_reasons": [],
+      "project_total_limit_cny": 50.0,
+      "requests_headroom_for_this_run": 121,
+      "requests_used_before_run": 1016,
+      "reserve_peak_cny": 0.018688,
+      "run_id": "p2-h2v3-20261115-r1-base_b0_plus_v01",
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "stage_limit_cny": 20.0,
+      "total_requests": 49,
+      "turn_count": 10,
+      "worst_case_cny": 0.460672
+    },
+    {
+      "business_date": "2026-11-20",
+      "by_operation": {
+        "answer": 6,
+        "index_embedding": 11,
+        "query_embedding": 6,
+        "query_expansion": 6,
+        "rerank": 6
+      },
+      "case_count": 5,
+      "center_needs_cny": {
+        "answer_retrieval": 0.287872,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "contract_validate_run": {
+        "code": "scenario_plan_mismatch",
+        "differing_keys": [
+          "project_total_limit_cny"
+        ],
+        "expected_values": {
+          "project_total_limit_cny": 40.0
+        },
+        "ok": false,
+        "plan_values": {
+          "project_total_limit_cny": 50.0
+        }
+      },
+      "cost_centers_cny": {
+        "answer_retrieval": 8.5,
+        "independent": 2.0,
+        "judge": 3.0,
+        "ocr": 6.5
+      },
+      "dataset_version": "P2-HOLDOUT-v3.1",
+      "estimated_success_cny": 0.0591,
+      "go": {
+        "expires_utc": "2026-11-29T05:00:00+08:00",
+        "issued_utc": "2026-11-15T05:00:00+08:00",
+        "max_requests": 1137,
+        "nonce_len": 32,
+        "path": "D:\\mktkb-p2-h2v3-20261115\\go\\P2-LIVE-GO.v3-r2.json",
+        "sha256": "cbce4ba4ceff02794e94eb76361763f157262154840245380824edbe80274af8",
+        "slot": "pending"
+      },
+      "ingest_batches": 11,
+      "label_version": "p2-holdout-v3.1-2026-11-15",
+      "operations": [
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "query_expansion",
+        "rerank"
+      ],
+      "plan_file_path_outside_repo": "D:\\mktkb-p2-h2v3-20261115\\plans\\run2-pre_v05_without_v07.plan.json",
+      "plan_file_sha256": "e2bfd84b2702db4fe89e7b05fc0c64db8f41c3d6488994998dc8d23edc16ddc7",
+      "plan_id": "P2-H2V3-20261115-r2-pre_v05_without_v07",
+      "plan_max_requests": 1137,
+      "plan_sha256": "6da15e8ad7650b598b1e63b302050e51bed3bd4a4981b03faeec60d176b38110",
+      "preflight_ok": true,
+      "preflight_reasons": [],
+      "project_total_limit_cny": 50.0,
+      "requests_headroom_for_this_run": 72,
+      "requests_used_before_run": 1065,
+      "reserve_peak_cny": 0.018688,
+      "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "stage_limit_cny": 20.0,
+      "total_requests": 35,
+      "turn_count": 6,
+      "worst_case_cny": 0.287872
+    },
+    {
+      "business_date": "2026-12-15",
+      "by_operation": {
+        "answer": 6,
+        "index_embedding": 13,
+        "query_embedding": 6,
+        "query_expansion": 6,
+        "rerank": 6
+      },
+      "case_count": 5,
+      "center_needs_cny": {
+        "answer_retrieval": 0.291968,
+        "independent": 0.0,
+        "judge": 0.0,
+        "ocr": 0.0
+      },
+      "contract_validate_run": {
+        "code": "scenario_plan_mismatch",
+        "differing_keys": [
+          "project_total_limit_cny"
+        ],
+        "expected_values": {
+          "project_total_limit_cny": 40.0
+        },
+        "ok": false,
+        "plan_values": {
+          "project_total_limit_cny": 50.0
+        }
+      },
+      "cost_centers_cny": {
+        "answer_retrieval": 8.5,
+        "independent": 2.0,
+        "judge": 3.0,
+        "ocr": 6.5
+      },
+      "dataset_version": "P2-HOLDOUT-v3.1",
+      "estimated_success_cny": 0.0597,
+      "go": {
+        "expires_utc": "2026-11-29T05:00:00+08:00",
+        "issued_utc": "2026-11-15T05:00:00+08:00",
+        "max_requests": 1137,
+        "nonce_len": 32,
+        "path": "D:\\mktkb-p2-h2v3-20261115\\go\\P2-LIVE-GO.v3-r3.json",
+        "sha256": "8a4c94fb5df1a1bd76c70dd26651624ec3696b14979de0367f2c22f6b5d78bc0",
+        "slot": "pending"
+      },
+      "ingest_batches": 13,
+      "label_version": "p2-holdout-v3.1-2026-11-15",
+      "operations": [
+        "answer",
+        "index_embedding",
+        "query_embedding",
+        "query_expansion",
+        "rerank"
+      ],
+      "plan_file_path_outside_repo": "D:\\mktkb-p2-h2v3-20261115\\plans\\run3-post_v05_without_v01.plan.json",
+      "plan_file_sha256": "9cee939ea955356a681cf3bf182bae7d110b41e210d5f94c081f63e1d19fb85c",
+      "plan_id": "P2-H2V3-20261115-r3-post_v05_without_v01",
+      "plan_max_requests": 1137,
+      "plan_sha256": "e2cff4ee0f064417c5eb8db8909a036f91fffdbf7dc737675667e14e9897634a",
+      "preflight_ok": true,
+      "preflight_reasons": [],
+      "project_total_limit_cny": 50.0,
+      "requests_headroom_for_this_run": 37,
+      "requests_used_before_run": 1100,
+      "reserve_peak_cny": 0.018688,
+      "run_id": "p2-h2v3-20261115-r3-post_v05_without_v01",
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "stage_limit_cny": 20.0,
+      "total_requests": 37,
+      "turn_count": 6,
+      "worst_case_cny": 0.291968
+    }
+  ],
+  "schema_version": "h2v3-go-plan-index/v0.1",
+  "shared_files": {
+    "budget_limit_cny_after": 50,
+    "budget_path": "docs/evidence/LOCAL-R1-20261101/budget/budget.json",
+    "budget_sha256_after": "5fcb4be5a68bb9437ff82be8dc73794bc712a5e5fe3b6312f70a4218f3d0b25f",
+    "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "budget_stages_P2_LIVE": 20,
+    "ledger_path": "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl",
+    "ledger_reservation_count": 952,
+    "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9"
+  }
+}

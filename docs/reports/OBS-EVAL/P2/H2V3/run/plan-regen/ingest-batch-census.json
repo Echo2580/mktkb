@@ -1,0 +1,184 @@
+{
+  "schema_version": "p2-h2v3-ingest-batch-census/v0.1",
+  "role": "v3 计划 index_embedding 上界的数据来源（按 v3 实际内容实测派生；不改 v2 配方）",
+  "method": "零网络离线回放：产品自身 ingest 路径（上传 202 → worker → publish 200 → 发布钩子 qa.sync），embedding 用离线假 provider；live embedding_batch_size=5 ⇒ 一次 embed() 一批 POST。per_publish_embed_posts 是第 k 个发布源那次 embed() 的批数。",
+  "batch_size": 5,
+  "source_evidence": {
+    "path": "docs/reports/OBS-EVAL/P2/H2V3/run/diagnosis/offline-repro.json",
+    "sha256": "9b128932e62d0d2fde0386ab734054bcddc90d7b8676dd6c08a3e3dce7aa9f16",
+    "bytes": 14565,
+    "selection": "cap=null 且 defer_sync=false（现状产品语义：每次 publish 同步一次）"
+  },
+  "scenarios": {
+    "base_b0": {
+      "source_indices": [
+        0,
+        1,
+        4,
+        6,
+        7,
+        8,
+        9
+      ],
+      "published_sources": 7,
+      "per_publish_embed_posts": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "embed_posts_required": 9,
+      "product_revision": "7",
+      "chunks_final": 20,
+      "unique_texts": 28,
+      "prepare_ok": true,
+      "sync_status": "ready"
+    },
+    "base_b0_plus_v01": {
+      "source_indices": [
+        0,
+        1,
+        4,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "published_sources": 8,
+      "per_publish_embed_posts": [
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "embed_posts_required": 10,
+      "product_revision": "8",
+      "chunks_final": 21,
+      "unique_texts": 29,
+      "prepare_ok": true,
+      "sync_status": "ready"
+    },
+    "pre_v05_without_v07": {
+      "source_indices": [
+        0,
+        1,
+        2,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10
+      ],
+      "published_sources": 10,
+      "per_publish_embed_posts": [
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "embed_posts_required": 13,
+      "product_revision": "10",
+      "chunks_final": 21,
+      "unique_texts": 41,
+      "prepare_ok": true,
+      "sync_status": "ready"
+    },
+    "post_v05_without_v01": {
+      "source_indices": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        11
+      ],
+      "published_sources": 11,
+      "per_publish_embed_posts": [
+        2,
+        2,
+        2,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1
+      ],
+      "embed_posts_required": 15,
+      "product_revision": "11",
+      "chunks_final": 20,
+      "unique_texts": 48,
+      "prepare_ok": true,
+      "sync_status": "ready"
+    }
+  },
+  "per_source": {
+    "0": {
+      "embed_posts": 2
+    },
+    "1": {
+      "embed_posts": 2
+    },
+    "4": {
+      "embed_posts": 1
+    },
+    "6": {
+      "embed_posts": 1
+    },
+    "7": {
+      "embed_posts": 1
+    },
+    "8": {
+      "embed_posts": 1
+    },
+    "9": {
+      "embed_posts": 1
+    },
+    "10": {
+      "embed_posts": 1
+    },
+    "2": {
+      "embed_posts": 2
+    },
+    "5": {
+      "embed_posts": 1
+    },
+    "3": {
+      "embed_posts": 2
+    },
+    "11": {
+      "embed_posts": 1
+    }
+  },
+  "totals": {
+    "scenarios": 4,
+    "sources_covered": 12,
+    "embed_posts_all_runs": 47,
+    "v2_recipe_batches_all_runs": 41
+  },
+  "zero_network": true,
+  "note": "本件只固化实测事实，不含题干/答案/case_id/query 文本；计划生成只按源下标求和，任一 scenario 合计与实测不符即拒绝签发计划。"
+}

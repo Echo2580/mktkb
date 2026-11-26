@@ -1,0 +1,583 @@
+{
+ "schema_version": "p2h2v3-corpus-r1-snapshot/v0.1",
+ "phase": "before-r1",
+ "role": "v3 语料返工 R1（普通开发）",
+ "why_r1": "上一轮判 PARTIAL：V05/V06 的 失效日期 整列为空 ⇒ 产品 _find_header_index 把数据行当表头 ⇒ 7 条 target 不可对齐。经理裁定：暂缓修产品解析器，改数据侧用显式哨兵值。",
+ "capture_note": "单次采集；脚本内 已存在即拒绝。本轮所有写入都发生在该文件落盘之后。",
+ "git": {
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "staged": [],
+  "tracked_modified": [
+   ".claude/handoffs/_index.md",
+   "backend/src/mktkb/conversations/service.py",
+   "backend/src/mktkb/evaluation/cli.py",
+   "backend/src/mktkb/evaluation/p2_diagnostics.py",
+   "backend/src/mktkb/evaluation/p2_holdout_scenarios.py",
+   "backend/src/mktkb/evaluation/p2_live.py",
+   "backend/src/mktkb/evaluation/p2_runner.py",
+   "backend/src/mktkb/evaluation/p2_scoring.py",
+   "backend/src/mktkb/evaluation/product_adapter.py",
+   "backend/src/mktkb/qa/service.py",
+   "backend/src/mktkb/rag/index.py",
+   "backend/src/mktkb/rag/query.py",
+   "backend/tests/rag/test_query_state.py",
+   "backend/tests/unit/test_conversations.py",
+   "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md"
+  ],
+  "tracked_modified_count": 15,
+  "untracked": [
+   "%SystemDrive%/",
+   ".claude/handoffs/2026-11-10-154731-p2-project-manager.md",
+   ".claude/handoffs/2026-11-10-p2-progress.md",
+   ".claude/handoffs/2026-11-11-171153-t207-quality-repair.md",
+   ".claude/handoffs/2026-11-11-t207-a-closeout-paused.md",
+   ".claude/handoffs/2026-11-12-081943-t207-quality-repair-paused.md",
+   ".claude/handoffs/2026-11-12-150626-t207-scenario-offline-paused.md",
+   ".claude/handoffs/2026-11-13-t207-h2-blocked-paused.md",
+   ".claude/handoffs/2026-11-14-114409-t207-quality-deferred-manager.md",
+   ".claude/handoffs/2026-11-14-1355-t207-engine-closeout-manager.md",
+   ".claude/handoffs/2026-11-14-t207-offline-execution-brief.md",
+   ".claude/handoffs/prompts/P2-PAUSE-HANDOFF.md",
+   ".claude/handoffs/prompts/P2-R2-dev.md",
+   ".claude/handoffs/prompts/P2-R2-verify.md",
+   ".claude/handoffs/prompts/P2-T201-dev.md",
+   ".claude/handoffs/prompts/P2-T201-verify.md",
+   ".claude/handoffs/prompts/P2-T202-custodian.md",
+   ".claude/handoffs/prompts/P2-T202-dev.md",
+   ".claude/handoffs/prompts/P2-T202-verify.md",
+   ".claude/handoffs/prompts/P2-T203-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T203-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T203-dev.md",
+   ".claude/handoffs/prompts/P2-T203-verify.md",
+   ".claude/handoffs/prompts/P2-T204-dev.md",
+   ".claude/handoffs/prompts/P2-T204-verify.md",
+   ".claude/handoffs/prompts/P2-T205-dev.md",
+   ".claude/handoffs/prompts/P2-T205-verify.md",
+   ".claude/handoffs/prompts/P2-T206-LIVE-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T206-LIVE-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T206-LIVE-dev.md",
+   ".claude/handoffs/prompts/P2-T206-LIVE-verify.md",
+   ".claude/handoffs/prompts/P2-T206-PLAN-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T206-PRE-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T206-PRE-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T206-PRE-dev.md",
+   ".claude/handoffs/prompts/P2-T206-PRE-verify.md",
+   ".claude/handoffs/prompts/P2-T206-pilot-verify.md",
+   ".claude/handoffs/prompts/P2-T206-prep-dev.md",
+   ".claude/handoffs/prompts/P2-T207-CUSTODY-V2-annotate.md",
+   ".claude/handoffs/prompts/P2-T207-CUSTODY-V2-review.md",
+   ".claude/handoffs/prompts/P2-T207-CUSTODY-V3-annotate.md",
+   ".claude/handoffs/prompts/P2-T207-CUSTODY-V3-review.md",
+   ".claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-A-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-A-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-A-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-A-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-B-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-B-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-B-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-B-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R2-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R2-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-CONFLICT-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2DIAG-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2DIAG-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2KIND-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2KIND-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2MAP-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2MAP-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2MAP-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2PURGE-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2PURGE-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2SCORE-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2SCORE-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2SCORE-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-H2SCORE-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-LIVECAP-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-LIVECAP-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-LIVEGATE-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-LIVEGATE-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-P-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-P-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-P-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-P-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-S-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-S-verify.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-SCORE-dev.md",
+   ".claude/handoffs/prompts/P2-T207-FIX-SCORE-verify.md",
+   ".claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-R2-dev.md",
+   ".claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-dev.md",
+   ".claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-verify.md",
+   ".claude/handoffs/prompts/P2-T207-H2-RETEST-verify.md",
+   ".claude/handoffs/prompts/P2-T207-HARD-CLASSIFY-dev.md",
+   ".claude/handoffs/prompts/P2-T207-HARD-CLASSIFY-verify.md",
+   ".claude/handoffs/prompts/P2-T207-PRODUCT-ROOT-FIX-dev.md",
+   ".claude/handoffs/prompts/P2-T207-PRODUCT-ROOT-FIX-verify.md",
+   ".claude/handoffs/prompts/P2-T207-R4PREP-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-R4PREP-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-R4PREP-R2-dev.md",
+   ".claude/handoffs/prompts/P2-T207-R4PREP-dev.md",
+   ".claude/handoffs/prompts/P2-T207-R4PREP-verify.md",
+   ".claude/handoffs/prompts/P2-T207-SAFE-DIAG-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-SAFE-DIAG-dev.md",
+   ".claude/handoffs/prompts/P2-T207-SAFE-DIAG-verify.md",
+   ".claude/handoffs/prompts/P2-T207-SCENARIO-R1-dev.md",
+   ".claude/handoffs/prompts/P2-T207-SCENARIO-R1-verify.md",
+   ".claude/handoffs/prompts/P2-T207-SCENARIO-dev.md",
+   ".claude/handoffs/prompts/P2-T207-SCENARIO-verify.md",
+   ".claude/handoffs/prompts/P2-T207-prep-dev.md",
+   ".claude/handoffs/prompts/P2-T207-product-date-recon.md",
+   ".claude/handoffs/t207-lead/",
+   "backend/requirements-ragas-eval.lock",
+   "backend/src/mktkb/evaluation/p2_candidate_report.py",
+   "backend/src/mktkb/evaluation/p2_empty_scope_proof.py",
+   "backend/src/mktkb/evaluation/p2_evidence_axes_adapter_v2.py",
+   "backend/src/mktkb/evaluation/p2_evidence_capture.py",
+   "backend/src/mktkb/evaluation/p2_evidence_io.py",
+   "backend/src/mktkb/evaluation/p2_evidence_rescore.py",
+   "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py",
+   "backend/src/mktkb/evaluation/p2_evidence_snapshot_v03.py",
+   "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+   "backend/src/mktkb/evaluation/p2_stale_version_state.py",
+   "backend/src/mktkb/evaluation/ragas_adapter.py",
+   "backend/src/mktkb/evaluation/ragas_p2_gate.py",
+   "backend/src/mktkb/observability/evaluation_capture.py",
+   "backend/tests/evaluation/test_p2_candidate_report.py",
+   "backend/tests/evaluation/test_p2_capture_contract_v02.py",
+   "backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py",
+   "backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py",
+   "backend/tests/evaluation/test_p2_cross_entity_scope_v02.py",
+   "backend/tests/evaluation/test_p2_empty_scope_proof.py",
+   "backend/tests/evaluation/test_p2_eval_tool_repair.py",
+   "backend/tests/evaluation/test_p2_eval_tool_repair_e2e.py",
+   "backend/tests/evaluation/test_p2_evidence_axes_adapter_v2.py",
+   "backend/tests/evaluation/test_p2_evidence_capture.py",
+   "backend/tests/evaluation/test_p2_evidence_capture_e2e.py",
+   "backend/tests/evaluation/test_p2_evidence_io.py",
+   "backend/tests/evaluation/test_p2_evidence_rescore.py",
+   "backend/tests/evaluation/test_p2_evidence_rescore_axes.py",
+   "backend/tests/evaluation/test_p2_evidence_snapshot_v03.py",
+   "backend/tests/evaluation/test_p2_h2_controlled_entry.py",
+   "backend/tests/evaluation/test_p2_h2_historical_audit.py",
+   "backend/tests/evaluation/test_p2_hard_evidence.py",
+   "backend/tests/evaluation/test_p2_judge_budget.py",
+   "backend/tests/evaluation/test_p2_model_failure_reason_capture.py",
+   "backend/tests/evaluation/test_p2_product_behavior_repair.py",
+   "backend/tests/evaluation/test_p2_product_root_fix.py",
+   "backend/tests/evaluation/test_p2_ragas_adapter.py",
+   "backend/tests/evaluation/test_p2_ragas_gate_wiring.py",
+   "backend/tests/evaluation/test_p2_stale_version_state.py",
+   "backend/tests/evaluation/test_p2_t207_r10_independent_review.py",
+   "backend/tests/evaluation/test_p2_t207_r10_rework.py",
+   "backend/tests/evaluation/test_p2_t207_r1_independent_review.py",
+   "backend/tests/evaluation/test_p2_t207_r1_rework.py",
+   "backend/tests/evaluation/test_p2_t207_r8_independent_review.py",
+   "backend/tests/evaluation/test_p2_t207_r8_rework.py",
+   "backend/tests/evaluation/test_p2_t207_r9_independent_review.py",
+   "backend/tests/evaluation/test_p2_t207_r9_rework.py",
+   "backend/tests/evaluation/test_p2_t207_rework_independent_review.py",
+   "backend/tests/observability/test_evaluation_capture.py",
+   "docs/evaluation/p2-evidence-rescore-v0_1.md",
+   "docs/evaluation/p2-evidence-rescore-v0_2.md",
+   "docs/evaluation/p2-hard-evidence-capture-v0_1.md",
+   "docs/evaluation/p2-hard-evidence-capture-v0_2.md",
+   "docs/evaluation/p2-hard-evidence-capture-v0_3.md",
+   "docs/evaluation/p2-hard-evidence-classification-v0_1.md",
+   "docs/evaluation/p2-hard-evidence-classification-v0_2.md",
+   "docs/evaluation/p2-holdout-v3.source-map.json",
+   "docs/evaluation/p2-ragas-contract.md",
+   "docs/evaluation/p2-ragas-gate-wiring-contract.md",
+   "docs/evaluation/p2-source-lifecycle-v1.json",
+   "docs/evaluation/p2-stale-source-criterion-v1.md",
+   "docs/evaluation/p2-stale-source-criterion-v1_1.md",
+   "docs/evaluation/q1a-scope-targets-contract-v1.md",
+   "docs/evaluation/q1a-scope-targets-contract-v2.md",
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/",
+   "docs/reports/OBS-EVAL/P2/T207-CAPTURE-CONTRACT-R2/",
+   "docs/reports/OBS-EVAL/P2/T207-CROSS-ENTITY-SCOPE-R1/",
+   "docs/reports/OBS-EVAL/P2/T207-CUSTODY-SEMANTIC-R2/",
+   "docs/reports/OBS-EVAL/P2/T207-CUSTODY-V3/",
+   "docs/reports/OBS-EVAL/P2/T207-CUSTODY/",
+   "docs/reports/OBS-EVAL/P2/T207-EVAL-TOOL-REPAIR/",
+   "docs/reports/OBS-EVAL/P2/T207-EVIDENCE-CAPTURE-R1/",
+   "docs/reports/OBS-EVAL/P2/T207-EVIDENCE-CAPTURE/",
+   "docs/reports/OBS-EVAL/P2/T207-FAILURE-REVIEW-R1/",
+   "docs/reports/OBS-EVAL/P2/T207-H2-LIVE-ENTRY/",
+   "docs/reports/OBS-EVAL/P2/T207-H2-OFFLINE-READINESS/",
+   "docs/reports/OBS-EVAL/P2/T207-H2-RETEST/",
+   "docs/reports/OBS-EVAL/P2/T207-HARD-CLASSIFY/",
+   "docs/reports/OBS-EVAL/P2/T207-HISTORICAL-AUDIT/",
+   "docs/reports/OBS-EVAL/P2/T207-PLAINTEXT-CACHE-BOUNDARY/",
+   "docs/reports/OBS-EVAL/P2/T207-PRODUCT-BEHAVIOR-REPAIR-R1/",
+   "docs/reports/OBS-EVAL/P2/T207-PRODUCT-ROOT-FIX/",
+   "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/pricing-check-20261112.md",
+   "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/product-date-recon.md",
+   "docs/reports/OBS-EVAL/P2/T207-REASON-CAPTURE-R1/",
+   "docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/",
+   "docs/reports/OBS-EVAL/P2/T208-GATE-WIRING-OFFLINE/",
+   "docs/reports/OBS-EVAL/P2/T208-OFFLINE/",
+   "docs/reports/OBS-EVAL/P2/T209-PREP/",
+   "docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md",
+   "docs/superpowers/plans/2026-11-12-t207-step1-deepseek-taskbook.md",
+   "docs/superpowers/plans/2026-11-12-t207-through-h2-deepseek-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-custody-semantic-review-r2-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-evaluation-tool-repair-deepseek-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-failure-review-and-reason-capture-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-historical-evidence-audit-deepseek-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-plaintext-cache-boundary-taskbook.md",
+   "docs/superpowers/plans/2026-11-13-t207-product-behavior-repair-r1-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-h2-v3-design-spec.md",
+   "docs/superpowers/plans/2026-11-14-p2-completion-roadmap.md",
+   "docs/superpowers/plans/2026-11-14-p2-engineering-before-quality-continuation.md",
+   "docs/superpowers/plans/2026-11-14-q1a-c1-1-instrument-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-q1a-evaluation-repair-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-q1a-phase1-work-order.md",
+   "docs/superpowers/plans/2026-11-14-t207-capture-entity-offline-readiness-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-t207-quality-deferred-engineering-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-t207-r10-rework-taskbook.md",
+   "docs/superpowers/plans/2026-11-14-t207-r11-rework-taskbook.md",
+   "docs/superpowers/plans/2026-11-15-h2-v3-authoring-plan.md",
+   "docs/superpowers/plans/2026-11-15-h2-v3-corpus-modification-spec.md",
+   "docs/面试/",
+   "fixtures/acceptance-h2v3/",
+   "tmp_run_a.txt",
+   "tmp_run_b.txt",
+   "tools/p2_h2_controlled_execute.py",
+   "tools/p2_h2_historical_audit.py"
+  ],
+  "untracked_count": 224
+ },
+ "v2_corpus": {
+  "boundary/B03_恰好50页.pdf": {
+   "bytes": 36863,
+   "sha256": "851d2442bd7b0512797a16f5293f42d970986f3f2318aa33da184300501037d5"
+  },
+  "boundary/B04_超过50页.pdf": {
+   "bytes": 37378,
+   "sha256": "9877245d3d78c83880c97f1e2a674cc2bfbc4267ddf745697ea08e6c4eeea126"
+  },
+  "boundary/B05_恰好5000行.xlsx": {
+   "bytes": 118327,
+   "sha256": "8ad0ea7a4ee369b2d8a4bcfb6cb6c81d88c099ac8bc8ddec1f06a2928e19d5d9"
+  },
+  "boundary/B06_超过5000行.xlsx": {
+   "bytes": 118351,
+   "sha256": "d8a9979adaaa1073db49ab1c183f3752e38eed21741dfc602fe10281f570eb01"
+  },
+  "boundary/B07_恰好2000万像素.png": {
+   "bytes": 67276,
+   "sha256": "6d946e11e1703083e9c703480e1fc2e53aa882ef20adb5542bd3930b150f698e"
+  },
+  "boundary/B08_超过2000万像素.png": {
+   "bytes": 67293,
+   "sha256": "d73ed615aa78a564dfcf8ecdaccf7c259c4537b6f6be1a5c251d40464671a4b3"
+  },
+  "font-license/OFL.txt": {
+   "bytes": 4388,
+   "sha256": "1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9"
+  },
+  "manifest.json": {
+   "bytes": 20072,
+   "sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6"
+  },
+  "normal/D01_物品位置表.xlsx": {
+   "bytes": 6758,
+   "sha256": "644604ccdb0ba30e802afd94cfc69425192b7eaf996a054081fe1bbef141b54d"
+  },
+  "normal/D02_合作店家信息.xlsx": {
+   "bytes": 5392,
+   "sha256": "6a210e0629e5ccfd701c0e92fe10b51accf5528dc759bcb8480b0bd718603227"
+  },
+  "normal/D03_市场部工作指南.docx": {
+   "bytes": 37107,
+   "sha256": "adbf69b520a2385a6a92b83929bb0ced68b1d6e925de994e150cff0fcee30c2e"
+  },
+  "normal/D04_活动策划流程.docx": {
+   "bytes": 37032,
+   "sha256": "cb64bcfd86acf35b2135ee812fcda1cda4106b0d863d6ca964d3cc6029c830f3"
+  },
+  "normal/D05_物料领用规范.pdf": {
+   "bytes": 36604,
+   "sha256": "c38a13436be8552df4b388ab82fdfba20362e19a2d8f747522430e16fad0fda6"
+  },
+  "normal/D06_店家资料维护说明.pdf": {
+   "bytes": 33032,
+   "sha256": "30edb4383c37dc77b51eb2a8d71b8cacc4539576792d6a1c80702526a08d1dea"
+  },
+  "normal/D07_活动申请扫描件.pdf": {
+   "bytes": 339802,
+   "sha256": "f4f7e5c187b4fd9ba2aaa4b06917d52cb7bade28cfd792a1663bc800bf611201"
+  },
+  "normal/D08_仓库安全须知扫描件.pdf": {
+   "bytes": 84122,
+   "sha256": "9c4043e196af6c4afe525cb746f8f9fc75c12c14ab8bc9e67428ffc8713c61fb"
+  },
+  "normal/D09_物料领用通知.png": {
+   "bytes": 42389,
+   "sha256": "7e16ef249ed14a023cc103cef326fae2df60f56a30d2d4b0ca07c1d35cb0a8d3"
+  },
+  "normal/D10_盘点通知.jpg": {
+   "bytes": 78518,
+   "sha256": "e6aa536b7887735663f89abf5784334359489b47801e8b1f5da55146ad3bbdd2"
+  },
+  "questions.json": {
+   "bytes": 43957,
+   "sha256": "69bd0f8680c84a24dd9e6ba61ddad8122952e4e31da71e367e962c196097657f"
+  },
+  "README.md": {
+   "bytes": 3894,
+   "sha256": "534d00fa0dae2a6ba0963811441504837f912b33db626091c950bac2cdd5cbb7"
+  },
+  "variants/A01_损坏的文档.docx": {
+   "bytes": 400,
+   "sha256": "708de190fd58b13b026d26855042162ee6e4d185f3a161d99b65958d960a9722"
+  },
+  "variants/A02_损坏的表格.xlsx": {
+   "bytes": 300,
+   "sha256": "d59aaef67fa76d97162ba571605fa208c39b6232aad8481cfd7e2f78f55739e5"
+  },
+  "variants/A03_加密的规范.pdf": {
+   "bytes": 14864,
+   "sha256": "89e12de15aaac4fc7eaec95677616157043a79f342c1a076f87f41d53d2c36e2"
+  },
+  "variants/A04_模糊的照片.png": {
+   "bytes": 32287,
+   "sha256": "bace37613aa31746c0dbfba59ac8fa7db2e938794d19a800c4762c72116e585a"
+  },
+  "variants/A05_无文字的照片.png": {
+   "bytes": 4586,
+   "sha256": "47210aae47a1b70a3f76cd8b9635de5cd97fb8dcaadbf0adc83978798519d1bd"
+  },
+  "variants/A06_行列不可恢复的表格.jpg": {
+   "bytes": 58701,
+   "sha256": "b796ef45ae56fbe4179611f9e631b183a880909b765ffa9bc9b368bf2565d0ea"
+  },
+  "variants/A07_混合页文档.pdf": {
+   "bytes": 30140,
+   "sha256": "ae90c4bf3f127165f36970e4aa0ca8ae6c718866270309a0bd7876d5f5a696d8"
+  },
+  "variants/A08_混合页含失败页文档.pdf": {
+   "bytes": 32266,
+   "sha256": "bf26d76b0aef12e4e6dd0cd6ab705e506a735f6ab44be2b8f96f00335517f2ea"
+  },
+  "variants/V01_临时物料位置通知.pdf": {
+   "bytes": 32110,
+   "sha256": "50e74141e2cf032202108b51afaee11df8b5816bfd3130113bd99c992dddc131"
+  },
+  "variants/V02_店家联系方式变更通知.pdf": {
+   "bytes": 30142,
+   "sha256": "829b9d54be941953dade7a973180899153f24fdc8a5018dc8cf3390ef3a1549f"
+  },
+  "variants/V03_物品位置表_历史V1.xlsx": {
+   "bytes": 6759,
+   "sha256": "d1a7be2c1f64804fdb123873bd30dbc66577e7da3a1321ef904eda201ad5d708"
+  },
+  "variants/V04_物品位置表_新版V3.xlsx": {
+   "bytes": 6768,
+   "sha256": "d27f4bc25376e9a8ad68ca4613ddeb39989aca147f8698e36dafed24cc4670a0"
+  },
+  "variants/V05_物品位置表_新版V3_移除P01.xlsx": {
+   "bytes": 6730,
+   "sha256": "30548bc0ee8184381b40ab0fcc0bde4a099a379540ffbc9e3e42dcbb22eac6c2"
+  },
+  "variants/V06_合作店家信息_新电话.xlsx": {
+   "bytes": 5393,
+   "sha256": "0da6f5999fcd810833094342bb945a1cb65e7bf0dc176bac3dbdde8bda306c95"
+  },
+  "variants/V07_物料位置独立通知.pdf": {
+   "bytes": 31396,
+   "sha256": "0805ee4307ce36cc703d674f7cfabb194bc318fcaef139721afe3235339f0616"
+  }
+ },
+ "v2_corpus_file_count": 35,
+ "c_freeze_12_baseline_ref": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/evidence/04-protected-hashes-before.json",
+ "c_freeze_12": {
+  "backend/src/mktkb/evaluation/cli.py": {
+   "expected": "7c93cf435a56a9cab8cd9efbfea15be3d8caea59be3392eb22ec95bf38b56e86",
+   "actual": "7c93cf435a56a9cab8cd9efbfea15be3d8caea59be3392eb22ec95bf38b56e86",
+   "equal": true
+  },
+  "backend/src/mktkb/evaluation/p2_evidence_capture.py": {
+   "expected": "601096bc3b37180e77332d53d15647cc4998c33e44bef4c56cf411509f26e2fb",
+   "actual": "601096bc3b37180e77332d53d15647cc4998c33e44bef4c56cf411509f26e2fb",
+   "equal": true
+  },
+  "backend/src/mktkb/evaluation/p2_evidence_io.py": {
+   "expected": "1c16a3da1a14becf844207f9de4d031e40622d6096082dd2170a31395944f8a3",
+   "actual": "1c16a3da1a14becf844207f9de4d031e40622d6096082dd2170a31395944f8a3",
+   "equal": true
+  },
+  "backend/src/mktkb/evaluation/p2_hard_evidence.py": {
+   "expected": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+   "actual": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+   "equal": true
+  },
+  "backend/src/mktkb/evaluation/product_adapter.py": {
+   "expected": "c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787",
+   "actual": "c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787",
+   "equal": true
+  },
+  "backend/tests/evaluation/test_p2_capture_contract_v02.py": {
+   "expected": "fc024cb7d7c772790b11c085755b8208f559f4f3fc54f8a1a66263b275a4dd6f",
+   "actual": "fc024cb7d7c772790b11c085755b8208f559f4f3fc54f8a1a66263b275a4dd6f",
+   "equal": true
+  },
+  "backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py": {
+   "expected": "81d5505334a136935c344178160775bc9d80109cb3124fcf2e3043d432a99573",
+   "actual": "81d5505334a136935c344178160775bc9d80109cb3124fcf2e3043d432a99573",
+   "equal": true
+  },
+  "backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py": {
+   "expected": "6c9cbc7cf055c80b923ae24aab26c89d6aef4d03fd886e22f27d8c12f1d564cb",
+   "actual": "6c9cbc7cf055c80b923ae24aab26c89d6aef4d03fd886e22f27d8c12f1d564cb",
+   "equal": true
+  },
+  "backend/tests/evaluation/test_p2_cross_entity_scope_v02.py": {
+   "expected": "882024744812aa90eac3d8dae65251ebd25a0f842ebe7258c133fa8107514b4e",
+   "actual": "882024744812aa90eac3d8dae65251ebd25a0f842ebe7258c133fa8107514b4e",
+   "equal": true
+  },
+  "docs/evaluation/p2-hard-evidence-capture-v0_2.md": {
+   "expected": "ad2b5a728117145519acfd8b5fd84c407f48883c7be9d31d24191ce9937638ca",
+   "actual": "ad2b5a728117145519acfd8b5fd84c407f48883c7be9d31d24191ce9937638ca",
+   "equal": true
+  },
+  "docs/evaluation/p2-hard-evidence-classification-v0_2.md": {
+   "expected": "fb40f90af5afa06f28c3d101bf550f7742f307519003412feb01cbf63a115bce",
+   "actual": "fb40f90af5afa06f28c3d101bf550f7742f307519003412feb01cbf63a115bce",
+   "equal": true
+  },
+  "tools/p2_h2_historical_audit.py": {
+   "expected": "e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35",
+   "actual": "e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35",
+   "equal": true
+  }
+ },
+ "c_freeze_12_mismatch_count": 0,
+ "frozen_inputs": {
+  "docs/superpowers/plans/2026-11-15-h2-v3-authoring-plan.md": {
+   "bytes": 55448,
+   "sha256": "ed5da038ac933b8080af61182dc7f1ab9e984a28b81541acd25f3ea32aec0cc3"
+  },
+  "docs/evaluation/p2-stale-source-criterion-v1_1.md": {
+   "bytes": 65883,
+   "sha256": "0ec6c392b48b4a731140021e147f86e01284a58b34a3a3c4f50f6312bb307715"
+  },
+  "docs/evaluation/p2-holdout-v2.source-map.json": {
+   "bytes": 1058,
+   "sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+  },
+  "fixtures/acceptance/manifest.json": {
+   "bytes": 20072,
+   "sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6"
+  },
+  "backend/src/mktkb/evaluation/p2_holdout_scenarios.py": {
+   "bytes": 59170,
+   "sha256": "bb9ae59a5ff30bfbba259d251b1bbb0e6bb67cd6d50016179bfe97143689178f"
+  },
+  "backend/src/mktkb/evaluation/p2_hard_evidence.py": {
+   "bytes": 170002,
+   "sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b"
+  },
+  "backend/src/mktkb/ingestion/parsers/excel.py": {
+   "bytes": 19349,
+   "sha256": "83a9ade4dad3f54b676585ddca8bc1a89dec9d83cb213803499373698198486e"
+  },
+  "backend/src/mktkb/retrieval/index.py": {
+   "bytes": 23221,
+   "sha256": "11d4f23eb85926b81b3b75aa36e3f3cf2d1ea1f068906ef7cc09efedd9368163"
+  },
+  "backend/src/mktkb/retrieval/tokenize.py": {
+   "bytes": 5410,
+   "sha256": "e14c746ce15b389fec6eb7654080367c6749e9e86c72face372a404379db2dad"
+  },
+  "backend/src/mktkb/rag/chunking.py": {
+   "bytes": 20274,
+   "sha256": "33cf8b40219530b73636ed0a6b934e7178ea8b4a7dd24207391f1e418a38eed7"
+  },
+  "backend/src/mktkb/rag/retrieval.py": {
+   "bytes": 27260,
+   "sha256": "afa376557a3351d5317ae677b91f83bccf461833f47a8369c54c4614a1548e97"
+  }
+ },
+ "authorized_change_targets": {
+  "docs/evaluation/p2-source-lifecycle-v1.json": {
+   "bytes": 35962,
+   "sha256": "92f1186927b458aa65eda7b7abd5aa8f3e9e52323627a398d8560c02e17451aa"
+  },
+  "docs/superpowers/plans/2026-11-15-h2-v3-corpus-modification-spec.md": {
+   "bytes": 27455,
+   "sha256": "d803619ed9c20c5df87ffd9dc567eb10f80806cf9aab7623f408e84f67136b31"
+  },
+  "docs/evaluation/p2-holdout-v3.source-map.json": {
+   "bytes": 2402,
+   "sha256": "7ded23f19304be292a9b42de58f2058a84a0196e69723b561f4e5ccdb0772b93"
+  },
+  "fixtures/acceptance-h2v3/manifest.json": {
+   "bytes": 16967,
+   "sha256": "c69baa8f1c963a37c2c414f7e56bdc0b30388295fe7d01ca30980e1e9a7f3e15"
+  }
+ },
+ "r1_start_delivery": {
+  "manifest.json": {
+   "bytes": 16967,
+   "sha256": "c69baa8f1c963a37c2c414f7e56bdc0b30388295fe7d01ca30980e1e9a7f3e15"
+  },
+  "normal/D01_物品位置表.xlsx": {
+   "bytes": 25542,
+   "sha256": "85b261fc2ad12c06325f12d6f756785da70d45f7da5e80e4e6eaea821e4d5b25"
+  },
+  "normal/D02_合作店家信息.xlsx": {
+   "bytes": 21003,
+   "sha256": "c8f114007b9a6e681e498b9cbad798333ce9bda94222cf9dd219af797a58ff6e"
+  },
+  "normal/D03_市场部工作指南.docx": {
+   "bytes": 37107,
+   "sha256": "adbf69b520a2385a6a92b83929bb0ced68b1d6e925de994e150cff0fcee30c2e"
+  },
+  "normal/D04_活动策划流程.docx": {
+   "bytes": 37032,
+   "sha256": "cb64bcfd86acf35b2135ee812fcda1cda4106b0d863d6ca964d3cc6029c830f3"
+  },
+  "normal/D05_物料领用规范.pdf": {
+   "bytes": 36604,
+   "sha256": "c38a13436be8552df4b388ab82fdfba20362e19a2d8f747522430e16fad0fda6"
+  },
+  "normal/D06_店家资料维护说明.pdf": {
+   "bytes": 33032,
+   "sha256": "30edb4383c37dc77b51eb2a8d71b8cacc4539576792d6a1c80702526a08d1dea"
+  },
+  "variants/V01_临时物料位置通知.pdf": {
+   "bytes": 32110,
+   "sha256": "50e74141e2cf032202108b51afaee11df8b5816bfd3130113bd99c992dddc131"
+  },
+  "variants/V03_物品位置表_历史V1.xlsx": {
+   "bytes": 25542,
+   "sha256": "5b0f9081cddbf3fe6867ccf08f4b88cf2f86ce8d6a12a9d6b386e28e59161f4b"
+  },
+  "variants/V04_物品位置表_新版V3.xlsx": {
+   "bytes": 25517,
+   "sha256": "505774317e0d609b358290a102aa990b7049a65f5c9bcb1ec530d5e44b46cb75"
+  },
+  "variants/V05_物品位置表_新版V3_移除P01.xlsx": {
+   "bytes": 24673,
+   "sha256": "9b2c413c32b1c4df2c8e8099336ea4a37aab2c14a3de85e6967f4ae8df8c88d2"
+  },
+  "variants/V06_合作店家信息_新电话.xlsx": {
+   "bytes": 20787,
+   "sha256": "5ebd41bd64c0401c96869524bc1202c0183bbd44d7db8ae67d5ef6477f3983fc"
+  },
+  "variants/V07_物料位置独立通知.pdf": {
+   "bytes": 31396,
+   "sha256": "0805ee4307ce36cc703d674f7cfabb194bc318fcaef139721afe3235339f0616"
+  }
+ },
+ "r1_start_delivery_file_count": 13
+}

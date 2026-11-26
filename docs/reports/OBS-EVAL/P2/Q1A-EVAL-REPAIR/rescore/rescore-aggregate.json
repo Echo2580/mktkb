@@ -1,0 +1,552 @@
+{
+  "analysis_id": "Q1A-RESCORE-20261114-r1",
+  "analysis_identity": {
+    "all_components_match": true,
+    "artifact": {
+      "bytes": 10140,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\02-identity-binding.out.json",
+      "sha256": "deb529a3bc733f7492d069932e21014b67c3bcbfe60b005274df2bbfd978abc1"
+    },
+    "component_matches": {
+      "contract_ciphertext_sha256": true,
+      "contract_schema_sha256": true,
+      "old_run_binding_payload_sha256": true,
+      "q1a1_contract_sha256": true,
+      "q1a1_module_sha256": true,
+      "q1a1b_contract_sha256": true,
+      "q1a1b_module_sha256": true
+    },
+    "components": {
+      "analysis_id": "Q1A-RESCORE-20261114-r1",
+      "contract_ciphertext_bytes": 47012,
+      "contract_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+      "contract_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "old_run_binding_file_sha256": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run_binding_payload_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+      "q1a1_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+      "q1a1_module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+      "q1a1b_contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+      "q1a1b_module_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+    },
+    "evidence_tree_cross_check_vs_seal_manifest": {
+      "r0": true,
+      "r1": true,
+      "r2": true,
+      "r3": true
+    },
+    "module_analysis_identity_sha256_issued": false,
+    "module_analysis_identity_sha256_not_issued_because": "只能由 rescue_run/rescore_axes_run 成功评分后签发；本次无评分",
+    "package_binding_note": "本包自定的 canonical 组件摘要，用于防止拼不同轮；不是 p2_evidence_rescore 的 analysis_identity_sha256（后者只能由成功评分签发）",
+    "package_binding_sha256": "6ef437086855961a071e86374929be89a4489c49dc3f431b2cca1ecd01ed2252"
+  },
+  "conclusion": "NOT-RUN",
+  "conclusion_reason": {
+    "code": "old_card_per_case_axes_absent",
+    "evidence": [
+      {
+        "bytes": 12626,
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\03-blocked-input-proof.out.json",
+        "sha256": "4dc5fa1f99193ac7e3e9846f15a89158424f58b00284bdb99e0d6c1d42a3d7de"
+      },
+      {
+        "bytes": 9029,
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\01-entry-selfcheck.out.json",
+        "sha256": "ebd59ea723c044a454d17910952333c9eae4f694c1420ae5a81697c18099703e"
+      }
+    ],
+    "not_worked_around_because": [
+      "import C 冻结 p2_hard_evidence.py 补造旧值 → 明令禁止，且等于重算旧分而非读旧卡（违背 R-04 字节实测口径）",
+      "用合同标注或证据推断逐题旧 verdict → 等于伪造旧值",
+      "读自由回答文本判产品对错 → 被语义边界禁止"
+    ],
+    "statement": "4 张旧卡均为聚合卡（detail_export=false，顶层无逐题行），case-plan 只有 case_id/quality_status/turns，回执/manifest 只有计数；Q1a-1 的 OldCardCase 与 Q1a-1b 的 AxesCaseView 都要求逐题四轴 state+reason，缺该输入则 SafetyCaseView/AxesCaseView 无法构造，rescore_run/rescore_axes_run 一律 refused:cases_empty。"
+  },
+  "contract_v1_consumer_check": {
+    "applicability": {
+      "cross_entity": {
+        "not_applicable": 0,
+        "required": 30,
+        "unknown": 0
+      },
+      "cross_user": {
+        "not_applicable": 0,
+        "required": 30,
+        "unknown": 0
+      },
+      "safety": {
+        "not_applicable": 28,
+        "required": 2,
+        "unknown": 0
+      },
+      "stale_source": {
+        "not_applicable": 0,
+        "required": 30,
+        "unknown": 0
+      }
+    },
+    "artifact": {
+      "bytes": 7519,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\06-contract-consumer-check.out.json",
+      "sha256": "ab5a86380b7841533fc7199f5ce2c8eaaa64a4d307b955bde3bd6c3694088171"
+    },
+    "basis_counts": {
+      "cross_entity": {
+        "case_business_date_baseline": 0,
+        "frozen_label_target": 19,
+        "frozen_question_scope": 4,
+        "no_provable_basis_keep_unknown": 0,
+        "public_corpus_structure": 7
+      },
+      "cross_user": {
+        "case_business_date_baseline": 0,
+        "frozen_label_target": 0,
+        "frozen_question_scope": 30,
+        "no_provable_basis_keep_unknown": 0,
+        "public_corpus_structure": 0
+      },
+      "safety": {
+        "case_business_date_baseline": 0,
+        "frozen_label_target": 2,
+        "frozen_question_scope": 28,
+        "no_provable_basis_keep_unknown": 0,
+        "public_corpus_structure": 0
+      },
+      "stale_source": {
+        "case_business_date_baseline": 5,
+        "frozen_label_target": 0,
+        "frozen_question_scope": 0,
+        "no_provable_basis_keep_unknown": 0,
+        "public_corpus_structure": 25
+      }
+    },
+    "basis_recompute_rule": "schema §4.1 首个命中即止（v0.3 gap 例外 → unknown → 按轴）",
+    "binding_checks_failed": [],
+    "binding_checks_total": 17,
+    "contract_ciphertext_bytes": 47012,
+    "contract_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "coverage": {
+      "axes": 120,
+      "cases": 30
+    },
+    "criterion_counts": {
+      "cross_entity": {
+        "multi_target": 4,
+        "shared_background": 7,
+        "structured_target": 19
+      },
+      "cross_user": {
+        "owner_context": 30
+      },
+      "safety": {
+        "benign_business": 28,
+        "forbidden_content": 2
+      },
+      "stale_source": {
+        "lifecycle_dates": 30
+      }
+    },
+    "defect_count": 0,
+    "defects": [],
+    "reason_code_table_size_verified_against": 18,
+    "reason_codes_outside_table": [],
+    "reason_counts": {
+      "all_user_contexts": 30,
+      "benign_business": 28,
+      "business_date_default": 23,
+      "explicit_forbidden": 1,
+      "explicit_multi_target": 4,
+      "explicit_privacy": 1,
+      "explicit_single_target": 19,
+      "explicit_temporal": 6,
+      "published_lifecycle": 1,
+      "shared_policy": 7
+    },
+    "unknown_total": 0
+  },
+  "cross_entity_27_unknown": {
+    "converted_to_fail": 0,
+    "converted_to_pass": 0,
+    "count": 27,
+    "kept_unknown": 27,
+    "reason": "逐题可判化需要 AxesCaseView（含逐题 old 轴值）；缺该输入无法逐题转判，按契约保留 unknown，绝不改 N/A",
+    "set_to_not_applicable": 0
+  },
+  "disagreement_sensitivity_band": {
+    "chosen": null,
+    "computable": false,
+    "denominators_only": {
+      "composition_from_manager_acceptance": {
+        "D1_shared_background": 7,
+        "D2_multi_target_policy_compare": 1,
+        "D3_document_artifact_target": 1
+      },
+      "disputed_axes": 9,
+      "note": "D2 的 1 轴是 multi_target 4 轴中的 1 轴、D3 的 1 轴需题面语义，二者不可由结构字段唯一隔离",
+      "reading_A_contract_v1_required": {
+        "cross_entity_not_applicable": 0,
+        "cross_entity_required": 30
+      },
+      "reading_B_custody_b": {
+        "cross_entity_not_applicable": 9,
+        "cross_entity_required": 21
+      },
+      "structural_candidates_measured": {
+        "multi_target_criterion": 4,
+        "shared_background_criterion": 7
+      }
+    },
+    "why": "『两套四轴计数与总分』依赖逐题 cross_entity verdict；四轴重评分未执行，故两套计数均不可算"
+  },
+  "entry_selfcheck": {
+    "artifact": {
+      "bytes": 9029,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\01-entry-selfcheck.out.json",
+      "sha256": "ebd59ea723c044a454d17910952333c9eae4f694c1420ae5a81697c18099703e"
+    },
+    "case_count": 30,
+    "cases_sha256": "a0ad48c9bbab96ac683e325c773dfee2dc247708fea7ddeefb08f567b102c3c3",
+    "check_count": 29,
+    "dataset_version": "P2-HOLDOUT-v2",
+    "failed_checks": [],
+    "label_version": "p2-holdout-v2-2026-11-10",
+    "overall": "PASS",
+    "scenario_counts": {
+      "base_b0": {
+        "cases": 26,
+        "turns": 32
+      },
+      "base_b0_plus_v01": {
+        "cases": 1,
+        "turns": 1
+      },
+      "post_v05_without_v01": {
+        "cases": 1,
+        "turns": 1
+      },
+      "pre_v05_without_v07": {
+        "cases": 2,
+        "turns": 2
+      }
+    },
+    "turn_count": 36
+  },
+  "fail_triage_11": {
+    "assigned": 0,
+    "by_run": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "cases_total": 11,
+    "enum_counts": {
+      "annotation_or_criterion_issue": 0,
+      "evidence_insufficient": 0,
+      "product_error": 0,
+      "undetermined": 11
+    },
+    "not_assigned": 11,
+    "reason": "逐题归属需要『四轴投影』（逐题 old/new 轴值）；四轴投影缺失。剩余可用的结构化来源（卡片 block、case-plan quality_status、证据完整度、合同判定）只能定位到 run 级计数，无法把 11 个 fail 逐个落到固定四枚举，故一律记 undetermined（不猜）。",
+    "structural_only_facts": {
+      "cross_entity_unknown_total": 27,
+      "cross_user_unknown_total": 3,
+      "failed_total_from_cards": 11,
+      "passed_total_from_cards": 19,
+      "safety_violations_total": 2,
+      "stale_source_unknown_total": 5
+    }
+  },
+  "four_axis_rescore": {
+    "executed": false,
+    "new_axes": null,
+    "old_axes": {
+      "cross_entity": {
+        "checked": 3,
+        "not_applicable": 0,
+        "passed": 3,
+        "planned": 30,
+        "unknown": 27,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 24,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 25,
+        "not_applicable": 0,
+        "passed": 25,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "old_new_columns_deliverable": false,
+    "provenance": "无法签发：axes_provenance 需要逐题 rescored/recorded_old 归属",
+    "reason": "old_card_per_case_axes_absent"
+  },
+  "generated_utc": "2026-11-14",
+  "not_claimed": [
+    "verified",
+    "threshold_met",
+    "release_ready",
+    "release",
+    "T207_pass",
+    "P2_complete",
+    "q1a3_complete",
+    "all_axes_real_complete"
+  ],
+  "notes": [
+    "旧卡自身是可信聚合：四轴 planned/checked/passed/N-A/unknown/violations 全部自洽（见 old_axes_consistency）。",
+    "合同 v1 消费方校验通过：17/17 binding 可复算且相等、30/120 覆盖、120 轴 7 字段与合并冻结标注深度相等、basis 按 §4.1 全部复算一致、reason 全在 18 码权威表内。",
+    "本包未读真实回答/trace 自由文本，未做任何模型/检索/鉴权调用，未改任何既有文件。"
+  ],
+  "old_card_facts": {
+    "artifact": {
+      "bytes": 12626,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\03-blocked-input-proof.out.json",
+      "sha256": "4dc5fa1f99193ac7e3e9846f15a89158424f58b00284bdb99e0d6c1d42a3d7de"
+    },
+    "cards": {
+      "r0": {
+        "bytes": 5595,
+        "detail_export": false,
+        "has_per_case_array": false,
+        "run_id": "p2-h2-20261114-r1-r1-base_b0",
+        "sha256": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27"
+      },
+      "r1": {
+        "bytes": 4412,
+        "detail_export": false,
+        "has_per_case_array": false,
+        "run_id": "p2-h2-20261114-r1-r2-base_b0_plus_v01",
+        "sha256": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676"
+      },
+      "r2": {
+        "bytes": 4619,
+        "detail_export": false,
+        "has_per_case_array": false,
+        "run_id": "p2-h2-20261114-r1-r3-pre_v05_without_v07",
+        "sha256": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef"
+      },
+      "r3": {
+        "bytes": 3923,
+        "detail_export": false,
+        "has_per_case_array": false,
+        "run_id": "p2-h2-20261114-r1-r4-post_v05_without_v01",
+        "sha256": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f"
+      }
+    },
+    "cases": {
+      "failed_from_cards": 11,
+      "passed_from_cards": 19,
+      "total": 30
+    },
+    "fail_counts_by_run": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "old_axes_aggregate_from_cards": {
+      "cross_entity": {
+        "checked": 3,
+        "not_applicable": 0,
+        "passed": 3,
+        "planned": 30,
+        "unknown": 27,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 24,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 25,
+        "not_applicable": 0,
+        "passed": 25,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "old_axes_consistency": {
+      "cross_entity": {
+        "checked_eq_sum": true,
+        "checked_plus_unknown_eq_planned": true,
+        "planned_eq_sum": true
+      },
+      "cross_user": {
+        "checked_eq_sum": true,
+        "checked_plus_unknown_eq_planned": true,
+        "planned_eq_sum": true
+      },
+      "safety": {
+        "checked_eq_sum": true,
+        "checked_plus_unknown_eq_planned": true,
+        "planned_eq_sum": true
+      },
+      "stale_source": {
+        "checked_eq_sum": true,
+        "checked_plus_unknown_eq_planned": true,
+        "planned_eq_sum": true
+      }
+    }
+  },
+  "package": "Q1a-3（P2 Q1A-EVAL-REPAIR / rescore）",
+  "preservation": {
+    "artifacts": [
+      {
+        "bytes": 15960,
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\04-protected-before.json",
+        "sha256": "2205efbfd05a20c644155753081450d15be151d90f7026fd753a465bbef37fd4"
+      },
+      {
+        "bytes": 15959,
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\04-protected-after.json",
+        "sha256": "047865097f6329d7575c007071aff7ccd6b7405d61e6ab1a7ba8f85fd390c33d"
+      }
+    ],
+    "before_after_equal": true,
+    "contract_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "custody_annotations_tree_sha256": "793a3f2468959be9e82133b70ad582c8643afc0b6eb3d7d93304a3f5f5817d5b",
+    "external_changed": {},
+    "holdout_root_tree_sha256": "5d628883df6c12e449b6f9141613cb40947052ed81f30c468d4fb3147984e5d8",
+    "old_card_bytes_before_after": {
+      "r0": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+      "r1": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+      "r2": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+      "r3": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f"
+    },
+    "old_run_tree_files": 72,
+    "old_run_tree_tree_sha256": "7c2072b40f274008d0003787cbbdc7ba03ff5428a6d86c027eca1922b4c127e4",
+    "repo_changed": [],
+    "repo_protected_files": 23
+  },
+  "private_detail": {
+    "artifact": {
+      "bytes": 872,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\07-private-detail.out.json",
+      "sha256": "7a26d646fb81fdb646f4de155a6366fb7106163dce13567084f8bdcf82e2879a"
+    },
+    "axis_rows": 120,
+    "ciphertext_bytes": 42488,
+    "ciphertext_sha256": "2207bde45bc8da1c627d3f56a7b8f80e107d0541e4b2903fed0f8c0c66210501",
+    "exclusive_create": true,
+    "flag_counts": {
+      "D1_shared_background": 7,
+      "D2_multi_target_candidate": 4,
+      "D5_empty_entity_key": 1,
+      "D6_stale_only_as_of_candidate": 5,
+      "D7_historical_business_baseline": 2
+    },
+    "path": "D:\\mktkb-q1a3-rescore\\rescore-detail-v1.fernet",
+    "plaintext_sha256": "2d0eab4fef83baf03b04263f454846d76640b1eb1517096d1c3755f2c94667cd"
+  },
+  "residual_marks": {
+    "D3_document_artifact_target": {
+      "count": 1,
+      "mark": "scope_weak",
+      "per_axis_isolable": false
+    },
+    "D4_explicit_time_window_not_in_filters": {
+      "count": 2,
+      "mark": "scope_weak",
+      "per_axis_isolable": false,
+      "why": "需要题面语义判断『显式时间窗』，结构字段无法唯一隔离"
+    },
+    "D5_empty_entity_key": {
+      "count": 1,
+      "mark": "scope_weak",
+      "measured_matches_manager": true,
+      "per_axis_isolable": true
+    },
+    "D6_stale_source_only_as_of": {
+      "count": 3,
+      "mark": "scope_weak",
+      "per_axis_isolable": false,
+      "structural_candidates": 5,
+      "why": "所有 stale_source 且 as_of 非空且无 target_refs 的轴共 5 条，B 只标 3 条，需题面语义区分"
+    },
+    "D7_historical_intent_uses_business_baseline_as_of": {
+      "count": 2,
+      "mark": "disclosed_limit",
+      "measured_matches_manager": true,
+      "per_axis_isolable": true
+    },
+    "claim_scope_fully_resolved": false
+  },
+  "safety_r0_r2": {
+    "mechanism_note": "新判据下 safety 的结构性事实：matcher v2 对 frozen forbidden ref 需要 record_code 与 version 绑定，而冻结 ref 无 version 字段、unit 侧也无 record_code 映射（_UNIT_SCHEMA 无该列）→ 全部 forbidden ref 只能 unresolved；N/A(benign) 作用域对 unresolved 抑制，required 作用域落 unknown forbidden_source_unmappable。因此两个旧 violation 即使有逐题旧值，也不会被新判据重新判成 violation；但也不等于『证明干净』，且旧 violation 若 missing_codes 命中固定门还要 fail-closed 保留。",
+    "r0": {
+      "e0_reference": "E0 manager receipt：两角色一致 annotation_or_criterion_issue / strong（旧 matcher 忽略 doc_code/record_code；version-aware forbidden match=0；无 forbidden value）",
+      "missing_inputs": [
+        "逐题旧 safety verdict（state+reason）",
+        "逐题 missing_codes",
+        "逐题 evidence_complete"
+      ],
+      "verdict_under_new_criteria": "undetermined",
+      "why_not_adopted_as_verdict": "E0 是旧 matcher 下的定位，不是新判据（matcher v2 + safety-n/a-scope/v1）下的轴判定；新判据要求逐题 SafetyCaseView 重算"
+    },
+    "r2": {
+      "e0_reference": "E0 保留 A/B 分歧：A=outbound_send/retrieval_or_use_scope_issue；B=mapping_or_annotation/annotation_or_criterion_issue（版本身份假阳性）",
+      "missing_inputs": [
+        "逐题旧 safety verdict（state+reason）",
+        "逐题 missing_codes",
+        "逐题 evidence_complete"
+      ],
+      "verdict_under_new_criteria": "undetermined",
+      "why_not_adopted_as_verdict": "同一缺口；且 A/B 的『性质』分歧若要判定必须读自由文本，被语义边界禁止"
+    }
+  },
+  "schema_version": "q1a3-rescore-aggregate/v0.1",
+  "zero_real_calls": {
+    "artifact": {
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\evidence\\08-netguard.json",
+      "sha256": "ad6b12640fc3d8c3f17aacc6004f4be91079ac310d3c54088966f3d57313da61"
+    },
+    "auth": 0,
+    "balance": 0,
+    "dns_attempts": 0,
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "netguard_verdict": "zero_network_attempts",
+    "network": 0,
+    "new_go": 0,
+    "ocr": 0,
+    "provider": 0,
+    "real": 0,
+    "real_reservations": 0,
+    "rerank": 0,
+    "retrieval": 0,
+    "socket_attempts": 0,
+    "subagents": 0
+  }
+}

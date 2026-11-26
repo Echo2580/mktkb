@@ -1,0 +1,179 @@
+{
+  "proxy_env_removed": [
+    "ALL_PROXY",
+    "HTTPS_PROXY",
+    "HTTP_PROXY",
+    "NODE_USE_ENV_PROXY",
+    "NO_PROXY"
+  ],
+  "proxy_registry_after_env_removal": {
+    "http": "http://127.0.0.1:7897",
+    "https": "http://127.0.0.1:7897",
+    "ftp": "http://127.0.0.1:7897"
+  },
+  "guard": [
+    "socket.connect",
+    "socket.connect_ex",
+    "socket.create_connection",
+    "socket.getaddrinfo"
+  ],
+  "loopback_policy": "allowed_and_counted_except_local_proxy_port_7897",
+  "proxy_attempts_total": 1,
+  "proxy_attempts": [
+    {
+      "kind": "socket.create_connection",
+      "detail": "('127.0.0.1', 7897)"
+    }
+  ],
+  "positive_controls": [
+    {
+      "probe": "dns_getaddrinfo",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "OSError: independent netguard: socket.getaddrinfo blocked"
+    },
+    {
+      "probe": "direct_tcp_192_0_2_1",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "OSError: independent netguard: socket.create_connection blocked"
+    },
+    {
+      "probe": "urllib_proxyhandler_empty",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "URLError: <urlopen error independent netguard: socket.create_connection blocked>"
+    },
+    {
+      "probe": "httpx_trust_env_false",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "ConnectError: independent netguard: socket.create_connection blocked"
+    },
+    {
+      "probe": "local_proxy_127_0_0_1_7897",
+      "blocked": true,
+      "attempts": 0,
+      "proxy_attempts": 1,
+      "error": "OSError: independent netguard: local proxy socket.create_connection blocked"
+    }
+  ],
+  "all_controls_blocked": true,
+  "external_attempts_total": 4,
+  "external_attempts_during_session": 0,
+  "external_attempts": [
+    {
+      "kind": "socket.getaddrinfo",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('192.0.2.1', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    }
+  ],
+  "loopback_attempts_total": 16,
+  "loopback_targets_unique": [
+    "('127.0.0.1', 56289)",
+    "('127.0.0.1', 56291)",
+    "('127.0.0.1', 56293)",
+    "('127.0.0.1', 56295)",
+    "('127.0.0.1', 56297)",
+    "('127.0.0.1', 56299)",
+    "('127.0.0.1', 56301)",
+    "('127.0.0.1', 56303)",
+    "('127.0.0.1', 56307)",
+    "('127.0.0.1', 56309)",
+    "('127.0.0.1', 56311)",
+    "('127.0.0.1', 56313)",
+    "('127.0.0.1', 56315)",
+    "('127.0.0.1', 56317)",
+    "('127.0.0.1', 56319)",
+    "('127.0.0.1', 56321)"
+  ],
+  "loopback_attempts_sample": [
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56289)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56291)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56293)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56295)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56297)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56299)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56301)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56303)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56307)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56309)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56311)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56313)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56315)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56317)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56319)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56321)"
+    }
+  ],
+  "counts": {
+    "collected": 34,
+    "passed": 34,
+    "failed": 0,
+    "skipped": 0,
+    "error": 0
+  },
+  "exitstatus": 0
+}

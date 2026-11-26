@@ -1,0 +1,72 @@
+{
+  "additions_by_file": {
+    "backend/src/mktkb/rag/query.py": 90,
+    "backend/tests/observability/test_paths_e2e.py": 20,
+    "backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py": 220
+  },
+  "deleted_line_count": 1,
+  "deleted_lines": [
+    {
+      "line": "    anaphora = any(word in question for word in ANAPHORA_WORDS)",
+      "path": "backend/src/mktkb/rag/query.py"
+    }
+  ],
+  "deletions_by_file": {
+    "backend/src/mktkb/rag/query.py": [
+      "    anaphora = any(word in question for word in ANAPHORA_WORDS)"
+    ],
+    "backend/tests/observability/test_paths_e2e.py": [],
+    "backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py": []
+  },
+  "diff_bytes": 19637,
+  "diff_path": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/evidence/fix-r1.diff",
+  "diff_sha256": "b01fbd213cbb6fb817c4cdeb3f61e60126caebb635b2af6243634fe0bddbcbe1",
+  "notes": [
+    "diff 首行是说明注释，已剥离后按标准 unified diff 解析。",
+    "反向应用以当前工作树文件为目标，不改工作树。",
+    "上一轮快照 00-snapshot-end.json 交叉核对改前（fix-1 终态）哈希。"
+  ],
+  "only_append_with_one_line_rewritten": true,
+  "rollback_of_fix1_suspected": [],
+  "schema_version": "v3-fix1r1-independent-diff-verify/v0.1",
+  "sections": {
+    "backend/src/mktkb/rag/query.py": {
+      "additions": 90,
+      "current_matches": true,
+      "current_sha256_actual": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef",
+      "current_sha256_expected": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef",
+      "deletions": [
+        "    anaphora = any(word in question for word in ANAPHORA_WORDS)"
+      ],
+      "forward_apply_sha256": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef",
+      "forward_returns_current": true,
+      "pre_r1_matches": true,
+      "pre_r1_matches_previous_snapshot": true,
+      "pre_r1_sha256_expected": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+      "pre_r1_sha256_reconstructed": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+      "previous_snapshot_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372"
+    },
+    "backend/tests/observability/test_paths_e2e.py": {
+      "additions": 20,
+      "current_matches": true,
+      "current_sha256_actual": "c0ff388ff1f59b0c6d5a3662b47d2e0131d434ff1c89effa622b1039b8ed7874",
+      "current_sha256_expected": "c0ff388ff1f59b0c6d5a3662b47d2e0131d434ff1c89effa622b1039b8ed7874",
+      "deletions": [],
+      "forward_apply_sha256": "c0ff388ff1f59b0c6d5a3662b47d2e0131d434ff1c89effa622b1039b8ed7874",
+      "forward_returns_current": true,
+      "pre_r1_matches": true,
+      "pre_r1_matches_previous_snapshot": true,
+      "pre_r1_sha256_expected": "d357fdc392e95cfb32f112f2ee28c1d76c14338028fe019ed2b029af37770384",
+      "pre_r1_sha256_reconstructed": "d357fdc392e95cfb32f112f2ee28c1d76c14338028fe019ed2b029af37770384",
+      "previous_snapshot_sha256": "d357fdc392e95cfb32f112f2ee28c1d76c14338028fe019ed2b029af37770384"
+    },
+    "backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py": {
+      "additions": 220,
+      "current_bytes": 9449,
+      "current_sha256_actual": "20d21773d3b48aca4e514404c0b517b5abb6dbdee976d565fecb7c407543ed8a",
+      "deletions": [],
+      "new_file_removed_by_reverse": true,
+      "reverse_apply_residual_chars": 0
+    }
+  }
+}

@@ -1,0 +1,198 @@
+# 改前（query.py = base sha 69ab6a8c…）运行本批交付测试文件：6 failed / 4 passed
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\red-final.log
+
+FFFFF...F.                                                               [100%]
+================================== FAILURES ===================================
+_ test_g1_mixed_roles_are_answered_without_contact_values[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u662f\u591a\u5c11\uff1f] _
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7AF488F80>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7AFCA96D0>, csrf='7fd9b56a4991a4ebbe0635fbf1b13bb...fbf1b13bb6982886a4a264bbc82cb3fe3982bda364'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7AF43AE80>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7AFCBDAC0>, csrf='f1516bfbc640dda42c7a149aa8b82b9...9aa8b82b9ebc938220defe66827af1996d72fd1e18'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7AFC47C40>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7AF46F9E0>
+question = '青禾店的折叠桌放在哪个位置，合作状态分别是什么，电话是多少？'
+
+    @pytest.mark.parametrize("question", [QUESTION_MIXED_3, QUESTION_MIXED_4])
+    def test_g1_mixed_roles_are_answered_without_contact_values(
+        chat_app, chat_admin, chat_employee, chat_model, question
+    ):
+        """物品 + 位置 + 合作状态 + 电话/地址 → ``kind=answer``、两类值都在、无电话/地址值。"""
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, question)
+    
+        # 计划层：早退点不再把整题判成受限；受限角色不进 field_roles / requested_fields。
+>       assert info["reason"] is None, info
+E       AssertionError: {'body': {'request_id': '0a3732a0-2858-4ba0-8bbf-98dad3d05e6f', 'message_id': '3cfbf273-574d-478e-baad-a47db3babfda', ...nd', 'text': '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。', ...}
+E       assert 'SECURITY_RESTRICTED_CONTACT' is None
+
+tests\integration\test_r2_206a_contact_gate.py:291: AssertionError
+_ test_g1_mixed_roles_are_answered_without_contact_values[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f] _
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7B304A4B0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B32507D0>, csrf='16cf0fb3a12f632ff484b41688806da...1688806da9b147d88424d36bbe7b17006dc2b630dd'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B3255120>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B32529F0>, csrf='d14dc260f816fe06c41a1c86c40d275...86c40d2753cab545e6ff3da5c2826f1706302d3e8d'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B30423E0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7AF41BB30>
+question = '青禾店的折叠桌放在哪个位置，合作状态分别是什么，电话和地址是多少？'
+
+    @pytest.mark.parametrize("question", [QUESTION_MIXED_3, QUESTION_MIXED_4])
+    def test_g1_mixed_roles_are_answered_without_contact_values(
+        chat_app, chat_admin, chat_employee, chat_model, question
+    ):
+        """物品 + 位置 + 合作状态 + 电话/地址 → ``kind=answer``、两类值都在、无电话/地址值。"""
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, question)
+    
+        # 计划层：早退点不再把整题判成受限；受限角色不进 field_roles / requested_fields。
+>       assert info["reason"] is None, info
+E       AssertionError: {'body': {'request_id': '08d30a59-3ac5-4101-9fae-49a9e6ce6103', 'message_id': 'dafed8d4-a0cd-4b2c-b313-0a5fbbce2b83', ...nd', 'text': '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。', ...}
+E       assert 'SECURITY_RESTRICTED_CONTACT' is None
+
+tests\integration\test_r2_206a_contact_gate.py:291: AssertionError
+_ test_g1_facts_and_citations_exclude_restricted_roles[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u662f\u591a\u5c11\uff1f] _
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7B31ED670>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7AFDE6060>, csrf='f4850742c2b0655382348c9e31b32ed...9e31b32ed3153fb3f325506b92cba514955c3399d3'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B786DD5DA0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7AFDE6690>, csrf='5b6d9269128353db7db7b72b50ccc11...2b50ccc11c359facc26153e89393b7631777ff2113'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7AFDD0B80>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7B31EE030>
+question = '青禾店的折叠桌放在哪个位置，合作状态分别是什么，电话是多少？'
+
+    @pytest.mark.parametrize("question", [QUESTION_MIXED_3, QUESTION_MIXED_4])
+    def test_g1_facts_and_citations_exclude_restricted_roles(
+        chat_app, chat_admin, chat_employee, chat_model, question
+    ):
+        """证据面：facts 只含 location/status；引用覆盖两份资料；电话/地址值不在 facts。"""
+    
+        _dataset(chat_app, chat_admin)
+        qa = chat_app.state.qa
+        qa.ensure_ready()
+        me = chat_employee.client.get("/api/v1/auth/me").json()
+        answer = qa.answer(question, str(me["user"]["id"]), _conversation(chat_employee))
+    
+>       assert answer.kind == "answer", (answer.kind, answer.reason, answer.text)
+E       AssertionError: ('no_answer', 'SECURITY_RESTRICTED_CONTACT', '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。')
+E       assert 'no_answer' == 'answer'
+E         
+E         - answer
+E         + no_answer
+E         ? +++
+
+tests\integration\test_r2_206a_contact_gate.py:321: AssertionError
+_ test_g1_facts_and_citations_exclude_restricted_roles[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f] _
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7AFDE7E90>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B3525340>, csrf='1c717f68b2fcc68728fc9a57a754e95...57a754e958b7a876642d53378511172883cf437cf5'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7AFDD04A0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B3527530>, csrf='b907c193d571868702265de15a7235f...e15a7235f52e31eddb02d85ab9976b25251d8fcdf7'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B34F3F60>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7AFC84800>
+question = '青禾店的折叠桌放在哪个位置，合作状态分别是什么，电话和地址是多少？'
+
+    @pytest.mark.parametrize("question", [QUESTION_MIXED_3, QUESTION_MIXED_4])
+    def test_g1_facts_and_citations_exclude_restricted_roles(
+        chat_app, chat_admin, chat_employee, chat_model, question
+    ):
+        """证据面：facts 只含 location/status；引用覆盖两份资料；电话/地址值不在 facts。"""
+    
+        _dataset(chat_app, chat_admin)
+        qa = chat_app.state.qa
+        qa.ensure_ready()
+        me = chat_employee.client.get("/api/v1/auth/me").json()
+        answer = qa.answer(question, str(me["user"]["id"]), _conversation(chat_employee))
+    
+>       assert answer.kind == "answer", (answer.kind, answer.reason, answer.text)
+E       AssertionError: ('no_answer', 'SECURITY_RESTRICTED_CONTACT', '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。')
+E       assert 'no_answer' == 'answer'
+E         
+E         - answer
+E         + no_answer
+E         ? +++
+
+tests\integration\test_r2_206a_contact_gate.py:321: AssertionError
+_________ test_g1_non_enumerate_mixed_shape_is_unchanged_fail_closed __________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7AFA98380>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B37B4C80>, csrf='b87b034aefa3777717f946b36acda4e...b36acda4ec52beacc1544ce93bcc78d8730fc52342'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B35311C0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B37B66C0>, csrf='0ec98dcc9d2e1f7efcdf1decc85a782...ecc85a782eff008fd1773e4092e53f1e2acd3b5c22'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B378FD80>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7B3579CD0>
+
+    def test_g1_non_enumerate_mixed_shape_is_unchanged_fail_closed(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """非枚举混合形态：规划层不再早退，但**产品层旧有的第二道闸门**仍整题拒答。
+    
+        ``conversations/intent.py`` 对“物品/标识 + 联系人/电话/地址字段”同样整体拒答
+        （``RESTRICTED_CONTACT_FIELDS``，本批不在可改面内）。于是非枚举形态（legacy 取证/模型
+        路径）保持拒答：与改前（规划层早退）**逐字节相同**，且电话/地址值不进正文。
+        这里的“改前”用运行时把 ``REFUSAL_CONTACT_ROLES`` 扩到本轮全部角色来等价复现（同一 app、
+        同一题），而不是同版本自比。
+        """
+    
+        _dataset(chat_app, chat_admin)
+        question = f"{STORE}的{ITEM}放在哪个位置，合作状态如何，电话是多少？"
+    
+        patcher = pytest.MonkeyPatch()
+        try:
+            patcher.setattr(
+                q, "REFUSAL_CONTACT_ROLES", frozenset({"phone", "address", "location", "status"})
+            )
+            before = _ask_info(chat_app, chat_employee, question)  # 改前等价：规划层早退
+        finally:
+            patcher.undo()
+        after = _ask_info(chat_app, chat_employee, question)
+    
+        # 规划层：本批之后不再早退（角色里已没有 phone）；拒答由下游旧闸门承担。
+>       assert after["reason"] is None, after
+E       AssertionError: {'body': {'request_id': '1de31b7b-2c52-4057-9149-0c5aca461dae', 'message_id': '5b061e41-4fe8-4f24-bb3f-b1655fddd227', ...nd', 'text': '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。', ...}
+E       assert 'SECURITY_RESTRICTED_CONTACT' is None
+
+tests\integration\test_r2_206a_contact_gate.py:358: AssertionError
+_______ test_g1_sensitivity_forcing_original_early_return_restores_red ________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001B7B374F170>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B36DE930>, csrf='34e9026854a581b44dfc32970572d0e...970572d0e836c4d52aa102f20192a08ce42eccd021'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B36CD3A0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001B7B36DF650>, csrf='be504d8c77089d8b26e1756262a6a18...6262a6a18b56cf047943241a700803d0a9aa7b05e1'}, upload=<function _write_session.<locals>.<lambda> at 0x000001B7B35BF740>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001B7B33E33E0>
+
+    def test_g1_sensitivity_forcing_original_early_return_restores_red(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """``restricted - others`` 判定恒走原早退 ⇒ G1 回红；撤销补丁即绿（同一 app、同一题）。"""
+    
+        _dataset(chat_app, chat_admin)
+        patcher = pytest.MonkeyPatch()
+        try:
+            # 让本轮全部角色都落进受限集：restricted 之外没有可答角色 ⇒ 原早退条件成立。
+            patcher.setattr(
+                q, "REFUSAL_CONTACT_ROLES", frozenset({"phone", "address", "location", "status"})
+            )
+            red = _ask_info(chat_app, chat_employee, QUESTION_MIXED_3)
+        finally:
+            patcher.undo()
+    
+        assert red["reason"] == "SECURITY_RESTRICTED_CONTACT", red
+        assert red["kind"] == "not_found", red
+        assert red["sources"] == [], red
+        assert red["text"] == _shape({"kind": "not_found", "text": red["text"]})["text"]
+        for value in (ITEM_LOCATION, STORE_STATUS):
+            assert value not in red["text"], (value, red["text"])
+        assert chat_model.calls == [], "敏感性对照组不得调用模型"
+    
+        green = _ask_info(chat_app, chat_employee, QUESTION_MIXED_3)
+>       assert green["reason"] is None, green
+E       AssertionError: {'body': {'request_id': '0b330ab2-b153-413f-97f5-8808f409d20a', 'message_id': '79421eee-ad46-4ffd-a020-d4860d308f16', ...nd', 'text': '该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，属于受限个人信息范围，不能据此作答；这不是资料中没有答案，也不代表该信息未被登记；请改为只询问物品位置等非个人联系信息后重新提问。', ...}
+E       assert 'SECURITY_RESTRICTED_CONTACT' is None
+
+tests\integration\test_r2_206a_contact_gate.py:454: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_mixed_roles_are_answered_without_contact_values[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_mixed_roles_are_answered_without_contact_values[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f]
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_facts_and_citations_exclude_restricted_roles[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_facts_and_citations_exclude_restricted_roles[\u9752\u79be\u5e97\u7684\u6298\u53e0\u684c\u653e\u5728\u54ea\u4e2a\u4f4d\u7f6e\uff0c\u5408\u4f5c\u72b6\u6001\u5206\u522b\u662f\u4ec0\u4e48\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f]
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_non_enumerate_mixed_shape_is_unchanged_fail_closed
+FAILED tests/integration/test_r2_206a_contact_gate.py::test_g1_sensitivity_forcing_original_early_return_restores_red
+6 failed, 4 passed, 1 warning in 15.59s

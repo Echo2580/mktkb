@@ -1,0 +1,40 @@
+T209-PREP D1 rework evidence (execution aggregate mapping)
+
+[d1 probe]
+all_failed_aggregate_status=failed
+failed_status_reachable_by_builder=True
+mixed_aggregate_status=partial
+all_succeeded_aggregate_status=succeeded
+empty_aggregate_status=not_run
+all_not_run_aggregate_status=not_run
+
+[pytest regression subset]
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 40 items / 34 deselected / 6 selected
+
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs0-succeeded] PASSED [ 16%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs1-failed] PASSED [ 33%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs2-partial] PASSED [ 50%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs3-not_run] PASSED [ 66%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs4-not_run] PASSED [ 83%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_failed_execution_report_renders_failed_not_not_run PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+================= 6 passed, 34 deselected, 1 warning in 0.18s =================
+
+[meta]
+command=<d1 probe via stdin>; pytest backend/tests/evaluation/test_p2_candidate_report.py -p no:cacheprovider -v -k "execution_aggregate or failed_execution_report"
+cwd=D:\GPT项目\市场部AI知识库
+probe_exit_code=0
+pytest_exit_code=0
+env=MKTKB_NO_DOTENV=1 PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8
+result=D1 fixed: all-failed->failed; mixed->partial; 0 run/all-not_run->not_run; 6 passed

@@ -1,0 +1,187 @@
+{
+  "all_checks_ok": true,
+  "branch": "codex/p2-e2e",
+  "checks": {
+    "A_negative_still_clarify": true,
+    "A_positive_answered": true,
+    "B_negative_still_conservative": true,
+    "B_positive_answered": true,
+    "c_freeze_12_unchanged": true,
+    "causality_flip_only_positives": true,
+    "corpus_unchanged": true,
+    "diff_only_additive": true,
+    "evaluation_module_untouched": true,
+    "head_matches": true,
+    "no_stable_fail": true,
+    "probe_after_all_pass": true,
+    "regression_all_green": true,
+    "staged_empty": true,
+    "zero_external_outbound": true
+  },
+  "diff_only_additive": {
+    "all_equal_prior_round_end": true,
+    "diff": "evidence/fix-2.diff",
+    "diff_files": [
+      "backend/src/mktkb/rag/answer.py",
+      "backend/src/mktkb/rag/query.py"
+    ],
+    "files": [
+      {
+        "crlf_preserved": true,
+        "equals_prior_round_end": true,
+        "hunks": 6,
+        "hunks_applied": 6,
+        "path": "backend/src/mktkb/rag/query.py",
+        "prior_round_after_sha256": "fc55db53f2b7a00292b538a3797f6ba456b6d871c95df026065bd5b74feb4549",
+        "rebuilt_sha256": "fc55db53f2b7a00292b538a3797f6ba456b6d871c95df026065bd5b74feb4549"
+      },
+      {
+        "crlf_preserved": true,
+        "equals_prior_round_end": true,
+        "hunks": 1,
+        "hunks_applied": 1,
+        "path": "backend/src/mktkb/rag/answer.py",
+        "prior_round_after_sha256": "55778d8f1446aaedc836c194b1ed9c82d8d3a54b89cb14046ac2175981aca63a",
+        "rebuilt_sha256": "55778d8f1446aaedc836c194b1ed9c82d8d3a54b89cb14046ac2175981aca63a"
+      }
+    ],
+    "method": "自建 unified-diff 反向应用（按 new-file 坐标精确替换，无 fuzz）；期望值取自 safety-fix 独立产物 fix-sha.json 的 after_sha256。",
+    "notes": [
+      "只反演 fix-2.diff 涉及的两个文件；overlay 其余文件由 copytree 复制，与仓库现状逐字节相同。",
+      "改前 == 上一轮收尾，说明本轮 diff 未回退既有改动（否则 SHA 不可能相等）。"
+    ],
+    "overlay_src": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\mktkb-fix2-prefix-_xz9w041\\src",
+    "schema_version": "v3-fix2-independent-reconstruct/v0.1"
+  },
+  "evidence_files": {
+    "compare_probe.py": "9f38be6f69139291a506b0d5e0362eb6ae9ebe959c86614adcae7b965c4b5a8c",
+    "independent-probe-prefix.json": "caebda8cc110ae8ff54fe801111e5dd5f8fadd2fe076e00306a61f82127a93e8",
+    "independent-probe.json": "bb0ae9a4028cf0398e2f0330fa66d1ad4f20521c70ca66bb25ec49dc68fc1ef1",
+    "netguard-targeted-run.json": "b59e0846747eb5e697ccc17b50b94af776d37b0ef289e8e7e7f6f8a7298b3ae6",
+    "netguard/sitecustomize.py": "00404a45f7d102c2c2963bb2b464cc2887eac15bbdcb84eff95ac164b732e1f7",
+    "preservation-check.json": "cfbb4333ba6253e8afd6415ba71b87aea52ad8f8f6aa0b489b042e491eb78992",
+    "preservation_check.py": "ca3ae256fe46924eba3fd5a7ff7e2b3bca7a51a3db8f76acd949a431f401917e",
+    "probe-compare.json": "e56ebd9ad92325efbe8fdf7545e0377e5e4a7ce662b9f6ac9b2e0b3beb86e82f",
+    "probe_independent_fix2.py": "b112593b6b5d904345ffe1df655554753c899361976ddea2033d6c85fa8f0c48",
+    "reconstruct-prefix.json": "7e57d02942c3b5670d9ad8352ecee31db3fe5adbbd11b8fe69a30f8168434c50",
+    "reconstruct_prefix.py": "ced3c28039f9e9ea24beaf3476d3d25295cd3a9ae37cb69c9a0f01b355b2a802"
+  },
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "preservation": {
+    "c_freeze_12_all_same": true,
+    "c_freeze_12_changed": [],
+    "corpus_all_same": true,
+    "evaluation_files": 40,
+    "evaluation_module_unchanged_in_round": true,
+    "staged_count": 0,
+    "tracked_modified_count": 25
+  },
+  "probe": {
+    "after_failures": [],
+    "after_passed": 16,
+    "before_failures": [
+      "A1_doc_word_qingdan",
+      "A2_two_doc_codes",
+      "A3_doc_word_ziliao",
+      "B1_first_turn_explicit",
+      "B2_first_turn_explicit"
+    ],
+    "before_passed": 11,
+    "cases_total": 16,
+    "flipped_to_pass": [
+      "A1_doc_word_qingdan",
+      "A2_two_doc_codes",
+      "A3_doc_word_ziliao",
+      "B1_first_turn_explicit",
+      "B2_first_turn_explicit"
+    ],
+    "groups": {
+      "A_negative": {
+        "cases": 4,
+        "failed": [],
+        "passed": 4
+      },
+      "A_positive": {
+        "cases": 3,
+        "failed": [],
+        "passed": 3
+      },
+      "A_positive_security": {
+        "cases": 1,
+        "failed": [],
+        "passed": 1
+      },
+      "B_negative": {
+        "cases": 3,
+        "failed": [],
+        "passed": 3
+      },
+      "B_positive": {
+        "cases": 2,
+        "failed": [],
+        "passed": 2
+      },
+      "regression_fix1": {
+        "cases": 2,
+        "failed": [],
+        "passed": 2
+      },
+      "regression_fix1r1": {
+        "cases": 1,
+        "failed": [],
+        "passed": 1
+      }
+    },
+    "src_after": "D:\\GPT项目\\市场部AI知识库\\backend\\src",
+    "src_before": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\mktkb-fix2-prefix-_xz9w041\\src",
+    "stable_fail": [],
+    "stable_pass": [
+      "A4_contact_merge_refused",
+      "B3_no_coverage_not_found",
+      "B4_followup_collapse_kept",
+      "B5_first_turn_bare_anaphora",
+      "N1_two_stores_two_items",
+      "N2_bare_anaphora",
+      "N3_unknown_store_anaphora",
+      "N4_missing_document_still",
+      "R1_fix1_multi_target",
+      "R2_fix1r1_pure_anaphora_with_store_pair",
+      "R3_fix1_anaphora_they_planner"
+    ]
+  },
+  "residuals": [
+    {
+      "id": "I1",
+      "level": "high",
+      "text": "真实 5 题能否翻 pass 未验证（不读题面）；由段 3 四 run 全量复跑给出。"
+    },
+    {
+      "id": "I2",
+      "level": "medium",
+      "text": "纯指代『它们』legacy 面仍整表作答（6 条记录/6 引用）；改前改后一致，非本轮回退。"
+    },
+    {
+      "id": "I3",
+      "level": "medium",
+      "text": "A 修复只在『点名记录实体且问记录字段』时抑制资料缺失/歧义；其他形态未穷举。"
+    }
+  ],
+  "reviewer_role": "v3 终局执行者（段 1 独立窄验收）",
+  "schema_version": "v3-fix2-independent-review-aggregate/v0.1",
+  "targeted_tests": {
+    "errors": 0,
+    "exit_code": 0,
+    "failed": 0,
+    "files": 9,
+    "note": "独立重跑；首次因守卫过宽（拦回环）出现 18 failed/9 error，改守卫后 102 passed。",
+    "passed": 102
+  },
+  "verdict": "PASS_CAN_RUN_FULL_RERUN",
+  "verdict_line": "可进入复跑",
+  "zero_call": {
+    "external_attempts": 0,
+    "loopback_attempts": 233,
+    "probe_outbound_after": [],
+    "probe_outbound_before": []
+  }
+}

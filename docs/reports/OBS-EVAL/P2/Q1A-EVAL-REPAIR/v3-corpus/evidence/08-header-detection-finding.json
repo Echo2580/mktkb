@@ -1,0 +1,808 @@
+{
+ "schema_version": "p2h2v3-header-detection-finding/v0.1",
+ "phase": "residual-finding",
+ "finding": "V05/V06 的 失效日期 全列为空 ⇒ 表头行占用数(7/8) > 数据行占用数(6/7) ⇒ _find_header_index 选中数据行",
+ "root_cause_code": [
+  "backend/src/mktkb/ingestion/parsers/excel.py:112-130 _find_header_index（next_has_same_width 用表头行非空数作阈值）",
+  "backend/src/mktkb/ingestion/parsers/excel.py:248-283 表头行被选中后才产出 header_names/fields"
+ ],
+ "impact": {
+  "sources_affected": [
+   "V05",
+   "V06"
+  ],
+  "runs_affected": [
+   2,
+   3
+  ],
+  "declared_targets_unalignable": 7,
+  "cases_affected": [
+   "C09",
+   "C10",
+   "C15",
+   "C20",
+   "C29",
+   "C30"
+  ]
+ },
+ "alternative_shape_simulation": {
+  "description": "把空 失效日期 填成非日期文本（模拟值不写入语料），验证是否恢复表头识别且语义不变",
+  "placeholder": "未声明",
+  "spec_conflict": "规格 §1.4 明确要求 null 时留空；占位文本属偏离，需主人/经理裁定",
+  "results": {
+   "V05": {
+    "cells_filled": 7,
+    "parser_header_row": 7,
+    "id_values_detected": [
+     "P02",
+     "P03",
+     "P04",
+     "P05",
+     "P06",
+     "P07",
+     "P08"
+    ],
+    "effective_ranges_sample": [
+     {
+      "unit_key": "sheet:物品位置:row:8",
+      "effective_range": [
+       "range",
+       "2026-12-01",
+       null
+      ]
+     },
+     {
+      "unit_key": "sheet:物品位置:row:9",
+      "effective_range": [
+       "range",
+       "2026-12-01",
+       null
+      ]
+     }
+    ]
+   },
+   "V06": {
+    "cells_filled": 4,
+    "parser_header_row": 4,
+    "id_values_detected": [
+     "S01",
+     "S02",
+     "S03",
+     "S04"
+    ],
+    "effective_ranges_sample": [
+     {
+      "unit_key": "sheet:店家信息:row:5",
+      "effective_range": [
+       "range",
+       "2026-11-16",
+       null
+      ]
+     },
+     {
+      "unit_key": "sheet:店家信息:row:6",
+      "effective_range": [
+       "range",
+       "2026-11-16",
+       null
+      ]
+     }
+    ]
+   }
+  }
+ },
+ "classifier_semantics": {
+  "blank_to_side": "from 可解析 + to 空 ⇒ _collect_dates(to)=[] ⇒ _effective_range 返回 ('range', from, None) ⇒ 右侧跳过（not_asserted）",
+  "placeholder_to_side": "占位文本不可解析 ⇒ _collect_dates(to)=[] ⇒ 同上，返回值与留空完全一致（p2_hard_evidence.py:1452-1474, 1481-1501）"
+ },
+ "findings": {
+  "V03": {
+   "path": "variants/V03_物品位置表_历史V1.xlsx",
+   "sheet": "物品位置",
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ],
+   "units": 9,
+   "top_scoring_row": {
+    "row": 7,
+    "score": 6,
+    "nonempty": 7,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 5,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 6,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 7,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 8,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 9,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 10,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 11,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 12,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 13,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 14,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 15,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:物品位置:row:8",
+     "effective_range": [
+      "range",
+      "2026-01-05",
+      "2026-04-30"
+     ]
+    },
+    {
+     "unit_key": "sheet:物品位置:row:9",
+     "effective_range": [
+      "range",
+      "2026-01-05",
+      "2026-04-30"
+     ]
+    }
+   ]
+  },
+  "D01": {
+   "path": "normal/D01_物品位置表.xlsx",
+   "sheet": "物品位置",
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ],
+   "units": 9,
+   "top_scoring_row": {
+    "row": 7,
+    "score": 6,
+    "nonempty": 7,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 5,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 6,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 7,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 8,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 9,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 10,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 11,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 12,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 13,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 14,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 15,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:物品位置:row:8",
+     "effective_range": [
+      "range",
+      "2026-05-01",
+      "2026-10-31"
+     ]
+    },
+    {
+     "unit_key": "sheet:物品位置:row:9",
+     "effective_range": [
+      "range",
+      "2026-07-15",
+      "2026-10-31"
+     ]
+    }
+   ]
+  },
+  "V04": {
+   "path": "variants/V04_物品位置表_新版V3.xlsx",
+   "sheet": "物品位置",
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ],
+   "units": 9,
+   "top_scoring_row": {
+    "row": 7,
+    "score": 6,
+    "nonempty": 7,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 5,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 6,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 7,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 8,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 9,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 10,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 11,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 12,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 13,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 14,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 15,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:物品位置:row:8",
+     "effective_range": [
+      "range",
+      "2026-11-01",
+      "2026-11-30"
+     ]
+    },
+    {
+     "unit_key": "sheet:物品位置:row:9",
+     "effective_range": [
+      "range",
+      "2026-11-01",
+      "2026-11-30"
+     ]
+    }
+   ]
+  },
+  "V05": {
+   "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+   "sheet": "物品位置",
+   "parser_header_row": 8,
+   "expected_header_row": 7,
+   "id_values_detected": [],
+   "units": 7,
+   "top_scoring_row": {
+    "row": 8,
+    "score": 6,
+    "nonempty": 6,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 5,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 6,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 7,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 8,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 9,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 10,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 11,
+     "nonempty": 5,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 12,
+     "nonempty": 5,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 13,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 14,
+     "nonempty": 6,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:物品位置:row:9",
+     "effective_range": [
+      "none",
+      null,
+      null
+     ]
+    },
+    {
+     "unit_key": "sheet:物品位置:row:10",
+     "effective_range": [
+      "none",
+      null,
+      null
+     ]
+    }
+   ]
+  },
+  "D02": {
+   "path": "normal/D02_合作店家信息.xlsx",
+   "sheet": "店家信息",
+   "parser_header_row": 4,
+   "expected_header_row": 4,
+   "id_values_detected": [
+    "S01",
+    "S02",
+    "S03",
+    "S04"
+   ],
+   "units": 4,
+   "top_scoring_row": {
+    "row": 4,
+    "score": 6,
+    "nonempty": 8,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 5,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 6,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 7,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 8,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:店家信息:row:5",
+     "effective_range": [
+      "range",
+      "2026-02-02",
+      "2026-11-15"
+     ]
+    },
+    {
+     "unit_key": "sheet:店家信息:row:6",
+     "effective_range": [
+      "range",
+      "2026-02-02",
+      "2026-11-15"
+     ]
+    }
+   ]
+  },
+  "V06": {
+   "path": "variants/V06_合作店家信息_新电话.xlsx",
+   "sheet": "店家信息",
+   "parser_header_row": 5,
+   "expected_header_row": 4,
+   "id_values_detected": [],
+   "units": 3,
+   "top_scoring_row": {
+    "row": 5,
+    "score": 6,
+    "nonempty": 7,
+    "next_has_same_width": true
+   },
+   "row_scores": [
+    {
+     "row": 1,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 2,
+     "nonempty": 1,
+     "skipped": "len<2"
+    },
+    {
+     "row": 3,
+     "nonempty": 0,
+     "skipped": "len<2"
+    },
+    {
+     "row": 4,
+     "nonempty": 8,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 5,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 6,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 7,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 8,
+     "nonempty": 7,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ],
+   "blank_effective_to_rows": null,
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:店家信息:row:6",
+     "effective_range": [
+      "none",
+      null,
+      null
+     ]
+    },
+    {
+     "unit_key": "sheet:店家信息:row:7",
+     "effective_range": [
+      "none",
+      null,
+      null
+     ]
+    }
+   ]
+  }
+ },
+ "recommended_fix_owner": "经理/主人裁定：产品侧改表头启发式（首选，需独立验收）或本规格改 §1.4（fixture 侧偏离，需书面裁定）"
+}

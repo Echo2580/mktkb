@@ -1,0 +1,49 @@
+{
+  "schema_version": "c1p1-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "package": "C1-P1 合同 v2（实体 targets / shared_background 条目 / record_code 投影规则）",
+  "manager_decision": "ACCEPTED_WITH_RESIDUALS_AND_PRESERVED_DISAGREEMENTS",
+  "custody_b_verdict": "PASS_WITH_DISAGREEMENTS",
+  "deliverables": {
+    "schema": { "path": "docs/evaluation/q1a-scope-targets-contract-v2.md", "sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25" },
+    "aggregate": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-aggregate-v2.json", "sha256": "745f9c71ba84f284eafffe2e5d063083f630af1c4c36b0eccdd18a5abaee1992" },
+    "report": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-report-v2.md", "sha256": "ce9116c30559ad8461c08d0c4dc1de3ec8436c40f0c56e50ecf0fa1168939526" },
+    "ciphertext": { "path": "D:\\mktkb-q1a2-scope-contract\\scope-targets-contract-v2.fernet", "sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260", "bytes": 99128 }
+  },
+  "verified_facts": {
+    "coverage": "30 题/36 回合/120 轴；17 binding 中 16 与 v1 逐值相同，仅 contract_schema_sha256 变更",
+    "cross_entity_matchable": "v1 0/30 → v2 16/30（14 条投影 + 2 条修 v1 缺陷）；分类 16+3+11 穷尽",
+    "semantic_zero_change": "6 个不可改字段 + target_refs + basis + runs 逐值同 v1；唯一原地改动 = 1 处空 entity_key 补全，不改变 applicability/criterion/reason",
+    "record_code_rule": "独立实现 76/76 投影相等（53 verified / 2 行不在索引 / 21 非记录级）；规则确定性、未用答案反推",
+    "shared_background": "6/6 可复算",
+    "no_runtime_identity_overreach": "targets/filters 中 uuid/长 hex = 0；新增仅 item/store 级"
+  },
+  "protection": { "c_freeze": "12/12", "v1_artifacts_and_ciphertext_unchanged": true, "funding_3of3": true, "r2_28of28": true, "tracked_modified": 15, "staged": 0, "commits": 0 },
+  "zero_real_calls": { "network": 0, "socket": 0, "dns": 0, "provider": 0, "real": 0 },
+  "manager_ruling_critical": {
+    "id": "M-C1P1-01",
+    "topic": "转换假象（document 级 targets vs unit 级使用）",
+    "custody_b_finding": "19 个非空轴中 16 个新可匹配；4 个 scenario 全含 docx/pdf 文本源，16/16 有暴露面，0 可被结构排除",
+    "ruling": "P4 必须遵守：document 级单元不得直接判 violation；要么保持 unknown，要么改用 P3 的 doc_code 级身份。任何把 document 级目标用于 violation 判定的实现，一律 FAIL。",
+    "reason": "阶段一已确证旧判据的假阳性来自粗粒度匹配（locator-only）；用更粗的 document 级目标做 violation 判定是旧病新装。"
+  },
+  "preserved_disagreements": {
+    "count": 6,
+    "items": [
+      { "id": "D1", "topic": "v1 基线可匹配轴计数", "detail": "B 严格重算 v1 为 0/30，A 报 1→0 或 5→19 的基线表述差异" },
+      { "id": "D2", "topic": "no_positive_refs 跨类归类" },
+      { "id": "D3", "topic": "转换风险未量化（A 未给粒度错配数量，B 独立给出 16/16 暴露）" },
+      { "id": "D4", "topic": "business_version 未落字段" },
+      { "id": "D5", "topic": "变体 ref 2→7 的口径" },
+      { "id": "D6", "topic": "公开元数据：报告含 4 个 gap 序号、schema 含 2 个变体码示例", "action": "记为低危公开元数据披露；不要求改（改则破坏 schema 绑定），后续版本避免" }
+    ],
+    "voting": "none"
+  },
+  "c1_2_benefit_estimate_by_custody_b": {
+    "cross_entity_unknown_29": "最好 13–14，现实 16–20",
+    "stale_source_unknown_17": "P1 单独仍 17；P1+P3+P2 最好 4–6",
+    "warning": "16/30 是上界，不等于 unknown 直接降 16；不得据此直接签 GO"
+  },
+  "not_accepted_as": ["T207 pass", "quality pass", "release/threshold", "C1-2 authorization"],
+  "next": "P3（采集契约 v0.3）→ P4（消费侧适配，受 M-C1P1-01 约束）"
+}

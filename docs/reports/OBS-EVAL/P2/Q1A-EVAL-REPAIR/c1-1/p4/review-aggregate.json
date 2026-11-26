@@ -1,0 +1,428 @@
+{
+  "schema_version": "c1p4-independent-review/v1",
+  "date": "2026-11-14",
+  "package": "C1-P4 消费侧适配 v2（合同 v2 + 运行期身份快照 v0.3）",
+  "reviewer": {
+    "role": "C1-P4 全新独立验收",
+    "independent_of_development": true,
+    "independent_of_management": true,
+    "method": "自建合成构建器 + 9 支自建探针 + 自建零出站守卫；不采信开发自报数字，全部重算",
+    "report": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p4/independent-review.md"
+  },
+  "workspace": {
+    "root": "D:\\GPT项目\\市场部AI知识库",
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged": 0,
+    "commits": 0,
+    "commit_count": 172,
+    "status_lines": 229,
+    "tracked_modified": 15
+  },
+  "object_under_review": {
+    "module": "backend/src/mktkb/evaluation/p2_evidence_axes_adapter_v2.py",
+    "tests": "backend/tests/evaluation/test_p2_evidence_axes_adapter_v2.py",
+    "dev_report": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p4/dev-report.md",
+    "dev_evidence": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p4/evidence/"
+  },
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "verdict_note": "两条经理红线实质未被越过；13 项发现（6 medium + 6 low + 1 info），其中 IR-01（非标量枚举 TypeError 逃逸）是必须修复的缺陷。若经理把 fail-closed 必须全量作为硬门，则 fail-closed 单项应为 FAIL；本结论按红线与核心判据给出，并把该读法写入报告 §0/§5.2。",
+  "probe_totals": {
+    "probes": 9,
+    "checks": 312,
+    "failures": 4,
+    "failures_all_same_defect": "IR-01",
+    "failure_checks": [
+      "contract_non_scalar_enum_fail_closed",
+      "snapshot_non_scalar_enum_fail_closed",
+      "fuzz_contract_no_unfixed_exception",
+      "fuzz_snapshot_no_unfixed_exception"
+    ]
+  },
+  "criteria": [
+    {
+      "id": 1,
+      "name": "版本分派与 schema sha 钉扎",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "evidence": "independent/out/01-version-dispatch.json",
+      "checks": 27,
+      "failures": 0,
+      "facts": {
+        "v1_minimal_and_full_rejected_by_v2": "contract_version_v1_rejected_by_v2_adapter",
+        "unknown_version": "contract_version_unsupported",
+        "v2_six_keys_rejected_by_v1_loader": "contract_schema_invalid",
+        "v2_minus_projection_renamed_v1_accepted_by_v1_loader": true,
+        "v1_and_v2_constants_match_public_schema_bytes": true,
+        "declared_digest_one_hex_change_rejected": true,
+        "payload_one_byte_change_accepted": true,
+        "caller_supplied_expected_digest_relaxes_pin": true,
+        "adapter_file_read_calls": 0
+      }
+    },
+    {
+      "id": 2,
+      "name": "M-C1P1-01 document 级目标不得判 violation",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "evidence": "independent/out/02-redline-document.json",
+      "checks": 41,
+      "failures": 0,
+      "facts": {
+        "counterexample_classes": 3,
+        "document_uuid_target_state": "unknown/target_granularity_incomparable",
+        "uuid_carrying_runtime_key_state": "unknown/target_granularity_incomparable",
+        "uuid_in_filters_state": "unknown/identity_unresolved",
+        "document_granularity_usage_row_state": "unknown/target_granularity_incomparable",
+        "match_plus_document_row_state": "unknown/target_granularity_incomparable",
+        "target_carrying_runtime_id_state": "unknown/entity_key_space_incompatible",
+        "violations_across_classes": 0,
+        "only_violation_path": "document-typed target with corpus doc_code key + record-level row from another doc (contract §4.3 cannot produce such target)",
+        "doc_code_channel_unreachable_from_contract": true
+      }
+    },
+    {
+      "id": 3,
+      "name": "M-C1P2-01 class C 必须 empty_set_not_proven",
+      "verdict": "PASS",
+      "evidence": "independent/out/03-class-c.json",
+      "checks": 23,
+      "failures": 0,
+      "facts": {
+        "class_c_shapes_tested": 6,
+        "class_c_shapes_proven": 0,
+        "class_c_reason_cross_entity": "empty_set_not_proven",
+        "class_c_reason_stale_source": "empty_set_not_proven",
+        "p3_empty_set_candidate_true_insufficient": true,
+        "genuine_empty_state": "passed/cross_entity_empty_use_scope_ok + stale_source_dates_ok",
+        "contradictory_p3_flag_rejected": "snapshot_field_invalid:empty_use_scope_input.empty_set_candidate"
+      }
+    },
+    {
+      "id": 4,
+      "name": "键空间规则确定性、无前缀/包含/模糊匹配",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "evidence": "independent/out/04-key-space.json",
+      "checks": 41,
+      "failures": 0,
+      "facts": {
+        "fuzzy_imports": 0,
+        "prefix_sites": 1,
+        "prefix_site_purpose": "document classification only",
+        "exact_key_comparison_sites": 7,
+        "runtime_matrix_shapes": 11,
+        "deterministic_repeats": "3x identical for 4 shapes",
+        "prefix_lookalike_state": "unknown/entity_key_space_incompatible",
+        "rent1_differential_branches_equal": "9/9",
+        "normalization_differential_equal": "5/5",
+        "target_order_changes_outcome": true,
+        "contradictory_key_vs_filters_passes": true,
+        "id_type_target_disables_axis_violation": true
+      }
+    },
+    {
+      "id": 5,
+      "name": "fail-closed（固定码 + unknown）",
+      "verdict": "PASS_WITH_DEFECT",
+      "evidence": "independent/out/05-failclosed.json",
+      "checks": 93,
+      "failures": 4,
+      "facts": {
+        "structured_counterexamples": 66,
+        "unknown_codes_checked_for_na_gate": 51,
+        "unknown_to_na_accepted": 0,
+        "fuzz_runs": 800,
+        "fuzz_rejected_by_fixed_code": 317,
+        "fuzz_rejected_snapshot": 309,
+        "fuzz_accepted_non_consumed_blocks": 164,
+        "fuzz_unfixed_exceptions": 10,
+        "non_scalar_enum_crash_sites": 11,
+        "getattr_calls": 0,
+        "bare_except": 0,
+        "pass_statements": 0,
+        "dict_get_defaults": 1,
+        "dict_get_default_verdict_impact": "none"
+      }
+    },
+    {
+      "id": 6,
+      "name": "计数自洽 / basis / 输出边界",
+      "verdict": "PASS",
+      "evidence": "independent/out/06-counts-and-output.json",
+      "checks": 33,
+      "failures": 0,
+      "facts": {
+        "counts_sample": {
+          "cross_entity": {"planned": 4, "checked": 3, "passed": 1, "not_applicable": 1, "unknown": 1, "violations": 1},
+          "stale_source": {"planned": 4, "checked": 0, "passed": 0, "not_applicable": 0, "unknown": 4, "violations": 0}
+        },
+        "three_formulas_enforced": true,
+        "basis_variants_state_reason_unchanged": 4,
+        "forbidden_output_keys": 0,
+        "forbidden_output_claim_values": 0,
+        "fixed_code_with_verified_substring": "no_entity_scope_verified",
+        "contract_axis_codes_in_output": false,
+        "provenance_contains_uuid_record_key_date": false
+      }
+    },
+    {
+      "id": 7,
+      "name": "冻结与保全",
+      "verdict": "PASS",
+      "evidence": "independent/out/07-preservation.json",
+      "checks": 27,
+      "failures": 0,
+      "facts": {
+        "c_freeze_12": "12/12",
+        "tracked_modified_15": "15/15",
+        "q1a1_protected_38": "38/38",
+        "r2_protected_28": "24/24 verified + 4 sensitive skipped",
+        "readonly_references_2": "2/2 sensitive skipped",
+        "p3_module_and_contract": "2/2 unchanged vs P3 records",
+        "contract_v2_artifacts": "3/3 unchanged vs P1 acceptance",
+        "foreign_untracked": "2052/2052 verified + 34 sensitive skipped, 0 changed, 0 missing",
+        "untracked_added_all_within_allowed_prefixes": true,
+        "unexpected_added": 0,
+        "own_new_files": 23,
+        "own_files_outside_independent": 0
+      }
+    },
+    {
+      "id": 8,
+      "name": "零调用（正负对照）",
+      "verdict": "PASS",
+      "evidence": "independent/out/08-zero-call.json",
+      "checks": 13,
+      "failures": 0,
+      "facts": {
+        "clean_external": 0,
+        "positive_control_layers": 7,
+        "positive_control_all_blocked": true,
+        "positive_control_all_recorded": true,
+        "negative_control_dirty_ledger_raises": true,
+        "clean_after_clear": true,
+        "suite_external_attempts": 0
+      }
+    },
+    {
+      "id": 9,
+      "name": "测试质量",
+      "verdict": "PASS_WITH_RESIDUAL",
+      "evidence": "independent/out/09-test-quality.json",
+      "checks": 14,
+      "failures": 0,
+      "facts": {
+        "collected_and_passed": 43,
+        "failed": 0,
+        "skipped": 0,
+        "xfail": 0,
+        "constant_truthy_asserts": 0,
+        "assert_count": 133,
+        "fixed_code_literals": 66,
+        "fixed_code_literals_in_equality": 66,
+        "fixed_code_literals_in_membership": 0,
+        "all_literals_are_real_fixed_codes": true,
+        "weak_membership_asserts": 0,
+        "monkeypatch_under_test": 0,
+        "code_families_asserted": 44,
+        "code_families_total": 58,
+        "unasserted_code_families": [
+          "axis_not_adapted",
+          "citation_entity_mismatch",
+          "contract_binding_mismatch",
+          "contract_case_missing",
+          "contract_run_missing",
+          "entity_scope_conflict",
+          "snapshot_contract_version_invalid",
+          "snapshot_enum_invalid",
+          "snapshot_field_invalid",
+          "snapshot_fixture_kind_invalid",
+          "snapshot_missing",
+          "snapshot_schema_version_invalid",
+          "stale_no_positive_refs",
+          "targets_missing"
+        ]
+      }
+    }
+  ],
+  "key_space_executability": {
+    "deterministic": true,
+    "prefix_containment_fuzzy_residue": 0,
+    "rent1_fidelity": "9/9 non-document branches + 5/5 normalization identical to chunking._entity",
+    "executable_on_public_fixture_shape": true,
+    "public_fixture_entity_shape": {
+      "source": "c1-1/p3/independent/out/08b-public-fixture-entity-shape.json",
+      "entity_key": "item|id:p01",
+      "entity_filters": {"item": "宣传海报", "item_id": "P01", "store": "城东店"},
+      "adapter_canonical": "item|城东店|宣传海报",
+      "note": "id 型键由角色值复算对齐；item_id 非角色键被忽略"
+    },
+    "executable_for": ["item targets", "store targets"],
+    "uncertain_for": ["record targets (need identifier role value; public fixture only has item_id)"],
+    "not_matchable_by_contract": ["product targets", "document targets", "record_collection"],
+    "most_worried_failure_modes": [
+      "系统性 unknown 被读成干净：角色值缺失时每行 entity_key_space_incompatible，violation=0 会被误读为无问题；必须同时给 reason_histogram",
+      "一行坏数据翻转整轴：violations 先于 unknowns，且名称空间不统一标点/后缀，旧假阳性风险以新形式存在",
+      "顺序依赖静默吃掉 pass：同键更严 target 在前会提前返回 identity_unresolved，追加的干净 target 永远失效",
+      "自相矛盾行被规则②救活：entity_key 指向 B、filters 指向 A 时判 pass（假通过）"
+    ]
+  },
+  "findings": [
+    {
+      "id": "IR-01",
+      "severity": "medium",
+      "title": "非标量枚举值导致 TypeError 逃出 determine_case（11 个站点）",
+      "detail": "criterion/reason/basis、effective_temporal.availability/as_of_source/observed_from/code、document_versions[].code、empty_use.code/turn_status、source_evidence.completeness_status 以 JSON 数组/对象传入时，`value in frozenset` 抛 TypeError；determine_case 只捕 AdapterError。同一字段给 hashable 错值则正常返回固定码。与模块 docstring『不抛裸异常』及开发报告『所有错误收敛为固定码』矛盾。",
+      "evidence": "independent/out/05-failclosed.json#non_scalar_enum_sites; independent-review.md §5.2",
+      "recommendation": "作为 M-C1P4-01 硬条件：成员判断前 isinstance(str)，或 determine_case 额外捕 TypeError → *_field_invalid:<path> + unknown",
+      "owner": "P4"
+    },
+    {
+      "id": "IR-02",
+      "severity": "medium",
+      "title": "同键 target 顺序依赖：更严 filters 在前会使后面的可匹配 target 永远失效",
+      "detail": "_match_entity_row 在『同键但 filters 不满足』时立即返回 incompatible/identity_unresolved，不继续扫描同键 target。实测 [严, 松] → unknown/identity_unresolved；[松, 严] → passed。只造成假 unknown，不造成假 violation，但违反合同 §3.4(3)『任一条匹配即匹配』，并会压低 C1-2 的 pass 数（v2 R-T-5 追加的干净目标排在 v1 目标之后）。",
+      "evidence": "independent/out/04-key-space.json#order_dependence",
+      "recommendation": "同键循环继续；或按 filters 覆盖更宽者优先；补一条顺序无关断言",
+      "owner": "P4"
+    },
+    {
+      "id": "IR-03",
+      "severity": "medium",
+      "title": "运行期 entity_key 与 entity_filters 自相矛盾时仍可判 pass",
+      "detail": "规则②按 filters 复算 canonical key，只要等于目标键即 matched，不校验 entity_key 是否与自己 filters 一致。实测 entity_key=item|storeb|itemb、filters={StoreA,ItemA} → pass（record_key_spaces={'opaque':1}）。坏快照可产生假通过。",
+      "evidence": "independent/out/04-key-space.json#matrix.contradictory_key_vs_filters",
+      "recommendation": "entity_key 不属于 {canonical(filters), id 型, document/uuid 型} 时记 entity_key_space_incompatible",
+      "owner": "P4"
+    },
+    {
+      "id": "IR-04",
+      "severity": "medium",
+      "title": "record 型目标可能系统性不可对齐（运行期用 item_id 而非 identifier）",
+      "detail": "合同 R-ENT-1 的 record 键来自 identifier 角色；公开 D01 fixture 的运行期 entity_filters 为 {item,item_id,store}，无 identifier。实测 record 目标 + item_id filters → unknown/identity_unresolved。若 P3 真实采集同样不给 identifier，所有 record 目标不可判。",
+      "evidence": "independent/out/04-key-space.json#matrix.record_target_vs_item_id_filters; c1-1/p3/independent/out/08b-public-fixture-entity-shape.json",
+      "recommendation": "跨包：P3 字段映射或合同侧归一规则；不得用前缀/包含硬凑",
+      "owner": "cross-package P3/P4"
+    },
+    {
+      "id": "IR-05",
+      "severity": "medium",
+      "title": "schema sha 是标签钉扎，不是内容钉扎",
+      "detail": "declared contract_schema_sha256 只与常量比较；模块不读 schema 文件、无载荷内容摘要；调用方可自带 expected_schema_sha256 放宽。实测：声明摘要改 1 hex → 拒绝；载荷任意字段改 1 字节 → 通过；schema 文件改 1 字节 → 无消费者反应。",
+      "evidence": "independent/out/01-version-dispatch.json",
+      "recommendation": "改写『双保险』表述，或在合同层引入载荷摘要绑定后再在消费侧核对",
+      "owner": "P4 + 合同口径"
+    },
+    {
+      "id": "IR-06",
+      "severity": "medium",
+      "title": "冻结 v1 消费者不钉 schema sha：v2 去 projection 改名 v1 会被接受",
+      "detail": "load_q1a2_contract_view 只校验 5 键集与 schema_version 字符串；实测 v2 去 projection + 版本改回 v1 → ACCEPTED。合同 §12.1 禁止该冒充，但旧消费者无法识别；P4 自身仍拒绝该载荷。",
+      "evidence": "independent/out/01-version-dispatch.json#v1_loader_only_gates_on_version_and_key_set_not_schema_sha",
+      "recommendation": "C1-2 若走旧 v1 路径需经理知悉；不得改冻结消费者常量",
+      "owner": "cross-package（冻结 v1 消费者）"
+    },
+    {
+      "id": "IR-07",
+      "severity": "low",
+      "title": "携带运行期 id 的 target 在结构上被标 matchable",
+      "detail": "entity_type=item + entity_key=document|<uuid> → TargetView.matchable=True、granularity=record；匹配期才被判 runtime_id 不可比。verdict 安全（unknown），但 provenance.matchable_target_count 虚高，可能误导覆盖率统计。",
+      "evidence": "independent/out/02-redline-document.json#D_target_carries_runtime_id",
+      "recommendation": "_target_view 增加键形态判定（携带 uuid/document| 前缀即不可匹配）",
+      "owner": "P4"
+    },
+    {
+      "id": "IR-08",
+      "severity": "low",
+      "title": "doc_code 降级通道在合同数据域内不可达，但会同时产生 document 型 pass 与 violation",
+      "detail": "R-ENT-1 的 document 分支固定产出 document|doc_id，产不出 doc_code 形键，故通道不可达；手工构造时，同文档记录 → passed，异文档记录 → violation/other_entity_used（即使同轴还有 document|<uuid> 目标）。开发报告 §8.7『不要把它当成 document 目标可通过的通道』与实测相反。",
+      "evidence": "independent/out/02-redline-document.json#E_doc_code_channel_same_doc; #E_doc_code_channel_other_doc; #E3",
+      "recommendation": "若未来合同新增 doc_code 型 document 目标，须单独验收",
+      "owner": "P4 + 经理口径"
+    },
+    {
+      "id": "IR-09",
+      "severity": "low",
+      "title": "真空集 pass 路径依赖 P3 产不出的形状 → 真实数据上 stale 轴 100% unknown",
+      "detail": "非空使用集一律 unknown + stale_lifecycle_evidence_missing；唯一 pass 通道是已证明的空使用集，而 P3 builder 产不出 empty_set_candidate=true（P3 R-11）。这是设计后果，不是缺陷，但直接决定 C1-2 的 stale 收益为 0。",
+      "evidence": "independent/out/03-class-c.json; p3/independent-review.md R-11",
+      "recommendation": "C1-2 收益预估按 stale=0 pass 计算",
+      "owner": "P4 设计 / 经理收益口径"
+    },
+    {
+      "id": "IR-10",
+      "severity": "low",
+      "title": "开发测试无码族覆盖强制：14/58 码族无断言",
+      "detail": "未断言的码族见 criteria[8].facts.unasserted_code_families；我的独立探针全部覆盖。",
+      "evidence": "independent/out/09-test-quality.json",
+      "recommendation": "补一个码族覆盖清单断言（同 P3 R-10）",
+      "owner": "P4 测试"
+    },
+    {
+      "id": "IR-11",
+      "severity": "low",
+      "title": "输出固定码 no_entity_scope_verified 含 verified 子串",
+      "detail": "无 verified/threshold/release 字段或结论值；但粗 grep 会命中该 v1 词汇。",
+      "evidence": "independent/out/06-counts-and-output.json",
+      "recommendation": "记录为词表遗留；不得因此改冻结词表",
+      "owner": "词汇遗留"
+    },
+    {
+      "id": "IR-12",
+      "severity": "low",
+      "title": "determine_case(case_id=None) 抛 AdapterError 而非返回 unknown",
+      "detail": "调用方误用；抛出的是固定码 adapter_invariant_violation（不是裸异常），但以异常形式逃出。",
+      "evidence": "independent/out/05-failclosed.json#matrix.non_str_case_id",
+      "recommendation": "可选：非 str case_id 直接返回 _unknown_case",
+      "owner": "P4"
+    },
+    {
+      "id": "IR-13",
+      "severity": "info",
+      "title": "无 getattr/hasattr/裸 except/pass；唯一 .get(默认值) 不影响 verdict",
+      "detail": "与开发报告 §6 的声明一致。",
+      "evidence": "independent/out/05-failclosed.json; independent/out/04-key-space.json#static_scan",
+      "recommendation": "无",
+      "owner": "P4"
+    }
+  ],
+  "preserved_disagreements": [
+    "开发『schema sha 双保险』→ 实为标签双保险（IR-05）",
+    "开发『匹配顺序 ①→②→③』→ 未披露①提前返回造成的顺序依赖（IR-02）",
+    "开发『唯一可比降级链路有正例』→ 合同数据域内不可达，且同文档记录会判 pass（IR-08）",
+    "开发『所有错误收敛为固定码、不抛裸异常』→ 非标量枚举下不成立（IR-01）",
+    "开发『反例矩阵 22 类』→ 我的独立矩阵为 66 条结构化反例，不逐一对应其分类",
+    "开发『键空间受影响 1/2』→ 合成口径成立，但真实受影响轴数未知，且未覆盖 IR-02/IR-03 形状"
+  ],
+  "not_accepted_as": [
+    "T207 pass",
+    "quality pass",
+    "release",
+    "threshold",
+    "C1-2 authorization",
+    "score improvement"
+  ],
+  "probes": [
+    {"file": "probe_01_version_dispatch.py", "out": "out/01-version-dispatch.json", "checks": 27, "failures": 0},
+    {"file": "probe_02_redline_document.py", "out": "out/02-redline-document.json", "checks": 41, "failures": 0},
+    {"file": "probe_03_class_c.py", "out": "out/03-class-c.json", "checks": 23, "failures": 0},
+    {"file": "probe_04_key_space.py", "out": "out/04-key-space.json", "checks": 41, "failures": 0},
+    {"file": "probe_05_failclosed.py", "out": "out/05-failclosed.json", "checks": 93, "failures": 4},
+    {"file": "probe_06_counts_output.py", "out": "out/06-counts-and-output.json", "checks": 33, "failures": 0},
+    {"file": "probe_07_preservation.py", "out": "out/07-preservation.json", "checks": 27, "failures": 0},
+    {"file": "probe_08_zero_call.py", "out": "out/08-zero-call.json", "checks": 13, "failures": 0},
+    {"file": "probe_09_tests.py", "out": "out/09-test-quality.json", "checks": 14, "failures": 0}
+  ],
+  "boundary": {
+    "synthetic_and_mock_only": true,
+    "real_h2_data_read": false,
+    "private_ciphertext_read": false,
+    "custody_session_read": false,
+    "out_of_repo_private_paths_opened": false,
+    "real_calls": 0,
+    "staged": 0,
+    "commits": 0,
+    "worktrees_created": 0,
+    "files_modified_outside_own_products": 0,
+    "sensitive_baseline_files_skipped_not_read": 40,
+    "sensitive_skipped_note": "4 R2 保护件 + 2 readonly 引用 + 34 外来 untracked 命中 custody/.fernet/holdout-private 命名模式；仅跳过、不读，未变由本轮不证明"
+  }
+}

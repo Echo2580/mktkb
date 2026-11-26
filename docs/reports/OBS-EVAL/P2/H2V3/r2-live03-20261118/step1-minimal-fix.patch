@@ -1,0 +1,11 @@
+--- a/backend/src/mktkb/evaluation/p2_evidence_capture.py
++++ b/backend/src/mktkb/evaluation/p2_evidence_capture.py
+@@ EvidenceCaptureSession.finish_turn @@
+         runtime_observation: Mapping[str, Any] | None = None,
+     ) -> dict[str, Any]:
++        # 采集收尾即封存 sink：写盘快照必须携带 sealed 终态（failed 保持不变），
++        # 否则磁盘密文永远是 active，受控消费端只能判 sink_unsealed。
++        turn.sink.seal()
+         evidence = build_turn_evidence(
+             turn=turn,
+             bindings=self.bindings,

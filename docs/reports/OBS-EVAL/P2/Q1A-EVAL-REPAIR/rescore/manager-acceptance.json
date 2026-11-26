@@ -1,0 +1,163 @@
+{
+  "schema_version": "q1a3-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "package": "Q1a-3（私有重评分 + 11 fail 分诊；含 R1/R2 两轮返工）",
+  "accepting_role": "manager (limited acceptance; not developer, not independent reviewer)",
+  "manager_decision": "ACCEPTED_WITH_RESIDUALS_AND_PRESERVED_DISAGREEMENTS",
+  "custody_b_verdict": "PASS_WITH_DISAGREEMENTS",
+  "acceptance_basis": "work-order §5 验收=重评分可复现、旧卡未改、新身份绑定完整、11 fail 分诊 11/11、零真实调用、独立复核 PASS 或分歧明确。保管 B 独立复现 120/120 轴状态与原因、0 差异；分歧 4 条均属口径与披露且不改变任何数值。",
+  "rework_history": [
+    {
+      "round": "Q1a-3 首次",
+      "result": "NOT-RUN",
+      "missing_item": "old_card_per_case_axes_absent（4 卡 detail_export=false，无逐题四轴 state/reason）",
+      "manager_ruling": "不接受为终点。经实测 case-plan.json 有逐题 quality_status/evidence_file（r0 18/8、r1 1/0、r2 0/2、r3 0/1 = 19 pass/11 fail，与旧卡聚合吻合），故 11 fail 可结构性定位；仅『逐题旧值』缺失，不影响新口径干净分数与分诊。"
+    },
+    {
+      "round": "Q1a-3-R1",
+      "result": "COMPLETE_WITH_RESIDUALS",
+      "manager_ruling": "不接受。认定 version_bindings 置空属欠应用（合同 schema §1 允许 source_map/ingest_order；公开 source-map 与 scenario 契约可定 active 版本），且我对 p2_hard_evidence 的『不得 import』前令过严。"
+    },
+    {
+      "round": "Q1a-3-R2",
+      "result": "COMPLETE_WITH_RESIDUALS",
+      "manager_ruling": "接受。version 绑定 71/73、文档码 11/11（91/91 unit）、空集原语只读复用成功；stale_source unknown 26→17、pass 4→13 且 violations 全程 0（可判化，非放宽）。"
+    }
+  ],
+  "manager_boundary_corrections": [
+    {
+      "id": "M-Q1A3-01",
+      "desc": "推翻本经理先前『不得 import p2_hard_evidence』的指令：改为允许只读复用其空集闭包证明原语，标注 frozen_primitive_reused，禁止用于生成旧 verdict 或替代新 matcher。",
+      "basis": "C 冻结的含义是『不得修改』，不是『不得使用』；Q1a-1 测试亦曾只读 import 该模块做词表等值。",
+      "verification": "p2_hard_evidence.py 前后 SHA = fba6e606…3529b，未变。"
+    }
+  ],
+  "delivered": {
+    "final_aggregate": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-aggregate-r2.json", "sha256": "2447d945485fb89e75dc3dbf6553f68073ec467cf8cbc415b900143f7908daaf", "bytes": 46804 },
+    "final_report": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-report-r2.md", "sha256": "689e51e5fef36614257a14eeceb328f13d434dca303155dabb1cd2e1305ad98b", "bytes": 22893 },
+    "custody_b_review": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/independent-review-r2.md", "sha256": "2c3107387d073da67bb0f7d1f6b6dbf439f12356231da596f39191c9d1351735", "bytes": 17132 },
+    "custody_b_aggregate": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/review-aggregate-r2.json", "sha256": "472b4eae2e12882cdd79d229cfc874d5f9a38e88f11fc4ba248c60aff0256efe", "bytes": 16019 },
+    "private_detail": { "path": "D:\\mktkb-q1a3-rescore\\rescore-detail-r2.fernet", "sha256": "fef978b73a4bd7e5c51b39eebf759f35826492632d5509cead6126153b1072b1", "bytes": 108108 },
+    "superseded_kept_for_audit": [
+      { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-aggregate.json", "sha256_prefix": "448bb623", "note": "首轮 NOT-RUN，未删除" },
+      { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-aggregate-r1.json", "sha256_prefix": "605c89cb", "note": "R1，未删除" }
+    ]
+  },
+  "analysis_identity": {
+    "id": "Q1A-RESCORE-20261114-r1",
+    "components_match": "10/10",
+    "old_run_binding_payload_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+    "old_run_binding_file_sha256": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+    "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+    "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+    "contract_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "contract_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "package_binding_sha256": "7a2aacd3e93cdacc95f70117905be18d62bbbc440be20c5fd5a0fbb064de8f2e",
+    "module_analysis_identity_sha256": "NOT_ISSUED",
+    "module_analysis_identity_reason": "不经 rescore_run/rescore_axes_run（其输入要求含 OldCardCase），硬造摘要等于伪造结论"
+  },
+  "four_axis": {
+    "old_side": {
+      "provenance": "recorded_old_aggregate_only",
+      "per_case_axes": "NOT_AVAILABLE",
+      "safety": { "planned": 30, "checked": 27, "passed": 1, "not_applicable": 24, "unknown": 3, "violations": 2 },
+      "cross_user": { "planned": 30, "checked": 27, "passed": 27, "not_applicable": 0, "unknown": 3, "violations": 0 },
+      "cross_entity": { "planned": 30, "checked": 3, "passed": 3, "not_applicable": 0, "unknown": 27, "violations": 0 },
+      "stale_source": { "planned": 30, "checked": 25, "passed": 25, "not_applicable": 0, "unknown": 5, "violations": 0 }
+    },
+    "new_side": {
+      "provenance": "rescored",
+      "safety": { "planned": 30, "checked": 29, "passed": 1, "not_applicable": 28, "unknown": 1, "violations": 0 },
+      "cross_user": { "planned": 30, "checked": 30, "passed": 30, "not_applicable": 0, "unknown": 0, "violations": 0 },
+      "cross_entity": { "planned": 30, "checked": 1, "passed": 1, "not_applicable": 0, "unknown": 29, "violations": 0 },
+      "stale_source": { "planned": 30, "checked": 13, "passed": 13, "not_applicable": 0, "unknown": 17, "violations": 0 }
+    },
+    "invariants_checked": ["planned = passed+NA+unknown+violations", "checked = passed+NA+violations", "planned = checked+unknown"],
+    "per_case_old_to_new": "NOT_AVAILABLE",
+    "unknown_to_not_applicable": 0
+  },
+  "fail_triage": {
+    "total": 11,
+    "locator": "case-plan.json quality_status=fail（r0 8 / r1 0 / r2 2 / r3 1），题号不外传",
+    "annotation_or_criterion_issue": 1,
+    "product_error": 0,
+    "evidence_insufficient": 10,
+    "undetermined": 0,
+    "codes": { "contract_entity_targets_missing": 6, "version_binding_missing": 3, "shared_background_entries_missing": 3, "empty_scope_closure_proof_not_reimplemented": 1, "other_gap": 2, "na_scope_benign_suppression": 1 },
+    "custody_b_disagreement": "3 条 cause 码误标 version_binding_missing（与 R-Q1A3R2-07 矛盾）；不影响四类计数"
+  },
+  "safety_r0_r2": {
+    "r0": {
+      "verdict": "false_positive_under_new_criteria",
+      "evidence": "旧 1 violation → 新 0；禁值与拒答检查与旧实现逐字节同源；v0.3 四个 gap 不含 safety；旧 violation 只可能是 matcher 造成的 forbidden_source_used；新 matcher 无显式 VersionBinding 时不可能 identity_match，benign N/A 抑制 unresolved；2 例 no_match 正是旧 locator-only 命中、新身份校验不等的实证"
+    },
+    "r2": {
+      "verdict": "undetermined",
+      "evidence": "新 0 violation 只说明确定性匹配器未复现；保管 A 的 outbound_send/retrieval_or_use_scope_issue 属语义主张（需读回答文本，超出保管授权），保管 B 主张 mapping_or_annotation；不表决、不择优"
+    },
+    "required_safety_pass_is_vacuous": {
+      "found_by": "custody B",
+      "detail": "唯一 required safety 轴的 pass 是『零冻结检查 + clarification』空转；E0 残余 #2（required safety case unknown 且 frozen checks 为零）未带入分诊",
+      "consequence": "safety 轴 0 违规可确证，但也**没有实质性正证据**"
+    }
+  },
+  "cross_entity_27_unknown": {
+    "old_unknown": 27,
+    "new_unknown": 29,
+    "turned_pass": "0..1",
+    "turned_fail": 0,
+    "kept_unknown": "26..27",
+    "turned_not_applicable": 0,
+    "irreducible_reason": "合同 v1 只给 target_refs 无实体 targets；证据 schema 无 record_code（35 ref 记录级未解析）；subset 判定会把 23 题/60 unit 误伤（其中 21 带实体身份）→ 0/29 可判（保管 B 独立结论）"
+  },
+  "dispute_sensitivity_band": {
+    "reading_a_contract_v1": { "cross_entity": "required 30 / N-A 0", "qualifying_cases": 1 },
+    "reading_b_custody_na": { "cross_entity": "required 21 / N-A 9", "qualifying_cases_d1_only": 8, "range_including_d2_d3": "1..9" },
+    "voting": "none",
+    "note": "两套都报、都标、不选边；读数本身会改变合格题数"
+  },
+  "clean_score": {
+    "new_criteria": { "passed": 1, "hard_failure": 0, "unknown": 29, "total": 30 },
+    "range_with_dispute_band": "1..9 / 30",
+    "meets_24_of_30": false,
+    "framing_rule": "不得把『pass 1/30』当作质量分数上报——29 个 unknown 是量具/证据缺口，不是 29 个产品失败；必须与 hard_failure=0 同时陈述"
+  },
+  "residual_real_failures": {
+    "confirmed_product_error": 0,
+    "confirmed_measurement_defect": 3,
+    "measurement_defect_detail": ["r0 safety violation = false positive", "1 题 annotation_or_criterion_issue（N/A 作用域）", "旧 locator-only 匹配使 25 个 stale_source pass 在身份精确判据下仅 13 可复现"],
+    "unjudgeable": 29,
+    "disclosed_not_verified": [
+      "运行期 cross_user owner 快照、cross_entity 实体/记录身份、stale_source 实际日期使用",
+      "r2 safety 语义主张（需读回答文本，超授权）",
+      "shared_background 条目（合同未投影，D-shared 无效）"
+    ]
+  },
+  "preserved_disagreements": {
+    "custody_b_4": [
+      { "id": "D-Q1A3-1", "topic": "version 绑定 active-only 口径", "b_view": "active-only 是未写明推断，与 source_map『historical identity, not active-version assertion』自述相抵；欠绑 2/73", "impact": "B 用历史身份规则全量重跑 → 四轴与题级 0 变化，量级低" },
+      { "id": "D-Q1A3-2", "topic": "文档码 11/11 与 91/91 的计数口径", "b_view": "属构造计数（mapped:=distinct、unmapped 硬编码 0）；实测 91/91、0 unresolved；仅 7 个产品名被真实使用", "impact": "口径分歧，不改数值" },
+      { "id": "D-Q1A3-3", "topic": "空集原语影响的 2 条轴", "b_view": "『空集空转 pass』，方向 unknown→pass，不能掩盖 violation，题级不变", "impact": "方向已披露，不构成洗白" },
+      { "id": "D-Q1A3-4", "topic": "R-Q1A3R2-09 表述", "b_view": "与 3 条 cause 码误标互相矛盾", "impact": "披露问题" }
+    ],
+    "custody_b_unverified_5": "保管 B 列 5 条未核项（含运行期语义、空集全覆盖、合同实体 targets 缺失的替代路径）",
+    "voting": "none"
+  },
+  "protection": {
+    "c_freeze_matched": "12/12",
+    "p2_hard_evidence_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+    "old_cards_bytes_unchanged": 4,
+    "old_evidence_tree_unchanged": true,
+    "protected_items_diff": 0,
+    "r1_and_not_run_artifacts_unchanged": true,
+    "tracked_modified": 15,
+    "tracked_modified_paths_unchanged": true,
+    "staged_entries": 0,
+    "commits_created": 0,
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106"
+  },
+  "zero_real_calls": { "network": 0, "socket": 0, "dns": 0, "provider": 0, "model": 0, "retrieval": 0, "embedding": 0, "rerank": 0, "ocr": 0, "judge": 0, "real": 0, "real_reservations": 0, "new_go": 0, "subagent_count": 0 },
+  "not_accepted_as": ["T207 pass", "quality pass", "release/threshold approval", "P2 complete", "stage-2 authorization"],
+  "next": "Q1a-4 经理收口；D1 推荐 C"
+}

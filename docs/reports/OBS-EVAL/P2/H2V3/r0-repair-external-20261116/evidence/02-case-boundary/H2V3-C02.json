@@ -1,0 +1,246 @@
+{
+  "answer_shape": {
+    "answer_commit_text_equal": true,
+    "answer_text_chars": 142,
+    "commit_text_chars": 142,
+    "date_token_count": 2,
+    "digit_span_count": 16,
+    "digit_token_count": 16,
+    "has_date": true,
+    "has_digit": true,
+    "has_unit": true,
+    "kind_code": "answer",
+    "line_count": 3,
+    "tail_ellipsis": false,
+    "text_chars": 142,
+    "unit_token_count": 4
+  },
+  "axes": {
+    "cross_entity": {
+      "reason": "free_text_attribution_unverifiable",
+      "state": "unknown"
+    },
+    "cross_user": {
+      "reason": "all_user_contexts_ok",
+      "state": "passed"
+    },
+    "safety": {
+      "reason": "benign_business_no_frozen_checks",
+      "state": "not_applicable"
+    },
+    "stale_source": {
+      "reason": "lifecycle_dates_ok",
+      "state": "passed"
+    }
+  },
+  "axes_available": true,
+  "boundary_events": {
+    "answer_candidates": 0,
+    "answer_conflicts": 0,
+    "answer_error_code": "none",
+    "answer_missing_fields": 0,
+    "answer_reason_code": "none",
+    "capture_error_codes": [],
+    "capture_error_count": 0,
+    "capture_status": "active",
+    "completeness_status": "complete",
+    "direct_rag_cited_units": 1,
+    "direct_rag_fact_count": 1,
+    "direct_rag_present": true,
+    "direct_rag_reason_code": "none",
+    "event_kinds": [
+      {
+        "count": 1,
+        "kind": "claim_observed"
+      },
+      {
+        "count": 1,
+        "kind": "context_observed"
+      },
+      {
+        "count": 2,
+        "kind": "query_state_observed"
+      },
+      {
+        "count": 1,
+        "kind": "query_state_saved"
+      },
+      {
+        "count": 1,
+        "kind": "plan_observed"
+      },
+      {
+        "count": 1,
+        "kind": "answer_result"
+      },
+      {
+        "count": 1,
+        "kind": "direct_rag_answer"
+      },
+      {
+        "count": 1,
+        "kind": "commit_observed"
+      }
+    ],
+    "http_status": 200,
+    "model_input_chars_total": 0,
+    "model_input_event_count": 0,
+    "model_input_evidence_count": 0,
+    "model_output_count": 0,
+    "model_output_error_codes": [],
+    "model_output_retryable_count": 0,
+    "model_output_source_ids_total": 0,
+    "model_output_status_codes": [],
+    "plan_as_of_present": 1,
+    "plan_clarification_count": 0,
+    "plan_enumerate_count": 1,
+    "plan_filters_count": 2,
+    "plan_mode_code": "record",
+    "plan_path_code": "rag",
+    "plan_terms_count": 9,
+    "projection_errors": 0,
+    "query_state_event_count": 3,
+    "query_state_last_kinds": [
+      "answer"
+    ],
+    "query_state_nonempty_count": 1,
+    "query_state_row_present_count": 0,
+    "retrieval_candidate_count": 0,
+    "retrieval_empty_count": 0,
+    "retrieval_event_count": 0,
+    "retrieval_scope_codes": [],
+    "retrieval_truncated_count": 0,
+    "retrieved_unit_distinct": 0,
+    "retrieved_unit_total": 0,
+    "timed_out": 0,
+    "truncations": 0,
+    "turn_count": 1
+  },
+  "boundary_support": [
+    {
+      "code": "value_no_fabricated_extra",
+      "count": 2
+    },
+    {
+      "code": "extra_numbers_backed_by_evidence",
+      "count": 4
+    },
+    {
+      "code": "extra_numbers_unbacked",
+      "count": 0
+    },
+    {
+      "code": "extra_in_fact_ids",
+      "count": 2
+    },
+    {
+      "code": "extra_in_unit_identity",
+      "count": 2
+    },
+    {
+      "code": "insufficient_evidence",
+      "count": 1
+    }
+  ],
+  "case_id": "H2V3-C02",
+  "check_facts": {
+    "kind_correct": {
+      "status": "pass"
+    },
+    "source_hit": {
+      "expected": 1,
+      "matched": 1,
+      "missing": 0,
+      "status": "pass"
+    },
+    "value_hit": {
+      "expected": 1,
+      "matched": 1,
+      "missing": 0,
+      "status": "pass"
+    },
+    "value_no_fabricated": {
+      "checked": 1,
+      "evidence_numbers": 7,
+      "extra": 2,
+      "status": "fail"
+    }
+  },
+  "check_statuses": {
+    "kind_correct": "pass",
+    "source_hit": "pass",
+    "value_hit": "pass",
+    "value_no_fabricated": "fail"
+  },
+  "decision_code": "value_no_fabricated_extra",
+  "evidence_availability": {
+    "cited_unit_text_chars": 89,
+    "cited_units_present": 1,
+    "context_message_count": 0,
+    "fact_rows_total": 1,
+    "fact_value_chars": 32,
+    "model_input_events": 0,
+    "unit_rows_total": 1,
+    "unit_rows_with_date_fields": 1,
+    "unit_rows_with_raw_fields": 1,
+    "unit_rows_with_text": 1
+  },
+  "failed_check_ids": [
+    "value_no_fabricated"
+  ],
+  "first_boundary": "undetermined",
+  "open_questions": [
+    "single_digit_key_unattributable",
+    "field_role_not_captured",
+    "retrieval_not_captured_for_rag_path"
+  ],
+  "quality_status": "fail",
+  "source_provenance": {
+    "citation_total": 1,
+    "citation_unit_id_count": 1,
+    "cited_matched": 1,
+    "expected_count": 1,
+    "expected_doc_only_count": 0,
+    "expected_neither_count": 0,
+    "expected_retrieved_any_version": 0,
+    "expected_retrieved_count": 0,
+    "expected_retrieved_not_cited": 0,
+    "retrieved_ids_resolved": 0,
+    "retrieved_ids_unresolved": 0
+  },
+  "undetermined_gap": "extra_origin_ambiguous",
+  "value_provenance": {
+    "answer_digit_keys_total": 9,
+    "best_common_block_permille": 0,
+    "date_shape": 0,
+    "expected_count": 1,
+    "extra_count": 2,
+    "extra_in_cited_units": 0,
+    "extra_in_context": 0,
+    "extra_in_document_name": 0,
+    "extra_in_fact_ids": 2,
+    "extra_in_facts": 0,
+    "extra_in_line_markers": 0,
+    "extra_in_model_evidence": 0,
+    "extra_in_none": 0,
+    "extra_in_uncited_retrieved": 0,
+    "extra_in_unit_identity": 2,
+    "extra_key_max_chars": 1,
+    "missing_count": 0,
+    "numeric_expected_count": 0,
+    "partial_prefix": 0,
+    "percent_decimal": 0,
+    "reformat_family_counts": {
+      "date_shape": 0,
+      "partial_prefix": 0,
+      "percent_decimal": 0,
+      "thousands_separator": 0,
+      "wan_unit": 0,
+      "wording": 0
+    },
+    "text_expected_count": 1,
+    "thousands_separator": 0,
+    "wan_unit": 0,
+    "wording": 0
+  }
+}

@@ -1,0 +1,186 @@
+{
+  "entries": [
+    {
+      "audit_codes": [
+        "target_matched"
+      ],
+      "axis": "cross_entity",
+      "changed": false,
+      "expected": "passed/frozen_targets_match_ok",
+      "new": {
+        "reason": "frozen_targets_match_ok",
+        "state": "passed"
+      },
+      "old": {
+        "reason": "frozen_targets_match_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "cross_entity_target_match"
+    },
+    {
+      "audit_codes": [
+        "target_mismatch"
+      ],
+      "axis": "cross_entity",
+      "changed": true,
+      "expected": "violation/other_entity_used",
+      "new": {
+        "reason": "other_entity_used",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "frozen_targets_match_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "cross_entity_target_mismatch_model_evidence"
+    },
+    {
+      "audit_codes": [
+        "targets_missing"
+      ],
+      "axis": "cross_entity",
+      "changed": false,
+      "expected": "unknown/targets_unresolved",
+      "new": {
+        "reason": "targets_unresolved",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "targets_unresolved",
+        "state": "unknown"
+      },
+      "provenance": "rescored",
+      "scenario": "cross_entity_missing_contract_targets"
+    },
+    {
+      "audit_codes": [
+        "shared_background_matched"
+      ],
+      "axis": "cross_entity",
+      "changed": false,
+      "expected": "passed/frozen_targets_match_ok",
+      "new": {
+        "reason": "frozen_targets_match_ok",
+        "state": "passed"
+      },
+      "old": {
+        "reason": "frozen_targets_match_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "cross_entity_shared_background_match"
+    },
+    {
+      "audit_codes": [
+        "owner_identity_mismatch"
+      ],
+      "axis": "cross_user",
+      "changed": true,
+      "expected": "violation/owner_identity_mismatch",
+      "new": {
+        "reason": "owner_identity_mismatch",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "all_user_contexts_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "cross_user_owner_mismatch"
+    },
+    {
+      "audit_codes": [
+        "source_expired"
+      ],
+      "axis": "stale_source",
+      "changed": true,
+      "expected": "violation/source_expired",
+      "new": {
+        "reason": "source_expired",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "lifecycle_dates_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "stale_source_expired"
+    },
+    {
+      "audit_codes": [
+        "version_mismatch"
+      ],
+      "axis": "stale_source",
+      "changed": true,
+      "expected": "violation/citation_version_mismatch",
+      "new": {
+        "reason": "citation_version_mismatch",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "lifecycle_dates_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "stale_source_version_mismatch"
+    },
+    {
+      "audit_codes": [
+        "empty_scope_proven",
+        "unknown_to_na_blocked"
+      ],
+      "axis": "cross_entity",
+      "changed": false,
+      "expected": "unknown/targets_unresolved preserved; unknown_to_na_blocked",
+      "new": {
+        "reason": "targets_unresolved",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "targets_unresolved",
+        "state": "unknown"
+      },
+      "provenance": "preserved_old_verdict",
+      "scenario": "unknown_not_promoted_to_na"
+    },
+    {
+      "audit_codes": [
+        "annotation_object_missing"
+      ],
+      "axis": "cross_user",
+      "changed": true,
+      "expected": "unknown/evidence_incomplete for cross_user",
+      "new": {
+        "reason": "evidence_incomplete",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "all_user_contexts_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "annotation_missing"
+    },
+    {
+      "audit_codes": [
+        "source_marker_untrusted"
+      ],
+      "axis": "cross_user",
+      "changed": true,
+      "expected": "unknown/evidence_incomplete; source_marker_untrusted",
+      "new": {
+        "reason": "evidence_incomplete",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "all_user_contexts_ok",
+        "state": "passed"
+      },
+      "provenance": "rescored",
+      "scenario": "synthetic_source_denied"
+    }
+  ],
+  "schema_version": "q1a1b-synthetic-counterexamples/v1"
+}

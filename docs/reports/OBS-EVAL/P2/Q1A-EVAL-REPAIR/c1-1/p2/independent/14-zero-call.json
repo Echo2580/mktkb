@@ -1,0 +1,123 @@
+{
+ "schema_version": "c1p2-independent-zero-call/v0.1",
+ "control": {
+  "name": "control",
+  "exit": 0,
+  "stdout_tail": [
+   ".                                                                        [100%]",
+   "1 passed in 0.56s"
+  ],
+  "stderr_tail": [],
+  "guard": {
+   "socket_connect_attempts": 0,
+   "socket_connect_ex_attempts": 0,
+   "create_connection_attempts": 0,
+   "dns_getaddrinfo_attempts": 0,
+   "http_client_connect_attempts": 0,
+   "httpx_transport_attempts": 0,
+   "inet_socket_created": 0,
+   "blocked": 0,
+   "details": [],
+   "positive_control": {
+    "attempted": true,
+    "blocked": true,
+    "socket_blocked": true,
+    "dns_blocked": true,
+    "httpx_blocked": true,
+    "blocked_total_after_attempt": 3,
+    "details": [
+     {
+      "kind": "create_connection_attempts",
+      "detail": "('203.0.113.1', 9)"
+     },
+     {
+      "kind": "dns_getaddrinfo_attempts",
+      "detail": "example.invalid"
+     },
+     {
+      "kind": "httpx_transport_attempts",
+      "detail": "http://example.invalid/"
+     }
+    ]
+   },
+   "installed": true,
+   "httpx_patched": true,
+   "modules_at_exit": [
+    "http.client",
+    "httpx"
+   ]
+  },
+  "log": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14a-control.txt",
+  "guard_json": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14a-control-guard.json"
+ },
+ "suite": {
+  "name": "suite",
+  "exit": 0,
+  "stdout_tail": [
+   "",
+   "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+   "88 passed, 1 warning in 0.43s"
+  ],
+  "stderr_tail": [],
+  "guard": {
+   "socket_connect_attempts": 0,
+   "socket_connect_ex_attempts": 0,
+   "create_connection_attempts": 0,
+   "dns_getaddrinfo_attempts": 0,
+   "http_client_connect_attempts": 0,
+   "httpx_transport_attempts": 0,
+   "inet_socket_created": 0,
+   "blocked": 0,
+   "details": [],
+   "positive_control": null,
+   "installed": true,
+   "httpx_patched": true,
+   "modules_at_exit": [
+    "http.client",
+    "httpx",
+    "mktkb.evaluation.p2_evidence_capture",
+    "mktkb.evaluation.p2_evidence_io",
+    "mktkb.evaluation.p2_hard_evidence",
+    "mktkb.providers",
+    "mktkb.providers.types"
+   ]
+  },
+  "log": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14b-suite.txt",
+  "guard_json": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14b-suite-guard.json"
+ },
+ "isolated": {
+  "name": "isolated",
+  "exit": 0,
+  "stdout_tail": [
+   "{\"proven\": true, \"code\": \"empty_use_scope_ok\", \"shape\": \"legacy_no_model/retrieval_empty/not_found\", \"forbidden_modules_loaded\": [], \"module_loaded\": true}"
+  ],
+  "stderr_tail": [],
+  "guard": {
+   "socket_connect_attempts": 0,
+   "socket_connect_ex_attempts": 0,
+   "create_connection_attempts": 0,
+   "dns_getaddrinfo_attempts": 0,
+   "http_client_connect_attempts": 0,
+   "httpx_transport_attempts": 0,
+   "inet_socket_created": 0,
+   "blocked": 0,
+   "details": [],
+   "positive_control": null,
+   "installed": true,
+   "httpx_patched": false,
+   "modules_at_exit": [
+    "http.client"
+   ]
+  },
+  "log": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14c-isolated.txt",
+  "guard_json": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\c1-1\\p2\\independent\\14c-isolated-guard.json"
+ },
+ "verdicts": {
+  "positive_control_blocked_and_recorded": true,
+  "suite_zero_external": true,
+  "control_exit_zero": true,
+  "suite_exit_zero": true,
+  "isolated_exit_zero": true,
+  "suite_guard_present": true
+ }
+}

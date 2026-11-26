@@ -1,0 +1,186 @@
+{
+  "schema_version": "p2-h2v3-run-card/v0.1",
+  "role": "v3 真实执行逐 run 安全聚合（无题面/答案/query 文本；无 case_id）",
+  "run_index": 0,
+  "run_id": "p2-h2v3-20261115-r0-base_b0",
+  "scenario_id": "base_b0",
+  "business_date": "2026-10-15",
+  "fixture_kind": "live_h2",
+  "execution_mode": "live",
+  "plan_id": "P2-H2V3-20261115-r0-base_b0",
+  "plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+  "status": "aborted",
+  "ok": false,
+  "stop_code": "adapter_error",
+  "error_code": "run_not_succeeded",
+  "started_utc": "2026-11-14T23:44:37+00:00",
+  "finished_utc": "2026-11-14T23:44:44+00:00",
+  "duration_ms": 7478,
+  "requests": {
+    "planned": 64,
+    "reserved": 1,
+    "sent": 1,
+    "by_operation": {
+      "answer": 1
+    },
+    "attempts_scope": "all_attempts",
+    "attempts_reserved": 9,
+    "attempts_by_operation": {
+      "answer": 1,
+      "index_embedding": 8
+    },
+    "attempts_by_center_cny": {
+      "answer_retrieval": 0.0203535,
+      "independent": 0.0,
+      "judge": 0.0,
+      "ocr": 0.0
+    },
+    "reserved_cny": 0.018688,
+    "settled_cny": 0.018688
+  },
+  "real_sends": 8,
+  "mock_intercepted": 0,
+  "mock_intercepted_basis": "execution_mode=live 且 transports=None：本入口不装配任何 mock transport，拦截面为 0",
+  "real_calls": null,
+  "real_calls_basis": "scorecard(houtout_scorecard.json) 在清理阶段被移除（见 removed_artifacts），其 real_calls 不可读；本次可读的实测出站数=real_sends=8",
+  "turn_progress": {
+    "case_plan_started_turns": 1,
+    "case_plan_failed_turn_code": "adapter_error",
+    "planned_turns_for_run": 14,
+    "planned_cases_for_run": 12
+  },
+  "evidence": {
+    "available": true,
+    "error_count": 0,
+    "manifest_present": true,
+    "manifest_sha256": "0c01c69b91458aa8ed7c8e52871d813e1ec567b9a62addf1bd07cdd663e3bbd0",
+    "manifest_turn_count": 1,
+    "readback_ok": true,
+    "status_counts": {
+      "incomplete": 1
+    },
+    "turn_files": 1
+  },
+  "evidence_completeness_error": "plan_observation_count_invalid（缺 plan_observed 事件）",
+  "removed_artifacts": {
+    "scorecard": {
+      "bytes": 8091,
+      "path": "p2-run/holdout_scorecard.json",
+      "sha256": "3931bc56d0d88089ef8bcdcddba710dd4b72b161664012f389fe3e8620cc8207",
+      "sha256_before_removal": "3931bc56d0d88089ef8bcdcddba710dd4b72b161664012f389fe3e8620cc8207"
+    },
+    "summary": {
+      "bytes": 31406,
+      "path": "p2-run/summary.json",
+      "sha256": "ad6e8b9db07d3f09d26687105185334459c824a2fd4ea8bd353ebc53bbbcac01",
+      "sha256_before_removal": "ad6e8b9db07d3f09d26687105185334459c824a2fd4ea8bd353ebc53bbbcac01"
+    },
+    "run_result": {
+      "bytes": 887,
+      "path": "p2-run/run_result.json",
+      "sha256": "b03977088fc8110377cf9589217461b25e626875a560a6598c0fe01a3ed08a68",
+      "sha256_before_removal": "b03977088fc8110377cf9589217461b25e626875a560a6598c0fe01a3ed08a68"
+    },
+    "gate": {
+      "bytes": 18328,
+      "path": "p2-run/gate.json",
+      "sha256": "1a4fa482dc64b0c4f0fe0d276a84dbebcf5bf5663cfff5d6e876564b5537849a",
+      "sha256_before_removal": "1a4fa482dc64b0c4f0fe0d276a84dbebcf5bf5663cfff5d6e876564b5537849a"
+    }
+  },
+  "cleanup": {
+    "plaintext_clean": true,
+    "final_plaintext_scan": {
+      "clean": true,
+      "files_scanned": 1,
+      "hit_count": 0,
+      "hit_paths": [],
+      "needles": 66,
+      "schema_version": "p2-h2-controlled-cleanup/v0.1"
+    },
+    "retained_paths": [
+      "controlled/case-plan.json"
+    ]
+  },
+  "seal": {
+    "evidence_bytes": 13808,
+    "evidence_file_count": 2,
+    "evidence_tree_sha256": "07166648c7f0758e4fb35b93566dd7eb808425a43a19c81c32d374f198b635ce",
+    "mode": "read_only_archive",
+    "out_bytes": 5478,
+    "out_file_count": 1,
+    "out_tree_sha256": "bacce8ba2054f6a24ef9cd76a1cb0727901a4f8ac52fe0d46f9f2581743b2f26",
+    "seal_dir": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\seal\\p2-h2v3-20261115-r0-base_b0",
+    "seal_manifest": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\seal\\p2-h2v3-20261115-r0-base_b0\\seal-manifest.json",
+    "seal_manifest_sha256": "eec9ed1611d3f9ddadab65b61bdd6a0219c9f1c6c7665c8d8901c5591b9db27a",
+    "sealed": true
+  },
+  "bindings": {
+    "attempt_scope_sha256": "d27cc3b16d86ed1e21985ba3a82700838079c208ce61032e2a5644a4891b1a65",
+    "binding_sha256": "2ca148c23124991aca17071d6e70d2245f464bad1aa42bcf2325aa348f65fec7",
+    "code_version": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+    "config_sha256": "b1799ff982fe5d20265c00b87d6508ca4aa80dd764b5b092fc3f561347dab111",
+    "go_sha256": "7bc70c01b8cc82841cdcdf63aa6a0162ffac7a888dd12be1229bd45af3c00bef",
+    "ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014"
+  },
+  "run_binding": {
+    "attempt_scope_sha256": "d27cc3b16d86ed1e21985ba3a82700838079c208ce61032e2a5644a4891b1a65",
+    "business_date": "2026-10-15",
+    "code_version": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+    "config_sha256": "b1799ff982fe5d20265c00b87d6508ca4aa80dd764b5b092fc3f561347dab111",
+    "go_sha256": "7bc70c01b8cc82841cdcdf63aa6a0162ffac7a888dd12be1229bd45af3c00bef",
+    "ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+    "run_id": "p2-h2v3-20261115-r0-base_b0",
+    "scenario_id": "base_b0"
+  },
+  "runtime": {
+    "holdout_env": "explicit_cli",
+    "model_pinned": true,
+    "project_total_limit_cny": 40.0
+  },
+  "ledger": {
+    "before": {
+      "file_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+      "lines": 1905,
+      "reservation_count": 952,
+      "result_count": 952,
+      "paired": true,
+      "chain_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+      "accounted_cny": 22.203382799999936,
+      "p2_stage_accounted_cny": 7.132438300000006
+    },
+    "after": {
+      "file_sha256": "9d4b957ac431acfe7b04d0c441dd0c77e31c15849e84806fbbc8c23c4e3de413",
+      "lines": 1923,
+      "reservation_count": 961,
+      "result_count": 961,
+      "paired": true,
+      "chain_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+      "accounted_cny": 22.22373629999994,
+      "p2_stage_accounted_cny": 7.152791800000005
+    },
+    "delta": {
+      "lines": 18,
+      "reservations": 9,
+      "results": 9,
+      "accounted_cny": 0.0203535,
+      "p2_stage_accounted_cny": 0.0203535
+    }
+  },
+  "budget": {
+    "before_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "after_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "unchanged": true,
+    "limit_cny": 40.0
+  },
+  "artifact_sha256": {
+    "case-plan.json": "37d65569c51ce9ee96d6e40cef2ffa4a13d418ddcd067d015c4a38e87982530c",
+    "run-receipt.json": "eaa1657f27eae62ea28f8e99c0a8301aba6dc2dece70ece02b26b6e50e35a039",
+    "v3-entry-sidecar.json": "d20d8378f927a7f68ec6c4072ced6554ed545081b46b154f0d2ead8e82318bbf"
+  },
+  "four_axis": null,
+  "four_axis_basis": "本 run 在首个回合即中止，未产出可评分的 scorecard/四轴计数；不填 0 冒充实测",
+  "pass_fail_error": null,
+  "pass_fail_error_basis": "同上：pass/fail/error 无实测计数；仅知 1 个回合 incomplete"
+}

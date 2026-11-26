@@ -1,0 +1,28 @@
+{
+  "schema_version": "p2-v3-netguard-r1/v1",
+  "guard": "sitecustomize blocks every connect/connect_ex/create_connection/getaddrinfo/sendto except loopback; the local HTTP proxy port 7897 is blocked too",
+  "attempts": [
+    {
+      "attempt": "socket_connect",
+      "blocked": true,
+      "error": "NetGuardBlocked: netguard_blocked_connect:('203.0.113.9', 80)"
+    },
+    {
+      "attempt": "create_connection",
+      "blocked": true,
+      "error": "NetGuardBlocked: netguard_blocked_create_connection:('203.0.113.9', 80)"
+    },
+    {
+      "attempt": "getaddrinfo",
+      "blocked": true,
+      "error": "NetGuardBlocked: netguard_blocked_getaddrinfo:example.com"
+    },
+    {
+      "attempt": "urllib",
+      "blocked": true,
+      "error": "NetGuardBlocked: netguard_blocked_http_connect:('127.0.0.1', 7897)"
+    }
+  ],
+  "blocked": 4,
+  "total": 4
+}

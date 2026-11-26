@@ -1,0 +1,602 @@
+{
+ "schema_version": "c1p1impl-ir01-runtime/v0.1",
+ "values": [
+  "['x']",
+  "{'x': 1}",
+  "{'x'}",
+  "None",
+  "True",
+  "1",
+  "[{'nested': ['x']}]"
+ ],
+ "adapter": {
+  "baseline": {
+   "cross_entity": "unknown/targets_missing",
+   "stale_source": "unknown/stale_no_positive_refs"
+  },
+  "mutations": 8792,
+  "accepted": 8792,
+  "exception_count": 0,
+  "type_error_count": 0,
+  "type_error_paths": {},
+  "other_exceptions": [],
+  "type_errors": []
+ },
+ "adapter_negative_control": {
+  "raised": true,
+  "exception": "TypeError",
+  "message": "unhashable type: 'list'",
+  "old_logic_direct": "TypeError"
+ },
+ "adapter_site_matrix": [
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.criterion",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.criterion",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.reason",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.reason",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.temporal_intent",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].axes.cross_entity.temporal_intent",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/contract_axis_invalid",
+    "stale_source": "unknown/contract_axis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].basis.stale_source",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/contract_basis_invalid",
+    "stale_source": "unknown/contract_basis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "cases[0].basis.stale_source",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/contract_basis_invalid",
+    "stale_source": "unknown/contract_basis_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "runs[0].scenario_id",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/contract_schema_invalid",
+    "stale_source": "unknown/contract_schema_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "contract",
+   "path": "runs[0].scenario_id",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/contract_schema_invalid",
+    "stale_source": "unknown/contract_schema_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.availability",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.availability",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.as_of_source",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.as_of_source",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.observed_from",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.observed_from",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.code",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.code",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.document_versions[0].code",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:effective_temporal.document_versions[0].code",
+    "stale_source": "unknown/snapshot_enum_invalid:effective_temporal.document_versions[0].code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "effective_temporal.document_versions[0].code",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:effective_temporal.document_versions[0].code",
+    "stale_source": "unknown/snapshot_enum_invalid:effective_temporal.document_versions[0].code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "empty_use_scope_input.code",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "empty_use_scope_input.code",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "empty_use_scope_input.turn_status",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "empty_use_scope_input.turn_status",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "source_evidence.completeness_status",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "source_evidence.completeness_status",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].locator_kind",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].locator_kind",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].locator_kind"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].locator_kind",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].locator_kind",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].locator_kind"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].code",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].code",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].code",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].code",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].entity_code",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].entity_code",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].entity_code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "record_identities[0].entity_code",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid:record_identities[0].entity_code",
+    "stale_source": "unknown/snapshot_enum_invalid:record_identities[0].entity_code"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "fixture_kind",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_fixture_kind_invalid",
+    "stale_source": "unknown/snapshot_fixture_kind_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "fixture_kind",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_fixture_kind_invalid",
+    "stale_source": "unknown/snapshot_fixture_kind_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "source_evidence.fixture_kind",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "source_evidence.fixture_kind",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "binding.fixture_kind",
+   "value": "['x']",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  },
+  {
+   "surface": "snapshot",
+   "path": "binding.fixture_kind",
+   "value": "{'x': 1}",
+   "outcome": {
+    "cross_entity": "unknown/snapshot_enum_invalid",
+    "stale_source": "unknown/snapshot_enum_invalid"
+   },
+   "escaped": null
+  }
+ ],
+ "stale": {
+  "baseline": {
+   "state": "passed",
+   "reason": "stale_active_version_used",
+   "grade": "version_only"
+  },
+  "mutations": 392,
+  "accepted": 392,
+  "exception_count": 0,
+  "type_error_count": 0,
+  "type_error_paths": {},
+  "other_exceptions": [],
+  "type_errors": []
+ },
+ "stale_negative_control": {
+  "raised": true,
+  "exception": "TypeError",
+  "message": "unhashable type: 'list'"
+ },
+ "stale_site_matrix": [
+  {
+   "surface": "evidence",
+   "path": "annotation.applicability",
+   "value": "['x']",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.applicability",
+   "value": "{'x': 1}",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.criterion",
+   "value": "['x']",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.criterion",
+   "value": "{'x': 1}",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.reason",
+   "value": "['x']",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.reason",
+   "value": "{'x': 1}",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.temporal_intent",
+   "value": "['x']",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.temporal_intent",
+   "value": "{'x': 1}",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.as_of",
+   "value": "['x']",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "annotation.as_of",
+   "value": "{'x': 1}",
+   "outcome": "unknown/annotation_unknown",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "mode",
+   "value": "['x']",
+   "outcome": "unknown/stale_grounding_mode_invalid",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "mode",
+   "value": "{'x': 1}",
+   "outcome": "unknown/stale_grounding_mode_invalid",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "fixture_sha256",
+   "value": "['x']",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "fixture_sha256",
+   "value": "{'x': 1}",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "scenario.source_indices",
+   "value": "['x']",
+   "outcome": "unknown/stale_scenario_undeclared",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "scenario.source_indices",
+   "value": "{'x': 1}",
+   "outcome": "unknown/stale_scenario_undeclared",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "source_map.sources.K20.version_number",
+   "value": "['x']",
+   "outcome": "unknown/stale_active_version_ambiguous",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "source_map.sources.K20.version_number",
+   "value": "{'x': 1}",
+   "outcome": "unknown/stale_active_version_ambiguous",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "windows.basis",
+   "value": "['x']",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "grounding",
+   "path": "windows.basis",
+   "value": "{'x': 1}",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "usage.turn_status",
+   "value": "['x']",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "usage.turn_status",
+   "value": "{'x': 1}",
+   "outcome": "passed/stale_active_version_used",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "usage.units[0].code",
+   "value": "['x']",
+   "outcome": "unknown/source_unresolved",
+   "escaped": null
+  },
+  {
+   "surface": "evidence",
+   "path": "usage.units[0].code",
+   "value": "{'x': 1}",
+   "outcome": "unknown/source_unresolved",
+   "escaped": null
+  }
+ ]
+}

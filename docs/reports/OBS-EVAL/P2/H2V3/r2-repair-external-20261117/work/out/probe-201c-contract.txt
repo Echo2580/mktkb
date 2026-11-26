@@ -1,0 +1,15 @@
+contract type=ValidatedScenarioContract
+contract attrs=['binding', 'build_plan', 'ingest_plan', 'safe_summary', 'scenario_ids', 'subset', 'validate_run']
+annotation type=MergedAnnotation
+annotation.payload type=dict
+annotation.payload keys=['bindings', 'cases', 'schema_version']
+  payload[bindings] type=dict keys={cases_sha256,dataset_version,ingest_plan_sha256,label_version,manifest_sha256,scenario_contract_sha256,schema_sha256,source_map_sha256}
+    payload[bindings][cases_sha256] -> <str:64>
+    payload[bindings][dataset_version] -> <str:15>
+    payload[bindings][ingest_plan_sha256] -> <str:64>
+    payload[bindings][label_version] -> <str:26>
+    payload[bindings][manifest_sha256] -> de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8
+    payload[bindings][scenario_contract_sha256] -> <str:64>
+  payload[cases] type=list keys=<seq:30>
+  payload[schema_version] type=str keys=<str:18>
+annotation.case_index type=method

@@ -1,0 +1,290 @@
+--- a/backend/src/mktkb/conversations/service.py
++++ b/backend/src/mktkb/conversations/service.py
+@@ -60,7 +60,7 @@
+ )
+ from ..observability import trace_attrs
+ from ..observability.contracts import OutcomeKind, TracePath
+-from ..observability.evaluation_capture import capture_enabled, emit_capture_event, safe_roles, safe_stores
++from ..observability.evaluation_capture import capture_enabled, emit_capture_event
+ from ..observability.tracer import current_trace
+ from ..qa import QaNotReady
+ from ..rag.chunking import role_label as rag_role_label
+@@ -2476,10 +2476,7 @@
+             # R0-CAPTURE-ROLES：只补枚举级角色码（不含正文/字段中文名/实体/值），供离线
+             # 判定“计划里请求了哪些字段角色”。属性缺失时按未观测传 None/[]，不抛 AttributeError。
+             plan_field_role = getattr(rag_plan, "field_role", None)
+-            role_values = getattr(rag_plan, "field_roles", None)
+-            plan_field_roles, role_unknown_count = safe_roles(role_values)
+-            primary_roles, primary_unknown = safe_roles([plan_field_role] if plan_field_role is not None else [])
+-            stores_state, stores_count = safe_stores(state)
++            plan_field_roles = getattr(rag_plan, "field_roles", ()) or ()
+             emit_capture_event(
+                 "plan_observed",
+                 request_id=str(claim.request_id),
+@@ -2495,13 +2492,8 @@
+                 state_as_of=state.as_of,
+                 state_pending_slot=state.pending_slot,
+                 state_last_kind=state.last_kind,
+-                field_role=primary_roles[0] if primary_roles else None,
+-                field_roles=plan_field_roles,
+-                role_unknown_count=role_unknown_count + primary_unknown,
+-                safe_roles=plan_field_roles,
+-                roles_state="available" if type(role_values) in (list, tuple) else "unknown",
+-                stores_state=stores_state,
+-                stores_count=stores_count,
++                field_role=None if plan_field_role is None else str(plan_field_role),
++                field_roles=[str(item) for item in plan_field_roles],
+             )
+         if rag_owns_turn:
+             if trace is not None:
+--- a/backend/src/mktkb/observability/evaluation_capture.py
++++ b/backend/src/mktkb/observability/evaluation_capture.py
+@@ -155,11 +155,6 @@
+         # 两个键均可选：旧 envelope 没有它们时清洗/校验结果逐键不变。
+         "field_role": _Field(_OPT_STR, required=False),
+         "field_roles": _Field(_OPT_LIST_STR, required=False),
+-        "stores_state": _Field(_STR, required=False),
+-        "stores_count": _Field(_OPT_INT, required=False),
+-        "role_unknown_count": _Field(_INT, required=False),
+-        "safe_roles": _Field(_LIST_STR, required=False),
+-        "roles_state": _Field(_STR, required=False),
+     },
+     "retrieval_observed": {
+         "request_id": _Field(_OPT_STR),
+@@ -180,17 +175,6 @@
+         # 只在 scope == "rag_candidate_upper_bound" 的事件上携带；缺键 = 未观测，不合成。
+         "candidate_unit_keys": _Field(_LIST_STR, required=False),
+         "candidate_unit_keys_truncated": _Field(_BOOL, required=False),
+-        "effective_roles": _Field(_LIST_STR, required=False),
+-        "effective_mode": _Field(_STR, required=False),
+-        "effective_enumerate": _Field(_BOOL, required=False),
+-        "role_unknown_count": _Field(_INT, required=False),
+-        "roles_state": _Field(_STR, required=False),
+-        "stores_state": _Field(_STR, required=False),
+-        "stores_count": _Field(_OPT_INT, required=False),
+-        "store_join_status": _Field(_STR, required=False),
+-        "candidate_count": _Field(_INT, required=False),
+-        "candidate_scope_limit": _Field(_STR, required=False),
+-        "page_has_more": _Field(_BOOL, required=False),
+     },
+     "model_input": {
+         "request_id": _Field(_STR),
+@@ -271,27 +255,6 @@
+     }
+ )
+ 
+-SAFE_FIELD_ROLES = frozenset({"location", "contact", "phone", "address", "status", "quantity", "price", "note", "date", "effective_from", "effective_to", "spec", "height", "clause"})
+-STORE_JOIN_OBSERVATIONS = frozenset({"unknown", "not_applicable", "not_record_or_enumerate", "roles_not_cross_level", "item_filter_missing", "multiple_items", "multiple_stores", "item_row_not_unique", "store_value_missing", "store_value_ambiguous", "store_row_missing", "store_row_ambiguous", "joined", "already_present"})
+-
+-
+-def safe_roles(values: Any) -> tuple[list[str], int]:
+-    if type(values) not in (list, tuple):
+-        return [], 1
+-    return [v for v in values if type(v) is str and v in SAFE_FIELD_ROLES], sum(
+-        1 for v in values if type(v) is not str or v not in SAFE_FIELD_ROLES
+-    )
+-
+-
+-def safe_stores(state: Any) -> tuple[str, int | None]:
+-    try:
+-        value = getattr(state, "stores", None)
+-    except Exception:
+-        return "unknown", None
+-    if type(value) not in (tuple, list):
+-        return "unknown", None
+-    return "available", len(value)
+-
+ #: 枚举级字段的闭集约束（既有类型机制的唯一补充）：(事件 kind, 字段名) -> 允许值。
+ #: 与 ``_Field`` 的类型/上限校验同处一条清洗路径，未知码 = 事件非法（fail-closed）。
+ #: 三个候选丢弃原因键共用同一份 ``CANDIDATE_DROP_REASONS``（不复制码表）。
+@@ -299,13 +262,6 @@
+     ("retrieval_observed", "candidate_dropped_reason"): CANDIDATE_DROP_REASONS,
+     ("retrieval_observed", "candidate_dropped_reason_record"): CANDIDATE_DROP_REASONS,
+     ("retrieval_observed", "candidate_dropped_reason_document"): CANDIDATE_DROP_REASONS,
+-    ("plan_observed", "stores_state"): frozenset({"available", "unknown"}),
+-    ("retrieval_observed", "stores_state"): frozenset({"available", "unknown"}),
+-    ("retrieval_observed", "store_join_status"): STORE_JOIN_OBSERVATIONS,
+-    ("retrieval_observed", "candidate_scope_limit"): frozenset({"unknown"}),
+-    ("retrieval_observed", "effective_mode"): frozenset({"record", "document", "unknown"}),
+-    ("plan_observed", "roles_state"): frozenset({"available", "unknown"}),
+-    ("retrieval_observed", "roles_state"): frozenset({"available", "unknown"}),
+ }
+ 
+ 
+@@ -563,20 +519,6 @@
+         allowed = _ENUM_VALUES.get((kind, name))
+         if allowed is not None and cleaned[name] is not None and cleaned[name] not in allowed:
+             raise CaptureEventError(f"{name}_not_in_enum")
+-        if name in ("stores_count", "role_unknown_count", "candidate_count") and cleaned[name] is not None and cleaned[name] < 0:
+-            raise CaptureEventError(f"{name}_negative")
+-        if name in ("safe_roles", "effective_roles") and any(v not in SAFE_FIELD_ROLES for v in cleaned[name]):
+-            raise CaptureEventError(f"{name}_not_in_enum")
+-    if "stores_state" in cleaned and "stores_count" in cleaned:
+-        if (cleaned["stores_state"] == "unknown") != (cleaned["stores_count"] is None):
+-            raise CaptureEventError("stores_state_count_mismatch")
+-    if kind == "retrieval_observed" and cleaned.get("scope") == "direct_rag_retrieval" and "candidate_count" in cleaned:
+-        count = cleaned["candidate_count"]
+-        ids = cleaned["unit_ids"]
+-        if (not cleaned["candidate"] or len(ids) != min(count, MAX_LIST_ITEMS)
+-                or len(set(ids)) != len(ids) or cleaned["empty"] != (count == 0)
+-                or cleaned["truncated"] != (count > MAX_LIST_ITEMS)):
+-            raise CaptureEventError("candidate_observation_inconsistent")
+     return cleaned
+ 
+ 
+--- a/backend/src/mktkb/rag/answer.py
++++ b/backend/src/mktkb/rag/answer.py
+@@ -15,9 +15,6 @@
+ 
+ from .. import copy as copy_module
+ from ..observability import trace_attrs
+-from ..observability.evaluation_capture import (
+-    MAX_LIST_ITEMS, capture_enabled, current_capture_sink, emit_capture_event, safe_roles, safe_stores,
+-)
+ from ..retrieval.tokenize import cut, normalize
+ from .chunking import field_role, first_value, role_label
+ from .errors import FactRejected, RagError
+@@ -201,47 +198,6 @@
+         )
+         _commit(index, plan.state)
+         return answer
+-    if capture_enabled():
+-        try:
+-            chunks: dict[str, Any] = {}
+-            for collection in (result.exact, result.lexical, result.vector):
+-                for chunk in collection:
+-                    chunks.setdefault(chunk.chunk_id, chunk)
+-            for chunk, _ in result.fused:
+-                chunks.setdefault(chunk.chunk_id, chunk)
+-            ids: set[str] = set()
+-            for chunk in chunks.values():
+-                if chunk.kind == "record" and chunk.record_unit_id:
+-                    ids.add(str(chunk.record_unit_id))
+-                ids.update(str(unit_id) for unit_id in (chunk.unit_ids or ()))
+-                if chunk.kind == "record" and chunk.record_unit_id is None:
+-                    ids.add(str(chunk.chunk_id))
+-            ordered_ids = sorted(ids)
+-            role_values = getattr(plan, "field_roles", None)
+-            roles, unknown = safe_roles(role_values)
+-            primary = getattr(plan, "field_role", None)
+-            primary_roles, primary_unknown = safe_roles([primary] if primary is not None else [])
+-            roles.extend(role for role in primary_roles if role not in roles)
+-            unknown += primary_unknown
+-            stores_state, stores_count = safe_stores(plan.state)
+-            observed = result.diagnostics.get("store_join_observed", "unknown") if plan.mode == "record" else "not_applicable"
+-            emit_capture_event(
+-                "retrieval_observed", request_id=None, scope="direct_rag_retrieval",
+-                unit_ids=ordered_ids[:MAX_LIST_ITEMS], candidate=True,
+-                truncated=len(ordered_ids) > MAX_LIST_ITEMS, empty=not ids,
+-                candidate_count=len(ordered_ids), page_has_more=bool(result.has_more),
+-                candidate_scope_limit="unknown",
+-                effective_roles=roles, role_unknown_count=unknown,
+-                effective_mode=plan.mode if plan.mode in ("record", "document") else "unknown",
+-                effective_enumerate=bool(plan.enumerate),
+-                roles_state="available" if type(role_values) in (tuple, list) else "unknown",
+-                stores_state=stores_state, stores_count=stores_count,
+-                store_join_status=observed,
+-            )
+-        except Exception:  # observation failure must not change the answer
+-            sink = current_capture_sink()
+-            if sink is not None:
+-                sink.fail("capture_internal_error", "direct_rag_retrieval")
+     diagnostics.update(_result_diagnostics(result))
+     trace_attrs.annotate_trace(
+         pagination_json={
+--- a/backend/src/mktkb/rag/retrieval.py
++++ b/backend/src/mktkb/rag/retrieval.py
+@@ -18,7 +18,6 @@
+ from sqlalchemy.orm import Session
+ 
+ from ..observability import trace_attrs
+-from ..observability.evaluation_capture import capture_enabled
+ from ..retrieval.tokenize import match_expression, normalize
+ from .errors import KnowledgeChanged
+ from .models import RagChunk, RagChunkEmbedding, RagDocument, RagEmbeddingCache
+@@ -295,10 +294,9 @@
+     ``status`` 属性随值返回，不改元数、不改解包写法；被替换成裸二元组时视为未知。
+     """
+ 
+-    def __new__(cls, store: str, rows: list[IndexedChunk], status: str, observed: str = "unknown") -> "_StoreJoin":
++    def __new__(cls, store: str, rows: list[IndexedChunk], status: str) -> "_StoreJoin":
+         value = super().__new__(cls, (store, rows))
+         value.status = status
+-        value.observed = observed
+         return value
+ 
+ 
+@@ -327,31 +325,31 @@
+       行基数不是版本语义：同版本两行都过记录面过滤，故只能按基数 fail-closed。
+     """
+     if plan.mode != "record" or not plan.enumerate:
+-        return _StoreJoin("", [], "", "not_record_or_enumerate")
++        return _StoreJoin("", [], "")
+     requested = _requested_roles(plan)
+     if not requested & _STORE_LEVEL_ROLES or not requested & _ITEM_LEVEL_ROLES:
+-        return _StoreJoin("", [], "", "roles_not_cross_level")
++        return _StoreJoin("", [], "")
+     if not str(plan.filters.get("item") or "").strip():
+-        return _StoreJoin("", [], "", "item_filter_missing")
++        return _StoreJoin("", [], "")
+     if len(tuple(getattr(plan.state, "items", ()) or ())) > 1:
+-        return _StoreJoin("", [], "", "multiple_items")
++        return _StoreJoin("", [], "")
+     if len(tuple(getattr(plan.state, "stores", ()) or ())) > 1:
+-        return _StoreJoin("", [], "", "multiple_stores")
++        return _StoreJoin("", [], "")
+     item_rows = [
+         chunk
+         for chunk in _load(session, _base_stmt(session, plan, require_record=True))
+         if chunk.entity_type == "item"
+     ]
+     if len({chunk.record_unit_id or chunk.chunk_id for chunk in item_rows}) != 1:
+-        return _StoreJoin("", [], "", "item_row_not_unique")
++        return _StoreJoin("", [], "")
+     stores = {normalize(str((chunk.filters_norm or {}).get("store") or "")) for chunk in item_rows}
+     stores.discard("")
+     if not stores:
+         # 门店值派生不出：没有任何可按门店命中的店家行（= 命中 0 行）。
+-        return _StoreJoin("", [], STORE_JOIN_MISSING, "store_value_missing")
++        return _StoreJoin("", [], STORE_JOIN_MISSING)
+     if len(stores) > 1:
+         # 同一物品行给出多个门店值：无法唯一确定要并哪一家的店家行。
+-        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS, "store_value_ambiguous")
++        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS)
+     store_value = next(iter(stores))
+     # 店家行同样经 ``_base_stmt``：活动/当前资料 + 记录与资料有效期窗口都按本问 as_of 过滤。
+     store_rows = [
+@@ -363,11 +361,11 @@
+         if chunk.entity_type == "store"
+     ]
+     if not store_rows:
+-        return _StoreJoin("", [], STORE_JOIN_MISSING, "store_row_missing")
++        return _StoreJoin("", [], STORE_JOIN_MISSING)
+     if not _store_row_is_unique(store_rows):
+         # 同门店多行（含互斥状态值）：并进去会让正文同时输出矛盾值，故 fail-closed 不联结。
+-        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS, "store_row_ambiguous")
+-    return _StoreJoin(store_value, store_rows, STORE_JOIN_JOINED, "rows_found")
++        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS)
++    return _StoreJoin(store_value, store_rows, STORE_JOIN_JOINED)
+ 
+ 
+ def _exact_recall(session: Session, index: Any, plan: QueryPlan, diagnostics: dict[str, Any]) -> list[IndexedChunk]:
+@@ -381,7 +379,6 @@
+     # R2-202D：判定码由 ``_store_join_chunks`` 随值返回。两个 fail-closed 码只登记「没联结」
+     # 这一事实（固定码，不带门店名/行数）；被替换成裸二元组时视为未知，行为与加守卫前逐字相同。
+     status = str(getattr(decision, "status", "") or "")
+-    observed = getattr(decision, "observed", "unknown")
+     if status in (STORE_JOIN_MISSING, STORE_JOIN_AMBIGUOUS):
+         diagnostics["store_join"] = {"status": status}
+     elif store_rows:
+@@ -397,10 +394,6 @@
+             if status:
+                 payload["status"] = status
+             diagnostics["store_join"] = payload
+-        if observed == "rows_found":
+-            observed = "joined" if joined else "already_present"
+-    if capture_enabled():
+-        diagnostics["store_join_observed"] = observed
+     diagnostics["exact_candidates"] = len(chunks)
+     return chunks
+ 

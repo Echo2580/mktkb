@@ -1,0 +1,56 @@
+{
+  "schema": "q1a1-independent-schema-edges/v1",
+  "notes": [
+    {
+      "check": "缺 forbidden_sources/values -> 投影为空元组",
+      "observed": [
+        [],
+        [],
+        []
+      ]
+    },
+    {
+      "check": "required 且禁源列表被默认空 -> 新 verdict（fail-open 风险）",
+      "observed": [
+        "passed",
+        "frozen_forbidden_checks_ok"
+      ]
+    },
+    {
+      "check": "缺 audit.quality_status -> 投影成功（折叠仍用旧卡 quality_status）",
+      "observed": "fail"
+    },
+    {
+      "check": "缺 audit.quality_status 时 N/A verdict",
+      "observed": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ]
+    },
+    {
+      "check": "audit.quality_status 非法 -> 固定拒绝",
+      "observed": "old_evidence_invalid"
+    },
+    {
+      "check": "audit.turns=[] -> 固定拒绝",
+      "observed": "turn_invalid"
+    },
+    {
+      "check": "document_codes 非字符串值 -> 固定拒绝",
+      "observed": "document_codes_invalid"
+    },
+    {
+      "check": "UnitView 空 doc_code -> 固定拒绝",
+      "observed": "unit_invalid"
+    },
+    {
+      "check": "VersionBinding(unresolved 携带 version_id) -> 固定拒绝",
+      "observed": "version_binding_invalid"
+    },
+    {
+      "check": "VersionBinding(非 unresolved 无版本值) -> 固定拒绝",
+      "observed": "version_binding_invalid"
+    }
+  ],
+  "disposition": "Q1a-3 调用层必须显式 required 校验 case 字段与 quality_status；Q1a-1 契约 §3 已规定输入形状，本包不以合成缺字段作为验收通过依据。"
+}

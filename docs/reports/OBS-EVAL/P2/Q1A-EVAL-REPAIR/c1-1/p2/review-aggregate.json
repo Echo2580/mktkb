@@ -1,0 +1,383 @@
+{
+  "schema_version": "c1p2-independent-review-aggregate/v0.1",
+  "role": "C1-P2 independent acceptance (fresh context, non-developer, non-manager)",
+  "date": "2026-11-14",
+  "baseline": {
+    "workspace": "D:\\GPT项目\\市场部AI知识库",
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged_count": 0,
+    "tracked_modified_count": 15,
+    "commit_count": 172,
+    "acceptance_objects": {
+      "backend/src/mktkb/evaluation/p2_empty_scope_proof.py": {
+        "bytes": 35240,
+        "sha256": "1f503d16d91d3423da969a659c2f97fe811e9c2af859158585ecee16878f28ea"
+      },
+      "backend/tests/evaluation/test_p2_empty_scope_proof.py": {
+        "bytes": 50710,
+        "sha256": "a2b20218ccf1178482fdb66b8d6bcedaf8a46eb3e4f85af1d0eac4fcf89685a1"
+      }
+    },
+    "readonly_references": {
+      "backend/src/mktkb/evaluation/p2_hard_evidence.py": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "backend/src/mktkb/evaluation/p2_evidence_rescore.py": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+      "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+    }
+  },
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "verdict_scope": {
+    "as_unintegrated_instrument": "PASS_WITH_DISAGREEMENTS",
+    "as_c1_2_integration_plan": "FAIL_IF_CLASS_C_IS_INCLUDED",
+    "blocking_condition": "Keep the 2 frozen_requires_retrieval_marker_for_legacy_no_model cases as empty_set_not_proven (or require an actual retrieval_observed with empty unit_ids) before any C1-2 integration."
+  },
+  "checks": [
+    {
+      "id": "C1P2-V-CHK-01",
+      "name": "differential_equivalence",
+      "verdict": "PASS",
+      "summary": "72 synthetic cases reproduced exactly: 12 both proven, 48 both not proven, 11 ours-proven/frozen-not, 1 stricter, 0 uncoded.",
+      "evidence": "independent/11-divergences.json",
+      "details": {
+        "corpus_size": 72,
+        "equal_proven": 12,
+        "equal_not_proven": 48,
+        "extension_proven": 11,
+        "stricter_not_proven": 1,
+        "uncoded": 0,
+        "frozen_sha_before": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+        "frozen_sha_after": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b"
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-02",
+      "name": "shape_coverage",
+      "verdict": "PASS_WITH_GAPS",
+      "summary": "7/7 required shapes covered; 72 cases and 22 shape labels are real, but 22 = 17 branch/retrieval/outcome combos + 5 gap labels; query_state event path and some plausible multi-turn/rag shapes are not covered.",
+      "evidence": "independent/13-coverage.json",
+      "details": {
+        "required_shapes_present": 7,
+        "required_shapes_expected": 7,
+        "distinct_shapes": 22,
+        "combo_shapes": 17,
+        "gap_labels": 5,
+        "missing_or_weak": {
+          "query_state_event_path": true,
+          "multi_turn_with_current_usage": true,
+          "rag_query_expansion_with_evidence": true,
+          "clarification_with_usage": true
+        }
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-03",
+      "name": "fail_closed",
+      "verdict": "PASS",
+      "summary": "267 runtime probes, 0 deviations; one proven=True path; all missing/bad-type/unknown-key/duplicate/identity cases fail closed.",
+      "evidence": "independent/12-failclosed.json",
+      "details": {
+        "probe_count": 267,
+        "failed_count": 0,
+        "proven_true_keyword_count": 1,
+        "proven_true_line": 854,
+        "network_imports": [],
+        "shared_known_gap": "unknown keys inside state_json are not closed (same as frozen primitive)"
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-04",
+      "name": "test_quality",
+      "verdict": "PASS_WITH_MINOR_WEAKNESSES",
+      "summary": "88 collected / 88 passed / 0 skipped / 0 xfail / 0 assert True; differential uses the real frozen primitive and asserts its SHA; summary count is loose (>0) but per-case parametrization pins the 11.",
+      "evidence": "independent/05-pytest-independent.txt",
+      "details": {
+        "collected": 88,
+        "passed": 88,
+        "skipped": 0,
+        "xfail": 0,
+        "assert_true": 0,
+        "parametrize_blocks": 2,
+        "differential_uses_frozen": true,
+        "exact_extension_count_asserted": false,
+        "loose_extension_count_assertion": true
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-05",
+      "name": "frozen_and_preservation",
+      "verdict": "PASS",
+      "summary": "C frozen 12/12, R2 protected 28/28, Q1a-1 protected 38/38 + readonly 2/2, 15 tracked modified 15/15, 2086 foreign untracked files byte-identical, HEAD/branch/staged/commit unchanged.",
+      "evidence": "independent/10-snapshot-start.json, independent/10-snapshot-end.json, independent/15-final-compare.json",
+      "details": {
+        "c_freeze_12_mismatch": [],
+        "repo_files_28_mismatch": [],
+        "q1a1_protected_38_mismatch": [],
+        "readonly_2_mismatch": [],
+        "tracked_modified_15_mismatch": [],
+        "foreign_baseline_files": 2086,
+        "foreign_missing": 0,
+        "foreign_changed": 0,
+        "head_same": true,
+        "branch_same": true,
+        "staged_count": 0,
+        "commit_count_same": true,
+        "final_compare_verdict": true,
+        "my_products": 25,
+        "concurrent_products": 3,
+        "unexpected_new": 0
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-06",
+      "name": "zero_real_calls",
+      "verdict": "PASS",
+      "summary": "3-path positive control (socket/DNS/httpx) blocked and recorded; the full 88-test suite under the process guard made zero external attempts; isolated import loads no provider/frozen modules.",
+      "evidence": "independent/14-zero-call.json, independent/14a-control.txt, independent/14b-suite.txt, independent/14c-isolated.txt",
+      "details": {
+        "positive_control": {
+          "socket_blocked": true,
+          "dns_blocked": true,
+          "httpx_blocked": true,
+          "blocked_total_after_attempt": 3
+        },
+        "suite": {
+          "exit": 0,
+          "tests": "88 passed",
+          "socket_connect_attempts": 0,
+          "create_connection_attempts": 0,
+          "dns_getaddrinfo_attempts": 0,
+          "http_client_connect_attempts": 0,
+          "httpx_transport_attempts": 0
+        },
+        "isolated": {
+          "exit": 0,
+          "forbidden_modules_loaded": [],
+          "external_attempts": 0
+        }
+      }
+    },
+    {
+      "id": "C1P2-V-CHK-07",
+      "name": "private_external_reread",
+      "verdict": "PASS",
+      "summary": "The developer's admitted weak point (private external items not re-read) is closed: all 7 items were actually re-read read-only and match the R2 baseline byte-for-byte; no decryption.",
+      "evidence": "independent/10-snapshot-start.json, independent/10-snapshot-end.json",
+      "details": {
+        "contract_ciphertext": {
+          "sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+          "bytes": 47012,
+          "match": true
+        },
+        "custody_annotations": {
+          "files": 4,
+          "match": true
+        },
+        "holdout_root": {
+          "files": 5,
+          "match": true
+        },
+        "old_run_tree": {
+          "files": 72,
+          "match": true
+        },
+        "r1_evidence_tree": {
+          "files": 13,
+          "match": true
+        },
+        "not_run_evidence_tree": {
+          "files": 19,
+          "match": true
+        },
+        "r1_private_detail": {
+          "sha256": "2f6f4d85026d4b3fb654e17f9ebbb0baac923dd93dc6fa326bb9325fdd69dacc",
+          "bytes": 74488,
+          "match": true
+        }
+      }
+    }
+  ],
+  "divergences": {
+    "distribution": {
+      "legal_extension": 9,
+      "legal_stricter": 1,
+      "over_permissive": 2,
+      "undetermined": 0,
+      "total": 12
+    },
+    "classes": [
+      {
+        "code": "frozen_retrieval_candidates_are_usage",
+        "count": 7,
+        "cases": [
+          "retrieval_candidates_unused_legacy_no_model",
+          "retrieval_candidates_unused_legacy_model",
+          "retrieval_candidates_unused_rag",
+          "retrieval_candidates_unused_clarification",
+          "retrieval_candidates_unused_no_answer",
+          "retrieval_candidates_unused_with_unresolved",
+          "retrieval_candidates_unused_knowledge_changed"
+        ],
+        "verdict": "legal_extension",
+        "basis": "Contract §3.1: candidate is explicitly not usage; all applicable usage containers are present and empty; missing/bad-type usage fails closed; frozen treats candidates as usage (over-strict).",
+        "r2_impact": "Sound only for turns whose blocker is the candidate layer; public aggregate cannot confirm the exact axes."
+      },
+      {
+        "code": "frozen_query_state_candidates_are_usage",
+        "count": 2,
+        "cases": [
+          "query_state_candidates_unused",
+          "multi_turn_partial_empty"
+        ],
+        "verdict": "legal_extension",
+        "basis": "Query-state candidates are prior-turn retrieval candidates, not current-turn usage; query_states_available=True required; missing/bad state_json fails closed. Note: multi_turn_partial_empty also has retrieval candidates (7+2 is attribution, not a disjoint count).",
+        "r2_impact": "Same as above; no confirmed axis."
+      },
+      {
+        "code": "frozen_requires_retrieval_marker_for_legacy_no_model",
+        "count": 2,
+        "cases": [
+          "no_retrieval_positive_snapshot_legacy_no_model",
+          "no_retrieval_positive_snapshot_with_context"
+        ],
+        "verdict": "over_permissive",
+        "basis": "Contract §3.2: candidate_observation=not_observed with candidates=[] is NOT empty-set evidence; the marker is a deterministic echo of 'no retrieval_observed event and path != rag'; it is the sole difference between proven and not proven (removing it fails closed); frozen required an actual retrieval observation. This is the taskbook's 'treat no retrieval event as no used source' pattern.",
+        "r2_impact": "The 2 stale_source axes whose reason is model_events_missing would flip; these flips are NOT sound. Keep them unknown."
+      },
+      {
+        "code": "frozen_does_not_track_entity_inheritance",
+        "count": 1,
+        "cases": [
+          "entity_inheritance_without_projection_row"
+        ],
+        "verdict": "legal_stricter",
+        "basis": "Contract §3.1 lists inheritance as a usage layer; frozen omits it; the new implementation is stricter and cannot create a false proven.",
+        "r2_impact": "Conservative direction; may reduce proofs, never creates a false pass."
+      }
+    ]
+  },
+  "r2_axis_flip": {
+    "public_r2_counts": {
+      "turns": 36,
+      "frozen_proven": 2,
+      "frozen_empty_set_not_proven": 32,
+      "frozen_model_events_missing": 2,
+      "stale_source_unknown": {
+        "total": 17,
+        "source_unresolved": 13,
+        "empty_set_not_proven": 2,
+        "model_events_missing": 2
+      },
+      "stale_source_audit_empty_scope_not_proven": 4,
+      "cross_entity_audit_empty_scope_not_proven": 1,
+      "case_level": {
+        "pass": 1,
+        "unknown": 29,
+        "hard_failure": 0
+      }
+    },
+    "axes": [
+      {
+        "axis": "stale_source",
+        "task_upper_bound": 6,
+        "confirmed_not_sound": 2,
+        "basis_not_sound": "model_events_missing = class C; marker is the sole difference; contract §3.2 says not_observed is not empty-set evidence",
+        "partially_sound_upper_bound": 2,
+        "basis_partially_sound": "empty_set_not_proven axes could be class A/B (sound) or missing-field shapes (the new module also fails closed); public data cannot confirm",
+        "undetermined_upper_bound": 2,
+        "note": "The 13 source_unresolved axes are not affected because the empty proof is not invoked when usage layers are non-empty."
+      },
+      {
+        "axis": "cross_entity",
+        "task_upper_bound": 1,
+        "confirmed_not_sound": 0,
+        "partially_sound_upper_bound": 1,
+        "basis": "The audit ref exists, but the axis-level reason is targets_unresolved/free_text; a flip to pass or N/A is sound only for A/B shapes and is blocked by contract entity targets anyway.",
+        "undetermined": true
+      }
+    ],
+    "confirmed_sound_total": 0,
+    "partially_sound_total_upper_bound": 3,
+    "confirmed_not_sound_total": 2,
+    "case_level_upper_bound": "2/30 (optimistic, if the cross_entity axis's case has no other required unknown); 24/30 remains unreachable",
+    "conclusion": "The claim that 6 stale + 1 cross_entity axes would mostly flip to pass is not supported: 2 flips are unsound, at most 3 are shape-dependent and unconfirmed, and case-level pass remains at most 2/30."
+  },
+  "residuals": [
+    {
+      "id": "R-C1P2-V-01",
+      "severity": "low",
+      "summary": "Unknown keys inside state_json are not fail-closed (same as frozen primitive); e.g. {\"candidates\": [], \"used_sources\": [...]} still proves."
+    },
+    {
+      "id": "R-C1P2-V-02",
+      "severity": "high",
+      "summary": "Class C (2 cases) treats v0.3 candidate_observation=not_observed as positive no-retrieval evidence, contrary to contract §3.2; it is the sole difference making them proven. Blocking for C1-2 integration."
+    },
+    {
+      "id": "R-C1P2-V-03",
+      "severity": "low",
+      "summary": "The 22 'shape' labels include 5 gap labels; they are not 22 business shapes."
+    },
+    {
+      "id": "R-C1P2-V-04",
+      "severity": "medium",
+      "summary": "Query_state observed/saved/cleared event paths are not covered by the 72-case corpus (0/72); only db_projection.query_states is covered."
+    },
+    {
+      "id": "R-C1P2-V-05",
+      "severity": "low",
+      "summary": "Not covered: multi-turn with current usage, RAG query_expansion with non-empty evidence, valid multiple retrieval events."
+    },
+    {
+      "id": "R-C1P2-V-06",
+      "severity": "medium",
+      "summary": "All not-proven shapes collapse to empty_set_not_proven, losing the frozen primitive's finer reasons; a C1-2 consumer using reason as a fixed code would lose diagnostic traceability."
+    },
+    {
+      "id": "R-C1P2-V-07",
+      "severity": "low",
+      "summary": "multi_turn_partial_empty is attributed to query_state but structurally also has retrieval candidates; 7+2 is not a disjoint shape count."
+    },
+    {
+      "id": "R-C1P2-V-08",
+      "severity": "low",
+      "summary": "The differential summary asserts extension_proven > 0, not == 11; per-case parametrization pins the cases but a removed case would not fail the summary assertion."
+    },
+    {
+      "id": "R-C1P2-V-09",
+      "severity": "info",
+      "summary": "Not wired into p2_evidence_rescore.py / p2_evidence_rescore_axes.py (developer's R-C1P2-01); this package cannot produce real R2 numbers."
+    },
+    {
+      "id": "R-C1P2-V-10",
+      "severity": "low",
+      "summary": "Entity inheritance is counted as usage (stricter); can only reduce proofs, never create a false pass."
+    }
+  ],
+  "boundaries": {
+    "data": "synthetic and public only; no real H2 question text/labels/answers/private ciphertext/key/.env/custody sessions",
+    "private_reread": "SHA256/bytes only; no decryption, no content output",
+    "writes": "only c1-1/p2/independent/** and c1-1/p2/{independent-review.md,review-aggregate.json}",
+    "git": "no stage/commit/push, no new worktree, no branch switch",
+    "frozen": "no changes to C frozen 12, Q1a-1/1b modules/contracts, old cards/ledger/GO/contract ciphertext",
+    "real_calls": "zero; 3-path positive control proves the guard"
+  },
+  "not_claimed": [
+    "T207_pass",
+    "release_ready",
+    "threshold_met",
+    "p2_complete",
+    "c1_2_ready",
+    "verified"
+  ],
+  "evidence_index": {
+    "snapshot_start": "independent/10-snapshot-start.json",
+    "snapshot_end": "independent/10-snapshot-end.json",
+    "divergences": "independent/11-divergences.json",
+    "failclosed": "independent/12-failclosed.json",
+    "coverage": "independent/13-coverage.json",
+    "pytest": "independent/05-pytest-independent.txt",
+    "zero_call": "independent/14-zero-call.json",
+    "final_compare": "independent/15-final-compare.json",
+    "review": "independent-review.md"
+  }
+}

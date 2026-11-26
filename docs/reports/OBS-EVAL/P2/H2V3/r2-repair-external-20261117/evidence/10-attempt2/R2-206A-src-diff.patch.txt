@@ -1,0 +1,61 @@
+# R2-206A 源码补丁（T-R2-206A contact 闸门过度拒答最小修复）
+# file: backend/src/mktkb/rag/query.py
+# batch hunks: 1（本批只改规划层早退点 SECURITY_RESTRICTED_CONTACT 一处）
+# base (pre-206A working tree) sha256: 69ab6a8cbb6366f6e3674663f7fde624cef9229ab4a03b8e52205ecf951e0cbd
+# after (post-206A) sha256: bedeedaba966209ea26a37fd3bee60fdb96fea21c87ac33dd7dce5ceb3db6fb0
+# base 已含 R0/R1 未提交成果：本补丁只含 206A 的 hunk，反向应用不会动 R0/R1。
+# 提交方式：git apply R2-206A-src-diff.patch.txt（在仓库根）
+# 回滚方式：git apply -R R2-206A-MINE-rollback.patch.txt（内容与本文件相同）
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -1806,23 +1806,48 @@
+         state.pending_slot = None
+         state.candidates = ()
+     # 安全拒答必须先于候选歧义等早退，避免受限请求被当成普通澄清。
+     # R0/C12：只有“物品 + 电话/地址”才拒答；“物品 + 只问 contact（对接人/负责人）”放行。
+     # R1/102c：合同/结算账号/凭证族的索取同样在此整体拒答（凭据列不进证据面/正文）。该判据
+     # 与实体、字段角色无关，所以不能写成“多字段 + contact”——M5 红例与 R0/C12 合法面同形。
++    # R2-206A（C29）：混合角色不再整题拒答。原判据 ``set(field_roles) & REFUSAL_CONTACT_ROLES``
++    # 把题面里**顺带抽到**的电话/地址角色当成整题的拒答理由（C29 的 field_roles =
++    # location/phone/status ⇒ 整题拒绝：值 0/2、来源 0/2），而冻结标签是 should_refuse=false、
++    # expected_kind=answer、期望答案不含电话值。这里把受限角色当作**可丢弃的请求角色**：
++    # 只有当本轮请求角色里除了电话/地址之外还剩**至少两个**可答角色时，才按正常路径生成计划，
++    # 并把受限角色从本轮请求角色集合中剔除（fail-closed 丢弃：不进 field_roles/requested_fields，
++    # 因而不进取值/渲染面）。保留的拒答面逐字不变：
++    # - 只问电话/地址，或“另一个角色 + 电话/地址”的既有冻结形态（R0/C12 的
++    #   “位置 + 联系电话”“找谁对接 + 电话/地址”、跨实体两店 + 电话）仍整题拒答；
++    # - 凭据族（``is_contract_credential_question``）始终整题拒答；
++    # - 政策/法规题仍不进入本判据（``is_policy_question`` 条件不变）。
++    restricted_roles = set(field_roles) & REFUSAL_CONTACT_ROLES
++    other_roles = set(field_roles) - REFUSAL_CONTACT_ROLES
++    mixed_restricted_roles = (
++        bool(restricted_roles) and len(other_roles) >= 2 and not is_policy_question(question)
++    )
+     if not is_policy_question(question) and (
+-        ((bool(item_hits) or identifier is not None) and set(field_roles) & REFUSAL_CONTACT_ROLES)
+-        or is_contract_credential_question(question)
++        is_contract_credential_question(question)
++        or (
++            (bool(item_hits) or identifier is not None)
++            and restricted_roles
++            and not mixed_restricted_roles
++        )
+     ):
+         return QueryPlan(
+             question=question, mode="record", query_text=question,
+             field_role=state.field_role, field_label=state.field_role, filters={},
+             terms=_terms(question), state=state, enumerate=state.enumerate,
+             page=state.page, page_size=state.page_size, include_future=include_future,
+             reason="SECURITY_RESTRICTED_CONTACT",
+         )
++    if mixed_restricted_roles and (bool(item_hits) or identifier is not None):
++        field_roles = tuple(role for role in field_roles if role not in REFUSAL_CONTACT_ROLES)
++        field_role = field_roles[0]
++        state.field_roles = field_roles
++        state.field_role = field_role
+     if missing_document:
+         return QueryPlan(
+             question=question,
+             mode="record" if state.enumerate else "document",
+             query_text=question,
+             field_role=state.field_role,

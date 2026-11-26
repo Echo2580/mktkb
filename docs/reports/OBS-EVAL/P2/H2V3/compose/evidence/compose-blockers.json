@@ -1,0 +1,92 @@
+{
+  "attempts": [
+    {
+      "composer": "compose_scenario_runs (p2_holdout_scenarios.py:359)",
+      "result": "refused",
+      "error_code": "scenario_plan_mismatch",
+      "stage": "contract.validate_run(plan, subset, ingest)",
+      "cause": "v3 计划的 index_embedding 批数 9/10/13/15 与冻结 RECIPES 8/9/11/13 不同；只有 v3 入口的内存子类 _V3BatchContract 能按 check 层 authorized_delta 放行，冻结 composer 不接受逐 scenario 的授权差。"
+    },
+    {
+      "composer": "compose_hard_evidence_runs (p2_holdout_scenarios.py:810)",
+      "result": "refused",
+      "error_code": "scenario_plan_mismatch",
+      "stage": "contract.validate_run(plan, subset, ingest)",
+      "cause": "同上（未加逐 scenario 授权分派时）。"
+    },
+    {
+      "composer": "compose_hard_evidence_runs + 内存授权分派（诊断用，未改模块）",
+      "result": "refused",
+      "error_code": "scenario_aggregate_binding_mismatch",
+      "stage": "card.config_hash == binding.config_hash",
+      "cause": "每个 run 的 summary.json 绑定块（scenario_binding/config_hash/pipeline_version/provider/gate_config_hash）已在受控清理阶段删除；仅保留其 SHA-256。contract.binding() 本身不含 config_hash。"
+    },
+    {
+      "composer": "compose_hard_evidence_runs + 内存授权分派 + 补入已知 config_hash（诊断用，未改模块）",
+      "result": "refused",
+      "error_code": "scenario_pipeline_unbound",
+      "stage": "binding.pipeline_version / provider / gate_config_hash",
+      "cause": "pipeline_version 与 provider 可从密文绑定块补，但 gate_config_hash 在任何保留产物中都没有落值；不得用 config_sha256 或自造值冒充。"
+    }
+  ],
+  "missing_prerequisites": [
+    {
+      "item": "每 run holdout_scorecard.json（v0.1/v0.2 原卡）",
+      "why": "compose_scenario_runs 的 validate_scorecard / compose_hard_evidence_runs 的 validate_hard_evidence_scorecard 需要原卡；清理阶段已移除，仓内只有 run card 聚合。",
+      "retained_evidence": [
+        {
+          "run_index": 0,
+          "scorecard_sha256": "a20f849e1750a8697c4ba2f937413cced754952613a94827385b6e07b1dfbd70",
+          "summary_sha256": "1b1e7a70cef348bb777cf2f459aa19cad441acaede717068ef06c1b34dc1b2a8",
+          "run_result_sha256": "5239bbd7fe401cf1b5adddc6704da437f82b7e887c92b8d72609c61beef67c0e",
+          "gate_sha256": "f5dff1e82e5a8a880e3867daee25fdfb8dec82a4df0d9a38e73070a0becd936d",
+          "case_plan_sha256": "bb9b1963adbacd814bebd9df3e878b742ec80420bb9099c3eb5d5647226cf238"
+        },
+        {
+          "run_index": 1,
+          "scorecard_sha256": "179beae023e4d51e357f1fff8c82f2753c8756888b0c2f8fafa54e5ae1205336",
+          "summary_sha256": "db6db569bae34ec99b86b8f88dc25a0422e1d9e1caebb0049a9fc8d4c0107af5",
+          "run_result_sha256": "d653c8913bdb0bf5f5f3c3abebafc9bc9df054e4714b0b8759d6731ef5218878",
+          "gate_sha256": "a6c0350054a732524cd2b045626adf4c307d1d98d0b46c4a2518e931f38d3ec2",
+          "case_plan_sha256": "894d081811436c255165fd8af1f3c9d37dc4ba95203e0cbc1e95a206eabb8529"
+        },
+        {
+          "run_index": 2,
+          "scorecard_sha256": "0dc9277c47c2ddc91bba929737bc64c672a48b8289492972adaa71285b68660a",
+          "summary_sha256": "49cf3fa6058134176103c3669493486e799d2a232f1e403ec546a76c02013189",
+          "run_result_sha256": "9035e8767c90e5ac42293e593436aaeecafc79cdb7c23da947c6474b6041791f",
+          "gate_sha256": "68bbe77025f226debfed34c1581bed78836ceda9b049489912d00ca89f7e9ec7",
+          "case_plan_sha256": "decb88976d4cbe965479c1f1b516e354a9e72a1ba8b24ec1e133be592093aaa9"
+        },
+        {
+          "run_index": 3,
+          "scorecard_sha256": "31a590df515383d82471415168a9463e6888192b0fa346877ec1711854606062",
+          "summary_sha256": "2d5443a5cec565b48447021d4ff0b17d0d4baabac6636966d7f5e2325d1899f2",
+          "run_result_sha256": "72c9446443261c01f43d8df8f77eaee9cb21ae26abd814036229d20d0c25da2c",
+          "gate_sha256": "e0c8e3cdf1f51084c235cabf6241a3a7decfdb0cb309dc41fe658f25ba98a113",
+          "case_plan_sha256": "887614d1c343e5847ac38a111e76e1c8f0cc516b3e8bab313f0110df7030c7af"
+        }
+      ]
+    },
+    {
+      "item": "每 run summary.json 的 binding 块",
+      "why": "compose 要求 binding.scenario_binding == contract.binding(name) 且 config_hash 相等，并要求四 run 的 pipeline_version/provider/gate_config_hash 非空且逐值相同。",
+      "retained_evidence": "仅 SHA-256（见 deleted）"
+    },
+    {
+      "item": "gate_config_hash",
+      "why": "四 run 的 gate_config_hash 未在任何保留产物中落值；不得用 config_sha256 冒充或自造。",
+      "retained_evidence": null
+    },
+    {
+      "item": "冻结 composer 的 v3 授权差表达",
+      "why": "compose_* 只接受单一 ValidatedScenarioContract；v3 的 per-scenario authorized_delta 只能通过内存子类逐 scenario 分派。",
+      "retained_evidence": "tools/p2_h2_v3_controlled_execute.py::_V3BatchContract/_wrap_v3_contract"
+    }
+  ],
+  "equivalent_path_used_for_axes": {
+    "path": "tools/p2_h2_controlled_execute.py::_recompute_loaded + p2_hard_evidence.recompute_hard_evidence + p2_holdout_scenarios_v3.load_v3_scenario_contract",
+    "zero_model_calls": true,
+    "validated_cards": 4
+  }
+}

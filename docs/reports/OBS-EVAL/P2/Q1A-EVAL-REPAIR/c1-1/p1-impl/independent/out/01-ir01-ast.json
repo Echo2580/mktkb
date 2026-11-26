@@ -1,0 +1,950 @@
+{
+ "schema_version": "c1p1impl-ir01-ast/v0.1",
+ "modules": {
+  "adapter": {
+   "path": "backend/src/mktkb/evaluation/p2_evidence_axes_adapter_v2.py",
+   "sha256": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d",
+   "membership_sites": [
+    {
+     "line": 338,
+     "function": "_is_unknown_reason",
+     "expression": "head",
+     "container": "UNKNOWN_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "return head in UNKNOWN_CODES"
+    },
+    {
+     "line": 439,
+     "function": "_target_view",
+     "expression": "entity_type",
+     "container": "PRODUCT_ENTITY_TYPES",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if entity_type not in PRODUCT_ENTITY_TYPES:"
+    },
+    {
+     "line": 593,
+     "function": "_load_axis",
+     "expression": "axis",
+     "container": "('cross_user', 'stale_source')",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if axis in (\"cross_user\", \"stale_source\"):"
+    },
+    {
+     "line": 1718,
+     "function": "determine_cross_entity",
+     "expression": "axis.criterion",
+     "container": "('structured_target', 'multi_target')",
+     "guarded": false,
+     "why": "unclassified expression",
+     "source": "if axis.criterion not in (\"structured_target\", \"multi_target\"):"
+    },
+    {
+     "line": 2246,
+     "function": "determine_axis",
+     "expression": "axis",
+     "container": "DELEGATED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if axis in DELEGATED_AXES:"
+    },
+    {
+     "line": 304,
+     "function": "_is_scalar",
+     "expression": "type(value)",
+     "container": "(str, int, float, bool)",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "return value is None or type(value) in (str, int, float, bool)"
+    },
+    {
+     "line": 314,
+     "function": "_enum_member",
+     "expression": "value",
+     "container": "allowed",
+     "guarded": true,
+     "why": "inside _enum_member (isinstance(value, str))",
+     "source": "return isinstance(value, str) and value in allowed"
+    },
+    {
+     "line": 472,
+     "function": "_is_doc_code_level_key",
+     "expression": "'|'",
+     "container": "entity_key",
+     "guarded": true,
+     "why": "literal",
+     "source": "if not entity_key or \"|\" in entity_key:"
+    },
+    {
+     "line": 488,
+     "function": "_load_bindings",
+     "expression": "key",
+     "container": "{'dataset_version', 'label_version'}",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if key not in {\"dataset_version\", \"label_version\"}:"
+    },
+    {
+     "line": 583,
+     "function": "_load_axis",
+     "expression": "reason",
+     "container": "{'ambiguous_semantics', 'unresolved_target', 'source_state_conflict', 'third_state_required', 'insufficient_annotation'}",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if applicability == \"not_applicable\" and reason in {"
+    },
+    {
+     "line": 649,
+     "function": "load_contract_v2",
+     "expression": "'schema_version'",
+     "container": "payload",
+     "guarded": true,
+     "why": "literal",
+     "source": "_require(\"schema_version\" in payload, \"contract_missing\")"
+    },
+    {
+     "line": 734,
+     "function": "_require_keys",
+     "expression": "key",
+     "container": "expected",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if key not in expected:"
+    },
+    {
+     "line": 737,
+     "function": "_require_keys",
+     "expression": "key",
+     "container": "value",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if key not in value:"
+    },
+    {
+     "line": 848,
+     "function": "_load_record",
+     "expression": "locator_kind",
+     "container": "LOCATOR_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(locator_kind in LOCATOR_KINDS, _code_with_path(\"snapshot_enum_invalid\", at(\"locator_kind\")))"
+    },
+    {
+     "line": 868,
+     "function": "_load_record",
+     "expression": "code",
+     "container": "RECORD_IDENTITY_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(code in RECORD_IDENTITY_CODES, _code_with_path(\"snapshot_enum_invalid\", at(\"code\")))"
+    },
+    {
+     "line": 870,
+     "function": "_load_record",
+     "expression": "entity_code",
+     "container": "ENTITY_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(entity_code in ENTITY_CODES, _code_with_path(\"snapshot_enum_invalid\", at(\"entity_code\")))"
+    },
+    {
+     "line": 1126,
+     "function": "_load_empty_use",
+     "expression": "turn_status",
+     "container": "{'partial', 'unavailable'}",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if turn_status in {\"partial\", \"unavailable\"}:"
+    },
+    {
+     "line": 1171,
+     "function": "load_snapshot_v03",
+     "expression": "fixture_kind",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(fixture_kind in FIXTURE_KINDS, \"snapshot_fixture_kind_invalid\")"
+    },
+    {
+     "line": 1184,
+     "function": "load_snapshot_v03",
+     "expression": "source['fixture_kind']",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "_require(source[\"fixture_kind\"] in FIXTURE_KINDS, \"snapshot_enum_invalid\")"
+    },
+    {
+     "line": 1194,
+     "function": "load_snapshot_v03",
+     "expression": "binding_fixture",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(binding_fixture in FIXTURE_KINDS, \"snapshot_enum_invalid\")"
+    },
+    {
+     "line": 1218,
+     "function": "load_snapshot_v03",
+     "expression": "'turn_index'",
+     "container": "expected_turn",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"turn_index\" in expected_turn:"
+    },
+    {
+     "line": 1223,
+     "function": "load_snapshot_v03",
+     "expression": "'client_request_id'",
+     "container": "expected_turn",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"client_request_id\" in expected_turn:"
+    },
+    {
+     "line": 1316,
+     "function": "validate_determination",
+     "expression": "determination.axis",
+     "container": "ADAPTED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(determination.axis in ADAPTED_AXES, \"axis_not_adapted\")"
+    },
+    {
+     "line": 2045,
+     "function": "determine_stale_source",
+     "expression": "record.record_code",
+     "container": "seen_codes",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if record.record_code in seen_codes:"
+    },
+    {
+     "line": 2300,
+     "function": "aggregate_axis",
+     "expression": "axis",
+     "container": "ADAPTED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(axis in ADAPTED_AXES, \"axis_not_adapted\")"
+    },
+    {
+     "line": 2319,
+     "function": "reason_histogram",
+     "expression": "axis",
+     "container": "ADAPTED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(axis in ADAPTED_AXES, \"axis_not_adapted\")"
+    },
+    {
+     "line": 275,
+     "function": "__init__",
+     "expression": "head",
+     "container": "FIXED_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(head in FIXED_CODES, f\"adapter_invariant_violation:{code}\")"
+    },
+    {
+     "line": 363,
+     "function": "__post_init__",
+     "expression": "self.granularity",
+     "container": "{'record', 'doc_code', 'document', 'unmatchable'}",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.granularity in {\"record\", \"doc_code\", \"document\", \"unmatchable\"}, \"contract_target_invalid\")"
+    },
+    {
+     "line": 380,
+     "function": "__post_init__",
+     "expression": "self.axis",
+     "container": "AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.axis in AXES, \"contract_axis_invalid\")"
+    },
+    {
+     "line": 401,
+     "function": "__post_init__",
+     "expression": "self.scenario_id",
+     "container": "Q1A2_SCENARIO_IDS",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.scenario_id in Q1A2_SCENARIO_IDS, \"contract_schema_invalid\")"
+    },
+    {
+     "line": 613,
+     "function": "_load_axis",
+     "expression": "key",
+     "container": "seen",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(key not in seen, \"contract_axis_invalid\")"
+    },
+    {
+     "line": 672,
+     "function": "load_contract_v2",
+     "expression": "case_id",
+     "container": "cases",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "_require(case_id not in cases, \"contract_schema_invalid\")"
+    },
+    {
+     "line": 674,
+     "function": "load_contract_v2",
+     "expression": "scenario_id",
+     "container": "Q1A2_SCENARIO_IDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(scenario_id in Q1A2_SCENARIO_IDS, \"contract_schema_invalid\")"
+    },
+    {
+     "line": 725,
+     "function": "_child_keys",
+     "expression": "'.'",
+     "container": "rest",
+     "guarded": true,
+     "why": "literal",
+     "source": "if rest and \".\" not in rest and \"[]\" not in rest:"
+    },
+    {
+     "line": 725,
+     "function": "_child_keys",
+     "expression": "'[]'",
+     "container": "rest",
+     "guarded": true,
+     "why": "literal",
+     "source": "if rest and \".\" not in rest and \"[]\" not in rest:"
+    },
+    {
+     "line": 1268,
+     "function": "__post_init__",
+     "expression": "self.axis",
+     "container": "ADAPTED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.axis in ADAPTED_AXES, \"axis_not_adapted\")"
+    },
+    {
+     "line": 1269,
+     "function": "__post_init__",
+     "expression": "self.state",
+     "container": "AXIS_STATES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.state in AXIS_STATES, \"adapter_invariant_violation\")"
+    },
+    {
+     "line": 1327,
+     "function": "validate_determination",
+     "expression": "determination.reason",
+     "container": "PASS_CODES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(determination.reason in PASS_CODES, \"adapter_invariant_violation\")"
+    },
+    {
+     "line": 1330,
+     "function": "validate_determination",
+     "expression": "determination.reason",
+     "container": "VIOLATION_CODES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(determination.reason in VIOLATION_CODES, \"adapter_invariant_violation\")"
+    },
+    {
+     "line": 1582,
+     "function": "_doc_code_in_scope",
+     "expression": "target.entity_key",
+     "container": "codes",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "return any(target.entity_key in codes for target in doc_targets)"
+    },
+    {
+     "line": 1834,
+     "function": "determine_cross_entity",
+     "expression": "record.entity_type",
+     "container": "MATCHABLE_ENTITY_TYPES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if row_space == \"document\" or record.entity_type not in MATCHABLE_ENTITY_TYPES:"
+    },
+    {
+     "line": 1862,
+     "function": "determine_cross_entity",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "VIOLATION_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "violations = [item for item in audit if item.split(\":\", 1)[-1] in VIOLATION_CODES]"
+    },
+    {
+     "line": 1863,
+     "function": "determine_cross_entity",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "SEMANTIC_UNKNOWN_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "unknowns = [item for item in audit if item.split(\":\", 1)[-1] in SEMANTIC_UNKNOWN_CODES]"
+    },
+    {
+     "line": 2016,
+     "function": "determine_stale_source",
+     "expression": "record.record_code",
+     "container": "codes",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "matched = [record for record in snapshot.records if record.record_code in codes]"
+    },
+    {
+     "line": 2266,
+     "function": "verify",
+     "expression": "self.axis",
+     "container": "ADAPTED_AXES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "_require(self.axis in ADAPTED_AXES, \"axis_not_adapted\")"
+    },
+    {
+     "line": 325,
+     "function": "_is_code_shape",
+     "expression": "token",
+     "container": "value",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "return not any(token in value for token in _OUTPUT_FORBIDDEN_TOKENS)"
+    },
+    {
+     "line": 438,
+     "function": "_target_view",
+     "expression": "key",
+     "container": "ENTITY_ROLE_NAMES",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "role_only = all(isinstance(key, str) and key in ENTITY_ROLE_NAMES for key in filters)"
+    },
+    {
+     "line": 451,
+     "function": "_target_view",
+     "expression": "entity_type",
+     "container": "MATCHABLE_ENTITY_TYPES",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "elif entity_type in MATCHABLE_ENTITY_TYPES and bool(entity_key) and role_only:"
+    },
+    {
+     "line": 607,
+     "function": "_load_axis",
+     "expression": "collection",
+     "container": "TARGET_REF_COLLECTIONS",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "and collection in TARGET_REF_COLLECTIONS"
+    },
+    {
+     "line": 713,
+     "function": "<module>",
+     "expression": "'.'",
+     "container": "row['path']",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \".\" not in row[\"path\"] and \"[]\" not in row[\"path\"]"
+    },
+    {
+     "line": 713,
+     "function": "<module>",
+     "expression": "'[]'",
+     "container": "row['path']",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \".\" not in row[\"path\"] and \"[]\" not in row[\"path\"]"
+    },
+    {
+     "line": 549,
+     "function": "_load_projection",
+     "expression": "'|'",
+     "container": "axis_key",
+     "guarded": true,
+     "why": "literal",
+     "source": "_require(isinstance(axis_key, str) and \"|\" in axis_key, \"contract_projection_invalid\")"
+    },
+    {
+     "line": 1215,
+     "function": "load_snapshot_v03",
+     "expression": "name",
+     "container": "expected_turn",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "any(name in expected_turn for name in (\"turn_index\", \"client_request_id\")),"
+    },
+    {
+     "line": 1750,
+     "function": "determine_cross_entity",
+     "expression": "target.entity_key",
+     "container": "known_doc_codes",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if target.granularity == \"doc_code\" and target.entity_key in known_doc_codes"
+    },
+    {
+     "line": 1855,
+     "function": "determine_cross_entity",
+     "expression": "'model_evidence'",
+     "container": "record.layers",
+     "guarded": true,
+     "why": "literal",
+     "source": "if (\"model_evidence\" in record.layers or \"direct_rag_fact\" in record.layers)"
+    },
+    {
+     "line": 1855,
+     "function": "determine_cross_entity",
+     "expression": "'direct_rag_fact'",
+     "container": "record.layers",
+     "guarded": true,
+     "why": "literal",
+     "source": "if (\"model_evidence\" in record.layers or \"direct_rag_fact\" in record.layers)"
+    },
+    {
+     "line": 846,
+     "function": "_load_record",
+     "expression": "item",
+     "container": "USE_LAYER_NAMES",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "_require(isinstance(layers, list) and all(_is_str(item) and item in USE_LAYER_NAMES for item in layers), _code_with_path(\"snapshot_field_invalid\", at(\"layers\")))"
+    },
+    {
+     "line": 1608,
+     "function": "_determination",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "SEMANTIC_UNKNOWN_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "if item.split(\":\", 1)[-1] in SEMANTIC_UNKNOWN_CODES"
+    }
+   ],
+   "candidate_count": 14,
+   "candidates": [
+    {
+     "line": 338,
+     "function": "_is_unknown_reason",
+     "expression": "head",
+     "container": "UNKNOWN_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "return head in UNKNOWN_CODES"
+    },
+    {
+     "line": 1718,
+     "function": "determine_cross_entity",
+     "expression": "axis.criterion",
+     "container": "('structured_target', 'multi_target')",
+     "guarded": false,
+     "why": "unclassified expression",
+     "source": "if axis.criterion not in (\"structured_target\", \"multi_target\"):"
+    },
+    {
+     "line": 304,
+     "function": "_is_scalar",
+     "expression": "type(value)",
+     "container": "(str, int, float, bool)",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "return value is None or type(value) in (str, int, float, bool)"
+    },
+    {
+     "line": 848,
+     "function": "_load_record",
+     "expression": "locator_kind",
+     "container": "LOCATOR_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(locator_kind in LOCATOR_KINDS, _code_with_path(\"snapshot_enum_invalid\", at(\"locator_kind\")))"
+    },
+    {
+     "line": 868,
+     "function": "_load_record",
+     "expression": "code",
+     "container": "RECORD_IDENTITY_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(code in RECORD_IDENTITY_CODES, _code_with_path(\"snapshot_enum_invalid\", at(\"code\")))"
+    },
+    {
+     "line": 870,
+     "function": "_load_record",
+     "expression": "entity_code",
+     "container": "ENTITY_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(entity_code in ENTITY_CODES, _code_with_path(\"snapshot_enum_invalid\", at(\"entity_code\")))"
+    },
+    {
+     "line": 1171,
+     "function": "load_snapshot_v03",
+     "expression": "fixture_kind",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(fixture_kind in FIXTURE_KINDS, \"snapshot_fixture_kind_invalid\")"
+    },
+    {
+     "line": 1184,
+     "function": "load_snapshot_v03",
+     "expression": "source['fixture_kind']",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "_require(source[\"fixture_kind\"] in FIXTURE_KINDS, \"snapshot_enum_invalid\")"
+    },
+    {
+     "line": 1194,
+     "function": "load_snapshot_v03",
+     "expression": "binding_fixture",
+     "container": "FIXTURE_KINDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(binding_fixture in FIXTURE_KINDS, \"snapshot_enum_invalid\")"
+    },
+    {
+     "line": 275,
+     "function": "__init__",
+     "expression": "head",
+     "container": "FIXED_CODES",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(head in FIXED_CODES, f\"adapter_invariant_violation:{code}\")"
+    },
+    {
+     "line": 674,
+     "function": "load_contract_v2",
+     "expression": "scenario_id",
+     "container": "Q1A2_SCENARIO_IDS",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "_require(scenario_id in Q1A2_SCENARIO_IDS, \"contract_schema_invalid\")"
+    },
+    {
+     "line": 1862,
+     "function": "determine_cross_entity",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "VIOLATION_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "violations = [item for item in audit if item.split(\":\", 1)[-1] in VIOLATION_CODES]"
+    },
+    {
+     "line": 1863,
+     "function": "determine_cross_entity",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "SEMANTIC_UNKNOWN_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "unknowns = [item for item in audit if item.split(\":\", 1)[-1] in SEMANTIC_UNKNOWN_CODES]"
+    },
+    {
+     "line": 1608,
+     "function": "_determination",
+     "expression": "item.split(':', 1)[-1]",
+     "container": "SEMANTIC_UNKNOWN_CODES",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "if item.split(\":\", 1)[-1] in SEMANTIC_UNKNOWN_CODES"
+    }
+   ]
+  },
+  "stale": {
+   "path": "backend/src/mktkb/evaluation/p2_stale_version_state.py",
+   "sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59",
+   "membership_sites": [
+    {
+     "line": 451,
+     "function": "_load_mode",
+     "expression": "'stale_grounding'",
+     "container": "grounding",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"stale_grounding\" in grounding:"
+    },
+    {
+     "line": 454,
+     "function": "_load_mode",
+     "expression": "'mode'",
+     "container": "grounding",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"mode\" not in grounding:"
+    },
+    {
+     "line": 486,
+     "function": "_load_scenario",
+     "expression": "'source_indices'",
+     "container": "scenario",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"source_indices\" not in scenario:"
+    },
+    {
+     "line": 833,
+     "function": "_runtime_as_of",
+     "expression": "'as_of'",
+     "container": "inputs",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"as_of\" in inputs:"
+    },
+    {
+     "line": 932,
+     "function": "_citation_check",
+     "expression": "'citations'",
+     "container": "inputs",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"citations\" not in inputs:"
+    },
+    {
+     "line": 304,
+     "function": "_enum_member",
+     "expression": "value",
+     "container": "allowed",
+     "guarded": true,
+     "why": "inside _enum_member (isinstance(value, str))",
+     "source": "return isinstance(value, str) and value in allowed"
+    },
+    {
+     "line": 311,
+     "function": "_dedupe",
+     "expression": "token",
+     "container": "seen",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if token not in seen:"
+    },
+    {
+     "line": 416,
+     "function": "_load_annotation",
+     "expression": "key",
+     "container": "annotation",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if key not in annotation:"
+    },
+    {
+     "line": 467,
+     "function": "_basename",
+     "expression": "separator",
+     "container": "name",
+     "guarded": false,
+     "why": "unclassified expression",
+     "source": "if separator in name:"
+    },
+    {
+     "line": 502,
+     "function": "_load_scenario",
+     "expression": "'ingest_batches'",
+     "container": "scenario",
+     "guarded": true,
+     "why": "literal",
+     "source": "return scenario_id, tuple(sorted(parsed)), \"ingest_batches\" in scenario"
+    },
+    {
+     "line": 787,
+     "function": "__post_init__",
+     "expression": "self.state",
+     "container": "AXIS_STATES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if self.state not in AXIS_STATES:"
+    },
+    {
+     "line": 793,
+     "function": "__post_init__",
+     "expression": "self.evidence_grade",
+     "container": "EVIDENCE_GRADES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if self.evidence_grade not in EVIDENCE_GRADES:"
+    },
+    {
+     "line": 805,
+     "function": "_turn_views",
+     "expression": "'turns'",
+     "container": "evidence",
+     "guarded": true,
+     "why": "literal",
+     "source": "if \"turns\" not in evidence or evidence[\"turns\"] is None:"
+    },
+    {
+     "line": 820,
+     "function": "_turn_views",
+     "expression": "turn_index",
+     "container": "seen",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "if turn_index in seen:"
+    },
+    {
+     "line": 943,
+     "function": "_citation_check",
+     "expression": "row['unit_id']",
+     "container": "rows",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "if row[\"unit_id\"] in rows:"
+    },
+    {
+     "line": 1047,
+     "function": "_determine_turn",
+     "expression": "code",
+     "container": "context.known_codes",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if code not in context.known_codes:"
+    },
+    {
+     "line": 1053,
+     "function": "_determine_turn",
+     "expression": "base",
+     "container": "context.groups",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "if base not in context.groups:"
+    },
+    {
+     "line": 1058,
+     "function": "_determine_turn",
+     "expression": "code",
+     "container": "context.member_codes(base)",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if code not in context.member_codes(base):"
+    },
+    {
+     "line": 1200,
+     "function": "__post_init__",
+     "expression": "self.state",
+     "container": "AXIS_STATES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if self.state not in AXIS_STATES:"
+    },
+    {
+     "line": 1208,
+     "function": "__post_init__",
+     "expression": "self.evidence_grade",
+     "container": "EVIDENCE_GRADES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if self.evidence_grade not in EVIDENCE_GRADES:"
+    },
+    {
+     "line": 261,
+     "function": "__init__",
+     "expression": "code",
+     "container": "DETERMINATION_CODES",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if not isinstance(code, str) or code not in DETERMINATION_CODES:"
+    },
+    {
+     "line": 710,
+     "function": "_load_windows",
+     "expression": "code",
+     "container": "entries",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if any(code not in entries for code in open_ended):"
+    },
+    {
+     "line": 735,
+     "function": "_load_windows",
+     "expression": "'effective_from'",
+     "container": "keys",
+     "guarded": true,
+     "why": "literal",
+     "source": "if not keys <= {\"effective_from\", \"effective_to\"} or \"effective_from\" not in keys:"
+    },
+    {
+     "line": 742,
+     "function": "_load_windows",
+     "expression": "code",
+     "container": "open_ended",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if code not in open_ended:"
+    },
+    {
+     "line": 750,
+     "function": "_load_windows",
+     "expression": "code",
+     "container": "open_ended",
+     "guarded": true,
+     "why": "same expression guarded by _enum_member/_is_str/isinstance earlier",
+     "source": "if code in open_ended:"
+    },
+    {
+     "line": 869,
+     "function": "_empty_use_proven",
+     "expression": "key",
+     "container": "usage",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if any(key in usage for key in (\"closure_proven\", \"empty_set_candidate\")):"
+    },
+    {
+     "line": 1256,
+     "function": "_assert_no_forbidden_tokens",
+     "expression": "token",
+     "container": "lowered",
+     "guarded": true,
+     "why": "internal/derived value (types validated upstream)",
+     "source": "if token in lowered:"
+    }
+   ],
+   "candidate_count": 4,
+   "candidates": [
+    {
+     "line": 467,
+     "function": "_basename",
+     "expression": "separator",
+     "container": "name",
+     "guarded": false,
+     "why": "unclassified expression",
+     "source": "if separator in name:"
+    },
+    {
+     "line": 820,
+     "function": "_turn_views",
+     "expression": "turn_index",
+     "container": "seen",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "if turn_index in seen:"
+    },
+    {
+     "line": 943,
+     "function": "_citation_check",
+     "expression": "row['unit_id']",
+     "container": "rows",
+     "guarded": false,
+     "why": "unguarded field/member expression",
+     "source": "if row[\"unit_id\"] in rows:"
+    },
+    {
+     "line": 1053,
+     "function": "_determine_turn",
+     "expression": "base",
+     "container": "context.groups",
+     "guarded": false,
+     "why": "name assigned from input subscript/.get(), no guard found",
+     "source": "if base not in context.groups:"
+    }
+   ]
+  }
+ }
+}

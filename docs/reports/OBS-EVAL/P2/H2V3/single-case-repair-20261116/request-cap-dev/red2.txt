@@ -1,0 +1,37 @@
+GUARD: local socket/urllib/httpx probes blocked; proxies cleared; dotenv forbidden
+F                                                                        [100%]
+================================== FAILURES ===================================
+__________ test_explicit_unlimited_passes_history_and_serialization ___________
+
+p2_env = namespace(ledger=WindowsPath('D:/GPT��Ŀ/�г���AI֪ʶ��/docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-...��/docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/tmp-red2/test_explicit_unlimited_passes0'))
+
+    def test_explicit_unlimited_passes_history_and_serialization(p2_env):
+        _write_ledger(p2_env.ledger, seeded=1601)
+>       p2_env.plan = _plan(max_requests="unlimited")
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+docs\reports\OBS-EVAL\P2\H2V3\single-case-repair-20261116\request-cap-dev\test_request_cap.py:21: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_authorization.py:218: in _plan
+    return P2RunPlan.from_dict(_plan_dict(**overrides))
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_contracts.py:1031: in from_dict
+    max_requests=_plain_int(data["max_requests"], "max_requests", minimum=1),
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+value = 'unlimited', label = 'max_requests', minimum = 1
+
+    def _plain_int(value: Any, label: str, *, minimum: int = 0) -> int:
+        if minimum > 0:
+            try:
+                return int(positive_int(value, label))
+            except ValueError as exc:
+>               raise P2ContractError("integer_invalid", str(exc)) from None
+E               mktkb.evaluation.p2_contracts.P2ContractError: integer_invalid: max_requests ����������
+
+backend\src\mktkb\evaluation\p2_contracts.py:289: P2ContractError
+=========================== short test summary info ===========================
+FAILED docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/test_request_cap.py::test_explicit_unlimited_passes_history_and_serialization
+1 failed in 3.07s
+GUARD: test network attempts=0; real outbound=0

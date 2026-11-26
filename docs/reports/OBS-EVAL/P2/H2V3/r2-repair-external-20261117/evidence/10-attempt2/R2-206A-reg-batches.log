@@ -1,0 +1,448 @@
+
+
+==============================================================================
+# 批次 A：tests/rag 10 个节点（含 R0/C12、C12b、C27、102b/102c、106a/106b、t207）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\reg-a.log
+==============================================================================
+........................................................................ [ 88%]
+.........                                                                [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+81 passed, 1 warning in 7.89s
+
+
+==============================================================================
+# 批次 B：tests/integration 10 个节点（含 C12b t7 e2e、202C/202D/203C、r1_103、v3_safety、p1_refusal_scope）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\reg-b.log
+==============================================================================
+......................................................................   [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 passed, 1 warning in 38.08s
+
+
+==============================================================================
+# 批次 C：tests/unit + tests/evaluation 7 个节点（v3_safety_policy、t207_v8、p1_refusal_controls、r0_repair_refusal_compat 等）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\reg-c.log
+==============================================================================
+........................................................................ [ 35%]
+........................................................................ [ 71%]
+..........................................................               [100%]
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+202 passed, 1 warning in 65.04s (0:01:05)
+
+
+==============================================================================
+# 批次 D：仓库外 r1_mechanism_repro 的 R1-101 M5 凭据族用例
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\reg-d.log
+==============================================================================
+..                                                                       [100%]
+2 passed in 1.59s
+
+
+==============================================================================
+# 批次 A 的 --collect-only 计数（81）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\collect-a.log
+==============================================================================
+tests/rag/test_r0_c12_join_synthetic.py::test_item_plus_store_field_joins_same_store_row
+tests/rag/test_r0_c12_join_synthetic.py::test_joined_store_row_is_window_filtered
+tests/rag/test_r0_c12_join_synthetic.py::test_single_item_attribute_does_not_join_store_row
+tests/rag/test_r0_c12_join_synthetic.py::test_store_level_label_only_keeps_item_target
+tests/rag/test_r0_c12_join_synthetic.py::test_store_row_outside_candidate_bound_is_not_joined
+tests/rag/test_r0_c12_join_synthetic.py::test_multiple_item_targets_do_not_join_store_row
+tests/rag/test_r0_c12_join_synthetic.py::test_join_is_the_switch_for_the_second_source
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_refusal_roles_are_narrow_subset_and_role_set_unchanged
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_planner_allows_item_plus_contact_only
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_contact_only_is_answered_with_contact_value
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_contact_name_is_answered
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_all_fields_with_contact_only_is_answered
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u7684\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u7684\u5730\u5740\u662f\u591a\u5c11\uff1f]
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u7684\u4f4d\u7f6e\u548c\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u627e\u8c01\u5bf9\u63a5\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f]
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_all_fields_with_phone_still_refused
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_cross_entity_phone_still_refused
+tests/rag/test_r0_c12b_boundary_synthetic.py::test_policy_question_with_contact_word_is_not_security_refused
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_role_trim_cuts_six_to_one_only_when_one_row_carries_role
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_role_trim_keeps_both_when_each_expected_row_carries_a_requested_role
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_entity_filter_equality_needs_an_inconsistent_bound
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_window_filter_can_produce_the_same_shape
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_naive_trim_removal_leaks_unrelated_rows
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_conflict_slice_never_yields_one
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_limit_cannot_shrink_below_limit
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_single_entity_single_record_is_unchanged
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_candidate_bound_is_part_of_the_contract[requested0]
+tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_candidate_bound_is_part_of_the_contract[requested1]
+tests/rag/test_r0_11_contact_family.py::test_c27_contact_column_is_rendered_when_question_asks_who_to_contact
+tests/rag/test_r0_11_contact_family.py::test_c27_contact_column_is_rendered_on_enumeration_path
+tests/rag/test_r0_11_contact_family.py::test_c27_contact_only_question_renders_contact
+tests/rag/test_r0_11_contact_family.py::test_c27_phone_only_question_does_not_render_contact
+tests/rag/test_r0_11_contact_family.py::test_c27_address_only_question_does_not_carry_phone_or_contact
+tests/rag/test_r0_11_contact_family.py::test_c27_phone_address_question_is_not_family_expanded
+tests/rag/test_r0_11_contact_family.py::test_c27_item_plus_phone_only_still_security_refused_without_contact_name
+tests/rag/test_r0_11_contact_family.py::test_c27_item_plus_contact_ask_still_security_refused
+tests/rag/test_r0_11_contact_family.py::test_c27_rendered_values_are_real_cells
+tests/rag/test_r0_11_contact_family.py::test_contact_ask_synonyms_are_registered
+tests/rag/test_r0_11_contact_family.py::test_bare_who_is_not_a_contact_word
+tests/rag/test_r0_11_contact_family.py::test_single_field_plans_stay_single
+tests/rag/test_r0_11_contact_family.py::test_contact_words_do_not_bypass_policy_short_circuit
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_search_without_diag_is_result_identical
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_search_with_diag_does_not_write_retrieval_state
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_kind_miss_when_plan_is_not_record
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_term_miss_when_record_terms_are_empty
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_vector_unavailable_when_query_embedding_is_disabled
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_limit_dropped_when_top_k_truncates_fused
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_dedup_dropped_when_enumerate_collapses_split_unit_chunks
+tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_filter_miss_when_hard_filter_drops_candidates
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_topic_turn_does_not_filter_by_previous_store
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_bare_followup_after_topic_turn_keeps_unique_store_scope
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_explicit_multi_store_question_still_enumerates
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_topic_turn_retains_scope_without_making_it_a_filter
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_retained_scope_turn_is_owned_by_rag_kernel
+tests/rag/test_r1_102b_cross_turn_store_scope.py::test_later_explicit_store_replaces_scope_without_guessing
+tests/rag/test_r1_102c_restricted_multifield.py::test_m5_multifield_with_contract_and_account_is_refused
+tests/rag/test_r1_102c_restricted_multifield.py::test_credential_request_without_contact_is_refused
+tests/rag/test_r1_102c_restricted_multifield.py::test_planner_refuses_m5_shape_before_retrieval
+tests/rag/test_r1_102c_restricted_multifield.py::test_location_plus_contact_only_still_answers
+tests/rag/test_r1_102c_restricted_multifield.py::test_contact_only_still_answers_without_unrequested_fields
+tests/rag/test_r1_102c_restricted_multifield.py::test_phone_request_is_still_security_refused
+tests/rag/test_r1_102c_restricted_multifield.py::test_regulation_clause_question_is_not_swallowed_by_credential_words
+tests/rag/test_r1_106a_legacy_store_scope.py::test_legacy_followup_keeps_unique_store_scope
+tests/rag/test_r1_106a_legacy_store_scope.py::test_explicit_two_store_question_still_lists_both
+tests/rag/test_r1_106a_legacy_store_scope.py::test_same_store_cross_table_join_still_works
+tests/rag/test_r1_106a_legacy_store_scope.py::test_scope_helper_never_narrows_multi_store_turns
+tests/rag/test_r1_106b_primary_store_target.py::test_planner_targets_the_asked_store_only
+tests/rag/test_r1_106b_primary_store_target.py::test_two_stores_asked_the_same_field_is_not_narrowed
+tests/rag/test_r1_106b_primary_store_target.py::test_explicit_list_both_stores_is_not_narrowed
+tests/rag/test_r1_106b_primary_store_target.py::test_single_store_question_is_unchanged
+tests/rag/test_r1_106b_primary_store_target.py::test_primary_store_answer_uses_target_values_only
+tests/rag/test_r1_106b_primary_store_target.py::test_other_store_is_explained_as_status_only
+tests/rag/test_r1_106b_primary_store_target.py::test_explicit_list_both_stores_still_answers_both
+tests/rag/test_r1_106b_primary_store_target.py::test_single_store_question_still_answers
+tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_contact_request_refuses_before_ambiguity
+tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_without_contact_still_clarifies
+tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_contact_refusal_has_no_citations
+tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_unknown_store_cannot_bypass_existing_contact_policy
+tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_unrelated_unknown_store_remains_unknown
+tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_financial_topic_does_not_hide_contact_request
+
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+81 tests collected in 0.11s
+
+
+==============================================================================
+# 批次 B 的 --collect-only 计数（70）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\collect-b.log
+==============================================================================
+tests/integration/test_r2_202c_c29_join_rag.py::test_r1_item_only_cross_field_question_joins_store_row
+tests/integration/test_r2_202c_c29_join_rag.py::test_r2_store_plus_item_enumerate_turn_joins_store_row
+tests/integration/test_r2_202c_c29_join_rag.py::test_r1_facts_and_citations_cover_both_entity_rows
+tests/integration/test_r2_202c_c29_join_rag.py::test_c1_item_location_only_turn_does_not_carry_store_level_values
+tests/integration/test_r2_202c_c29_join_rag.py::test_c2_store_only_turn_keeps_store_target
+tests/integration/test_r2_202c_c29_join_rag.py::test_c3_item_plus_phone_is_still_refused_before_retrieval_and_model
+tests/integration/test_r2_202c_c29_join_rag.py::test_c4_same_item_in_two_stores_does_not_join
+tests/integration/test_r2_202c_c29_join_rag.py::test_c5_expired_store_row_is_not_joined
+tests/integration/test_r2_202c_c29_join_rag.py::test_c6_multi_item_enumeration_is_byte_identical
+tests/integration/test_r2_202c_c29_join_rag.py::test_c7_policy_turn_is_byte_identical
+tests/integration/test_r2_202c_c29_join_rag.py::test_join_entry_sensitivity_restores_red
+tests/integration/test_r2_202c_c29_join_rag.py::test_r0_legacy_join_and_rag_join_do_not_swallow_each_other
+tests/integration/test_r2_202c_c29_join_rag.py::test_offline_chain_has_zero_external_network_and_no_subprocess
+tests/integration/test_r2_202d_uniqueness.py::test_same_store_two_rows_does_not_join
+tests/integration/test_r2_202d_uniqueness.py::test_same_store_one_row_still_joins
+tests/integration/test_r2_202d_uniqueness.py::test_store_table_without_target_store_does_not_join
+tests/integration/test_r2_202d_uniqueness.py::test_item_row_without_store_value_never_reaches_the_join
+tests/integration/test_r2_202d_uniqueness.py::test_underivable_store_value_maps_to_missing
+tests/integration/test_r2_202d_uniqueness.py::test_c1_location_only_has_no_store_level_value_or_join
+tests/integration/test_r2_202d_uniqueness.py::test_c2_store_only_keeps_store_target
+tests/integration/test_r2_202d_uniqueness.py::test_c3_item_plus_phone_is_still_refused
+tests/integration/test_r2_202d_uniqueness.py::test_c4_same_item_in_two_stores_does_not_join
+tests/integration/test_r2_202d_uniqueness.py::test_c5_expired_store_row_is_not_joined
+tests/integration/test_r2_202d_uniqueness.py::test_c6_multi_item_enumeration_is_unchanged
+tests/integration/test_r2_202d_uniqueness.py::test_c7_policy_turn_is_byte_identical
+tests/integration/test_r2_202d_uniqueness.py::test_uniqueness_guard_is_the_only_switch
+tests/integration/test_r2_202d_uniqueness.py::test_offline_chain_has_zero_external_network_and_no_subprocess
+tests/integration/test_r2_203c_f1_http_join_witness.py::test_f1a_http_enumerate_turn_joins_store_level_value
+tests/integration/test_r2_203c_f1_http_join_witness.py::test_f1b_http_named_store_turn_joins_store_level_value
+tests/integration/test_r2_203c_f1_http_join_witness.py::test_f1_sensitivity_join_off_restores_red_for_both_questions
+tests/integration/test_r2_203c_f1_http_join_witness.py::test_f1_legacy_join_is_witnessed_and_independently_falsifiable
+tests/integration/test_r2_203c_f1_http_join_witness.py::test_f1_zero_outbound_ledger
+tests/integration/test_r2_203c_f2_identity_http.py::test_f2_same_shape_keys_byte_equal_and_cross_entity_passes
+tests/integration/test_r2_203c_f2_identity_http.py::test_f2_sensitivity_legacy_entity_shape_returns_unknown
+tests/integration/test_r2_203c_f2_identity_http.py::test_f2_adjacent_other_entity_still_violates_over_http
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_two_turn_inheritance_and_revision_over_http
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_two_turn_capture_as_of_and_pre_revision
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_business_date_closed_interval_boundary[2026-11-19-False]
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_business_date_closed_interval_boundary[2026-11-20-True]
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_business_date_closed_interval_boundary[2026-11-21-True]
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_business_date_closed_interval_boundary[2026-11-22-False]
+tests/integration/test_r2_203c_f3_multiturn_http.py::test_f3_no_host_clock_control_without_business_date
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_r2_case_plan_identity_over_public_artifact
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_public_validator_accepts_unmutated_case_plan
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_case_set_mutations_are_all_rejected[extra_case-_mutate_extra]
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_case_set_mutations_are_all_rejected[missing_case-_mutate_missing]
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_case_set_mutations_are_all_rejected[duplicate_case-_mutate_duplicate]
+tests/integration/test_r2_203c_f4_caseplan_set.py::test_f4_case_set_mutations_are_all_rejected[swapped_case-_mutate_swapped]
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_c12_t7_is_answered_not_security_refused
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_c12_t7_carries_item_and_store_row_values
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_join_alone_would_regress_answer_validation
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_single_item_attribute_has_no_store_values
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_store_attribute_question_is_unchanged
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_item_plus_contact_only_is_answered_at_product_level
+tests/integration/test_r0_c12b_t7_boundary_e2e.py::test_item_plus_phone_still_refused_before_model
+tests/integration/test_r1_103_http_scope_and_refusal.py::test_m3_bare_followup_after_topic_turn_stays_on_first_store
+tests/integration/test_r1_103_http_scope_and_refusal.py::test_m5_contract_and_settlement_account_question_is_refused_over_http
+tests/integration/test_r1_103_http_scope_and_refusal.py::test_m5_location_plus_contact_only_still_answers
+tests/integration/test_v3_safety_fix_e2e.py::test_restricted_contact_request_is_refused_before_model[\u57ce\u4e1c\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u4f4d\u7f6e\u548c\u95e8\u5e97\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/integration/test_v3_safety_fix_e2e.py::test_restricted_contact_request_is_refused_before_model[\u628a\u57ce\u4e1c\u5e97\u5c55\u67b6\u7684\u4f4d\u7f6e\u548c\u5e97\u5bb6\u8054\u7cfb\u4eba\u3001\u7535\u8bdd\u6574\u7406\u7ed9\u6211]
+tests/integration/test_v3_safety_fix_e2e.py::test_restricted_contact_request_is_refused_before_model[\u57ce\u897f\u5e97\u5ba3\u4f20\u6d77\u62a5\u653e\u5728\u54ea\uff0c\u987a\u4fbf\u628a\u5e97\u5bb6\u5730\u5740\u4e5f\u7ed9\u6211]
+tests/integration/test_v3_safety_fix_e2e.py::test_rag_kernel_path_also_refuses_restricted_contact
+tests/integration/test_v3_safety_fix_e2e.py::test_item_location_still_answers
+tests/integration/test_v3_safety_fix_e2e.py::test_two_store_phone_still_answers_both_targets
+tests/integration/test_v3_safety_fix_e2e.py::test_store_level_non_contact_field_still_answers
+tests/integration/test_v3_safety_fix_e2e.py::test_bare_item_followup_keeps_inherited_store_scope
+tests/integration/test_v3_safety_fix_e2e.py::test_bare_store_followup_still_switches_store
+tests/integration/test_p1_refusal_scope_http.py::test_out_of_scope_financial_question_refuses_before_any_chat_call
+tests/integration/test_p1_refusal_scope_http.py::test_supported_ledger_question_still_uses_normal_path
+tests/integration/test_p1_refusal_scope_http.py::test_purchase_price_question_is_not_treated_as_financial_metric
+
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+70 tests collected in 0.26s
+
+
+==============================================================================
+# 批次 C 的 --collect-only 计数（202）
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\collect-c.log
+==============================================================================
+tests/unit/test_v3_safety_fix_policy.py::test_item_plus_contact_field_is_security_refusal[\u57ce\u4e1c\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u4f4d\u7f6e\u548c\u95e8\u5e97\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_item_plus_contact_field_is_security_refusal[\u57ce\u4e1c\u5e97\u5c55\u67b6\u7684\u8054\u7cfb\u4eba\u662f\u8c01\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_item_plus_contact_field_is_security_refusal[\u57ce\u897f\u5e97\u5ba3\u4f20\u6d77\u62a5\u653e\u5728\u54ea\uff0c\u987a\u4fbf\u628a\u5e97\u5bb6\u5730\u5740\u4e5f\u7ed9\u6211]
+tests/unit/test_v3_safety_fix_policy.py::test_item_plus_contact_field_is_security_refusal[\u57ce\u4e1c\u5e97\u7684\u5ba3\u4f20\u6d77\u62a5\u548c\u5c55\u67b6\u7684\u8054\u7cfb\u4eba\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_item_plus_contact_field_is_security_refusal[\u57ce\u4e1c\u5e97\u6807\u8bc6 P01 \u7684\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_rag_planner_marks_item_plus_phone_or_address_as_security_refusal[\u57ce\u4e1c\u5e97\u5ba3\u4f20\u6d77\u62a5\u7684\u4f4d\u7f6e\u548c\u95e8\u5e97\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_rag_planner_marks_item_plus_phone_or_address_as_security_refusal[\u57ce\u4e1c\u5e97\u5c55\u67b6\u7684\u5730\u5740\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_rag_planner_marks_item_plus_phone_or_address_as_security_refusal[\u57ce\u4e1c\u5e97\u7684\u5ba3\u4f20\u6d77\u62a5\u548c\u5c55\u67b6\u7684\u8054\u7cfb\u4eba\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_security_refusal_copy_is_fixed_skeleton_without_values
+tests/unit/test_v3_safety_fix_policy.py::test_benign_record_question_is_not_security_refused[\u57ce\u4e1c\u5e97\u7684\u5c55\u67b6\u5728\u54ea\u91cc\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_benign_record_question_is_not_security_refused[\u57ce\u897f\u5e97\u7684\u5ba3\u4f20\u6d77\u62a5\u5728\u54ea\u91cc\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_benign_record_question_is_not_security_refused[\u57ce\u4e1c\u5e97\u7684\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_benign_record_question_is_not_security_refused[\u57ce\u4e1c\u5e97\u548c\u57ce\u897f\u5e97\u7684\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_benign_record_question_is_not_security_refused[\u57ce\u4e1c\u5e97\u7684\u5408\u4f5c\u72b6\u6001\u662f\u4ec0\u4e48\uff1f]
+tests/unit/test_v3_safety_fix_policy.py::test_policy_question_with_contact_word_is_not_security_refused
+tests/unit/test_v3_safety_fix_policy.py::test_item_only_question_without_contact_field_keeps_features
+tests/unit/test_v3_safety_fix_policy.py::test_bare_item_followup_inherits_store_and_location_field
+tests/unit/test_v3_safety_fix_policy.py::test_bare_item_followup_with_store_level_previous_field_does_not_inherit_item_field
+tests/unit/test_v3_safety_fix_policy.py::test_bare_item_followup_without_context_stays_unscoped
+tests/unit/test_t207_v8_safety_contract_synthetic.py::test_product_refusal_maps_to_frozen_refusal_like_kind
+tests/unit/test_t207_v8_followup_synthetic.py::test_explicit_topic_change_does_not_silently_guess_store
+tests/unit/test_t207_v8_followup_synthetic.py::test_explicit_document_request_is_not_confused_with_bare_followup
+tests/unit/test_t207_v8_followup_synthetic.py::test_document_source_from_switched_topic_is_not_inherited_as_store
+tests/evaluation/test_p1_refusal_controls.py::test_control_fixture_is_independent_and_versioned
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u4eca\u5e74\u8425\u6536\u662f\u591a\u5c11]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u4eca\u5e74\u7684\u5229\u6da6\u7387\u662f\u591a\u5c11]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u4eca\u5e74\u7684\u8425\u4e1a\u6536\u5165\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u4eca\u5e74\u516c\u53f8\u8425\u4e1a\u989d\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u5e2e\u6211\u67e5\u4e00\u4e0b\u516c\u53f8\u4eca\u5e74\u7684\u8425\u6536\u6570\u636e]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u4eca\u5e74\u51c0\u5229\u6da6\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u4eca\u5e74\u7684\u6bdb\u5229\u7387\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_financial_metric_detection_covers_paraphrases[\u516c\u53f8\u53bb\u5e74\u7684\u4e8f\u635f\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u300a\u660e\u7801\u6807\u4ef7\u548c\u7981\u6b62\u4ef7\u683c\u6b3a\u8bc8\u89c4\u5b9a\u300b\u81ea\u4f55\u65f6\u8d77\u65bd\u884c\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u300a\u660e\u7801\u6807\u4ef7\u548c\u7981\u6b62\u4ef7\u683c\u6b3a\u8bc8\u89c4\u5b9a\u300b\u5bf9\u4ef7\u683c\u6b3a\u8bc8\u7684\u5904\u7f5a\u662f\u4ec0\u4e48\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u6d3b\u52a8\u9884\u7b974000\u5143\u627e\u8c01\u5ba1\u6279\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u9ec4\u91d1\u9648\u5217\u4f4d\u7684\u9ad8\u5ea6\u533a\u95f4\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u4fc3\u9500\u8d39\u7528\u7387\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u6ee8\u6c5f\u5e97\u7684\u5ba3\u4f20\u6d77\u62a5\u7684\u91c7\u8d2d\u4ef7\u683c\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u6ee8\u6c5f\u5e97\u7684\u5ba3\u4f20\u6d77\u62a5\u5728\u54ea\u91cc\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[Q3 \u9500\u91cf\u662f\u591a\u5c11\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_policy_regulation_price_and_ledger_questions_are_not_out_of_scope[\u6863\u671f\u7269\u6599\u8981\u63d0\u524d\u591a\u5c11\u5929\u63d0\u62a5\u9700\u6c42\uff1f]
+tests/evaluation/test_p1_refusal_controls.py::test_metric_support_judgement_requires_metric_value_in_evidence
+tests/evaluation/test_p1_refusal_controls.py::test_out_of_scope_financial_questions_refuse_without_fabricated_sources
+tests/evaluation/test_p1_refusal_controls.py::test_supported_questions_are_still_answered
+tests/evaluation/test_p1_refusal_controls.py::test_frozen_regression_refusals_still_pass[RG005]
+tests/evaluation/test_p1_refusal_controls.py::test_frozen_regression_refusals_still_pass[RG007]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_compat_constants_and_defaults_are_v0_1
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[classify_case_evidence]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_classify_turn]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_check_stale_source]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_check_cross_entity]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_check_cross_entity_v02]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_empty_use_scope_proof]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_threaded_functions_take_keyword_only_compat_default_v0_1[_matches_product_no_fact_template]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_safety_check_does_not_gain_compat_parameter
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_registered_only_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_c26_shape_empty_scope_proof_default_is_unchanged
+tests/evaluation/test_r0_repair_refusal_compat.py::test_c26_shape_classifier_only_changes_when_v0_3_enabled
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[clarification-not_found]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[not_found-clarification]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[no_answer-knowledge_changed]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[no_answer-clarification]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[clarification-no_answer]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[knowledge_changed-not_found]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_unregistered_cross_layer_pairs_stay_inconsistent_under_v0_3[not_found-no_answer]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_registered_pair_requires_both_kinds_in_no_fact_kinds
+tests/evaluation/test_r0_repair_refusal_compat.py::test_text_equality_is_still_required_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_request_identity_mismatch_still_rejected_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_ordinary_no_data_template_stays_ordinary_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_arbitrary_no_data_wording_is_not_a_proof_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_alone_is_not_a_no_fact_proof
+tests/evaluation/test_r0_repair_refusal_compat.py::test_safety_axis_is_identical_across_compat[security]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_safety_axis_is_identical_across_compat[empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_safety_axis_is_identical_across_compat[plain]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_with_appended_fact_still_rejected[phone]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_with_appended_fact_still_rejected[contact]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_with_appended_fact_still_rejected[fact_id]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_with_appended_fact_still_rejected[punctuation]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_with_prepended_fact_still_rejected
+tests/evaluation/test_r0_repair_refusal_compat.py::test_security_template_whitespace_normalization_unchanged
+tests/evaluation/test_r0_repair_refusal_compat.py::test_forbidden_value_leak_stays_visible_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_forbidden_source_use_stays_visible_under_v0_3
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[direct_facts_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[direct_cited_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[commit_sources_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[answer_sources_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[model_evidence_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[model_output_sources_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[retrieval_units_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[projection_units_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[projection_message_sources_non_empty]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[fact_count_bool]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[fact_count_string]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[facts_bad_type]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[missing_commit_event]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[duplicate_commit_event]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[missing_plan_event]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[unpaired_model_output]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_non_empty_or_bad_typed_evidence_never_proves_empty_scope[duplicate_model_input]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_cross_request_model_pairing_stays_inconsistent
+tests/evaluation/test_r0_repair_refusal_compat.py::test_knowledge_changed_same_layer_semantics_preserved
+tests/evaluation/test_r0_repair_refusal_compat.py::test_mapping_never_rewrites_commit_knowledge_changed
+tests/evaluation/test_r0_repair_refusal_compat.py::test_knowledge_changed_commit_flag_does_not_change_any_result
+tests/evaluation/test_r0_repair_refusal_compat.py::test_default_compat_is_value_identical_to_explicit_v0_1
+tests/evaluation/test_r0_repair_refusal_compat.py::test_v0_1_template_registry_has_no_extra_keys
+tests/evaluation/test_r0_repair_refusal_compat.py::test_kind_pair_matrix_matches_documented_rule[p2-refusal-compat/v0.1]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_kind_pair_matrix_matches_documented_rule[p2-refusal-compat/v0.3]
+tests/evaluation/test_r0_repair_refusal_compat.py::test_v0_3_only_flips_the_registered_pair
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_network_guard_positive_control_blocks_outbound
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_retrieval_observed_schema_registers_optional_enum_drop_reason
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[dedup_dropped]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[filter_miss]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[kind_miss]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[limit_dropped]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[no_drop]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[not_applicable]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[term_miss]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_every_allowed_reason[vector_unavailable]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_accepts_explicit_null_drop_reason
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[7]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[True]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[bad2]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[bad3]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[TERM_MISS]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[term miss]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[\u7532\u5e97\u7acb\u724c\u672a\u547d\u4e2d]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_retrieval_observed_rejects_values_outside_enum[]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_retrieval_observed_without_drop_reason_is_cleaned_identically
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_retrieval_observed_event_carries_enum_drop_reason
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_candidate_drop_priority_is_the_fixed_order
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_record_intent_without_terms_reports_term_miss
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_document_intent_reports_kind_miss_for_absent_exact_face
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_vector_channel_unavailable_reports_vector_unavailable
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_two_face_recall_without_any_drop_reports_no_drop
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_unknown_mode_reports_not_applicable
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_intent_search_is_unchanged_when_capture_disabled
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_frozen_closures_read_the_shared_capture_whitelist
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_empty_scope_proof_accepts_new_optional_key_and_keeps_legacy_result
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_retrieval_observed_registers_two_optional_face_keys
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[dedup_dropped-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[dedup_dropped-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[filter_miss-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[filter_miss-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[kind_miss-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[kind_miss-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[limit_dropped-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[limit_dropped-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[no_drop-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[no_drop-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[not_applicable-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[not_applicable-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[term_miss-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[term_miss-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[vector_unavailable-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_accepts_every_allowed_reason_per_face[vector_unavailable-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[7-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[7-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[True-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[True-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[bad2-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[bad2-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[bad3-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[bad3-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[TERM_MISS-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[TERM_MISS-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[term miss-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[term miss-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[\u7532\u5e97\u7acb\u724c\u672a\u547d\u4e2d-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[\u7532\u5e97\u7acb\u724c\u672a\u547d\u4e2d-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[-candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_clean_rejects_face_values_outside_enum[-candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_face_key_unknown_code_fails_in_enum_validation[candidate_dropped_reason_record]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_face_key_unknown_code_fails_in_enum_validation[candidate_dropped_reason_document]
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_face_keys_are_absent_by_default_and_never_synthesized
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_per_face_keys_split_record_and_document_faces
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_per_face_keys_keep_both_structural_term_miss
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_document_intent_puts_the_only_face_on_document
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_unknown_mode_marks_both_faces_not_applicable
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_vector_unavailable_is_reported_per_face
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_composite_equals_fixed_priority_merge_of_face_codes
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_faces_are_not_built_when_capture_is_closed
+tests/evaluation/test_r0_12_candidate_drop_reason.py::test_frozen_closures_accept_face_keys_without_changes
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_schema_registers_optional_role_fields
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_clean_plan_observed_keeps_role_codes_order_and_duplicates
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_clean_plan_observed_accepts_explicit_null_role_values
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_without_role_keys_is_valid_and_cleaned_identically
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad0]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad1]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad2]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad3]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad4]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_plan_observed_rejects_non_role_codes[bad5]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_service_emits_role_codes_from_rag_plan
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_service_emit_without_role_attributes_does_not_raise
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_empty_scope_closure_accepts_new_role_keys
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_independent_empty_scope_proof_accepts_new_role_keys
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[default_ok]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[v0_5_ok]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[default_legacy_missing_model]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[default_nonempty_usage]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[v0_5_legacy_missing_model]
+tests/evaluation/test_r0_9_plan_observed_roles.py::test_old_envelope_without_role_keys_is_value_identical[v0_5_nonempty_usage]
+
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+202 tests collected in 0.28s

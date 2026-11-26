@@ -1,0 +1,337 @@
+{
+  "probe": "16-contract-consistency",
+  "assertions_total": 42,
+  "assertions_failed": 0,
+  "failures": [],
+  "results": [
+    {
+      "label": "C REASONS has 18 codes",
+      "ok": true,
+      "detail": 18
+    },
+    {
+      "label": "implementation ANNOTATION_REASONS == C REASONS",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "AXIS_KEYS(7) + basis/source == ANNOTATION_KEYS",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "UNKNOWN_REASONS == C UNKNOWN_REASONS_BY_AXIS (3 axes)",
+      "ok": true,
+      "detail": {
+        "cross_user": [],
+        "cross_entity": [],
+        "stale_source": []
+      }
+    },
+    {
+      "label": "VIOLATION_REASONS == C VIOLATION_REASONS_BY_AXIS",
+      "ok": true,
+      "detail": {
+        "cross_user": [],
+        "cross_entity": [],
+        "stale_source": []
+      }
+    },
+    {
+      "label": "PASS_REASONS == C",
+      "ok": true,
+      "detail": {
+        "cross_user": [
+          "all_user_contexts_ok",
+          "all_user_contexts_ok"
+        ],
+        "cross_entity": [
+          "frozen_targets_match_ok",
+          "frozen_targets_match_ok"
+        ],
+        "stale_source": [
+          "lifecycle_dates_ok",
+          "lifecycle_dates_ok"
+        ]
+      }
+    },
+    {
+      "label": "NA_REASONS == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "AXIS_CRITERIA == C (3 axes)",
+      "ok": true,
+      "detail": {
+        "cross_user": [],
+        "cross_entity": [],
+        "stale_source": []
+      }
+    },
+    {
+      "label": "TEMPORAL_INTENTS == C",
+      "ok": true,
+      "detail": [
+        [
+          "current",
+          "historical",
+          "future_explicit",
+          "not_applicable",
+          "unknown"
+        ],
+        [
+          "current",
+          "historical",
+          "future_explicit",
+          "not_applicable",
+          "unknown"
+        ]
+      ]
+    },
+    {
+      "label": "TARGET_REF_COLLECTIONS == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "SCOPE_MODES == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "SHARED_BACKGROUND_BASES == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "BINDING_KEYS == C SCOPE_BINDING_KEYS",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "QUALITY_STATUSES == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "AXIS_STATES == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "AXES order == C",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §7.2 parsed 3 axes",
+      "ok": true,
+      "detail": [
+        "cross_entity",
+        "cross_user",
+        "stale_source"
+      ]
+    },
+    {
+      "label": "v0.2 §7.2 unknown lists == implementation",
+      "ok": true,
+      "detail": {
+        "cross_user": {
+          "doc_only": [],
+          "impl_only": []
+        },
+        "cross_entity": {
+          "doc_only": [],
+          "impl_only": []
+        },
+        "stale_source": {
+          "doc_only": [],
+          "impl_only": []
+        }
+      }
+    },
+    {
+      "label": "v0.2 §7.3 violation lists == implementation",
+      "ok": true,
+      "detail": {
+        "cross_user": {
+          "doc_only": [],
+          "impl_only": []
+        },
+        "cross_entity": {
+          "doc_only": [],
+          "impl_only": []
+        },
+        "stale_source": {
+          "doc_only": [],
+          "impl_only": []
+        }
+      }
+    },
+    {
+      "label": "v0.2 §7.4 audit codes == AXES_AUDIT_CODES",
+      "ok": true,
+      "detail": {
+        "doc_only": [],
+        "impl_only": []
+      }
+    },
+    {
+      "label": "v0.2 basis enum == AXES_BASES",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "v0.2 source enum == AXES_SOURCES",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "TRUSTED_SOURCES excludes synthetic+unresolved",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "Q1a-2 basis 5 codes ⊆ AXES_BASES",
+      "ok": true,
+      "detail": [
+        "case_business_date_baseline",
+        "frozen_label_target",
+        "frozen_question_scope",
+        "no_provable_basis_keep_unknown",
+        "public_corpus_structure"
+      ]
+    },
+    {
+      "label": "Q1a-2 schema lists 18 reason codes despite '19 码' label",
+      "ok": true,
+      "detail": [
+        "all_user_contexts",
+        "ambiguous_semantics",
+        "benign_business",
+        "business_date_default",
+        "explicit_forbidden",
+        "explicit_multi_target",
+        "explicit_privacy",
+        "explicit_security",
+        "explicit_single_target",
+        "explicit_temporal",
+        "insufficient_annotation",
+        "no_entity_scope",
+        "prompt_injection",
+        "published_lifecycle",
+        "shared_policy",
+        "source_state_conflict",
+        "third_state_required",
+        "unresolved_target"
+      ]
+    },
+    {
+      "label": "Q1a-2 schema reasons == C REASONS (18)",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "Q1a-2 schema reasons == implementation",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §6.1 states first-unknown-reason order",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §10 R-06 present",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §10 R-07 present",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "ref_doc_missing is in MATCH_CODES but unreachable via public API",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "ref without doc_code raises ref_invalid (not ref_doc_missing)",
+      "ok": true,
+      "detail": "ref_invalid"
+    },
+    {
+      "label": "v0.2 §5.1 says cross_user N/A -> annotation_unknown, but §7.2 table lacks it (doc defect)",
+      "ok": true,
+      "detail": {
+        "doc_5_1_claims_annotation_unknown": true,
+        "doc_7_2_has_it": false
+      }
+    },
+    {
+      "label": "implementation uses frozen cross_user reason instead (evidence_incomplete)",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 declares scope excludes full-axis completion",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §2 states safety stays recorded_old in this module",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "v0.2 §9 requires merging before claiming four axes",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "dev report marks itself as awaiting independent review",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "dev report has no positive pass/release sentence",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "v0.2 has no positive pass/release claim",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "v0.1 contract unchanged hash prefix",
+      "ok": true,
+      "detail": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d"
+    },
+    {
+      "label": "p2_evidence_rescore.py unchanged hash prefix",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "c_frozen_summary": {
+    "reasons": 18,
+    "axis_keys": [
+      "applicability",
+      "as_of",
+      "criterion",
+      "reason",
+      "target_refs",
+      "targets",
+      "temporal_intent"
+    ],
+    "unknown_counts": {
+      "cross_user": 16,
+      "cross_entity": 16,
+      "stale_source": 16
+    }
+  },
+  "verdict": "PASS"
+}

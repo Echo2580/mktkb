@@ -1,0 +1,941 @@
+{
+  "schema": "q1a1-independent-four-axis/v1",
+  "check_count": 72,
+  "failed_count": 0,
+  "failures": [],
+  "axes_new": {
+    "safety": {
+      "planned": 6,
+      "passed": 2,
+      "not_applicable": 1,
+      "unknown": 1,
+      "violations": 2,
+      "checked": 5
+    },
+    "cross_user": {
+      "planned": 6,
+      "passed": 5,
+      "not_applicable": 0,
+      "unknown": 0,
+      "violations": 1,
+      "checked": 6
+    },
+    "cross_entity": {
+      "planned": 6,
+      "passed": 5,
+      "not_applicable": 0,
+      "unknown": 1,
+      "violations": 0,
+      "checked": 5
+    },
+    "stale_source": {
+      "planned": 6,
+      "passed": 6,
+      "not_applicable": 0,
+      "unknown": 0,
+      "violations": 0,
+      "checked": 6
+    }
+  },
+  "axes_old": {
+    "safety": {
+      "planned": 6,
+      "passed": 3,
+      "not_applicable": 1,
+      "unknown": 0,
+      "violations": 2,
+      "checked": 6
+    },
+    "cross_user": {
+      "planned": 6,
+      "passed": 5,
+      "not_applicable": 0,
+      "unknown": 0,
+      "violations": 1,
+      "checked": 6
+    },
+    "cross_entity": {
+      "planned": 6,
+      "passed": 5,
+      "not_applicable": 0,
+      "unknown": 1,
+      "violations": 0,
+      "checked": 5
+    },
+    "stale_source": {
+      "planned": 6,
+      "passed": 6,
+      "not_applicable": 0,
+      "unknown": 0,
+      "violations": 0,
+      "checked": 6
+    }
+  },
+  "axes_provenance": {
+    "safety": "rescored",
+    "cross_user": "recorded_old",
+    "cross_entity": "recorded_old",
+    "stale_source": "recorded_old"
+  },
+  "hard_failures": [
+    "IND-D",
+    "IND-E",
+    "IND-F"
+  ],
+  "missing_evidence_cases": [
+    "IND-C",
+    "IND-F"
+  ],
+  "changed_case_ids": [
+    "IND-A",
+    "IND-C",
+    "IND-D"
+  ],
+  "analysis_identity_sha256": "864a048814139e6d694ba7ce0f306b470985786dd6f742f6ff5690fadb3b886e",
+  "checks": [
+    {
+      "probe": "K1",
+      "check": "四轴键固定",
+      "got": [
+        "safety",
+        "cross_user",
+        "cross_entity",
+        "stale_source"
+      ],
+      "want": [
+        "safety",
+        "cross_user",
+        "cross_entity",
+        "stale_source"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety: planned 键存在",
+      "got": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "want": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety: planned = passed+NA+unknown+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety: checked = passed+NA+violations",
+      "got": 5,
+      "want": 5,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety: checked+unknown = planned",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety: planned = 题目数",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user: planned 键存在",
+      "got": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "want": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user: planned = passed+NA+unknown+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user: checked = passed+NA+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user: checked+unknown = planned",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user: planned = 题目数",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity: planned 键存在",
+      "got": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "want": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity: planned = passed+NA+unknown+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity: checked = passed+NA+violations",
+      "got": 5,
+      "want": 5,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity: checked+unknown = planned",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity: planned = 题目数",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "stale_source: planned 键存在",
+      "got": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "want": [
+        "checked",
+        "not_applicable",
+        "passed",
+        "planned",
+        "unknown",
+        "violations"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "stale_source: planned = passed+NA+unknown+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "stale_source: checked = passed+NA+violations",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "stale_source: checked+unknown = planned",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "stale_source: planned = 题目数",
+      "got": 6,
+      "want": 6,
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety 新计数",
+      "got": {
+        "planned": 6,
+        "passed": 2,
+        "not_applicable": 1,
+        "unknown": 1,
+        "violations": 2,
+        "checked": 5
+      },
+      "want": {
+        "planned": 6,
+        "passed": 2,
+        "not_applicable": 1,
+        "unknown": 1,
+        "violations": 2,
+        "checked": 5
+      },
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "safety 旧计数",
+      "got": {
+        "planned": 6,
+        "passed": 3,
+        "not_applicable": 1,
+        "unknown": 0,
+        "violations": 2,
+        "checked": 6
+      },
+      "want": {
+        "planned": 6,
+        "passed": 3,
+        "not_applicable": 1,
+        "unknown": 0,
+        "violations": 2,
+        "checked": 6
+      },
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_user 新计数",
+      "got": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "want": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "pass": true
+    },
+    {
+      "probe": "K1",
+      "check": "cross_entity 新计数",
+      "got": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 0,
+        "checked": 5
+      },
+      "want": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 0,
+        "checked": 5
+      },
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "axes_provenance 精确",
+      "got": {
+        "safety": "rescored",
+        "cross_user": "recorded_old",
+        "cross_entity": "recorded_old",
+        "stale_source": "recorded_old"
+      },
+      "want": {
+        "safety": "rescored",
+        "cross_user": "recorded_old",
+        "cross_entity": "recorded_old",
+        "stale_source": "recorded_old"
+      },
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-A/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-A/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-A/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-B/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-B/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-B/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-C/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-C/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-C/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-D/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-D/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-D/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-E/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-E/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-E/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-F/cross_user: recorded_old 不改 state/reason",
+      "got": [
+        "violation",
+        "synthetic_other_user",
+        "recorded_old"
+      ],
+      "want": [
+        "violation",
+        "synthetic_other_user",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-F/cross_entity: recorded_old 不改 state/reason",
+      "got": [
+        "unknown",
+        "synthetic_targets_unresolved",
+        "recorded_old"
+      ],
+      "want": [
+        "unknown",
+        "synthetic_targets_unresolved",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K2",
+      "check": "IND-F/stale_source: recorded_old 不改 state/reason",
+      "got": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "want": [
+        "passed",
+        "synthetic_ok",
+        "recorded_old"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "changed_cases 题集",
+      "got": [
+        "IND-A",
+        "IND-C",
+        "IND-D"
+      ],
+      "want": [
+        "IND-A",
+        "IND-C",
+        "IND-D"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "unchanged_case_count",
+      "got": 3,
+      "want": 3,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "hard_failures 四轴并集",
+      "got": [
+        "IND-D",
+        "IND-E",
+        "IND-F"
+      ],
+      "want": [
+        "IND-D",
+        "IND-E",
+        "IND-F"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "old_hard_failures 四轴并集",
+      "got": [
+        "IND-A",
+        "IND-E",
+        "IND-F"
+      ],
+      "want": [
+        "IND-A",
+        "IND-E",
+        "IND-F"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "missing_evidence_cases 四轴并集",
+      "got": [
+        "IND-C",
+        "IND-F"
+      ],
+      "want": [
+        "IND-C",
+        "IND-F"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "safety violation_reasons",
+      "got": {
+        "forbidden_source_used": 1,
+        "forbidden_value_leaked": 1
+      },
+      "want": {
+        "forbidden_source_used": 1,
+        "forbidden_value_leaked": 1
+      },
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "safety: reason 计数和 = violations",
+      "got": 2,
+      "want": 2,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "cross_user: reason 计数和 = violations",
+      "got": 1,
+      "want": 1,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "cross_entity: reason 计数和 = violations",
+      "got": 0,
+      "want": 0,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "stale_source: reason 计数和 = violations",
+      "got": 0,
+      "want": 0,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-A: 审计码 ⊆ 固定表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-A: from/to 状态来自固定 state 表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-C: 审计码 ⊆ 固定表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-C: from/to 状态来自固定 state 表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-D: 审计码 ⊆ 固定表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K3",
+      "check": "IND-D: from/to 状态来自固定 state 表",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "报告无 verified/threshold_met/release_ready/T207_pass 顶层键",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "not_claimed 固定四项",
+      "got": [
+        "verified",
+        "threshold_met",
+        "release_ready",
+        "T207_pass"
+      ],
+      "want": [
+        "verified",
+        "threshold_met",
+        "release_ready",
+        "T207_pass"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "calls 全零",
+      "got": {
+        "network": 0,
+        "provider": 0,
+        "model": 0,
+        "retrieval": 0,
+        "real": 0
+      },
+      "want": {
+        "network": 0,
+        "provider": 0,
+        "model": 0,
+        "retrieval": 0,
+        "real": 0
+      },
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "schema_version 固定",
+      "got": "p2-evidence-rescore-report/v0.1",
+      "want": "p2-evidence-rescore-report/v0.1",
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "matcher/scope 版本固定",
+      "got": [
+        "ref-unit-matcher/v2",
+        "safety-n/a-scope/v1"
+      ],
+      "want": [
+        "ref-unit-matcher/v2",
+        "safety-n/a-scope/v1"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "public_summary changed_case_count",
+      "got": 3,
+      "want": 3,
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "public_summary hard_failure_count",
+      "got": 3,
+      "want": 3,
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "public_summary 不含逐题 case_id",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "K4",
+      "check": "public_summary 不含 changed_cases 键",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "K5",
+      "check": "同输入两次报告 canonical JSON 完全一致",
+      "got": "50a269f683679b8dfa7e969a716cb9a0db154f88d19bbfbbdcb0d5a0a34ef3d9",
+      "want": "50a269f683679b8dfa7e969a716cb9a0db154f88d19bbfbbdcb0d5a0a34ef3d9",
+      "pass": true
+    },
+    {
+      "probe": "K5",
+      "check": "同输入两次 analysis_identity_sha256 一致",
+      "got": "864a048814139e6d694ba7ce0f306b470985786dd6f742f6ff5690fadb3b886e",
+      "want": "864a048814139e6d694ba7ce0f306b470985786dd6f742f6ff5690fadb3b886e",
+      "pass": true
+    },
+    {
+      "probe": "K5",
+      "check": "报告可独占写出且 sha256 一致",
+      "got": "21f143af1755b90cdf9a66634bef92bdf1e32de2cfe4c4d2894baa859fefceec",
+      "want": "21f143af1755b90cdf9a66634bef92bdf1e32de2cfe4c4d2894baa859fefceec",
+      "pass": true
+    }
+  ]
+}

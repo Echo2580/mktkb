@@ -1,0 +1,1513 @@
+{
+ "probe": "04-key-space",
+ "generated_utc": "2026-11-14T14:27:36.562362+00:00",
+ "check_count": 41,
+ "failure_count": 0,
+ "verdict": "PASS",
+ "checks": [
+  {
+   "name": "no_fuzzy_imports",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "prefix_sites_count",
+   "ok": true,
+   "detail": {
+    "actual": 1,
+    "expected": 1,
+    "extra": [
+     "entity_key.startswith(\"document|\")"
+    ]
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": [
+    "entity_key.startswith(\"document|\")"
+   ]
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": [
+    "if not entity_key or \"|\" in entity_key:",
+    "if canonical is not None and canonical == record.entity_key:",
+    "if canonical is not None and canonical == target.entity_key:",
+    "if target.entity_key != record.entity_key:",
+    "if canonical is not None and canonical == target.entity_key:",
+    "return any(target.entity_key in codes for target in doc_targets)",
+    "if target.granularity == \"doc_code\" and target.entity_key in known_doc_codes"
+   ]
+  },
+  {
+   "name": false,
+   "ok": true,
+   "detail": [
+    {
+     "line": 1430,
+     "attr": "startswith",
+     "text": "entity_key.startswith(\"document|\")"
+    },
+    {
+     "line": 712,
+     "attr": "startswith",
+     "text": "path.startswith(marker)"
+    },
+    {
+     "line": 2248,
+     "attr": "count",
+     "text": "states.count(\"passed\")"
+    },
+    {
+     "line": 2249,
+     "attr": "count",
+     "text": "states.count(\"not_applicable\")"
+    },
+    {
+     "line": 2250,
+     "attr": "count",
+     "text": "states.count(\"unknown\")"
+    },
+    {
+     "line": 2251,
+     "attr": "count",
+     "text": "states.count(\"violation\")"
+    }
+   ]
+  },
+  {
+   "name": "matrix_same_name_key_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:target_matched",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_same_name_key_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_targets_match_ok",
+    "expected": "cross_entity_targets_match_ok",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:target_matched",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_id_key_with_role_filters_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "id_key": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_id_key_with_role_filters_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_targets_match_ok",
+    "expected": "cross_entity_targets_match_ok",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "id_key": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_id_key_without_role_filters_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "entity_key_space_incompatible",
+     "evidence": [
+      "record_identities[0]:entity_key_space_incompatible"
+     ],
+     "row_space": {
+      "id_key": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_id_key_without_role_filters_reason",
+   "ok": true,
+   "detail": {
+    "actual": "entity_key_space_incompatible",
+    "expected": "entity_key_space_incompatible",
+    "extra": {
+     "state": "unknown",
+     "reason": "entity_key_space_incompatible",
+     "evidence": [
+      "record_identities[0]:entity_key_space_incompatible"
+     ],
+     "row_space": {
+      "id_key": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_name_key_vs_other_entity_state",
+   "ok": true,
+   "detail": {
+    "actual": "violation",
+    "expected": "violation",
+    "extra": {
+     "state": "violation",
+     "reason": "other_entity_used",
+     "evidence": [
+      "record_identities[0]:other_entity_used"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_name_key_vs_other_entity_reason",
+   "ok": true,
+   "detail": {
+    "actual": "other_entity_used",
+    "expected": "other_entity_used",
+    "extra": {
+     "state": "violation",
+     "reason": "other_entity_used",
+     "evidence": [
+      "record_identities[0]:other_entity_used"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_opaque_key_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_opaque_key_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_targets_match_ok",
+    "expected": "cross_entity_targets_match_ok",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_contradictory_key_vs_filters_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_contradictory_key_vs_filters_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_targets_match_ok",
+    "expected": "cross_entity_targets_match_ok",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_prefix_lookalike_key_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "entity_key_space_incompatible",
+     "evidence": [
+      "record_identities[0]:entity_key_space_incompatible"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_prefix_lookalike_key_reason",
+   "ok": true,
+   "detail": {
+    "actual": "entity_key_space_incompatible",
+    "expected": "entity_key_space_incompatible",
+    "extra": {
+     "state": "unknown",
+     "reason": "entity_key_space_incompatible",
+     "evidence": [
+      "record_identities[0]:entity_key_space_incompatible"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_record_target_identifier_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:target_matched",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_record_target_identifier_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_targets_match_ok",
+    "expected": "cross_entity_targets_match_ok",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:target_matched",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_record_target_vs_item_id_filters_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "identity_unresolved",
+     "evidence": [
+      "record_identities[0]:identity_unresolved"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_record_target_vs_item_id_filters_reason",
+   "ok": true,
+   "detail": {
+    "actual": "identity_unresolved",
+    "expected": "identity_unresolved",
+    "extra": {
+     "state": "unknown",
+     "reason": "identity_unresolved",
+     "evidence": [
+      "record_identities[0]:identity_unresolved"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_product_target_is_unmatchable_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "targets_unresolved",
+     "evidence": [
+      "targets_unresolved"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_product_target_is_unmatchable_reason",
+   "ok": true,
+   "detail": {
+    "actual": "targets_unresolved",
+    "expected": "targets_unresolved",
+    "extra": {
+     "state": "unknown",
+     "reason": "targets_unresolved",
+     "evidence": [
+      "targets_unresolved"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_nonrole_filter_target_is_unmatchable_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "targets_unresolved",
+     "evidence": [
+      "targets_unresolved"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "matrix_nonrole_filter_target_is_unmatchable_reason",
+   "ok": true,
+   "detail": {
+    "actual": "targets_unresolved",
+    "expected": "targets_unresolved",
+    "extra": {
+     "state": "unknown",
+     "reason": "targets_unresolved",
+     "evidence": [
+      "targets_unresolved"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": [
+    "record_identities[0]:key_space_aligned_by_role_filters",
+    "cross_entity_targets_match_ok"
+   ]
+  },
+  {
+   "name": "prefix_lookalike_never_matches",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown"
+   }
+  },
+  {
+   "name": "opaque_key_row_is_aligned_by_role_filters",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true,
+    "extra": [
+     "record_identities[0]:key_space_aligned_by_role_filters",
+     "cross_entity_targets_match_ok"
+    ]
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "note": "运行期 entity_key 指向 StoreB/ItemB，filters 却是 StoreA/ItemA；规则② 按 filters 复算即判 pass",
+    "row": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:key_space_aligned_by_role_filters",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "opaque": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "same": [
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ]
+    ],
+    "id": [
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ]
+    ],
+    "opaque": [
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ],
+     [
+      "passed",
+      "cross_entity_targets_match_ok"
+     ]
+    ],
+    "other": [
+     [
+      "violation",
+      "other_entity_used"
+     ],
+     [
+      "violation",
+      "other_entity_used"
+     ],
+     [
+      "violation",
+      "other_entity_used"
+     ]
+    ]
+   }
+  },
+  {
+   "name": "order_forward_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "identity_unresolved",
+     "evidence": [
+      "record_identities[0]:identity_unresolved"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "opaque"
+    }
+   }
+  },
+  {
+   "name": "order_forward_reason",
+   "ok": true,
+   "detail": {
+    "actual": "identity_unresolved",
+    "expected": "identity_unresolved"
+   }
+  },
+  {
+   "name": "order_backward_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed",
+    "extra": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok",
+     "evidence": [
+      "record_identities[0]:target_matched",
+      "cross_entity_targets_match_ok"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "opaque"
+    }
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "forward": [
+     "unknown",
+     "identity_unresolved"
+    ],
+    "backward": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ]
+   }
+  },
+  {
+   "name": "id_target_present_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown",
+    "extra": {
+     "state": "unknown",
+     "reason": "entity_key_space_incompatible",
+     "evidence": [
+      "record_identities[0]:entity_key_space_incompatible"
+     ],
+     "row_space": {
+      "corpus_name": 1
+     },
+     "target_space": "corpus_name"
+    }
+   }
+  },
+  {
+   "name": "id_target_present_reason",
+   "ok": true,
+   "detail": {
+    "actual": "entity_key_space_incompatible",
+    "expected": "entity_key_space_incompatible"
+   }
+  },
+  {
+   "name": "canonical_recomputation_matches_rent1_for_all_non_document_branches",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "document_branch_is_not_recomputed_by_design",
+   "ok": true,
+   "detail": {
+    "actual": [
+     null
+    ],
+    "expected": [
+     null
+    ]
+   }
+  },
+  {
+   "name": "normalization_matches_rule_source",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  }
+ ],
+ "static_scan": {
+  "module_imports": [
+   "__future__",
+   "collections",
+   "dataclasses",
+   "datetime",
+   "p2_evidence_rescore",
+   "p2_evidence_rescore_axes",
+   "p2_evidence_snapshot_v03",
+   "rag",
+   "re",
+   "types",
+   "typing"
+  ],
+  "fuzzy_imports": [],
+  "entity_key_lines": [
+   {
+    "line": 22,
+    "text": "（``entity_type=\"document\"``、``entity_key`` 是语料 doc_code 而非运行期 uuid、``filters``",
+    "class": "other"
+   },
+   {
+    "line": 219,
+    "text": "\"entity_key_space_incompatible\",",
+    "class": "other"
+   },
+   {
+    "line": 342,
+    "text": "entity_key: str",
+    "class": "other"
+   },
+   {
+    "line": 351,
+    "text": "_require(isinstance(self.entity_key, str), \"contract_target_invalid\")",
+    "class": "other"
+   },
+   {
+    "line": 417,
+    "text": "isinstance(row, Mapping) and set(row) == {\"entity_type\", \"entity_key\", \"filters\"},",
+    "class": "other"
+   },
+   {
+    "line": 421,
+    "text": "entity_key = row[\"entity_key\"]",
+    "class": "other"
+   },
+   {
+    "line": 424,
+    "text": "_require(isinstance(entity_key, str) and len(entity_key) <= 256, \"contract_target_invalid\")",
+    "class": "other"
+   },
+   {
+    "line": 434,
+    "text": "if not filters and _is_doc_code_level_key(entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 441,
+    "text": "elif entity_type in MATCHABLE_ENTITY_TYPES and bool(entity_key) and role_only:",
+    "class": "other"
+   },
+   {
+    "line": 452,
+    "text": "entity_key=entity_key,",
+    "class": "other"
+   },
+   {
+    "line": 460,
+    "text": "def _is_doc_code_level_key(entity_key: str) -> bool:",
+    "class": "other"
+   },
+   {
+    "line": 462,
+    "text": "if not entity_key or \"|\" in entity_key:",
+    "class": "exact_membership"
+   },
+   {
+    "line": 464,
+    "text": "if _UUID_RE.fullmatch(entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 466,
+    "text": "if _LONG_HEX_RE.fullmatch(entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 468,
+    "text": "return _DOC_CODE_RE.fullmatch(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 775,
+    "text": "entity_key: str | None",
+    "class": "other"
+   },
+   {
+    "line": 849,
+    "text": "entity_key = _str_field(row[\"entity_key\"], at(\"entity_key\"), nullable=True)",
+    "class": "other"
+   },
+   {
+    "line": 897,
+    "text": "entity_key=entity_key,",
+    "class": "other"
+   },
+   {
+    "line": 1389,
+    "text": "def _canonical_entity_key(entity_type: str, filters: Mapping[str, Any]) -> str | None:",
+    "class": "other"
+   },
+   {
+    "line": 1427,
+    "text": "def _key_carries_runtime_identity(entity_key: str) -> bool:",
+    "class": "other"
+   },
+   {
+    "line": 1430,
+    "text": "entity_key.startswith(\"document|\")",
+    "class": "prefix_classification"
+   },
+   {
+    "line": 1431,
+    "text": "or _UUID_ANY_RE.search(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 1432,
+    "text": "or _LONG_HEX_ANY_RE.search(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 1437,
+    "text": "if not record.entity_type or not record.entity_key:",
+    "class": "other"
+   },
+   {
+    "line": 1439,
+    "text": "if record.entity_type == \"document\" or _key_carries_runtime_identity(record.entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 1441,
+    "text": "canonical = _canonical_entity_key(record.entity_type, record.entity_filters)",
+    "class": "other"
+   },
+   {
+    "line": 1442,
+    "text": "if canonical is not None and canonical == record.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1444,
+    "text": "if _ID_TYPE_KEY_RE.match(record.entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 1452,
+    "text": "if _key_carries_runtime_identity(target.entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 1454,
+    "text": "canonical = _canonical_entity_key(target.entity_type, target.filters)",
+    "class": "other"
+   },
+   {
+    "line": 1455,
+    "text": "if canonical is not None and canonical == target.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1457,
+    "text": "if _ID_TYPE_KEY_RE.match(target.entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 1481,
+    "text": "if target.entity_key != record.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1487,
+    "text": "canonical = _canonical_entity_key(record.entity_type, record.entity_filters)",
+    "class": "other"
+   },
+   {
+    "line": 1493,
+    "text": "if canonical is not None and canonical == target.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1499,
+    "text": "return \"incompatible\", \"entity_key_space_incompatible\"",
+    "class": "other"
+   },
+   {
+    "line": 1524,
+    "text": "return any(target.entity_key in codes for target in doc_targets)",
+    "class": "exact_membership"
+   },
+   {
+    "line": 1612,
+    "text": "if any(record.entity_type is not None or record.entity_key is not None for record in snapshot.records):",
+    "class": "other"
+   },
+   {
+    "line": 1692,
+    "text": "if target.granularity == \"doc_code\" and target.entity_key in known_doc_codes",
+    "class": "exact_membership"
+   },
+   {
+    "line": 1724,
+    "text": "(target.entity_type, target.entity_key) for target in matchable_targets + doc_targets",
+    "class": "other"
+   },
+   {
+    "line": 1771,
+    "text": "if not record.entity_type or not record.entity_key:",
+    "class": "other"
+   }
+  ],
+  "key_attribute_calls": [
+   {
+    "line": 1430,
+    "attr": "startswith",
+    "text": "entity_key.startswith(\"document|\")"
+   },
+   {
+    "line": 712,
+    "attr": "startswith",
+    "text": "path.startswith(marker)"
+   },
+   {
+    "line": 2248,
+    "attr": "count",
+    "text": "states.count(\"passed\")"
+   },
+   {
+    "line": 2249,
+    "attr": "count",
+    "text": "states.count(\"not_applicable\")"
+   },
+   {
+    "line": 2250,
+    "attr": "count",
+    "text": "states.count(\"unknown\")"
+   },
+   {
+    "line": 2251,
+    "attr": "count",
+    "text": "states.count(\"violation\")"
+   }
+  ],
+  "entity_key_membership_sites": [
+   {
+    "line": 429,
+    "text": "entity_type not in PRODUCT_ENTITY_TYPES"
+   },
+   {
+    "line": 462,
+    "text": "\"|\" in entity_key"
+   },
+   {
+    "line": 1524,
+    "text": "target.entity_key in codes"
+   },
+   {
+    "line": 1776,
+    "text": "record.entity_type not in MATCHABLE_ENTITY_TYPES"
+   },
+   {
+    "line": 441,
+    "text": "entity_type in MATCHABLE_ENTITY_TYPES"
+   },
+   {
+    "line": 1692,
+    "text": "target.entity_key in known_doc_codes"
+   }
+  ],
+  "prefix_sites": [
+   {
+    "line": 1430,
+    "text": "entity_key.startswith(\"document|\")",
+    "class": "prefix_classification"
+   }
+  ],
+  "exact_sites": [
+   {
+    "line": 462,
+    "text": "if not entity_key or \"|\" in entity_key:",
+    "class": "exact_membership"
+   },
+   {
+    "line": 1442,
+    "text": "if canonical is not None and canonical == record.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1455,
+    "text": "if canonical is not None and canonical == target.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1481,
+    "text": "if target.entity_key != record.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1493,
+    "text": "if canonical is not None and canonical == target.entity_key:",
+    "class": "exact_equality"
+   },
+   {
+    "line": 1524,
+    "text": "return any(target.entity_key in codes for target in doc_targets)",
+    "class": "exact_membership"
+   },
+   {
+    "line": 1692,
+    "text": "if target.granularity == \"doc_code\" and target.entity_key in known_doc_codes",
+    "class": "exact_membership"
+   }
+  ],
+  "other_sites": [
+   {
+    "line": 22,
+    "text": "（``entity_type=\"document\"``、``entity_key`` 是语料 doc_code 而非运行期 uuid、``filters``",
+    "class": "other"
+   },
+   {
+    "line": 219,
+    "text": "\"entity_key_space_incompatible\",",
+    "class": "other"
+   },
+   {
+    "line": 342,
+    "text": "entity_key: str",
+    "class": "other"
+   },
+   {
+    "line": 351,
+    "text": "_require(isinstance(self.entity_key, str), \"contract_target_invalid\")",
+    "class": "other"
+   },
+   {
+    "line": 417,
+    "text": "isinstance(row, Mapping) and set(row) == {\"entity_type\", \"entity_key\", \"filters\"},",
+    "class": "other"
+   },
+   {
+    "line": 421,
+    "text": "entity_key = row[\"entity_key\"]",
+    "class": "other"
+   },
+   {
+    "line": 424,
+    "text": "_require(isinstance(entity_key, str) and len(entity_key) <= 256, \"contract_target_invalid\")",
+    "class": "other"
+   },
+   {
+    "line": 434,
+    "text": "if not filters and _is_doc_code_level_key(entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 441,
+    "text": "elif entity_type in MATCHABLE_ENTITY_TYPES and bool(entity_key) and role_only:",
+    "class": "other"
+   },
+   {
+    "line": 452,
+    "text": "entity_key=entity_key,",
+    "class": "other"
+   },
+   {
+    "line": 460,
+    "text": "def _is_doc_code_level_key(entity_key: str) -> bool:",
+    "class": "other"
+   },
+   {
+    "line": 464,
+    "text": "if _UUID_RE.fullmatch(entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 466,
+    "text": "if _LONG_HEX_RE.fullmatch(entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 468,
+    "text": "return _DOC_CODE_RE.fullmatch(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 775,
+    "text": "entity_key: str | None",
+    "class": "other"
+   },
+   {
+    "line": 849,
+    "text": "entity_key = _str_field(row[\"entity_key\"], at(\"entity_key\"), nullable=True)",
+    "class": "other"
+   },
+   {
+    "line": 897,
+    "text": "entity_key=entity_key,",
+    "class": "other"
+   },
+   {
+    "line": 1389,
+    "text": "def _canonical_entity_key(entity_type: str, filters: Mapping[str, Any]) -> str | None:",
+    "class": "other"
+   },
+   {
+    "line": 1427,
+    "text": "def _key_carries_runtime_identity(entity_key: str) -> bool:",
+    "class": "other"
+   },
+   {
+    "line": 1431,
+    "text": "or _UUID_ANY_RE.search(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 1432,
+    "text": "or _LONG_HEX_ANY_RE.search(entity_key) is not None",
+    "class": "other"
+   },
+   {
+    "line": 1437,
+    "text": "if not record.entity_type or not record.entity_key:",
+    "class": "other"
+   },
+   {
+    "line": 1439,
+    "text": "if record.entity_type == \"document\" or _key_carries_runtime_identity(record.entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 1441,
+    "text": "canonical = _canonical_entity_key(record.entity_type, record.entity_filters)",
+    "class": "other"
+   },
+   {
+    "line": 1444,
+    "text": "if _ID_TYPE_KEY_RE.match(record.entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 1452,
+    "text": "if _key_carries_runtime_identity(target.entity_key):",
+    "class": "other"
+   },
+   {
+    "line": 1454,
+    "text": "canonical = _canonical_entity_key(target.entity_type, target.filters)",
+    "class": "other"
+   },
+   {
+    "line": 1457,
+    "text": "if _ID_TYPE_KEY_RE.match(target.entity_key) is not None:",
+    "class": "other"
+   },
+   {
+    "line": 1487,
+    "text": "canonical = _canonical_entity_key(record.entity_type, record.entity_filters)",
+    "class": "other"
+   },
+   {
+    "line": 1499,
+    "text": "return \"incompatible\", \"entity_key_space_incompatible\"",
+    "class": "other"
+   },
+   {
+    "line": 1612,
+    "text": "if any(record.entity_type is not None or record.entity_key is not None for record in snapshot.records):",
+    "class": "other"
+   },
+   {
+    "line": 1724,
+    "text": "(target.entity_type, target.entity_key) for target in matchable_targets + doc_targets",
+    "class": "other"
+   },
+   {
+    "line": 1771,
+    "text": "if not record.entity_type or not record.entity_key:",
+    "class": "other"
+   }
+  ]
+ },
+ "matrix": {
+  "same_name_key": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:target_matched",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "id_key_with_role_filters": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:key_space_aligned_by_role_filters",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "id_key": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "id_key_without_role_filters": {
+   "state": "unknown",
+   "reason": "entity_key_space_incompatible",
+   "evidence": [
+    "record_identities[0]:entity_key_space_incompatible"
+   ],
+   "row_space": {
+    "id_key": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "name_key_vs_other_entity": {
+   "state": "violation",
+   "reason": "other_entity_used",
+   "evidence": [
+    "record_identities[0]:other_entity_used"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "opaque_key": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:key_space_aligned_by_role_filters",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "opaque": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "contradictory_key_vs_filters": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:key_space_aligned_by_role_filters",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "opaque": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "prefix_lookalike_key": {
+   "state": "unknown",
+   "reason": "entity_key_space_incompatible",
+   "evidence": [
+    "record_identities[0]:entity_key_space_incompatible"
+   ],
+   "row_space": {
+    "opaque": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "record_target_identifier": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:target_matched",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "record_target_vs_item_id_filters": {
+   "state": "unknown",
+   "reason": "identity_unresolved",
+   "evidence": [
+    "record_identities[0]:identity_unresolved"
+   ],
+   "row_space": {
+    "opaque": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "product_target_is_unmatchable": {
+   "state": "unknown",
+   "reason": "targets_unresolved",
+   "evidence": [
+    "targets_unresolved"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "corpus_name"
+  },
+  "nonrole_filter_target_is_unmatchable": {
+   "state": "unknown",
+   "reason": "targets_unresolved",
+   "evidence": [
+    "targets_unresolved"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "corpus_name"
+  }
+ },
+ "order_dependence": {
+  "forward": {
+   "state": "unknown",
+   "reason": "identity_unresolved",
+   "evidence": [
+    "record_identities[0]:identity_unresolved"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "opaque"
+  },
+  "backward": {
+   "state": "passed",
+   "reason": "cross_entity_targets_match_ok",
+   "evidence": [
+    "record_identities[0]:target_matched",
+    "cross_entity_targets_match_ok"
+   ],
+   "row_space": {
+    "corpus_name": 1
+   },
+   "target_space": "opaque"
+  }
+ },
+ "rent1_fidelity": [
+  {
+   "fields": {
+    "门店": "StoreA",
+    "物品": "ItemA"
+   },
+   "entity_type": "item",
+   "contract_key": "item|storea|itema",
+   "adapter_canonical": "item|storea|itema",
+   "equal": true
+  },
+  {
+   "fields": {
+    "门店": "StoreA"
+   },
+   "entity_type": "store",
+   "contract_key": "store|storea",
+   "adapter_canonical": "store|storea",
+   "equal": true
+  },
+  {
+   "fields": {
+    "编号": "W01"
+   },
+   "entity_type": "record",
+   "contract_key": "record|w01",
+   "adapter_canonical": "record|w01",
+   "equal": true
+  },
+  {
+   "fields": {
+    "品名": "奶茶"
+   },
+   "entity_type": "product",
+   "contract_key": "product|奶茶|none|none",
+   "adapter_canonical": "product|奶茶|none|none",
+   "equal": true
+  },
+  {
+   "fields": {
+    "品名": "奶茶",
+    "渠道": "NKA"
+   },
+   "entity_type": "product",
+   "contract_key": "product|奶茶|nka|none",
+   "adapter_canonical": "product|奶茶|nka|none",
+   "equal": true
+  },
+  {
+   "fields": {
+    "品名": "奶茶",
+    "渠道": "NKA",
+    "价格类型": "零售价"
+   },
+   "entity_type": "product",
+   "contract_key": "product|奶茶|nka|零售价",
+   "adapter_canonical": "product|奶茶|nka|零售价",
+   "equal": true
+  },
+  {
+   "fields": {
+    "门店": "StoreA",
+    "物品": "ItemA",
+    "编号": "W01"
+   },
+   "entity_type": "item",
+   "contract_key": "item|storea|itema",
+   "adapter_canonical": "item|storea|itema",
+   "equal": true
+  },
+  {
+   "fields": {
+    "品名": "奶茶",
+    "门店": "StoreA",
+    "物品": "ItemA"
+   },
+   "entity_type": "product",
+   "contract_key": "product|奶茶|none|none",
+   "adapter_canonical": "product|奶茶|none|none",
+   "equal": true
+  },
+  {
+   "fields": {
+    "门店": " 城北店 ",
+    "物品": "折叠凳（蓝）"
+   },
+   "entity_type": "item",
+   "contract_key": "item|城北店|折叠凳(蓝)",
+   "adapter_canonical": "item|城北店|折叠凳(蓝)",
+   "equal": true
+  },
+  {
+   "fields": {},
+   "entity_type": "document",
+   "contract_key": "document|D01",
+   "adapter_canonical": null,
+   "equal": null
+  }
+ ],
+ "normalization": [
+  {
+   "raw": "StoreA",
+   "contract_key": "item|storea|itema",
+   "adapter_key": "item|storea|itema",
+   "equal": true
+  },
+  {
+   "raw": " storea ",
+   "contract_key": "item|storea|itema",
+   "adapter_key": "item|storea|itema",
+   "equal": true
+  },
+  {
+   "raw": "ＳｔｏｒｅＡ",
+   "contract_key": "item|storea|itema",
+   "adapter_key": "item|storea|itema",
+   "equal": true
+  },
+  {
+   "raw": "城北店",
+   "contract_key": "item|城北店|itema",
+   "adapter_key": "item|城北店|itema",
+   "equal": true
+  },
+  {
+   "raw": "折叠凳（蓝）",
+   "contract_key": "item|折叠凳(蓝)|itema",
+   "adapter_key": "item|折叠凳(蓝)|itema",
+   "equal": true
+  }
+ ]
+}

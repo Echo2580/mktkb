@@ -1,0 +1,131 @@
+{
+  "probe": "10-static-reuse",
+  "checks_total": 21,
+  "checks_failed": 0,
+  "checks": [
+    {
+      "label": "module imports clean: []",
+      "ok": true
+    },
+    {
+      "label": "test imports clean: []",
+      "ok": true
+    },
+    {
+      "label": "module import whitelist: ['.p2_evidence_rescore', '__future__', 'collections.abc', 'dataclasses', 'datetime', 'hashlib', 'json', 'os', 'pathlib', 're', 'types', 'typing']",
+      "ok": true
+    },
+    {
+      "label": "module defines no local match_ref_to_unit",
+      "ok": true
+    },
+    {
+      "label": "no p2_hard_evidence import in module/test",
+      "ok": true
+    },
+    {
+      "label": "product_adapter import confined to zero-call test: ['mktkb.evaluation.product_adapter']",
+      "ok": true
+    },
+    {
+      "label": "module source never references product adapter",
+      "ok": true
+    },
+    {
+      "label": "ref_key re-exported not redefined",
+      "ok": true
+    },
+    {
+      "label": "matcher function identity",
+      "ok": true
+    },
+    {
+      "label": "matcher matrix equal (216 combos)",
+      "ok": true
+    },
+    {
+      "label": "identity match -> passed",
+      "ok": true
+    },
+    {
+      "label": "doc mismatch -> unknown (v2 doc_code-aware, would pass if matcher ignored doc)",
+      "ok": true
+    },
+    {
+      "label": "record mismatch -> unknown",
+      "ok": true
+    },
+    {
+      "label": "version mismatch -> unknown",
+      "ok": true
+    },
+    {
+      "label": "locator mismatch -> unknown",
+      "ok": true
+    },
+    {
+      "label": "test has >= 200 assert statements",
+      "ok": true,
+      "detail": 234
+    },
+    {
+      "label": "no tautological assert (True / ... or True)",
+      "ok": true,
+      "detail": 0
+    },
+    {
+      "label": "no pytest skip/xfail usage",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "test functions all have a body with assert",
+      "ok": true,
+      "detail": 18
+    },
+    {
+      "label": "p2_hard_evidence.py == fba6e606…",
+      "ok": true
+    },
+    {
+      "label": "p2_evidence_rescore.py == d8260256…",
+      "ok": true
+    }
+  ],
+  "matcher_matrix_size": 216,
+  "matcher_matrix_mismatches": [],
+  "frozen_sha256": {
+    "p2_evidence_rescore.py": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+    "p2_hard_evidence.py": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+    "p2_evidence_rescore_axes.py": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+    "test_p2_evidence_rescore_axes.py": "1de091b6b43603aa53b6e62514e28407f1dcb24d00564df7328aba9a2131e063"
+  },
+  "module_imports": [
+    ".p2_evidence_rescore",
+    "__future__",
+    "collections.abc",
+    "dataclasses",
+    "datetime",
+    "hashlib",
+    "json",
+    "os",
+    "pathlib",
+    "re",
+    "types",
+    "typing"
+  ],
+  "test_imports": [
+    "__future__",
+    "acceptance.support.netguard",
+    "ast",
+    "hashlib",
+    "json",
+    "mktkb.evaluation",
+    "mktkb.evaluation.product_adapter",
+    "pathlib",
+    "pytest",
+    "sys",
+    "typing"
+  ],
+  "verdict": "PASS"
+}

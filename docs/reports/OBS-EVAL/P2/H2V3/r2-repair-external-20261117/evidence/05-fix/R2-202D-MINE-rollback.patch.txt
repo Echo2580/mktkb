@@ -1,0 +1,136 @@
+# R2-202D 本批 hunk（反向可应用回滚补丁）
+# pre-image  = evidence/05-fix/snapshot-at-pause/retrieval.py.parked.txt (sha256 aee14c827578fa7918ac8c2cc06672bff9959077aee7e931d5f2a59611765f4e)
+# post-image = 工作树 backend/src/mktkb/rag/retrieval.py (sha256 d43530922355206746e40316d6dd5a875da6a3081c68db866cffa2d61b2abdaa)
+# 本批 4 个 hunk（+60 -14）：唯一性守卫常量/类/helper + _store_join_chunks 的 fail-closed 返回码 + _exact_recall 的固定码诊断。
+# 校验：git apply --check -R <本文件> 必须 exit 0；反向应用后文件 sha256 必须回到 pre-image。
+# 回滚方式（只在本批返工时使用）：git apply -R <本文件>
+#
+diff --git a/backend/src/mktkb/rag/retrieval.py b/backend/src/mktkb/rag/retrieval.py
+index 9c74769..b832276 100644
+--- a/backend/src/mktkb/rag/retrieval.py
++++ b/backend/src/mktkb/rag/retrieval.py
+@@ -279,6 +279,32 @@ def _requested_roles(plan: QueryPlan) -> set[str]:
+     return requested
+ 
+ 
++#: ``diagnostics["store_join"]["status"]`` 的固定码（R2-202D）。只编码判定结果，不带门店名、
++#: 行数等任何业务值；``joined`` 表示确实并入了店家行，另外两个码表示 fail-closed 未联结。
++STORE_JOIN_JOINED = "joined"
++STORE_JOIN_MISSING = "store_row_missing"
++STORE_JOIN_AMBIGUOUS = "store_row_ambiguous"
++
++
++class _StoreJoin(tuple):
++    """``_store_join_chunks`` 的返回：``(store_value, store_rows)`` 二元组 + 判定码。
++
++    R2-202D 的唯一性守卫要在诊断里区分「已联结 / 无店家行 / 店家行不唯一」。既有调用方
++    （含 202A/202C/204 的敏感性开关）都按**二元组**解包或整体替换本函数，因此判定码作为
++    ``status`` 属性随值返回，不改元数、不改解包写法；被替换成裸二元组时视为未知。
++    """
++
++    def __new__(cls, store: str, rows: list[IndexedChunk], status: str) -> "_StoreJoin":
++        value = super().__new__(cls, (store, rows))
++        value.status = status
++        return value
++
++
++def _store_row_is_unique(store_rows: list[IndexedChunk]) -> bool:
++    """按派生门店值命中的店家行是否**恰好 1 条**（按记录身份计；一行拆多 chunk 仍算 1 条）。"""
++    return len({chunk.record_unit_id or chunk.chunk_id for chunk in store_rows}) == 1
++
++
+ def _store_join_chunks(session: Session, plan: QueryPlan) -> tuple[str, list[IndexedChunk]]:
+     """「物品字段 + 店家级字段」同问时，按唯一物品行反推门店并取同门店店家行（R2-202C）。
+ 
+@@ -292,30 +318,38 @@ def _store_join_chunks(session: Session, plan: QueryPlan) -> tuple[str, list[Ind
+     - 过滤条件含物品（``item``），且本轮物品/门店目标都不是多目标；
+     - 物品行**唯一**（多行 = 多目标/歧义），且其门店值**唯一且非空**；
+     - 同门店店家行落在**同一记录面上界**内（同一个 ``_base_stmt``：活动/当前资料 +
+-      记录有效期窗口），且确实存在。
++      记录有效期窗口），且确实存在；
++    - R2-202D：同门店店家行**恰好 1 条**。0 条（门店值派生不出 / 店家表无该店 / 记录面
++      过滤后无行）与 >1 条（同一 active 版本里的多行，可能是互斥状态值）一律**不联结**，
++      并在 ``status`` 里留固定码 ``store_row_missing`` / ``store_row_ambiguous``。
++      行基数不是版本语义：同版本两行都过记录面过滤，故只能按基数 fail-closed。
+     """
+     if plan.mode != "record" or not plan.enumerate:
+-        return "", []
++        return _StoreJoin("", [], "")
+     requested = _requested_roles(plan)
+     if not requested & _STORE_LEVEL_ROLES or not requested & _ITEM_LEVEL_ROLES:
+-        return "", []
++        return _StoreJoin("", [], "")
+     if not str(plan.filters.get("item") or "").strip():
+-        return "", []
++        return _StoreJoin("", [], "")
+     if len(tuple(getattr(plan.state, "items", ()) or ())) > 1:
+-        return "", []
++        return _StoreJoin("", [], "")
+     if len(tuple(getattr(plan.state, "stores", ()) or ())) > 1:
+-        return "", []
++        return _StoreJoin("", [], "")
+     item_rows = [
+         chunk
+         for chunk in _load(session, _base_stmt(session, plan, require_record=True))
+         if chunk.entity_type == "item"
+     ]
+     if len({chunk.record_unit_id or chunk.chunk_id for chunk in item_rows}) != 1:
+-        return "", []
++        return _StoreJoin("", [], "")
+     stores = {normalize(str((chunk.filters_norm or {}).get("store") or "")) for chunk in item_rows}
+     stores.discard("")
+-    if len(stores) != 1:
+-        return "", []
++    if not stores:
++        # 门店值派生不出：没有任何可按门店命中的店家行（= 命中 0 行）。
++        return _StoreJoin("", [], STORE_JOIN_MISSING)
++    if len(stores) > 1:
++        # 同一物品行给出多个门店值：无法唯一确定要并哪一家的店家行。
++        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS)
+     store_value = next(iter(stores))
+     # 店家行同样经 ``_base_stmt``：活动/当前资料 + 记录与资料有效期窗口都按本问 as_of 过滤。
+     store_rows = [
+@@ -327,8 +361,11 @@ def _store_join_chunks(session: Session, plan: QueryPlan) -> tuple[str, list[Ind
+         if chunk.entity_type == "store"
+     ]
+     if not store_rows:
+-        return "", []
+-    return store_value, store_rows
++        return _StoreJoin("", [], STORE_JOIN_MISSING)
++    if not _store_row_is_unique(store_rows):
++        # 同门店多行（含互斥状态值）：并进去会让正文同时输出矛盾值，故 fail-closed 不联结。
++        return _StoreJoin("", [], STORE_JOIN_AMBIGUOUS)
++    return _StoreJoin(store_value, store_rows, STORE_JOIN_JOINED)
+ 
+ 
+ def _exact_recall(session: Session, index: Any, plan: QueryPlan, diagnostics: dict[str, Any]) -> list[IndexedChunk]:
+@@ -337,17 +374,26 @@ def _exact_recall(session: Session, index: Any, plan: QueryPlan, diagnostics: di
+     chunks = _load(session, _base_stmt(session, plan, require_record=True))
+     chunks = [chunk for chunk in chunks if _has_role(chunk, plan.field_role)]
+     # 多字段/多实体时保留全部精确命中；不在召回阶段截断。
+-    store_value, store_rows = _store_join_chunks(session, plan)
+-    if store_rows:
++    decision = _store_join_chunks(session, plan)
++    store_value, store_rows = decision
++    # R2-202D：判定码由 ``_store_join_chunks`` 随值返回。两个 fail-closed 码只登记「没联结」
++    # 这一事实（固定码，不带门店名/行数）；被替换成裸二元组时视为未知，行为与加守卫前逐字相同。
++    status = str(getattr(decision, "status", "") or "")
++    if status in (STORE_JOIN_MISSING, STORE_JOIN_AMBIGUOUS):
++        diagnostics["store_join"] = {"status": status}
++    elif store_rows:
+         seen = {chunk.chunk_id for chunk in chunks}
+         joined = [chunk for chunk in store_rows if chunk.chunk_id not in seen]
+         if joined:
+             # 只并入记录面候选，不参与 RRF/重排（店家行仍受原过滤口径约束）。
+             chunks = chunks + joined
+-            diagnostics["store_join"] = {
++            payload: dict[str, Any] = {
+                 "store": store_value,
+                 "chunk_ids": [chunk.chunk_id for chunk in joined],
+             }
++            if status:
++                payload["status"] = status
++            diagnostics["store_join"] = payload
+     diagnostics["exact_candidates"] = len(chunks)
+     return chunks
+ 

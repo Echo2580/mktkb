@@ -1,0 +1,36 @@
+python.exe : 
+所在位置 行:9 字符: 1
++ & $py -X utf8 -m pytest tests/integration/test_s2b_intent_semantics.p ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[r2baseline] VERIFIED mktkb.__file__=D:\mktkb-p2-h2v3-r2-20261117\baseline\pre202c\backend\src\mktkb\__init__.py
+[r2baseline] alt_src=D:\mktkb-p2-h2v3-r2-20261117\baseline\pre202c\backend\src other_mktkb_path_entries_removed=2
+..F.....                                                                 [100%]
+================================== FAILURES ===================================
+________________ test_ambiguous_identifier_candidates_converge ________________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x00000198DDA13350>, 'admin': <starlette.testclient.TestClient object ...3937ff72608ac76ea6695fb627f446a7d9a'}, 'employee': <starlette.testclient.TestClient object at 0x00000198DDCE0050>, ...}
+
+    def test_ambiguous_identifier_candidates_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        opening = _ask(client, conversation, "标识 IB-777 在哪里？")
+>       assert opening["kind"] == "clarification", opening
+E       AssertionError: {'request_id': 'b8deae03-4165-4c78-a817-8f029ae12c75', 'message_id': 'ac9fb342-ce5e-4f95-baca-27ad01837936', 'kind': 'conflict', 'text': '资料中存在冲突：江湾店的立牌的位置有多个有效值：C区一层（来源：dup.xlsx）；C区二层（来源：dup.xlsx）。未按上传时间自动选择其一。', ...}
+E       assert 'conflict' == 'clarification'
+E         
+E         - clarification
+E         + conflict
+
+tests\integration\test_s2b_intent_semantics.py:196: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge
+1 failed, 7 passed, 1 warning in 6.66s

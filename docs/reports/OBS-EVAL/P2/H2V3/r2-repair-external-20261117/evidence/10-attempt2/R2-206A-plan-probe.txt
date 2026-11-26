@@ -1,0 +1,24 @@
+# R2-206A 规划层探针：改前 / 改后对照（parse_query，合成 Lexicon）
+# 改前 bytes：backend/src/mktkb/rag/query.py sha256=69ab6a8cbb6366f6e3674663f7fde624cef9229ab4a03b8e52205ecf951e0cbd
+# 改后 bytes：同一文件 sha256=bedeedaba966209ea26a37fd3bee60fdb96fea21c87ac33dd7dce5ceb3db6fb0
+# 复现命令（backend/）：
+#   ..\.venv\Scripts\python.exe -X utf8 -c "<见 REPORT §3>"
+# Lexicon(stores=('甲店','乙店'), items=('立牌','海报'), field_labels=('位置','联系人','电话','地址','合作状态'))
+#
+# 列：问句 | 改前 reason | 改前 state.field_roles | 改后 reason | 改后 state.field_roles | 改后 plan.field_roles
+
+甲店立牌的电话是多少？                              | SECURITY_RESTRICTED_CONTACT | ('phone',)                        | SECURITY_RESTRICTED_CONTACT | ('phone',)                        | ()
+甲店立牌的地址是多少？                              | SECURITY_RESTRICTED_CONTACT | ('address',)                      | SECURITY_RESTRICTED_CONTACT | ('address',)                      | ()
+甲店立牌的位置和联系电话是多少？                    | SECURITY_RESTRICTED_CONTACT | ('location', 'phone')             | SECURITY_RESTRICTED_CONTACT | ('location', 'phone')             | ()
+甲店立牌找谁对接，电话和地址是多少？                | SECURITY_RESTRICTED_CONTACT | ('contact', 'phone', 'address')   | SECURITY_RESTRICTED_CONTACT | ('contact', 'phone', 'address')   | ()
+甲店和乙店立牌的位置及联系电话是多少？              | SECURITY_RESTRICTED_CONTACT | ('location', 'phone')             | SECURITY_RESTRICTED_CONTACT | ('location', 'phone')             | ()
+甲店立牌放在哪，由谁对接，完整合同和结算账号是多少？| SECURITY_RESTRICTED_CONTACT | ('location', 'contact')           | SECURITY_RESTRICTED_CONTACT | ('location', 'contact')           | ()
+甲店立牌由谁对接？                                  | None                         | ('contact',)                      | None                         | ('contact',)                      | ('contact',)
+甲店立牌的位置在哪里，合作状态分别是什么？          | None                         | ('location', 'status')            | None                         | ('location', 'status')            | ('location', 'status')
+甲店立牌放在哪个位置，合作状态分别是什么，电话是多少？          | **SECURITY_RESTRICTED_CONTACT** | ('location', 'phone', 'status')          | **None** | ('location', 'status') | ('location', 'status')
+甲店立牌放在哪个位置，合作状态分别是什么，电话和地址是多少？    | **SECURITY_RESTRICTED_CONTACT** | ('location', 'phone', 'address', 'status') | **None** | ('location', 'status') | ('location', 'status')
+#
+# 判读：
+# - 只有最后两行（受限角色之外仍有 ≥2 个可答角色的混合形态）改变；其余 8 行改前/改后逐字相同。
+# - 改变的两行里，受限角色不仅不进取值面（plan.field_roles），也不留在 state.field_roles
+#   （请求角色集合本身已被剔除），因此答案层/事实准入层都看不到 phone/address。

@@ -1,0 +1,199 @@
+{
+ "schema_version": "c1p2-independent-coverage/v0.1",
+ "corpus_size": 72,
+ "proven": 23,
+ "not_proven": 49,
+ "distinct_shapes": 22,
+ "shape_counts": {
+  "legacy_no_model/retrieval_empty/not_found": 6,
+  "legacy_model_answer/retrieval_absent/not_found": 1,
+  "legacy_model_answer/retrieval_empty/not_found": 2,
+  "rag_direct/retrieval_empty/not_found": 2,
+  "legacy_no_model/retrieval_empty/clarification": 2,
+  "legacy_no_model/retrieval_empty/knowledge_changed": 1,
+  "legacy_no_model/retrieval_empty/answer": 1,
+  "legacy_no_model/unknown/unknown": 7,
+  "model_events_missing": 2,
+  "branch_evidence_inconsistent": 4,
+  "branch_evidence_missing": 13,
+  "legacy_model_answer/unknown/unknown": 7,
+  "unknown_usage_field": 6,
+  "evidence_incomplete": 6,
+  "rag_direct/unknown/unknown": 2,
+  "legacy_no_model/retrieval_candidates_unused/not_found": 2,
+  "legacy_model_answer/retrieval_candidates_unused/not_found": 2,
+  "rag_direct/retrieval_candidates_unused/not_found": 1,
+  "legacy_model_answer/retrieval_candidates_unused/clarification": 1,
+  "legacy_no_model/retrieval_candidates_unused/no_answer": 1,
+  "legacy_no_model/retrieval_candidates_unused/knowledge_changed": 1,
+  "legacy_no_model/retrieval_absent/not_found": 2
+ },
+ "combo_shape_count": 17,
+ "gap_shape_count": 5,
+ "gap_labels": [
+  "branch_evidence_inconsistent",
+  "branch_evidence_missing",
+  "evidence_incomplete",
+  "model_events_missing",
+  "unknown_usage_field"
+ ],
+ "branches": {
+  "legacy_no_model": 23,
+  "legacy_model_answer": 13,
+  "rag_direct": 5,
+  "unknown": 31
+ },
+ "retrievals": {
+  "retrieval_empty": 14,
+  "retrieval_absent": 3,
+  "unknown": 47,
+  "retrieval_candidates_unused": 8
+ },
+ "outcome_classes": {
+  "refusal": 19,
+  "clarification": 3,
+  "knowledge_changed": 2,
+  "factual": 1,
+  "unknown": 47
+ },
+ "event_kinds": {
+  "claim_observed": 71,
+  "context_observed": 71,
+  "plan_observed": 71,
+  "retrieval_observed": 68,
+  "answer_result": 72,
+  "commit_observed": 70,
+  "model_input": 20,
+  "model_output": 20,
+  "direct_rag_answer": 7,
+  "context_message": 6,
+  "capture_error": 1,
+  "entity_inheritance": 2
+ },
+ "retrieval_event_counts": {
+  "0": 6,
+  "1": 64,
+  "2": 2
+ },
+ "context_message_counts": {
+  "0": 69,
+  "2": 3
+ },
+ "entity_inheritance_counts": {
+  "0": 70,
+  "1": 2
+ },
+ "query_state_event_counts": {
+  "0": 72
+ },
+ "required_shapes": {
+  "无检索": {
+   "cases": [
+    "legacy_model_answer_no_retrieval",
+    "rag_direct_empty",
+    "no_retrieval_positive_snapshot_legacy_no_model"
+   ],
+   "present": true,
+   "all_cases": [
+    "legacy_model_answer_no_retrieval",
+    "no_retrieval_positive_snapshot_legacy_no_model",
+    "rag_direct_empty"
+   ]
+  },
+  "检索为空": {
+   "cases": [
+    "legacy_no_model_retrieval_empty",
+    "legacy_model_answer_retrieval_empty"
+   ],
+   "present": true,
+   "all_cases": [
+    "legacy_model_answer_retrieval_empty",
+    "legacy_no_model_retrieval_empty"
+   ]
+  },
+  "检索有结果但未被使用": {
+   "cases": [
+    "retrieval_candidates_unused_legacy_no_model",
+    "retrieval_candidates_unused_legacy_model",
+    "retrieval_candidates_unused_rag",
+    "retrieval_candidates_unused_with_unresolved"
+   ],
+   "present": true,
+   "all_cases": [
+    "retrieval_candidates_unused_legacy_model",
+    "retrieval_candidates_unused_legacy_no_model",
+    "retrieval_candidates_unused_rag",
+    "retrieval_candidates_unused_with_unresolved"
+   ]
+  },
+  "多轮中部分轮空": {
+   "cases": [
+    "multi_turn_partial_empty",
+    "context_history_no_usage",
+    "query_state_candidates_unused"
+   ],
+   "present": true,
+   "all_cases": [
+    "context_history_no_usage",
+    "multi_turn_partial_empty",
+    "query_state_candidates_unused"
+   ]
+  },
+  "拒答/无事实分支（含仍有检索）": {
+   "cases": [
+    "retrieval_candidates_unused_no_answer",
+    "retrieval_candidates_unused_legacy_no_model",
+    "factual_answer_kind"
+   ],
+   "present": true,
+   "all_cases": [
+    "factual_answer_kind",
+    "retrieval_candidates_unused_legacy_no_model",
+    "retrieval_candidates_unused_no_answer"
+   ]
+  },
+  "带 clarification": {
+   "cases": [
+    "clarification_template_base",
+    "clarification_template_suffix",
+    "retrieval_candidates_unused_clarification"
+   ],
+   "present": true,
+   "all_cases": [
+    "clarification_template_base",
+    "clarification_template_suffix",
+    "retrieval_candidates_unused_clarification"
+   ]
+  },
+  "model_events 缺失": {
+   "cases": [
+    "legacy_no_model_no_retrieval_no_marker",
+    "model_input_without_output",
+    "model_output_without_input"
+   ],
+   "present": true,
+   "all_cases": [
+    "legacy_no_model_no_retrieval_no_marker",
+    "model_input_without_output",
+    "model_output_without_input"
+   ]
+  }
+ },
+ "missing_or_weak_shapes": {
+  "query_state_event_path": true,
+  "multiple_retrieval_events": false,
+  "multi_turn_with_current_usage": true,
+  "rag_query_expansion_with_evidence": true,
+  "clarification_with_usage": true
+ },
+ "test_static": {
+  "skip_markers": [],
+  "assert_true_literals": 0,
+  "parametrize_blocks": 2,
+  "differential_uses_frozen": true,
+  "frozen_sha_asserted": true,
+  "exact_extension_count_asserted": false,
+  "loose_extension_count_assertion": true,
+  "uncoded_asserted_empty": true
+ }
+}

@@ -1,0 +1,296 @@
+{
+  "schema_version": "v3-fix1r1-independent-review/v0.1",
+  "role": "v3-fix-1r1-verify",
+  "package": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1",
+  "baseline": {
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "commits": 172,
+    "staged_paths": [],
+    "pre_existing_tracked_modified": 22,
+    "worktree_changed_by_review": false
+  },
+  "changed_files": {
+    "backend/src/mktkb/rag/query.py": {
+      "before_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+      "after_sha256": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef",
+      "verified": true
+    },
+    "backend/tests/observability/test_paths_e2e.py": {
+      "before_sha256": "d357fdc392e95cfb32f112f2ee28c1d76c14338028fe019ed2b029af37770384",
+      "after_sha256": "c0ff388ff1f59b0c6d5a3662b47d2e0131d434ff1c89effa622b1039b8ed7874",
+      "verified": true
+    },
+    "backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py": {
+      "status": "new_file",
+      "lines": 220
+    }
+  },
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "runnable_real_baseline": {
+    "value": true,
+    "line": "可跑真实基线",
+    "blockers": [],
+    "conditions": [
+      "必须使用 40 元口径的 rollback-40 计划/绑定/GO（D:\\mktkb-p2-h2v3-20261115\\rollback-40\\）；v3-go/report.md 与 plan-index.json 仍是 50 元历史件",
+      "rollback-40 check 4/4 ok=true、zero_send external/local=0、zero_write 预算/账本不变、reservation_count=952",
+      "GO 哈希：r0 dbc198c8bf8ee11c844d0393c9091b25a0b5e6d1281c872cd6b254854fe5217d、r1 a8516ac3d71a9fd9595a000652c534b4809b6cc288cc505a40773688a82fb1b2、r2 d7edf6d256cd19882a682604bb31689e9f0be9ed76a8d8d6f8f09de2a3e4d4e1、r3 d681b673837d681574dfcf18a11984463599d1856c0641411580146916e3b1a4；预算 79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e；账本 ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+      "混合指代（D1）、跨轮（D2）、相邻量化形式（D4）为跑前已知残余；若真实 H2 场景含这些形态，需在评分口径预登记或另开任务收紧"
+    ]
+  },
+  "checks": {
+    "n2_closed": {
+      "status": "pass",
+      "summary": "这两个/这几个 + 已点名门店：改前内核 4 行（answer），改后 MULTIPLE_ENTITIES + clarification 0 行；产品层 owns=false；电话维度同样澄清；单店 + 这两个不冒充多目标",
+      "cases": [
+        "N2a_this_two_with_named_stores",
+        "N2b_these_with_named_stores",
+        "N2c_this_two_phone_dimension",
+        "N2d_this_two_no_field_word",
+        "N2e_single_store_this_two_bounded"
+      ],
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/probe-fix1r1.json"
+    },
+    "a_positive": {
+      "status": "pass",
+      "summary": "两店一物品 / 一店两物品 / 两店电话 / 两店一物品+分别：4/4 MULTI_TARGET_ENUMERATE + owns=true + answer 2 行，目标外行不进证据面；改前后完全相同",
+      "cases": [
+        "P1_two_stores_one_item",
+        "P2_one_store_two_items",
+        "P3_two_stores_phone",
+        "P4_two_stores_one_item_fenbie"
+      ],
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/probe-fix1r1.json"
+    },
+    "new_regression_sweep": {
+      "status": "pass_with_disagreements",
+      "summary": "自造 8 类（混合×4、跨轮、词表外门店、2×2、指代+物品歧义）均未出现 R1 新引入的 MULTI_TARGET_ENUMERATE 整表假放行；混合/跨轮仍有界作答而非澄清（D1/D2）",
+      "cases": [
+        "R1a_mixed_one_item_one_anaphora_single_store",
+        "R1b_mixed_one_item_one_anaphora_two_stores",
+        "R1c_mixed_two_items_one_anaphora",
+        "R1d_mixed_one_item_one_anaphora_no_enumerate_word",
+        "R2_cross_turn_two_stores_one_item",
+        "R3a_anaphora_unknown_store",
+        "R4a_explicit_two_by_two_item_ambiguous",
+        "R4b_anaphora_plus_item_ambiguity"
+      ],
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/probe-fix1r1.json"
+    },
+    "null_bare_routing": {
+      "status": "pass",
+      "summary": "bare 这两个 → MISSING_SLOT；指代+物品维歧义 → ITEM_AMBIGUOUS；门店维（两店+这两个/这几个/电话）→ MULTIPLE_ENTITIES；无字段词 → ANAPHORA_NO_FIELD 澄清",
+      "cases": ["B1_bare_this_two", "B2_bare_this_two_phone", "R4b_anaphora_plus_item_ambiguity"],
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/probe-fix1r1.json"
+    },
+    "diff_append_only": {
+      "status": "pass",
+      "summary": "fix-r1.diff 与改后文件一致；反向应用逐字节回到 fix-1 终态（f73fc735 / d357fdc3），正向应用回到当前（82776def / c0ff388f）；无 fix-1 块被删；仅 1 行等价扩写（+90/−1）",
+      "diff_sha256": "b01fbd213cbb6fb817c4cdeb3f61e60126caebb635b2af6243634fe0bddbcbe1",
+      "diff_bytes": 19637,
+      "deleted_line_count": 1,
+      "deleted_line": "    anaphora = any(word in question for word in ANAPHORA_WORDS)",
+      "additions_by_file": {
+        "backend/src/mktkb/rag/query.py": 90,
+        "backend/tests/observability/test_paths_e2e.py": 20,
+        "backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py": 220
+      },
+      "rollback_of_fix1_suspected": [],
+      "evidence": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/diff-verify.json"
+    },
+    "tests": {
+      "status": "pass_with_known_drift",
+      "summary": "定向 34/34 真过；tests/unit tests/rag 756 collected / 754 passed / 2 failed；2 条失败为既有漂移（official_profile 需 env=40、test_s4 硬编码 20.0），测试文件未改，R1 前日志同样失败；指代/状态继承/B 相邻 49/49 绿",
+      "runs": {
+        "targeted_34": {"collected": 34, "passed": 34, "failed": 0, "exit": 0},
+        "unit_rag": {"collected": 756, "passed": 754, "failed": 2, "exit": 1, "previous_round": {"collected": 740, "passed": 738, "failed": 2}},
+        "drift_env40": {"collected": 22, "passed": 21, "failed": 1, "exit": 1},
+        "anaphora_integration_49": {"collected": 49, "passed": 49, "failed": 0, "exit": 0}
+      },
+      "failures": [
+        "tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552",
+        "tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan"
+      ],
+      "drift_evidence": [
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1/independent/pytest-unit-rag-after-rollback.log",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-drift-with-env40.log",
+        "backend/tests/rag/test_s4_stage_limit.py:208"
+      ],
+      "evidence": [
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-targeted.log",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-unit-rag.log",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-anaphora-integration.log"
+      ]
+    },
+    "zero_calls": {
+      "status": "pass",
+      "summary": "5 个正对照 5/5 被拦（4 外部 + 本机代理端口 127.0.0.1:7897）；pytest 会话内外站尝试 0（34/756/22/49 四次运行）；自建探针 outbound=0；代理环境变量已删；注册表代理仍指向 127.0.0.1:7897，但该端口被单独拦截，proxy_attempts_total=1 仅来自正对照，会话内无任何连接指向它",
+      "proxy_env_removed": ["ALL_PROXY", "HTTPS_PROXY", "HTTP_PROXY", "NODE_USE_ENV_PROXY", "NO_PROXY"],
+      "proxy_registry_after_env_removal": {
+        "http": "http://127.0.0.1:7897",
+        "https": "http://127.0.0.1:7897",
+        "ftp": "http://127.0.0.1:7897"
+      },
+      "external_attempts_during_session": 0,
+      "positive_controls_blocked": "5/5",
+      "local_proxy_control_blocked": true,
+      "proxy_attempts_total": 1,
+      "proxy_attempts_during_session": 0,
+      "loopback_policy": "allowed_and_counted_except_local_proxy_port_7897",
+      "evidence": [
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-targeted-netguard.json",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-unit-rag-netguard.json",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-drift-official40-netguard.json",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-anaphora-integration-netguard.json"
+      ]
+    },
+    "preservation": {
+      "status": "pass",
+      "head_unchanged": true,
+      "branch_unchanged": true,
+      "commits_unchanged": true,
+      "staged_empty": true,
+      "new_commits": 0,
+      "c_freeze_12": {"count": 12, "changed": []},
+      "external_ciphertext_and_corpus": {"count": 13, "changed": [], "extra_files": []},
+      "fixtures_acceptance_h2v3": {"count": 13, "changed": []},
+      "protected_repo": {"count": 14, "changed": []},
+      "v3_freeze_32": {
+        "count": 32,
+        "matched": 30,
+        "mismatched": ["freeze_a_manager_acceptance", "freeze_a_review_aggregate"],
+        "status_changed": false
+      },
+      "tracked_modified_count": 22,
+      "tracked_modified_changed": [
+        "backend/src/mktkb/rag/query.py",
+        "backend/tests/observability/test_paths_e2e.py"
+      ],
+      "tracked_modified_paths": [
+        ".claude/handoffs/_index.md",
+        "backend/src/mktkb/conversations/service.py",
+        "backend/src/mktkb/evaluation/cli.py",
+        "backend/src/mktkb/evaluation/p2_diagnostics.py",
+        "backend/src/mktkb/evaluation/p2_holdout_scenarios.py",
+        "backend/src/mktkb/evaluation/p2_live.py",
+        "backend/src/mktkb/evaluation/p2_runner.py",
+        "backend/src/mktkb/evaluation/p2_scoring.py",
+        "backend/src/mktkb/evaluation/product_adapter.py",
+        "backend/src/mktkb/qa/service.py",
+        "backend/src/mktkb/rag/index.py",
+        "backend/src/mktkb/rag/query.py",
+        "backend/src/mktkb/rag/retrieval.py",
+        "backend/src/mktkb/rag/types.py",
+        "backend/src/mktkb/retrieval/service.py",
+        "backend/tests/integration/test_p1_t103_record_fallback_http.py",
+        "backend/tests/integration/test_t207_fix_conflict_r1.py",
+        "backend/tests/observability/test_paths_e2e.py",
+        "backend/tests/rag/test_query_state.py",
+        "backend/tests/unit/test_conversations.py",
+        "backend/tests/unit/test_p1_t103_record_fallback.py",
+        "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md"
+      ],
+      "untracked_entries": 2628,
+      "untracked_method": "git status --porcelain=v1 --untracked-files=all",
+      "untracked_note": "新增 18 个文件在 docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/，另 2 个根级交付 review-aggregate.json / independent-review.md；未改产品代码",
+      "evidence": [
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/preservation-after.json",
+        "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/preservation-compare.json"
+      ]
+    }
+  },
+  "disagreements": [
+    {
+      "id": "D1",
+      "severity": "medium",
+      "summary": "混合（1 显式 + 1 指代，两店）仍只答显式目标 2 行，未澄清；R1 前（含 fix-1/A 前 baseline）同为有界 2 行，不是 R1 新引入",
+      "example": "北苑店和南湖店的桌牌和这两个分别放在哪里？",
+      "current": {"reason": null, "owns": true, "kind": "answer", "returned": 2},
+      "pre_r1": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true, "kind": "answer", "returned": 2},
+      "pre_fix1_baseline_5a7ed26b": {"reason": null, "owns": true, "enumerate": true, "kind": "answer", "returned": 2},
+      "dev_disclosure": "dev-report.md §6.2",
+      "recommendation": "若经理口径要求未解析指代必须澄清，另开任务改 enumerate && item_filter 路由；本轮不据此判 R1 引入新回归"
+    },
+    {
+      "id": "D2",
+      "severity": "low",
+      "summary": "跨轮纯指代延续上文（2 行），不澄清；R1 前后相同，属上下文延续",
+      "example": "上一轮 北苑店和南湖店的桌牌在哪里？ → 这两个分别放在哪里？",
+      "current": {"kind": "answer", "returned": 2},
+      "pre_r1": {"kind": "answer", "returned": 2}
+    },
+    {
+      "id": "D3",
+      "severity": "low",
+      "summary": "diff 不是零删除的只追加：1 行 anaphora 赋值被等价扩写为 2 行（+90/−1）；无 fix-1 内容被删，反向应用逐字节回到 f73fc735",
+      "evidence": "independent/diff-verify.json"
+    },
+    {
+      "id": "D4",
+      "severity": "medium",
+      "summary": "相邻量化形式 这俩/这些/这2个 + 已点名门店 仍是 MULTI_TARGET_ENUMERATE + 4 行；R1 前后相同，N2 命名的这两个/这几个 已关",
+      "examples": [
+        "北苑店和南湖店的这俩分别放在哪里？",
+        "北苑店和南湖店的这些分别放在哪里？",
+        "北苑店和南湖店的这2个分别放在哪里？"
+      ],
+      "dev_disclosure": "dev-report.md §6.4（泛化披露）"
+    },
+    {
+      "id": "D5",
+      "severity": "low",
+      "summary": "v3 冻结 32 仍 30/32（freeze_a_manager_acceptance / freeze_a_review_aggregate）；会话前即不一致，本轮未变",
+      "evidence": "independent/preservation-compare.json"
+    }
+  ],
+  "residuals": {
+    "Z1_residual_colloquial_this_pair": {
+      "question": "北苑店和南湖店的这俩分别放在哪里？",
+      "current": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true, "kind": "answer", "returned": 4},
+      "pre_r1": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true}
+    },
+    "Z2_residual_these": {
+      "question": "北苑店和南湖店的这些分别放在哪里？",
+      "current": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true, "kind": "answer", "returned": 4},
+      "pre_r1": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true}
+    },
+    "Z3_residual_digit_two": {
+      "question": "北苑店和南湖店的这2个分别放在哪里？",
+      "current": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true, "kind": "answer", "returned": 4},
+      "pre_r1": {"reason": "MULTI_TARGET_ENUMERATE", "owns": true}
+    }
+  },
+  "probe_summary": {
+    "cases": 27,
+    "hard_failures": 0,
+    "residual_observations": 3,
+    "outbound_attempts": 0,
+    "pre_r1_reconstruction": {
+      "sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+      "matches_previous_snapshot": true
+    },
+    "pre_fix1_baseline": {
+      "sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1",
+      "matches_previous_reconstruction": true,
+      "R1a_mixed_single_store": {"reason": null, "owns": true, "kind": "answer", "returned": 1},
+      "R1b_mixed_two_stores": {"reason": null, "owns": true, "kind": "answer", "returned": 2},
+      "R2_cross_turn_turn2": {"reason": null, "owns": true, "kind": "answer", "returned": 2}
+    }
+  },
+  "dev_package_integrity": {
+    "manifest_file_count": 21,
+    "checked": 21,
+    "missing": [],
+    "mismatches": []
+  },
+  "evidence_index": [
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent-review.md",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/diff-verify.json",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/probe-fix1r1.json",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/preservation-compare.json",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-targeted.log",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-unit-rag.log",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-drift-with-env40.log",
+    "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/independent/pytest-anaphora-integration.log"
+  ]
+}

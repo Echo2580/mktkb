@@ -1,0 +1,209 @@
+{
+  "analysis_id": "Q1A-PARTIAL-AUDIT-20261115-r3",
+  "artifacts": {
+    "private_detail": {
+      "bytes": 27212,
+      "exclusive_create": true,
+      "path": "D:\\mktkb-q1a3-rescore\\partial-audit-r3.fernet",
+      "plaintext_bytes": 20342,
+      "sha256": "41a0c0d79da65c862072d8f2a867f9bff3bcb16a54f631b0c045362b53c606b8"
+    },
+    "public_json": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\partial-audit-r3.json",
+    "public_report": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\partial-audit-r3.md"
+  },
+  "audit": {
+    "cases_with_nonempty_partial_pass_turn": 0,
+    "cases_with_partial_turn": 0,
+    "clean": 24,
+    "confirmed_false_pass": 0,
+    "confirmed_false_pass_cases_that_were_case_pass": 0,
+    "empty_pass_turns": 0,
+    "nonempty_partial_pass_turns": 0,
+    "nonempty_pass_turns": 29,
+    "pass_turns_total": 29,
+    "stale_pass_cases": 24,
+    "stale_pass_cases_that_are_case_pass": 11,
+    "suspicious": 0
+  },
+  "bindings": {
+    "case_count": 30,
+    "classifier": {
+      "bytes": 58624,
+      "path": "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_stale_version_state.py",
+      "sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59"
+    },
+    "criterion": {
+      "bytes": 46788,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-stale-source-criterion-v1.md",
+      "sha256": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7"
+    },
+    "old_run_identity": {
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "overall": "MATCH",
+      "package_binding_sha256": "0ea9d21d687427d7e6a2863a57b8fb237984860908c38e4bde0380dff70d597e"
+    },
+    "r3_aggregate": {
+      "bytes": 41549,
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate-r3.json",
+      "sha256": "acb5922db4ada4cb911dada37f8bd0f82756db1da0d054c97d502aa640bc20b9"
+    },
+    "r3_private": {
+      "bytes": 151308,
+      "path": "D:\\mktkb-q1a3-rescore\\rescore-detail-r3.fernet",
+      "sha256": "89739f6d2cd0b4fc583978b3ac02b785c2b1a9004506ae6bbfd00782d8a351e3"
+    },
+    "turn_count": 36
+  },
+  "counterfactual": {
+    "became_unknown_after_injection": 0,
+    "cases_tested": 24,
+    "error_count": 0,
+    "injected_turn_status": "partial",
+    "note": "24/24 still passed proves the R-J-3 non-empty + partial branch is not read; the shipped inputs contain no partial turn, so this is a latent mechanism, not an observed contamination",
+    "still_passed_after_injection": 24
+  },
+  "generated_utc": "2026-11-14T16:15:10Z",
+  "limitations": [
+    "turn_status is the old evidence's completeness.status declaration; this audit does not re-derive capture completeness from events",
+    "record identity remains the runtime unit_key bridge (R-Q1A3R3-02); the record_code strict reading is still 0 pass / 30 unknown and is not mixed with the partial reading",
+    "citation layer was not rerun (R-Q1A3R3-04); stale conclusions do not use citations",
+    "case-level other axes are carried from the R3 private detail, not recomputed",
+    "counterfactual injection is a synthetic mechanism check, not a claim that the shipped evidence contains partial turns"
+  ],
+  "method": {
+    "counterfactual": "in-process only: every executed turn of a stale pass gets turn_status=partial, then determine_stale_case is re-run; no file or real input is changed",
+    "judgement_rules": {
+      "clean": "every passing turn is complete, or empty-set turns already read turn_status",
+      "confirmed_false_pass": "a passing turn has non-empty units and turn_status != complete",
+      "suspicious": "a passing turn has missing/non-enumerated turn_status, observed!=true, or a negative unit count"
+    },
+    "path": "re-run evidence-r3/02-rescore-r3.py's projection; per turn read completeness.status -> turn_status and _stale_usage units; compare with p2_stale_version_state per-turn output",
+    "record_identity": "runtime unit_key (same bridge as R3 primary reading; R-Q1A3R3-02 still open)",
+    "strict_reading": "R-J-3: any turn with turn_status != complete is unknown (stale_usage_set_missing); case folds violation > unknown > not_applicable > passed"
+  },
+  "preservation": {
+    "git_after": {
+      "branch": "codex/p2-e2e",
+      "commit_count": 172,
+      "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+      "staged_count": 0,
+      "status_line_count": 233
+    },
+    "git_before": {
+      "branch": "codex/p2-e2e",
+      "commit_count": 172,
+      "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+      "staged_count": 0,
+      "status_line_count": 233
+    },
+    "git_unchanged": true,
+    "identity_after": {
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "overall": "MATCH",
+      "package_binding_sha256": "0ea9d21d687427d7e6a2863a57b8fb237984860908c38e4bde0380dff70d597e"
+    },
+    "identity_before": {
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "overall": "MATCH",
+      "package_binding_sha256": "0ea9d21d687427d7e6a2863a57b8fb237984860908c38e4bde0380dff70d597e"
+    },
+    "identity_unchanged": true,
+    "protected": {
+      "changed_count": 0,
+      "item_count": 96,
+      "missing_count": 0,
+      "unchanged": true
+    },
+    "staged_empty": true
+  },
+  "privacy": {
+    "case_id_hits": 0,
+    "forbidden_public_keys": [],
+    "verdict": "clean"
+  },
+  "reproduction": {
+    "case_level_before": {
+      "hard_failure": 0,
+      "pass": 11,
+      "unknown": 19
+    },
+    "mismatch_count": 0,
+    "r3_private_cases": 30,
+    "r3_private_cases_matched": 30,
+    "run_distribution": {
+      "0": 26,
+      "1": 1,
+      "2": 2,
+      "3": 1
+    },
+    "stale_states_from_private": {
+      "not_applicable": 0,
+      "passed": 24,
+      "unknown": 6,
+      "violations": 0
+    },
+    "turn_completeness_status": {
+      "complete": 36
+    },
+    "turn_execution_status": {
+      "executed": 36
+    },
+    "turn_status_distribution": {
+      "complete": 36
+    }
+  },
+  "schema_version": "q1a3-partial-audit-r3/v0.1",
+  "scope": {
+    "axes_audited": [
+      "stale_source"
+    ],
+    "axes_carried_from_r3": [
+      "safety",
+      "cross_user",
+      "cross_entity"
+    ],
+    "classifier": "backend/src/mktkb/evaluation/p2_stale_version_state.py",
+    "criterion": "p2-stale-source-criterion/v1",
+    "public_output": "counts only",
+    "question": "are the 24 R3 stale_source passes contaminated by R-J-3 (non-empty units + turn_status=partial -> passed)?",
+    "r3_analysis_id": "Q1A-RESCORE-20261114-r3"
+  },
+  "strict_reading_counts": {
+    "case_level": {
+      "hard_failure": 0,
+      "pass": 11,
+      "unknown": 19
+    },
+    "case_level_if_suspicious_also_unknown": {
+      "hard_failure": 0,
+      "pass": 11,
+      "unknown": 19
+    },
+    "stale_source": {
+      "not_applicable": 0,
+      "passed": 24,
+      "unknown": 6,
+      "violations": 0
+    }
+  },
+  "threshold_reference": {
+    "corrected_case_pass": 11,
+    "min_pass_reference": 24,
+    "statement": "only numbers and whether 24/30 is met; no pass/release conclusion",
+    "still_below_24_of_30": true,
+    "total_cases": 30
+  },
+  "zero_call": {
+    "blocked": true,
+    "guard_event_count_before_positive_control": 0,
+    "guard_event_kinds": [
+      "socket.create_connection"
+    ],
+    "guard_events_before_positive_control": [],
+    "positive_control": "socket.create_connection(127.0.0.1:9)",
+    "verdict": "zero_network_attempts"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "artifacts": [
+    "diagnosis.md",
+    "run-report-r2.md",
+    "conclusion-r2.json",
+    "go-amend-evidence.json",
+    "diagnosis/offline-repro.json",
+    "diagnosis/probe_index_ready.py",
+    "round2-notrun/card-r0..r3.json",
+    "round2-notrun/preservation-check.json"
+  ],
+  "cny": {
+    "ledger_after": 22.22373629999994,
+    "ledger_before": 22.22373629999994,
+    "stage_p2_live_after": 7.152791800000005,
+    "stage_p2_live_before": 7.152791800000005
+  },
+  "conclusion": "NOT_RUN",
+  "go_amendment": {
+    "after": 1150,
+    "before_max_requests": 1137,
+    "effective_cap_note": "有效上限 = min(plan.max_requests=1137, GO=1150) = 1137（p2_authorization.py:620）；余量仍 176，需按需重发计划",
+    "owner_cap": 1500
+  },
+  "reason_code": "INDEX_EMBEDDING_BUDGET_SHORT_UNFIXED",
+  "requests": {
+    "attempts": 0,
+    "cumulative_after": 961,
+    "cumulative_before": 961,
+    "sent": 0
+  },
+  "runs": [
+    {
+      "index_embedding_needed_batches": 9,
+      "planned_ingest_batches": 8,
+      "planned_requests": 64,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "status": "NOT_RUN"
+    },
+    {
+      "index_embedding_needed_batches": 10,
+      "planned_ingest_batches": 9,
+      "planned_requests": 49,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "status": "NOT_RUN"
+    },
+    {
+      "index_embedding_needed_batches": 13,
+      "planned_ingest_batches": 11,
+      "planned_requests": 35,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "status": "NOT_RUN"
+    },
+    {
+      "index_embedding_needed_batches": 15,
+      "planned_ingest_batches": 13,
+      "planned_requests": 37,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "status": "NOT_RUN"
+    }
+  ],
+  "schema_version": "p2-h2v3-round2-aggregate/v0.1"
+}

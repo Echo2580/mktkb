@@ -1,0 +1,3806 @@
+diff --git a/.claude/handoffs/_index.md b/.claude/handoffs/_index.md
+index 22d0a30..6defd86 100644
+--- a/.claude/handoffs/_index.md
++++ b/.claude/handoffs/_index.md
+@@ -1,5 +1,13 @@
+ # 协调区索引（_index.md）
+ 
++> **最新T207质量修复暂停交接（2026-11-12）**：主人要求先暂停并新窗口接替。当前HEAD `c3051056`；离线H2MAP（255独立通过）与SAFE-DIAG R1（302独立通过）已接收/本地提交，真实新增0，T207完整质量仍未通过。专门保管可见性例外已批准；保管v0.1语义拒收，双状态仍8缺口。四状态替换方案**尚未批准**（主人对此问句答复是先暂停），不得自动实施或真实跑。交接见[2026-11-12-081943-t207-quality-repair-paused.md](2026-11-12-081943-t207-quality-repair-paused.md)；新窗口先核现场，再只确认这一未决数据契约。不进入T208/T209/T900。
++
++> **最新T206 pilot接收（2026-11-11 02:5x）**：**真实 pilot 独立复核 PASS（授权/账本/回执/额度四面）并已接收执行面**：账本 1011→1095（+42/+42 全 P2-LIVE、逐笔复算一致），settled **0.5713583**（OCR 0.5 + answer_retrieval 0.0713583）、reserve 0.6893120，请求 547/566/1000，gate real_sends_allowed=true、citation 6 verified、binding/trace 完整、出站 39。**更正**：作废「Q01 覆盖同槽 V1→V2」（V03/D01 被导入为两个独立文档，属播种配方；T207 需新计划+新 GO 重新播种）；质量不作达标（gate_v0_3 unapproved）。5 项返工转 T207；pilot 证据 commit `fe9d4ae`、PLAN-R1 文档 `9a740ce`。**下一步：T207 计划/GO（P2 余 ~19.43 元、全局请求 547/1000）→ 正式矩阵。** 详见[任务书](../../docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md)与[推进记录](2026-11-10-p2-progress.md)。
++
++> **最新经理交接授权（2026-11-10）**：主人要求可直接复制的交接提示词，明确新的AI项目经理**可以派遣子智能体逐步推进P2**。交接见 [`2026-11-10-154731-p2-project-manager.md`](2026-11-10-154731-p2-project-manager.md)；任务书/进度已注明自动串行派发授权，覆盖早先仅手动转交提示词的方式。核现场时T201仍READY未派发，无P2正式开发报告；本窗口只交接，未创建助手或启动测试/付费调用。
++
++> **最新P2规划与预算（2026-11-10）**：主人委托经理拆解、保存并逐步指导P2，明确**P2新增预算20元、H2至少24/30通过且安全相关硬失败0**。主任务书：[P2任务书](../../docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md)；推进记录 [`2026-11-10-p2-progress.md`](2026-11-10-p2-progress.md)。基线 `main@59107fc`，P1保留通过且PR#2已合并。T200经理准备完成，**T201 READY、未派发**；首包开发/独立验收提示词已备。当前仅文档与只读核对，未跑测试/改产品/启用真实调用/改原预算GO。新增20元与旧余额分开；候选项目上限40、P2-LIVE阶段20，实际GO未签发。直接提交/合并不自行追加全量测试。
++
+ > **最新合并授权与验证（2026-11-10，主人「行，先合并，你来合并」）**：按主人指令将 P1FIX 与保留通过记录提交到现有 PR #2 并合并至 `main`。本次直接运行标准全量 **2023 passed**、前端 typecheck/build 通过，修复文件与受保护文件哈希核对完成；P1 保留项不变、不进入 P2。验证及授权见 [`2026-11-10-p1-merge.md`](2026-11-10-p1-merge.md)；最终合并状态与 SHA 以 [PR #2](https://github.com/Echo2580/mktkb/pull/2) 审计为准。下文“未获合并授权”为此前历史。
+ 
+ > **最新人工验收决定（主人 2026-11-10「P1保留通过」）**：**P1 正式记为保留通过**。P1FIX 开发交付按主人决定接收；Holdout 7/30、防污染事件待核、新 pipeline 发布基线未建、前端 e2e 与本次独立复验未做等保留项如实保留，不升级为已验证。决定见 [`2026-11-10-p1-owner-acceptance.md`](2026-11-10-p1-owner-acceptance.md)。修复仍为本地未提交工作区（HEAD `3eec866`）；本次未提交/推送/合并 PR、未派发后续任务或进入 P2。以下“待主人最终决定”为此前历史状态，以本条为准。
+diff --git a/backend/src/mktkb/conversations/intent.py b/backend/src/mktkb/conversations/intent.py
+index 7811497..e9408b2 100644
+--- a/backend/src/mktkb/conversations/intent.py
++++ b/backend/src/mktkb/conversations/intent.py
+@@ -21,8 +21,10 @@ from ..retrieval.tokenize import cut, normalize
+ from ..retrieval.types import QueryIntent
+ from ..rag.query import (
+     GENERIC_FIELD_WORDS,
++    SWITCH_WORDS,
+     financial_metric_question,
+     identifier_shape,
++    is_policy_question,
+     is_regulation_question,
+     match_identifier,
+ )
+@@ -32,10 +34,15 @@ from ..text_zh import iter_store_names
+ FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
+     "位置": ("位置", "在哪", "哪里", "放哪", "放到哪", "放在哪", "哪儿", "存放"),
+     "联系人": ("联系人",),
+-    "电话": ("联系电话", "电话", "号码"),
++    "电话": ("联系电话", "电话", "号码", "手机号", "手机号码", "联系方式"),
+     "地址": ("地址",),
+     "合作状态": ("合作状态", "合作关系", "合作"),
+ }
++#: v3-safety-fix：个人联系信息字段。它们只出现在店家记录里，物品位置表没有这些列；
++#: 同一请求同时要“物品目标 + 这些字段”时属于跨资料合并，按安全策略整体拒答。
++RESTRICTED_CONTACT_FIELDS: frozenset[str] = frozenset({"联系人", "电话", "地址"})
++#: 物品型裸追问可继承的字段：只限物品记录行上存在的字段（位置）。
++ITEM_LEVEL_FOLLOWUP_FIELDS: frozenset[str] = frozenset({"位置"})
+ # 业务上可能被问到、但当前资料/契约没有的字段：只用于 missing_fields 说明
+ MISSING_FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
+     "负责人": ("负责人",),
+@@ -184,6 +191,9 @@ class IntentPlan:
+     #: T207-FIX-CONFLICT/N08：问题以照片/图片为事实来源。首版无图片输入通道，
+     #: 也不做实物识别；service 层在检索后按范围外拒答（不得退化成澄清）。
+     image_not_supported: bool = False
++    #: v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并请求。
++    #: 非空时 service 层在检索/模型之前按安全策略整体拒答（固定 reason，不按题号/固定串特判）。
++    security_refusal: str | None = None
+ 
+ 
+ def load_lexicon(db: Session) -> EntityLexicon:
+@@ -464,24 +474,6 @@ def parse_question(
+     不把历史助手答案当事实。
+     """
+     context_entities = dict(context_entities or {})
+-    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）不在当前语料范围。先标记，
+-    # 仍走正文检索以做“资料支持判定”（证据里确有该指标数值时不拒答）；判定在
+-    # service 层检索后、任何模型调用前完成。
+-    out_of_scope = financial_metric_question(question)
+-    if out_of_scope:
+-        return IntentPlan(
+-            mode="document",
+-            intent=QueryIntent(mode="document", terms=_document_terms(question)),
+-            out_of_scope=out_of_scope,
+-        )
+-    # T207-FIX-CONFLICT/N08：图片/实物识别题先按范围外标记，仍走一次正文检索
+-    # （保持 retrieve 的真实执行事实与既有 Span 契约），由 service 层给出拒答文案。
+-    if image_source_question(question):
+-        return IntentPlan(
+-            mode="document",
+-            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
+-            image_not_supported=True,
+-        )
+     stores = _match_labels(question, lexicon.store_labels)
+     item_labels = _match_labels(question, lexicon.item_labels)
+     for alias_label in _alias_labels(question, lexicon):
+@@ -492,14 +484,60 @@ def parse_question(
+ 
+     identifier = match_identifier(question, lexicon.identifier_labels) if lexicon.identifier_labels else None
+     unknown_identifier = _unknown_identifier(question, identifier, lexicon)
+-    if unknown_identifier:
++    unknown_store = _unknown_store(question, stores, lexicon) if not stores else None
++
++    record_fields = _field_hits(question, FIELD_SYNONYMS)
++    missing_fields = _missing_field_hits(
++        question, has_record_entity=bool(stores) and bool(item_labels)
++    )
++    # "负责人"是资料未记录的字段，不能被当作联系人命中
++    if "负责人" in missing_fields:
++        record_fields = [name for name in record_fields if name != "联系人"]
++        if any(normalize(word) in normalize(question) for word in ("负责人",)):
++            record_fields = []
++
++    # v3-safety-fix：本轮点名的物品目标 + 个人联系信息字段（联系人/电话/地址）=
++    # 跨资料（物品位置表 + 店家信息表）合并，属于受限个人信息范围。这条判定只依赖
++    # 本轮显式实体与字段，放在多实体澄清之前，保证同类请求一律按安全拒答收口，
++    # 不因“多个目标”退化成澄清。纯店家级联系信息查询（无物品目标）不在此列。
++    if (
++        (item_labels or identifier)
++        and set(record_fields) & RESTRICTED_CONTACT_FIELDS
++        and not is_regulation_question(question)
++        and not is_policy_question(question)
++    ):
++        filters: dict[str, str] = {}
++        if len(stores) == 1:
++            filters["store"] = stores[0]
++        if len(item_labels) == 1:
++            filters["item"] = item_labels[0]
+         return IntentPlan(
+             mode="record",
+-            intent=None,
+-            unknown_identifier=unknown_identifier,
++            intent=QueryIntent(
++                mode="record", entity_filters=filters, requested_fields=tuple(record_fields)
++            ),
++            requested_fields=tuple(record_fields),
++            missing_fields=tuple(missing_fields),
++            entities=dict(filters),
++            security_refusal="SECURITY_RESTRICTED_CONTACT",
+         )
+ 
+-    unknown_store = _unknown_store(question, stores, lexicon) if not stores else None
++    # 范围外分支不能抢在已识别的受限联系信息策略之前。
++    out_of_scope = financial_metric_question(question)
++    if out_of_scope:
++        return IntentPlan(
++            mode="document",
++            intent=QueryIntent(mode="document", terms=_document_terms(question)),
++            out_of_scope=out_of_scope,
++        )
++    if image_source_question(question):
++        return IntentPlan(
++            mode="document",
++            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
++            image_not_supported=True,
++        )
++    if unknown_identifier:
++        return IntentPlan(mode="record", intent=None, unknown_identifier=unknown_identifier)
+     if unknown_store:
+         return IntentPlan(
+             mode="record",
+@@ -531,17 +569,29 @@ def parse_question(
+     item = item_labels[0] if item_labels else None
+     explicit_store = store is not None
+     explicit_item = item is not None
+-    previous_item = _previous_item(context_questions, lexicon)
+-
+-    record_fields = _field_hits(question, FIELD_SYNONYMS)
+-    missing_fields = _missing_field_hits(
+-        question, has_record_entity=bool(stores) and bool(item_labels)
++    last_question = context_questions[-1] if context_questions else ""
++    switched_without_entity = bool(
++        last_question
++        and any(word in last_question for word in SWITCH_WORDS)
++        and not _match_labels(last_question, lexicon.store_labels)
++        and not _match_labels(last_question, lexicon.item_labels)
+     )
+-    # "负责人"是资料未记录的字段，不能被当作联系人命中
+-    if "负责人" in missing_fields:
+-        record_fields = [name for name in record_fields if name != "联系人"]
+-        if any(normalize(word) in normalize(question) for word in ("负责人",)):
+-            record_fields = []
++    if switched_without_entity:
++        context_entities = {}
++    if (
++        switched_without_entity
++        and explicit_item
++        and not explicit_store
++        and not record_fields
++        and not missing_fields
++        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
++    ):
++        return IntentPlan(
++            mode="record", intent=None, entities={},
++            clarification="请明确要查询的门店。",
++            candidates=_candidate_questions(lexicon, stores=list(lexicon.store_labels), item=item, requested_fields=()),
++        )
++    previous_item = _previous_item(context_questions, lexicon)
+ 
+     # 明确实体可继承：新明确对象覆盖旧对象；问题没有新对象时补足上下文中的实体。
+     # 门店级字段（联系人/电话/地址/合作状态）不继承物品，避免把店家记录误配到物品行。
+@@ -577,6 +627,27 @@ def parse_question(
+     if item is None and inherited_item and not store_level and (bare_followup or not explicit_store):
+         item = inherited_item
+ 
++    # v3-safety-fix（跨实体污染）：只点名“另一个物品”的裸追问（如上一轮问城东店展架位置，
++    # 本轮只问“宣传海报呢？”）不能落成无边界的正文的检索——那会把同名不同店的记录行一起
++    # 送进证据面（“门店”条件丢失）。上下文里门店唯一且上一轮问的是物品行字段时，按
++    # “继承门店 + 上一轮字段 + 本轮物品”收敛为记录型计划。
++    if (
++        explicit_item
++        and not explicit_store
++        and not record_fields
++        and not missing_fields
++        and store_level is False
++        and context_questions
++        and context_entities.get("store")
++        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
++    ):
++        previous_fields = _field_hits(context_questions[-1], FIELD_SYNONYMS)
++        inherited_fields = [
++            name for name in previous_fields if name in ITEM_LEVEL_FOLLOWUP_FIELDS
++        ]
++        if inherited_fields:
++            record_fields = inherited_fields
++
+     entities: dict[str, str] = {}
+     if store:
+         entities["store"] = store
+diff --git a/backend/src/mktkb/conversations/service.py b/backend/src/mktkb/conversations/service.py
+index f4c2c1f..9ebd992 100644
+--- a/backend/src/mktkb/conversations/service.py
++++ b/backend/src/mktkb/conversations/service.py
+@@ -60,11 +60,18 @@ from ..errors import (
+ )
+ from ..observability import trace_attrs
+ from ..observability.contracts import OutcomeKind, TracePath
++from ..observability.evaluation_capture import capture_enabled, emit_capture_event
+ from ..observability.tracer import current_trace
+ from ..qa import QaNotReady
+ from ..rag.chunking import role_label as rag_role_label
+ from ..rag.errors import KnowledgeChanged as RagKnowledgeChanged
+-from ..rag.query import texts_support_financial_metric
++from ..rag.query import (
++    financial_metric_question,
++    metric_binding_identity,
++    metric_binding_values,
++    texts_support_financial_metric,
++    unattributed_metric_values,
++)
+ from ..rag.types import QueryPlan, QueryState, RagAnswer
+ from ..providers.types import (
+     MAX_MODEL_TERM_CHARS,
+@@ -403,9 +410,15 @@ def _add_user_message(db: Session, conversation: Conversation, user: UserContext
+     return message
+ 
+ 
+-def _load_context(db: Session, conversation: Conversation, before_seq: int) -> tuple[tuple[str, ...], dict[str, str]]:
++def _load_context(
++    db: Session,
++    conversation: Conversation,
++    before_seq: int,
++    *,
++    capture_request_id: str | None = None,
++) -> tuple[tuple[str, ...], dict[str, str]]:
+     rows = db.execute(
+-        select(ConversationMessage.text)
++        select(ConversationMessage)
+         .where(
+             ConversationMessage.conversation_id == conversation.id,
+             ConversationMessage.role == "user",
+@@ -413,8 +426,27 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
+         )
+         .order_by(ConversationMessage.seq.desc())
+         .limit(MAX_CONTEXT_QUESTIONS)
+-    ).all()
+-    questions = tuple(reversed([row[0] for row in rows]))
++    ).scalars().all()
++    ordered = list(reversed(rows))
++    questions = tuple(str(row.text or "") for row in ordered)
++    if capture_enabled() and capture_request_id is not None:
++        emit_capture_event(
++            "context_observed",
++            request_id=str(capture_request_id),
++            count=len(ordered),
++            empty=not ordered,
++        )
++        for row in ordered:
++            emit_capture_event(
++                "context_message",
++                request_id=str(capture_request_id),
++                message_id=str(row.id),
++                owner_user_id=str(row.user_id),
++                role=str(row.role),
++                seq=int(row.seq),
++                text=str(row.text or ""),
++                origin="history_user_question",
++            )
+ 
+     latest_assistant = db.scalar(
+         select(ConversationMessage)
+@@ -431,6 +463,7 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
+         references = db.scalars(
+             select(MessageSource).where(MessageSource.message_id == latest_assistant.id)
+         ).all()
++        sources: list[tuple[object, dict[str, str]]] = []
+         for reference in references:
+             from ..retrieval.models import RetrievalUnitIndex
+ 
+@@ -438,9 +471,30 @@ def _load_context(db: Session, conversation: Conversation, before_seq: int) -> t
+                 select(RetrievalUnitIndex).where(RetrievalUnitIndex.unit_id == reference.source_id)
+             )
+             filters = dict((index_row.entity_filters or {})) if index_row is not None else {}
+-            for key in ("store", "item"):
+-                if filters.get(key):
+-                    entities.setdefault(key, str(filters[key]))
++            sources.append((reference, {key: str(filters[key]) for key in ("store", "item") if filters.get(key)}))
++        for key in ("store", "item"):
++            values = {fields[key] for _, fields in sources if key in fields}
++            if len(values) == 1:
++                entities[key] = next(iter(values))
++        paired_reference = None
++        if len(entities) == 2:
++            paired_reference = next((ref for ref, fields in sources if all(
++                fields.get(key) == value for key, value in entities.items()
++            )), None)
++            if paired_reference is None:
++                entities.clear()
++        if capture_enabled() and capture_request_id is not None:
++            for key, value in entities.items():
++                reference = paired_reference or next(ref for ref, fields in sources if fields.get(key) == value)
++                emit_capture_event(
++                    "entity_inheritance",
++                    request_id=str(capture_request_id),
++                    entity_type=key,
++                    entity_key=value,
++                    source_message_id=str(latest_assistant.id),
++                    source_unit_id=str(reference.source_id),
++                    source="latest_assistant_message_source",
++                )
+     return questions, entities
+ 
+ 
+@@ -473,7 +527,21 @@ def _claim(
+             if existing.payload_sha256 != digest:
+                 raise RequestPayloadMismatch()
+             if existing.status == "succeeded":
+-                return _ReplayClaim(_replay(db, existing))
++                replay = _replay(db, existing)
++                if capture_enabled():
++                    emit_capture_event(
++                        "claim_observed",
++                        request_id=str(existing.id),
++                        conversation_id=str(conversation.id),
++                        attempt=int(existing.attempt),
++                        authenticated_user_id=str(user.id),
++                        owner_user_id=str(conversation.user_id),
++                        user_message_id=None,
++                        user_message_seq=None,
++                        initial_revision=int(get_revision(db)),
++                        replay=True,
++                    )
++                return _ReplayClaim(replay)
+             if existing.status == "running":
+                 if not _deadline_passed(existing.deadline_at, now):
+                     raise QuestionInProgress()
+@@ -521,7 +589,22 @@ def _claim(
+ 
+         conversation.updated_at = now
+         revision = get_revision(db)
+-        questions, entities = _load_context(db, conversation, user_message.seq)
++        if capture_enabled():
++            emit_capture_event(
++                "claim_observed",
++                request_id=str(request_row.id),
++                conversation_id=str(conversation.id),
++                attempt=int(request_row.attempt),
++                authenticated_user_id=str(user.id),
++                owner_user_id=str(conversation.user_id),
++                user_message_id=str(user_message.id),
++                user_message_seq=int(user_message.seq),
++                initial_revision=int(revision),
++                replay=False,
++            )
++        questions, entities = _load_context(
++            db, conversation, user_message.seq, capture_request_id=str(request_row.id)
++        )
+         return _Claim(
+             conversation_id=conversation.id,
+             request_id=request_row.id,
+@@ -587,6 +670,21 @@ def expire_stale_requests(db_factory, *, now: datetime | None = None) -> int:
+ # ---------------------------------------------------------------- 检索与证据
+ 
+ 
++def _legacy_evidence_as_of(qa, plan) -> str | None:
++    """legacy 证据面按业务日过滤时使用的日期（v3-fix-1/B）。
++
++    取值只来自产品本轮已解析的计划（``QueryPlan.as_of``：题面显式日期优先，否则是
++    Settings 级 ``rag_business_date``）；没有 RAG 装配或明确问“未来/调整后”时返回
++    ``None``，保持原行为、不臆造日期。
++    """
++    if qa is None or plan is None:
++        return None
++    if bool(getattr(plan, "include_future", False)):
++        return None
++    value = getattr(plan, "as_of", None)
++    return str(value) if value else None
++
++
+ def _retrieve(
+     db_factory,
+     intent: QueryIntent,
+@@ -594,15 +692,24 @@ def _retrieve(
+     limit: int = 20,
+     *,
+     candidate_ids: set[str] | None = None,
++    as_of: str | None = None,
+ ) -> EvidenceSet:
+     """产品证据入口。``candidate_ids`` 是 rag 内核本轮召回的产品来源单元集合（记录型问题）。
+ 
+     rag 索引与本轮 revision 对齐后才给出候选；这里只把候选作为记录型检索的上界，
+     分组/歧义/冲突/可见性仍由既有检索与提交事务复核。正文型问题不做该限制。
++    ``as_of`` 是业务日（仅时间维度过滤：过期/未生效的记录行不进入证据面）。
+     """
+     db = _session_factory(db_factory)()
+     try:
+-        return retrieve(db, intent, revision=revision, limit=limit, candidate_ids=candidate_ids)
++        return retrieve(
++            db,
++            intent,
++            revision=revision,
++            limit=limit,
++            candidate_ids=candidate_ids,
++            as_of=as_of,
++        )
+     finally:
+         db.close()
+ 
+@@ -638,7 +745,12 @@ def _entity_filters(units: Iterable[SourceUnit]) -> dict[str, str]:
+ 
+ 
+ def _same_entity_evidence(
+-    db_factory, plan: intent_module.IntentPlan, units: Iterable[SourceUnit], revision: int
++    db_factory,
++    plan: intent_module.IntentPlan,
++    units: Iterable[SourceUnit],
++    revision: int,
++    *,
++    as_of: str | None = None,
+ ) -> EvidenceSet | None:
+     """同一实体的全部可见记录（不受 rag 候选窗口限制），供冲突复核。
+ 
+@@ -657,7 +769,9 @@ def _same_entity_evidence(
+         requested_fields=tuple(plan.requested_fields),
+     )
+     try:
+-        return _retrieve(db_factory, probe, revision, limit=20, candidate_ids=None)
++        return _retrieve(
++            db_factory, probe, revision, limit=20, candidate_ids=None, as_of=as_of
++        )
+     except (KnowledgeRevisionChanged, IndexNotReady, QueryRejected, OperationalError):
+         # 复核失败不改变既有结论：原证据仍然有效，不把复核异常升级成用户可见错误。
+         # OperationalError 与同文件其它 DB 入口同口径：只放弃本次复核（fail-closed，不披露冲突），
+@@ -909,6 +1023,34 @@ def _validate_answer(
+         unattested = sorted(token for token in _value_tokens(text_value) if token not in attested)
+         if unattested:
+             raise ModelOutputInvalid("回答包含引用来源中不存在的数据值")
++        # M2（T207-R1）：token 存在不足以证明取值正确。指标题里回答把某值绑到指标 A，
++        # 而被引证据把该值绑到指标 B（如营业收入值说成净利润），属于取值/来源不符。
++        # 只核对**本次实际引用**正文的值位置绑定；问题原文逐字出现的前提值
++        # 沿用 P-R1 放行口径，不在这里撤销。非指标题（question 未命中）完全跳过，不改既有行为。
++        # T207-R1 返工（R5/R6）：绑定按真同义身份细化（毛利≠净利润，净利/纯利=净利润，
++        # 营业收入/营收/营业额同义），并携带单位/倍率（“908 万元”≠“908 元”）；
++        # 回答把值绑到哪个身份，就必须由被引证据对该身份的绑定背书。
++        # T207-R1 返工（R4）：省略指标名/组外缩写的回答没有指标绑定，空绑定集不得
++        # 绕过核对——回答里未归属任何指标身份的“指标样取值”（带连接词或单位/倍率，
++        # 排除日期/编号内嵌数字）默认就是在回答所问指标，必须由所问指标的被引绑定
++        # 背书；问题前提值仍按 P-R1 放行。
++        metric = financial_metric_question(question)
++        if metric is not None:
++            question_values = _value_tokens(question)
++            corpus_bindings = metric_binding_values(cited_corpus)
++            for identity, values in metric_binding_values(text_value).items():
++                backed = corpus_bindings.get(identity, set())
++                for value in sorted(values):
++                    if value[0] in question_values:
++                        continue
++                    if value not in backed:
++                        raise ModelOutputInvalid("回答把数值绑定到了引用来源未支持的指标")
++            asked_backed = corpus_bindings.get(metric_binding_identity(metric), set())
++            for value in sorted(unattributed_metric_values(text_value)):
++                if value[0] in question_values:
++                    continue
++                if value not in asked_backed:
++                    raise ModelOutputInvalid("回答的指标取值未获得所问指标的被引绑定背书")
+     else:
+         evidence_units = None
+     if store_scope is not None:
+@@ -1339,6 +1481,7 @@ def _record_facts(
+     }
+     parsed: list[tuple[str, str, str]] = []
+     seen: set[str] = set()
++    seen_clauses: dict[str, str] = {}
+     for index, clause in enumerate(clauses):
+         if index == 0:
+             stripped = _strip_record_preamble(clause)
+@@ -1357,8 +1500,11 @@ def _record_facts(
+             return None
+         role, value, unit = found
+         if role in seen:
++            if seen_clauses[role] == normalize(clause):
++                continue
+             return None
+         seen.add(role)
++        seen_clauses[role] = normalize(clause)
+         parsed.append((label_by_role[role], value, str(getattr(unit, "id", ""))))
+     core_roles = {role for role in label_by_role if role != _RECORD_IDENTIFIER_ROLE}
+     if not core_roles or not core_roles.issubset(seen):
+@@ -1533,32 +1679,116 @@ def _classify_model_error(exc: ModelError) -> tuple[str, bool]:
+     return code, bool(getattr(exc, "retryable", False))
+ 
+ 
++def _capture_model_input(request_id: str | None, payload: CompletionInput) -> None:
++    if not capture_enabled():
++        return
++    emit_capture_event(
++        "model_input",
++        request_id=str(request_id or ""),
++        purpose=str(payload.purpose),
++        question=str(payload.question),
++        context_questions=[str(item) for item in payload.context.questions],
++        context_entities={
++            str(key): str(value) for key, value in dict(payload.context.entities).items()
++        },
++        evidence=[
++            {
++                "source_id": str(item.source_id),
++                "text": str(item.text or ""),
++                "fields": dict(item.fields or {}),
++            }
++            for item in payload.evidence
++        ],
++    )
++
++
++def _capture_model_output(
++    request_id: str | None,
++    payload: CompletionInput,
++    *,
++    output: CompletionOutput | None = None,
++    error: ModelError | None = None,
++) -> None:
++    if not capture_enabled():
++        return
++    if output is not None:
++        emit_capture_event(
++            "model_output",
++            request_id=str(request_id or ""),
++            purpose=str(payload.purpose),
++            status="ok",
++            text=str(output.text),
++            source_ids=[str(item) for item in output.source_ids],
++            query_terms=[str(item) for item in output.query_terms],
++            provider_request_id=(
++                None
++                if output.provider_request_id is None
++                else str(output.provider_request_id)
++            ),
++            usage=(
++                None
++                if output.usage is None
++                else {str(key): int(value) for key, value in dict(output.usage).items()}
++            ),
++            error_code=None,
++            retryable=False,
++        )
++        return
++    emit_capture_event(
++        "model_output",
++        request_id=str(request_id or ""),
++        purpose=str(payload.purpose),
++        status="error",
++        text=None,
++        source_ids=[],
++        query_terms=[],
++        provider_request_id=None,
++        usage=None,
++        error_code=str(getattr(error, "code", "MODEL_CALL_FAILED")),
++        retryable=bool(getattr(error, "retryable", False)),
++    )
++
++
+ async def _call_model(
+     model: ModelGateway | None,
+     payload: CompletionInput,
+     deadline: float,
++    *,
++    request_id: str | None = None,
+ ) -> CompletionOutput:
+     if model is None:
+         raise ModelNotConfigured()
+     remaining = deadline - monotonic()
+     if remaining <= 0:
+-        raise ModelTimeout("总预算已用尽")
++        error = ModelTimeout("总预算已用尽")
++        _capture_model_input(request_id, payload)
++        _capture_model_output(request_id, payload, error=error)
++        raise error
+     timeout = min(remaining, PER_CALL_TIMEOUT_SECONDS)
++    _capture_model_input(request_id, payload)
+     try:
+         # 同一个单调绝对 deadline 既作为单次调用预算传给网关，也作为在途等待的硬截止：
+         # 网关挂起/慢响应时由这里取消并映射 MODEL_TIMEOUT，不依赖调用方的外层保护超时。
+         output = await asyncio.wait_for(
+             model.complete(payload, timeout_seconds=timeout), timeout=timeout
+         )
+-    except ModelError:
++    except ModelError as exc:
++        _capture_model_output(request_id, payload, error=exc)
+         raise
+     except asyncio.TimeoutError as exc:  # pragma: no cover - 由可控网关触发
+-        raise ModelTimeout() from exc
++        error = ModelTimeout()
++        _capture_model_output(request_id, payload, error=error)
++        raise error from exc
+     except Exception as exc:  # noqa: BLE001 - 外部调用统一映射，不透传原始异常
+         # T104：无法归类的调用期异常按“未知”透传；不再一律冒充 provider 不可用。
+-        raise ModelCallFailed(f"{type(exc).__name__}") from exc
++        error = ModelCallFailed(f"{type(exc).__name__}")
++        _capture_model_output(request_id, payload, error=error)
++        raise error from exc
+     if monotonic() > deadline:
+-        raise ModelTimeout("总预算已用尽")
++        error = ModelTimeout("总预算已用尽")
++        _capture_model_output(request_id, payload, error=error)
++        raise error
++    _capture_model_output(request_id, payload, output=output)
+     return output
+ 
+ 
+@@ -1618,12 +1848,15 @@ def _document_overshoot_evidence(
+     evidence: EvidenceSet,
+     intent: QueryIntent,
+     revision: int,
++    *,
++    as_of: str | None = None,
+ ) -> EvidenceSet:
+     """正文型 overshoot：按单检索词复用 ``_retrieve`` 扩大证据面，再交既有排序取正文。
+ 
+     正文检索结果按文档/序号截断；宽泛词面命中超过 100 条时，前 100 条可能压掉真正
+     命中的小文档。逐词再取一次（仍走同一检索入口与同一 limit 上限）只扩大候选集合，
+     不改变检索/排序语义。返回值仍标记 ``truncated``，由后续既有正文排序选取证据。
++    ``as_of`` 与主证据同一业务日口径（v3-fix-1/B），避免回退路径把过期行带回来。
+     """
+     terms = tuple(intent.terms)
+     _annotate_overshoot_fallback(
+@@ -1635,7 +1868,7 @@ def _document_overshoot_evidence(
+     seen = {unit.id for unit in units}
+     for term in terms:
+         narrowed = QueryIntent(mode="document", terms=(term,), entity_filters=intent.entity_filters)
+-        extra = _retrieve(db_factory, narrowed, revision, limit=100)
++        extra = _retrieve(db_factory, narrowed, revision, limit=100, as_of=as_of)
+         for unit in extra.units:
+             if unit.id not in seen:
+                 seen.add(unit.id)
+@@ -1685,6 +1918,7 @@ def _commit_result(
+ 
+ 
+ def _commit_result_impl(db: Session, user: UserContext, claim: _Claim, result: _Result) -> AskResult:
++    requested_kind = str(result.kind)
+     conversation = db.get(Conversation, claim.conversation_id) if claim.conversation_id else None
+     if conversation is None or conversation.deleted_at is not None:
+         raise RequestCancelled("会话已删除，本次回答未保存")
+@@ -1799,6 +2033,23 @@ def _commit_result_impl(db: Session, user: UserContext, claim: _Claim, result: _
+     request_row.finished_at = now
+     conversation.updated_at = now
+     db.flush()
++    if capture_enabled():
++        emit_capture_event(
++            "commit_observed",
++            request_id=str(claim.request_id),
++            message_id=str(message.id),
++            assistant_seq=int(seq),
++            kind=str(ask_result.kind),
++            requested_kind=requested_kind,
++            text=str(ask_result.text),
++            source_ids=[str(item.source_id) for item in summaries],
++            revision_before=int(claim.initial_revision),
++            revision_after=int(current_revision),
++            knowledge_changed=bool(
++                ask_result.kind == "knowledge_changed" and requested_kind != "knowledge_changed"
++            ),
++            error_code=ask_result.error_code,
++        )
+     return ask_result
+ 
+ 
+@@ -1831,10 +2082,16 @@ def _model_failure_result(exc: ModelError, revision: int) -> _Result:
+     """T104：按异常真实原因返回稳定码 / 可重试性 / ERR-07 模板文案。"""
+     code, retryable = _classify_model_error(exc)
+     from ..providers.types import safe_model_failure_reason
+-    with trace_attrs.span('model_failure', model_failure_reason=safe_model_failure_reason(
+-            getattr(exc, 'failure_reason', None))):
++    reason = safe_model_failure_reason(getattr(exc, 'failure_reason', None))
++    with trace_attrs.span('model_failure', model_failure_reason=reason):
+         pass
+-    return _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
++    result = _service_error(code, _model_error_text(code, retryable=retryable), retryable, revision)
++    if code == "MODEL_OUTPUT_INVALID":
++        # T207-REASON-CAPTURE：仅该码把安全固定子因承接到内部 reason，使既有
++        # answer_result.reason 保全；未登记/坏类型经 safe_model_failure_reason 归 unknown。
++        # 其余错误类型 reason 保持 None，不输出异常文本/message/repr/任意属性值。
++        result.reason = reason
++    return result
+ 
+ 
+ def _internal_failure_result(revision: int) -> _Result:
+@@ -1896,10 +2153,17 @@ def _rag_owns_turn(previous: QueryState, plan: QueryPlan) -> bool:
+     """
+     if plan.mode != "record":
+         return False
++    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
++        return True
+     if "identifier" in plan.filters:
+         return True
+     if plan.clarification:
+         return False
++    if plan.reason == "MULTI_TARGET_ENUMERATE":
++        # v3-fix-1/A：单轮明确点名多个目标（例如两个门店/两个物品）由内核按枚举作答；
++        # 这类轮次可能没有任何单值实体过滤（多门店时 store 槽位按设计留空），
++        # 不能因为“filters 为空”退回 legacy 的“多个实体→澄清”。
++        return True
+     if plan.enumerate and any(key in plan.filters for key in _RAG_ENTITY_FILTERS):
+         return True
+     if previous.pending_slot and not plan.state.pending_slot:
+@@ -1979,7 +2243,13 @@ def _record_legacy_outcome(trace, result: _Result, ask_result: AskResult) -> Non
+         )
+     elif ask_result.kind == result.kind:
+         # 未升级：解析级早退等结果自带稳定 reason；service_error 回落 error_code。
+-        reason = result.reason or ask_result.error_code
++        if ask_result.kind == "service_error":
++            # T207-REASON-CAPTURE：固定子因只进 answer_result 证据与 model_failure Span；
++            # trace outcome reason 维持既有 error_code 口径（T104 契约），
++            # 本包不改变对外诊断契约。
++            reason = ask_result.error_code
++        else:
++            reason = result.reason or ask_result.error_code
+     else:
+         reason = ask_result.error_code
+     trace.set_outcome(outcome, reason)
+@@ -2118,7 +2388,26 @@ async def _answer(
+                 True,
+                 revision,
+             )
+-        if _rag_owns_turn(rag_previous, rag_plan):
++        rag_owns_turn = _rag_owns_turn(rag_previous, rag_plan)
++        if capture_enabled():
++            state = rag_plan.state
++            emit_capture_event(
++                "plan_observed",
++                request_id=str(claim.request_id),
++                path="rag" if rag_owns_turn else "legacy",
++                mode=str(rag_plan.mode),
++                filters={str(key): str(value) for key, value in dict(rag_plan.filters).items()},
++                terms=[str(item) for item in rag_plan.terms],
++                as_of=rag_plan.as_of,
++                include_future=bool(rag_plan.include_future),
++                enumerate=bool(rag_plan.enumerate),
++                clarification=bool(rag_plan.clarification),
++                state_keys=sorted(str(key) for key in state.to_dict().keys()),
++                state_as_of=state.as_of,
++                state_pending_slot=state.pending_slot,
++                state_last_kind=state.last_kind,
++            )
++        if rag_owns_turn:
+             if trace is not None:
+                 trace.set_path(TracePath.RAG)
+             try:
+@@ -2143,6 +2432,10 @@ async def _answer(
+         except Exception:  # noqa: BLE001 - 状态写失败不应改变既有问答结果
+             pass
+ 
++    # v3-fix-1/B：legacy 路径的证据面按业务日过滤过期/未生效的记录行（只做时间维度过滤，
++    # 不改变召回与排序）。日期只取产品本轮已解析的计划，不读数据集或报告字段。
++    legacy_as_of = _legacy_evidence_as_of(qa, rag_plan)
++
+     if trace is not None:
+         trace.set_path(TracePath.LEGACY)
+ 
+@@ -2160,6 +2453,16 @@ async def _answer(
+             has_intent=plan.intent is not None,
+             clarification=bool(plan.clarification),
+             requested_fields=len(plan.requested_fields),
++            security_refusal=bool(plan.security_refusal),
++        )
++    # v3-safety-fix：物品记录与店家个人联系信息（联系人/电话/地址）的跨资料合并请求，
++    # 在任何检索/模型调用之前按安全策略整体拒答；不按题号或固定整句特判。
++    if plan.security_refusal:
++        return _Result(
++            kind="not_found",
++            text=copy_module.text(plan.security_refusal),
++            revision=revision,
++            reason=plan.security_refusal,
+         )
+     if plan.unknown_identifier:
+         return _Result(
+@@ -2227,7 +2530,14 @@ async def _answer(
+ 
+     def _evidence(intent: QueryIntent, limit: int = 20) -> EvidenceSet:
+         with trace_attrs.span("retrieve", limit=limit):
+-            return _retrieve(db_factory, intent, revision, limit=limit, candidate_ids=rag_candidates)
++            return _retrieve(
++                db_factory,
++                intent,
++                revision,
++                limit=limit,
++                candidate_ids=rag_candidates,
++                as_of=legacy_as_of,
++            )
+ 
+     evidence: EvidenceSet | None = None
+     extra_terms: tuple[str, ...] = ()
+@@ -2241,7 +2551,9 @@ async def _answer(
+                         total=evidence.total_candidates, strategy="record_candidates"
+                     )
+                     return _record_overshoot_result(evidence, revision, plan)
+-                evidence = _document_overshoot_evidence(db_factory, evidence, plan.intent, revision)
++                evidence = _document_overshoot_evidence(
++                    db_factory, evidence, plan.intent, revision, as_of=legacy_as_of
++                )
+     except KnowledgeRevisionChanged:
+         return _Result(kind="knowledge_changed", text=KNOWLEDGE_CHANGED_TEXT, revision=_current_revision(db_factory))
+     except IndexNotReady:
+@@ -2249,6 +2561,17 @@ async def _answer(
+     except QueryRejected:
+         return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+ 
++    if capture_enabled():
++        emit_capture_event(
++            "retrieval_observed",
++            request_id=str(claim.request_id),
++            scope="legacy_retrieve_initial",
++            unit_ids=[str(unit.id) for unit in evidence.units],
++            candidate=False,
++            truncated=bool(evidence.truncated),
++            empty=not evidence.units,
++        )
++
+     # T207-FIX-CONFLICT/N08：图片/实物识别题（无图片输入通道）按范围外拒答。
+     # 检索已真实执行（Span 事实保留），这里只决定用户可见结论，不调用模型、不编造。
+     if plan.image_not_supported:
+@@ -2269,7 +2592,9 @@ async def _answer(
+         and plan.requested_fields
+     ):
+         with trace_attrs.span("entity_conflict_check") as check_span:
+-            widened = _same_entity_evidence(db_factory, plan, evidence.units, revision)
++            widened = _same_entity_evidence(
++                db_factory, plan, evidence.units, revision, as_of=legacy_as_of
++            )
+             check_span.annotate(
+                 kind=None if widened is None else widened.kind,
+                 units=0 if widened is None else len(widened.units),
+@@ -2297,7 +2622,10 @@ async def _answer(
+         try:
+             with trace_attrs.span("query_expansion") as expansion_span:
+                 output = await _call_model(
+-                    model, _model_input("query_expansion", question, claim, plan), deadline
++                    model,
++                    _model_input("query_expansion", question, claim, plan),
++                    deadline,
++                    request_id=str(claim.request_id),
+                 )
+                 terms = _validate_terms(output)
+                 expansion_span.annotate(terms=len(terms))
+@@ -2323,7 +2651,7 @@ async def _answer(
+                             )
+                             return _record_overshoot_result(evidence, revision, plan)
+                         evidence = _document_overshoot_evidence(
+-                            db_factory, evidence, expanded, revision
++                            db_factory, evidence, expanded, revision, as_of=legacy_as_of
+                         )
+             except KnowledgeRevisionChanged:
+                 return _Result(
+@@ -2334,6 +2662,17 @@ async def _answer(
+             except QueryRejected:
+                 return _service_error("INVALID_QUERY", _INVALID_QUERY_TEXT, False, revision)
+ 
++            if capture_enabled():
++                emit_capture_event(
++                    "retrieval_observed",
++                    request_id=str(claim.request_id),
++                    scope="legacy_retrieve_expanded",
++                    unit_ids=[str(unit.id) for unit in evidence.units],
++                    candidate=False,
++                    truncated=bool(evidence.truncated),
++                    empty=not evidence.units,
++                )
++
+     if evidence.kind == "none":
+         if plan.unknown_store:
+             text = copy_module.text("LEGACY_UNKNOWN_STORE", store=plan.unknown_store)
+@@ -2405,7 +2744,10 @@ async def _answer(
+     try:
+         with trace_attrs.span("model_answer"):
+             output = await _call_model(
+-                model, _model_input("answer", question, claim, plan, units), deadline
++                model,
++                _model_input("answer", question, claim, plan, units),
++                deadline,
++                request_id=str(claim.request_id),
+             )
+         with trace_attrs.span("answer_validate") as validate_span:
+             if plan.mode == "record":
+@@ -2496,6 +2838,19 @@ async def ask(
+             trace.annotate(replayed=True)
+         return claim.replay
+     result = await _answer(db_factory, user, claim, request.question, model, deadline, qa=qa)
++    if capture_enabled():
++        emit_capture_event(
++            "answer_result",
++            request_id=str(claim.request_id),
++            kind=str(result.kind),
++            text=str(result.text),
++            source_ids=[str(item) for item in result.source_ids],
++            candidates=len(result.candidates),
++            conflicts=len(result.conflicts),
++            missing_fields=[str(item) for item in result.missing_fields],
++            error_code=result.error_code,
++            reason=result.reason,
++        )
+     if trace is not None and _trace_is_legacy(trace):
+         # legacy 路径的产品提交阶段（RAG 路径的 commit 由 rag 内核产生）。
+         with trace.span("commit"):
+diff --git a/backend/src/mktkb/copy.py b/backend/src/mktkb/copy.py
+index f848204..61a1cb0 100644
+--- a/backend/src/mktkb/copy.py
++++ b/backend/src/mktkb/copy.py
+@@ -431,6 +431,19 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
+         material_related=False,
+         requires_user_input=True,
+     ),
++    _entry(
++        # v3-safety-fix：安全策略拒答。物品记录（物品位置表）与店家联系人/电话/地址
++        # （店家信息表）属于两份不同资料；把两者合并提供的请求按受限个人信息处理，
++        # 在检索/模型之前整体拒答。文案为固定骨架，不含任何来源值的占位。
++        "SECURITY_RESTRICTED_CONTACT",
++        "该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，"
++        "属于受限个人信息范围，不能据此作答；"
++        "这不是资料中没有答案，也不代表该信息未被登记；"
++        "请改为只询问物品位置等非个人联系信息后重新提问。",
++        retryable=True,
++        material_related=False,
++        requires_user_input=True,
++    ),
+     _entry(
+         # P1-FIX/B：指代追问里的制度/流程话题（如“报销规则”）进入正文查询后，
+         # 证据里没有可支撑该话题的正文；如实说明“找到的资料里没有”，不拿无关正文冒充。
+diff --git a/backend/src/mktkb/evaluation/cli.py b/backend/src/mktkb/evaluation/cli.py
+index 6abf602..26293e0 100644
+--- a/backend/src/mktkb/evaluation/cli.py
++++ b/backend/src/mktkb/evaluation/cli.py
+@@ -1132,6 +1132,53 @@ def _cmd_p2_scenarios_run(args: argparse.Namespace) -> int:
+     return 0 if payload['status'] == 'complete' else EXIT_DATA
+ 
+ 
++def _cmd_p2_hard_evidence_recompute(args: argparse.Namespace) -> int:
++    """独立进程：只读仓外合成密文 + 冻结合成 case/annotation，逐值重算四轴。"""
++    from .p2_hard_evidence import run_recompute_cli
++
++    options: dict[str, Any] = {}
++    if args.schema:
++        options["schema_path"] = args.schema
++    if args.scenario_contract:
++        options["scenario_path"] = args.scenario_contract
++    result = run_recompute_cli(
++        evidence_dir=args.evidence_dir,
++        case_plan_path=args.case_plan,
++        cases_path=args.cases,
++        annotation_path=args.annotation,
++        addendum_path=args.addendum,
++        annotation_cipher_sha256=args.annotation_cipher_sha256,
++        key_file=args.key_file,
++        out_path=args.out,
++        manifest_path=args.manifest,
++        scope_contract_path=args.scope_contract,
++        **options,
++    )
++    summary = result["summary"]
++    print(
++        json.dumps(
++            {
++                "ok": True,
++                "total": summary["total"],
++                "executed": summary["executed"],
++                "errors": summary["errors"],
++                "passed": summary["passed"],
++                "failed": summary["failed"],
++                "hard_failures": summary["hard_failures"],
++                "hard_failures_by_kind": summary["hard_failures_by_kind"],
++                "missing_evidence_cases": summary["missing_evidence_cases"],
++                "verified": summary["verified"],
++                "axes": summary["axes"],
++                "scope_contract_sha256": result.get("scope_contract_sha256"),
++                "scope_contract_case_count": result.get("scope_contract_case_count"),
++                "release_ready": False,
++            },
++            ensure_ascii=False,
++        )
++    )
++    return 0
++
++
+ def build_parser() -> argparse.ArgumentParser:
+     parser = argparse.ArgumentParser(
+         prog="rag_eval",
+@@ -1367,6 +1414,32 @@ def build_parser() -> argparse.ArgumentParser:
+     p2_u.add_argument("--test", default=None, help="测试文件（默认 backend/tests/acceptance/test_t09_mutation.py）")
+     p2_u.add_argument("--pytest-arg", action="append", default=[], help="透传给 pytest 的额外参数（可重复）")
+     p2_u.set_defaults(handler=_cmd_p2_u_controls)
++
++    p2_hard = sub.add_parser(
++        "p2-hard-evidence-recompute",
++        help="独立进程从仓外合成密文+冻结case/annotation重算四轴（零模型/检索/实时DB）",
++    )
++    p2_hard.add_argument("--evidence-dir", required=True, help="仓外认证密文目录（只读）")
++    p2_hard.add_argument("--case-plan", required=True, help="合成冻结 case-plan（题序/质量状态/回合-证据文件）")
++    p2_hard.add_argument("--cases", required=True, help="冻结合成 CaseSpec JSONL")
++    p2_hard.add_argument("--annotation", required=True, help="合成 v0.2 annotation JSON")
++    p2_hard.add_argument("--addendum", default=None, help="合成 v0.3 gap addendum JSON（可选）")
++    p2_hard.add_argument(
++        "--annotation-cipher-sha256",
++        default=None,
++        help="v0.2 标注密文文件 SHA256（提供 --addendum 时必需；禁止用明文摘要替代）",
++    )
++    p2_hard.add_argument("--key-file", required=True, help="本次合成 Fernet key 文件（不输出）")
++    p2_hard.add_argument("--out", required=True, help="新仓外输出卡 JSON")
++    p2_hard.add_argument("--manifest", default=None, help="仓外 manifest 密文（可选交叉核验）")
++    p2_hard.add_argument("--schema", default=None, help="覆盖冻结 annotation schema 路径（测试用）")
++    p2_hard.add_argument("--scenario-contract", default=None, help="覆盖冻结 scenario 契约路径（测试用）")
++    p2_hard.add_argument(
++        "--scope-contract",
++        default=None,
++        help="版本化 cross_entity scope 合同 JSON（p2-entity-scope/v0.1；可选，缺省=旧语义）",
++    )
++    p2_hard.set_defaults(handler=_cmd_p2_hard_evidence_recompute)
+     return parser
+ 
+ 
+diff --git a/backend/src/mktkb/evaluation/p2_diagnostics.py b/backend/src/mktkb/evaluation/p2_diagnostics.py
+index 95074b8..a491e17 100644
+--- a/backend/src/mktkb/evaluation/p2_diagnostics.py
++++ b/backend/src/mktkb/evaluation/p2_diagnostics.py
+@@ -29,6 +29,13 @@ BLOCKED_DETAIL = 'H2 聚合在受限进程内算不出来/审计失败：按 err
+ 
+ def validate_scorecard(payload, *, total, run_id=None, config_hash=None):
+     """Closed full-card boundary; only runner-bound correlation metadata is free text."""
++    if isinstance(payload, dict) and payload.get("schema_version") == "mktkb.p2.scoring.v0.2":
++        # T207 B 包：显式 versioned 分派到新版四轴硬证据全卡 validator；旧 v0.1 语义不变。
++        from .p2_hard_evidence import validate_hard_evidence_scorecard
++
++        return validate_hard_evidence_scorecard(
++            payload, total=total, run_id=run_id, config_hash=config_hash
++        )
+     def require(condition):
+         if not condition:
+             raise ValueError('holdout_scorecard_invalid')
+@@ -190,6 +197,16 @@ def _empty():
+ 
+ def validate_diagnostics(payload, *, total=None):
+     """Validate ORIGINAL full tree, exact keys/types, fixed strings and equations."""
++    if isinstance(payload, dict) and payload.get("schema_version") == "p2-safe-diagnostics/v2":
++        # T207 B 包：新版诊断（四轴硬证据计数口径），旧 v1 模板/等式保持原样。
++        from .p2_hard_evidence import validate_hard_evidence_diagnostics
++
++        resolved = total
++        if resolved is None:
++            counts = payload.get("counts")
++            resolved = int(counts.get("planned") or 0) if isinstance(counts, dict) else 0
++        validate_hard_evidence_diagnostics(payload, total=int(resolved))
++        return
+     def walk(value, template):
+         if type(template) is dict:
+             if type(value) is not dict or value.keys() != template.keys():
+diff --git a/backend/src/mktkb/evaluation/p2_holdout_scenarios.py b/backend/src/mktkb/evaluation/p2_holdout_scenarios.py
+index 2bf0928..62a8a12 100644
+--- a/backend/src/mktkb/evaluation/p2_holdout_scenarios.py
++++ b/backend/src/mktkb/evaluation/p2_holdout_scenarios.py
+@@ -543,3 +543,460 @@ async def run_scenario_batch(contract: ValidatedScenarioContract, plans: Any, *,
+     combined = compose_scenario_runs(contract, parts)
+     (out / 'scenario_composition.json').write_text(json.dumps(combined, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
+     return combined
++
++
++# --------------------------------------------------------------------------- #
++# T207 B 包：新版四轴硬证据四场景组合（versioned；旧组合语义/严格校验不变）
++# --------------------------------------------------------------------------- #
++
++HARD_EVIDENCE_COMPOSITION_SCHEMA_VERSION = "p2-h2-scenario-composition/v0.2"
++_COMPOSITION_RUN_KEYS = (
++    "scenario_id",
++    "run_id",
++    "plan_sha256",
++    "binding",
++    "status",
++    "aggregate_sha256",
++    "config_hash",
++    "hard_evidence_sha256",
++)
++_COMPOSITION_KEYS = (
++    "schema_version",
++    "total",
++    "executed",
++    "errors",
++    "passed",
++    "failed",
++    "min_pass",
++    "threshold_met",
++    "hard_failures",
++    "hard_failures_by_kind",
++    "by_stratum",
++    "status",
++    "turns_planned",
++    "turns_executed",
++    "not_started",
++    "thresholds_approved",
++    "blocks",
++    "real_calls",
++    "execution_mode",
++    "manifest_sha256",
++    "full_cases_sha256",
++    "assignment_sha256",
++    "runs",
++    "hard_evidence",
++    "annotation",
++    "release_ready",
++)
++_COMPOSITION_EXECUTION_INCOMPLETE = {
++    "code": "scenario_execution_incomplete",
++    "severity": "unknown",
++    "detail": "四场景执行未完整（部分场景未开始/中止），不得按完整矩阵处理",
++    "evidence": {},
++}
++
++
++def _composition_blocks(payload: Mapping[str, Any], expected_strata: Mapping[str, int] | None) -> list[dict[str, Any]]:
++    from .p2_hard_evidence import hard_evidence_blocks
++
++    hard = payload["hard_evidence"]
++    blocks = hard_evidence_blocks(
++        total=int(payload["total"]),
++        passed=int(payload["passed"]),
++        errors=int(payload["errors"]),
++        hard_failures=int(payload["hard_failures"]),
++        hard_failures_max=0,
++        verified=bool(hard["verified"]),
++        missing_evidence_cases=int(hard["missing_evidence_cases"]),
++        thresholds_approved=False,
++        strata_actual={name: int(bucket["total"]) for name, bucket in payload["by_stratum"].items()},
++        strata_expected=None if expected_strata is None else {str(k): int(v) for k, v in expected_strata.items()},
++    )
++    if payload["status"] != "complete" or int(payload["turns_executed"]) != 36 or int(payload["not_started"]) != 0:
++        blocks.append(dict(_COMPOSITION_EXECUTION_INCOMPLETE))
++    return blocks
++
++
++def validate_hard_evidence_composition(
++    payload: Any, *, total: int = 30, expected_strata: Mapping[str, int] | None = None
++) -> dict[str, Any]:
++    """v0.2 四场景组合全卡校验：等式/唯一覆盖身份/block 集合/固定词表。"""
++    _exact(payload, _COMPOSITION_KEYS)
++    if payload.get("schema_version") != HARD_EVIDENCE_COMPOSITION_SCHEMA_VERSION:
++        raise ScenarioError("scenario_composition_invalid")
++    for key in (
++        "total",
++        "executed",
++        "errors",
++        "passed",
++        "failed",
++        "min_pass",
++        "hard_failures",
++        "turns_planned",
++        "turns_executed",
++        "not_started",
++        "real_calls",
++    ):
++        _require(type(payload[key]) is int and payload[key] >= 0, "scenario_composition_invalid")
++    for key in ("threshold_met", "thresholds_approved", "release_ready"):
++        _require(type(payload[key]) is bool, "scenario_composition_invalid")
++    _require(payload["total"] == total, "scenario_composition_invalid")
++    _require(payload["min_pass"] == 24 and payload["thresholds_approved"] is False, "scenario_composition_invalid")
++    _require(payload["release_ready"] is False, "scenario_composition_invalid")
++    _require(payload["executed"] == payload["passed"] + payload["failed"], "scenario_composition_invalid")
++    _require(payload["total"] == payload["executed"] + payload["errors"], "scenario_composition_invalid")
++    _require(payload["passed"] + payload["failed"] + payload["errors"] == total, "scenario_composition_invalid")
++    _require(payload["threshold_met"] == (total == 30 and payload["passed"] >= 24), "scenario_composition_invalid")
++    _require(payload["turns_planned"] == 36, "scenario_composition_invalid")
++    _require(0 <= payload["turns_executed"] <= 36, "scenario_composition_invalid")
++    _require(payload["execution_mode"] in ("local_mock", "live"), "scenario_composition_invalid")
++    _require(0 <= payload["real_calls"] <= 1600, "scenario_composition_invalid")
++    for key in ("manifest_sha256", "full_cases_sha256", "assignment_sha256"):
++        _require(re.fullmatch("[0-9a-f]{64}", str(payload[key])) is not None, "scenario_composition_invalid")
++
++    hard = payload["hard_evidence"]
++    _exact(
++        hard,
++        (
++            "schema_version",
++            "axes",
++            "hard_failures",
++            "hard_failures_by_kind",
++            "missing_evidence_cases",
++            "evidence_complete_cases",
++            "verified",
++        ),
++    )
++    from .p2_hard_evidence import AXES, HARD_EVIDENCE_SCHEMA_VERSION
++
++    _require(hard["schema_version"] == HARD_EVIDENCE_SCHEMA_VERSION, "scenario_composition_invalid")
++    _exact(hard["axes"], AXES)
++    unknown_total = 0
++    axis_violations: dict[str, int] = {}
++    for name in AXES:
++        counts = hard["axes"][name]
++        _exact(counts, ("planned", "passed", "not_applicable", "unknown", "violations", "checked"))
++        for key in counts:
++            _require(type(counts[key]) is int and counts[key] >= 0, "scenario_composition_invalid")
++        _require(counts["planned"] == total, "scenario_composition_invalid")
++        _require(
++            counts["passed"] + counts["not_applicable"] + counts["unknown"] + counts["violations"]
++            == counts["planned"],
++            "scenario_composition_invalid",
++        )
++        _require(counts["checked"] == counts["passed"] + counts["not_applicable"] + counts["violations"], "scenario_composition_invalid")
++        _require(counts["checked"] + counts["unknown"] == counts["planned"], "scenario_composition_invalid")
++        unknown_total += counts["unknown"]
++        axis_violations[name] = counts["violations"]
++    _exact(hard["hard_failures_by_kind"], AXES)
++    _require(hard["hard_failures_by_kind"] == axis_violations, "scenario_composition_invalid")
++    union = payload["hard_failures"]
++    _exact(payload["hard_failures_by_kind"], AXES)
++    _require(payload["hard_failures_by_kind"] == axis_violations, "scenario_composition_invalid")
++    _require(max(axis_violations.values()) <= union <= sum(axis_violations.values()), "scenario_composition_invalid")
++    _require(hard["hard_failures"] == union, "scenario_composition_invalid")
++    missing_cases = hard["missing_evidence_cases"]
++    complete_cases = hard["evidence_complete_cases"]
++    _require(type(missing_cases) is int and 0 <= missing_cases <= total, "scenario_composition_invalid")
++    _require(type(complete_cases) is int and 0 <= complete_cases <= total, "scenario_composition_invalid")
++    _require(type(hard["verified"]) is bool, "scenario_composition_invalid")
++    derived_verified = bool(
++        unknown_total == 0 and missing_cases == 0 and complete_cases == total and total > 0
++    )
++    _require(hard["verified"] == derived_verified, "scenario_composition_invalid")
++
++    by_stratum = payload["by_stratum"]
++    _require(isinstance(by_stratum, dict) and 0 < len(by_stratum) <= 5, "scenario_composition_invalid")
++    from .p2_hard_evidence import STRATA
++
++    _require(set(by_stratum) <= set(STRATA), "scenario_composition_invalid")
++    strata_totals = {"total": 0, "passed": 0, "failed": 0, "errors": 0}
++    for name, bucket in by_stratum.items():
++        _exact(bucket, ("total", "passed", "failed", "errors"))
++        for key in bucket:
++            _require(type(bucket[key]) is int and 0 <= bucket[key] <= total, "scenario_composition_invalid")
++        _require(bucket["total"] == bucket["passed"] + bucket["failed"] + bucket["errors"], "scenario_composition_invalid")
++        for key in strata_totals:
++            strata_totals[key] += bucket[key]
++    _require(strata_totals["total"] == total, "scenario_composition_invalid")
++    _require(strata_totals["passed"] == payload["passed"], "scenario_composition_invalid")
++    _require(strata_totals["failed"] == payload["failed"], "scenario_composition_invalid")
++    _require(strata_totals["errors"] == payload["errors"], "scenario_composition_invalid")
++    if expected_strata is not None:
++        expected = {str(k): int(v) for k, v in expected_strata.items()}
++        _require({name: int(bucket["total"]) for name, bucket in by_stratum.items()} == expected, "scenario_composition_invalid")
++
++    runs = payload["runs"]
++    _require(isinstance(runs, list) and len(runs) == 4, "scenario_composition_invalid")
++    seen_run_ids: set[str] = set()
++    shared_binding: dict[str, str] | None = None
++    stopped = False
++    for index, run in enumerate(runs):
++        _exact(run, _COMPOSITION_RUN_KEYS)
++        _require(run["scenario_id"] == RECIPES[index][0], "scenario_composition_invalid")
++        _require(type(run["run_id"]) is str and run["run_id"] and run["run_id"] not in seen_run_ids, "scenario_composition_invalid")
++        seen_run_ids.add(run["run_id"])
++        _require(re.fullmatch("[0-9a-f]{64}", str(run["plan_sha256"])) is not None, "scenario_composition_invalid")
++        binding = run["binding"]
++        _require(isinstance(binding, Mapping) and set(binding) == BINDING_KEYS, "scenario_composition_invalid")
++        _require(binding["scenario_id"] == run["scenario_id"], "scenario_composition_invalid")
++        for key in BINDING_KEYS - {"scenario_id"}:
++            _require(re.fullmatch("[0-9a-f]{64}", str(binding[key])) is not None, "scenario_composition_invalid")
++        _require(binding["assignment_sha256"] == payload["assignment_sha256"], "scenario_composition_invalid")
++        _require(binding["manifest_sha256"] == payload["manifest_sha256"], "scenario_composition_invalid")
++        _require(binding["full_cases_sha256"] == payload["full_cases_sha256"], "scenario_composition_invalid")
++        shared_keys = BINDING_KEYS - {"scenario_id", "subset_sha256", "scenario_ingest_sha256"}
++        shared_current = {key: str(binding[key]) for key in shared_keys}
++        if shared_binding is not None:
++            _require(shared_current == shared_binding, "scenario_composition_invalid")
++        else:
++            shared_binding = shared_current
++        _require(run["status"] in ("succeeded", "blocked", "aborted", "not_started"), "scenario_composition_invalid")
++        if run["status"] == "not_started":
++            _require(stopped and run["aggregate_sha256"] is None and run["config_hash"] is None and run["hard_evidence_sha256"] is None, "scenario_composition_invalid")
++            continue
++        _require(not stopped, "scenario_composition_invalid")
++        stopped = run["status"] != "succeeded"
++        for key in ("aggregate_sha256", "config_hash", "hard_evidence_sha256"):
++            _require(re.fullmatch("[0-9a-f]{64}", str(run[key])) is not None, "scenario_composition_invalid")
++    _require(payload["not_started"] == sum(1 for run in runs if run["status"] == "not_started"), "scenario_composition_invalid")
++    derived_status = "complete" if all(run["status"] == "succeeded" for run in runs) and payload["turns_executed"] == 36 else "partial"
++    _require(payload["status"] == derived_status, "scenario_composition_invalid")
++
++    annotation = payload["annotation"]
++    _exact(
++        annotation,
++        (
++            "case_count",
++            "total_turns",
++            "scenario_counts",
++            "axis_counts",
++            "fixed_gap_counts",
++            "quality_readiness",
++            "runtime_axis_evidence_produced",
++            "release_ready",
++        ),
++    )
++    _require(annotation["case_count"] == 30 and annotation["total_turns"] == 36, "scenario_composition_invalid")
++    _require(annotation["quality_readiness"] == "BLOCKED", "scenario_composition_invalid")
++    _require(annotation["runtime_axis_evidence_produced"] is False and annotation["release_ready"] is False, "scenario_composition_invalid")
++    _exact(annotation["scenario_counts"], [row[0] for row in RECIPES])
++    _require(all(type(value) is int and value >= 0 for value in annotation["scenario_counts"].values()), "scenario_composition_invalid")
++    _require(sum(annotation["scenario_counts"].values()) == 30, "scenario_composition_invalid")
++    from .p2_hard_evidence import AXIS_CRITERIA as _AXIS_CRITERIA
++
++    _exact(annotation["axis_counts"], _AXIS_CRITERIA)
++    for name, table in annotation["axis_counts"].items():
++        _require(
++            isinstance(table, Mapping)
++            and set(table) <= {"required", "not_applicable", "unknown"}
++            and all(type(value) is int and value >= 0 for value in table.values()),
++            "scenario_composition_invalid",
++        )
++        _require(sum(table.values()) == 30, "scenario_composition_invalid")
++    fixed_gaps = annotation["fixed_gap_counts"]
++    _require(
++        isinstance(fixed_gaps, Mapping)
++        and set(fixed_gaps) <= {"unresolved_entity_target", "unresolved_date_anchor", "unresolved_scenario"}
++        and all(type(value) is int and value >= 0 for value in fixed_gaps.values()),
++        "scenario_composition_invalid",
++    )
++
++    expected_blocks = _composition_blocks(payload, expected_strata)
++    _require(payload["blocks"] == expected_blocks, "scenario_composition_invalid")
++    return dict(payload)
++
++
++def compose_hard_evidence_runs(
++    contract: ValidatedScenarioContract, runs: Any
++) -> dict[str, Any]:
++    """新版四场景组合：唯一冻结 assignment、逐 run 身份/密文绑定、按证据重算四轴。"""
++    from .p2_hard_evidence import AXES, HARD_EVIDENCE_SCHEMA_VERSION, hard_evidence_blocks, validate_hard_evidence_scorecard
++
++    _require(isinstance(runs, (tuple, list)) and len(runs) == 4, "scenario_runs_incomplete")
++    counts = {"total": 0, "passed": 0, "failed": 0, "errors": 0, "executed": 0}
++    strata = {name: {"total": 0, "passed": 0, "failed": 0, "errors": 0} for name in contract._dataset.manifest.strata}
++    axis_totals = {
++        name: {"planned": 0, "passed": 0, "not_applicable": 0, "unknown": 0, "violations": 0, "checked": 0}
++        for name in AXES
++    }
++    hard_by_kind = {name: 0 for name in AXES}
++    hard_union = missing_cases = complete_cases = 0
++    real_calls = turns = not_started_count = 0
++    complete = True
++    stopped = False
++    verified_all = True
++    modes: set[str] = set()
++    identities: list[dict[str, Any]] = []
++    seen_run_ids: set[str] = set()
++    seen_plan_shas: set[str] = set()
++    seen_aggregate_shas: set[str] = set()
++    common: dict[str, Any] | None = None
++    for name, part in zip(contract.scenario_ids, runs):
++        _exact(part, ("plan", "aggregate", "status", "run_id", "turns_executed", "binding"))
++        plan, status = part["plan"], part["status"]
++        _require(isinstance(plan, P2RunPlan), "scenario_plan_required")
++        subset = contract.subset(name)
++        contract.validate_run(plan, subset, contract.ingest_plan(name))
++        _require(isinstance(part["run_id"], str) and part["run_id"] and part["run_id"] not in seen_run_ids, "scenario_run_duplicate")
++        seen_run_ids.add(part["run_id"])
++        _require(plan.plan_sha256 not in seen_plan_shas, "scenario_plan_duplicate")
++        seen_plan_shas.add(plan.plan_sha256)
++        _require(status in ("succeeded", "blocked", "aborted", "not_started"), "scenario_run_status_invalid")
++        _require(type(part["turns_executed"]) is int and 0 <= part["turns_executed"] <= subset.identity["turn_stats"]["total_turns"], "scenario_turn_counts_invalid")
++        ident = {
++            "scenario_id": name,
++            "run_id": part["run_id"],
++            "plan_sha256": plan.plan_sha256,
++            "binding": contract.binding(name),
++            "status": status,
++            "aggregate_sha256": None,
++            "config_hash": None,
++            "hard_evidence_sha256": None,
++        }
++        identities.append(ident)
++        if status == "not_started":
++            _require(
++                stopped and part["aggregate"] is None and part["binding"] is None and part["turns_executed"] == 0,
++                "scenario_not_started_invalid",
++            )
++            not_started_count += 1
++            complete = False
++            counts["errors"] += len(subset.cases)
++            counts["total"] += len(subset.cases)
++            # 未开始的题在四轴同样记 unknown（不得补 pass / 不计 checked）。
++            for axis in AXES:
++                axis_totals[axis]["planned"] += len(subset.cases)
++                axis_totals[axis]["unknown"] += len(subset.cases)
++            missing_cases += len(subset.cases)
++            for bucket, size in subset.identity["strata"].items():
++                strata[bucket]["errors"] += size
++                strata[bucket]["total"] += size
++            continue
++        _require(not stopped, "scenario_started_after_stop")
++        stopped = status != "succeeded"
++        complete = complete and not stopped
++        binding, card = part["binding"], part["aggregate"]
++        _require(isinstance(binding, Mapping) and binding.get("scenario_binding") == contract.binding(name), "scenario_run_binding_mismatch")
++        _require(isinstance(card, Mapping) and card.get("run_id") == part["run_id"] and card.get("config_hash") == binding.get("config_hash") and (stopped or binding.get("config_hash")), "scenario_aggregate_binding_mismatch")
++        try:
++            validate_hard_evidence_scorecard(card, total=len(subset.cases), run_id=part["run_id"], config_hash=binding.get("config_hash"))
++        except (ValueError, TypeError, KeyError):
++            raise ScenarioError("scenario_scorecard_invalid") from None
++        if card["hard_evidence"]["axes"] and any(
++            card["hard_evidence"]["axes"][axis]["planned"] != len(subset.cases) for axis in AXES
++        ):
++            raise ScenarioError("scenario_aggregate_counts_invalid")
++        shared = {key: binding.get(key) for key in ("pipeline_version", "provider", "gate_config_hash")}
++        _require(all(value not in (None, "", {}) for value in shared.values()), "scenario_pipeline_unbound")
++        if common is None:
++            common = shared
++        else:
++            _require(shared == common, "scenario_pipeline_mismatch")
++        aggregate_sha = payload_sha256(card)
++        _require(aggregate_sha not in seen_aggregate_shas, "scenario_aggregate_duplicate")
++        seen_aggregate_shas.add(aggregate_sha)
++        ident["aggregate_sha256"] = aggregate_sha
++        ident["config_hash"] = binding["config_hash"]
++        ident["hard_evidence_sha256"] = payload_sha256(card["hard_evidence"])
++        card_strata = card["by_stratum"]
++        _require(isinstance(card_strata, Mapping) and set(card_strata) == set(subset.identity["strata"]), "scenario_aggregate_strata_invalid")
++        totals = Counter()
++        for bucket, size in subset.identity["strata"].items():
++            values = card_strata[bucket]
++            _require(
++                isinstance(values, Mapping)
++                and set(values) == {"total", "passed", "failed", "errors"}
++                and all(type(value) is int and value >= 0 for value in values.values())
++                and values["total"] == size == values["passed"] + values["failed"] + values["errors"],
++                "scenario_aggregate_strata_invalid",
++            )
++            for key in ("total", "passed", "failed", "errors"):
++                totals[key] += values[key]
++                strata[bucket][key] += values[key]
++        _require(
++            all(totals[key] == card[key] for key in ("total", "passed", "failed", "errors"))
++            and totals["passed"] + totals["failed"] == card["executed"],
++            "scenario_aggregate_counts_invalid",
++        )
++        for key in ("total", "passed", "failed", "errors", "executed"):
++            counts[key] += card[key]
++        for axis in AXES:
++            source = card["hard_evidence"]["axes"][axis]
++            for key in axis_totals[axis]:
++                axis_totals[axis][key] += source[key]
++            hard_by_kind[axis] += card["hard_failures_by_kind"][axis]
++        hard_union += card["hard_failures"]
++        missing_cases += card["hard_evidence"]["missing_evidence_cases"]
++        complete_cases += card["hard_evidence"]["evidence_complete_cases"]
++        verified_all = verified_all and card["hard_evidence"]["verified"]
++        turns += part["turns_executed"]
++        real_calls += card["real_calls"]
++        modes.add(card["execution_mode"])
++    _require(len(modes) <= 1, "scenario_execution_mode_mixed")
++    _require(counts["total"] == 30, "scenario_aggregate_counts_invalid")
++    unknown_total = sum(axis_totals[axis]["unknown"] for axis in AXES)
++    verified = bool(
++        verified_all
++        and unknown_total == 0
++        and missing_cases == 0
++        and complete_cases == 30
++        and complete
++        and turns == 36
++    )
++    status = "complete" if complete and turns == 36 else "partial"
++    hard_evidence = {
++        "schema_version": HARD_EVIDENCE_SCHEMA_VERSION,
++        "axes": {axis: dict(axis_totals[axis]) for axis in AXES},
++        "hard_failures": hard_union,
++        "hard_failures_by_kind": {axis: hard_by_kind[axis] for axis in AXES},
++        "missing_evidence_cases": missing_cases,
++        "evidence_complete_cases": complete_cases,
++        "verified": verified,
++    }
++    payload = {
++        "schema_version": HARD_EVIDENCE_COMPOSITION_SCHEMA_VERSION,
++        **counts,
++        "min_pass": 24,
++        "threshold_met": counts["passed"] >= 24,
++        "hard_failures": hard_union,
++        "hard_failures_by_kind": dict(hard_by_kind),
++        "by_stratum": strata,
++        "status": status,
++        "turns_planned": 36,
++        "turns_executed": turns,
++        "not_started": not_started_count,
++        "thresholds_approved": False,
++        "blocks": [],
++        "real_calls": real_calls,
++        "execution_mode": next(iter(modes), "local_mock"),
++        "manifest_sha256": contract._dataset.manifest.manifest_sha256,
++        "full_cases_sha256": contract._bindings["full_cases_sha256"],
++        "assignment_sha256": contract._bindings["assignment_sha256"],
++        "runs": identities,
++        "hard_evidence": hard_evidence,
++        "annotation": contract.safe_summary(),
++        "release_ready": False,
++    }
++    expected_strata = dict(contract._dataset.manifest.strata)
++    payload["blocks"] = hard_evidence_blocks(
++        total=30,
++        passed=counts["passed"],
++        errors=counts["errors"],
++        hard_failures=hard_union,
++        hard_failures_max=0,
++        verified=verified,
++        missing_evidence_cases=missing_cases,
++        thresholds_approved=False,
++        strata_actual={name: bucket["total"] for name, bucket in strata.items()},
++        strata_expected=expected_strata,
++    )
++    if status != "complete" or turns != 36 or not_started_count:
++        payload["blocks"].append(dict(_COMPOSITION_EXECUTION_INCOMPLETE))
++    from .p2_runner import _holdout_leak_needles
++
++    raw = json.dumps(payload, ensure_ascii=False)
++    for case in contract._dataset.cases:
++        _require(case.case_id not in raw and all(n.strip() not in raw for n in _holdout_leak_needles(case) if len(n.strip()) >= 2), "scenario_composition_leak")
++    validate_hard_evidence_composition(payload, total=30, expected_strata=expected_strata)
++    return payload
+diff --git a/backend/src/mktkb/evaluation/p2_live.py b/backend/src/mktkb/evaluation/p2_live.py
+index 0e4b9a6..6210e1f 100644
+--- a/backend/src/mktkb/evaluation/p2_live.py
++++ b/backend/src/mktkb/evaluation/p2_live.py
+@@ -1462,6 +1462,10 @@ def build_live_adapter(
+     turn_timeout_seconds: float | None = None,
+     purge_traces_on_close: bool = False,
+     scenario_contract: Any = None,
++    evidence_capture: Any = None,
++    # T207-04c：显式业务日期透传（默认 None = 既有行为逐值不变）。
++    rag_business_date: str | None = None,
++    manifest_business_date: str | None = None,
+ ) -> LiveBuild:
+     """装配 live 适配器：真实 provider + 真实 OCR 传输 + 逐次尝试预留。
+ 
+@@ -1497,6 +1501,9 @@ def build_live_adapter(
+         purge_traces_on_close=purge_traces_on_close,
+         live_wiring=wiring,
+         scenario_contract=scenario_contract,
++        evidence_capture=evidence_capture,
++        rag_business_date=rag_business_date,
++        manifest_business_date=manifest_business_date,
+     )
+     return LiveBuild(adapter=adapter, gate=gate, ledger=ledger, wiring=wiring, env=env)
+ 
+@@ -1517,15 +1524,32 @@ async def run_live_p2(
+     cancel: Callable[[], bool] | None = None,
+     purge_traces_on_close: bool = False,
+     scenario_contract: Any = None,
++    evidence_capture: Any = None,
++    #: 05 live 证据：适配器 start 之后才拿得到实际 business_date/index_revision，
++    #: 因此允许注入 factory(build) -> EvidenceCaptureConfig；与 evidence_capture 互斥。
++    evidence_capture_factory: Callable[[LiveBuild], Any] | None = None,
++    #: 05 受控入口：holdout 逐题质量 marks 的内存回调（默认 None = 行为逐值不变）。
++    private_case_marks_sink: Callable[[Any], None] | None = None,
++    # T207-04c：显式业务日期透传（默认 None = 既有行为逐值不变）。
++    rag_business_date: str | None = None,
++    manifest_business_date: str | None = None,
+ ) -> tuple[Any, LiveBuild]:
+     """一次性 live 执行入口：环境 -> 真实门 -> live 适配器 -> run_p2（串行、重试 0）。
+ 
+     任何一步不成立都在**首个发送之前**抛 P2LiveConfigError；不构造第二套账本/授权。
++    05 版本化扩展（默认 None 逐值不变）：evidence_capture_factory 在适配器 start
++    之后、run_p2（ingest/首轮）之前构造 live 采集配置，使绑定能包含**实际**
++    business_date/index_revision；private_case_marks_sink 只把逐题质量状态交给
++    显式注入的内存回调，不改变任何公开产物。
+     """
+     from .p2_runner import run_p2
+     from .p2_holdout_scenarios import validate_scenario_execution
+     validate_scenario_execution(plan, dataset, ingest_plan, scenario_contract)
+ 
++    if evidence_capture is not None and evidence_capture_factory is not None:
++        raise P2LiveConfigError(
++            "evidence_capture_conflict", "evidence_capture 与 factory 只能给一个"
++        )
+     live_env = load_live_env(env, overrides=env_overrides)
+     live_gate = gate or open_live_gate(plan, run_id=run_id, now=now)
+     build = build_live_adapter(
+@@ -1539,6 +1563,9 @@ async def run_live_p2(
+         transports=transports,
+         purge_traces_on_close=purge_traces_on_close,
+         scenario_contract=scenario_contract,
++        evidence_capture=evidence_capture,
++        rag_business_date=rag_business_date,
++        manifest_business_date=manifest_business_date,
+     )
+     try:
+         # T207-FIX-LIVECAP：装配期就把适配器 start 起来（start 幂等，runner 之后照旧调用）。
+@@ -1546,6 +1573,15 @@ async def run_live_p2(
+         # 会以稳定码抛给调用方，而不是被 runner 的 ingest 失败路径吞成 ingest_failed
+         # （后者虽同样不发送，但会丢掉可机读的原因）。
+         await build.adapter.start()
++        run_capture = None
++        if evidence_capture_factory is not None:
++            # 只有 start 之后才知道产品**实际**业务日期/ingest 后 revision；此时构造配置，
++            # 仍由 run_p2 在首个产品回合之前 enable（失败即拒，不追溯）。
++            run_capture = evidence_capture_factory(build)
++            if run_capture is None:
++                raise P2LiveConfigError(
++                    "evidence_capture_factory_empty", "受控入口必须产出显式采集配置"
++                )
+         result = await run_p2(
+             plan,
+             adapter=build.adapter,
+@@ -1557,6 +1593,8 @@ async def run_live_p2(
+             settle_evidence=make_settle_evidence(build.adapter),
+             cancel=cancel,
+             now=now,
++            evidence_capture=run_capture,
++            private_case_marks_sink=private_case_marks_sink,
+         )
+     finally:
+         await build.adapter.close()
+diff --git a/backend/src/mktkb/evaluation/p2_runner.py b/backend/src/mktkb/evaluation/p2_runner.py
+index 4335a05..0f2eb2b 100644
+--- a/backend/src/mktkb/evaluation/p2_runner.py
++++ b/backend/src/mktkb/evaluation/p2_runner.py
+@@ -99,8 +99,11 @@ DEFAULT_USER_ID = "employee"
+ #: T206-PRE：产物/绑定校验的稳定错误码（R2-F-R2-2：不再只靠异常消息前缀）。
+ ERROR_PROVIDER_NETWORK_DETAIL_MISMATCH = "provider_network_detail_mismatch"
+ ERROR_RUN_ID_MISSING = "run_id_missing"
++#: 05：live 证据的 run binding 与本次实际身份不一致 -> 首个发送之前拒绝。
++ERROR_LIVE_EVIDENCE_BINDING = "live_evidence_binding_mismatch"
+ ERROR_BINDING_INCOMPLETE = "binding_incomplete"
+ ERROR_ARTIFACT_WRITE_FAILED = "artifact_write_failed"
++ERROR_ADAPTER_CONTRACT = "adapter_contract"
+ 
+ EXECUTION_DRY_RUN = "dry_run"
+ EXECUTION_MOCK_GATE = "mock_gate"
+@@ -758,6 +761,9 @@ async def run_p2(
+     settle_evidence: Callable[[Any, ProductTurn], Any] | None = None,
+     run_id: str | None = None,
+     gate_config: Any | None = None,
++    evidence_capture: Any | None = None,
++    #: 05 受控入口：只在显式给出时接收 holdout 逐题质量状态（内存回调，不落公开产物）。
++    private_case_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+ ) -> P2RunResult:
+     """按 plan 逐轮驱动隔离产品；返回请求/费用回执 ``P2RunResult``（产物同时落盘）。
+ 
+@@ -771,6 +777,11 @@ async def run_p2(
+     from .p2_holdout_scenarios import validate_scenario_execution
+     validate_scenario_execution(plan, frozen_dataset, getattr(adapter, 'ingest_plan', None),
+                                 getattr(adapter, 'scenario_contract', None))
++    if evidence_capture is not None:
++        enable = getattr(adapter, "enable_evidence_capture", None)
++        if not callable(enable):
++            raise P2RunError(ERROR_ADAPTER_CONTRACT, "adapter 不支持 evidence_capture")
++        enable(evidence_capture)
+     moment = (now or datetime.now(timezone.utc)).astimezone(timezone.utc)
+     started = time.perf_counter()
+     # T206-PRE（R2-F-R2-3）：run_id 是身份必填项 —— 显式给空/non-str 就在**任何发送前**
+@@ -781,6 +792,11 @@ async def run_p2(
+         run_id = run_id.strip()
+     else:
+         run_id = "p2run-" + uuid.uuid4().hex[:16]
++    if evidence_capture is not None:
++        # 05：真实证据的 run binding 必须在 ingest/首个发送之前与实际身份逐值一致。
++        _validate_live_evidence_binding(
++            config=evidence_capture, plan=plan, run_id=run_id, gate=gate, adapter=adapter
++        )
+     execution, checks, stop_code = _prepare(plan, authorization, adapter, gate, moment)
+     if frozen_dataset.visibility == "holdout":
+         if not bool(getattr(adapter, "purge_traces_on_close", False)):
+@@ -946,6 +962,7 @@ async def run_p2(
+             attempt_audit=attempt_audit,
+             artifact_failure=exc,
+             gate_config=gate_config,
++            private_case_marks_sink=private_case_marks_sink,
+         )
+         raise
+     _write_artifacts(
+@@ -967,10 +984,51 @@ async def run_p2(
+         attempt_audit=attempt_audit,
+         artifact_failure=None,
+         gate_config=gate_config,
++        private_case_marks_sink=private_case_marks_sink,
+     )
+     return result
+ 
+ 
++def _validate_live_evidence_binding(
++    *,
++    config: Any,
++    plan: P2RunPlan,
++    run_id: str,
++    gate: Any,
++    adapter: Any,
++) -> None:
++    """live_h2 证据的 9 键 run binding 必须等于**本次实际**身份（发送前 fail closed）。
++
++    这不是信任调用方字符串：run_id/plan_sha/scenario 来自本次参数与绑定，
++    go/ledger 摘要来自刚打开的真实门，business_date 取产品 QaEngine 实际生效值。
++    任何一项不一致都在 ingest/首个 HTTP 之前以稳定码拒绝（detail 只含键名）。
++    """
++    from .p2_evidence_capture import LIVE_FIXTURE_KIND, RUN_BINDING_KEYS
++
++    if str(getattr(config, "fixture_kind", "")) != LIVE_FIXTURE_KIND:
++        return
++    run_binding = dict(getattr(config, "run_binding", None) or {})
++    bindings = dict(getattr(config, "bindings", None) or {})
++    if set(run_binding) != set(RUN_BINDING_KEYS):
++        raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, "run_binding_keys")
++    if gate is None or not is_real_p2_gate(gate):
++        raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, "gate_required")
++    authorization = gate.authorization
++    expected = {
++        "run_id": str(run_id),
++        "plan_sha256": str(plan.plan_sha256),
++        "scenario_id": str(bindings.get("scenario_id") or ""),
++        "go_sha256": str(authorization.go_sha256),
++        "ledger_sha256": str(authorization.ledger_sha256),
++        "business_date": str(getattr(adapter, "rag_business_date", None) or ""),
++        "code_version": str(bindings.get("code_version") or ""),
++        "config_sha256": str(bindings.get("config_sha256") or ""),
++    }
++    for key, value in expected.items():
++        if str(run_binding.get(key)) != value:
++            raise P2RunError(ERROR_LIVE_EVIDENCE_BINDING, key)
++
++
+ def _attempt_audit(plan: P2RunPlan, adapter: Any, ledger: P2RunLedger) -> tuple[dict[str, Any], str | None]:
+     """核对**逐次底层尝试**回执（G5/G6）：计划项、成本中心、预留身份、中心合计。
+ 
+@@ -1991,6 +2049,7 @@ def _holdout_scorecard(
+     real_calls: int,
+     binding: Mapping[str, Any],
+     gate_config: Any | None,
++    private_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+ ) -> dict[str, Any]:
+     """H2 聚合：逐题判定只出现在内存里，返回的字典只有计数/分层/block。"""
+     blocks: list[P2Block] = []
+@@ -1999,6 +2058,9 @@ def _holdout_scorecard(
+         ledger, dataset, ingest_plan=ingest_plan, execution=execution, blocks=blocks,
+         diagnostics=diagnostics,
+     )
++    if private_marks_sink is not None:
++        # 05 受控入口：逐题 marks 只交给显式注入的内存回调（默认 None = 行为逐值不变）。
++        private_marks_sink(tuple(marks))
+     payload = _aggregate_marks(
+         marks,
+         dataset=dataset,
+@@ -2164,6 +2226,7 @@ def _holdout_scorecard_artifact(
+     real_calls: int,
+     binding: Mapping[str, Any],
+     gate_config: Any | None,
++    private_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+ ) -> dict[str, Any]:
+     """算 + 审计 H2 聚合；任何异常都退化成"全 error + 稳定 block"，产物一定写出。
+ 
+@@ -2180,6 +2243,7 @@ def _holdout_scorecard_artifact(
+             gate_config=gate_config,
+             execution=execution,
+             real_calls=real_calls,
++            private_marks_sink=private_marks_sink,
+         )
+         _assert_holdout_scorecard_payload(payload, dataset, run_id=ledger.run_id,
+                                          config_hash=binding.get('config_hash') or None)
+@@ -2188,6 +2252,18 @@ def _holdout_scorecard_artifact(
+         code = fixed(getattr(exc, 'code', None), (
+             ERROR_HOLDOUT_SCORECARD_LEAK, ERROR_HOLDOUT_DOCUMENT_CODE_UNMAPPED,
+             ERROR_HOLDOUT_DOCUMENT_CODE_AMBIGUOUS), 'holdout_case_unscorable')
++    if private_marks_sink is not None:
++        # 聚合/审计失败：逐题质量状态一律按 error 交回，绝不用未审计的 marks 冒充。
++        private_marks_sink(
++            tuple(
++                P2HoldoutCaseScore(
++                    case_id=case.case_id,
++                    stratum=str(case.stratum),
++                    status=CASE_STATUS_ERROR,
++                )
++                for case in dataset.cases
++            )
++        )
+     kwargs = {
+         "binding": binding,
+         "gate_config": gate_config,
+@@ -2239,6 +2315,7 @@ def _write_artifacts(
+     attempt_audit: Mapping[str, Any] | None = None,
+     artifact_failure: P2RunError | None = None,
+     gate_config: Any | None = None,
++    private_case_marks_sink: Callable[[Sequence[Any]], None] | None = None,
+ ) -> None:
+     """写全部产物；**校验失败也要写**（R2-F-R2-1：不能"已发生请求但无产物"）。
+ 
+@@ -2551,6 +2628,7 @@ def _write_artifacts(
+                 real_calls=_scorecard_real_calls(network),
+                 binding=binding,
+                 gate_config=gate_config,
++                private_marks_sink=private_case_marks_sink,
+             ),
+         )
+         for stale in (run_dir / "cases.jsonl", run_dir / "requests.jsonl"):
+diff --git a/backend/src/mktkb/evaluation/p2_scoring.py b/backend/src/mktkb/evaluation/p2_scoring.py
+index aec3fb0..a050f74 100644
+--- a/backend/src/mktkb/evaluation/p2_scoring.py
++++ b/backend/src/mktkb/evaluation/p2_scoring.py
+@@ -98,6 +98,7 @@ __all__ = [
+     "P2Standards",
+     "P2SuiteTally",
+     "P2_BINDING_VERSION",
++    "P2_HARD_EVIDENCE_SCORING_SCHEMA_VERSION",
+     "aggregate_holdout",
+     "binding_config_hash",
+     "build_gate_rows",
+@@ -114,6 +115,8 @@ __all__ = [
+ ]
+ 
+ P2_SCORING_SCHEMA_VERSION = "mktkb.p2.scoring.v0.1"
++#: T207 B 包：新版四轴硬证据卡的评分 schema（旧 v0.1 语义/严格校验保持原样）。
++P2_HARD_EVIDENCE_SCORING_SCHEMA_VERSION = "mktkb.p2.scoring.v0.2"
+ #: P2 run 的作用域与模式（T203 契约：end-to-end 产品问答，不是 P1 的 retrieval_only）。
+ P2_RUN_SCOPE = "end_to_end"
+ P2_RUN_MODE = "end_to_end"
+diff --git a/backend/src/mktkb/evaluation/product_adapter.py b/backend/src/mktkb/evaluation/product_adapter.py
+index 9ea2245..94f858d 100644
+--- a/backend/src/mktkb/evaluation/product_adapter.py
++++ b/backend/src/mktkb/evaluation/product_adapter.py
+@@ -24,10 +24,11 @@ from __future__ import annotations
+ import asyncio
+ import hashlib
+ import json
++import re
+ import time
+ import uuid
+ from dataclasses import dataclass, field, replace
+-from datetime import datetime, timezone
++from datetime import date, datetime, timezone
+ from pathlib import Path
+ from typing import Any, Awaitable, Callable, Iterable, Mapping, Sequence
+ 
+@@ -62,6 +63,7 @@ __all__ = [
+     "P2RunDataset",
+     "ingest_plan_from_document",
+     "PRODUCT_TURN_TIMEOUT_SECONDS",
++    "ProductAdapterError",
+     "ProductEvalAdapter",
+     "ProductPaths",
+     "ProductTurn",
+@@ -102,6 +104,60 @@ _IDENTITY_KEYS = (
+ )
+ _VISIBILITIES = ("public", "holdout")
+ 
++# T207-04c：业务日期接线的固定错误码（错误文本只含固定码，不回显日期值/外部字段）。
++_BUSINESS_DATE_INVALID = "adapter_business_date_invalid"
++_BUSINESS_DATE_MANIFEST_UNBOUND = "adapter_business_date_manifest_unbound"
++_BUSINESS_DATE_RAG_UNBOUND = "adapter_business_date_rag_unbound"
++_BUSINESS_DATE_MANIFEST_MISMATCH = "adapter_business_date_manifest_mismatch"
++_BUSINESS_DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
++
++
++class ProductAdapterError(ValueError):
++    """产品适配器装配拒绝（固定码）：不把日期值或外部字段写进错误文本。"""
++
++    def __init__(self, code: str) -> None:
++        self.code = str(code)
++        super().__init__(self.code)
++
++
++def _checked_business_date(value: object) -> str:
++    """只接受显式给出的 YYYY-MM-DD（真实日历日期）；其余一律固定码拒绝。"""
++
++    if not isinstance(value, str):
++        raise ProductAdapterError(_BUSINESS_DATE_INVALID)
++    text = value.strip()
++    if _BUSINESS_DATE_RE.fullmatch(text) is None:
++        raise ProductAdapterError(_BUSINESS_DATE_INVALID)
++    try:
++        date.fromisoformat(text)
++    except ValueError:
++        raise ProductAdapterError(_BUSINESS_DATE_INVALID) from None
++    return text
++
++
++def _resolve_business_dates(
++    rag_business_date: object | None,
++    manifest_business_date: object | None,
++) -> tuple[str | None, str | None]:
++    """校验并返回 (产品实际业务日期, 公开 manifest 声明日期)。
++
++    T207-04c 边界：值只能由受控入口/计划**显式**给出，默认 (None, None) 逐值不变；
++    显式日期必须与公开 manifest 声明一致，否则固定码拒绝（不从 CaseSpec/dataset 回填、
++    不读 .env、不猜日期）。
++    """
++
++    if rag_business_date is None and manifest_business_date is None:
++        return None, None
++    if rag_business_date is None:
++        raise ProductAdapterError(_BUSINESS_DATE_RAG_UNBOUND)
++    if manifest_business_date is None:
++        raise ProductAdapterError(_BUSINESS_DATE_MANIFEST_UNBOUND)
++    declared = _checked_business_date(rag_business_date)
++    expected = _checked_business_date(manifest_business_date)
++    if declared != expected:
++        raise ProductAdapterError(_BUSINESS_DATE_MANIFEST_MISMATCH)
++    return declared, expected
++
+ 
+ def _utc_now() -> datetime:
+     return datetime.now(timezone.utc)
+@@ -866,6 +922,10 @@ class ProductEvalAdapter:
+         mode: str = "mock",
+         live_wiring: Any | None = None,
+         scenario_contract: Any | None = None,
++        evidence_capture: Any | None = None,
++        # T207-04c：显式业务日期（默认 None = 既有行为逐值不变）；构造时一次设定、start 后只读。
++        rag_business_date: str | None = None,
++        manifest_business_date: str | None = None,
+     ) -> None:
+         if mode not in ("mock", "live"):
+             raise ValueError("adapter.mode 只允许 mock/live")
+@@ -874,6 +934,10 @@ class ProductEvalAdapter:
+         if mode == "mock" and live_wiring is not None:
+             raise ValueError("mock 模式不接受 live_wiring（默认必须零真实调用）")
+         self._mode = str(mode)
++        (
++            self._rag_business_date,
++            self._manifest_business_date,
++        ) = _resolve_business_dates(rag_business_date, manifest_business_date)
+         self._wiring = live_wiring
+         self.paths = ProductPaths.of(out_dir)
+         self.ingest_plan = ingest_plan
+@@ -926,6 +990,13 @@ class ProductEvalAdapter:
+         # T206-PRE：评测身份绑定（run_id/dataset/manifest/pipeline/index/config）。
+         self._trace_identity: dict[str, str] = {}
+         self._identity_bound = False
++        # T207 第一步 A2/A3：显式启用的证据采集（默认 None = 产品行为逐值不变）
++        self._evidence_capture_config = evidence_capture
++        self._evidence_session: Any = None
++        self._evidence_manifest: dict[str, Any] | None = None
++        self._evidence_blocked = False
++        self._evidence_last_error: str | None = None
++        self._evidence_turn_seen = False
+         if trace_identity is not None:
+             self.bind_trace_identity(trace_identity)
+ 
+@@ -945,6 +1016,25 @@ class ProductEvalAdapter:
+     def mode(self) -> str:
+         return str(self._mode)
+ 
++    @property
++    def rag_business_date(self) -> str | None:
++        """产品**实际生效**的业务日期（T207-04c）。
++
++        start 前是显式声明值；start 后从产品 QaEngine 的 RagConfig.business_date 读取，
++        供 A 证据采集/05 受控入口读取并纳入 run 身份。本包不把它塞进 runner 的
++        binding/config hash（交接给 05 入口层显式绑定）。
++        """
++
++        if self._qa is not None:
++            return getattr(getattr(self._qa, "config", None), "business_date", None)
++        return self._rag_business_date
++
++    @property
++    def manifest_business_date(self) -> str | None:
++        """公开 manifest 声明的业务日期（仅用于一致性校验；默认 None 表示未声明）。"""
++
++        return self._manifest_business_date
++
+     async def start(self) -> "ProductEvalAdapter":
+         if self._started:
+             return self
+@@ -973,6 +1063,7 @@ class ProductEvalAdapter:
+             rag_index_path=self.paths.index_db,
+             rag_provider_mode="offline",
+             rag_sync_on_startup=False,
++            rag_business_date=self._rag_business_date,
+             ocr_disabled=True,
+             trace_enabled=self.trace_enabled,
+             trace_db_path=self.paths.trace_db,
+@@ -995,7 +1086,7 @@ class ProductEvalAdapter:
+         rag_config = RagConfig(
+             provider_mode="offline",
+             data_dir=self.paths.data_dir,
+-            business_date=None,
++            business_date=self._rag_business_date,
+             top_k=8,
+             page_size=10,
+             vector_candidate_limit=50,
+@@ -1036,6 +1127,7 @@ class ProductEvalAdapter:
+                 await session.login()
+             self._sessions[username] = session
+         self._started = True
++        self._start_evidence_capture()
+         return self
+ 
+     async def _start_live(self) -> "ProductEvalAdapter":
+@@ -1076,6 +1168,7 @@ class ProductEvalAdapter:
+             rag_index_path=self.paths.index_db,
+             rag_provider_mode="live",
+             rag_sync_on_startup=False,
++            rag_business_date=self._rag_business_date,
+             ocr_disabled=False,
+             ocr_secret_id=env.ocr_secret_id,
+             ocr_secret_key=env.ocr_secret_key,
+@@ -1098,7 +1191,7 @@ class ProductEvalAdapter:
+         rag_config = RagConfig(
+             provider_mode="live",
+             data_dir=self.paths.data_dir,
+-            business_date=None,
++            business_date=self._rag_business_date,
+             top_k=8,
+             page_size=10,
+             vector_candidate_limit=50,
+@@ -1211,6 +1304,7 @@ class ProductEvalAdapter:
+                 await session.login()
+             self._sessions[username] = session
+         self._started = True
++        self._start_evidence_capture()
+         return self
+ 
+     def _create_account(self, username: str, password: str) -> None:
+@@ -1233,6 +1327,14 @@ class ProductEvalAdapter:
+         if self._closed:
+             return
+         self._closed = True
++        evidence_error: Exception | None = None
++        if self._evidence_session is not None:
++            try:
++                self._evidence_finalize()
++            except Exception as exc:  # noqa: BLE001 - 保留固定失败状态，清理照常执行
++                evidence_error = exc
++                self._evidence_blocked = True
++                self._evidence_last_error = type(exc).__name__
+         for session in self._sessions.values():
+             await session.client.aclose()
+         self._sessions.clear()
+@@ -1257,6 +1359,8 @@ class ProductEvalAdapter:
+         if self._seal_questions:
+             # F6/H2：通知关闭后再封存，避免"trace 删了、业务库还留着题干明文"。
+             self.seal_receipt = self.seal_question_store()
++        if evidence_error is not None:
++            raise evidence_error
+ 
+     def require_holdout_sealing(self) -> None:
+         """runner 对 holdout run 的显式标记：close() 时必须删掉含题干明文的隔离业务库。"""
+@@ -1818,6 +1922,73 @@ class ProductEvalAdapter:
+         except Exception:  # noqa: BLE001 - trace 是观测面，读失败不改业务结论
+             return None
+ 
++    @staticmethod
++    def _trace_observation(record: tuple[Any, list[Any]] | None) -> dict[str, Any] | None:
++        """把 trace 记录压成**固定白名单**快照值（只给 span 名/状态/固定安全子因）。"""
++        if record is None:
++            return None
++        trace, spans = record
++        from ..providers.types import safe_model_failure_reason
++
++        model_failure_reason = 'unknown'
++        span_names: list[str] = []
++        for span in spans:
++            span_names.append(str(span.name))
++            if span.name == 'model_failure':
++                try:
++                    attrs = json.loads(span.attributes_json or '{}')
++                    model_failure_reason = safe_model_failure_reason(
++                        attrs.get('model_failure_reason')
++                    )
++                except (TypeError, ValueError, AttributeError):
++                    pass
++        return {
++            "path": getattr(trace, "path", None),
++            "outcome": getattr(trace, "outcome_kind", None),
++            "status": getattr(trace, "status", None),
++            "spans": span_names,
++            "model_failure_reason": model_failure_reason,
++        }
++
++    def _captured_retrieved(self, evidence: Mapping[str, Any] | None) -> tuple[dict[str, Any], ...]:
++        """采集启用时用该轮**实际观察**的候选/发送证据做评估候选（禁止事后重放）。"""
++        if not isinstance(evidence, Mapping):
++            return ()
++        snapshot = evidence.get("runtime_snapshot")
++        if not isinstance(snapshot, Mapping):
++            return ()
++        usage = snapshot.get("retrieval_use")
++        if not isinstance(usage, Mapping):
++            return ()
++        ids: list[str] = []
++        seen: set[str] = set()
++
++        def add(value: Any) -> None:
++            text = str(value or "").strip()
++            if text and text not in seen:
++                seen.add(text)
++                ids.append(text)
++
++        for row in usage.get("candidates") or ():
++            if isinstance(row, Mapping):
++                for value in row.get("unit_ids") or ():
++                    add(value)
++        for row in usage.get("model_evidence") or ():
++            if isinstance(row, Mapping):
++                for value in row.get("unit_ids") or ():
++                    add(value)
++        for row in usage.get("direct_rag_facts") or ():
++            if isinstance(row, Mapping):
++                add(row.get("source_unit_id"))
++        for value in usage.get("direct_rag_citations") or ():
++            add(value)
++        if not ids:
++            return ()
++        try:
++            return self._resolve_retrieved_units(ids)
++        except Exception:  # noqa: BLE001 - 观测面失败只让候选为空，不改产品结论
++            return ()
++
+     def product_revision(self) -> int:
+         db = self._app.state.db.session()
+         try:
+@@ -2021,6 +2192,116 @@ class ProductEvalAdapter:
+         finally:
+             db.close()
+ 
++    # ---------------------------------------------------------------- 证据采集（T207 A2/A3）
++    def _start_evidence_capture(self) -> None:
++        if self._evidence_capture_config is None or self._evidence_session is not None:
++            return
++        from .p2_evidence_capture import EvidenceCaptureSession
++
++        self._evidence_session = EvidenceCaptureSession(self._evidence_capture_config)
++
++    def enable_evidence_capture(self, config: Any) -> None:
++        """显式启用证据采集；必须在首个产品回合之前调用（默认不启用）。"""
++        if config is None:
++            return
++        if self._evidence_session is not None:
++            raise RuntimeError("证据采集已启用，不能重复配置")
++        if getattr(self, "_evidence_turn_seen", False):
++            raise RuntimeError("已有产品回合执行后才启用证据采集，禁止追溯")
++        self._evidence_capture_config = config
++        if self._started:
++            self._start_evidence_capture()
++
++    def evidence_capture_manifest(self) -> dict[str, Any] | None:
++        return None if self._evidence_manifest is None else dict(self._evidence_manifest)
++
++    def evidence_capture_summary(self) -> dict[str, Any] | None:
++        if self._evidence_session is None:
++            return None
++        return self._evidence_session.summary()
++
++    def _authenticated_db_user_id(self, username: str) -> str:
++        """把适配器用户名解析成产品库真实用户 ID（证据绑定用，不信任 hook 自报）。"""
++        try:
++            from sqlalchemy import select
++
++            from ..auth.models import User
++
++            db = self._app.state.db.session()
++            try:
++                row = db.scalar(select(User).where(User.username == str(username)))
++                return str(row.id) if row is not None else str(username)
++            finally:
++                db.close()
++        except Exception:  # noqa: BLE001 - 解析失败保留用户名并在完整性检查中暴露
++            return str(username)
++
++    def _evidence_begin_turn(
++        self,
++        *,
++        question: str,
++        user_id: str,
++        conversation_id: str,
++        client_request_id: str,
++        pre_revision: int | None,
++    ) -> Any:
++        session = self._evidence_session
++        if session is None:
++            return None
++        from .p2_evidence_capture import EvidenceCaptureBlocked
++
++        if session.blocked:
++            raise EvidenceCaptureBlocked("evidence_capture_session_blocked")
++        if not session.bound:
++            try:
++                session.bind(self.binding_components())
++            except Exception:
++                session.blocked = True
++                self._evidence_blocked = True
++                self._evidence_last_error = "evidence_binding_failed"
++                raise
++        return session.begin_turn(
++            turn_index=len(session.turns),
++            client_request_id=str(client_request_id),
++            conversation_id=str(conversation_id),
++            authenticated_user_id=self._authenticated_db_user_id(user_id),
++            question_sha256=_sha256_text(question),
++            pre_revision=pre_revision,
++        )
++
++    def _evidence_finish_turn(
++        self,
++        turn: Any,
++        *,
++        http_status: int | None,
++        timed_out: bool,
++        runtime_observation: Mapping[str, Any] | None = None,
++    ) -> dict[str, Any] | None:
++        session = self._evidence_session
++        if session is None or turn is None:
++            return None
++        try:
++            return session.finish_turn(
++                turn,
++                http_status=http_status,
++                timed_out=bool(timed_out),
++                db_factory=getattr(self._app.state, "db", None) if self._app is not None else None,
++                qa=self._qa,
++                post_revision=self._safe_product_revision(),
++                runtime_observation=runtime_observation,
++            )
++        except Exception:
++            session.blocked = True
++            self._evidence_blocked = True
++            self._evidence_last_error = "evidence_capture_failed"
++            raise
++
++    def _evidence_finalize(self) -> None:
++        session = self._evidence_session
++        if session is None:
++            return
++        self._evidence_manifest = session.finalize()
++
+     # ---------------------------------------------------------------- 问答（产品路径）
+     async def open_conversation(self, *, user_id: str = "employee", title: str | None = None) -> str:
+         await self.start()
+@@ -2043,6 +2324,10 @@ class ProductEvalAdapter:
+     ) -> ProductTurn:
+         """走用户同一产品入口提问一次；超时/异常都转成可记录的产品回合结果。"""
+         await self.start()
++        if self._evidence_session is not None and self._evidence_session.blocked:
++            from .p2_evidence_capture import EvidenceCaptureBlocked
++
++            raise EvidenceCaptureBlocked("evidence_capture_session_blocked")
+         session = self._session(user_id)
+         if self._mode == "live":
+             # 进入本轮 live 上下文：只有本 run 的 answer 计划项能开真实发送；退出时必须清空，
+@@ -2070,30 +2355,67 @@ class ProductEvalAdapter:
+         client_request_id: str,
+     ) -> ProductTurn:
+         session = self._session(user_id)
++        self._evidence_turn_seen = True
+         # T206-PRE-R1：检索候选只能在**发送前**取基线（产品 revision + rag 查询状态）——
+         # 本轮会把状态推进，事后重算就不是这一轮的检索了。
+         pre_revision = self._safe_product_revision()
+         pre_state = self._safe_query_state(user_id, conversation_id)
++        evidence_turn = self._evidence_begin_turn(
++            question=question,
++            user_id=user_id,
++            conversation_id=conversation_id,
++            client_request_id=client_request_id,
++            pre_revision=pre_revision,
++        )
+         started = time.perf_counter()
+         timed_out = False
+         response: httpx.Response | None = None
++        from contextlib import nullcontext
++
+         try:
+-            response = await asyncio.wait_for(
+-                session.client.post(
+-                    f"/api/v1/conversations/{conversation_id}/messages",
+-                    json={
+-                        "client_request_id": str(client_request_id),
+-                        "question": str(question),
+-                    },
+-                    headers=session.write_headers,
+-                ),
+-                timeout=self.turn_timeout_seconds,
+-            )
++            with evidence_turn.scope() if evidence_turn is not None else nullcontext():
++                response = await asyncio.wait_for(
++                    session.client.post(
++                        f"/api/v1/conversations/{conversation_id}/messages",
++                        json={
++                            "client_request_id": str(client_request_id),
++                            "question": str(question),
++                        },
++                        headers=session.write_headers,
++                    ),
++                    timeout=self.turn_timeout_seconds,
++                )
+         except asyncio.TimeoutError:
+             timed_out = True
+         elapsed_ms = int((time.perf_counter() - started) * 1000)
++        # A-R2：产品响应与 trace 在**同一次传输**后解析一次；快照只消费这一次结果，
++        # 不重放检索/模型，也不为采集再发第二次请求。
++        received = not timed_out and response is not None
++        trace_id = response.headers.get("X-Trace-ID") if received else None
++        # 解析失败必须显式保留为 None（不可用），不能被当成“合法空响应”。
++        parsed_payload = self._json_body_or_none(response) if received else None
++        payload = parsed_payload or {}
++        record = self.trace_of(trace_id)
++        trace_observation = self._trace_observation(record)
++        captured_evidence: dict[str, Any] | None = None
++        if evidence_turn is not None:
++            captured_evidence = self._evidence_finish_turn(
++                evidence_turn,
++                http_status=None if (timed_out or response is None) else int(response.status_code),
++                timed_out=bool(timed_out),
++                runtime_observation={
++                    "product_response_payload": parsed_payload,
++                    "http_status": (
++                        None
++                        if (timed_out or response is None)
++                        else int(response.status_code)
++                    ),
++                    "timed_out": bool(timed_out),
++                    "trace_id": trace_id,
++                    "record": trace_observation,
++                },
++            )
+         if timed_out or response is None:
+-            record: tuple[Any, list[Any]] | None = None
+             return ProductTurn(
+                 question_sha256=_sha256_text(question),
+                 question_chars=len(question),
+@@ -2111,33 +2433,24 @@ class ProductEvalAdapter:
+                 missing_fields=(),
+                 candidates=0,
+                 trace_id=None,
+-                trace_path=None if record is None else getattr(record[0], "path", None),
++                trace_path=None,
+                 trace_outcome=None,
+                 trace_status=None,
+                 trace_spans=(),
+                 replayed=False,
+                 elapsed_ms=elapsed_ms,
+             )
+-        trace_id = response.headers.get("X-Trace-ID")
+         trace_path = trace_outcome = trace_status = None
+         trace_spans: tuple[str, ...] = ()
+         model_failure_reason = 'unknown'
+-        record = self.trace_of(trace_id)
+-        if record is not None:
+-            trace, spans = record
+-            trace_path = getattr(trace, "path", None)
+-            trace_outcome = getattr(trace, "outcome_kind", None)
+-            trace_status = getattr(trace, "status", None)
+-            trace_spans = tuple(str(span.name) for span in spans)
+-            from ..providers.types import safe_model_failure_reason
+-            for span in spans:
+-                if span.name == 'model_failure':
+-                    try:
+-                        attrs = json.loads(span.attributes_json or '{}')
+-                        model_failure_reason = safe_model_failure_reason(attrs.get('model_failure_reason'))
+-                    except (TypeError, ValueError, AttributeError):
+-                        pass
+-        payload = self._json_body(response)
++        if trace_observation is not None:
++            trace_path = trace_observation.get("path")
++            trace_outcome = trace_observation.get("outcome")
++            trace_status = trace_observation.get("status")
++            trace_spans = tuple(trace_observation.get("spans") or ())
++            model_failure_reason = str(
++                trace_observation.get("model_failure_reason") or "unknown"
++            )
+         kind = str(payload.get("kind") or ("service_error" if response.status_code != 200 else ""))
+         sources = tuple(
+             dict(item) for item in (payload.get("sources") or ()) if isinstance(item, Mapping)
+@@ -2157,20 +2470,24 @@ class ProductEvalAdapter:
+         # （GatedChatGateway 捕获，零额外调用/零额外付费）；捕获不到就留空 → gate 的
+         # citation_required fail-closed。live **不做**付费重放：重放会再发一次真实
+         # embedding/rerank，而计划只给了本轮各 1 次（已用于产品自己的检索）。
+-        if self._mode == "live":
+-            retrieved = self._live_retrieved() if kind == "answer" else ()
++        if kind != "answer":
++            # 非作答轮保持空（gate 不要求引用，也不允许拿"没检索"冒充通过）。
++            retrieved = ()
++        elif self._mode == "live":
++            # live：取产品 answer 请求里**实际交给模型的证据集合**（零额外调用/零额外付费）。
++            retrieved = self._live_retrieved()
++        elif captured_evidence is not None:
++            # 采集启用：只用该轮实际观察到的候选/发送证据，**不做**事后检索重放。
++            retrieved = self._captured_retrieved(captured_evidence)
+         else:
+-            retrieved = (
+-                self.retrieval_candidates(
+-                    str(question),
+-                    conversation_id=str(conversation_id),
+-                    client_request_id=str(client_request_id),
+-                    trace_path=trace_path,
+-                    revision=pre_revision,
+-                    state=pre_state,
+-                )
+-                if kind == "answer"
+-                else ()
++            # 采集未启用：保持旧行为（mock 便利回查），不改变既有 run 的评分输入。
++            retrieved = self.retrieval_candidates(
++                str(question),
++                conversation_id=str(conversation_id),
++                client_request_id=str(client_request_id),
++                trace_path=trace_path,
++                revision=pre_revision,
++                state=pre_state,
+             )
+         return ProductTurn(
+             question_sha256=_sha256_text(question),
+@@ -2208,6 +2525,15 @@ class ProductEvalAdapter:
+             return {}
+         return payload if isinstance(payload, dict) else {}
+ 
++    @staticmethod
++    def _json_body_or_none(response: httpx.Response) -> dict[str, Any] | None:
++        """回合边界用：解析失败/非对象返回 None，交给证据层记 `product_response_unparsable`。"""
++        try:
++            payload = response.json()
++        except (json.JSONDecodeError, ValueError):
++            return None
++        return payload if isinstance(payload, dict) else None
++
+     # ---------------------------------------------------------------- 来源/会话观测
+     async def source_detail(
+         self, message_id: str, source_id: str, *, user_id: str = "employee"
+diff --git a/backend/src/mktkb/qa/service.py b/backend/src/mktkb/qa/service.py
+index 9b68199..b969c80 100644
+--- a/backend/src/mktkb/qa/service.py
++++ b/backend/src/mktkb/qa/service.py
+@@ -28,6 +28,7 @@ from sqlalchemy import select
+ from ..documents.lifecycle import get_revision, visible_source_units_stmt
+ from ..documents.models import Document, DocumentVersion, SourceUnit
+ from ..observability import trace_attrs
++from ..observability.evaluation_capture import capture_enabled, emit_capture_event
+ from ..observability.tracer import current_trace
+ from ..rag import DocumentSpec, RagConfig, RagIndex, safe_config_summary
+ from ..rag.chunking import adapt_parsed_unit
+@@ -440,6 +441,39 @@ class QaEngine:
+         result = self.index().ask(
+             question, user_id=str(user_id), conversation_id=str(conversation_id), limit=limit
+         )
++        if capture_enabled():
++            cited: list[str] = []
++            for citation in result.citations:
++                for unit_id in citation.unit_ids or ():
++                    value = str(unit_id or "")
++                    if value and value not in cited:
++                        cited.append(value)
++            emit_capture_event(
++                "direct_rag_answer",
++                request_id=None,
++                kind=str(result.kind),
++                text=str(result.text),
++                reason=result.reason,
++                answer_source=str(result.answer_source) if result.answer_source is not None else None,
++                cited_unit_ids=cited,
++                fact_count=len(result.facts),
++                facts=[
++                    {
++                        "entity_key": str(fact.entity_key),
++                        "entity_label": str(fact.entity_label),
++                        "field_role": str(fact.field_role),
++                        "field_label": str(fact.field_label),
++                        "value": str(fact.value),
++                        "source_chunk_id": str(fact.source_chunk_id),
++                        "source_unit_id": str(fact.source_unit_id),
++                        "doc_id": str(fact.doc_id),
++                        "version_id": str(fact.version_id),
++                        "revision": int(fact.revision),
++                    }
++                    for fact in result.facts
++                ],
++                state_keys=sorted(str(key) for key in dict(result.state or {}).keys()),
++            )
+         trace = current_trace()
+         if trace is not None:
+             trace.set_outcome(result.kind, result.reason)
+@@ -492,11 +526,32 @@ class QaEngine:
+                 include_future=True,
+             )
+             ids |= self._candidate_ids(self.search(document_plan))
++        if capture_enabled():
++            emit_capture_event(
++                "retrieval_observed",
++                request_id=None,
++                scope="rag_candidate_upper_bound",
++                unit_ids=sorted(str(item) for item in ids),
++                candidate=True,
++                truncated=False,
++                empty=not ids,
++            )
+         return ids
+ 
+     def candidate_unit_ids(self, plan: QueryPlan, *, limit: int | None = None) -> set[str]:
+         """返回本轮 rag 召回覆盖的产品来源单元 ID（记录行或正文单元）。"""
+-        return self._candidate_ids(self.search(plan, limit=limit))
++        ids = self._candidate_ids(self.search(plan, limit=limit))
++        if capture_enabled():
++            emit_capture_event(
++                "retrieval_observed",
++                request_id=None,
++                scope="rag_candidate_upper_bound",
++                unit_ids=sorted(str(item) for item in ids),
++                candidate=True,
++                truncated=False,
++                empty=not ids,
++            )
++        return ids
+ 
+     @staticmethod
+     def _candidate_ids(result: RetrievalResult) -> set[str]:
+diff --git a/backend/src/mktkb/rag/answer.py b/backend/src/mktkb/rag/answer.py
+index e56b281..cb3414c 100644
+--- a/backend/src/mktkb/rag/answer.py
++++ b/backend/src/mktkb/rag/answer.py
+@@ -21,6 +21,7 @@ from .errors import FactRejected, RagError
+ from .facts import FactValidator
+ from .query import (
+     Lexicon,
++    RESTRICTED_CONTACT_ROLES,
+     build_lexicon,
+     financial_metric_question,
+     is_anaphora_field_followup,
+@@ -124,6 +125,20 @@ def answer_question(
+         )
+         _commit(index, plan.state)
+         return answer
++    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
++        # v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并，
++        # 在检索/模型之前整体拒答；文案是固定骨架，不含任何来源值。
++        answer = RagAnswer(
++            kind="no_answer",
++            question=question,
++            text=copy_module.text("SECURITY_RESTRICTED_CONTACT"),
++            state=plan.state.to_dict(),
++            reason="SECURITY_RESTRICTED_CONTACT",
++            answer_source="refusal",
++            diagnostics=_finish_diagnostics(index, diagnostics, started),
++        )
++        _commit(index, plan.state)
++        return answer
+     if plan.clarification:
+         text = plan.clarification
+         if plan.candidates:
+@@ -286,9 +301,14 @@ def _answer_record(
+             "ANAPHORA_NEW_CONTENT",
+             diagnostics,
+         )
+-    if plan.enumerate and is_anaphora_field_followup(plan.question, plan.field_role):
++    if plan.enumerate and int(getattr(plan.state, "turn", 0) or 0) > 1 and is_anaphora_field_followup(
++        plan.question, plan.field_role
++    ):
+         # T105/ERR-06：指代追问只继承字段时，``enumerate`` 只是产品层“交给 rag 直答”的
+         # 入口，用户没有要求枚举；这里按单字段答案渲染，避免把整条记录全字段倾倒出来。
++        # v3-fix-2/A：本收敛按定义只适用于**追问**（有上文可继承字段）。首轮没有可继承字段，
++        # 句中“那个/该/其”只是行文虚指；若照旧把 enumerate 关掉，多目标轮次会退化成
++        # “多个对象不能唯一确定”的歧义澄清（可作答的题被判澄清）。首轮保持枚举渲染。
+         plan = replace(plan, enumerate=False, state=QueryState.from_dict(plan.state.to_dict()))
+         plan.state.enumerate = False
+     exact = [
+@@ -596,6 +616,13 @@ def _enumerate_answer(
+     diagnostics: dict[str, Any],
+     started: float,
+ ) -> RagAnswer:
++    if (
++        not plan.field_role
++        and (plan.state.item or len(plan.state.items) > 1 or plan.state.identifier)
++        and any(chunk.role_values.get(role) for chunk in items for role in RESTRICTED_CONTACT_ROLES)
++    ):
++        return _no_answer(plan, copy_module.text("SECURITY_RESTRICTED_CONTACT"),
++                          "SECURITY_RESTRICTED_CONTACT", diagnostics)
+     facts: list[Fact] = []
+     lines: list[str] = []
+     citations: list[Citation] = []
+diff --git a/backend/src/mktkb/rag/index.py b/backend/src/mktkb/rag/index.py
+index 25a5cfa..a4e5a59 100644
+--- a/backend/src/mktkb/rag/index.py
++++ b/backend/src/mktkb/rag/index.py
+@@ -14,6 +14,7 @@ from sqlalchemy import bindparam, create_engine, delete, event, select, text
+ from sqlalchemy.engine import Engine
+ from sqlalchemy.orm import Session, sessionmaker
+ 
++from ..observability.evaluation_capture import capture_enabled, emit_capture_event
+ from ..retrieval.tokenize import TOKENIZER_VERSION, index_body
+ from .chunking import build_chunks, role_values
+ from .config import RagConfig
+@@ -578,6 +579,23 @@ class RagIndex:
+     def load_state(self, user_id: str, conversation_id: str) -> QueryState:
+         with self.session() as session:
+             row = session.get(RagQueryStateRow, (str(user_id), str(conversation_id)))
++            if capture_enabled():
++                stored = dict(row.state_json or {}) if row is not None else {}
++                raw_turn = stored.get("turn")
++                emit_capture_event(
++                    "query_state_observed",
++                    request_id=None,
++                    user_id=str(user_id),
++                    conversation_id=str(conversation_id),
++                    stored_user_id=None if row is None else str(row.user_id),
++                    stored_conversation_id=None if row is None else str(row.conversation_id),
++                    row_present=row is not None,
++                    state_keys=sorted(str(key) for key in stored.keys()),
++                    state_json=stored,
++                    pending_slot=None if stored.get("pending_slot") is None else str(stored.get("pending_slot")),
++                    last_kind=None if stored.get("last_kind") is None else str(stored.get("last_kind")),
++                    turn=raw_turn if type(raw_turn) is int else None,
++                )
+             if row is None:
+                 return QueryState(user_id=str(user_id), conversation_id=str(conversation_id))
+             state = QueryState.from_dict(row.state_json)
+@@ -590,6 +608,9 @@ class RagIndex:
+             raise RagConfigError("查询状态必须绑定 user_id 与 conversation_id")
+         with self.session() as session:
+             row = session.get(RagQueryStateRow, (state.user_id, state.conversation_id))
++            previous_user_id = None if row is None else str(row.user_id)
++            previous_conversation_id = None if row is None else str(row.conversation_id)
++            row_present = row is not None
+             payload = state.to_dict()
+             if row is None:
+                 session.add(
+@@ -602,13 +623,40 @@ class RagIndex:
+             else:
+                 row.state_json = payload
+             session.commit()
++            if capture_enabled():
++                raw_turn = payload.get("turn")
++                emit_capture_event(
++                    "query_state_saved",
++                    request_id=None,
++                    user_id=state.user_id,
++                    conversation_id=state.conversation_id,
++                    previous_user_id=previous_user_id,
++                    previous_conversation_id=previous_conversation_id,
++                    row_present=row_present,
++                    state_keys=sorted(str(key) for key in payload.keys()),
++                    state_json=payload,
++                    pending_slot=None if payload.get("pending_slot") is None else str(payload.get("pending_slot")),
++                    last_kind=None if payload.get("last_kind") is None else str(payload.get("last_kind")),
++                    turn=raw_turn if type(raw_turn) is int else None,
++                )
+ 
+     def clear_state(self, user_id: str, conversation_id: str) -> None:
+         with self.session() as session:
+             row = session.get(RagQueryStateRow, (str(user_id), str(conversation_id)))
++            deleted_state = dict(row.state_json or {}) if row is not None else {}
++            deleted_present = row is not None
+             if row is not None:
+                 session.delete(row)
+                 session.commit()
++            if capture_enabled():
++                emit_capture_event(
++                    "query_state_cleared",
++                    request_id=None,
++                    user_id=str(user_id),
++                    conversation_id=str(conversation_id),
++                    row_present=deleted_present,
++                    state_json=deleted_state,
++                )
+ 
+     # ---------------------------------------------------------------- 词表
+ 
+diff --git a/backend/src/mktkb/rag/query.py b/backend/src/mktkb/rag/query.py
+index 1c25cc4..564e388 100644
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -31,6 +31,9 @@ RECORD_FIELD_ROLES: frozenset[str] = frozenset(
+     }
+ )
+ DOCUMENT_FIELD_ROLES: frozenset[str] = frozenset({"height", "clause"})
++#: v3-safety-fix：个人联系信息字段角色（店家记录独有）。物品记录 + 这些角色的同一请求
++#: 属于跨资料合并，规划层直接给出安全拒答原因（答案层在任何检索/模型之前收口）。
++RESTRICTED_CONTACT_ROLES: frozenset[str] = frozenset({"contact", "phone", "address"})
+ FIELD_WORDS: dict[str, tuple[str, ...]] = {
+     "location": ("位置", "在哪", "哪里", "哪儿", "搁哪", "搁哪儿", "放哪", "放到哪", "放在哪", "存放", "位于", "所在"),
+     "price": ("参考供价", "建议零售价", "会员价", "档期特价", "箱促价", "组合价", "零售价", "价格", "单价", "多少钱", "售价", "特价", "供价"),
+@@ -87,6 +90,27 @@ ENUMERATE_WORDS = (
+     "总共有多少",
+ )
+ ANAPHORA_WORDS = ("它", "这个", "那个", "该", "上述", "刚才", "前面", "这家", "那家", "这种", "该项", "其")
++#: v3-fix-1/R1：量化指代（“这两个/这几个/那两家”）**没有点名目标**，不是“本轮显式列出
++#: 多个目标”。fix-1/A 的多目标判定只认 ``ANAPHORA_WORDS`` 里的“这个/那个”，漏掉了
++#: “这 + 两 + 个”这种形式，导致“城东店和城西店的这两个……”被当成多目标放行。
++#: 复指限定语（“海报和易拉宝这两个”“这两个店”）指代的是本轮已点名的对象，不算纯指代。
++_QUANTIFIED_ANAPHORA = re.compile(r"(?:这|那)\s*(?:两|几|俩)\s*(?:个|家)")
++_QUANTIFIED_ANAPHORA_HEADS = (
++    "门店",
++    "店铺",
++    "店家",
++    "物品",
++    "商品",
++    "产品",
++    "东西",
++    "资料",
++    "字段",
++    "记录",
++    "目标",
++    "条目",
++    "店",
++)
++_QUANTIFIED_ANAPHORA_JOINERS = "和与及跟同"
+ SWITCH_WORDS = ("换成", "改为", "另外", "其他", "不说", "重新问", "换个", "再问一个", "换一个话题")
+ #: T102/ERR-02：无显式实体、无记录字段时，哪些问法仍应按“政策/制度/流程题”独立检索，
+ #: 而不是继承上一轮门店/物品。法规名词由 ``is_regulation_question`` 统一覆盖，这里只补
+@@ -385,6 +409,37 @@ def is_anaphora_field_followup(question: str, field_role: str | None) -> bool:
+     return any(word in text for word in ANAPHORA_WORDS)
+ 
+ 
++def _bare_quantified_anaphora(question: str, lexicon: Lexicon) -> bool:
++    """v3-fix-1/R1：问题里是否有**未点名目标**的量化指代（“这两个/这几个/那两家”）。
++
++    两种复指用法不算纯指代（它们指代的对象在同一轮里已点名）：
++    - **后置名词**：``这两个店`` / ``这几个物品``（量化词后面紧跟目标名词或词表实体）；
++    - **前置枚举**：``海报和易拉宝这两个`` / ``城东店、城西店这两家``（量化词前面只隔
++      标点/空白就是已点名的目标；``…和这两个`` 这类用连接词另起一个目标的仍算纯指代）。
++
++    其余位置（``城东店和城西店的这两个分别……``、``这两个分别……``）都是纯指代：
++    本轮没有说清“这两个”是哪两个目标。
++    """
++    text = _norm(question)
++    heads = tuple(
++        dict.fromkeys(
++            [_norm(head) for head in _QUANTIFIED_ANAPHORA_HEADS]
++            + [_norm(label) for label in lexicon.all_entity_labels()]
++        )
++    )
++    heads = tuple(head for head in heads if head)
++    for match in _QUANTIFIED_ANAPHORA.finditer(text):
++        following = text[match.end() :].lstrip()
++        if any(following.startswith(head) for head in heads):
++            continue
++        preceding = text[: match.start()].rstrip(" \t,，、/|｜")
++        if preceding and preceding[-1] not in _QUANTIFIED_ANAPHORA_JOINERS:
++            if any(preceding.endswith(head) for head in heads):
++                continue
++        return True
++    return False
++
++
+ def field_roles_for_question(question: str, *, has_entity: bool = True) -> tuple[str, ...]:
+     """查询规划用的字段识别（T101/ERR-03、T102/ERR-02）：法规/政策题与无实体语境的泛化词
+     不判记录字段。
+@@ -460,19 +515,43 @@ def financial_metric_question(question: str) -> str | None:
+     return None
+ 
+ 
++#: 指标词后的“值位置”：连接词/空白 + 数值（可带万亿千百与元/%），或“百分之…”。
++#: 只认值位置，不认邻近窗口里的任意数字——编号、日期等无关数字不构成指标支持。
++#: 数值核心后的守卫：紧随的 年份/会计期间形态（标准会计/日历年份术语：财政/会计/预算/报告/纳税/自然/日历/公历/学 等前缀 + 年/年度，及 财年缩略）或 年/月/日 或 -/−// 接数字是日期/年份形态
++#: （“毛利2026年度…”“毛利2026-04-01…”“毛利2028财年…”“毛利2033财政年度…”“毛利2037会计年度…”“毛利2038预算年度…”），不是指标取值；(?!\d|\.\d|,\d) 禁止回退截断数字前缀。
++#: 数值前允许负号（-/−/负）：亏损原值“净利润为 -908 万元”是合法取值。
++#: 指标词与数值之间允许一个括号单位说明（“毛利（万元）：6175”），括号内容不参与取值。
++#: 千分位分组（6,175）按完整数值匹配，绑定核心去掉逗号，避免截断成前导“6”。
++_METRIC_VALUE_SLOT = re.compile(
++    r"(?P<lead>[ \t：:为是达到约共计人民币]*)"
++    r"(?:[（(](?P<paren>[^（）()]{0,16})[）)][ \t：:为是达到约共计人民币]*)?"
++    r"(?:[-−负][ \t]*)?"
++    r"(?:"
++    r"(?P<num>\d+(?:,\d{3})*(?:\.\d+)?)"
++    r"(?!\d|\.\d|,\d)"
++    r"(?!\s*(?:财年|(?:财政|会计|预算|报告|纳税|自然|日历|公历|学)?年(?:度)?|[年月日]))"
++    r"(?![-−/]\s*\d)"
++    r"(?P<mult>[ \t]*[万亿千百])?"
++    r"(?P<unit>[ \t]*[元%％])?"
++    r"|百分之(?P<pct>[0-9一二三四五六七八九十百千点.]+)"
++    r")"
++)
++
++
+ def _metric_value_context(text: str, term: str) -> bool:
+-    """指标词附近是否有数值/百分比——用来区分“资料给出该指标的数据”与“只是提到该词”。
++    """指标词后的值位置是否有数值/百分比——区分“资料给出该指标的数据”与“只是提到该词”。
+ 
+     例如 W03“须同时提交毛利影响测算”只出现“毛利”而没有数值，不能当作“公司毛利数据”；
+-    若资料写“营收 4812 万元”，指标词与数字在同一窗口内，才算有资料支持。
++    “编号YF-07 日期2026-03-12”这类邻近数字也不算支持。只有指标词后紧跟值位置
++    （如“营收 4812 万元”“毛利为 4812 万元”）才算有资料支持。
+     """
+     start = 0
+     while True:
+         index = text.find(term, start)
+         if index < 0:
+             return False
+-        window = text[max(0, index - 40) : index + len(term) + 60]
+-        if re.search(r"\d|%|百分之", window):
++        after = text[index + len(term) : index + len(term) + 40]
++        if _METRIC_VALUE_SLOT.match(after):
+             return True
+         start = index + 1
+ 
+@@ -497,6 +576,171 @@ def texts_support_financial_metric(metric: str, texts: Iterable[str]) -> bool:
+     return False
+ 
+ 
++#: 值位置里的数值核心（与 ``_value_tokens`` 的 ASCII 数据值口径一致，中文叙述不参与）。
++_METRIC_VALUE_NUMBER = re.compile(r"\d+(?:\.\d+)?")
++
++#: 括号单位说明里的单位/倍率（“毛利（万元）：6175”的单位在括号里）。
++_METRIC_PAREN_UNIT = re.compile(r"([万亿千百])?\s*([元%％])")
++
++
++def _binding_value(match: re.Match) -> tuple[str, str, str] | None:
++    """值位置匹配 → (数值核心, 倍率, 单位类)；无数值核心（纯中文数字）返回 None。
++
++    数值核心去千分位逗号；“百分之X”与“X%”统一为 % 类；单独倍率（“6175万”）
++    按元类计；数值自身无单位时回退取括号单位说明。单位/倍率参与绑定核对，
++    “908 万元”与“908 元”不是同一绑定。
++    """
++    pct = match.group("pct")
++    if pct is not None:
++        number = _METRIC_VALUE_NUMBER.search(pct)
++        if not number:
++            return None
++        return (number.group(0), "", "%")
++    core = match.group("num").replace(",", "")
++    mult = (match.group("mult") or "").strip()
++    unit = (match.group("unit") or "").strip().replace("％", "%")
++    if not mult and not unit:
++        paren_unit = _METRIC_PAREN_UNIT.search(match.group("paren") or "")
++        if paren_unit:
++            mult = paren_unit.group(1) or ""
++            unit = paren_unit.group(2).replace("％", "%")
++    if mult and not unit:
++        unit = "元"
++    return (core, mult, unit)
++
++
++def metric_value_bindings(text: str, metric: str) -> set[str]:
++    """文本中绑定到该指标同义词组的数值核心集合（只取指标词后值位置里的数字）。
++
++    与 ``texts_support_financial_metric`` 共用值位置判定：编号/日期等邻近数字不算绑定。
++    供答案准入核对“回答把哪个值绑到了哪个指标”，而不是“值在全文出现过”；
++    调用方传入的应是**本次实际引用**的来源正文，未引用候选不能为绑定背书。
++    """
++    normalized = _norm(str(text or ""))
++    if not normalized:
++        return set()
++    bindings: set[str] = set()
++    for term in financial_metric_terms(metric):
++        key = _norm(term)
++        if not key:
++            continue
++        start = 0
++        while True:
++            index = normalized.find(key, start)
++            if index < 0:
++                break
++            after = normalized[index + len(key) : index + len(key) + 40]
++            match = _METRIC_VALUE_SLOT.match(after)
++            if match:
++                value = _binding_value(match)
++                if value is not None:
++                    bindings.add(value[0])
++            start = index + 1
++    return bindings
++
++
++#: 绑定核对的真同义/缩写归并（仅用于 M2 值绑定身份，不改问题识别/资料支持的同义词组）：
++#: 净利/纯利 是 净利润 的真缩写；营业收入/营收/营业额 等互为合法同义改写。
++#: 毛利 与 净利润 虽同属“利润”组，但不是同义指标，绑定身份各自独立（组内误绑须拒绝）。
++_METRIC_BINDING_IDENTITY_MAP = {
++    "净利": "净利润",
++    "纯利": "净利润",
++    "营业总收入": "营收",
++    "营业收入": "营收",
++    "营收额": "营收",
++    "营业额": "营收",
++}
++
++_METRIC_BINDING_TERMS = tuple(
++    sorted(
++        {term for _canonical, terms in FINANCIAL_METRIC_TERMS for term in terms}
++        | set(_METRIC_BINDING_IDENTITY_MAP),
++        key=lambda item: (-len(item), item),
++    )
++)
++
++
++def metric_binding_identity(metric: str) -> str:
++    """指标词 → 绑定核对身份（真同义/缩写归并，其余词各自独立）。"""
++    return _METRIC_BINDING_IDENTITY_MAP.get(metric, metric)
++
++
++def metric_binding_values(text: str) -> dict[str, set[tuple[str, str, str]]]:
++    """文本按绑定身份聚合的指标取值：{身份: {(数值核心, 倍率, 单位类), …}}。
++
++    与组级 ``metric_value_bindings`` 的区别：毛利/净利润等同组不同义指标各自独立，
++    且绑定携带单位/倍率（“908 万元”与“908 元”不是同一绑定）。只取指标词后值位置
++    里的数值；调用方传入的应是本次实际引用的来源正文或待核对的回答文本。
++    """
++    normalized = _norm(str(text or ""))
++    bindings: dict[str, set[tuple[str, str, str]]] = {}
++    if not normalized:
++        return bindings
++    for term in _METRIC_BINDING_TERMS:
++        key = _norm(term)
++        if not key:
++            continue
++        identity = metric_binding_identity(term)
++        start = 0
++        while True:
++            index = normalized.find(key, start)
++            if index < 0:
++                break
++            after = normalized[index + len(key) : index + len(key) + 40]
++            match = _METRIC_VALUE_SLOT.match(after)
++            if match:
++                value = _binding_value(match)
++                if value is not None:
++                    bindings.setdefault(identity, set()).add(value)
++            start = index + 1
++    return bindings
++
++
++#: 未归属取值扫描里视为编号/日期内嵌的前导字符（ASCII 字母数字与常见连接符）：
++#: “LB-12”“2026-04-01”里的数字不是指标取值，沿用既有 token 口径，不在这里核对。
++_UNATTRIBUTED_ID_PREFIX = "0123456789abcdefghijklmnopqrstuvwxyz-_./:,"
++
++
++def unattributed_metric_values(text: str) -> set[tuple[str, str, str]]:
++    """文本里未绑到任何已知指标身份的“指标样取值”（省略指标名/组外缩写的回答）。
++
++    只取带连接词（为/是/：/达到/约/共计…）或单位/倍率的值位置数值；日期/年份形态
++    由值槽守卫排除，编号内嵌数字由前导字符排除。指标题里这类取值默认就是在回答
++    所问指标，必须由所问指标的被引绑定背书，空绑定集不能成为自由通行证（R4）。
++    """
++    normalized = _norm(str(text or ""))
++    values: set[tuple[str, str, str]] = set()
++    if not normalized:
++        return values
++    term_ends: set[int] = set()
++    for term in _METRIC_BINDING_TERMS:
++        key = _norm(term)
++        if not key:
++            continue
++        start = 0
++        while True:
++            index = normalized.find(key, start)
++            if index < 0:
++                break
++            term_ends.add(index + len(key))
++            start = index + 1
++    for match in _METRIC_VALUE_SLOT.finditer(normalized):
++        if match.start() in term_ends:
++            continue
++        value = _binding_value(match)
++        if value is None:
++            continue
++        lead = match.group("lead") or ""
++        has_connector = any(ch in lead for ch in "：:为是达到约共计人民币")
++        if not has_connector and not (value[1] or value[2]):
++            continue
++        prev = normalized[match.start() - 1] if match.start() > 0 else ""
++        if prev and prev in _UNATTRIBUTED_ID_PREFIX:
++            continue
++        values.add(value)
++    return values
++
++
+ def _match_labels(question: str, labels: tuple[str, ...]) -> list[str]:
+     normalized = _norm(question)
+     found: list[str] = []
+@@ -630,7 +874,11 @@ def identifier_shape(question: str) -> str | None:
+ 
+ 
+ def _document_core(title: str) -> str:
+-    return re.split(r"[_（(]", str(title), maxsplit=1)[0].strip()
++    title = str(title)
++    if re.match(r"^[DV]\d{2}_(?=.)", title, flags=re.IGNORECASE):
++        title = re.sub(r"^[DV]\d{2}_", "", title, flags=re.IGNORECASE)
++        title = re.sub(r"\.(?:xlsx?|docx?|pdf)$", "", title, flags=re.IGNORECASE)
++    return re.split(r"[_（(]", title, maxsplit=1)[0].strip()
+ 
+ 
+ def _missing_document(question: str) -> str | None:
+@@ -908,6 +1156,8 @@ def _anaphora_residual_terms(question: str, lexicon: Lexicon) -> tuple[str, ...]
+     新的问法；此时才需要判断“问什么”。带“打印材质/陈列要求”等新内容的问题不走本分支。
+     """
+     text = _norm(question)
++    # v3-fix-1/R1：量化指代（“这两个/这几个”）本身不是新内容；去掉后再看还剩什么检索词。
++    text = _QUANTIFIED_ANAPHORA.sub(" ", text)
+     labels = [*lexicon.all_entity_labels(), *lexicon.identifiers]
+     labels.extend(str(alias) for alias in (lexicon.alias_map or {}))
+     for label in sorted({item for item in labels if item}, key=len, reverse=True):
+@@ -981,6 +1231,7 @@ def _new_state(
+     question: str,
+     slots: Mapping[str, str | None],
+     stores: tuple[str, ...],
++    items: tuple[str, ...] = (),
+     field_role: str | None,
+     field_roles: tuple[str, ...],
+     enumerate: bool,
+@@ -1000,6 +1251,7 @@ def _new_state(
+         state.store = previous.store
+         state.stores = previous.stores
+         state.item = previous.item
++        state.items = previous.items
+         state.product = previous.product
+         state.channel = previous.channel
+         state.price_type = previous.price_type
+@@ -1016,6 +1268,7 @@ def _new_state(
+         state.doc_title = None
+         state.store = None
+         state.stores = ()
++        state.items = ()
+     elif slots.get("doc_id") and previous.doc_id and slots.get("doc_id") != previous.doc_id:
+         # 明确切到另一份资料时，旧实体/字段条件不再适用于新资料。
+         state.store = state.item = state.product = state.channel = state.price_type = state.identifier = None
+@@ -1026,6 +1279,8 @@ def _new_state(
+         state.doc_id = previous.doc_id
+         state.doc_title = previous.doc_title
+     # 明确切换实体时清掉旧实体的标识/渠道/价格类型，避免把 QF02 带到滨江店查询。
++    if len(stores) > 1 and not slots.get("identifier"):
++        state.identifier = None
+     if slots.get("store") and previous.store and slots.get("store") != previous.store and not slots.get("identifier"):
+         state.identifier = None
+     if slots.get("item") and previous.item and slots.get("item") != previous.item and not slots.get("identifier"):
+@@ -1046,6 +1301,18 @@ def _new_state(
+         state.store = stores[0]
+     elif slots.get("store"):
+         state.stores = (slots["store"],)
++    # v3-fix-1/A：多目标物品只在“本轮明确点名多个物品”时进入状态；换了门店/改问单物品
++    # 时必须清掉旧集合，避免上一轮的多目标过滤条件污染本轮检索。
++    if items:
++        state.items = tuple(items)
++        if len(items) > 1:
++            state.item = None
++            if not slots.get("identifier"):
++                state.identifier = None
++    elif slots.get("item"):
++        state.items = (slots["item"],)
++    elif slots.get("store") or stores:
++        state.items = ()
+     if field_role:
+         state.field_role = field_role
+     if field_roles:
+@@ -1086,16 +1353,18 @@ def _required_missing(state: QueryState, mode: str) -> str | None:
+         return None
+     if state.enumerate and not state.field_role and (state.store or state.item or state.product):
+         return None
++    # v3-fix-1/A：本轮明确点名多个物品时，“物品”这一维已给出，不再要求补门店。
++    has_item_scope = bool(state.item) or len(tuple(getattr(state, "items", ()) or ())) > 1
+     if state.field_role == "price":
+-        if not (state.product or state.item or state.identifier):
++        if not (state.product or has_item_scope or state.identifier):
+             return "product"
+     if state.field_role in ("location", "quantity", "note"):
+-        if not (state.store or state.item or state.product or state.identifier):
++        if not (state.store or has_item_scope or state.product or state.identifier):
+             return "store"
+     if state.field_role in ("contact", "phone", "address", "status"):
+         if not state.store:
+             return "store"
+-    if not any((state.store, state.item, state.product, state.identifier, state.doc_id)):
++    if not any((state.store, has_item_scope, state.product, state.identifier, state.doc_id)):
+         return "store"
+     return None
+ 
+@@ -1131,7 +1400,6 @@ def parse_query(
+     price_type_hits = _match_price_types(question, lexicon)
+     identifier = _match_identifier(question, lexicon)
+     document, document_candidates = _match_document(question, lexicon)
+-    missing_document = _missing_document(question) if document is None else None
+     missing_stores = unknown_stores if stores else ()
+     # T102/ERR-02：政策题里的“档期”指物料档期，不是“档期特价”这个价格类型；无实体时
+     # 不能把它当成记录型价格条件，否则会被 _required_missing 判成“请补充门店”。
+@@ -1156,6 +1424,16 @@ def parse_query(
+         ),
+     )
+     field_role = field_roles[0] if field_roles else None
++    # v3-fix-2/A：本轮已点名记录实体（门店/物品/商品/标识）**且**问的是记录字段时，
++    # “XX表/XX清单/XX通知/XX资料”这类字样只是行文里的顺带提及，不是“点了一份不存在的资料”。
++    # 让 ``_missing_document`` 在这种轮次上不触发，避免把可作答的记录题判成 DOCUMENT_NOT_FOUND
++    # （同一 gate 也用于资料歧义分支：记录实体已唯一确定时，资料歧义不该抢占记录作答）。
++    # 反例保持：点名未收录资料的题（“促销活动台账在哪里？”）没有记录实体/记录字段，仍按原路判缺失。
++    record_scope = bool(stores or item_hits or product or identifier)
++    record_field_scope = record_scope and field_role in RECORD_FIELD_ROLES
++    missing_document = (
++        _missing_document(question) if document is None and not record_field_scope else None
++    )
+     page_request = _page_request(question, previous)
+     enumerate_flag = any(word in question for word in ENUMERATE_WORDS)
+     if page_request is not None and previous.enumerate:
+@@ -1193,7 +1471,8 @@ def parse_query(
+         slots.get(key) and slots.get(key) == getattr(previous, key)
+         for key in ("store", "item", "product", "identifier", "doc_id")
+     )
+-    anaphora = any(word in question for word in ANAPHORA_WORDS)
++    quantified_anaphora = _bare_quantified_anaphora(question, lexicon)
++    anaphora = quantified_anaphora or any(word in question for word in ANAPHORA_WORDS)
+     anaphora_residual = _anaphora_residual_terms(question, lexicon) if anaphora else ()
+     # T102/ERR-02：无显式实体、无记录字段，且问题在问政策/制度/流程（或根本没有可继承的
+     # 字段）时，按话题切换处理。政策题紧跟在一次实体查询后，不能继承上一轮门店/物品；
+@@ -1225,11 +1504,38 @@ def parse_query(
+         # 澄清后换了对象：保留其它有效条件，只替换该对象。
+         reset = False
+ 
++    # v3-fix-1/A：同一轮内**明确提出**的多个目标（同一维度 ≥2、另一维度 ≤1）按多目标
++    # 枚举执行，不再判澄清：目标都是词表里的确定实体，答案按目标逐条列出。
++    # 真歧义仍保持既有澄清/拒绝面：两个维度都 ≥2（交叉配对不明）、词表外门店/区域、
++    # 资料或产品歧义、本轮没有可回答的字段、指代追问与政策正文题都不在此列。
++    multi_stores = len(stores) > 1
++    multi_items = len(item_hits) > 1 and not product
++    # v3-fix-2/A：指代词的两种身份要分开。**指代本身充当目标**（“这两个/这几个/它们”，
++    # 本轮没点名物品）时仍是真歧义，必须澄清（fix-1r1 正面成果）；指代词只是行文里的
++    # 回指填充（“那个位置”“那件已经停用的”），而本轮已点名物品目标时，目标由显式实体
++    # 唯一确定，不应再因一个虚指词把可作答的多目标轮次打回澄清。
++    anaphora_blocks_multi_target = anaphora and (quantified_anaphora or not (item_hits or product))
++    multi_target = (
++        (multi_stores != multi_items)
++        and field_role in RECORD_FIELD_ROLES
++        and not anaphora_blocks_multi_target
++        and not policy_followup
++        and not unknown_stores
++        and not unknown_regions
++        and not missing_document
++        and identifier is None
++        and not (document_candidates and not record_field_scope)
++        and not product_candidates
++    )
++    if multi_target:
++        enumerate_flag = True
++
+     state = _new_state(
+         previous,
+         question=question,
+         slots=slots,
+         stores=stores,
++        items=item_hits if (multi_target and multi_items) else (),
+         field_role=field_role,
+         field_roles=field_roles,
+         enumerate=enumerate_flag,
+@@ -1245,6 +1551,19 @@ def parse_query(
+         # 用户直接在问题里给出了澄清槽的值（例如“城东店”）：槽已满足，不能继续挂起。
+         state.pending_slot = None
+         state.candidates = ()
++    if multi_target:
++        # 本轮已点名多个确定目标：旧澄清槽不再挂起，避免下一轮又把已给出的一维当缺失。
++        state.pending_slot = None
++        state.candidates = ()
++    # 安全拒答必须先于候选歧义等早退，避免受限请求被当成普通澄清。
++    if (bool(item_hits) or identifier is not None) and set(field_roles) & RESTRICTED_CONTACT_ROLES and not is_policy_question(question):
++        return QueryPlan(
++            question=question, mode="record", query_text=question,
++            field_role=state.field_role, field_label=state.field_role, filters={},
++            terms=_terms(question), state=state, enumerate=state.enumerate,
++            page=state.page, page_size=state.page_size, include_future=include_future,
++            reason="SECURITY_RESTRICTED_CONTACT",
++        )
+     if missing_document:
+         return QueryPlan(
+             question=question,
+@@ -1267,7 +1586,9 @@ def parse_query(
+         )
+ 
+     # 多个候选对象：先澄清，不检索。
+-    if document_candidates and not state.doc_id:
++    # v3-fix-2/A：本轮已点名记录实体且问的是记录字段时，记录目标已唯一确定，资料歧义不抢占作答
++    # （否则多店/单物品这类可作答轮次会被判 DOCUMENT_AMBIGUOUS → 交回 legacy → 多实体澄清）。
++    if document_candidates and not state.doc_id and not record_field_scope:
+         return QueryPlan(
+             question=question,
+             mode="record" if (state.enumerate or field_role is None) else "document",
+@@ -1303,7 +1624,9 @@ def parse_query(
+             include_future=include_future,
+             reason="PRODUCT_AMBIGUOUS",
+         )
+-    if len(item_hits) > 1:
++    if len(item_hits) > 1 and not multi_target:
++        # v3-fix-1/A：本轮不满足多目标条件（例如门店与物品两维同时点名多个、交叉配对
++        # 不明，或没有可回答的字段）时，仍按“哪一条”先澄清；确定的多目标轮次不走这里。
+         return QueryPlan(
+             question=question,
+             mode="record",
+@@ -1470,8 +1793,14 @@ def parse_query(
+     explicit_record_entity = any(
+         slots.get(key) for key in ("store", "item", "product", "identifier")
+     )
++    # v3-fix-2/B：“指代追问”按定义要有先行语（上文）。首轮（``previous.turn == 0``）没有可
++    # 回指的对象，此时句中“那个/该/其”只是行文虚指，不构成“追问”，不能据此把已点名门店+物品
++    # 的首轮请求直接收口成“未记录该字段”（那会在任何检索之前就把有据可答的问题判成找不到）。
++    # 首轮按“显式实体 → 记录枚举”作答；追问仍走原有 collapse（T105 R1/B2 口径不变）。
++    has_prior_context = previous.turn > 0
+     anaphora_new_content = (
+         anaphora
++        and has_prior_context
+         and not field_roles
+         and bool(anaphora_residual)
+         and explicit_record_entity
+@@ -1481,10 +1810,23 @@ def parse_query(
+         # 也不能按继承字段作答；交回既有正文检索（T101 法规优先、T102 政策题口径）。
+         and not policy_followup
+     )
++    first_turn_new_content = (
++        anaphora
++        and not has_prior_context
++        and not field_roles
++        and bool(anaphora_residual)
++        and explicit_record_entity
++        and page_request is None
++        and not any(word in question for word in ENUMERATE_WORDS)
++        and not policy_followup
++    )
+     if anaphora_new_content:
+         # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
+         state.enumerate = True
+         plan_reason = "ANAPHORA_NEW_CONTENT"
++    elif first_turn_new_content:
++        # 首轮无先行语：按显式实体的记录枚举作答（不猜字段、不倾倒未问字段以外的内容）。
++        state.enumerate = True
+     elif (
+         explicit_record_entity
+         and is_anaphora_field_followup(question, state.field_role)
+@@ -1525,6 +1867,44 @@ def parse_query(
+         state.enumerate = True
+         plan_reason = "POLICY_TOPIC_FOLLOWUP"
+ 
++    # v3-fix-1/R1：纯指代不能当成本轮“显式列出多个目标”。已点名多个门店（或含词表外
++    # 门店）时，“这两个/这几个”到底指哪两个仍不能唯一确定：按“多个对象”先澄清，
++    # 既不回退成整表枚举，也不静默只答显式那一维。复指用法（“海报和易拉宝这两个”）
++    # 已在 ``_bare_quantified_anaphora`` 里排除；带显式物品目标的混合问句保持原路由。
++    if (
++        quantified_anaphora
++        and stores
++        and not item_hits
++        and (multi_stores or unknown_stores)
++        and field_role in RECORD_FIELD_ROLES
++        and identifier is None
++        and plan_reason is None
++    ):
++        labels = list(stores)
++        state.pending_slot = None
++        state.candidates = ()
++        return QueryPlan(
++            question=question,
++            mode="record",
++            query_text=question,
++            field_role=state.field_role,
++            field_label=state.field_role,
++            filters={},
++            terms=_terms(question),
++            state=state,
++            enumerate=state.enumerate,
++            page=state.page,
++            page_size=state.page_size,
++            clarification=copy_module.multiple_entities_text(labels),
++            candidates=(),
++            include_future=include_future,
++            reason="MULTIPLE_ENTITIES",
++        )
++
++    if multi_target and plan_reason is None:
++        # 只作“本轮由内核按多目标枚举作答”的标记（产品层据此把轮次交给 rag 内核），
++        # 不参与事实判定，也不改写任何拒绝/澄清原因。
++        plan_reason = "MULTI_TARGET_ENUMERATE"
+     filters = {
+         key: str(getattr(state, key))
+         for key in ("store", "item", "product", "channel", "price_type", "identifier")
+diff --git a/backend/src/mktkb/rag/retrieval.py b/backend/src/mktkb/rag/retrieval.py
+index b208608..d9ec0c6 100644
+--- a/backend/src/mktkb/rag/retrieval.py
++++ b/backend/src/mktkb/rag/retrieval.py
+@@ -178,6 +178,14 @@ def _base_stmt(
+                 or_(*(func.json_extract(RagChunk.filters_norm, "$.store") == normalize(item)
+                       for item in _multi_store))
+             )
++        # v3-fix-1/A：同一轮明确点名多个物品时，证据面只取这些物品（与多门店同口径），
++        # 目标之外的行不参与作答，避免把“多目标”变成“整表枚举”。
++        _multi_item = tuple(getattr(plan.state, "items", ()) or ())
++        if len(_multi_item) > 1:
++            stmt = stmt.where(
++                or_(*(func.json_extract(RagChunk.filters_norm, "$.item") == normalize(item)
++                      for item in _multi_item))
++            )
+         for key, value in plan.filters.items():
+             if key == "doc_id":
+                 stmt = stmt.where(RagChunk.doc_id == value)
+@@ -337,6 +345,12 @@ def _vector_recall(
+                 or_(*(func.json_extract(RagChunk.filters_norm, "$.store") == normalize(item)
+                       for item in _multi_store))
+             )
++        _multi_item = tuple(getattr(plan.state, "items", ()) or ())
++        if plan.mode == "record" and len(_multi_item) > 1:
++            stmt = stmt.where(
++                or_(*(func.json_extract(RagChunk.filters_norm, "$.item") == normalize(item)
++                      for item in _multi_item))
++            )
+         for key, value in plan.filters.items():
+             if key == "doc_id":
+                 stmt = stmt.where(RagChunk.doc_id == value)
+@@ -416,6 +430,9 @@ def _passes_filters(chunk: IndexedChunk, plan: QueryPlan) -> bool:
+         return True
+     if plan.filters.get("doc_id") and chunk.doc_id != plan.filters["doc_id"]:
+         return False
++    for key, targets in (("store", plan.state.stores), ("item", plan.state.items)):
++        if len(targets) > 1 and chunk.filters_norm.get(key) not in {normalize(target) for target in targets}:
++            return False
+     for key, value in plan.filters.items():
+         if key in ("store", "item", "product", "price_type", "identifier"):
+             stores = tuple(getattr(plan.state, "stores", ()) or ())
+diff --git a/backend/src/mktkb/rag/types.py b/backend/src/mktkb/rag/types.py
+index 51b34fd..3fd03f3 100644
+--- a/backend/src/mktkb/rag/types.py
++++ b/backend/src/mktkb/rag/types.py
+@@ -134,6 +134,8 @@ class QueryState:
+     store: str | None = None
+     stores: tuple[str, ...] = ()
+     item: str | None = None
++    #: 同一轮内明确点名的多个物品（v3-fix-1/A 多目标执行）；单物品时留空或只含该物品。
++    items: tuple[str, ...] = ()
+     product: str | None = None
+     channel: str | None = None
+     price_type: str | None = None
+@@ -159,6 +161,7 @@ class QueryState:
+             "store": self.store,
+             "stores": list(self.stores),
+             "item": self.item,
++            "items": list(self.items),
+             "product": self.product,
+             "channel": self.channel,
+             "price_type": self.price_type,
+@@ -187,6 +190,7 @@ class QueryState:
+             store=_opt_str(data.get("store")),
+             stores=tuple(str(x) for x in (data.get("stores") or ()) if x),
+             item=_opt_str(data.get("item")),
++            items=tuple(str(x) for x in (data.get("items") or ()) if x),
+             product=_opt_str(data.get("product")),
+             channel=_opt_str(data.get("channel")),
+             price_type=_opt_str(data.get("price_type")),
+diff --git a/backend/src/mktkb/retrieval/service.py b/backend/src/mktkb/retrieval/service.py
+index ed2595a..a29c7c5 100644
+--- a/backend/src/mktkb/retrieval/service.py
++++ b/backend/src/mktkb/retrieval/service.py
+@@ -11,6 +11,7 @@ from __future__ import annotations
+ 
+ import uuid
+ from contextlib import contextmanager
++from datetime import date
+ from typing import Iterator
+ 
+ from sqlalchemy import func, select, text
+@@ -41,6 +42,44 @@ def _visible_version_ids(db: Session) -> set:
+     )
+ 
+ 
++def _as_of_bound(value: object) -> str | None:
++    """业务日取值校验：只接受 YYYY-MM-DD 文本；非法值在服务边界拒绝，不静默降级。"""
++    if value is None:
++        return None
++    if not isinstance(value, str):
++        raise QueryRejected("as_of 必须是 YYYY-MM-DD 文本")
++    try:
++        return date.fromisoformat(value.strip()).isoformat()
++    except ValueError:
++        raise QueryRejected("as_of 必须是 YYYY-MM-DD 文本") from None
++
++
++def _in_effective_window(fields: object, as_of: str) -> bool:
++    """记录行自带的生效/失效窗口是否覆盖业务日（v3-fix-1/B）。
++
++    窗口口径与 rag 索引同源：``rag.chunking.effective_dates`` 从行字段解析
++    生效日期/失效日期（v3 语料按 L1 生命周期表逐值写入单元格）。闭区间语义：
++    ``effective_from <= as_of <= effective_to``；未声明的一侧不参与判定（与冻结
++    分类器“null 只削弱可判性”的口径一致）。这里只做时间维度的过滤，不改变召回
++    与排序。
++    """
++    from ..rag.chunking import effective_dates  # 局部导入：避免 rag 包与检索层的模块级循环
++
++    start, end = effective_dates(dict(fields or {}))
++    if start and start > as_of:
++        return False
++    if end and end < as_of:
++        return False
++    return True
++
++
++def _drop_out_of_window(units: list, as_of: str | None) -> list:
++    """按业务日裁剪证据单元；``as_of`` 为空时原样返回（既有行为）。"""
++    if as_of is None:
++        return units
++    return [unit for unit in units if _in_effective_window(getattr(unit, "fields", None), as_of)]
++
++
+ def _read_revision(db: Session) -> int:
+     """只读 revision；不对缺失行做写入/提交，保证读快照不被内部写破坏。"""
+     value = db.scalar(select(KnowledgeState.revision).where(KnowledgeState.id == 1))
+@@ -289,6 +328,7 @@ def _retrieve_records(
+     revision: int,
+     limit: int,
+     candidate_ids: set[str] | None = None,
++    as_of: str | None = None,
+ ) -> EvidenceSet:
+     if not intent.terms and not intent.entity_filters:
+         raise QueryRejected("record 模式需要检索词或实体条件")
+@@ -315,6 +355,8 @@ def _retrieve_records(
+         ids = allowed if ids is None else ids & allowed
+ 
+     units = _visible_units(db, ids or set())
++    # v3-fix-1/B：时间维度过滤（过期/未生效的记录行不进入证据面，召回与排序不变）。
++    units = _drop_out_of_window(units, as_of)
+     if not units:
+         return EvidenceSet([], "none", 0, revision, [])
+ 
+@@ -401,7 +443,13 @@ def _retrieve_records(
+     return EvidenceSet(selected_units[:limit], kind, total, revision, candidates, truncated)
+ 
+ 
+-def _retrieve_documents(db: Session, intent: QueryIntent, revision: int, limit: int) -> EvidenceSet:
++def _retrieve_documents(
++    db: Session,
++    intent: QueryIntent,
++    revision: int,
++    limit: int,
++    as_of: str | None = None,
++) -> EvidenceSet:
+     if not intent.terms:
+         raise QueryRejected("document 模式需要至少一个检索词")
+     expression = match_expression(intent.terms)
+@@ -422,6 +470,8 @@ def _retrieve_documents(db: Session, intent: QueryIntent, revision: int, limit:
+         ids &= filter_ids
+ 
+     units = _visible_units(db, ids)
++    # v3-fix-1/B：正文证据同样只按时间维度过滤（没有日期列的正文单元不受影响）。
++    units = _drop_out_of_window(units, as_of)
+     if not units:
+         return EvidenceSet([], "none", 0, revision, [])
+     total = len(units)
+@@ -436,14 +486,19 @@ def retrieve(
+     revision: int,
+     limit: int = 20,
+     candidate_ids: set[str] | None = None,
++    as_of: str | None = None,
+ ) -> EvidenceSet:
+     """按当前 revision 在一致短读快照内检索有效资料。
+ 
+     结果只能是请求 revision 下的完整旧快照，或明确的 KnowledgeRevisionChanged；
+     不会把查询中途的发布/删除混合成“旧 revision + 新事实/假 none”。
++
++    ``as_of`` 非空时只按时间维度裁剪证据单元（行自带的生效/失效窗口）；召回渠道、
++    分组与排序不变。为空时与既有行为逐值相同。
+     """
+     intent = normalize_intent(intent)
+     limit = validate_limit(limit)
++    as_of = _as_of_bound(as_of)
+     if isinstance(revision, bool) or not isinstance(revision, int) or revision < 0:
+         raise QueryRejected("revision 必须是非负整数")
+     with _read_snapshot(db) as snapshot:
+@@ -452,5 +507,7 @@ def retrieve(
+             raise KnowledgeRevisionChanged("知识库版本已变化，请重新查询")
+         _ensure_indexes_ready(snapshot)
+         if intent.mode == "record":
+-            return _retrieve_records(snapshot, intent, current, limit, candidate_ids)
+-        return _retrieve_documents(snapshot, intent, current, limit)
++            return _retrieve_records(
++                snapshot, intent, current, limit, candidate_ids, as_of=as_of
++            )
++        return _retrieve_documents(snapshot, intent, current, limit, as_of=as_of)
+diff --git a/backend/tests/integration/test_p1_t103_record_fallback_http.py b/backend/tests/integration/test_p1_t103_record_fallback_http.py
+index 4118408..34f3701 100644
+--- a/backend/tests/integration/test_p1_t103_record_fallback_http.py
++++ b/backend/tests/integration/test_p1_t103_record_fallback_http.py
+@@ -116,7 +116,9 @@ def t103_trace_env(settings: Settings, chat_model, tmp_path: Path) -> SimpleName
+ 
+ 
+ def _force_truncated(monkeypatch, unit, *, record: bool) -> None:
+-    def fake_retrieve(db_factory, intent, revision, limit=20, *, candidate_ids=None):
++    # v3-fix-1/B：产品证据入口新增 as_of（业务日时间过滤）；本用例只验证截断回退，
++    # 证据集由桩直接给出，因此接受并忽略该关键字。
++    def fake_retrieve(db_factory, intent, revision, limit=20, *, candidate_ids=None, as_of=None):
+         if record:
+             return EvidenceSet(
+                 units=[unit],
+diff --git a/backend/tests/integration/test_t207_fix_conflict_r1.py b/backend/tests/integration/test_t207_fix_conflict_r1.py
+index e47ca0a..28ad4cd 100644
+--- a/backend/tests/integration/test_t207_fix_conflict_r1.py
++++ b/backend/tests/integration/test_t207_fix_conflict_r1.py
+@@ -162,11 +162,15 @@ def test_conflict_recheck_db_error_is_fail_closed_not_500(
+     original = service_module._retrieve
+     probes = {"count": 0}
+ 
+-    def retrieve_raises_on_probe(db_factory, intent, revision, limit=20, *, candidate_ids=None):
++    def retrieve_raises_on_probe(
++        db_factory, intent, revision, limit=20, *, candidate_ids=None, as_of=None
++    ):
+         if candidate_ids is None and getattr(intent, "mode", None) == "record":
+             probes["count"] += 1
+             raise OperationalError("SELECT 1", {}, Exception("database is locked"))
+-        return original(db_factory, intent, revision, limit=limit, candidate_ids=candidate_ids)
++        return original(
++            db_factory, intent, revision, limit=limit, candidate_ids=candidate_ids, as_of=as_of
++        )
+ 
+     monkeypatch.setattr(service_module, "_retrieve", retrieve_raises_on_probe)
+ 
+diff --git a/backend/tests/observability/test_paths_e2e.py b/backend/tests/observability/test_paths_e2e.py
+index d0e3daa..3ae8949 100644
+--- a/backend/tests/observability/test_paths_e2e.py
++++ b/backend/tests/observability/test_paths_e2e.py
+@@ -50,8 +50,12 @@ LEGACY_DOCUMENT_QUESTION = "公司的愿景是什么？"
+ LEGACY_ERROR_QUESTION = "公司的愿景是什么？"
+ #: 触发 query_expansion 的问题：无实体命中、有正文词项、证据为空。
+ EXPANSION_QUESTION = "打印机怎么用？"
+-#: 两个已知门店 → 产品意图层直接澄清（不检索）。
+-CLARIFICATION_QUESTION = "滨江店和城东店的展架在哪里？"
++#: 单轮多目标（两个已知门店 + 一个物品 + 位置字段）：v3-fix-1/A 后按多目标枚举作答。
++MULTI_TARGET_QUESTION = "滨江店和城东店的展架在哪里？"
++#: v3-fix-1/R1：已点名多门店 + 纯指代（“这两个”）→ 改前 legacy 澄清，不得被多目标放行。
++PURE_ANAPHORA_QUESTION = "滨江店和城东店的这两个分别放在哪里？"
++#: 真歧义（两个已知门店，但没点名字段/目标）→ 产品意图层直接澄清（不检索）。
++CLARIFICATION_QUESTION = "滨江店和城东店的物料都有哪些？"
+ #: 检索前拒答：RAG 内核对未收录资料名直接 no_answer（DOCUMENT_NOT_FOUND）。
+ MISSING_DOCUMENT_QUESTION = "促销活动台账在哪里？"
+ #: 检索后拒答：标识存在但无价格字段。
+@@ -362,6 +366,45 @@ def test_legacy_clarification_binds_outcome_without_fabricated_retrieval(trace_c
+     assert validate_required_spans(trace, _names(spans)) == []
+ 
+ 
++def test_multi_target_single_turn_answers_instead_of_clarifying(trace_chat_app):
++    """v3-fix-1/A：同一轮明确点名两个门店时按多目标枚举作答，不再判澄清。"""
++    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
++    _dataset(trace_chat_app, admin)
++    conversation_id = _conversation(employee)
++
++    response = _ask(employee, conversation_id, MULTI_TARGET_QUESTION)
++    assert response.status_code == 200, response.text
++    body = response.json()
++    assert body["kind"] == "answer", body
++    trace, spans = _trace_of(trace_chat_app, response)
++
++    assert trace.path == TracePath.RAG.value
++    assert trace.outcome_kind == OutcomeKind.ANSWER.value
++    names = _names(spans)
++    # 多目标轮由内核真实执行检索与作答（不伪造 legacy 的 intent_parse/retrieve）。
++    assert {"parse", "recall", "fuse", "answer", "commit"} <= names
++    assert not {"intent_parse", "retrieve", "model_answer", "answer_validate"} & names
++    assert validate_required_spans(trace, names) == []
++
++
++def test_pure_anaphora_with_named_stores_still_clarifies(trace_chat_app):
++    """v3-fix-1/R1：纯指代（“这两个”）没有点名目标，不能被多目标放行成整表枚举。"""
++    admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
++    _dataset(trace_chat_app, admin)
++    conversation_id = _conversation(employee)
++
++    response = _ask(employee, conversation_id, PURE_ANAPHORA_QUESTION)
++    assert response.status_code == 200, response.text
++    body = response.json()
++    assert body["kind"] == "clarification", body
++    trace, spans = _trace_of(trace_chat_app, response)
++
++    assert trace.path == TracePath.LEGACY.value
++    assert trace.outcome_kind == OutcomeKind.CLARIFICATION.value
++    assert _names(spans) == {"intent_parse", "commit"}
++    assert validate_required_spans(trace, _names(spans)) == []
++
++
+ def test_legacy_service_error_sets_outcome_error_code_and_spans(trace_chat_app, chat_model):
+     admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+     _dataset(trace_chat_app, admin)
+diff --git a/backend/tests/rag/test_query_state.py b/backend/tests/rag/test_query_state.py
+index b0bca40..aa697aa 100644
+--- a/backend/tests/rag/test_query_state.py
++++ b/backend/tests/rag/test_query_state.py
+@@ -134,3 +134,46 @@ def test_state_roundtrip_keeps_candidates_and_pagination() -> None:
+     assert restored.page == 2
+     assert restored.candidates == ("滨江店", "鹿鸣路店")
+     assert restored.pending_slot == "store"
++
++# --------------------------------------------------------------------------- #
++# T207 第一步 A1：QueryState 原始持久身份与读写键的可核观察
++# --------------------------------------------------------------------------- #
++
++
++def test_t207_capture_raw_querystate_identity_and_save(rag_index, add_records) -> None:
++    from mktkb.observability.evaluation_capture import CaptureSink, capture_scope
++
++    add_records(
++        [{"标识": "QF01", "门店": "滨江店", "物品": "宣传海报", "位置": "店内外侧"}],
++    )
++    # 产品同一入口真实写一轮状态
++    rag_index.ask("滨江店的宣传海报位置", user_id="alice", conversation_id="c1")
++
++    sink = CaptureSink()
++    with capture_scope(sink):
++        state = rag_index.load_state("alice", "c1")
++        assert state.store == "滨江店"
++        # 请求键与持久行键故意不同：原始 stored identity 必须如实可见
++        rag_index.load_state("alice", "different-conversation")
++        state.conversation_id = "c1"
++        rag_index.save_state(state)
++
++    loads = [event["payload"] for event in sink.events if event["kind"] == "query_state_observed"]
++    assert loads[0]["user_id"] == "alice" and loads[0]["conversation_id"] == "c1"
++    assert loads[0]["row_present"] is True
++    assert loads[0]["stored_user_id"] == "alice"
++    assert loads[0]["stored_conversation_id"] == "c1"
++    assert "state_json" not in loads[0]["state_keys"]
++    assert "store" in loads[0]["state_keys"]
++    missing = loads[1]
++    assert missing["user_id"] == "alice"
++    assert missing["conversation_id"] == "different-conversation"
++    assert missing["row_present"] is False
++    assert missing["stored_user_id"] is None and missing["stored_conversation_id"] is None
++
++    saved = [event["payload"] for event in sink.events if event["kind"] == "query_state_saved"][0]
++    assert saved["user_id"] == "alice" and saved["conversation_id"] == "c1"
++    assert saved["previous_user_id"] == "alice"
++    assert saved["previous_conversation_id"] == "c1"
++    assert saved["row_present"] is True
++    assert saved["pending_slot"] == state.pending_slot
+diff --git a/backend/tests/unit/test_conversations.py b/backend/tests/unit/test_conversations.py
+index 5fcda07..37389cc 100644
+--- a/backend/tests/unit/test_conversations.py
++++ b/backend/tests/unit/test_conversations.py
+@@ -817,3 +817,103 @@ def test_record_facts_accept_multi_field_and_missing_notice_under_role_binding()
+         )
+         is None
+     ), "未记录说明仍只能点名本次真实缺失字段"
++
++# --------------------------------------------------------------------------- #
++# T207 第一步 A1：产品边界观察 hook 的定向反例（默认关闭，不改变业务判定）
++# --------------------------------------------------------------------------- #
++
++
++def _capture_context(db, conversation, before_seq, *, request_id="req-t207"):
++    from mktkb.observability.evaluation_capture import CaptureSink, capture_scope
++
++    sink = CaptureSink()
++    with capture_scope(sink):
++        questions, entities = service._load_context(
++            db, conversation, before_seq, capture_request_id=request_id
++        )
++    return sink, questions, entities
++
++
++def test_t207_capture_context_owner_and_empty_history_are_distinguishable():
++    import uuid
++
++    from sqlalchemy import create_engine
++    from sqlalchemy.orm import sessionmaker
++
++    from mktkb.conversations.models import Base, Conversation, ConversationMessage
++
++    engine = create_engine("sqlite://")
++    Base.metadata.create_all(engine)
++    db = sessionmaker(bind=engine)()
++    try:
++        owner = uuid.uuid4()
++        conversation = Conversation(id=uuid.uuid4(), user_id=owner, title="capture")
++        db.add(conversation)
++        db.flush()
++
++        # 空历史必须是 observed count=0，而不是"没有事件"
++        sink, questions, entities = _capture_context(db, conversation, before_seq=1)
++        assert questions == () and entities == {}
++        assert sink.status == "active"
++        assert [event["kind"] for event in sink.events] == ["context_observed"]
++        assert sink.events[0]["payload"]["count"] == 0
++        assert sink.events[0]["payload"]["empty"] is True
++
++        # 多轮消息：owner/role/seq 原样记录；被篡改的 owner 也必须可见
++        first = ConversationMessage(
++            id=uuid.uuid4(),
++            conversation_id=conversation.id,
++            user_id=owner,
++            seq=1,
++            role="user",
++            text="城东店的宣传海报在哪里？",
++        )
++        second = ConversationMessage(
++            id=uuid.uuid4(),
++            conversation_id=conversation.id,
++            user_id=uuid.uuid4(),
++            seq=2,
++            role="user",
++            text="那城西店呢？",
++        )
++        db.add_all([first, second])
++        db.commit()
++
++        sink2, questions2, _ = _capture_context(db, conversation, before_seq=3)
++        assert questions2 == ("城东店的宣传海报在哪里？", "那城西店呢？")
++        messages = [event["payload"] for event in sink2.events if event["kind"] == "context_message"]
++        assert [item["message_id"] for item in messages] == [str(first.id), str(second.id)]
++        assert [item["role"] for item in messages] == ["user", "user"]
++        assert [item["owner_user_id"] for item in messages] == [str(owner), str(second.user_id)]
++        assert len({item["owner_user_id"] for item in messages}) == 2
++        observed = [event["payload"] for event in sink2.events if event["kind"] == "context_observed"][0]
++        assert observed["count"] == 2 and observed["empty"] is False
++    finally:
++        db.close()
++        engine.dispose()
++
++
++def test_t207_capture_is_noop_without_scope():
++    import uuid
++
++    from sqlalchemy import create_engine
++    from sqlalchemy.orm import sessionmaker
++
++    from mktkb.conversations.models import Base, Conversation
++    from mktkb.observability import evaluation_capture as cap
++
++    engine = create_engine("sqlite://")
++    Base.metadata.create_all(engine)
++    db = sessionmaker(bind=engine)()
++    try:
++        conversation = Conversation(id=uuid.uuid4(), user_id=uuid.uuid4(), title="default")
++        db.add(conversation)
++        db.flush()
++        assert cap.capture_enabled() is False
++        questions, entities = service._load_context(
++            db, conversation, before_seq=1, capture_request_id="req-t207"
++        )
++        assert questions == () and entities == {}
++    finally:
++        db.close()
++        engine.dispose()
+diff --git a/backend/tests/unit/test_p1_t103_record_fallback.py b/backend/tests/unit/test_p1_t103_record_fallback.py
+index 26ffc5c..b14c454 100644
+--- a/backend/tests/unit/test_p1_t103_record_fallback.py
++++ b/backend/tests/unit/test_p1_t103_record_fallback.py
+@@ -50,7 +50,9 @@ def test_document_overshoot_fallback_unions_term_evidence(monkeypatch) -> None:
+     intent = QueryIntent(mode="document", terms=("物料", "归还"), entity_filters={"item": "宣传海报"})
+     calls: list[QueryIntent] = []
+ 
+-    def fake_retrieve(db_factory, query_intent, revision, limit=20, *, candidate_ids=None):
++    def fake_retrieve(
++        db_factory, query_intent, revision, limit=20, *, candidate_ids=None, as_of=None
++    ):
+         calls.append(query_intent)
+         return EvidenceSet(
+             units=[extra], kind="matches", total_candidates=9, revision=revision, candidates=[]
+diff --git a/docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md b/docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md
+index 7c856c6..e39ffb6 100644
+--- a/docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md
++++ b/docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md
+@@ -23,6 +23,10 @@
+ 
+ ## 事件
+ 
++- **2026-11-12新会话恢复，四状态已明确批准**：主人对恢复T207及scenario-expansion-decision.md四状态替换的答复“批准”。沿用T207内连续推进/每包全新开发及全新独立验收/经理接收后本地commit；完成T207暂停。旧双状态枚举及自动分配提示不得照用；不扩40/20、中心8.5/6.5/3/2、1600请求。
++- 恢复只读核对：codex/p2-e2e / c3051056、暂存空；账本/budget/旧GO与两旧保管密文五hash全匹配交接，旧协调/面试/tmp改动保留。当前Host CLI不可用，沿用已批准内置助手；本树无旧子助手。任务书§12已取消5小时额度检查，不以技能默认覆盖。新真实/预留0。
++- 已建立v0.2公共四状态JSON（原计划0基下标子序列、固定多可行优先序）及新保管schema，原v0.1不覆盖；派专门隔离`/root/custody_v2_annotator`按P2-T207-CUSTODY-V2-annotate.md重新标注。实体2/日期2旧缺口只有冻结语义可证时明确，否则保留unknown。该角色不看真实结果，经理仅收安全聚合。下一步全新独立保管复核后，串行SCENARIO/HARD-EVIDENCE。
++
+ - 接手与环境预检已完成；H2MAP 提示已去除“会含 H2DIAG 提交”的过时前提，并补 runner 必要接线写域。
+ - 命令级沙箱外只读预检获准后 socketpair/ASGI 均 exit0，确定原挂起是沙箱限制。第一次脚本在两项预检后因快照 API 方法名写错退出；改用 as_dict 后全脚本 exit0。预算新快照与交接一致，仓外元数据三 hash 匹配。见 preflight.json。
+ - 已派全新内置开发 h2map_dev；旧协调文档/面试文件保持不动。H2MAP 可信映射依据必须是 fixtures/acceptance 配方及本次 H2 ingest-plan，不能误用 enterprise 同名 V 文件。
+@@ -45,3 +49,51 @@
+ - hard_evidence_audit已完成只读报告，指出实际context provenance、生命周期deleted/effective date、实体/安全语义归属、业务日期None和多轴接口缺口；不声称已实现/测试。经理已给出semantic-custody-decision.md具体方案，并向主人请求仅专门保管标注/保管复核角色的原文可见性例外，经理/开发/验收仍聚合。该决定待明确答复，不因等待时间默认授权；未读取或开放任何真实原文。
+ - **SAFE-DIAG R1经理限定接收**：全新safe_diag_r1_review独立302passed，原4反例及18新边界、normal30/partial21+1+8、三条真离线reason链、公开57差分、16保护hash/外网0通过；旧一行expected集合最小同步合理、原断言保留。经理已读完整review并亲核三固定hash。只接收安全诊断，不代表四轴/真实质量通过。
+ - **主人明确授权专门保管标注与复核**（2026-11-12接续）：按semantic-custody-decision.md的两个隔离保管角色例外，原金标/30题/阈值不变，其他角色仍聚合。当前未新开放原文；先完成已接收SAFE-DIAG本地commit，再派保管。接续核HEAD09ddc87、暂存空、未发现旧python/node，三固定hash未变；客户端日期已11/12，后续计划/GO需重新生成，不复用旧created_utc。
++- SAFE-DIAG本地commit **c3051056c4f0bb5a4481ea68ac77111eb8213293**。源/测试/契约严格空白检查通过；不可变原失败日志/patch及字节相同工具副本含固有尾随空白/EOF空行，按命令级证据格式例外检查（不改全局配置、不重写原证据）。受控staged扫描110文件exact真实id/≥12字完整题面回合参考答0命中；无任意子串审计声明。未push/合并/部署；新增真实0。
++- 已为主人批准的专门保管角色落公共schema `docs/evaluation/p2-h2-custody-annotations-v0_1.md`；只有密文逐题附件，经理/开发/验收只聚合。下步先保管标注→独立保管复核，再依冻结附件串行SCENARIO/HARD-EVIDENCE开发及独立验收；不将附件或固定0当真实证据。
++- 保管首份附件已完成，独立custody_review结构/绑定/保全PASS、语义FAIL：5分歧；双状态22/0/8、跨实体required28/unknown2、日期2缺口。仅密文纠正；原附件/金标不变，禁止冻结。公共替换四状态可覆盖30/30、内在金标冲突0，仅只读建议。
++- 经理纯公开Mock预检替换四状态B8/9/11/13，总41，30题36回合公共合成形状185请求/worst1.676032元/OCR0，外网0，固定三hash未变。见T207-CUSTODY/public-snapshot-refined-preflight.json；新真实计划/GO未生成。
++- **主人最新要求暂停/交接（2026-11-12 08:19起）**：对四状态批准问题答复为先暂停、要交接、新窗口接替，未批准四状态。所有子助手已completed/停止，未观察到python/node，HEADc3051056/暂存空/三固定hash不变；未新增真实调用/预留。后续只写暂停记录与交接校验，不开发/测试产品/commit。交接2026-11-12-081943-t207-quality-repair-paused.md。
++- 环境复核：可写TEMP通过；默认沙箱socketpair与ASGI各10秒有界超时、自有子进程已退出。必要命令级沙箱外同一recovery_preflight.py两项exit0；recovery-preflight.json记录结果，固定三hash不变。属环境限制，不记产品失败；后续必要定向E2E沿此最小命令级权限，不skip/xfail。
++- SCENARIO开发提示已整体更新为四状态v0.2与保管唯一归属，不再沿用旧双状态自动分组；包含发送前绑定/30唯一覆盖、四状态active与B、部分失败保留/安全组合、默认57差分的验收依据。待保管独立接收后派发。
++- custody_v2_annotator安全中报：四状态已30同序唯一归属，scenario unknown0；原实体2处仍unknown、日期2处as_of缺口保留，无权限阻断。尚在自核/未独立复核，不能冻结或称质量通过。已明确禁止依据预测产品结果将未知改N/A；后续运行期真实无事实使用的可核性须由独立证据分类审查，不由保管者预判。
++- 后续采集包提示P2-T207-EVIDENCE-CAPTURE-dev.md已准备（未派发）：默认no-op观察hook、实际CompletionInput/直接RAG/owner/生命周期/日期原值、独立DB投影与仓外认证密文绑定；分类重算另包。保持实际日期None，不在评测层事后补日期；不得额外模型/检索重放。须SCENARIO独立接收后才开发。
++- 新标注正式交付：30同序唯一、scenario unknown0；新annotations-v0_2密文sha=3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0，经理仅hash核验匹配/读取安全报告，未解密。标注角色已停止写入。
++- 已派全新隔离/root/custody_v2_reviewer，依据P2-T207-CUSTODY-V2-review.md独立逐题复核语义/优先序/绑定/保全。标注自核不作为独立证据；四轴unknown或日期缺口仍需如实保留，真实质量未放行。
++- 独立保管复核中遇自动审批拒绝：复核角色报告“隔离读取冻结逐题语义”工具动作被拒，理由为逐题打印冻结题干/答案/标注违反仅回传安全聚合限制。已要求不绕过拒绝，继续不依赖原文的结构/绑定核验，并依据semantic-custody-decision.md及v0.1保管操作§2原有两个隔离角色原文例外核证边界；若仍拒绝，语义必须NOT-VERIFIED，不以标注自核替代。经理未读取保管会话/原文，SCENARIO开发未派发。
++- 上述审批边界已恢复：复核角色先核实主人决定，再提交原有授权/v0.1隔离显示条款/仅本角色可见说明，同一必要读取获准成功；未改名、分片绕过或扩大角色范围。独立语义复核继续，首次拒绝与核证恢复仍须报告披露。经理仍不读原文。
++- **CUSTODY-V2经理限定接收**：全新独立复核structure/semantic_consistency=PASS、分歧0、四状态30/30且scenario unknown0；正式verdict/quality_readiness仍BLOCKED，实体unknown2/日期锚点缺口2保留。经理已读取安全报告/聚合、亲核新review密文sha=963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3匹配；未解密，两个保管助手均停止。
++- Ruling：仅冻结无分歧的scenario assignment用于离线实现，并接收诚实保留unknown的结构/语义一致性；不冻结为完整质量就绪，不授权真实、不更改独立BLOCKED。理由：30题归属、hash及固定优先序已独立核证，与尚未有实际证据的四轴质量是不同范围；若后续证据不足仍阻断。公开记录T207-CUSTODY-V2/manager-acceptance.json。
++- CUSTODY-V2限定接收材料已本地commit a751889bd4673fe43ba9c631f4e2ea13ce4fe585，11文件仅公共契约/保管安全聚合/授权决定与环境证据；逐文件范围与空白检查通过，经理手工核公共内容未含逐题信息。两新密文仍仓外，不入Git；未提交协调/面试/tmp或旧CUSTODY目录。暂存空，三固定hash未变，未push/合并/部署。
++- 派发SCENARIO前状态：源码/测试无未提交diff，所属仍T207，沿用批准的四状态设计及每包全新独立验收；实际语义证据缺口保留，不因本commit称质量通过。
++- 已派唯一开发/root/scenario_v2_dev（内置继承当前模型/档位，非wb），BASE=a751889；完整依据P2-T207-SCENARIO-dev.md。写域仅scenario必要接线/测试/契约/本包报告，零真实、不commit/stage、不读真实附件，独立验收经理另派。下步等开发停止后全新SCENARIO独立验收；EVIDENCE-CAPTURE及HARD-CLASSIFY提示已备未派发。
++- 后续真实凭据路由缺失：现有runbook仅仓外p2-live.env/p2-holdout.env占位路径；只查文件名（未读凭据）在封存目录/11月visualizations及临时目录未找到，临时目录部分子目录拒绝访问不冒称全搜。已异步向主人只询问白名单凭据文件绝对路径、不要求密钥值；离线开发/验收照常，未答复前不推进依赖凭据的真实步骤。未读取项目.env。
++- 另只读核对官方DeepSeek/百炼价格页，现有chat高峰输入2/输出8、北京embedding0.5/rerank0.8元每百万token上界仍覆盖所列原价；已写pricing-check-20261112.md，非新plan/GO或供应商余额。未发模型API。
++- SCENARIO开发中报（未接收）：已实际观察新增模块缺失红例，受控load_scenario_contract与opaque contract/subset/ingest_plan/build_plan/validate_run草案已实现；30/36完整身份、8bindings、两新密文hash及严格四轴结构接入。尚缺P2RunPlan/runner/live/CLI、组合、真Mock四库/首错停止与定向回归；无标准阻断、无真实内容读取/调用/资金文件改动。独立验收依据P2-T207-SCENARIO-verify.md已准备，等开发停止后派。
++- **主人新指令（凭据问题答复）**：主人回答“我不知道，找不到就先不弄吧”。按该问题明确上下文，暂不做依赖凭据的真实复测、不再搜索凭据；已向主人说明继续当前离线开发及独立验收，完成后停在真实调用前。不得读项目.env、重建凭据或因旧GO恢复真实。T207完整质量仍未验证，后续真实须主人恢复。
++- **主人提供凭据源**：在经理已说明项目.env须仅受控读取白名单/不显示密钥后，主人指定D:/GPT项目/市场部AI知识库/.env。按该具体输入将必要读取限定为受控进程内存：只筛ALLOWED_ENV_NAMES、用既有parse_env_text校验，不把内容给模型、不复制/另存env文件、不修改源文件。此前“找不到先不弄”的路径阻断已消除；原真实授权仍须离线接收/精确计划/新GO才执行，当前无真实发送。
++- 本次CHECK_ONLY：文件存在、REQUIRED_ENV_NAMES缺失0、DeepSeek与DashScope host匹配，默认模型名与冻结deepseek-flash不一致（未输出任意配置值）。后续进程必须固定已批准计划model=deepseek-flash，不修改.env；不得因此调用其他默认模型。凭据值输出0/新凭据文件0/真实0。真正执行前还需把此源的内存白名单装配封装成可独立核验入口，保持既有包装器默认拒绝.env的行为，不让普通入口默认加载。
++- **主人最新停止边界**：主人明确“真实复测我用另一个AI进行，你当前任务结束可以暂停，因为没有额度了”。已回复：完成当前SCENARIO离线包及必要全新独立验收后暂停，不启动EVIDENCE-CAPTURE/HARD-CLASSIFY/环境入口/真实包。已通知唯一开发收束必要实现/定向检查并停止写入，不为省额度降标准。后续真实由另一AI接替，需结果/未验证/剩余阻断/精确现场交接；不在本会话签新GO或真实发送。
++- **2026-11-12 主人要求继续，恢复中断包收尾**：上一scenario_v2_dev明确因usage limit失败，未交付report/未独立验收；非产品失败、非已完成。当前内置树仅经理，未观察到python/node写入者（非全宿主审计）。HEAD仍a751889、三固定资金hash不变、暂存空；保护已有7个evaluation接线改动和新模块/测试，未重做。
++- 已派全新唯一接续开发/root/scenario_v2_finish_dev，依据原P2-T207-SCENARIO-dev.md从实际工作区继续：最后32通过+3E2E红例仅旧自报，需实际收尾并定向核验/报告，之后全新独立验收。沿用最新停止边界：只当前SCENARIO离线包，真实另AI，不派后续采集/分类/环境/真实，不push/合并/部署。
++- 接续开发实际中报：本次完整SCENARIO自测39项=36passed/3failed（11.40s）；四库CLI正常/首错停止/排除历史来源三项已通过。剩余nested enum TypeError、加载后dataset可变未拒绝、公共corpus hash未核验，正在必要修复；经理另提出组合入口须走既有全卡validator，防缺diagnostics/unknown→pass/非法execution_mode绕过跨层等式。上述均开发中、不称独立验收或接收。
++- 接续开发中报：组合绕过等新增13项边界首跑11failed/2passed（evidence/red.txt，尚待正式交付）；已修删diagnostics、unknown→pass、删unverified、metadata未知键/bool/坏scope等；完整SCENARIO49passed（9.66s），真CLI四库/首错停/合成输出扫描通过。当前正跑必要定向链与57默认差分，未独立验收/未接收。
++- SCENARIO开发正式交付并停止：report.md57行；新执行契约/runbook仅§13；本次最终346passed（SCENARIO52含在内）、guard346外网0/loopback65、57公开差分/默认plan/binding/config一致、10保护文件同基线。正常合成CLI30/36=5pass25fail/error0，首库ingest错误后3not_started/30error，均仅接线，不是质量通过。
++- 已派全新独立/root/scenario_v2_review，读原verify依据/最终报告/经理review-package.diff，独立构造反例并执行必要定向检查与默认差分；只合成，不看真实题/附件/保管会话/凭据。经理新增controlled_binding_check.py仅薄封装既有loader→safe_summary/整体hash，交独立静态安全评审；通过前不执行真实附件加载，通过后经理仅零产品绑定核验。未stage/commit，后续任务不派。
++- 全新SCENARIO独立review已正式PASS（spec/code quality PASS），255passed含新增29反例，guard外网0/loopback55、57默认/identity/10保护文件复算一致，验收已停止。其真实附件绑定运行明确NOT-VERIFIED，不能据此替代经理实际核验。
++- 经理在独立静态PASS的受控脚本中首次加载真实附件，得到固定FAIL/actual_binding_check_failed，原字节保全actual-binding-check-initial-fail.json；未输出逐题内容、无产品/模型调用，未接收/暂存/提交。
++- 为只定位安全固定原因，薄脚本增加28项闭合错误码枚举，经同一独立验收角色7项纯合成诊断安全探针PASS后执行，明确FAIL/scenario_targets_invalid。公共manager/review字段集合均完全匹配、12源公开hash差异0（未读私有内容）。
++- 新controlled_target_shape.py仅输出整个附件7个固定布尔语法标志，不出逐题/轴分组/值/计数；正在交独立静态/合成评审，通过前不运行，以确定是否加载器对已冻结target结构有额外限制。所有冻结附件/schema/hash/金标保留，不因失败改金标/N/A/语义。
++- controlled_target_shape.py经同一独立角色10项纯合成检查/静态安全PASS后，仅执行一次全附件语法诊断：entity_key空字符串存在为true，其余6项false（无null/其它类型/坏entity_type/filters形状或target键集合问题）。不含target值/数量/逐题或轴分组，未产品/模型调用，不再切片或反复差分。
++- 已按systematic-debugging核根因：_axis额外要求entity_key非空，而冻结schema未声明该限制。Ruling：仅语法允许空字符串作未解析键占位，不将其当可信身份或清除unknown；不改原附件/标签/schema/冻结hash，所有其他类型/长度/filters/ref约束保留。
++- 已派全新R1唯一开发/root/scenario_v2_r1_dev，依据P2-T207-SCENARIO-R1-dev.md，旧源码/测试快照保全在T207-SCENARIO-R1/evidence。先自建合成红例→最小一处兼容→必要定向检查/报告→全新R1独立验收→经理实际绑定核验。当前仍未接收/暂存/提交，无真实调用。
++- R1开发正式交付并停止：T207-SCENARIO-R1/report.md43行；合成空键红例先准确FAIL，源仅_axis原1行条件拆为2行、契约1句，旧测试原字节前缀保留且追加24项。最终专项76passed、guard外网0、21保护件/12源hash不变；新增断言初次误要求safe_summary包含省略的零计数，已仅修新测试预期并披露，不改产品第二处。
++- 已派全新R1独立/root/scenario_v2_r1_review，依据P2-T207-SCENARIO-R1-verify.md及r1-review-package.diff，重点空键不是可信身份/unknown与BLOCKED保留、类型/filters/ref等原限制及变更范围；仅合成、零真实附件读取，完成停止后经理再做一次受控绑定。当前仍不接收/提交。
++- **SCENARIO R1正式独立PASS与经理实际绑定PASS**：全新R1验收113passed（当前专项76+自有37），spec/code quality PASS、外网0、21保护件/12源/旧失败与其余源码快照一致，已停止写入。经理已读完整50行review与受控脚本静态核结论，再运行既有受控绑定程序：PASS，30/36、四状态26/1/2/1；实体unknown2/日期缺口2、BLOCKED/unverified保留。输入前后hash一致、网络/产品/模型/新增预留0，没有输出逐题内容或目标值。
++- 原generic/targets失败与一次语法诊断及所有独立安全补充保全，不以最终PASS删除失败。manager-acceptance.md在T207-SCENARIO-R1限定接收离线SCENARIO/R1；完整T207/P2未过，实际证据采集/四轴分类未派，准备本包本地commit后暂停。
++- **SCENARIO离线包本地提交并暂停（2026-11-12 15:48，Asia/Shanghai核对）**：commit 97b0066726e5b8d6f94cbc0b63a890084550c106，74文件仅本包源码/新增测试/契约/runbook及两轮有限公共证据；CUSTODY-V2另已commit a751889。暂存空，源/测试/本包无未提交diff，三固定资金hash不变，未push/合并/部署。
++- 最终范围检查与staged/working字节一致通过，未暂存私有cipher/key/env或协调/面试/tmp。源/测试/契约及非例外文件严格空白检查通过；8个原始日志/diff/已执行字节相同差分工具副本按固有空白格式命令级例外保全，不改全局配置，不声称全部新证据无提示。
++- 当前所有助手completed/停止写入，未观察到python/node（非全宿主审计）。新真实产品/模型/付费/预留0，未签新GO。按主人要求停止，不派证据采集/四轴分类/环境/真实任务，不进T208/T209/T900。
++- 最新交接.claude/handoffs/2026-11-12-150626-t207-scenario-offline-paused.md已更新为实际完成/暂停现场；提醒另一AI先补四轴真实证据前置与新计划GO，不能直接真实跑四库。完整T207/P2质量仍BLOCKED，实体unknown2/日期缺口2保留。
++- 暂停交接最终校验完成：validator100/100 READY，无占位/潜在凭据/缺失引用，13文件引用验证。初跑1处简写证据路径误按repo根解析，已仅改完整路径后复验通过。此校验仅针对交接，不代表产品/真实质量通过。最终HEAD仍97b0066726e5b8d6f94cbc0b63a890084550c106、暂存空/本包无未提交diff，三资金hash再核相同。停止后未再派任务或运行产品测试。
++- **2026-11-13 本会话 T207 连续任务单执行完毕并暂停**：01/02 A-R1 修复+独立验收 PASS（限定接收）；03 B 包 B-R1..R7 迭代，最终独立复验 FAIL-B 未闭合（单侧模型事件/信封级残余），限官方 CLI 使用；04 保管 v0.3 两角色 PASS 并冻结、04c 产品日期独立 PASS、限定准入；05 受控入口 R1/R2 修复（真实 .env 边界、模型钉住、明文清理、capture 归因、addendum 密文 sha）后限定接收；06 源码冻结/真实私有计划（30/36、26/1/2/1、B=8/9/11/13、185 请求/1.676032 元）/public fixtures B 预检/GO#1 正式签发/preflight production_ready；07 run0 在 57 real sends 后因 1 次 MODEL_OUTPUT_INVALID 首硬错误停止（aborted），run1-3 未开始；08 全新独立复核判 **T207 BLOCKED**（26/36 回合、15 pass/4 fail/1 error/6 not_executed、四轴 unknown 26/checked 0；新发现 live 信封 run_binding 与分类器白名单不兼容）。资金累计 835 请求/项目 21.9851529/40/P2 6.9142084/20；未越预算、无重试。最终报告 T207-H2-RETEST/final-report.md；暂停，不进 T208/T209/T900，不提交/推送。
+\ No newline at end of file

@@ -1,0 +1,320 @@
+{
+  "groups": {
+    "A_insufficient": "A 正例：信息足够（2 店 × 1 物品 + 记录字段），却含“资料”字样/非量化回指词",
+    "A_ambiguous": "A 反例：真歧义（两店两物品交叉 / 纯指代 / 词表外门店）",
+    "B_answerable": "B 正例：首轮显式门店+物品、字段措辞不在词表",
+    "B_uncovered": "B 反例：门店不在词表（未知门店面）",
+    "B_followup_collapse": "B 反例：追问（无显式实体）仍走正文检索，不被首轮修复影响"
+  },
+  "rows": [
+    {
+      "group": "A_insufficient",
+      "label": "A 正例：信息足够（2 店 × 1 物品 + 记录字段），却含“资料”字样/非量化回指词",
+      "question": "城东店和城西店的价签卡纸那个位置，按店家资料确认一下",
+      "same_question": true,
+      "before": {
+        "mode": "document",
+        "reason": "DOCUMENT_NOT_FOUND",
+        "clarification_present": true,
+        "enumerate": false,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "item": "价签卡纸"
+        },
+        "field_role": "location",
+        "rag_owns_turn": true
+      },
+      "changed": true
+    },
+    {
+      "group": "A_insufficient",
+      "label": "A 正例：信息足够（2 店 × 1 物品 + 记录字段），却含“资料”字样/非量化回指词",
+      "question": "城东店和城西店的价签卡纸那个位置在D01和D02里分别是多少",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "DOCUMENT_AMBIGUOUS",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "item": "价签卡纸"
+        },
+        "field_role": "location",
+        "rag_owns_turn": true
+      },
+      "changed": true
+    },
+    {
+      "group": "A_insufficient",
+      "label": "A 正例：信息足够（2 店 × 1 物品 + 记录字段），却含“资料”字样/非量化回指词",
+      "question": "城东店和城西店的价签卡纸那个位置和门店联系电话是多少，按店家资料一起给我",
+      "same_question": true,
+      "before": {
+        "mode": "document",
+        "reason": "DOCUMENT_NOT_FOUND",
+        "clarification_present": true,
+        "enumerate": false,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "SECURITY_RESTRICTED_CONTACT",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "item": "价签卡纸"
+        },
+        "field_role": "location",
+        "rag_owns_turn": true
+      },
+      "changed": true
+    },
+    {
+      "group": "A_ambiguous",
+      "label": "A 反例：真歧义（两店两物品交叉 / 纯指代 / 词表外门店）",
+      "question": "城东店和城西店的价签卡纸和宣传海报分别放在哪里",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "ITEM_AMBIGUOUS",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "ITEM_AMBIGUOUS",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "changed": false
+    },
+    {
+      "group": "A_ambiguous",
+      "label": "A 反例：真歧义（两店两物品交叉 / 纯指代 / 词表外门店）",
+      "question": "城东店和城西店的这两个分别放在哪里",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "MULTIPLE_ENTITIES",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "MULTIPLE_ENTITIES",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "changed": false
+    },
+    {
+      "group": "A_ambiguous",
+      "label": "A 反例：真歧义（两店两物品交叉 / 纯指代 / 词表外门店）",
+      "question": "城东店和城南店的这两个分别放在哪里",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "MULTIPLE_ENTITIES",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "MULTIPLE_ENTITIES",
+        "clarification_present": true,
+        "enumerate": true,
+        "filters": {},
+        "field_role": "location",
+        "rag_owns_turn": false
+      },
+      "changed": false
+    },
+    {
+      "group": "A_ambiguous",
+      "label": "A 反例：真歧义（两店两物品交叉 / 纯指代 / 词表外门店）",
+      "question": "城东店和城南店的价签卡纸那个位置在哪里",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": null,
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "价签卡纸"
+        },
+        "field_role": "location",
+        "rag_owns_turn": true
+      },
+      "after": {
+        "mode": "record",
+        "reason": null,
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "价签卡纸"
+        },
+        "field_role": "location",
+        "rag_owns_turn": true
+      },
+      "changed": false
+    },
+    {
+      "group": "B_answerable",
+      "label": "B 正例：首轮显式门店+物品、字段措辞不在词表",
+      "question": "城东店的展架那个陈列规矩是怎么定的",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "展架"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "after": {
+        "mode": "record",
+        "reason": null,
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "展架"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "changed": true
+    },
+    {
+      "group": "B_answerable",
+      "label": "B 正例：首轮显式门店+物品、字段措辞不在词表",
+      "question": "城东店的宣传海报那个上架节奏如何安排",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "宣传海报"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "after": {
+        "mode": "record",
+        "reason": null,
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "宣传海报"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "changed": true
+    },
+    {
+      "group": "B_uncovered",
+      "label": "B 反例：门店不在词表（未知门店面）",
+      "question": "城北店的展架那个陈列规矩是怎么定的",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "UNKNOWN_STORE",
+        "clarification_present": false,
+        "enumerate": false,
+        "filters": {
+          "store": "城北店"
+        },
+        "field_role": null,
+        "rag_owns_turn": false
+      },
+      "after": {
+        "mode": "record",
+        "reason": "UNKNOWN_STORE",
+        "clarification_present": false,
+        "enumerate": false,
+        "filters": {
+          "store": "城北店"
+        },
+        "field_role": null,
+        "rag_owns_turn": false
+      },
+      "changed": false
+    },
+    {
+      "group": "B_followup_collapse",
+      "label": "B 反例：追问（无显式实体）仍走正文检索，不被首轮修复影响",
+      "question": "城东店的展架那个打印材质呢",
+      "same_question": true,
+      "before": {
+        "mode": "record",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "展架"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "after": {
+        "mode": "record",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "clarification_present": false,
+        "enumerate": true,
+        "filters": {
+          "store": "城东店",
+          "item": "展架"
+        },
+        "field_role": null,
+        "rag_owns_turn": true
+      },
+      "changed": false
+    }
+  ]
+}

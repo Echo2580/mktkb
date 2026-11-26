@@ -1,0 +1,123 @@
+{
+  "schema_version": "q1a-manager-receipt/v1",
+  "date": "2026-11-14",
+  "stage": "阶段一（Q1a）收口",
+  "manager": "lead（阶段一执行经理）",
+  "project": { "repo": "D:\\GPT项目\\市场部AI知识库", "branch": "codex/p2-e2e", "head": "97b0066726e5b8d6f94cbc0b63a890084550c106" },
+  "claimed": {
+    "t207_pass": false,
+    "quality_released": false,
+    "p2_complete": false,
+    "release_or_threshold_approved": false,
+    "stage2_entered": false,
+    "new_go_issued": false,
+    "real_calls": 0
+  },
+  "package_outcomes": [
+    { "package": "Q1a-1", "role": "普通开发+全新独立验收", "verdict": "ACCEPTED（PASS_WITHIN_SCOPE，safety-only）", "record": "evaluator/manager-receipt.md", "evidence": { "tests": "20/20 exit0", "c_freeze": "12/12" } },
+    { "package": "Q1a-1b", "role": "普通开发+全新独立验收", "verdict": "ACCEPTED_WITH_RESIDUALS（PASS_WITH_RESIDUALS）", "record": "axes/manager-acceptance.json", "evidence": { "tests": "22/22 + 回归 20/20 exit0", "assertions": 234, "counterexample_codes": 73, "c_freeze": "12/12" } },
+    { "package": "Q1a-2", "role": "保管 A 生成 + 保管 B 独立复核", "verdict": "ACCEPTED_WITH_PRESERVED_DISAGREEMENTS_SCOPE_LIMITED（B: PASS_WITH_DISAGREEMENTS）", "record": "scope-contract/manager-acceptance.json", "evidence": { "coverage": "30/30 题 120/120 轴", "concrete_disputes": 9, "unknown_total": 0 } },
+    { "package": "Q1a-3", "role": "保管执行 + 保管 B 独立复核（含 R1/R2 两轮返工）", "verdict": "ACCEPTED_WITH_RESIDUALS_AND_PRESERVED_DISAGREEMENTS（B: PASS_WITH_DISAGREEMENTS，120/120 轴独立复现 0 差异）", "record": "rescore/manager-acceptance.json", "evidence": { "triage": "11/11", "analysis_identity": "10/10 组件全等" } }
+  ],
+  "clean_score": {
+    "old_recorded": {
+      "provenance": "recorded_old_aggregate_only",
+      "passed": 19,
+      "failed": 11,
+      "errors": 0,
+      "total": 30,
+      "safety_hard_failures": 2,
+      "missing_evidence_cases": 27,
+      "note": "旧值来自 2026-11-14 四张卡聚合；旧卡 detail_export=false，逐题四轴 state/reason 不存在"
+    },
+    "new_rescored": {
+      "provenance": "rescored（分析身份 Q1A-RESCORE-20261114-r1）",
+      "passed": 1,
+      "hard_failure": 0,
+      "unknown": 29,
+      "total": 30,
+      "range_with_dispute_band": "1..9",
+      "meets_24_of_30": false
+    },
+    "interpretation_rule": "新口径不得报成『1/30 质量分』：29 个 unknown 是量具/证据缺口（缺运行期实体/记录身份与版本快照），不是 29 个产品失败；必须与 hard_failure=0 同时陈述。",
+    "headline": "19/30 既未被证实也未被推翻；在可辩护判据下可确证 hard failure = 0，可确证量具缺陷 ≥3，其余不可判。"
+  },
+  "four_axis": {
+    "safety": { "old": "30/27/1/24/3/2", "new": "30/29/1/28/1/0", "key": "planned/checked/passed/NA/unknown/violations" },
+    "cross_user": { "old": "30/27/27/0/3/0", "new": "30/30/30/0/0/0" },
+    "cross_entity": { "old": "30/3/3/0/27/0", "new": "30/1/1/0/29/0" },
+    "stale_source": { "old": "30/25/25/0/5/0", "new": "30/13/13/0/17/0" },
+    "invariants": "三式全部成立；unknown→not_applicable = 0"
+  },
+  "fail_triage": {
+    "total": 11,
+    "annotation_or_criterion_issue": 1,
+    "product_error": 0,
+    "evidence_insufficient": 10,
+    "undetermined": 0,
+    "codes": { "contract_entity_targets_missing": 6, "version_binding_missing": 3, "shared_background_entries_missing": 3, "empty_scope_closure_proof_not_reimplemented": 1, "other_gap": 2, "na_scope_benign_suppression": 1 }
+  },
+  "safety_r0_r2": {
+    "r0": { "verdict": "false_positive_under_new_criteria", "old_violation": 1, "new_violation": 0, "basis": "禁值/拒答检查与旧实现逐字节同源；v0.3 gap 不含 safety；旧 violation 只能是 matcher 的 forbidden_source_used；新 matcher 无显式版本绑定不可能 identity_match" },
+    "r2": { "verdict": "undetermined", "old_violation": 1, "new_violation": 0, "basis": "A 的 outbound_send/retrieval_or_use_scope_issue 属语义主张（需读回答文本，超保管授权），B 主张 mapping_or_annotation；不表决" },
+    "residual": "唯一 required safety 轴的 pass 是零冻结检查 + clarification 的空转（保管 B 发现，E0 残余 #2 未带入）→ safety 无实质性正证据"
+  },
+  "cross_entity_27_unknown": { "turned_pass": "0..1", "turned_fail": 0, "kept_unknown": "26..27", "turned_not_applicable": 0, "irreducible": true, "reason": "合同只给 target_refs 无实体 targets；证据 schema 无 record_code；subset 判定会误伤 23 题/60 unit" },
+  "residual_real_failures": {
+    "confirmed_product_error": 0,
+    "confirmed_measurement_defect": 3,
+    "measurement_defect_list": [
+      "r0 safety violation = false positive（新判据 0 违规）",
+      "1 题 annotation_or_criterion_issue：N/A 良性作用域抑制了身份不可解析的 forbidden ref",
+      "旧 locator-only 匹配使 25 个 stale_source pass 在身份精确判据下仅 13 可复现"
+    ],
+    "unjudgeable_cases": 29,
+    "codes_and_counts": "见 fail_triage.codes；product_error 计数 = 0"
+  },
+  "residuals_and_not_run": [
+    { "id": "R-Q1A-01", "level": "high", "desc": "旧卡逐题四轴 state/reason 不存在（detail_export=false）→ 无逐题 old→new 表，只有聚合对比；Q1a-1 §7 的 old_verdict_preserved/missing_codes 前置门未应用" },
+    { "id": "R-Q1A-02", "level": "high", "desc": "合同 v1 是 v0.3 冻结标注的忠实再投影，未新增 scope/entity 语义；cross_entity 无实体 targets → 29/30 不可判" },
+    { "id": "R-Q1A-03", "level": "high", "desc": "运行期 owner/实体/记录身份与版本快照缺失；证据 schema 无 record_code（35 ref 记录级未解析）；这是 29 unknown 的主因" },
+    { "id": "R-Q1A-04", "level": "medium", "desc": "9 个 cross_entity applicability 实质分歧保留未表决（A 30 required / B 21+9 N-A），读数改变合格题数 1..9" },
+    { "id": "R-Q1A-05", "level": "medium", "desc": "shared_background 条目未投影（合同侧），4 条 staging 缺省 → 该 criterion 轴只能 unknown" },
+    { "id": "R-Q1A-06", "level": "medium", "desc": "schema 文档写『19 码』实为 18 码（纯笔误）；因 contract_schema_sha256 绑定其字节，未修" },
+    { "id": "R-Q1A-07", "level": "medium", "desc": "保管 B 自报复核中曾短暂写 2 个含目标值/语料值的仓外临时文件并删除，路径未提供、未取证（Q1a-2）" },
+    { "id": "R-Q1A-08", "level": "low", "desc": "保管理版本绑定用 active-only 口径，与 source_map 自述『historical identity』相抵；B 用历史身份重跑 0 变化（欠绑 2/73）" },
+    { "id": "NOT-RUN-Q1A-01", "level": "info", "desc": "Q1a-3 首轮 NOT-RUN（old_card_per_case_axes_absent），已被 R1/R2 取代，产物保留" },
+    { "id": "NOT-VERIFIED", "level": "info", "desc": "运行期 owner/实体/日期快照；r2 safety 语义主张；T208 真实阶段、T209 正式基线、T900 总验收（均不在阶段一范围）" }
+  ],
+  "d1_decision": {
+    "recommendation": "C",
+    "owner_decision": "C1",
+    "owner_decision_date": "2026-11-14",
+    "owner_decision_verbatim": "要数字",
+    "decision_meaning": "接受 C1：先补齐量具（零调用），再经新计划+新 GO 做一次有界全量复跑，以取得可用于 T207 判定的真实分数。",
+    "c1_outcome": {
+      "status": "C1-1 已完成；C1-2 判定为不签名",
+      "record": "c1-1/manager-receipt.md",
+      "reason": "第 5 个缺口一票否决：源侧生命周期日期 12/12 源全缺（完整窗口 0/12、仅一端 0/12）。stale_source 是 30 题全部 required，不可判则题级 pass 必然 0。",
+      "net_gain_zero_call": "cross_entity 可判 1→13/30（13 全 pass）；stale_source 0/30；题级 pass 现实 0/30、乐观上界 3/30；24/30 两种口径均不可达。",
+      "c1_2_signing": "否：108 请求换不到干净分数，cross 的 1→13 已零调用兑现，复跑不增加可判化",
+      "owner_options": ["A 下发权威逐源生命周期表", "B 改 stale 判据口径（需批）", "C 转 C2 换 H2 v3"],
+      "manager_preference": "A；拿不到数据则 C；不建议 B（改判据会失去可比性）"
+    },
+    "not_a_reason": "不是『产品差 5 题』，也不是『A 门槛未达所以再修一轮』",
+    "why_not_a": "新口径 pass 1/30（争议带 1..9）、unknown 29，远低于 24/30；A 的门槛不成立",
+    "why_not_b": "B 的前提是『只差 1–3 题且确证产品错』；实测 product_error = 0 确证，前提不存在",
+    "why_c": "缺口是系统性的：可确证 hard failure 0、可确证量具缺陷 ≥3、不可判 29；根因在评价量具与运行期证据采集，不在产品行为",
+    "paths_for_owner": [
+      { "id": "C1", "desc": "补量具后一次有界复跑：先补实体 targets 投影 / shared_background 条目 / 空集闭包全覆盖 / 运行期实体与版本快照采集（采集属阶段二，需新计划+新 GO+请求上限），再做一次全量复跑" },
+      { "id": "C2", "desc": "换 H2 v3：重做题集/标签口径，使 cross_entity 的实体目标可在标注层落成可判结构" },
+      { "id": "C3", "desc": "接受 T207 未通过收口：以『量具受限、不可判』记录质量结论，不进入阶段二" }
+    ],
+    "manager_preference": "C1：零真实调用的量具缺口已通过 Q1a-1/1b/2/3 暴露清楚，剩下的主要是运行期证据采集，这属于一次有界阶段二，而不是修产品",
+    "gate": "等主人对 D1 的决定；不自动进入阶段二、不签新 GO、不真实复跑"
+  },
+  "stage1_conclusion": {
+    "answered": "『19/30 里多少是量具问题、多少是真实产品失败』得到部分答案：量具问题确证 ≥3 处（含 r0 safety false positive 与 locator-only 匹配造成的 stale_source 虚高 pass）；真实产品失败可确证数 = 0；其余 29/30 不可判。",
+    "not_answered": "未能给出单一『干净分数』数字——原因是结构性的：旧逐题值未导出、合同无实体 targets、运行期实体/版本快照缺失。",
+    "does_not_claim": ["T207 通过", "质量通过", "阈值/基线/发布批准", "P2 完成"]
+  },
+  "protection_final": { "c_freeze": "12/12", "tracked_modified": 15, "tracked_modified_paths_unchanged": true, "staged": 0, "commits": 0, "branch": "codex/p2-e2e", "head": "97b0066726e5b8d6f94cbc0b63a890084550c106", "old_cards_bytes_unchanged": 4, "ledger_budget_go_unchanged": true },
+  "next_action": "等主人对 D1 的决定；阶段一停止"
+}

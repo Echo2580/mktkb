@@ -1,0 +1,786 @@
+[
+  {
+    "run": 0,
+    "case_id": "H2V3-C02",
+    "stratum": "paraphrase",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "rag",
+        "mode": "record",
+        "filters": {
+          "item": "展架",
+          "store": "城东店"
+        },
+        "as_of": "2026-10-15",
+        "include_future": false,
+        "enumerate": true,
+        "clarification": false,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-10-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "not_found",
+        "reason": null,
+        "candidates": 0,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": []
+      }
+    ],
+    "direct_rag_answer": [
+      {
+        "kind": "no_answer",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "answer_source": "refusal",
+        "cited_unit_ids": [],
+        "fact_count": 0,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ]
+      }
+    ],
+    "commit_kinds": [
+      "not_found"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店"
+      ],
+      "item": "展架",
+      "items": [
+        "展架"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": null,
+      "field_roles": [],
+      "pending_slot": null,
+      "as_of": "2026-10-15",
+      "enumerate": true,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": "no_answer",
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 0,
+    "case_id": "H2V3-C21",
+    "stratum": "stale_conflict",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "rag",
+        "mode": "record",
+        "filters": {
+          "item": "宣传海报",
+          "store": "城东店"
+        },
+        "as_of": "2026-10-15",
+        "include_future": false,
+        "enumerate": true,
+        "clarification": false,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-10-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "answer",
+        "reason": null,
+        "candidates": 0,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": [
+          "0890008b-110b-469b-85d9-57e3d7c86867"
+        ]
+      }
+    ],
+    "direct_rag_answer": [
+      {
+        "kind": "answer",
+        "reason": null,
+        "answer_source": "structured",
+        "cited_unit_ids": [
+          "0890008b-110b-469b-85d9-57e3d7c86867"
+        ],
+        "fact_count": 1,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ]
+      }
+    ],
+    "commit_kinds": [
+      "answer"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店"
+      ],
+      "item": "宣传海报",
+      "items": [
+        "宣传海报"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": "effective_to",
+      "field_roles": [
+        "effective_to"
+      ],
+      "pending_slot": null,
+      "as_of": "2026-10-15",
+      "enumerate": false,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": "answer",
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 1,
+    "case_id": "H2V3-C05",
+    "stratum": "paraphrase",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "rag",
+        "mode": "record",
+        "filters": {
+          "item": "促销贴纸",
+          "store": "城东店"
+        },
+        "as_of": "2026-07-15",
+        "include_future": false,
+        "enumerate": true,
+        "clarification": false,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-07-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "not_found",
+        "reason": null,
+        "candidates": 0,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": []
+      }
+    ],
+    "direct_rag_answer": [
+      {
+        "kind": "no_answer",
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "answer_source": "refusal",
+        "cited_unit_ids": [],
+        "fact_count": 0,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ]
+      }
+    ],
+    "commit_kinds": [
+      "not_found"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店"
+      ],
+      "item": "促销贴纸",
+      "items": [
+        "促销贴纸"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": null,
+      "field_roles": [],
+      "pending_slot": null,
+      "as_of": "2026-07-15",
+      "enumerate": true,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": "no_answer",
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 1,
+    "case_id": "H2V3-C22",
+    "stratum": "stale_conflict",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "legacy",
+        "mode": "document",
+        "filters": {},
+        "as_of": "2026-07-15",
+        "include_future": false,
+        "enumerate": false,
+        "clarification": true,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-07-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "clarification",
+        "reason": null,
+        "candidates": 2,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": []
+      }
+    ],
+    "direct_rag_answer": [],
+    "commit_kinds": [
+      "clarification"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "item": "宣传海报",
+      "items": [
+        "宣传海报"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": "effective_from",
+      "field_roles": [
+        "effective_from"
+      ],
+      "pending_slot": null,
+      "as_of": "2026-07-15",
+      "enumerate": false,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": null,
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 2,
+    "case_id": "H2V3-C19",
+    "stratum": "negative",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "legacy",
+        "mode": "document",
+        "filters": {},
+        "as_of": "2026-11-20",
+        "include_future": true,
+        "enumerate": false,
+        "clarification": true,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-11-20",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "answer",
+        "reason": null,
+        "candidates": 0,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": [
+          "5a176e4e-4be1-43e8-8d31-966b31b1f25c"
+        ]
+      }
+    ],
+    "direct_rag_answer": [],
+    "commit_kinds": [
+      "answer"
+    ],
+    "retrieval": [
+      {
+        "scope": "rag_candidate_upper_bound",
+        "empty": false,
+        "candidate": true,
+        "truncated": false
+      },
+      {
+        "scope": "legacy_retrieve_initial",
+        "empty": false,
+        "candidate": false,
+        "truncated": false
+      }
+    ],
+    "db_state": {
+      "store": "城西店",
+      "stores": [
+        "城西店"
+      ],
+      "item": "宣传海报",
+      "items": [
+        "宣传海报"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "pending_slot": null,
+      "as_of": "2026-11-20",
+      "enumerate": false,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": null,
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 3,
+    "case_id": "H2V3-C20",
+    "stratum": "negative",
+    "expected_kind": "answer",
+    "should_refuse": false,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "legacy",
+        "mode": "document",
+        "filters": {},
+        "as_of": "2026-12-15",
+        "include_future": false,
+        "enumerate": false,
+        "clarification": true,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-12-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "clarification",
+        "reason": null,
+        "candidates": 2,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": []
+      }
+    ],
+    "direct_rag_answer": [],
+    "commit_kinds": [
+      "clarification"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "item": "价签卡纸",
+      "items": [
+        "价签卡纸"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "pending_slot": null,
+      "as_of": "2026-12-15",
+      "enumerate": false,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": null,
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  },
+  {
+    "run": 3,
+    "case_id": "H2V3-C30",
+    "stratum": "cross_doc_security",
+    "expected_kind": "refusal",
+    "should_refuse": true,
+    "turns_in_case": 1,
+    "used_key": "runs3/ev.key",
+    "plans": [
+      {
+        "path": "legacy",
+        "mode": "document",
+        "filters": {},
+        "as_of": "2026-12-15",
+        "include_future": false,
+        "enumerate": false,
+        "clarification": true,
+        "state_keys": [
+          "as_of",
+          "candidates",
+          "channel",
+          "conversation_id",
+          "doc_id",
+          "doc_title",
+          "enumerate",
+          "field_role",
+          "field_roles",
+          "identifier",
+          "item",
+          "items",
+          "last_kind",
+          "last_question",
+          "page",
+          "page_size",
+          "pending_slot",
+          "price_type",
+          "product",
+          "store",
+          "stores",
+          "turn",
+          "user_id"
+        ],
+        "state_as_of": "2026-12-15",
+        "state_pending_slot": null,
+        "state_last_kind": null
+      }
+    ],
+    "answer_result": [
+      {
+        "kind": "clarification",
+        "reason": null,
+        "candidates": 2,
+        "conflicts": 0,
+        "missing_fields": [],
+        "error_code": null,
+        "source_ids": []
+      }
+    ],
+    "direct_rag_answer": [],
+    "commit_kinds": [
+      "clarification"
+    ],
+    "retrieval": [],
+    "db_state": {
+      "store": "城东店",
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "item": "促销贴纸",
+      "items": [
+        "促销贴纸"
+      ],
+      "product": null,
+      "channel": null,
+      "price_type": null,
+      "identifier": null,
+      "doc_id": null,
+      "doc_title": null,
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "pending_slot": null,
+      "as_of": "2026-12-15",
+      "enumerate": false,
+      "page": 1,
+      "page_size": 10,
+      "turn": 1,
+      "last_kind": null,
+      "candidates": []
+    },
+    "completeness": "complete",
+    "missing_event_kinds": []
+  }
+]

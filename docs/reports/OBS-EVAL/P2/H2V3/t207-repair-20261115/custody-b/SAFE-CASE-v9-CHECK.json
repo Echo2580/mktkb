@@ -1,0 +1,48 @@
+{
+  "status": "blocked",
+  "scope": "source_and_synthetic_only",
+  "inputs": [
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_case_v9.py",
+      "sha256": "5704728760e975ad00ee58c86c872163d7dfafd8d65e3dac1c48f55f21c40d50"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-CASE-v9-PREPARE.md",
+      "sha256": "22587473f0582a1c32539347fcfbfb05fa7f56cc82fd9840eb9b1d36958dc579"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-CASE-v9-SELFTEST.json",
+      "sha256": "0e2267600b205089564b0797413e5663475e2d52e670922e441c3108fe007822"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_events_v8.py",
+      "sha256": "b1fbc8528970451137e0c9b9f4ddeb088ef3c37fe8cad82224d375cab275ccf4"
+    }
+  ],
+  "v8_loader_bindings_guard_preserved": true,
+  "static_outcome_selection_and_frozen_forbidden_comparison_reviewed": true,
+  "result_row_uses_source_unit_id_and_cited_unit_id": true,
+  "self_test_exit_code": 0,
+  "independent_synthetic_checks": {
+    "blank_target_entity_key_returns_determinate_false": true,
+    "duplicate_target_entries_return_determinate_true": true
+  },
+  "required_changes": [
+    "target_set_comparison_unknown_when_target_identity_incomplete_or_target_set_conflicting_or_unproven"
+  ],
+  "network_controls": {
+    "socket": true,
+    "urllib": true,
+    "httpx": true
+  },
+  "real_evidence_read": false,
+  "product_test_run": false,
+  "protected_hash_before": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  },
+  "protected_hash_after": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  }
+}

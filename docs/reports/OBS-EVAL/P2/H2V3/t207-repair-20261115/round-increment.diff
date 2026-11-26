@@ -1,0 +1,842 @@
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -874,7 +874,11 @@
+ 
+ 
+ def _document_core(title: str) -> str:
+-    return re.split(r"[_（(]", str(title), maxsplit=1)[0].strip()
++    title = str(title)
++    if re.match(r"^[DV]\d{2}_(?=.)", title, flags=re.IGNORECASE):
++        title = re.sub(r"^[DV]\d{2}_", "", title, flags=re.IGNORECASE)
++        title = re.sub(r"\.(?:xlsx?|docx?|pdf)$", "", title, flags=re.IGNORECASE)
++    return re.split(r"[_（(]", title, maxsplit=1)[0].strip()
+ 
+ 
+ def _missing_document(question: str) -> str | None:
+@@ -1275,6 +1279,8 @@
+         state.doc_id = previous.doc_id
+         state.doc_title = previous.doc_title
+     # 明确切换实体时清掉旧实体的标识/渠道/价格类型，避免把 QF02 带到滨江店查询。
++    if len(stores) > 1 and not slots.get("identifier"):
++        state.identifier = None
+     if slots.get("store") and previous.store and slots.get("store") != previous.store and not slots.get("identifier"):
+         state.identifier = None
+     if slots.get("item") and previous.item and slots.get("item") != previous.item and not slots.get("identifier"):
+@@ -1299,6 +1305,10 @@
+     # 时必须清掉旧集合，避免上一轮的多目标过滤条件污染本轮检索。
+     if items:
+         state.items = tuple(items)
++        if len(items) > 1:
++            state.item = None
++            if not slots.get("identifier"):
++                state.identifier = None
+     elif slots.get("item"):
+         state.items = (slots["item"],)
+     elif slots.get("store") or stores:
+@@ -1545,6 +1555,15 @@
+         # 本轮已点名多个确定目标：旧澄清槽不再挂起，避免下一轮又把已给出的一维当缺失。
+         state.pending_slot = None
+         state.candidates = ()
++    # 安全拒答必须先于候选歧义等早退，避免受限请求被当成普通澄清。
++    if (bool(item_hits) or identifier is not None) and set(field_roles) & RESTRICTED_CONTACT_ROLES and not is_policy_question(question):
++        return QueryPlan(
++            question=question, mode="record", query_text=question,
++            field_role=state.field_role, field_label=state.field_role, filters={},
++            terms=_terms(question), state=state, enumerate=state.enumerate,
++            page=state.page, page_size=state.page_size, include_future=include_future,
++            reason="SECURITY_RESTRICTED_CONTACT",
++        )
+     if missing_document:
+         return QueryPlan(
+             question=question,
+@@ -1907,30 +1926,6 @@
+     if include_future and any(word in question for word in ("通知", "调整后", "调整之后", "按")):
+         mode = "document"
+ 
+-    # v3-safety-fix：本轮显式点名了物品目标，同时要店家个人联系信息（联系人/电话/地址）。
+-    # 物品记录与店家联系信息分属两份资料，合并提供属于受限个人信息范围；在检索与任何
+-    # 模型调用之前整体拒答（纯店家级联系信息查询、只问物品位置等非个人字段不受影响）。
+-    if (
+-        (bool(item_hits) or identifier is not None)
+-        and set(field_roles) & RESTRICTED_CONTACT_ROLES
+-        and not is_policy_question(question)
+-    ):
+-        return QueryPlan(
+-            question=question,
+-            mode="record",
+-            query_text=question,
+-            field_role=state.field_role,
+-            field_label=state.field_role,
+-            filters=filters,
+-            terms=_terms(question),
+-            state=state,
+-            enumerate=state.enumerate,
+-            page=state.page,
+-            page_size=state.page_size,
+-            include_future=include_future,
+-            reason="SECURITY_RESTRICTED_CONTACT",
+-        )
+-
+     missing = _required_missing(state, mode)
+     if missing:
+         candidates = _clarification_candidates(state, missing=missing, lexicon=lexicon)
+--- a/backend/src/mktkb/rag/retrieval.py
++++ b/backend/src/mktkb/rag/retrieval.py
+@@ -345,6 +345,12 @@
+                 or_(*(func.json_extract(RagChunk.filters_norm, "$.store") == normalize(item)
+                       for item in _multi_store))
+             )
++        _multi_item = tuple(getattr(plan.state, "items", ()) or ())
++        if plan.mode == "record" and len(_multi_item) > 1:
++            stmt = stmt.where(
++                or_(*(func.json_extract(RagChunk.filters_norm, "$.item") == normalize(item)
++                      for item in _multi_item))
++            )
+         for key, value in plan.filters.items():
+             if key == "doc_id":
+                 stmt = stmt.where(RagChunk.doc_id == value)
+@@ -424,6 +430,9 @@
+         return True
+     if plan.filters.get("doc_id") and chunk.doc_id != plan.filters["doc_id"]:
+         return False
++    for key, targets in (("store", plan.state.stores), ("item", plan.state.items)):
++        if len(targets) > 1 and chunk.filters_norm.get(key) not in {normalize(target) for target in targets}:
++            return False
+     for key, value in plan.filters.items():
+         if key in ("store", "item", "product", "price_type", "identifier"):
+             stores = tuple(getattr(plan.state, "stores", ()) or ())
+--- a/backend/src/mktkb/rag/answer.py
++++ b/backend/src/mktkb/rag/answer.py
+@@ -21,6 +21,7 @@
+ from .facts import FactValidator
+ from .query import (
+     Lexicon,
++    RESTRICTED_CONTACT_ROLES,
+     build_lexicon,
+     financial_metric_question,
+     is_anaphora_field_followup,
+@@ -615,6 +616,13 @@
+     diagnostics: dict[str, Any],
+     started: float,
+ ) -> RagAnswer:
++    if (
++        not plan.field_role
++        and (plan.state.item or len(plan.state.items) > 1 or plan.state.identifier)
++        and any(chunk.role_values.get(role) for chunk in items for role in RESTRICTED_CONTACT_ROLES)
++    ):
++        return _no_answer(plan, copy_module.text("SECURITY_RESTRICTED_CONTACT"),
++                          "SECURITY_RESTRICTED_CONTACT", diagnostics)
+     facts: list[Fact] = []
+     lines: list[str] = []
+     citations: list[Citation] = []
+--- a/backend/src/mktkb/conversations/intent.py
++++ b/backend/src/mktkb/conversations/intent.py
+@@ -21,6 +21,7 @@
+ from ..retrieval.types import QueryIntent
+ from ..rag.query import (
+     GENERIC_FIELD_WORDS,
++    SWITCH_WORDS,
+     financial_metric_question,
+     identifier_shape,
+     is_policy_question,
+@@ -473,24 +474,6 @@
+     不把历史助手答案当事实。
+     """
+     context_entities = dict(context_entities or {})
+-    # P1-FIX/A：公司级经营/财务指标（营收/利润率等）不在当前语料范围。先标记，
+-    # 仍走正文检索以做“资料支持判定”（证据里确有该指标数值时不拒答）；判定在
+-    # service 层检索后、任何模型调用前完成。
+-    out_of_scope = financial_metric_question(question)
+-    if out_of_scope:
+-        return IntentPlan(
+-            mode="document",
+-            intent=QueryIntent(mode="document", terms=_document_terms(question)),
+-            out_of_scope=out_of_scope,
+-        )
+-    # T207-FIX-CONFLICT/N08：图片/实物识别题先按范围外标记，仍走一次正文检索
+-    # （保持 retrieve 的真实执行事实与既有 Span 契约），由 service 层给出拒答文案。
+-    if image_source_question(question):
+-        return IntentPlan(
+-            mode="document",
+-            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
+-            image_not_supported=True,
+-        )
+     stores = _match_labels(question, lexicon.store_labels)
+     item_labels = _match_labels(question, lexicon.item_labels)
+     for alias_label in _alias_labels(question, lexicon):
+@@ -501,21 +484,7 @@
+ 
+     identifier = match_identifier(question, lexicon.identifier_labels) if lexicon.identifier_labels else None
+     unknown_identifier = _unknown_identifier(question, identifier, lexicon)
+-    if unknown_identifier:
+-        return IntentPlan(
+-            mode="record",
+-            intent=None,
+-            unknown_identifier=unknown_identifier,
+-        )
+-
+     unknown_store = _unknown_store(question, stores, lexicon) if not stores else None
+-    if unknown_store:
+-        return IntentPlan(
+-            mode="record",
+-            intent=QueryIntent(mode="record", entity_filters={"store": unknown_store}),
+-            entities={"store": unknown_store},
+-            unknown_store=unknown_store,
+-        )
+ 
+     record_fields = _field_hits(question, FIELD_SYNONYMS)
+     missing_fields = _missing_field_hits(
+@@ -553,6 +522,30 @@
+             security_refusal="SECURITY_RESTRICTED_CONTACT",
+         )
+ 
++    # 范围外分支不能抢在已识别的受限联系信息策略之前。
++    out_of_scope = financial_metric_question(question)
++    if out_of_scope:
++        return IntentPlan(
++            mode="document",
++            intent=QueryIntent(mode="document", terms=_document_terms(question)),
++            out_of_scope=out_of_scope,
++        )
++    if image_source_question(question):
++        return IntentPlan(
++            mode="document",
++            intent=QueryIntent(mode="document", terms=_document_terms(question) or _IMAGE_NOUNS[:1]),
++            image_not_supported=True,
++        )
++    if unknown_identifier:
++        return IntentPlan(mode="record", intent=None, unknown_identifier=unknown_identifier)
++    if unknown_store:
++        return IntentPlan(
++            mode="record",
++            intent=QueryIntent(mode="record", entity_filters={"store": unknown_store}),
++            entities={"store": unknown_store},
++            unknown_store=unknown_store,
++        )
++
+     if len(stores) > 1:
+         return IntentPlan(
+             mode="record",
+@@ -576,6 +569,28 @@
+     item = item_labels[0] if item_labels else None
+     explicit_store = store is not None
+     explicit_item = item is not None
++    last_question = context_questions[-1] if context_questions else ""
++    switched_without_entity = bool(
++        last_question
++        and any(word in last_question for word in SWITCH_WORDS)
++        and not _match_labels(last_question, lexicon.store_labels)
++        and not _match_labels(last_question, lexicon.item_labels)
++    )
++    if switched_without_entity:
++        context_entities = {}
++    if (
++        switched_without_entity
++        and explicit_item
++        and not explicit_store
++        and not record_fields
++        and not missing_fields
++        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
++    ):
++        return IntentPlan(
++            mode="record", intent=None, entities={},
++            clarification="请明确要查询的门店。",
++            candidates=_candidate_questions(lexicon, stores=list(lexicon.store_labels), item=item, requested_fields=()),
++        )
+     previous_item = _previous_item(context_questions, lexicon)
+ 
+     # 明确实体可继承：新明确对象覆盖旧对象；问题没有新对象时补足上下文中的实体。
+--- a/backend/src/mktkb/conversations/service.py
++++ b/backend/src/mktkb/conversations/service.py
+@@ -463,6 +463,7 @@
+         references = db.scalars(
+             select(MessageSource).where(MessageSource.message_id == latest_assistant.id)
+         ).all()
++        sources: list[tuple[object, dict[str, str]]] = []
+         for reference in references:
+             from ..retrieval.models import RetrievalUnitIndex
+ 
+@@ -470,20 +471,30 @@
+                 select(RetrievalUnitIndex).where(RetrievalUnitIndex.unit_id == reference.source_id)
+             )
+             filters = dict((index_row.entity_filters or {})) if index_row is not None else {}
+-            for key in ("store", "item"):
+-                if filters.get(key):
+-                    value = str(filters[key])
+-                    entities.setdefault(key, value)
+-                    if capture_enabled() and capture_request_id is not None:
+-                        emit_capture_event(
+-                            "entity_inheritance",
+-                            request_id=str(capture_request_id),
+-                            entity_type=key,
+-                            entity_key=value,
+-                            source_message_id=str(latest_assistant.id),
+-                            source_unit_id=str(reference.source_id),
+-                            source="latest_assistant_message_source",
+-                        )
++            sources.append((reference, {key: str(filters[key]) for key in ("store", "item") if filters.get(key)}))
++        for key in ("store", "item"):
++            values = {fields[key] for _, fields in sources if key in fields}
++            if len(values) == 1:
++                entities[key] = next(iter(values))
++        paired_reference = None
++        if len(entities) == 2:
++            paired_reference = next((ref for ref, fields in sources if all(
++                fields.get(key) == value for key, value in entities.items()
++            )), None)
++            if paired_reference is None:
++                entities.clear()
++        if capture_enabled() and capture_request_id is not None:
++            for key, value in entities.items():
++                reference = paired_reference or next(ref for ref, fields in sources if fields.get(key) == value)
++                emit_capture_event(
++                    "entity_inheritance",
++                    request_id=str(capture_request_id),
++                    entity_type=key,
++                    entity_key=value,
++                    source_message_id=str(latest_assistant.id),
++                    source_unit_id=str(reference.source_id),
++                    source="latest_assistant_message_source",
++                )
+     return questions, entities
+ 
+ 
+@@ -1470,6 +1481,7 @@
+     }
+     parsed: list[tuple[str, str, str]] = []
+     seen: set[str] = set()
++    seen_clauses: dict[str, str] = {}
+     for index, clause in enumerate(clauses):
+         if index == 0:
+             stripped = _strip_record_preamble(clause)
+@@ -1488,8 +1500,11 @@
+             return None
+         role, value, unit = found
+         if role in seen:
++            if seen_clauses[role] == normalize(clause):
++                continue
+             return None
+         seen.add(role)
++        seen_clauses[role] = normalize(clause)
+         parsed.append((label_by_role[role], value, str(getattr(unit, "id", ""))))
+     core_roles = {role for role in label_by_role if role != _RECORD_IDENTIFIER_ROLE}
+     if not core_roles or not core_roles.issubset(seen):
+@@ -2138,6 +2153,8 @@
+     """
+     if plan.mode != "record":
+         return False
++    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
++        return True
+     if "identifier" in plan.filters:
+         return True
+     if plan.clarification:
+--- a/tools/p2_h2_controlled_execute.py
++++ b/tools/p2_h2_controlled_execute.py
+@@ -1878,6 +1878,77 @@
+         errors.append("remove_file_failed")
+ 
+ 
++def _retain_composition_part(root: Path, dataset: Any) -> str:
++    """Retain only audited aggregate and actual run binding before deleting p2-run."""
++    run = root / "p2-run"
++    card_path, summary_path = run / "holdout_scorecard.json", run / "summary.json"
++    if not isinstance(getattr(dataset, "identity", None), Mapping) or not dataset.identity.get("scenario_binding"):
++        return "not_applicable"
++    if (root / "controlled" / "composition-part.json").exists():
++        return "collision"
++    if not card_path.exists() and not summary_path.exists():
++        return "not_available"
++    try:
++        card = _read_json_mapping(card_path, "composition_part_invalid")
++        summary = _read_json_mapping(summary_path, "composition_part_invalid")
++        binding = summary["binding"]
++        allowed = {"binding_version", "config_hash", "complete", "missing", "dataset_version",
++                   "dataset_sha256", "manifest_sha256", "label_version", "pipeline_version",
++                   "index_revision", "provider", "gate_version", "gate_config_hash",
++                   "trace_identity_bound", "scenario_binding"}
++        if not isinstance(binding, dict) or not set(binding).issubset(allowed):
++            raise ValueError("binding fields")
++        if binding.get("scenario_binding") != dataset.identity.get("scenario_binding"):
++            raise ValueError("scenario mismatch")
++        from mktkb.evaluation.p2_holdout_scenarios import validate_plan_scenario_binding
++        validate_plan_scenario_binding(binding["scenario_binding"])
++        def safe_scalar(value: Any) -> bool:
++            if value is None or type(value) in (bool, int):
++                return True
++            if isinstance(value, str):
++                return bool(re.fullmatch(r"[A-Za-z0-9_.:+|@/()\-]{1,256}", value)) and not value.startswith("/") and "://" not in value
++            return False
++        for name, value in binding.items():
++            if name in {"provider", "scenario_binding"}:
++                continue
++            if name == "missing":
++                if not isinstance(value, list) or not all(safe_scalar(item) for item in value):
++                    raise ValueError("binding missing fields")
++            elif not safe_scalar(value):
++                raise ValueError("binding value")
++        provider = binding.get("provider")
++        provider_keys = {"chat", "embedding", "rerank", "ocr", "provider", "model", "transport", "impl"}
++        def safe_provider(value: Any) -> bool:
++            if isinstance(value, dict):
++                return all(k in provider_keys and safe_provider(v) for k, v in value.items())
++            return value is None or (isinstance(value, str) and len(value) <= 256 and "/" not in value and "\\" not in value)
++        if not safe_provider(provider):
++            raise ValueError("provider fields")
++        run_id = summary["run_id"]
++        status = summary["status"]
++        turns = summary["turns"]["executed"]
++        if (status not in {"succeeded", "blocked", "aborted"} or type(turns) is not int or turns < 0
++                or not isinstance(run_id, str) or not re.fullmatch(r"[A-Za-z0-9_-]{1,128}", run_id)):
++            raise ValueError("summary fields")
++        p2_runner._assert_holdout_scorecard_payload(card, dataset, run_id=run_id,
++                                                   config_hash=binding.get("config_hash") or None)
++        packet = {"aggregate": card, "binding": binding, "status": status,
++                  "run_id": run_id, "turns_executed": turns}
++        raw = json.dumps(packet, ensure_ascii=False, sort_keys=True)
++        for case in dataset.cases:
++            if str(case.case_id or "") and str(case.case_id) in raw:
++                raise ValueError("case identifier")
++            if any(len(s.strip()) >= 2 and s.strip() in raw for s in p2_runner._holdout_leak_needles(case)):
++                raise ValueError("private text")
++        target = root / "controlled" / "composition-part.json"
++        target.parent.mkdir(parents=True, exist_ok=True)
++        with target.open("x", encoding="utf-8") as handle:
++            handle.write(raw + "\n")
++        return "retained"
++    except (EntryError, ScenarioError, ValueError, TypeError, KeyError, OSError, p2_runner.P2RunError):
++        return "unavailable"
++
++
+ def _purge_plaintext_derivatives(
+     out_dir: Path,
+     dataset: Any,
+@@ -1907,6 +1978,10 @@
+     ]
+     business_removed_before = not any(path.exists() for path in business_family)
+     trace_removed_before = not any(path.exists() for path in trace_family)
++
++    composition_retention = _retain_composition_part(root, dataset)
++    if composition_retention == "collision":
++        errors.append("composition_retention_collision")
+ 
+     # 整个 data/ 目录包含 index DB 及其 query state、storage 上传原文件与 observability；
+     # 整个 p2-run/ 目录包含 attempts/case_id/ingest 文档名等逐题私有元数据。
+@@ -1931,12 +2006,15 @@
+         _remove_tree(target, root, removed, errors)
+         deleted_residual.append(hit)
+     final_scan = _scan_plaintext(root, needles)
++    if composition_retention == "retained" and not (root / "controlled" / "composition-part.json").is_file():
++        composition_retention = "unavailable"
+     retained = sorted(
+         path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()
+     ) if root.exists() else []
+     clean = bool(not errors and final_scan["clean"] and not (root / "data").exists() and not (root / "p2-run").exists())
+     return {
+         "schema_version": CLEANUP_SCHEMA_VERSION,
++        "composition_retention": composition_retention,
+         "trace_db_removed": not any(path.exists() for path in trace_family),
+         "trace_db_removed_at_close": bool(trace_removed_before),
+         "business_db_removed": not any(path.exists() for path in business_family),
+--- /dev/null
++++ b/backend/tests/rag/test_t207_title_prefix_synthetic.py
+@@ -0,0 +1,13 @@
++from mktkb.rag.query import DocumentRef, Lexicon, _document_core, _match_document
++
++
++def test_numbered_upload_title_matches_human_title():
++    doc = DocumentRef(doc_id="synthetic-1", title="D99_设备巡检表.xlsx")
++    lexicon = Lexicon(documents=(doc,))
++    assert _document_core(doc.title) == "设备巡检表"
++    assert _match_document("设备巡检表在哪里", lexicon) == (doc, ())
++
++
++def test_other_underscore_titles_keep_existing_meaning():
++    assert _document_core("设备巡检表_旧版.xlsx") == "设备巡检表"
++    assert _document_core("D99_设备巡检表_旧版.xlsx") == "设备巡检表"
+--- /dev/null
++++ b/backend/tests/rag/test_t207_multi_store_synthetic.py
+@@ -0,0 +1,31 @@
++from mktkb.rag.query import Lexicon, parse_query
++from mktkb.rag.types import QueryState
++
++
++def test_explicit_multiple_stores_clear_previous_single_record_id():
++    lexicon = Lexicon(stores=("北园店", "南园店"), items=("展板",), identifiers=("P77",))
++    previous = QueryState(store="北园店", stores=("北园店",), item="展板", identifier="P77", turn=1)
++    plan = parse_query("北园店和南园店的展板放在哪里？", previous=previous, lexicon=lexicon)
++    assert set(plan.state.stores) == {"北园店", "南园店"}
++    assert plan.state.identifier is None
++    assert "identifier" not in plan.filters
++
++
++def test_explicit_record_id_is_preserved():
++    lexicon = Lexicon(stores=("北园店",), items=("展板",), identifiers=("P77",))
++    plan = parse_query("北园店的P77展板放在哪里？", previous=None, lexicon=lexicon)
++    assert plan.state.identifier == "P77"
++
++
++def test_two_stores_then_single_store_never_returns_other_store(rag_index, add_records, make_doc):
++    add_records([
++        {"门店": "北园店", "物品": "展板", "位置": "甲柜"},
++        {"门店": "南园店", "物品": "展板", "位置": "乙柜"},
++        {"门店": "西园店", "物品": "展板", "位置": "丙柜"},
++    ], doc=make_doc(title="设备位置表"))
++    first = rag_index.ask("北园店和南园店的展板分别在哪里？", user_id="u", conversation_id="c")
++    assert first.kind == "answer"
++    assert "甲柜" in first.text and "乙柜" in first.text and "丙柜" not in first.text
++    second = rag_index.ask("西园店的展板在哪里？", user_id="u", conversation_id="c")
++    assert second.kind == "answer"
++    assert "丙柜" in second.text and "甲柜" not in second.text and "乙柜" not in second.text
+--- /dev/null
++++ b/backend/tests/rag/test_t207_security_precedence_synthetic.py
+@@ -0,0 +1,50 @@
++from mktkb.conversations.service import _rag_owns_turn
++from mktkb.rag.query import Lexicon, parse_query
++from mktkb.rag.types import QueryState
++from mktkb.conversations.intent import EntityLexicon, parse_question
++
++
++def test_cross_product_contact_request_refuses_before_ambiguity():
++    lexicon = Lexicon(stores=("北园店", "南园店"), items=("展板", "横幅"), field_labels=("位置", "电话"))
++    plan = parse_query("北园店和南园店的展板和横幅的位置及联系电话是多少？", previous=None, lexicon=lexicon)
++    assert plan.reason == "SECURITY_RESTRICTED_CONTACT"
++    assert plan.clarification is None
++    assert _rag_owns_turn(QueryState(), plan)
++
++
++def test_cross_product_without_contact_still_clarifies():
++    lexicon = Lexicon(stores=("北园店", "南园店"), items=("展板", "横幅"), field_labels=("位置", "电话"))
++    plan = parse_query("北园店和南园店的展板和横幅的位置分别在哪里？", previous=None, lexicon=lexicon)
++    assert plan.reason == "ITEM_AMBIGUOUS"
++
++
++def test_cross_product_contact_refusal_has_no_citations(rag_index, add_records, make_doc):
++    add_records([
++        {"门店": "北园店", "物品": "展板", "位置": "甲柜"},
++        {"门店": "南园店", "物品": "横幅", "位置": "乙柜"},
++    ], doc=make_doc(title="设备表"))
++    answer = rag_index.ask("北园店和南园店的展板和横幅的位置及联系电话是多少？",
++                           user_id="synthetic", conversation_id="synthetic")
++    assert answer.kind == "no_answer"
++    assert answer.reason == "SECURITY_RESTRICTED_CONTACT"
++    assert not answer.citations
++    assert "甲柜" not in answer.text and "乙柜" not in answer.text
++
++
++def test_legacy_unknown_store_cannot_bypass_existing_contact_policy():
++    lexicon = EntityLexicon(store_labels=("北园店",), item_labels=("展板",), identifier_labels=())
++    plan = parse_question("南园店展板的位置和联系电话是多少？", lexicon=lexicon)
++    assert plan.security_refusal == "SECURITY_RESTRICTED_CONTACT"
++
++
++def test_legacy_unrelated_unknown_store_remains_unknown():
++    lexicon = EntityLexicon(store_labels=("北园店",), item_labels=("展板",), identifier_labels=())
++    plan = parse_question("南园店展板在哪里？", lexicon=lexicon)
++    assert plan.security_refusal is None
++    assert plan.unknown_store
++
++
++def test_legacy_financial_topic_does_not_hide_contact_request():
++    lexicon = EntityLexicon(store_labels=("北园店",), item_labels=("展板",), identifier_labels=())
++    plan = parse_question("北园店展板的位置和联系电话，以及公司的营业收入是多少？", lexicon=lexicon)
++    assert plan.security_refusal == "SECURITY_RESTRICTED_CONTACT"
+--- /dev/null
++++ b/backend/tests/rag/test_t207_conflict_synthetic.py
+@@ -0,0 +1,33 @@
++import hashlib
++
++from mktkb.rag import AtomicUnit, DocumentSpec
++from mktkb.rag.legacy import LegacyIndex
++from mktkb.retrieval.service import retrieve
++from mktkb.retrieval.types import QueryIntent
++
++
++def test_overlapping_distinct_values_remain_conflict(tmp_path):
++    docs = []
++    for name, value in (("syn-a", "甲柜"), ("syn-b", "乙柜")):
++        doc = DocumentSpec(doc_id=name, logical_id=name, source_path=f"synthetic/{name}.xlsx",
++                           title="设备表", file_kind="xlsx", version_id=name + "-v1",
++                           version_label="1", sha256=hashlib.sha256(name.encode()).hexdigest(), business_date=None)
++        fields = {"标识": "P77", "门店": "北园店", "物品": "展板", "位置": value,
++                  "生效日期": "2026-01-01", "失效日期": "2026-12-31"}
++        unit = AtomicUnit(unit_id=name + "-row", doc_id=name, version_id=doc.version_id,
++                          kind="table_row", ordinal=0, unit_key="sheet:设备:row:2",
++                          text="；".join(f"{k}: {v}" for k, v in fields.items()), fields=fields,
++                          sheet="设备", locator={"sheet": "设备", "row": 2, "header_row": 1},
++                          row_number=2, title=doc.title)
++        docs.append((doc, [unit]))
++    index = LegacyIndex(tmp_path / "synthetic.sqlite3")
++    try:
++        index.build(docs)
++        intent = QueryIntent(mode="record", entity_filters={"store": "北园店", "item": "展板"},
++                             requested_fields=("位置",))
++        with index.database.session() as session:
++            result = retrieve(session, intent, revision=index.revision, limit=20, as_of="2026-06-01")
++        assert result.kind == "conflict"
++        assert {unit.fields["位置"] for unit in result.units} == {"甲柜", "乙柜"}
++    finally:
++        index.close()
+--- /dev/null
++++ b/backend/tests/rag/test_t207_candidate_scope_synthetic.py
+@@ -0,0 +1,54 @@
++from types import SimpleNamespace
++
++from mktkb.rag.query import Lexicon, parse_query
++from mktkb.rag.retrieval import _passes_filters
++from mktkb.rag.types import QueryState
++
++
++def test_multi_store_hard_filter_rejects_unrequested_store():
++    lexicon = Lexicon(stores=("北园店", "南园店", "西园店"), items=("展板",), field_labels=("位置",))
++    plan = parse_query("北园店和南园店的展板在哪里？", previous=None, lexicon=lexicon)
++    chunk = SimpleNamespace(doc_id="d", filters_norm={"store": "西园店", "item": "展板"},
++                            effective_from=None, effective_to=None)
++    assert not _passes_filters(chunk, plan)
++
++
++def test_multi_item_hard_filter_rejects_unrequested_item():
++    lexicon = Lexicon(stores=("北园店",), items=("展板", "横幅", "灯箱"), field_labels=("位置",))
++    plan = parse_query("北园店的展板和横幅在哪里？", previous=None, lexicon=lexicon)
++    chunk = SimpleNamespace(doc_id="d", filters_norm={"store": "北园店", "item": "灯箱"},
++                            effective_from=None, effective_to=None)
++    assert not _passes_filters(chunk, plan)
++
++
++def test_multi_item_no_match_never_answers_another_item(rag_index, add_records, make_doc):
++    add_records([
++        {"门店": "北园店", "物品": "灯箱", "位置": "甲柜"},
++        {"门店": "南园店", "物品": "展板", "位置": "乙柜"},
++        {"门店": "南园店", "物品": "横幅", "位置": "丙柜"},
++    ], doc=make_doc(title="设备位置表"))
++    answer = rag_index.ask("北园店的展板和横幅在哪里？", user_id="u", conversation_id="c")
++    assert answer.kind == "no_answer"
++    assert not answer.citations
++    assert all(value not in answer.text for value in ("甲柜", "乙柜", "丙柜"))
++
++
++def test_previous_single_item_does_not_narrow_new_multiple_items():
++    lexicon = Lexicon(stores=("北园店",), items=("展板", "横幅"), field_labels=("位置",))
++    previous = QueryState(store="北园店", stores=("北园店",), item="展板", items=("展板",), turn=1)
++    plan = parse_query("北园店的展板和横幅在哪里？", previous=previous, lexicon=lexicon)
++    assert set(plan.state.items) == {"展板", "横幅"}
++    assert "item" not in plan.filters
++
++
++def test_vector_candidates_respect_multiple_items(rag_index, add_records, make_doc):
++    add_records([
++        {"门店": "北园店", "物品": "展板", "位置": "甲柜"},
++        {"门店": "北园店", "物品": "横幅", "位置": "乙柜"},
++        {"门店": "北园店", "物品": "灯箱", "位置": "丙柜"},
++    ], doc=make_doc(title="设备位置表"))
++    lexicon = Lexicon(stores=("北园店",), items=("展板", "横幅", "灯箱"), field_labels=("位置",))
++    plan = parse_query("北园店的展板和横幅在哪里？", previous=None, lexicon=lexicon)
++    result = rag_index.search(plan)
++    assert result.vector
++    assert {chunk.filters_norm["item"] for chunk in result.vector} <= {"展板", "横幅"}
+--- /dev/null
++++ b/backend/tests/rag/test_t207_v8_enumeration_synthetic.py
+@@ -0,0 +1,23 @@
++def test_item_all_fields_does_not_disclose_restricted_contact(rag_index, add_records, make_doc):
++    add_records([{"门店": "北园店", "物品": "展板", "位置": "甲柜", "电话": "010-55551234"}],
++                doc=make_doc(title="合成设备资料"))
++    answer = rag_index.ask("列出北园店展板的全部信息", user_id="u", conversation_id="c")
++    assert answer.kind == "no_answer"
++    assert answer.reason == "SECURITY_RESTRICTED_CONTACT"
++    assert not answer.citations
++    assert "010-55551234" not in answer.text
++
++
++def test_store_contact_without_item_remains_available(rag_index, add_records, make_doc):
++    add_records([{"门店": "北园店", "电话": "010-55551234"}], doc=make_doc(title="合成门店资料"))
++    answer = rag_index.ask("北园店的电话是多少？", user_id="u", conversation_id="c")
++    assert answer.kind == "answer"
++    assert "010-55551234" in answer.text
++
++
++def test_item_all_fields_without_contact_remains_available(rag_index, add_records, make_doc):
++    add_records([{"门店": "北园店", "物品": "展板", "位置": "甲柜"}],
++                doc=make_doc(title="合成设备资料"))
++    answer = rag_index.ask("列出北园店展板的全部信息", user_id="u", conversation_id="c")
++    assert answer.kind == "answer"
++    assert "甲柜" in answer.text
+--- /dev/null
++++ b/backend/tests/unit/test_t207_record_duplicate_synthetic.py
+@@ -0,0 +1,15 @@
++from types import SimpleNamespace
++
++from mktkb.conversations.service import _record_facts
++
++
++def test_identical_attested_clause_repeated_is_deduplicated():
++    rows = [SimpleNamespace(id="a", fields={"门店": "北园店", "位置": "甲柜"}),
++            SimpleNamespace(id="b", fields={"门店": "北园店", "位置": "甲柜"})]
++    result = _record_facts("位置：甲柜；位置：甲柜", rows, [("位置", "甲柜")])
++    assert result == [("位置", "甲柜", "a")]
++
++
++def test_conflicting_repetition_is_rejected():
++    rows = [SimpleNamespace(id="a", fields={"门店": "北园店", "位置": "甲柜"})]
++    assert _record_facts("位置：甲柜；位置：乙柜", rows, [("位置", "甲柜")]) is None
+--- /dev/null
++++ b/backend/tests/unit/test_t207_context_sources_synthetic.py
+@@ -0,0 +1,46 @@
++from types import SimpleNamespace
++from unittest.mock import MagicMock
++
++from mktkb.conversations import service
++
++
++def _context(rows, monkeypatch):
++    db = MagicMock()
++    db.execute.return_value.scalars.return_value.all.return_value = []
++    refs = [SimpleNamespace(source_id=f"source-{n}") for n in range(len(rows))]
++    db.scalars.return_value.all.return_value = refs
++    db.scalar.side_effect = [SimpleNamespace(id="assistant")] + [SimpleNamespace(entity_filters=row) for row in rows]
++    events = []
++    monkeypatch.setattr(service, "capture_enabled", lambda: True)
++    monkeypatch.setattr(service, "emit_capture_event", lambda kind, **kw: events.append((kind, kw)))
++    _, entities = service._load_context(db, SimpleNamespace(id="conversation"), 5, capture_request_id="r")
++    inherited = [event for event in events if event[0] == "entity_inheritance"]
++    return entities, inherited
++
++
++def test_conflicting_sources_do_not_choose_an_arbitrary_store(monkeypatch):
++    entities, events = _context([
++        {"store": "北园店", "item": "展板"},
++        {"store": "南园店", "item": "展板"},
++    ], monkeypatch)
++    assert entities == {"item": "展板"}
++    assert {event[1]["entity_type"] for event in events} == {"item"}
++
++
++def test_unambiguous_sources_keep_both_dimensions(monkeypatch):
++    entities, _ = _context([
++        {"store": "北园店", "item": "展板"},
++        {"store": "北园店", "item": "展板"},
++    ], monkeypatch)
++    assert entities == {"store": "北园店", "item": "展板"}
++
++
++def test_unrelated_partial_sources_cannot_create_a_pair(monkeypatch):
++    entities, _ = _context([{"store": "北园店"}, {"item": "展板"}], monkeypatch)
++    assert not ({"store", "item"} <= entities.keys())
++
++
++def test_inherited_pair_cites_the_source_supporting_both(monkeypatch):
++    entities, events = _context([{"store": "北园店"}, {"store": "北园店", "item": "展板"}], monkeypatch)
++    assert entities == {"store": "北园店", "item": "展板"}
++    assert {event[1]["source_unit_id"] for event in events} == {"source-1"}
+--- /dev/null
++++ b/backend/tests/unit/test_t207_v8_followup_synthetic.py
+@@ -0,0 +1,31 @@
++from mktkb.conversations.intent import EntityLexicon, parse_question
++from mktkb.rag.query import Lexicon, parse_query
++
++
++def test_explicit_topic_change_does_not_silently_guess_store():
++    rag_lexicon = Lexicon(stores=("北园店", "南园店"), items=("展板", "横幅"), field_labels=("位置",))
++    first = parse_query("北园店展板放在哪里？", previous=None, lexicon=rag_lexicon)
++    second = parse_query("换个话题，采购流程有哪些步骤？", previous=first.state, lexicon=rag_lexicon)
++    assert second.state.store is None
++    lexicon = EntityLexicon(store_labels=("北园店", "南园店"), item_labels=("展板", "横幅"), identifier_labels=())
++    third = parse_question("横幅呢？", lexicon=lexicon,
++                           context_questions=("换个话题，采购流程有哪些步骤？",), context_entities={})
++    assert third.clarification
++    assert third.intent is None
++
++
++def test_explicit_document_request_is_not_confused_with_bare_followup():
++    lexicon = EntityLexicon(store_labels=("北园店", "南园店"), item_labels=("横幅",), identifier_labels=())
++    plan = parse_question("横幅的制作流程有哪些规定？", lexicon=lexicon,
++                          context_questions=("换个话题，采购流程有哪些步骤？",), context_entities={})
++    assert plan.security_refusal is None
++    assert not plan.clarification
++
++
++def test_document_source_from_switched_topic_is_not_inherited_as_store():
++    lexicon = EntityLexicon(store_labels=("北园店", "南园店"), item_labels=("横幅",), identifier_labels=())
++    plan = parse_question("横幅呢？", lexicon=lexicon,
++                          context_questions=("换个话题，采购流程有哪些步骤？",),
++                          context_entities={"store": "南园店"})
++    assert plan.clarification
++    assert plan.intent is None
+--- /dev/null
++++ b/backend/tests/unit/test_t207_v8_safety_contract_synthetic.py
+@@ -0,0 +1,12 @@
++from mktkb import copy as product_copy
++from mktkb.conversations.service import _RAG_KIND_MAP
++from mktkb.evaluation.p2_hard_evidence import REFUSAL_LIKE_KINDS
++
++
++def test_product_refusal_maps_to_frozen_refusal_like_kind():
++    assert _RAG_KIND_MAP["no_answer"] == "not_found"
++    assert "not_found" in REFUSAL_LIKE_KINDS
++    assert "answer" not in REFUSAL_LIKE_KINDS
++    text = product_copy.text("SECURITY_RESTRICTED_CONTACT")
++    assert "个人信息" in text
++    assert "不是资料中没有答案" in text
+--- /dev/null
++++ b/backend/tests/evaluation/test_t207_binding_retention_synthetic.py
+@@ -0,0 +1,62 @@
++import json
++import pytest
++
++from mktkb.evaluation import p2_holdout_scenarios as scenario
++from test_p2_holdout_scenarios import package, _run_parts  # noqa: F401
++from test_p2_h2_controlled_entry import entry  # noqa: F401
++
++
++def test_retained_synthetic_parts_compose_with_official_composer(package, tmp_path, entry):
++    dataset, _, paths, _, _, _ = package
++    contract = scenario.load_scenario_contract(dataset, **paths)
++    parts = _run_parts(contract)
++    restored = []
++    for number, part in enumerate(parts):
++        part["binding"].update(binding_version="p2-binding/v0.1", complete=True,
++                               missing=[], trace_identity_bound=True)
++        root = tmp_path / str(number)
++        run = root / "p2-run"
++        run.mkdir(parents=True)
++        (run / "holdout_scorecard.json").write_text(json.dumps(part["aggregate"]), encoding="utf-8")
++        summary = {"binding": part["binding"], "run_id": part["run_id"], "status": part["status"],
++                   "turns": {"executed": part["turns_executed"]}}
++        (run / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
++        result = entry._purge_plaintext_derivatives(root, contract.subset(contract.scenario_ids[number]))
++        assert result["plaintext_clean"]
++        assert not run.exists()
++        saved = json.loads((root / "controlled" / "composition-part.json").read_text(encoding="utf-8"))
++        restored.append({"plan": part["plan"], **saved})
++    combined = scenario.compose_scenario_runs(contract, restored)
++    assert combined["total"] == 30
++    assert combined["release_ready"] is False
++
++
++@pytest.mark.parametrize("mutation", ["provider_secret", "scenario_mismatch", "card_mismatch", "collision"])
++def test_unsafe_or_mismatched_part_is_not_retained(package, tmp_path, entry, mutation):
++    dataset, _, paths, _, _, _ = package
++    contract = scenario.load_scenario_contract(dataset, **paths)
++    part = _run_parts(contract)[0]
++    if mutation == "provider_secret":
++        part["binding"]["provider"] = {"api_key": "synthetic-secret"}
++    elif mutation == "scenario_mismatch":
++        part["binding"]["scenario_binding"] = contract.binding(contract.scenario_ids[1])
++    else:
++        part["aggregate"]["run_id"] = "other-run"
++    root = tmp_path / "unsafe"
++    if mutation == "collision":
++        (root / "controlled").mkdir(parents=True)
++        (root / "controlled" / "composition-part.json").write_text("{}", encoding="utf-8")
++    run = root / "p2-run"
++    run.mkdir(parents=True)
++    (run / "holdout_scorecard.json").write_text(json.dumps(part["aggregate"]), encoding="utf-8")
++    (run / "summary.json").write_text(json.dumps({"binding": part["binding"], "run_id": part["run_id"],
++        "status": part["status"], "turns": {"executed": part["turns_executed"]}}), encoding="utf-8")
++    result = entry._purge_plaintext_derivatives(root, contract.subset(contract.scenario_ids[0]))
++    if mutation == "collision":
++        assert result["composition_retention"] == "collision"
++        assert not result["plaintext_clean"]
++        assert (root / "controlled" / "composition-part.json").read_text(encoding="utf-8") == "{}"
++    else:
++        assert result["composition_retention"] == "unavailable"
++        assert not (root / "controlled" / "composition-part.json").exists()
++    assert not run.exists()

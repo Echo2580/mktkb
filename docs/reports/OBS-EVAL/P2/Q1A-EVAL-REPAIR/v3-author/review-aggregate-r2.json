@@ -1,0 +1,1120 @@
+{
+ "schema_version": "q1a-p2-v3-independent-review-aggregate/v2",
+ "review_id": "v3-author-r2",
+ "reviewer": {
+  "role": "custodian-B",
+  "agent": "v3-review-r2",
+  "independence": "not author/annotator/acceptance",
+  "v2_labels_schema_only_read": true
+ },
+ "reviewed_at": "2026-11-15T03:53:17+08:00",
+ "baseline": {
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "staged_count": 0,
+  "commit_count": 172,
+  "tracked_modified_count": 15,
+  "untracked_status_lines": 230
+ },
+ "verdict": "PASS_WITH_DISAGREEMENTS",
+ "freeze": {
+  "enterable": true,
+  "conditions": [
+   "C20/C22 real-index offline smoke: document title must not trigger DOCUMENT_NOT_FOUND, and two-store mention must not return the wrong store row (C21 single-store control).",
+   "Close prior freeze prerequisites: source-map /v0.2 scoring dispatch, targets->v0.2 annotation projection (7-field axis/3-key target), v3 scenario contract/ingest plan in-repo SHA binding, L1 corpus_manifest_sha256 binding or explicit source-map ownership.",
+   "Keep public similarity status=computed and effective-axis wording 28/30+2 empty sets; fix authoring-inputs declared_not_read; register private passed/有据 tokens and plan hash drift in freeze checklist."
+  ]
+ },
+ "objects": {
+  "v31_plaintext_sha256": {
+   "questions": "3ca61357ad86a3ad6447f14fed79fc039d10f61483cea6193a426eb97df9319c",
+   "labels": "82931a50d75cace69d6f4993a454eabad15572fa6384793efa9ecf13b2bd4818",
+   "targets": "4cda7e09e5cd4f36c96ca299db1ce0f61c8857737c8be5d203c3554aa054f45a",
+   "authoring": "00adb5eca4997c65db29a70854c32988c613115f4c4426606a44dd2cebb53c66"
+  },
+  "v3_old_plaintext_sha256": {
+   "questions": "d2aa028715919b043e3033e24db146c6de551c8f3fe4cd86458057b0d82f3400",
+   "labels": "82931a50d75cace69d6f4993a454eabad15572fa6384793efa9ecf13b2bd4818",
+   "targets": "4cda7e09e5cd4f36c96ca299db1ce0f61c8857737c8be5d203c3554aa054f45a",
+   "authoring": "12f20fc1356e157b8843fb7537ca51ebe000ec83bb1cf578cec9d4df01910329"
+  },
+  "v2_questions_plaintext_sha256": "b04d52750f1a519a110ec6e1bd8f22038d1f000eee80316d4b4c660505177b79",
+  "labels_bytes_identical_old_new": true,
+  "targets_bytes_identical_old_new": true,
+  "authoring_bytes_identical_old_new": false,
+  "questions_bytes_identical_old_new": false,
+  "sizes": {
+   "authoring-record.jsonl.fernet": 100172,
+   "labels.jsonl.fernet": 33080,
+   "manifest.json": 1039,
+   "questions.jsonl.fernet": 20708,
+   "source-map.json": 2648,
+   "targets.jsonl.fernet": 45816
+  }
+ },
+ "items": {
+  "A": {
+   "criterion": "char-level max < 0.5 and count_over_0.5 == 0",
+   "method": "independent SequenceMatcher / normalized Levenshtein / char-3gram Jaccard; 30x30; text=question or joined turns; NFKC+remove whitespace/punctuation+casefold",
+   "summary": {
+    "seq": {
+     "min": 0.254545,
+     "median": 0.371173,
+     "max": 0.444444,
+     "count_gt_0_5": 0,
+     "count_ge_0_5": 0,
+     "count_gt_0_45": 0
+    },
+    "lev": {
+     "min": 0.166667,
+     "median": 0.270834,
+     "max": 0.35,
+     "count_gt_0_5": 0,
+     "count_ge_0_5": 0,
+     "count_gt_0_45": 0
+    },
+    "jac": {
+     "min": 0.027778,
+     "median": 0.09902,
+     "max": 0.195122,
+     "count_gt_0_5": 0,
+     "count_ge_0_5": 0,
+     "count_gt_0_45": 0
+    }
+   },
+   "lcs": {
+    "max": 11,
+    "count_ge_12": 0
+   },
+   "over_0_5_ids": {
+    "seq": [],
+    "lev": [],
+    "jac": []
+   },
+   "top_pairs": [
+    {
+     "v3": "H2V3-C19",
+     "v2": "h2-par-01",
+     "seq": 0.444444,
+     "lev": 0.296296,
+     "jac": 0.051282,
+     "lcs": 4
+    },
+    {
+     "v3": "H2V3-C26",
+     "v2": "h2-sec-01",
+     "seq": 0.441176,
+     "lev": 0.319149,
+     "jac": 0.142857,
+     "lcs": 9
+    },
+    {
+     "v3": "H2V3-C06",
+     "v2": "h2-par-03",
+     "seq": 0.4375,
+     "lev": 0.294118,
+     "jac": 0.0,
+     "lcs": 2
+    },
+    {
+     "v3": "H2V3-C06",
+     "v2": "h2-sec-03",
+     "seq": 0.432432,
+     "lev": 0.35,
+     "jac": 0.137931,
+     "lcs": 5
+    },
+    {
+     "v3": "H2V3-C03",
+     "v2": "h2-par-04",
+     "seq": 0.432432,
+     "lev": 0.315789,
+     "jac": 0.03125,
+     "lcs": 3
+    },
+    {
+     "v3": "H2V3-C12",
+     "v2": "h2-sec-01",
+     "seq": 0.430769,
+     "lev": 0.318182,
+     "jac": 0.176471,
+     "lcs": 11
+    },
+    {
+     "v3": "H2V3-C05",
+     "v2": "h2-neg-02",
+     "seq": 0.425532,
+     "lev": 0.30303,
+     "jac": 0.102564,
+     "lcs": 4
+    },
+    {
+     "v3": "H2V3-C06",
+     "v2": "h2-mt-02",
+     "seq": 0.424242,
+     "lev": 0.117647,
+     "jac": 0.115385,
+     "lcs": 5
+    },
+    {
+     "v3": "H2V3-C19",
+     "v2": "h2-par-10",
+     "seq": 0.421053,
+     "lev": 0.296296,
+     "jac": 0.0625,
+     "lcs": 4
+    },
+    {
+     "v3": "H2V3-C09",
+     "v2": "h2-neg-02",
+     "seq": 0.4,
+     "lev": 0.307692,
+     "jac": 0.125,
+     "lcs": 4
+    }
+   ],
+   "per_case": [
+    {
+     "case_id": "H2V3-C01",
+     "seq": 0.4,
+     "lev": 0.261905,
+     "jac": 0.098039,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C02",
+     "seq": 0.297872,
+     "lev": 0.2,
+     "jac": 0.027778,
+     "lcs": 3
+    },
+    {
+     "case_id": "H2V3-C03",
+     "seq": 0.432432,
+     "lev": 0.315789,
+     "jac": 0.041667,
+     "lcs": 3
+    },
+    {
+     "case_id": "H2V3-C04",
+     "seq": 0.36,
+     "lev": 0.241379,
+     "jac": 0.069767,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C11",
+     "seq": 0.360656,
+     "lev": 0.255814,
+     "jac": 0.111111,
+     "lcs": 8
+    },
+    {
+     "case_id": "H2V3-C12",
+     "seq": 0.430769,
+     "lev": 0.318182,
+     "jac": 0.176471,
+     "lcs": 11
+    },
+    {
+     "case_id": "H2V3-C16",
+     "seq": 0.269231,
+     "lev": 0.259259,
+     "jac": 0.090909,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C17",
+     "seq": 0.321429,
+     "lev": 0.222222,
+     "jac": 0.096774,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C21",
+     "seq": 0.4,
+     "lev": 0.294118,
+     "jac": 0.133333,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C23",
+     "seq": 0.4,
+     "lev": 0.307692,
+     "jac": 0.096774,
+     "lcs": 5
+    },
+    {
+     "case_id": "H2V3-C26",
+     "seq": 0.441176,
+     "lev": 0.319149,
+     "jac": 0.142857,
+     "lcs": 9
+    },
+    {
+     "case_id": "H2V3-C27",
+     "seq": 0.28,
+     "lev": 0.178571,
+     "jac": 0.029412,
+     "lcs": 3
+    },
+    {
+     "case_id": "H2V3-C05",
+     "seq": 0.425532,
+     "lev": 0.30303,
+     "jac": 0.102564,
+     "lcs": 5
+    },
+    {
+     "case_id": "H2V3-C06",
+     "seq": 0.4375,
+     "lev": 0.35,
+     "jac": 0.137931,
+     "lcs": 5
+    },
+    {
+     "case_id": "H2V3-C07",
+     "seq": 0.272727,
+     "lev": 0.185185,
+     "jac": 0.029412,
+     "lcs": 3
+    },
+    {
+     "case_id": "H2V3-C13",
+     "seq": 0.285714,
+     "lev": 0.207547,
+     "jac": 0.1,
+     "lcs": 7
+    },
+    {
+     "case_id": "H2V3-C18",
+     "seq": 0.380952,
+     "lev": 0.285714,
+     "jac": 0.117647,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C22",
+     "seq": 0.383562,
+     "lev": 0.275,
+     "jac": 0.163265,
+     "lcs": 9
+    },
+    {
+     "case_id": "H2V3-C24",
+     "seq": 0.375,
+     "lev": 0.266667,
+     "jac": 0.068182,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C28",
+     "seq": 0.285714,
+     "lev": 0.186047,
+     "jac": 0.044776,
+     "lcs": 5
+    },
+    {
+     "case_id": "H2V3-C08",
+     "seq": 0.307692,
+     "lev": 0.205882,
+     "jac": 0.0625,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C14",
+     "seq": 0.357143,
+     "lev": 0.277778,
+     "jac": 0.155556,
+     "lcs": 9
+    },
+    {
+     "case_id": "H2V3-C19",
+     "seq": 0.444444,
+     "lev": 0.333333,
+     "jac": 0.157895,
+     "lcs": 8
+    },
+    {
+     "case_id": "H2V3-C25",
+     "seq": 0.367347,
+     "lev": 0.290323,
+     "jac": 0.117647,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C29",
+     "seq": 0.387097,
+     "lev": 0.261905,
+     "jac": 0.04,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C09",
+     "seq": 0.4,
+     "lev": 0.307692,
+     "jac": 0.125,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C10",
+     "seq": 0.352941,
+     "lev": 0.315789,
+     "jac": 0.045455,
+     "lcs": 3
+    },
+    {
+     "case_id": "H2V3-C15",
+     "seq": 0.338983,
+     "lev": 0.222222,
+     "jac": 0.1,
+     "lcs": 6
+    },
+    {
+     "case_id": "H2V3-C20",
+     "seq": 0.254545,
+     "lev": 0.166667,
+     "jac": 0.047619,
+     "lcs": 4
+    },
+    {
+     "case_id": "H2V3-C30",
+     "seq": 0.377358,
+     "lev": 0.333333,
+     "jac": 0.195122,
+     "lcs": 9
+    }
+   ],
+   "robustness": {
+    "keep_punctuation": {
+     "seq": {
+      "min": 0.26087,
+      "median": 0.379062,
+      "max": 0.458333,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 2
+     },
+     "lev": {
+      "min": 0.133333,
+      "median": 0.285786,
+      "max": 0.363636,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     },
+     "jac": {
+      "min": 0.025,
+      "median": 0.093074,
+      "max": 0.177778,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     }
+    },
+    "letters_digits_only": {
+     "seq": {
+      "min": 0.254545,
+      "median": 0.371173,
+      "max": 0.444444,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     },
+     "lev": {
+      "min": 0.166667,
+      "median": 0.270834,
+      "max": 0.35,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     },
+     "jac": {
+      "min": 0.027778,
+      "median": 0.09902,
+      "max": 0.195122,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     }
+    },
+    "question_only": {
+     "seq": {
+      "min": 0.0,
+      "median": 0.363673,
+      "max": 0.444444,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     },
+     "lev": {
+      "min": 0.0,
+      "median": 0.260582,
+      "max": 0.35,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     },
+     "jac": {
+      "min": 0.0,
+      "median": 0.068974,
+      "max": 0.195122,
+      "count_gt_0_5": 0,
+      "count_ge_0_5": 0,
+      "count_gt_0_45": 0
+     }
+    }
+   },
+   "aux_containment3": {
+    "max": 0.6667,
+    "count_gt_0_5": 3,
+    "cases": [
+     "H2V3-C30",
+     "H2V3-C26",
+     "H2V3-C22"
+    ],
+    "gated": false
+   },
+   "author_r2_claim_match": true,
+   "pass": true
+  },
+  "B": {
+   "per_case": {
+    "H2V3-C16": {
+     "question_kind": "not_found",
+     "label_kind": "not_found",
+     "should_refuse": true,
+     "refusal_reason": "not_found",
+     "expected_sources": 0,
+     "relevant_units": 0,
+     "expected_values": 0,
+     "reference_answer_len": 34,
+     "reference_mentions_no_coverage": true,
+     "why_len": 129,
+     "why_mentions_no_coverage": true,
+     "why_mentions_youju": false,
+     "why_mentions_empty_proof": true,
+     "lifecycle_rows": 0,
+     "lifecycle_roles": [],
+     "correct_path_rows": 0,
+     "stale_used_units": 0,
+     "stale_applicability": "required",
+     "cross_targets": 1,
+     "cross_applicability": "required",
+     "target_row_ok": true,
+     "no_corpus_coverage": true,
+     "four_way_consistent": true,
+     "target_identity_only": true,
+     "stale_rationale_no_date_check": true,
+     "cross_rationale_empty_proof": true,
+     "location_versions_checked": 4,
+     "location_rows_all_zero": true
+    },
+    "H2V3-C17": {
+     "question_kind": "not_found",
+     "label_kind": "not_found",
+     "should_refuse": true,
+     "refusal_reason": "not_found",
+     "expected_sources": 0,
+     "relevant_units": 0,
+     "expected_values": 0,
+     "reference_answer_len": 32,
+     "reference_mentions_no_coverage": true,
+     "why_len": 129,
+     "why_mentions_no_coverage": true,
+     "why_mentions_youju": false,
+     "why_mentions_empty_proof": true,
+     "lifecycle_rows": 0,
+     "lifecycle_roles": [],
+     "correct_path_rows": 0,
+     "stale_used_units": 0,
+     "stale_applicability": "required",
+     "cross_targets": 1,
+     "cross_applicability": "required",
+     "target_row_ok": true,
+     "no_corpus_coverage": true,
+     "four_way_consistent": true,
+     "target_identity_only": true,
+     "stale_rationale_no_date_check": true,
+     "cross_rationale_empty_proof": true,
+     "location_versions_checked": 4,
+     "location_rows_all_zero": true
+    }
+   },
+   "effective_axes": {
+    "cross_entity_target_matches": 28,
+    "cross_entity_empty_use": 2,
+    "stale_true_date_checks": 28,
+    "stale_empty_use": 2
+   },
+   "four_way_consistent": true,
+   "no_corpus_coverage": true,
+   "zero_references": true,
+   "correct_path_absent": true,
+   "stale_rationale_no_date_check": true,
+   "applicability_still_required": true,
+   "pass": true
+  },
+  "C": {
+   "per_case": {
+    "H2V3-C20": {
+     "turn_count": 1,
+     "item_count": 1,
+     "old_item_count": 2,
+     "store_count": 2,
+     "old_store_count": 2,
+     "store_filter_kept": false,
+     "item_ambiguous": false,
+     "targets": 1,
+     "target_entities": [
+      "item"
+     ],
+     "target_item_count": 1,
+     "expected_sources": 1,
+     "expected_values": 1,
+     "labels_identical_old": true,
+     "targets_identical_old": true,
+     "run_index": 3,
+     "old_run_index": 3,
+     "stratum": "negative",
+     "old_stratum": "negative",
+     "lifecycle_rows": 1,
+     "reference_mentions_second_item": true
+    },
+    "H2V3-C21": {
+     "turn_count": 1,
+     "item_count": 1,
+     "old_item_count": 2,
+     "store_count": 1,
+     "old_store_count": 1,
+     "store_filter_kept": true,
+     "item_ambiguous": false,
+     "targets": 1,
+     "target_entities": [
+      "item"
+     ],
+     "target_item_count": 1,
+     "expected_sources": 1,
+     "expected_values": 1,
+     "labels_identical_old": true,
+     "targets_identical_old": true,
+     "run_index": 0,
+     "old_run_index": 0,
+     "stratum": "stale_conflict",
+     "old_stratum": "stale_conflict",
+     "lifecycle_rows": 2,
+     "reference_mentions_second_item": true
+    },
+    "H2V3-C22": {
+     "turn_count": 1,
+     "item_count": 1,
+     "old_item_count": 2,
+     "store_count": 2,
+     "old_store_count": 2,
+     "store_filter_kept": false,
+     "item_ambiguous": false,
+     "targets": 1,
+     "target_entities": [
+      "item"
+     ],
+     "target_item_count": 1,
+     "expected_sources": 1,
+     "expected_values": 1,
+     "labels_identical_old": true,
+     "targets_identical_old": true,
+     "run_index": 1,
+     "old_run_index": 1,
+     "stratum": "stale_conflict",
+     "old_stratum": "stale_conflict",
+     "lifecycle_rows": 2,
+     "reference_mentions_second_item": true
+    }
+   },
+   "item_count_new": [
+    1,
+    1,
+    1
+   ],
+   "item_count_old": [
+    2,
+    2,
+    2
+   ],
+   "item_ambiguous_old": true,
+   "item_ambiguous_new": false,
+   "parse_query_old": {
+    "H2V3-C20": "ITEM_AMBIGUOUS",
+    "H2V3-C21": "ITEM_AMBIGUOUS",
+    "H2V3-C22": "ITEM_AMBIGUOUS"
+   },
+   "parse_query_new": {
+    "H2V3-C20": "None",
+    "H2V3-C21": "None",
+    "H2V3-C22": "None"
+   },
+   "targets_labels_run_unchanged": true,
+   "store_filter_kept": {
+    "H2V3-C20": false,
+    "H2V3-C21": true,
+    "H2V3-C22": false
+   },
+   "store_count": {
+    "H2V3-C20": 2,
+    "H2V3-C21": 1,
+    "H2V3-C22": 2
+   },
+   "doc_title_sensitivity": "if ingest name keeps Dxx_ prefix, _document_core may cause DOCUMENT_NOT_FOUND for C20/C22; pure Chinese title parses clean. Product/ingest wiring, not dataset defect.",
+   "pass": true
+  }
+ },
+ "structure": {
+  "counts": {
+   "questions": 30,
+   "labels": 30,
+   "targets": 30,
+   "authoring": 30
+  },
+  "ids_equal_four": true,
+  "strata": {
+   "cross_doc_security": 5,
+   "multi_turn": 5,
+   "negative": 5,
+   "paraphrase": 10,
+   "stale_conflict": 5
+  },
+  "turns_total": 36,
+  "turn_histogram": {
+   "1": 25,
+   "2": 4,
+   "3": 1
+  },
+  "multi_turn": {
+   "H2V3-C11": 2,
+   "H2V3-C12": 2,
+   "H2V3-C13": 3,
+   "H2V3-C14": 2,
+   "H2V3-C15": 2
+  },
+  "run_cases": {
+   "0": 12,
+   "1": 8,
+   "2": 5,
+   "3": 5
+  },
+  "run_turns": {
+   "0": 14,
+   "1": 10,
+   "2": 6,
+   "3": 6
+  },
+  "run_dates_unique": 4,
+  "q_business_date_eq_authoring": 30,
+  "as_of_eq_business_date": 30,
+  "kinds": {
+   "answer": 25,
+   "not_found": 2,
+   "refusal": 3
+  },
+  "should_refuse": {
+   "False": 25,
+   "True": 5
+  },
+  "kind_agree_q_l": 30,
+  "refuse_agree_q_l": 30,
+  "refusal_reasons": {
+   "None": 25,
+   "must_refuse_security": 3,
+   "not_found": 2
+  },
+  "answer_sources_nonempty": 25,
+  "not_found_zero_refs": 2,
+  "label_versions": [
+   "p2-holdout-v3.1-2026-11-15"
+  ],
+  "requires_ocr_false": 30,
+  "target_instances": 36,
+  "target_case_histogram": {
+   "1": 24,
+   "2": 6
+  },
+  "target_triple_exact": 36,
+  "target_anchor_complete": 36,
+  "criterion": {
+   "multi_target": 6,
+   "structured_target": 24
+  },
+  "manifest": {
+   "key_count": 15,
+   "keys": [
+    "author",
+    "business_date",
+    "case_count",
+    "created_utc",
+    "dataset_version",
+    "encryption",
+    "label_version",
+    "labels_ciphertext_sha256",
+    "labels_plaintext_sha256",
+    "questions_ciphertext_sha256",
+    "questions_plaintext_sha256",
+    "schema_version",
+    "strata",
+    "suite",
+    "turn_stats"
+   ],
+   "dataset_version": "P2-HOLDOUT-v3.1",
+   "label_version": "p2-holdout-v3.1-2026-11-15",
+   "case_count_ok": true,
+   "strata_ok": true,
+   "turn_stats_ok": true,
+   "questions_sha_ok": true,
+   "labels_sha_ok": true,
+   "ciphertext_sha_ok": true
+  },
+  "loader": {
+   "cases": 30,
+   "labels": 30,
+   "metadata_mismatch_count": 0
+  },
+  "keyspace": {
+   "targets": 36,
+   "resolved": 36,
+   "identity_ok": 36,
+   "filters_ok": 36,
+   "source_version_ok": 36,
+   "failures": []
+  },
+  "labels_grounding": {
+   "refs": 34,
+   "refs_resolved": 34,
+   "expected_values": 45,
+   "values_in_ref": 45,
+   "values_in_sources": 45,
+   "forbidden_values": 12,
+   "forbidden_found_in_corpus": 12,
+   "forbidden_in_ref": 0,
+   "forbidden_sources": 8,
+   "forbidden_sources_resolved": 3,
+   "failures": [],
+   "forbidden_sources_document_level": 5,
+   "stale_windows": {
+    "used_units": 34,
+    "window_ok": 34,
+    "as_of_eq": 30,
+    "failures": []
+   }
+  }
+ },
+ "rewrites_15": {
+  "expected_set": [
+   "H2V3-C01",
+   "H2V3-C02",
+   "H2V3-C04",
+   "H2V3-C05",
+   "H2V3-C07",
+   "H2V3-C08",
+   "H2V3-C15",
+   "H2V3-C20",
+   "H2V3-C21",
+   "H2V3-C22",
+   "H2V3-C24",
+   "H2V3-C25",
+   "H2V3-C27",
+   "H2V3-C28",
+   "H2V3-C29"
+  ],
+  "text_changed": [
+   "H2V3-C01",
+   "H2V3-C02",
+   "H2V3-C04",
+   "H2V3-C05",
+   "H2V3-C07",
+   "H2V3-C08",
+   "H2V3-C15",
+   "H2V3-C20",
+   "H2V3-C21",
+   "H2V3-C22",
+   "H2V3-C24",
+   "H2V3-C25",
+   "H2V3-C27",
+   "H2V3-C28",
+   "H2V3-C29"
+  ],
+  "set_equal": true,
+  "non_text_non_labelversion_changed": {},
+  "notes_changed": [
+   "H2V3-C01",
+   "H2V3-C21"
+  ],
+  "targets_per_case_identical": 30,
+  "labels_per_case_identical": 30,
+  "authoring_changed": [
+   "H2V3-C16",
+   "H2V3-C17"
+  ],
+  "run_stratum_changed": [],
+  "expected_sources_changed_for_15": [],
+  "forbidden_changed_for_15": [],
+  "lifecycle_rows_changed_for_15": [],
+  "only_wording": true
+ },
+ "leak": {
+  "date_iso": {
+   "count": 0,
+   "cases": []
+  },
+  "date_cn": {
+   "count": 0,
+   "cases": []
+  },
+  "date_md": {
+   "count": 0,
+   "cases": []
+  },
+  "year_cn": {
+   "count": 0,
+   "cases": []
+  },
+  "eval_words": {
+   "count": 0,
+   "cases": []
+  },
+  "axis_names": {
+   "count": 0,
+   "cases": []
+  },
+  "record_code": {
+   "count": 0,
+   "cases": []
+  },
+  "entity_key": {
+   "count": 0,
+   "cases": []
+  },
+  "record_key_literal": {
+   "count": 0,
+   "cases": []
+  },
+  "source_code": {
+   "count": 0,
+   "cases": []
+  },
+  "stratum_names": {
+   "count": 0,
+   "cases": []
+  },
+  "dataset_names": {
+   "count": 0,
+   "cases": []
+  }
+ },
+ "anticopy": {
+  "authoring_inputs_read_count": 37,
+  "whitelist_violations": 0,
+  "blacklist_hits": 0,
+  "read_hashes_match": 35,
+  "read_hashes_total": 37,
+  "plan_hash_drift": [
+   "authoring-plan ed5da038->ddbab338",
+   "corpus-spec 6d64ee79->5f06eed1"
+  ],
+  "corpus_read_hashes_match": 13,
+  "corpus_read_hashes_total": 13,
+  "v2_dedup_read": {
+   "path": "v2/questions.jsonl.fernet",
+   "sha256": "36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07",
+   "bytes": 16420,
+   "copied_into_v31": false
+  },
+  "token_scan": {
+   "T207": 0,
+   "T208": 0,
+   "Q1A": 0,
+   "rescore": 0,
+   "partial-audit": 0,
+   "manager-receipt": 0,
+   "manager-acceptance": 0,
+   "review-aggregate": 0,
+   "independent-review": 0,
+   "dev-report": 0,
+   "oldcard": 0,
+   "old-card": 0,
+   "failure-list": 0,
+   "triage": 0,
+   "失败清单": 0,
+   "分诊": 0,
+   "旧卡": 0,
+   "rescored": 0,
+   "fail": 0,
+   "unknown": 0,
+   "passed": 6,
+   "有据": 3
+  },
+  "scenario_card_keys": [
+   [
+    "business_role",
+    "corpus_slots",
+    "entity_scope",
+    "expected_output_shape",
+    "scenario_id",
+    "stratum",
+    "task",
+    "time_semantics",
+    "turn_count"
+   ]
+  ],
+  "scenario_card_id_unique": 30,
+  "review_status": {
+   "pending_independent_review": 30
+  },
+  "disagreement_code": {
+   "None": 30
+  },
+  "evidence_ref": [
+   "authoring-inputs.json#/read"
+  ],
+  "plan_ref_all_section5": true,
+  "v2_lcs_max": 11,
+  "declared_not_read_contradiction": true,
+  "pass": true
+ },
+ "preservation": {
+  "tracked_modified_count": 15,
+  "tracked_modified_all_match": true,
+  "c_freeze_12_all_match": true,
+  "staged_count": 0,
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "branch": "codex/p2-e2e",
+  "commit_count": 172,
+  "v2_files": {
+   "audit.md": {
+    "sha256": "2767fdb2b178d286cfdd01b747c63941baac6651d082d485ec4585b2a2a8cc50",
+    "bytes": 2693
+   },
+   "custodian-report.md": {
+    "sha256": "3ea1d1d813452414c217bbec63c4a8089ae9e6e2742d90b0c0a5bc31f9099dd4",
+    "bytes": 6975
+   },
+   "labels.jsonl.fernet": {
+    "sha256": "d51478fdc28960cfe99034e1e97919681ca32c3c89c2224e24e04c1101082e09",
+    "bytes": 26360
+   },
+   "manifest.json": {
+    "sha256": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+    "bytes": 1037
+   },
+   "questions.jsonl.fernet": {
+    "sha256": "36d29ba59671487d2125d82d7537a6656242016d6f5fde14e1825c49491bea07",
+    "bytes": 16420
+   }
+  },
+  "v3_files": {
+   "authoring-record.jsonl.fernet": {
+    "sha256": "009131579409a92dca0e2b2989467793f3e3f30e96162d9387c36ce9b433695f",
+    "bytes": 100172
+   },
+   "labels.jsonl.fernet": {
+    "sha256": "4503701b7c96a6d2a4212e3c32a0ac591311d76ed76dab003a8041e4b43b332f",
+    "bytes": 33080
+   },
+   "manifest.json": {
+    "sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+    "bytes": 1039
+   },
+   "questions.jsonl.fernet": {
+    "sha256": "26c637cc1f5045150e7060673703f6eb57e2b95e7f8d127893f477261649f2a0",
+    "bytes": 20708
+   },
+   "source-map.json": {
+    "sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8",
+    "bytes": 2648
+   },
+   "targets.jsonl.fernet": {
+    "sha256": "70fc58620a36a00ba02635c6a9517d64e24ba55bee5061ba6d506e86df148e2b",
+    "bytes": 45816
+   }
+  },
+  "fixtures_acceptance_count": 35,
+  "fixtures_acceptance_dirty": "",
+  "worktrees_before": "worktree D:/GPT项目/市场部AI知识库\nHEAD 97b0066726e5b8d6f94cbc0b63a890084550c106\nbranch refs/heads/codex/p2-e2e\n\nworktree C:/Users/dell1712/AppData/Local/Temp/t105-r1-baseline-wt\nHEAD 17c0e63f897839916988fba43160b2fc25d89eba\ndetached\nprunable gitdir file points to non-existent location\n\nworktree D:/GPT项目/市场部AI知识库/backend/.pytest-tmp/T109-verify/base\nHEAD ebfe956f59462c4523e41b1bf47d027fd036eab7\ndetached"
+ },
+ "zero_call": {
+  "positive_control": {
+   "attempts": 6,
+   "blocked": 6,
+   "real_connects": 0,
+   "targets": [
+    "example.com:80",
+    "example.com:443",
+    "127.0.0.1:7897",
+    "urllib.example.com",
+    "http.client.example.com",
+    "getaddrinfo.example.com"
+   ]
+  },
+  "analysis_processes": {
+   "count": 16,
+   "attempts": 0,
+   "real_connects": 0
+  },
+  "proxy_env_present": true,
+  "proxy_blocked_in_positive": true,
+  "negative_control_unguarded": "TimeoutError (not NetworkBlocked)",
+  "product_model_embedding_rerank_ocr_judge_retrieval_auth_balance_calls": 0
+ },
+ "disagreements": [
+  "C20/C22 still name two stores; query.py:1720 drops store filter when len(stores)>1. ITEM_AMBIGUOUS is removed, but C22 same-named item exists in both stores; answer-grounding smoke required. Not introduced by this rework.",
+  "Document-title sensitivity: if ingest name keeps Dxx_ prefix, _document_core may cause DOCUMENT_NOT_FOUND for C20/C22; pure Chinese title parses clean. Product/ingest wiring, needs smoke.",
+  "C16/C17 applicability remains required while actual judged surface is 28/30+2 empty; public docs already say 28/30+2.",
+  "Private authoring-record still contains passed x6 and 有据 x3 (low; not in question/public).",
+  "authoring-inputs declared_not_read still says v2 private ciphertext/key unopened, contradicting r2_rework dedup exception.",
+  "Two plan documents in authoring-inputs reads have drifted hashes (historical read versions).",
+  "conflict=0 remains a known four-state coverage gap; not in this three-item recheck."
+ ],
+ "evidence": {
+  "review_report": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/independent-review-r2.md",
+  "similarity_json": "computed in-memory; no plaintext persisted",
+  "core_json": "computed in-memory; no plaintext persisted",
+  "author_r2_evidence": [
+   "R2/01-seal.json",
+   "R2/02-consistency.json",
+   "R2/03-similarity-final.json",
+   "R2/04-post-seal-verify.json",
+   "R2/05-netguard-positive-control.json",
+   "R2/06-plaintext-purge.json",
+   "R2/07-preservation.json",
+   "R2/08-leak-scan.json"
+  ]
+ },
+ "final_verification": {
+  "verified_at": "2026-11-15T03:57:00+08:00",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "branch": "codex/p2-e2e",
+  "staged_count": 0,
+  "commit_count": 172,
+  "status_lines": 245,
+  "untracked_count": 230,
+  "tracked_modified_count": 15,
+  "tracked_modified_all_match": true,
+  "c_freeze_12_all_match": true,
+  "v3_files_unchanged": true,
+  "v2_files_unchanged": true,
+  "fixtures_acceptance_count": 35,
+  "fixtures_acceptance_dirty": "",
+  "author_products_new": [
+   "docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\v3-author\\independent-review-r2.md",
+   "docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\v3-author\\review-aggregate-r2.json"
+  ],
+  "author_existing_changed": [],
+  "author_removed": [],
+  "report_sha256": "283872b3b38eef531fbb64ec52e3254cc2ccd7293a58d8f625eefc99279343d4",
+  "public_docs_mtime_before_review": {
+   "p2-holdout-v3-dataset.md": "2026-11-15T03:38:43+08:00",
+   "p2-holdout-v3.authoring-aggregate.json": "2026-11-15T03:40:46+08:00"
+  },
+  "zero_call_guard_logs": 17,
+  "analysis_processes_with_guard": 16,
+  "positive_control_blocked": "6/6",
+  "real_connects": 0
+ }
+}

@@ -1,0 +1,119 @@
+{
+  "probe": "19-residual-probes",
+  "observations": [
+    {
+      "code": "R-14a",
+      "label": "annotation/contract filters 字符串化比较（基线：同值同型）",
+      "documented_in_contract": false,
+      "observed": {
+        "state": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok",
+          "provenance": "rescored"
+        },
+        "audit": [
+          "target_matched"
+        ]
+      }
+    },
+    {
+      "code": "R-14a",
+      "label": "annotation filters '1' vs contract 1 仍视为一致（str 化比较）",
+      "documented_in_contract": false,
+      "observed": {
+        "state": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok",
+          "provenance": "rescored"
+        },
+        "audit": [
+          "target_matched"
+        ]
+      }
+    },
+    {
+      "code": "R-14b",
+      "label": "annotation targets 顺序与合同不同仍视为一致（set 比较）",
+      "documented_in_contract": false,
+      "observed": {
+        "state": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok",
+          "provenance": "rescored"
+        }
+      }
+    },
+    {
+      "code": "R-14c",
+      "label": "annotation targets 重复行仍视为一致（set 比较）",
+      "documented_in_contract": false,
+      "observed": {
+        "state": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok",
+          "provenance": "rescored"
+        }
+      }
+    },
+    {
+      "code": "R-11",
+      "label": "report.axes_provenance[cross_entity] 恒 rescored，preserved 只在 counts",
+      "documented_in_contract": true,
+      "observed": {
+        "axes_provenance": {
+          "safety": "recorded_old",
+          "cross_user": "rescored",
+          "cross_entity": "rescored",
+          "stale_source": "rescored"
+        },
+        "provenance_counts": {
+          "safety": {
+            "recorded_old": 1
+          },
+          "cross_user": {
+            "rescored": 1
+          },
+          "cross_entity": {
+            "preserved_old_verdict": 1
+          },
+          "stale_source": {
+            "rescored": 1
+          }
+        }
+      }
+    },
+    {
+      "code": "R-12",
+      "label": "适配层接受 target_refs index=99（边界留给评分/消费者）；评分侧应 unknown",
+      "documented_in_contract": true,
+      "observed": {
+        "accepted": true,
+        "case_count": 30,
+        "first_ref_index": 99,
+        "first_basis_cross_user": "frozen_label_target"
+      }
+    },
+    {
+      "code": "R-13",
+      "label": "适配层接受 basis 映射违规（§4.1 复算留给 Q1a-3 消费者）",
+      "documented_in_contract": true,
+      "observed": {
+        "accepted": true,
+        "case_count": 30,
+        "first_ref_index": 99,
+        "first_basis_cross_user": "frozen_label_target"
+      }
+    },
+    {
+      "code": "R-12",
+      "label": "越界 ref 在评分时 unknown targets_unresolved（不 pass）",
+      "documented_in_contract": true,
+      "observed": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "provenance": "rescored"
+      }
+    }
+  ],
+  "verdict": "DOCUMENTED"
+}

@@ -1,0 +1,38 @@
+GUARD: local socket/urllib/httpx probes blocked; proxies cleared; dotenv forbidden
+
+=================================== ERRORS ====================================
+_ ERROR collecting docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/test_request_cap.py _
+ImportError while importing test module 'D:\GPT��Ŀ\�г���AI֪ʶ��\docs\reports\OBS-EVAL\P2\H2V3\single-case-repair-20261116\request-cap-dev\test_request_cap.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\importlib\__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+docs\reports\OBS-EVAL\P2\H2V3\single-case-repair-20261116\request-cap-dev\test_request_cap.py:11: in <module>
+    from test_p2_authorization import (  # noqa: E402
+backend\tests\evaluation\test_p2_authorization.py:31: in <module>
+    from mktkb import live_authorization
+backend\src\mktkb\__init__.py:3: in <module>
+    from .main import create_app
+backend\src\mktkb\main.py:14: in <module>
+    from .config import Settings
+backend\src\mktkb\config.py:18: in <module>
+    from pydantic_settings import BaseSettings, NoDecode, SettingsConfigDict
+.venv\Lib\site-packages\pydantic_settings\__init__.py:2: in <module>
+    from .main import BaseSettings, CliApp, SettingsConfigDict
+.venv\Lib\site-packages\pydantic_settings\main.py:23: in <module>
+    from .sources import (
+.venv\Lib\site-packages\pydantic_settings\sources\__init__.py:11: in <module>
+    from .providers.aws import AWSSecretsManagerSettingsSource, AWSSystemsManagerSettingsSource
+.venv\Lib\site-packages\pydantic_settings\sources\providers\__init__.py:17: in <module>
+    from .dotenv import DotEnvSettingsSource
+.venv\Lib\site-packages\pydantic_settings\sources\providers\dotenv.py:12: in <module>
+    from dotenv import dotenv_values
+docs\reports\OBS-EVAL\P2\H2V3\single-case-repair-20261116\request-cap-dev\guarded_pytest.py:26: in find_spec
+    raise ImportError("dotenv disabled by request-cap test guard")
+E   ImportError: dotenv disabled by request-cap test guard
+=========================== short test summary info ===========================
+ERROR docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/test_request_cap.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 1 error during collection !!!!!!!!!!!!!!!!!!!!
+1 error in 1.77s
+GUARD: test network attempts=0; real outbound=0

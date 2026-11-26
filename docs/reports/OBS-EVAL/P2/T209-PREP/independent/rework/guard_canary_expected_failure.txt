@@ -1,0 +1,76 @@
+﻿.E                                                                       [100%]
+=================================== ERRORS ====================================
+_____ ERROR at teardown of test_guard_blocks_external_and_fails_teardown ______
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000219D9AF4AD0>
+
+    @pytest.fixture
+    def t09_network_guard(monkeypatch):
+        """各 T09 测试模块通过 ``pytestmark = pytest.mark.usefixtures("t09_network_guard")`` 启用。"""
+        attempts = NetworkAttempts()
+    
+        real_connect = socket.socket.connect
+    
+        def guarded_connect(self, address, *args, **kwargs):  # noqa: ANN001
+            if is_loopback(address):
+                attempts.add(f"socket.connect {address!r}", address)
+                return real_connect(self, address, *args, **kwargs)
+            attempts.add(f"socket.connect {address!r}", address)
+            raise NetworkBlocked(f"{BLOCKED_MESSAGE}: connect {address!r}")
+    
+        def guarded_connect_ex(self, address, *args, **kwargs):  # noqa: ANN001
+            if is_loopback(address):
+                attempts.add(f"socket.connect_ex {address!r}", address)
+                raise NetworkBlocked(f"{BLOCKED_MESSAGE}: connect_ex {address!r}")
+            attempts.add(f"socket.connect_ex {address!r}", address)
+            raise NetworkBlocked(f"{BLOCKED_MESSAGE}: connect_ex {address!r}")
+    
+        real_create_connection = socket.create_connection
+    
+        def guarded_create_connection(address, *args, **kwargs):  # noqa: ANN001
+            if is_loopback(address):
+                attempts.add(f"socket.create_connection {address!r}", address)
+                return real_create_connection(address, *args, **kwargs)
+            attempts.add(f"socket.create_connection {address!r}", address)
+            raise NetworkBlocked(f"{BLOCKED_MESSAGE}: create_connection {address!r}")
+    
+        real_getaddrinfo = socket.getaddrinfo
+    
+        def guarded_handle_request(self, request):  # noqa: ANN001
+            attempts.add(f"httpx.HTTPTransport {request.url}", (str(request.url.host),))
+            raise NetworkBlocked(f"{BLOCKED_MESSAGE}: HTTP {request.url}")
+    
+        async def guarded_handle_async_request(self, request):  # noqa: ANN001
+            attempts.add(f"httpx.AsyncHTTPTransport {request.url}", (str(request.url.host),))
+            raise NetworkBlocked(f"{BLOCKED_MESSAGE}: HTTP {request.url}")
+    
+        monkeypatch.setattr(socket.socket, "connect", guarded_connect, raising=True)
+        monkeypatch.setattr(socket.socket, "connect_ex", guarded_connect_ex, raising=True)
+        monkeypatch.setattr(socket, "create_connection", guarded_create_connection, raising=True)
+        monkeypatch.setattr(httpx.HTTPTransport, "handle_request", guarded_handle_request, raising=True)
+        monkeypatch.setattr(
+            httpx.AsyncHTTPTransport, "handle_async_request", guarded_handle_async_request, raising=True
+        )
+        if hasattr(socket, "getaddrinfo"):
+            # 只拦外部主机解析；本地名放行，避免破坏事件循环初始化
+            def guarded_getaddrinfo_local(host, *args, **kwargs):  # noqa: ANN001
+                if is_loopback(host):
+                    attempts.add(f"socket.getaddrinfo {host!r}", (host if isinstance(host, str) else "",))
+                    return real_getaddrinfo(host, *args, **kwargs)
+                attempts.add(f"socket.getaddrinfo {host!r}", (host if isinstance(host, str) else "",))
+                raise NetworkBlocked(f"{BLOCKED_MESSAGE}: getaddrinfo {host!r}")
+    
+            monkeypatch.setattr(socket, "getaddrinfo", guarded_getaddrinfo_local, raising=True)
+    
+        yield attempts
+    
+        snapshot = attempts.snapshot()
+>       assert snapshot["external"] == [], f"检测到真实外部出站尝试（本轮应为 0）：{snapshot['external']}"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: 检测到真实外部出站尝试（本轮应为 0）：["socket.create_connection ('example.com', 80)"]
+
+backend\tests\acceptance\support\netguard.py:126: AssertionError
+=========================== short test summary info ===========================
+ERROR docs/reports/OBS-EVAL/P2/T209-PREP/independent/guard_canary.py::test_guard_blocks_external_and_fails_teardown
+1 passed, 1 error in 0.18s
+

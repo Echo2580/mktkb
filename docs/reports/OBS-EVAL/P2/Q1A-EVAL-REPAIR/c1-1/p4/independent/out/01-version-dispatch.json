@@ -1,0 +1,238 @@
+{
+ "probe": "01-version-dispatch",
+ "generated_utc": "2026-11-14T14:27:32.342823+00:00",
+ "check_count": 27,
+ "failure_count": 0,
+ "verdict": "PASS",
+ "checks": [
+  {
+   "name": "v1_minimal_payload_rejected_by_v2_adapter",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_v1_rejected_by_v2_adapter",
+    "expected": "contract_version_v1_rejected_by_v2_adapter"
+   }
+  },
+  {
+   "name": "v1_full_payload_rejected_by_v2_adapter",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_v1_rejected_by_v2_adapter",
+    "expected": "contract_version_v1_rejected_by_v2_adapter"
+   }
+  },
+  {
+   "name": "unknown_contract_version_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_unsupported",
+    "expected": "contract_version_unsupported"
+   }
+  },
+  {
+   "name": "missing_schema_version_is_contract_missing",
+   "ok": true,
+   "detail": {
+    "actual": "contract_missing",
+    "expected": "contract_missing"
+   }
+  },
+  {
+   "name": "missing_payload_is_contract_missing",
+   "ok": true,
+   "detail": {
+    "actual": "contract_missing",
+    "expected": "contract_missing"
+   }
+  },
+  {
+   "name": "v1_loader_rejects_v2_payload_with_projection",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "v1_loader_rejects_v2_payload_without_projection_by_version",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "v1_loader_only_gates_on_version_and_key_set_not_schema_sha",
+   "ok": true,
+   "detail": {
+    "actual": null,
+    "expected": null,
+    "extra": {
+     "note": "v2 去掉 projection 并把版本改回 v1 后，旧 v1 消费者照收；旧校验器没有 schema sha 钉扎",
+     "bindings_contract_schema_sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25"
+    }
+   }
+  },
+  {
+   "name": "v2_adapter_still_rejects_the_same_renamed_payload",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_v1_rejected_by_v2_adapter",
+    "expected": "contract_version_v1_rejected_by_v2_adapter"
+   }
+  },
+  {
+   "name": "v1_loader_accepts_genuine_v1_payload_baseline",
+   "ok": true,
+   "detail": {
+    "actual": null,
+    "expected": null
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "value": "q1a-scope-targets-contract/v1"
+   }
+  },
+  {
+   "name": "v1_schema_sha_bound_to_v2_version_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_binding_mismatch",
+    "expected": "contract_schema_binding_mismatch"
+   }
+  },
+  {
+   "name": "arbitrary_declared_schema_sha_rejected_by_default",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_binding_mismatch",
+    "expected": "contract_schema_binding_mismatch"
+   }
+  },
+  {
+   "name": "expected_schema_sha_mismatch_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_binding_mismatch",
+    "expected": "contract_schema_binding_mismatch"
+   }
+  },
+  {
+   "name": "expected_schema_sha_equal_to_v1_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_binding_mismatch",
+    "expected": "contract_schema_binding_mismatch"
+   }
+  },
+  {
+   "name": "caller_supplied_digest_relaxes_declared_pin",
+   "ok": true,
+   "detail": {
+    "actual": null,
+    "expected": null,
+    "extra": {
+     "sha": "0000000000000000000000000000000000000000000000000000000000000000"
+    }
+   }
+  },
+  {
+   "name": "one_byte_payload_change_is_not_detected",
+   "ok": true,
+   "detail": {
+    "actual": null,
+    "expected": null,
+    "extra": {
+     "change": "item|storea|itema -> item|storea|itemB",
+     "note": "声明层摘要不覆盖载荷内容"
+    }
+   }
+  },
+  {
+   "name": true,
+   "ok": true
+  },
+  {
+   "name": "one_hex_declared_digest_change_is_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_binding_mismatch",
+    "expected": "contract_schema_binding_mismatch"
+   }
+  },
+  {
+   "name": "v2_schema_constant_matches_public_file",
+   "ok": true,
+   "detail": {
+    "actual": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+    "expected": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25"
+   }
+  },
+  {
+   "name": "v1_schema_constant_matches_public_file",
+   "ok": true,
+   "detail": {
+    "actual": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "expected": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690"
+   }
+  },
+  {
+   "name": true,
+   "ok": true
+  },
+  {
+   "name": "adapter_has_no_file_read_calls",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "adapter_does_not_reference_schema_path",
+   "ok": true,
+   "detail": {
+    "actual": false,
+    "expected": false
+   }
+  },
+  {
+   "name": "determine_case_v1_payload_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown"
+   }
+  },
+  {
+   "name": "determine_case_v1_payload_reason",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_v1_rejected_by_v2_adapter",
+    "expected": "contract_version_v1_rejected_by_v2_adapter"
+   }
+  },
+  {
+   "name": "determine_case_v1_payload_other_axis_reason",
+   "ok": true,
+   "detail": {
+    "actual": "contract_version_v1_rejected_by_v2_adapter",
+    "expected": "contract_version_v1_rejected_by_v2_adapter"
+   }
+  }
+ ],
+ "constants": {
+  "v1_schema_sha": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+  "v2_schema_sha": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+  "v1_constant": "q1a-scope-targets-contract/v1",
+  "adapter_v1_constant": "q1a-scope-targets-contract/v1",
+  "adapter_v2_constant": "q1a-scope-targets-contract/v2"
+ },
+ "files_hashed": [
+  "q1a-scope-targets-contract-v1.md",
+  "q1a-scope-targets-contract-v2.md"
+ ]
+}

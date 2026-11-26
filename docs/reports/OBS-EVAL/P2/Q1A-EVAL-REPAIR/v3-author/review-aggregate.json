@@ -1,0 +1,846 @@
+{
+ "schema_version": "p2-holdout-v3-independent-review/v1",
+ "reviewer_role": "custodian-B (independent review)",
+ "reviewed_at_local": "2026-11-15T03:23:07+08:00",
+ "baseline": {
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "staged": 0,
+  "commit_count": 172,
+  "worktree_created": false,
+  "branch_switched": false
+ },
+ "objects": {
+  "v3": {
+   "questions": {
+    "bytes": 19980,
+    "sha256": "2f55006c4de448118daf8c4b1904f84bf19a276921e994e61134d150400a4c49"
+   },
+   "labels": {
+    "bytes": 33080,
+    "sha256": "5de0c1254e44622ea631e6d5f2845434adcde3ee11443862a3b6cd79b9ea94a7"
+   },
+   "targets": {
+    "bytes": 45816,
+    "sha256": "0cb9623c496253f5ae1d260e6f737000b99d3afbc62367e14f933bd7cf79b3d3"
+   },
+   "authoring_record": {
+    "bytes": 100088,
+    "sha256": "7d52bb72c76d23b9fc44417376e1cf48256c0111c290f20c37f411f3a96a7b24"
+   },
+   "manifest": {
+    "bytes": 1066,
+    "sha256": "54f9bb3e2c65a0d5816f4718d262975028d9a52fe55ac77449d51e99848ec16e"
+   },
+   "source_map": {
+    "bytes": 2648,
+    "sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8"
+   }
+  },
+  "public": {
+   "L1": {
+    "bytes": 35962,
+    "sha256": "cc2ad0be2a3d884987d9f74b32e25181d752a8b497093afba42ccef8d87541d1"
+   },
+   "criterion_v1_1": {
+    "bytes": 65883,
+    "sha256": "0ec6c392b48b4a731140021e147f86e01284a58b34a3a3c4f50f6312bb307715"
+   },
+   "fixtures_manifest": {
+    "bytes": 19435,
+    "sha256": "1b3885a7ce36676b3642dea9316f644b4cd0468ac4e1493780a31996ab4dd07c"
+   },
+   "design_spec": {
+    "bytes": 55122,
+    "sha256": "e179b583"
+   },
+   "authoring_plan_current": {
+    "bytes": 60364,
+    "sha256": "ddbab338"
+   },
+   "authoring_plan_as_read": {
+    "bytes": 55448,
+    "sha256": "ed5da038"
+   }
+  }
+ },
+ "structure": {
+  "cases": 30,
+  "labels": 30,
+  "targets": 30,
+  "authoring": 30,
+  "case_ids_unique_q": true,
+  "case_ids_unique_l": true,
+  "id_sets_equal": true,
+  "case_id_order_equal_q_l_t_a": true,
+  "strata": {
+   "paraphrase": 10,
+   "multi_turn": 5,
+   "negative": 5,
+   "stale_conflict": 5,
+   "cross_doc_security": 5
+  },
+  "strata_ok": true,
+  "total_turns": 36,
+  "turn_histogram": {
+   "1": 25,
+   "2": 4,
+   "3": 1
+  },
+  "turn_histogram_ok": true,
+  "max_turns": 3,
+  "run_case_counts": {
+   "0": 12,
+   "1": 8,
+   "2": 5,
+   "3": 5
+  },
+  "run_turn_counts": {
+   "0": 14,
+   "1": 10,
+   "2": 6,
+   "3": 6
+  },
+  "run_case_counts_ok": true,
+  "run_turn_counts_ok": true,
+  "run_dates": {
+   "0": "2026-10-15",
+   "1": "2026-07-15",
+   "2": "2026-11-20",
+   "3": "2026-12-15"
+  },
+  "run_dates_distinct": true,
+  "suite_split_holdout": true,
+  "label_version_unique_q": [
+   "p2-holdout-v3-2026-11-15"
+  ],
+  "label_version_matches_manifest": true,
+  "business_date_field": [
+   "2026-07-15",
+   "2026-10-15",
+   "2026-11-20",
+   "2026-12-15"
+  ],
+  "q_business_date_equals_run_date": true,
+  "manifest_15_keys": true,
+  "plaintext_sha_match": true,
+  "kinds_q": {
+   "answer": 25,
+   "not_found": 2,
+   "refusal": 3
+  },
+  "kinds_l": {
+   "answer": 25,
+   "not_found": 2,
+   "refusal": 3
+  },
+  "should_refuse_q": {
+   "false": 25,
+   "true": 5
+  },
+  "refusal_reasons": {
+   "null": 25,
+   "not_found": 2,
+   "must_refuse_security": 3
+  },
+  "kinds_agree": true
+ },
+ "axes": {
+  "axes_required_order_assumed": [
+   "cross_user",
+   "cross_entity",
+   "stale_source",
+   "safety"
+  ],
+  "required_counts": {
+   "cross_user": 30,
+   "cross_entity": 30,
+   "stale_source": 30,
+   "safety": 5
+  },
+  "safety_axis_counts": {
+   "benign_business": 25,
+   "must_refuse_security": 3,
+   "forbidden_content": 2
+  },
+  "cross_entity_applicability": {
+   "required": 30
+  },
+  "cross_entity_criterion": {
+   "structured_target": 24,
+   "multi_target": 6
+  },
+  "stale_applicability": {
+   "required": 30
+  },
+  "stale_criterion": {
+   "lifecycle_dates": 30
+  },
+  "must_refuse_without_should_refuse": [],
+  "stale_true_date_checks": 28,
+  "stale_empty_use_cases": [
+   "H2V3-C16",
+   "H2V3-C17"
+  ],
+  "cross_entity_target_matches": 28,
+  "cross_entity_empty_use_cases": [
+   "H2V3-C16",
+   "H2V3-C17"
+  ],
+  "version_pairs": {
+   "D01_v1_to_v2": "run0/run1",
+   "D01_v2_to_v3": "run2",
+   "D01_v3_to_v4": "run3",
+   "D02_v1_to_v2": "run2/run3"
+  },
+  "run_slot_checks": "27/27 position-active == window-active (reconstructed from frozen v2 scenario contract + plan source order)"
+ },
+ "keyspace": {
+  "target_instances": 36,
+  "targets_per_case": {
+   "1": 24,
+   "2": 6
+  },
+  "triple_exact": 36,
+  "id_form": 36,
+  "has_record_code": 36,
+  "has_version_number": 36,
+  "has_locator": 36,
+  "resolved_row": 36,
+  "identity_equal": 36,
+  "sheet_row_match": 36,
+  "mismatches": [],
+  "record_codes_used": [
+   "P01",
+   "P02",
+   "P03",
+   "P04",
+   "P07",
+   "P08",
+   "S01",
+   "S02",
+   "S03",
+   "S04"
+  ],
+  "record_identity_unique_per_version": true,
+  "record_code_collisions_within_version": 0,
+  "P05_P06_as_target": [],
+  "P01_in_V05_rows": false,
+  "V05_records": [
+   "P02",
+   "P03",
+   "P04",
+   "P05",
+   "P06",
+   "P07",
+   "P08"
+  ],
+  "V03_vs_D01_P01_location_differs": true,
+  "V03_vs_D01_all_locations_same": false,
+  "V04_vs_D01_all_locations_same": false
+ },
+ "labels": {
+  "kind_should_refuse_consistent": 30,
+  "answer_requires_sources": [],
+  "refusal_reason_missing": [],
+  "not_found_refs": {
+   "H2V3-C16": {
+    "expected_sources": 0,
+    "relevant_units": 0
+   },
+   "H2V3-C17": {
+    "expected_sources": 0,
+    "relevant_units": 0
+   }
+  },
+  "answer_should_refuse_true": [],
+  "expected_sources_empty": [
+   "H2V3-C16",
+   "H2V3-C17"
+  ],
+  "forbidden_missing_in_security": [],
+  "ref_unknown_doc": [],
+  "ref_unknown_record": [],
+  "expected_values_in_reference": 45,
+  "forbidden_value_in_reference": [],
+  "reference_empty": [],
+  "relevant_units_empty_by_kind": {
+   "answer": 0,
+   "not_found": 2,
+   "refusal": 0
+  },
+  "ref_remap_ok": 42,
+  "expected_values_total": 45,
+  "expected_values_in_cited_row": 45,
+  "forbidden_values_total": 12,
+  "forbidden_values_locatable": 12,
+  "forbidden_values_in_reference": 0,
+  "expected_source_refs": 42,
+  "expected_source_refs_remapped": 42,
+  "label_anchor_inconsistency": [
+   "H2V3-C16",
+   "H2V3-C17"
+  ]
+ },
+ "leakage": {
+  "question_text": {
+   "date_iso": [],
+   "date_cn": [],
+   "date_md": [],
+   "year": [],
+   "today_now": [
+    "H2V3-C01",
+    "H2V3-C03",
+    "H2V3-C23",
+    "H2V3-C27",
+    "H2V3-C13",
+    "H2V3-C22",
+    "H2V3-C24",
+    "H2V3-C10",
+    "H2V3-C15",
+    "H2V3-C20",
+    "H2V3-C30"
+   ],
+   "eval_words": [],
+   "axis_names": [],
+   "record_code": [],
+   "entity_key": [],
+   "source_code": [],
+   "stratum": [],
+   "dataset_id": []
+  },
+  "question_text_verdict": "0 date literals; 0 eval words; 0 record_code; 0 entity_key; 0 source_code; 0 stratum; 0 dataset id; 11 cases use 现在 which _as_of maps to business_date",
+  "public_exact_hits": {
+   "docs/evaluation/eval_data_v0_1.md": {
+    "exact": [
+     [
+      "expected_values",
+      "H2V3-C01"
+     ],
+     [
+      "expected_values",
+      "H2V3-C11"
+     ],
+     [
+      "expected_values",
+      "H2V3-C21"
+     ],
+     [
+      "expected_values",
+      "H2V3-C26"
+     ],
+     [
+      "expected_values",
+      "H2V3-C22"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C25"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C29"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C20"
+     ]
+    ],
+    "window8": [
+     [
+      "question",
+      "H2V3-C21"
+     ],
+     [
+      "question",
+      "H2V3-C26"
+     ],
+     [
+      "question",
+      "H2V3-C22"
+     ],
+     [
+      "question",
+      "H2V3-C25"
+     ],
+     [
+      "turns",
+      "H2V3-C11"
+     ]
+    ]
+   },
+   "docs/superpowers/plans/2026-10-27-market-kb-implementation.md": {
+    "exact": [
+     [
+      "expected_values",
+      "H2V3-C01"
+     ],
+     [
+      "expected_values",
+      "H2V3-C11"
+     ],
+     [
+      "expected_values",
+      "H2V3-C21"
+     ],
+     [
+      "expected_values",
+      "H2V3-C26"
+     ],
+     [
+      "expected_values",
+      "H2V3-C22"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C25"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C29"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C20"
+     ]
+    ],
+    "window8": []
+   },
+   "docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md": {
+    "exact": [],
+    "window8": [
+     [
+      "question",
+      "H2V3-C21"
+     ],
+     [
+      "question",
+      "H2V3-C26"
+     ],
+     [
+      "question",
+      "H2V3-C22"
+     ],
+     [
+      "question",
+      "H2V3-C25"
+     ],
+     [
+      "turns",
+      "H2V3-C11"
+     ]
+    ]
+   },
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/R1/07-four-state-analysis.md": {
+    "exact": [
+     [
+      "expected_values",
+      "H2V3-C01"
+     ],
+     [
+      "expected_values",
+      "H2V3-C11"
+     ],
+     [
+      "expected_values",
+      "H2V3-C21"
+     ],
+     [
+      "expected_values",
+      "H2V3-C26"
+     ],
+     [
+      "expected_values",
+      "H2V3-C22"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C25"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C29"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C20"
+     ]
+    ],
+    "window8": []
+   },
+   "fixtures/acceptance-h2v3/manifest.json": {
+    "exact": [
+     [
+      "expected_values",
+      "H2V3-C01"
+     ],
+     [
+      "expected_values",
+      "H2V3-C02"
+     ],
+     [
+      "expected_values",
+      "H2V3-C04"
+     ],
+     [
+      "expected_values",
+      "H2V3-C11"
+     ],
+     [
+      "expected_values",
+      "H2V3-C12"
+     ],
+     [
+      "expected_values",
+      "H2V3-C21"
+     ],
+     [
+      "expected_values",
+      "H2V3-C23"
+     ],
+     [
+      "expected_values",
+      "H2V3-C26"
+     ],
+     [
+      "expected_values",
+      "H2V3-C27"
+     ],
+     [
+      "expected_values",
+      "H2V3-C05"
+     ],
+     [
+      "expected_values",
+      "H2V3-C07"
+     ],
+     [
+      "expected_values",
+      "H2V3-C07"
+     ],
+     [
+      "expected_values",
+      "H2V3-C13"
+     ],
+     [
+      "expected_values",
+      "H2V3-C18"
+     ],
+     [
+      "expected_values",
+      "H2V3-C22"
+     ],
+     [
+      "expected_values",
+      "H2V3-C24"
+     ],
+     [
+      "expected_values",
+      "H2V3-C28"
+     ],
+     [
+      "expected_values",
+      "H2V3-C08"
+     ],
+     [
+      "expected_values",
+      "H2V3-C14"
+     ],
+     [
+      "expected_values",
+      "H2V3-C19"
+     ],
+     [
+      "expected_values",
+      "H2V3-C29"
+     ],
+     [
+      "expected_values",
+      "H2V3-C09"
+     ],
+     [
+      "expected_values",
+      "H2V3-C15"
+     ],
+     [
+      "expected_values",
+      "H2V3-C20"
+     ],
+     [
+      "expected_values",
+      "H2V3-C30"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C21"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C26"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C26"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C22"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C25"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C29"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C29"
+     ],
+     [
+      "forbidden_values",
+      "H2V3-C20"
+     ]
+    ],
+    "window8": []
+   }
+  },
+  "public_verdict": "no question/reference-answer text; 8 target-value strings per file in author R1 report and old eval docs/plans (corpus facts); 33 in fixtures manifest (corpus facts); 8-char window hits are entity phrases",
+  "prior_example_com_outbound": "not this session; repo references are blocked positive controls only"
+ },
+ "similarity": {
+  "method": {
+   "normalization": "NFKC; remove whitespace and punctuation; casefold",
+   "per_case": "max over 30 v2 cases",
+   "metrics": {
+    "char_seq": "difflib.SequenceMatcher ratio on normalized chars",
+    "char_lev": "1 - Levenshtein/max(len)",
+    "jaccard3": "char 3-gram Jaccard",
+    "containment3": "|A∩B|/min(|A|,|B|) on 3-grams",
+    "jaccard2": "char 2-gram Jaccard"
+   }
+  },
+  "distributions": {
+   "char_seq": {
+    "min": 0.2692,
+    "median": 0.4394,
+    "max": 0.6486,
+    "count_gt_0.5": 10,
+    "count_ge_0.6": 4
+   },
+   "char_lev": {
+    "min": 0.2,
+    "median": 0.3186,
+    "max": 0.5882,
+    "count_gt_0.5": 4,
+    "count_ge_0.6": 0
+   },
+   "jaccard3": {
+    "min": 0.0417,
+    "median": 0.1528,
+    "max": 0.35,
+    "count_gt_0.5": 0,
+    "count_ge_0.6": 0
+   },
+   "containment3": {
+    "min": 0.1,
+    "median": 0.3787,
+    "max": 0.6667,
+    "count_gt_0.5": 7,
+    "count_ge_0.6": 1
+   },
+   "jaccard2": {
+    "min": 0.1111,
+    "median": 0.209,
+    "max": 0.4,
+    "count_gt_0.5": 0,
+    "count_ge_0.6": 0
+   }
+  },
+  "gate": {
+   "pre_registered": "corpus reuse hardened: max < 0.5 AND count_over_0.5 <= 3 (design spec §6.2 #4; corpus spec §6)",
+   "char_seq": {
+    "max": 0.6486,
+    "count_over_0.5": 10,
+    "pass_max": false,
+    "pass_count": false,
+    "pass": false
+   },
+   "char_lev": {
+    "max": 0.5882,
+    "count_over_0.5": 4,
+    "pass_max": false,
+    "pass_count": false,
+    "pass": false
+   },
+   "jaccard3": {
+    "max": 0.35,
+    "count_over_0.5": 0,
+    "pass_max": true,
+    "pass_count": true,
+    "pass": true
+   },
+   "overall_pass_if_either_char_metric_required": false
+  },
+  "top_pairs": [
+   {
+    "case_id": "H2V3-C01",
+    "v2_case": "h2-par-01",
+    "char_seq": 0.6486,
+    "jaccard3": 0.32
+   },
+   {
+    "case_id": "H2V3-C05",
+    "v2_case": "h2-neg-02",
+    "char_seq": 0.6452,
+    "jaccard3": 0.35
+   },
+   {
+    "case_id": "H2V3-C04",
+    "v2_case": "h2-par-10",
+    "char_seq": 0.64,
+    "jaccard3": 0.2917
+   },
+   {
+    "case_id": "H2V3-C02",
+    "v2_case": "h2-par-02",
+    "char_seq": 0.6,
+    "jaccard3": 0.15
+   },
+   {
+    "case_id": "H2V3-C25",
+    "v2_case": "h2-par-10",
+    "char_seq": 0.5455,
+    "jaccard3": 0.2188
+   },
+   {
+    "case_id": "H2V3-C29",
+    "v2_case": "h2-sec-03",
+    "char_seq": 0.5357,
+    "jaccard3": 0.1818
+   }
+  ],
+  "over_0.5_cases": [
+   "H2V3-C01",
+   "H2V3-C02",
+   "H2V3-C04",
+   "H2V3-C05",
+   "H2V3-C07",
+   "H2V3-C08",
+   "H2V3-C21",
+   "H2V3-C24",
+   "H2V3-C25",
+   "H2V3-C29"
+  ],
+  "verdict": "FAIL under hardened corpus-reuse threshold (max<0.5, count_over_0.5<=3) for char-level metrics; PASS under 3-gram Jaccard only"
+ },
+ "anticopy": {
+  "read_paths": 41,
+  "blacklist_hits": [],
+  "t207_paths": [
+   "docs/reports/OBS-EVAL/P2/T207/PM/T207-ingest-plan-H2.json"
+  ],
+  "v2_private_reads": 0,
+  "scenario_cards_unique": true,
+  "review_status": {
+   "pending_independent_review": 30
+  },
+  "disagreement_codes": {
+   "None": 30
+  },
+  "verdict": "clean; no T207 result/failure-list/triage/old-card traces",
+  "minor_deviations": [
+   "axis_rationale uses 'passed'; scenario_card.entity_scope contains entity keys (private record only)",
+   "authoring plan SHA drift ed5da038 -> ddbab338"
+  ]
+ },
+ "preservation": {
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "staged": 0,
+  "commit_count": 172,
+  "tracked_modified_count": 15,
+  "tracked_modified_matches_axes_baseline": true,
+  "c_freeze_12_match": "12/12",
+  "v2_fixtures_files": 35,
+  "v2_ciphertext_unchanged": true,
+  "v3_ciphertext_unchanged": true,
+  "untracked_before": 2458,
+  "untracked_after_expected": 2464,
+  "new_files": [
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/independent-review.md",
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/review-aggregate.json"
+  ],
+  "concurrent_files_not_mine": [
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/pre-registration.md",
+   "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-author/pre-registration.json",
+   "backend/src/mktkb/evaluation/p2_holdout_scenarios_v3.py",
+   "backend/src/mktkb/evaluation/p2_holdout_source_map.py",
+   "backend/src/mktkb/evaluation/p2_holdout_run_date.py",
+   "backend/tests/evaluation/test_p2_v3_wiring.py"
+  ],
+  "untracked_diff": "+2 own outputs; +4 concurrent backend files (untracked, unverified); 0 removals; 0 content changes"
+ },
+ "zero_calls": {
+  "product_or_model_calls": 0,
+  "embedding_rerank_ocr_judge_retrieval_auth_balance_calls": 0,
+  "services_started": 0,
+  "go_created": 0,
+  "netguard": {
+   "positive_control_blocked": 5,
+   "positive_control_total": 5,
+   "real_connects": 0,
+   "blocked_probes": [
+    "example.com:80",
+    "example.com:443",
+    "127.0.0.1:7897",
+    "getaddrinfo example.com",
+    "urllib http://example.com/"
+   ]
+  },
+  "outbound_verdict": "0 real outbound in this session; prior package example.com probe not repeated",
+  "prior_incident_path": "example.com probe escaped via local proxy 127.0.0.1:7897; this session's guard blocks loopback and http.client.connect, positive control covers the proxy hop, 5/5 blocked, 0 real connects"
+ },
+ "four_state": {
+  "counts": {
+   "answer": 25,
+   "refusal": 3,
+   "not_found": 2,
+   "conflict": 0
+  },
+  "conflict_zero_acceptable": true,
+  "conflict_zero_reason": "mutually exclusive facts exist (P01 across V03/D01/V04; S01 phone D02/V06) but no pair is simultaneously current+active at any run date; date-filtered retrieval sees one value; legacy path cites expired rows -> source_expired hard fail",
+  "coverage_gaps": [
+   "conflict state untested",
+   "not_found cases pass cross_entity/stale via empty-use proof, not target/date matching",
+   "refusal cases C26/C28/C30 risk planner clarification on multi-request turns",
+   "answer-heavy 25/30"
+  ],
+  "recommendation": "v3.1: add 2 conflict cases (same-version duplicate row or product legacy date filter + V01/V07), fix C16/C17, split C20/C21/C22 multi-item, re-author 10 similarity-over-threshold cases; do not patch v3 in place"
+ },
+ "conclusion": {
+  "verdict": "FAIL",
+  "primary_blockers": [
+   "similarity gate not met under hardened corpus-reuse threshold (char_seq max 0.6486, 10 cases >0.5; char_lev max 0.5882, 4 cases >0.5)",
+   "C16/C17 labels/anchors inconsistent; effective cross_entity/stale is 28/30 + 2 empty-use, not 30/30",
+   "C20/C21/C22 multi-item planner clarification risk (ITEM_AMBIGUOUS)"
+  ],
+  "integration_blockers": [
+   "v3 scenario contract and ingest plan absent from repo",
+   "p2_score_run.load_holdout_source_map accepts only v0.1, v3 source map is v0.2",
+   "targets.jsonl axis objects not directly loadable as v0.2 annotation (axis 7 fields/target 3 keys)",
+   "L1 corpus_manifest_sha256 null; label_version_placeholder not finalized",
+   "public aggregate missing corpus-reuse declaration and similarity result",
+   "concurrent wiring files (p2_holdout_scenarios_v3.py / p2_holdout_source_map.py / p2_holdout_run_date.py / test_p2_v3_wiring.py) appeared during review; untracked and unverified, not counted as closing the integration blockers"
+  ],
+  "conditional": "If owner rules similarity metric = 3-gram Jaccard only, verdict becomes PASS_WITH_DISAGREEMENTS; C16/C17 and integration items remain"
+ },
+ "limitations": [
+  "No product/model calls; judgeability risks are code-grounded, not observed product failures",
+  "v3 scenario contract/ingest plan absent; run activity reconstructed from frozen v2 contract + plan order",
+  "Similarity metric wording in plan/spec is ambiguous (character-level vs 3-gram Jaccard); both reported",
+  "No per-turn evidence; T5 turn-level behavior not directly observed",
+  "C16/C17 date-check count depends on the actual product path; labels and axis_rationale declare zero citations, but the anchors list S03/S04 as correct_path"
+ ]
+}

@@ -1,0 +1,108 @@
+{
+  "problems": [],
+  "checks": {
+    "counts": {
+      "cases": 30,
+      "turns": 36,
+      "turn_histogram": {
+        "1": 25,
+        "2": 4,
+        "3": 1
+      },
+      "strata": {
+        "cross_doc_security": 5,
+        "multi_turn": 5,
+        "negative": 5,
+        "paraphrase": 10,
+        "stale_conflict": 5
+      },
+      "runs": {
+        "0": {
+          "cases": 12,
+          "turns": 14
+        },
+        "1": {
+          "cases": 8,
+          "turns": 10
+        },
+        "2": {
+          "cases": 5,
+          "turns": 6
+        },
+        "3": {
+          "cases": 5,
+          "turns": 6
+        }
+      },
+      "expected_kinds": {
+        "answer": 27,
+        "refusal": 3
+      }
+    },
+    "axes": {
+      "required": {
+        "safety": 5,
+        "cross_user": 30,
+        "cross_entity": 30,
+        "stale_source": 30
+      },
+      "not_applicable": {
+        "safety": 25,
+        "cross_user": 0,
+        "cross_entity": 0,
+        "stale_source": 0
+      },
+      "cross_entity_targets_complete": "30/30",
+      "stale_lifecycle_complete": "30/30",
+      "target_instances": 36,
+      "multi_target_cases": 6,
+      "safety_required_cases": 5
+    },
+    "plan_rules": "R-EN-1/R-EN-2/R-EN-3/R-LC-2 逐条机检通过",
+    "target_locator_resolution": "36/36",
+    "key_space": {
+      "rule": "entity_key = {entity_type}|id:{NFKC+空格折叠+casefold(标识)}；filters 保原值",
+      "target_filters_mismatch": [],
+      "non_id_targets": 0
+    },
+    "refs": {
+      "ref_code_mismatch": []
+    },
+    "text_scan": {
+      "scanned_fields": "question + turns[*]",
+      "scanned_cases": 30,
+      "hits": {
+        "yyyy_mm_dd": 0,
+        "cn_ymd": 0,
+        "cn_md": 0,
+        "year_only": 0,
+        "temporal": 0,
+        "eval": 0,
+        "stratum": 0,
+        "record_code": 0,
+        "entity_key": 0,
+        "doc_code": 0
+      },
+      "hit_detail": {
+        "yyyy_mm_dd": [],
+        "cn_ymd": [],
+        "cn_md": [],
+        "year_only": [],
+        "temporal": [],
+        "eval": [],
+        "stratum": [],
+        "record_code": [],
+        "entity_key": [],
+        "doc_code": []
+      },
+      "total_hits": 0
+    },
+    "labels": "30/30 与 questions 逐字段一致；expected_sources 全部非空；拒答题 3 条均有 refusal_reason",
+    "authoring_record": {
+      "rows": 30,
+      "with_scenario_card": 30,
+      "with_axis_rationale": 30,
+      "as_of_equals_business_date": 30
+    }
+  }
+}

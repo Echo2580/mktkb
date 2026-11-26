@@ -1,0 +1,115 @@
+{
+  "schema_version": "q1a2-scope-contract-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "package": "Q1a-2",
+  "accepting_role": "manager (limited acceptance; not developer, not independent reviewer)",
+  "manager_decision": "ACCEPTED_WITH_PRESERVED_DISAGREEMENTS_SCOPE_LIMITED",
+  "acceptance_basis": "work-order §4 验收口径为『独立复核 PASS/明确分歧』，且明文『分歧保留，不表决』；保管 B 给出的正是 PASS_WITH_DISAGREEMENTS，结构/绑定/覆盖/roundtrip/隐私/保全/零真实调用全部通过，无硬边界违反。",
+  "contract": {
+    "schema_version": "q1a-scope-targets-contract/v1",
+    "schema_path": "docs/evaluation/q1a-scope-targets-contract-v1.md",
+    "schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "ciphertext_path": "D:\\mktkb-q1a2-scope-contract\\scope-targets-contract-v1.fernet",
+    "ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "ciphertext_bytes": 47012,
+    "coverage": { "case_count": 30, "axis_count": 120, "unknown_total": 0 }
+  },
+  "custody_a_artifacts": {
+    "report_sha256": "b063a432545fbd1a19f66baec26b92a4dfef5e69e3354a89e6fecb400fdacc1d",
+    "aggregate_sha256": "9abfa5f25617b03bb8566b031335610eb66c00d0c6aa0323371a9287143e7089",
+    "report_path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-report.md",
+    "aggregate_path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/annotation-aggregate.json"
+  },
+  "custody_b_artifacts": {
+    "verdict": "PASS_WITH_DISAGREEMENTS",
+    "review_sha256": "331eac107facf34c40ab9637c96cf583f6b292a48a4893a588412f0d40a7ddcc",
+    "aggregate_sha256": "e3d8eb1f0207ffa9c197a4a56b7ed7b0c40e427047ec87330ce3c178139e3115",
+    "review_path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/independent-review.md",
+    "aggregate_path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/scope-contract/review-aggregate.json",
+    "independent_vector_frozen_first": "15c2d28b3ff17d79e21b0b5c227e4324b572effdb01f0a2e0823d1a7b92da492"
+  },
+  "accepted_scope": [
+    "contract_structure_and_bindings",
+    "coverage_30_cases_120_axes",
+    "basis_classification_by_published_rule",
+    "private_ciphertext_binding_and_public_aggregate",
+    "zero_real_calls_and_input_preservation",
+    "consume_readiness_for_Q1a_1b_and_Q1a_3"
+  ],
+  "not_accepted_as": [
+    "quality pass",
+    "T207 pass",
+    "threshold or release approval",
+    "runtime axis evidence",
+    "new independent scope/targets evidence beyond frozen annotation",
+    "resolution of the 27 runtime cross_entity unknowns"
+  ],
+  "disputes_preserved": {
+    "substantive_semantic": 9,
+    "residual_scope_weak": 6,
+    "disclosed_limitations": 2,
+    "voting": "none",
+    "rule": "preserve, do not vote, do not re-rank, do not modify the contract",
+    "disputed_axis": "cross_entity",
+    "disputed_detail": {
+      "custody_a": "required 30 / not_applicable 0",
+      "custody_b": "required 21 / not_applicable 9",
+      "composition": { "D1_shared_background": 7, "D2_multi_target_policy_compare": 1, "D3_document_artifact_target": 1 }
+    },
+    "residual_scope_weak_items": {
+      "D4_explicit_time_window_not_in_filters": 2,
+      "D5_empty_entity_key": 1,
+      "D6_stale_source_only_as_of": 3
+    },
+    "disclosed_limitations": { "D7_historical_intent_uses_business_baseline_as_of": 2 }
+  },
+  "scope_downgrade": {
+    "claimed_task": "真实 scope/targets 合同生成",
+    "actual_delivery": "冻结 v0.2+v0.3 标注的忠实再投影 + 可消费结构 + 固定 basis 来源分类",
+    "evidence": "监管双方一致：A 报告 §3/§8、A schema §1.5/§2.4、B 复核 §4d；B 独立复算 120/120 与合并标注深度相等",
+    "consequence": "Q1a-3 不得把本合同当作新增 scope 语义证据；27 个运行期 cross_entity unknown 是运行期证据缺口（runtime_axis_evidence_produced=false），不因本合同自动转判",
+    "recorded_as": "R-Q1A2-03"
+  },
+  "known_defects": [
+    {
+      "id": "R-Q1A2-01",
+      "severity": "low",
+      "desc": "A 的公开 schema §3.2 标题写『固定 19 码』，实际列举 18 码；权威枚举 docs/evaluation/p2-h2-custody-annotations-v0_1.md 亦为 18 码。纯标签笔误，枚举完整可用。",
+      "action": "不修改文档（其字节被合同 bindings.contract_schema_sha256 绑定，改动将使合同失效）；Q1a-3 校验按 18 码权威表执行"
+    },
+    {
+      "id": "R-Q1A2-02",
+      "severity": "medium",
+      "desc": "保管 B 自报复核中曾短暂写 2 个含目标值/语料值的仓外临时文件，称已立即删除、未入仓。路径未提供，删除未取证。",
+      "action": "记为残余隐私风险，不追认为泄漏；Q1a-4 与主人知悉；后续保管包禁止写含目标值的临时明文"
+    },
+    {
+      "id": "R-Q1A2-03",
+      "severity": "medium",
+      "desc": "『真实合同生成』降级为『忠实投影』（见 scope_downgrade）。",
+      "action": "D1 决策时必须按『合同未新增 scope 语义』口径解读重评分结果"
+    }
+  ],
+  "protection": {
+    "c_freeze_matched": "12/12",
+    "protected_items_unchanged": "49/49",
+    "tracked_modified": 15,
+    "staged_entries": 0,
+    "commits_created": 0,
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106"
+  },
+  "zero_real_calls": {
+    "network": 0, "socket": 0, "dns": 0, "provider": 0, "model": 0,
+    "retrieval": 0, "embedding": 0, "rerank": 0, "ocr": 0, "judge": 0,
+    "real": 0, "real_reservations": 0, "new_go": 0, "subagent_count": 0
+  },
+  "conditions_for_Q1a_3": [
+    "must consume this contract v1 (ciphertext SHA 467dbf77…) and bind its SHA256 + schema SHA256 into analysis identity Q1A-RESCORE-20261114-r1",
+    "must run a disagreement sensitivity band for the 9 disputed cross_entity axes: report counts/score under contract-v1 reading AND under custody-B N/A reading, label both, pick neither",
+    "must flag D4/D5/D6 residual-weak axes and D7 disclosed-limitation axes; must not claim those axes are fully scope-resolved",
+    "must validate reason codes against the 18-code authoritative enum, not the '19 码' label",
+    "must not treat this contract as runtime axis evidence; unresolved runtime axes stay unknown / insufficient"
+  ],
+  "next": "Q1a-3 在 Q1a-1b 独立验收接收后派发；本接收不构成质量通过、不进入阶段二、不签 GO"
+}

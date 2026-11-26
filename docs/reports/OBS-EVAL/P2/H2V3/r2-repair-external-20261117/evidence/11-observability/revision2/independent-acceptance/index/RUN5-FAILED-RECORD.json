@@ -1,0 +1,210 @@
+{
+  "commands": [
+    {
+      "mode": "seed",
+      "command": [
+        "D:\\GPT项目\\市场部AI知识库\\.venv\\Scripts\\python.exe",
+        "-I",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\r2-repair-external-20261117\\evidence\\11-observability\\revision2\\independent-acceptance\\index\\index_probe.py",
+        "--workspace",
+        "D:\\GPT项目\\市场部AI知识库",
+        "--root",
+        "D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-acceptance-index\\run5\\test_independent_real_index_ma0\\matrix",
+        "--mode",
+        "seed",
+        "--output",
+        "D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-acceptance-index\\run5\\test_independent_real_index_ma0\\matrix\\seed.json"
+      ],
+      "exit": 0,
+      "stdout_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "stderr_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "timeout_seconds": 90,
+      "process_reaped": true
+    },
+    {
+      "mode": "baseline",
+      "command": [
+        "D:\\GPT项目\\市场部AI知识库\\.venv\\Scripts\\python.exe",
+        "-I",
+        "-B",
+        "-X",
+        "utf8",
+        "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\r2-repair-external-20261117\\evidence\\11-observability\\revision2\\independent-acceptance\\index\\index_probe.py",
+        "--workspace",
+        "D:\\GPT项目\\市场部AI知识库",
+        "--root",
+        "D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-acceptance-index\\run5\\test_independent_real_index_ma0\\matrix",
+        "--mode",
+        "baseline",
+        "--output",
+        "D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-acceptance-index\\run5\\test_independent_real_index_ma0\\matrix\\baseline.json"
+      ],
+      "exit": 1,
+      "stdout_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "stderr_sha256": "12ae32cb1ec02d01eda3581b127c1fee3b0dc53572ed6baf239721a03d82e126",
+      "timeout_seconds": 90,
+      "process_reaped": true
+    }
+  ],
+  "outputs": {
+    "seed": {
+      "source_identity": {
+        "rag/answer.py": {
+          "sha256": "9dd83f275aad5c02526ca2669df8520710e23871930b24774ade01cbeb8d7626",
+          "origin_matches": true
+        },
+        "rag/retrieval.py": {
+          "sha256": "3d3c2c4cf475187afd19b3bfc4c76d4d9493c4e628dc5cf3420dd7024a001cd7",
+          "origin_matches": true
+        },
+        "observability/evaluation_capture.py": {
+          "sha256": "7429be11226916419d8061241b6284b6b9b2a0e8467cb8aae37646d81a1967c1",
+          "origin_matches": true
+        }
+      },
+      "negative_source_control": true,
+      "seed_manifest": {
+        "joined": {
+          "db_sha256": "8f49faa074f809fe47c772a9a40244f6fdef36fd721bf3d12455f36943b406f1"
+        },
+        "missing": {
+          "db_sha256": "5f7c5e358593045af5b396b47169737377fa73933b21d91099b0d189403113c3"
+        },
+        "ambiguous": {
+          "db_sha256": "45a6bcd6dbb8e6f9d63b8428fb1b79272ac68ab7dfb6546e69bab814ec676a0e"
+        },
+        "pagination": {
+          "db_sha256": "27842651943d41331dcac2174950e1ce635185248152cb54853b961fd1868c0e"
+        },
+        "large": {
+          "db_sha256": "df432774ae2e15fe1d865a16434429825f1c1e802e0c6e7110d89dfd8e497117"
+        },
+        "document": {
+          "db_sha256": "68e0e6412550232ecd2e474a3a261eb5d580148f8c59f3057c30b88f94334985"
+        },
+        "empty": {
+          "db_sha256": "1b910000d0cf556ae436e4f495eaf021dd98840796fb3b6b79516b780e06f834"
+        },
+        "multi_item": {
+          "db_sha256": "9551ed61fb629f977c9e2a21f20d233d8283a57b1aea2e58406c2f210682974e"
+        },
+        "multi_store": {
+          "db_sha256": "f2a4cddd117828601abc254f41a30e2f1068590a8f6cde6af09729b9416bbca4"
+        },
+        "already_present": {
+          "db_sha256": "889accfa4021be11b51bc842358e11e713c1c86fa0c1b4b5701b1fabc85b43cd"
+        },
+        "store_value_missing": {
+          "db_sha256": "47d96154455f17c47b45baba21ab1f6ae24e6992b263d4e5e7aeeea364a5b692"
+        },
+        "store_value_ambiguous": {
+          "db_sha256": "11ee5a18b8c09c75630f46d6ebec908ba65dc0cfb64f14de3e3eac33a54e9c24"
+        },
+        "item_not_unique": {
+          "db_sha256": "5db5193375541b4fbea7e06dcfc5f926cb99ef6322cd948e0e98f57022d0a229"
+        }
+      },
+      "guard": {
+        "product": {},
+        "positive": {
+          "audit.socket.connect": 1,
+          "http.connect": 1,
+          "http.request": 1,
+          "https.connect": 1,
+          "httpx.AsyncClient.send": 1,
+          "httpx.Client.send": 1,
+          "httpx.async_transport": 1,
+          "httpx.transport": 1,
+          "os.execl": 1,
+          "os.execle": 1,
+          "os.execlp": 1,
+          "os.execlpe": 1,
+          "os.execv": 1,
+          "os.execve": 1,
+          "os.execvp": 1,
+          "os.execvpe": 1,
+          "os.popen": 1,
+          "os.spawnl": 1,
+          "os.spawnle": 1,
+          "os.spawnv": 1,
+          "os.spawnve": 1,
+          "os.startfile": 1,
+          "os.system": 1,
+          "socket.connect": 1,
+          "socket.connect_ex": 1,
+          "socket.create_connection": 1,
+          "socket.getaddrinfo": 1,
+          "socket.gethostbyaddr": 1,
+          "socket.gethostbyname": 1,
+          "socket.gethostbyname_ex": 1,
+          "socket.send": 1,
+          "socket.sendall": 1,
+          "socket.sendto": 1,
+          "subprocess.Popen": 1,
+          "subprocess.call": 1,
+          "subprocess.check_call": 1,
+          "subprocess.check_output": 1,
+          "subprocess.getoutput": 1,
+          "subprocess.getstatusoutput": 1,
+          "subprocess.run": 1,
+          "urllib.urlopen": 1
+        }
+      },
+      "ok": true
+    },
+    "baseline": {
+      "ok": false,
+      "exception_type": "AssertionError",
+      "failure_code": "REAL_SEARCH_ERROR_NOT_REACHED",
+      "failure_sha256": "3ffca78864fdf54c4ad7944fa8ea80422479702484db6fdd31ce9135fe285d0d",
+      "stack": [
+        {
+          "file": "index_probe.py",
+          "line": 412,
+          "function": "<module>"
+        },
+        {
+          "file": "index_probe.py",
+          "line": 397,
+          "function": "worker"
+        },
+        {
+          "file": "index_probe.py",
+          "line": 321,
+          "function": "run_matrix"
+        },
+        {
+          "file": "index_probe.py",
+          "line": 310,
+          "function": "ask_case"
+        },
+        {
+          "file": "index_probe.py",
+          "line": 50,
+          "function": "require"
+        }
+      ]
+    }
+  },
+  "pre_source_sha256": {
+    "conversations/service.py": "8f913cb3b7270c8e0fbf1b6720d95a3a388cf9364bd097d1b192c16f3bf0f6f5",
+    "observability/evaluation_capture.py": "7429be11226916419d8061241b6284b6b9b2a0e8467cb8aae37646d81a1967c1",
+    "rag/answer.py": "9dd83f275aad5c02526ca2669df8520710e23871930b24774ade01cbeb8d7626",
+    "rag/retrieval.py": "3d3c2c4cf475187afd19b3bfc4c76d4d9493c4e628dc5cf3420dd7024a001cd7",
+    "rag/query.py": "bedeedaba966209ea26a37fd3bee60fdb96fea21c87ac33dd7dce5ceb3db6fb0",
+    "rag/facts.py": "cf795cfd16fe15fdfa73f9bc12311cf9bcf55b2fafdb67a9a8f6719192dc7001",
+    "qa/service.py": "627c328a62a77a81edd5fbf0b7fa293a63024a1f284bfcce2aece5e2cd9906b1"
+  },
+  "post_source_sha256": {
+    "conversations/service.py": "8f913cb3b7270c8e0fbf1b6720d95a3a388cf9364bd097d1b192c16f3bf0f6f5",
+    "observability/evaluation_capture.py": "7429be11226916419d8061241b6284b6b9b2a0e8467cb8aae37646d81a1967c1",
+    "rag/answer.py": "9dd83f275aad5c02526ca2669df8520710e23871930b24774ade01cbeb8d7626",
+    "rag/retrieval.py": "3d3c2c4cf475187afd19b3bfc4c76d4d9493c4e628dc5cf3420dd7024a001cd7",
+    "rag/query.py": "bedeedaba966209ea26a37fd3bee60fdb96fea21c87ac33dd7dce5ceb3db6fb0",
+    "rag/facts.py": "cf795cfd16fe15fdfa73f9bc12311cf9bcf55b2fafdb67a9a8f6719192dc7001",
+    "qa/service.py": "627c328a62a77a81edd5fbf0b7fa293a63024a1f284bfcce2aece5e2cd9906b1"
+  }
+}

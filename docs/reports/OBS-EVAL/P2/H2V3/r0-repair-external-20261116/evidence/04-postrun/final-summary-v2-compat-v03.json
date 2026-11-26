@@ -1,0 +1,227 @@
+{
+  "axes_file": {
+    "compat": "p2-refusal-compat/v0.3",
+    "matcher_version": "ref-unit-matcher/v2",
+    "path_role": "axes-v2-r0-post-repair-compat-v03.json",
+    "schema_version": "p2-h2v3-axes-v2-recompute/v0.2-r0-same-round",
+    "scope_contract_passed": null,
+    "sha256": "01e70b6993ec03d7347bed63a967168c3bb7e451b82768ca63ebf8ffa43e5541"
+  },
+  "axes_matcher_v2": {
+    "cross_entity": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 12,
+      "unknown": 4,
+      "violations": 0
+    },
+    "cross_user": {
+      "checked": 12,
+      "not_applicable": 0,
+      "passed": 12,
+      "planned": 12,
+      "unknown": 0,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 12,
+      "not_applicable": 10,
+      "passed": 2,
+      "planned": 12,
+      "unknown": 0,
+      "violations": 0
+    },
+    "stale_source": {
+      "checked": 11,
+      "not_applicable": 0,
+      "passed": 11,
+      "planned": 12,
+      "unknown": 1,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_initial": {
+    "cross_entity": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 12,
+      "unknown": 4,
+      "violations": 0
+    },
+    "cross_user": {
+      "checked": 12,
+      "not_applicable": 0,
+      "passed": 12,
+      "planned": 12,
+      "unknown": 0,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 11,
+      "not_applicable": 10,
+      "passed": 1,
+      "planned": 12,
+      "unknown": 1,
+      "violations": 0
+    },
+    "stale_source": {
+      "checked": 11,
+      "not_applicable": 0,
+      "passed": 11,
+      "planned": 12,
+      "unknown": 1,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_previous_historical": {
+    "cross_entity": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 12,
+      "unknown": 4,
+      "violations": 0
+    },
+    "cross_user": {
+      "checked": 12,
+      "not_applicable": 0,
+      "passed": 12,
+      "planned": 12,
+      "unknown": 0,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 11,
+      "not_applicable": 10,
+      "passed": 0,
+      "planned": 12,
+      "unknown": 1,
+      "violations": 1
+    },
+    "stale_source": {
+      "checked": 10,
+      "not_applicable": 0,
+      "passed": 10,
+      "planned": 12,
+      "unknown": 2,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_previous_historical_meaning": "compose historical card; comparison only",
+  "axes_matcher_v2_version": "ref-unit-matcher/v2",
+  "consistency": {
+    "checks": [
+      "axes_case_id_unique_exact_coverage",
+      "axes_per_case_quality_sum_equals_run_quality",
+      "axes_hard_failed_flags_equal_violation_union",
+      "axes_axis_four_state_counts_equal_case_count",
+      "axes_unknown_cases_not_hidden",
+      "quality_cases_equal_case_plan_set",
+      "quality_status_equals_axes_quality_status",
+      "quality_hard_failed_flags_equal_derived_union",
+      "receipt_run_scenario_business_date_match_axes"
+    ],
+    "passed": true
+  },
+  "hard_failure_count": 0,
+  "hard_failure_source": "validated_per_case_axes.new_axes[*].state==violation",
+  "hard_failures": [],
+  "hard_failures_initial": [],
+  "hard_failures_previous_historical": [
+    "H2V3-C26"
+  ],
+  "judgement": {
+    "hard_failures": 0,
+    "hard_threshold_met": true,
+    "min_pass": 24,
+    "note": "t207 是按全量 30 题声明的闸；子集产物沿用同一规则计算，不代表全量通过",
+    "pass": 9,
+    "pass_threshold_met": false,
+    "t207_passed": false
+  },
+  "ledger": {
+    "after": {
+      "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+      "file_sha256": "940f77ca477383930a608244768259397b1ff6ccd65377e81c6b6b94d87b0ed5",
+      "lines": 2919,
+      "paired": true,
+      "project_accounted_cny": 23.3339791,
+      "reservation_count": 1459,
+      "result_count": 1459,
+      "stage_p2_live_cny": 8.2630346
+    }
+  },
+  "not_claimed": [
+    "release",
+    "T207_pass",
+    "all_axes_real_complete"
+  ],
+  "requests": {
+    "attempts_reserved_sum": 46,
+    "real_sends_sum": 40,
+    "settled_cny_sum": 0.124014
+  },
+  "role": "fullverify 子集汇总（r0 修复版：同轮初判 + 校验后硬失败；run 子集见 subset）",
+  "runs": [
+    {
+      "axes_file_sha256": "01e70b6993ec03d7347bed63a967168c3bb7e451b82768ca63ebf8ffa43e5541",
+      "business_date": "2026-10-15",
+      "case_count": 12,
+      "case_plan_sha256": "0dbd612b8cbe253bc6297b9d827d5ce0f4fac97c2cc494367d18dec2d8fe6cd1",
+      "error": 0,
+      "error_code": null,
+      "fail": 3,
+      "hard_failures": [],
+      "ok": true,
+      "pass": 9,
+      "quality": {
+        "error": 0,
+        "fail": 3,
+        "not_executed": 0,
+        "pass": 9
+      },
+      "quality_source": "validated_per_case_axes.new_axes[*].state==violation",
+      "real_sends": 40,
+      "requests_attempts_reserved": 46,
+      "run_id": "p2-h2v3-20261115-r0-base_b0",
+      "run_index": 0,
+      "run_receipt_sha256": "6bd02a481b4f49b5d6e0f590ed1a6ab1d05a0373c116113673ed4cf7deef6187",
+      "scenario_id": "base_b0",
+      "settled_cny": 0.124014,
+      "status": "succeeded",
+      "stop_code": null,
+      "turn_count": 14,
+      "turn_error_codes": {},
+      "turn_executed": 14,
+      "v3_entry_sidecar_sha256": "9e5f2158880f20150e0eddaa6a2f82868cd5e8caf96de46ab0e09905ad23821f"
+    }
+  ],
+  "schema_version": "p2-h2v3-final-summary/v0.2-r0-same-round",
+  "source_round": "current",
+  "subset": {
+    "case_count": 12,
+    "is_full_suite": false,
+    "runs": [
+      0
+    ]
+  },
+  "tag": "compat-v03",
+  "thresholds": {
+    "declared_scope": "full suite (4 runs / 30 cases)",
+    "evaluated_scope": "subset [0] / 12 cases",
+    "hard_failures_max": 0,
+    "min_pass": 24,
+    "threshold_applicable_to_this_artifact": false
+  },
+  "totals": {
+    "cases": 12,
+    "error": 0,
+    "fail": 3,
+    "hard_failures": 0,
+    "not_executed": 0,
+    "pass": 9,
+    "turns": 14
+  }
+}

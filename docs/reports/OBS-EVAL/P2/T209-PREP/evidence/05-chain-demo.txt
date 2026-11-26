@@ -1,0 +1,16 @@
+source_baseline=1967b1addd51 run=run-t209-synthetic approved=False
+report_state=candidate
+archive state=candidate publishable=False release_baseline=False files=5
+verify state=candidate baseline_id=1967b1addd51 has_approval=False files=5
+restore state=candidate run=run-t209-synthetic approval_is_none=True baseline_is_approved=False
+list count=1 candidate-a:candidate:publishable=False
+diff same_identity=True same_round=True files_changed=0 scores_comparable=True score_merge_allowed=False
+tamper_rejected=candidate_manifest.publishable 必须为 false（candidate/blocked 不可发布）
+chain_demo=OK
+
+[meta]
+script=docs/reports/OBS-EVAL/P2/T209-PREP/evidence/chain_demo.py
+cwd=D:\GPT项目\市场部AI知识库
+exit_code=0
+env=MKTKB_NO_DOTENV=1 PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8
+result=OK

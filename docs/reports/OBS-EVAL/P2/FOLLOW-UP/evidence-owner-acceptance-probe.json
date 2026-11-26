@@ -1,0 +1,155 @@
+[
+  {
+    "step": "healthz",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    }
+  },
+  {
+    "step": "login.admin",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "user": "演示管理员",
+      "role": "admin"
+    }
+  },
+  {
+    "step": "upload.test_document",
+    "ok": true,
+    "detail": {
+      "status": 202,
+      "document_id": "ceee8119-f399-4d20-a77e-463a35ef31d0",
+      "version_id": "1e38d159-b15c-4e8e-8aa6-71fc9d727a64",
+      "job_id": "50e283bb-218d-4e6b-8b17-e0014eeb38c2",
+      "versions": [
+        [
+          "1e38d159-b15c-4e8e-8aa6-71fc9d727a64",
+          "review_required"
+        ]
+      ],
+      "revision": 0
+    }
+  },
+  {
+    "step": "publish.v1",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "body": {
+        "document_id": "ceee8119-f399-4d20-a77e-463a35ef31d0",
+        "active_version_id": "1e38d159-b15c-4e8e-8aa6-71fc9d727a64",
+        "revision": 1,
+        "published_at": "2026-11-20T19:18:58.329341Z"
+      }
+    }
+  },
+  {
+    "step": "login.employee",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "user": "演示员工",
+      "role": "employee"
+    }
+  },
+  {
+    "step": "ask.after_v1",
+    "ok": true,
+    "detail": {
+      "conversation_id": "4a52c408-08ed-431d-af5f-c5c0c0d188d3",
+      "kind": "service_error",
+      "message_id": "f9e1accc-7dee-40ab-86a2-768207423ce4",
+      "text": "问答模型尚未配置，请联系管理员。这是服务调用失败，不是资料中没有答案；重试不会自行恢复，需管理员完成配置。服务端不会因重试而重复保存同一条回答。",
+      "missing_fields": [],
+      "revision": 1,
+      "sources": []
+    }
+  },
+  {
+    "step": "source.detail.v1",
+    "ok": false,
+    "detail": {
+      "error": "no_sources_returned"
+    }
+  },
+  {
+    "step": "ask.missing_field",
+    "ok": true,
+    "detail": {
+      "conversation_id": "fd2c7d75-ab57-4a31-9b5d-e4510fe4f496",
+      "kind": "not_found",
+      "message_id": "05a08256-8d95-4338-b9ce-440a42f086f1",
+      "text": "资料中未记录：营业时间；记录缺失不等于服务异常，请核对字段名称或改问其它字段。",
+      "missing_fields": [
+        "营业时间"
+      ],
+      "revision": 1,
+      "sources": []
+    }
+  },
+  {
+    "step": "upload.new_version",
+    "ok": true,
+    "detail": {
+      "status": 202,
+      "version_id": "14c0a8af-5ce0-4a26-882e-4f93293dc571",
+      "revision": 1,
+      "versions": [
+        [
+          "1e38d159-b15c-4e8e-8aa6-71fc9d727a64",
+          "published"
+        ],
+        [
+          "14c0a8af-5ce0-4a26-882e-4f93293dc571",
+          "review_required"
+        ]
+      ]
+    }
+  },
+  {
+    "step": "publish.v2",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "body": {
+        "document_id": "ceee8119-f399-4d20-a77e-463a35ef31d0",
+        "active_version_id": "14c0a8af-5ce0-4a26-882e-4f93293dc571",
+        "revision": 2,
+        "published_at": "2026-11-20T19:19:00.062528Z"
+      }
+    }
+  },
+  {
+    "step": "ask.after_v2",
+    "ok": true,
+    "detail": {
+      "conversation_id": "edf6ccb7-4a51-4d6e-b836-dc40bb60739d",
+      "kind": "service_error",
+      "message_id": "146af90a-cf26-47d1-b565-20f844629fb4",
+      "text": "问答模型尚未配置，请联系管理员。这是服务调用失败，不是资料中没有答案；重试不会自行恢复，需管理员完成配置。服务端不会因重试而重复保存同一条回答。",
+      "missing_fields": [],
+      "revision": 2,
+      "sources": []
+    }
+  },
+  {
+    "step": "delete.document",
+    "ok": true,
+    "detail": {
+      "status": 200,
+      "body": "{\"document_id\":\"ceee8119-f399-4d20-a77e-463a35ef31d0\",\"deleted\":true,\"revision\":3}"
+    }
+  },
+  {
+    "step": "permission.employee_upload_denied",
+    "ok": true,
+    "detail": {
+      "status": 403
+    }
+  }
+]

@@ -1,0 +1,93 @@
+{
+  "schema_version": "p2-h2v3-v3-run-conclusion/v0.2",
+  "conclusion": "ABORTED_AT_run0",
+  "rebind": {
+    "option": "A",
+    "plan_byte_identical": true,
+    "plan_sha256_unchanged": true,
+    "go_still_valid": true,
+    "code_version_before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+    "code_version_after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+    "check_only_ok": "4/4",
+    "check_only_production_ready": true,
+    "check_only_requests": 0
+  },
+  "attempted_runs": [0],
+  "completed_runs": [],
+  "not_run": [1, 2, 3],
+  "stop_point": "run0_turn0",
+  "stop_code": "adapter_error",
+  "error_code": "run_not_succeeded",
+  "failure_chain": [
+    "turn0 answer -> product service_error INDEX_NOT_READY（context_observed count=0，捕获 revision=7 未推进）",
+    "evidence completeness -> plan_observation_count_invalid（缺 plan_observed）",
+    "ledger chat result -> EvidenceCaptureIncomplete（http_status=null，无出站）",
+    "runner -> status=aborted / stop_code=adapter_error"
+  ],
+  "requests": {
+    "package_cap": 185,
+    "attempts_used": 9,
+    "outbound_used": 8,
+    "by_operation_attempts": {"index_embedding": 8, "answer": 1},
+    "cumulative_before": 952,
+    "cumulative_after": 961,
+    "cumulative_cap_go": 1137,
+    "planned_this_run": 64,
+    "remaining_in_go_after": 176
+  },
+  "cny": {
+    "ledger_accounted_before": 22.203382799999936,
+    "ledger_accounted_after": 22.22373629999994,
+    "ledger_delta": 0.0203535,
+    "p2_stage_before": 7.132438300000006,
+    "p2_stage_after": 7.152791800000005,
+    "p2_stage_limit": 20.0,
+    "project_limit": 40.0,
+    "settled_cny_request_level": 0.018688,
+    "provider_list_price_succeeded": 0.0016655,
+    "note": "0.018688 是 chat 尝试的保守预留额（未出站，估计价 0），0.0016655 是 8 次 embedding 的估计价合计；账本按保守口径记 +0.0203535。"
+  },
+  "ledger": {
+    "file_sha256_before": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+    "file_sha256_after": "9d4b957ac431acfe7b04d0c441dd0c77e31c15849e84806fbbc8c23c4e3de413",
+    "lines_before": 1905,
+    "lines_after": 1923,
+    "reservation_before": 952,
+    "reservation_after": 961,
+    "result_before": 952,
+    "result_after": 961,
+    "paired": true,
+    "chain_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014"
+  },
+  "budget_sha256": {
+    "before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "unchanged": true
+  },
+  "real_calls": null,
+  "real_sends": 8,
+  "mock_intercepted": 0,
+  "four_axis": null,
+  "pass_fail_error": null,
+  "artifacts": {
+    "rebind_evidence": "rebind-evidence.json",
+    "run_report": "run-report.md",
+    "cards": ["r0/card.json", "r1/status.json", "r2/status.json", "r3/status.json"],
+    "case_plans": ["r0/case-plan.json"],
+    "receipts": ["r0/run-receipt.json", "r0/v3-entry-sidecar.json"],
+    "preflight": [
+      "preflight/rebind-check-r0.json",
+      "preflight/rebind-check-r1.json",
+      "preflight/rebind-check-r2.json",
+      "preflight/rebind-check-r3.json"
+    ],
+    "preservation": "preservation-check.json",
+    "round1_archive": "round1-notrun/"
+  },
+  "residual": [
+    "INDEX_NOT_READY：8 个 ingest embedding 全部 200 成功，但答案前 context_observed=0、捕获 revision 仍为 7（未推进），索引未就绪；本包未重试、未改代码、未手工修分。",
+    "chat 尝试未出站（http_status=null）却按满额预留 0.018688 结清；账本保守口径记账，非 provider 账单。",
+    "aborted run 的 scorecard/summary/run_result/gate 在清理阶段被移除，故 pass/fail/error 与四轴无实测值；不填 0。",
+    "r1..r3 未装槽未执行：三份 GO 仍在 .pending.json；GO 未过期（2026-11-29）、剩 176 请求。"
+  ]
+}

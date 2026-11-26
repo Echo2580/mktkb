@@ -1,0 +1,48 @@
+R0-1 test evidence (commands actually executed, 2026-11-16 Asia/Shanghai)
+repo: D:\GPT项目\市场部AI知识库
+branch: codex/p2-e2e  HEAD: 97b0066726e5b8d6f94cbc0b63a890084550c106
+
+[1] new synthetic suite
+cmd: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_r0_repair_same_round_inputs.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\r0-1
+out: 48 passed, 1 warning in 0.19s
+exit: 0
+
+[2] frozen rescore file
+cmd: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\r0-1-rescore
+out: 20 passed, 1 warning in 0.14s
+exit: 0
+
+[3] required preserved-verdict test
+cmd: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py::test_old_gate_unknown_and_non_matcher_violations_are_preserved -v -p no:cacheprovider --basetemp %TEMP%\r0-1-rescore-one
+out: 1 passed, 1 warning in 0.05s
+exit: 0
+
+[4] frozen hard-evidence targeted subset (safety / strict empty / branch matrix / duplicates)
+cmd: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_hard_evidence.py -q -p no:cacheprovider --basetemp %TEMP%\r0-1-hard-subset -k "safety or strict_empty or branch_evidence or branch_x or duplicate"
+out: 86 passed, 226 deselected, 1 warning in 0.79s
+exit: 0
+
+[5] full hard-evidence file (disclosed environment-only run)
+cmd: .\.venv\Scripts\python.exe -B -m pytest backend/tests/evaluation/test_p2_hard_evidence.py -q -p no:cacheprovider --basetemp backend\.pytest-tmp\r0-1-hard
+out: 2 failed, 283 passed, 27 errors in 6.09s
+exit: 1
+cause: basetemp inside repo -> scenario_private_path_inside_workspace (27 setup errors)
+       and evidence_root_inside_forbidden (2 tests). No assertion changed; no frozen source edited.
+       Re-run of the affected families with an outside-repo basetemp is step [4] (86 passed).
+
+[6] red/green focus
+cmd: pytest backend/tests/evaluation/test_r0_repair_same_round_inputs.py -v -k "historical_card_passes_structural or quality_hard_failed_derives or same_round_card_preserves"
+out: 3 passed, 45 deselected, 1 warning in 0.14s
+exit: 0
+
+[7] import-only sanity for the two v2 scripts (no run, no private reads)
+out: recompute_axes_fullverify_v2 import-ok True
+     build_fullverify_artifacts_v2 import-ok True
+exit: 0
+
+[8] protected hashes after (Get-FileHash SHA256) vs evidence/00-baseline/protected-hashes.txt
+out: real_files=19 same=19 changed=0
+
+[9] git tracked diff before/after
+out: git diff --name-status before=29 after=29 differences=0
+     git status --porcelain tracked ' M' count = 29

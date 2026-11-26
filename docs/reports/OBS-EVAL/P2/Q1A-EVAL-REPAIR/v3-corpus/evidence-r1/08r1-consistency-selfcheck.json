@@ -1,0 +1,491 @@
+{
+ "schema_version": "p2h2v3-consistency-selfcheck/v0.1",
+ "phase": "consistency-selfcheck-r1",
+ "why": "上一轮有两处同类不一致（L1 records_rows 2≠4；规格 §7 表数 6≠8）。只修两处不够，必须穷举复算同文件里所有可复算的计数，才能回答『还有没有第三处』。",
+ "convention": "每行 {id, claim, expected, actual, ok}：expected = 从数组/文件重算出的参考值，actual = 文件里的声明值（少数几行方向相反，但判定是对称的 expected == actual，不影响结论）。",
+ "inputs": {
+  "l1": {
+   "path": "docs/evaluation/p2-source-lifecycle-v1.json",
+   "sha256": "cc2ad0be2a3d884987d9f74b32e25181d752a8b497093afba42ccef8d87541d1"
+  },
+  "spec": {
+   "path": "docs/superpowers/plans/2026-11-15-h2-v3-corpus-modification-spec.md",
+   "sha256": "6d64ee795c090016e569182a21dca2f1f048659ddb25982be255ee65b892b4e8"
+  },
+  "manifest": {
+   "path": "fixtures/acceptance-h2v3/manifest.json",
+   "sha256": "1b3885a7ce36676b3642dea9316f644b4cd0468ac4e1493780a31996ab4dd07c"
+  }
+ },
+ "sheet_measurement": {
+  "per_file": {
+   "variants/V03_物品位置表_历史V1.xlsx": {
+    "sheets": [
+     "物品位置",
+     "备用物料表",
+     "旧草稿"
+    ],
+    "target": "物品位置",
+    "non_target": [
+     "备用物料表",
+     "旧草稿"
+    ]
+   },
+   "normal/D01_物品位置表.xlsx": {
+    "sheets": [
+     "物品位置",
+     "备用物料表",
+     "旧草稿"
+    ],
+    "target": "物品位置",
+    "non_target": [
+     "备用物料表",
+     "旧草稿"
+    ]
+   },
+   "variants/V04_物品位置表_新版V3.xlsx": {
+    "sheets": [
+     "物品位置",
+     "备用物料表",
+     "旧草稿"
+    ],
+    "target": "物品位置",
+    "non_target": [
+     "备用物料表",
+     "旧草稿"
+    ]
+   },
+   "variants/V05_物品位置表_新版V3_移除P01.xlsx": {
+    "sheets": [
+     "物品位置",
+     "备用物料表",
+     "旧草稿"
+    ],
+    "target": "物品位置",
+    "non_target": [
+     "备用物料表",
+     "旧草稿"
+    ]
+   },
+   "normal/D02_合作店家信息.xlsx": {
+    "sheets": [
+     "店家信息"
+    ],
+    "target": "店家信息",
+    "non_target": []
+   },
+   "variants/V06_合作店家信息_新电话.xlsx": {
+    "sheets": [
+     "店家信息"
+    ],
+    "target": "店家信息",
+    "non_target": []
+   }
+  },
+  "total_sheets": 14,
+  "target_sheets": 6,
+  "non_target_sheets": 8,
+  "spare_sheets": 4,
+  "draft_sheets": 4
+ },
+ "checks": [
+  {
+   "id": "l1.sources_rows",
+   "claim": "sources_rows == len(sources[])",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "l1.records_rows",
+   "claim": "records_rows == len(records[])（R1 由 2 修为 4）",
+   "expected": 4,
+   "actual": 4,
+   "ok": true
+  },
+  {
+   "id": "l1.distinct_version_windows",
+   "claim": "distinct_version_windows == 去重后的版本窗口数",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "l1.three_fields_complete",
+   "claim": "three_fields_complete == 同时具备 published_at/effective_from/effective_to 三键的版本行数",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "l1.published_at_gt_effective_from_violations",
+   "claim": "published_at <= effective_from 违例数",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.built_at_collisions",
+   "claim": "任一 effective_from/effective_to 等于 built_at 的处数",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.all_same_window_detected",
+   "claim": "all_same_window_detected == (窗口去重数 == 1)",
+   "expected": false,
+   "actual": false,
+   "ok": true
+  },
+  {
+   "id": "l1.contiguity_violations",
+   "claim": "同槽位后继 effective_from == 前驱 effective_to + 1 天的违例数",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.terminal_not_open_violations",
+   "claim": "同槽位最大版本 effective_to 必须为 null 的违例数",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.records_out_of_version_window_violations",
+   "claim": "records[] 窗口 ⊆ 同版本 sources[] 窗口的违例数",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.records_keys_unique",
+   "claim": "records[] 的 (doc_code, version_number, record_code) 无重复",
+   "expected": 4,
+   "actual": 4,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.cases",
+   "claim": "per_run.total.cases == Σ runs[].cases",
+   "expected": 30,
+   "actual": 30,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.turns",
+   "claim": "per_run.total.turns == Σ runs[].turns",
+   "expected": 36,
+   "actual": 36,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.slot_checks",
+   "claim": "per_run.total.slot_checks == Σ runs[].uploaded_slots",
+   "expected": 27,
+   "actual": 27,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.slot_cardinality_one",
+   "claim": "per_run.total.slot_cardinality_one == 每 run 每槽位覆盖基数确为 1 的槽位数",
+   "expected": 27,
+   "actual": 27,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.stale_decidable_cases",
+   "claim": "per_run.total.stale_decidable_cases == Σ runs[].stale_decidable_cases",
+   "expected": 30,
+   "actual": 30,
+   "ok": true
+  },
+  {
+   "id": "l1.per_run.window_equals_position",
+   "claim": "每个 run 的 window_active_equals_position_active 都必须为 true",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "l1.anchor_cardinality_one",
+   "claim": "anchor 日每槽位覆盖集合基数恰为 1",
+   "expected": {
+    "D01": 1,
+    "D02": 1,
+    "D03": 1,
+    "D04": 1,
+    "D05": 1,
+    "D06": 1,
+    "V01": 1,
+    "V07": 1
+   },
+   "actual": {
+    "D01": 1,
+    "D02": 1,
+    "D03": 1,
+    "D04": 1,
+    "D05": 1,
+    "D06": 1,
+    "V01": 1,
+    "V07": 1
+   },
+   "ok": true
+  },
+  {
+   "id": "l1.anchor_declared_matches",
+   "claim": "anchor 声明值与重算值逐槽相等",
+   "expected": {
+    "D01": 1,
+    "D02": 1,
+    "D03": 1,
+    "D04": 1,
+    "D05": 1,
+    "D06": 1,
+    "V01": 1,
+    "V07": 1
+   },
+   "actual": {
+    "D01": 1,
+    "D02": 1,
+    "D03": 1,
+    "D04": 1,
+    "D05": 1,
+    "D06": 1,
+    "V01": 1,
+    "V07": 1
+   },
+   "ok": true
+  },
+  {
+   "id": "l1.inv.published_le_from",
+   "claim": "published_at <= effective_from：12/12",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "l1.inv.windows_distinct",
+   "claim": "12 个版本窗口互不相同",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "l1.inv.records_subset",
+   "claim": "4 条 records[] 窗口全部 ⊆ 同版本窗口",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.inv.records_unique",
+   "claim": "records[] 主键无重复",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "l1.bijection_mismatch",
+   "claim": "v0.1 已声明的四个码与 L1 设计值冲突数（应与 mismatch_count 一致）",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "spec.non_target_sheets",
+   "claim": "规格 §7『不动的工作表』== 实测非目标表数",
+   "expected": 8,
+   "actual": 8,
+   "ok": true
+  },
+  {
+   "id": "spec.spare_sheets",
+   "claim": "实测 备用物料表 张数",
+   "expected": 4,
+   "actual": 4,
+   "ok": true
+  },
+  {
+   "id": "spec.draft_sheets",
+   "claim": "实测 旧草稿 张数",
+   "expected": 4,
+   "actual": 4,
+   "ok": true
+  },
+  {
+   "id": "spec.total_sheets",
+   "claim": "6 个 xlsx 的表总数（目标 6 + 非目标 8）",
+   "expected": 14,
+   "actual": 14,
+   "ok": true
+  },
+  {
+   "id": "spec.text_says_8",
+   "claim": "规格 §7 现在写 8 张（4 + 4）",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "spec.text_no_longer_6",
+   "claim": "规格里旧的『6 张（4 个 备用物料表 + 2 个 旧草稿）』已不存在",
+   "expected": false,
+   "actual": false,
+   "ok": true
+  },
+  {
+   "id": "spec.text_has_sentinel_section",
+   "claim": "规格含 §1.5 哨兵小节",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "spec.text_sentinel_literal",
+   "claim": "规格写死哨兵字面值 未声明",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "spec.text_1_4_points_to_1_5",
+   "claim": "规格 §1.4 的 null 分支指向 §1.5（不再写『留空单元格』）",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "manifest.corpus_files",
+   "claim": "corpus_files == 实际清单条数",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "manifest.files_count",
+   "claim": "清单 12 条（normal 6 + variants 6；V 前缀 6 个 + D 前缀 6 个）",
+   "expected": [
+    6,
+    6
+   ],
+   "actual": [
+    6,
+    6
+   ],
+   "ok": true
+  },
+  {
+   "id": "manifest.physical_files",
+   "claim": "语料根物理文件数 = 12 源 + manifest.json",
+   "expected": 13,
+   "actual": 13,
+   "ok": true
+  },
+  {
+   "id": "manifest.unchanged_sheets",
+   "claim": "unchanged_sheets == 实测非目标表数",
+   "expected": 8,
+   "actual": 8,
+   "ok": true
+  },
+  {
+   "id": "manifest.applied_sheets",
+   "claim": "applied_sheets == 6",
+   "expected": 6,
+   "actual": 6,
+   "ok": true
+  },
+  {
+   "id": "manifest.data_cells_written",
+   "claim": "data_cells_written == 数据行 39 × 2 列",
+   "expected": 78,
+   "actual": 78,
+   "ok": true
+  },
+  {
+   "id": "manifest.sentinel",
+   "claim": "data_cells_sentinel_not_asserted == 11",
+   "expected": 11,
+   "actual": 11,
+   "ok": true
+  },
+  {
+   "id": "manifest.blank",
+   "claim": "data_cells_left_blank == 0",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "manifest.existing_modified",
+   "claim": "existing_cells_modified == 0",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "manifest.header_cells",
+   "claim": "header_cells_added == 12",
+   "expected": 12,
+   "actual": 12,
+   "ok": true
+  },
+  {
+   "id": "manifest.record_overrides",
+   "claim": "record_override_rows == 4",
+   "expected": 4,
+   "actual": 4,
+   "ok": true
+  },
+  {
+   "id": "manifest.sentinel_rows_per_file",
+   "claim": "哨兵格数按文件：V05=7 / V06=4 / 其余 0",
+   "expected": {
+    "V05": 7,
+    "V06": 4
+   },
+   "actual": {
+    "V05": 7,
+    "V06": 4
+   },
+   "ok": true
+  },
+  {
+   "id": "manifest.lifecycle_ref_sha",
+   "claim": "manifest.lifecycle_ref.sha256 == L1 实际 SHA",
+   "expected": true,
+   "actual": true,
+   "ok": true
+  },
+  {
+   "id": "manifest.file_shas",
+   "claim": "manifest 逐文件 sha256 == 实际文件 sha256",
+   "expected": 0,
+   "actual": 0,
+   "ok": true
+  },
+  {
+   "id": "manifest.built_at",
+   "claim": "built_at 仍为 2026-10-27",
+   "expected": "2026-10-27",
+   "actual": "2026-10-27",
+   "ok": true
+  },
+  {
+   "id": "manifest.sentinel_declared",
+   "claim": "manifest 写死哨兵字面值",
+   "expected": "未声明",
+   "actual": "未声明",
+   "ok": true
+  }
+ ],
+ "summary": {
+  "checks": 49,
+  "ok": 49,
+  "mismatched": 0,
+  "mismatched_ids": []
+ },
+ "result": "CONSISTENT"
+}

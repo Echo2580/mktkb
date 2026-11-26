@@ -1,0 +1,19 @@
+python.exe : ImportError while loading conftest 'D:\GPT项目\市场部AI知识库\backend\tests\conftest.py'.
+所在位置 行:17 字符: 3
++   & $py -X utf8 -m pytest tests/integration/test_s2b_intent_semantics ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (ImportError whi...s\conftest.py'.:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+tests\conftest.py:18: in <module>
+    from mktkb.auth.routes import require_role
+D:\mktkb-p2-h2v3-r2-20261117\baseline\mix4\backend\src\mktkb\__init__.py:3: in <module>
+    from .main import create_app
+D:\mktkb-p2-h2v3-r2-20261117\baseline\mix4\backend\src\mktkb\main.py:15: in <module>
+    from .conversations.routes import router as conversations_router
+D:\mktkb-p2-h2v3-r2-20261117\baseline\mix4\backend\src\mktkb\conversations\routes.py:17: in <module>
+    from ..conversations import service
+D:\mktkb-p2-h2v3-r2-20261117\baseline\mix4\backend\src\mktkb\conversations\service.py:68: in <module>
+    from ..rag.query import (
+E   ImportError: cannot import name 'metric_binding_identity' from 'mktkb.rag.query' (D:\mktkb-p2-h2v3-r2-20261117\base
+line\mix4\backend\src\mktkb\rag\query.py)

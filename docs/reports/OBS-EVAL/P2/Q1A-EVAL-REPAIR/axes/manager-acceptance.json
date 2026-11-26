@@ -1,0 +1,69 @@
+{
+  "schema_version": "q1a1b-manager-acceptance/v1",
+  "date": "2026-11-14",
+  "package": "Q1a-1b（其余三轴重评分模块 + 契约 v0.2 + 合成测试）",
+  "accepting_role": "manager (limited acceptance; not developer, not independent reviewer)",
+  "manager_decision": "ACCEPTED_WITH_RESIDUALS_SCOPE_LIMITED",
+  "independent_verdict": "PASS_WITH_RESIDUALS",
+  "acceptance_basis": "work-order §3 验收：合成测试全绿 + 独立验收 PASS + C 冻结 12/12 + 零真实调用；独立验收给出 PASS_WITH_RESIDUALS 且残余已列明、无硬边界违反。",
+  "deliverables": {
+    "module": { "path": "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py", "sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e", "bytes": 145652 },
+    "tests": { "path": "backend/tests/evaluation/test_p2_evidence_rescore_axes.py", "sha256": "1de091b6b43603aa53b6e62514e28407f1dcb24d00564df7328aba9a2131e063", "bytes": 77998 },
+    "contract_v0_2": { "path": "docs/evaluation/p2-evidence-rescore-v0_2.md", "sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5", "bytes": 35940 },
+    "dev_report": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/dev-report.md", "sha256": "a24c2310de6af281f3b7f113bc7e9c69d71ab0b47619cf9bf106bbc35e038652" },
+    "hash_manifest": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/evidence/06-hash-manifest.json", "sha256": "03915f445704a1de60d2e6a8df64ab36a912dbbe73969eea84a479885df6e910", "files": 13, "mismatch": 0, "self_hash_excluded": true },
+    "independent_review": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/independent-review.md", "sha256": "15826e7f4af56facb07d95c85d5ef8e207abe8219a4ab53f0a47193618d5ed61" },
+    "independent_aggregate": { "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/review-aggregate.json", "sha256": "e556c8260a5921689e39138a98ac8ad35f96bd851215d79003c2db60fc49cbd0" }
+  },
+  "verification_summary": {
+    "byte_stability": "非 moving target：验收起止逐值相同；源码 18:40:51 后稳定，18:40:32–18:41:33 的写入为证据重生成",
+    "pytest": { "new_collect": 22, "new_passed": 22, "q1a1_regression_passed": 20, "exit_code": 0, "assertions": 234, "skip_xfail_tautology": 0 },
+    "matcher_reuse": "import 同一函数对象、无本地副本；216 组合 0 差异；5 项身份区分探针证明非宽松复制；p2_evidence_rescore.py=d8260256 未改",
+    "three_axis_counterexamples": "90/90",
+    "four_axis_count_formulas": "91/91",
+    "provenance": "safety=recorded_old；三轴=rescored；preserved 单列",
+    "old_card_protection": "18/18 固定码拒绝，字节不变",
+    "contract_adapter": "93/93；5/17/4/30/4/7 形状正例；73 个固定码反例（axis 26/schema 16/binding 7/coverage 6/basis 6/semantics 6/unknown_downgraded 6）；expected_axes 一致接受、改值/缺/多字段均 semantics_changed、缺省不弱化结构校验",
+    "zero_real_calls": "AST 白名单干净；netguard 正向 4 类出站全拦截并记账、负向故意不清账 teardown exit 1 命中断言；external=0",
+    "contract_consistency": "REASONS 18 码/7 字段/AXIS_CRITERIA/UNKNOWN/VIOLATION 逐值一致；R-06/R-07 已消化；schema『19 码』按 18 判"
+  },
+  "protection": {
+    "c_freeze_matched": "12/12",
+    "p2_hard_evidence_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+    "q1a1_files_unchanged": ["p2_evidence_rescore.py", "test_p2_evidence_rescore.py", "p2-evidence-rescore-v0_1.md"],
+    "evaluator_dir_files": 35,
+    "tracked_modified": 15,
+    "staged_entries": 0,
+    "commits_created": 0,
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106"
+  },
+  "accepted_scope": [
+    "three_axis_rescore_module_with_shared_matcher_v2",
+    "contract_v0_2_and_fixed_codes",
+    "synthetic_tests_and_counterexamples",
+    "q1a2_contract_view_adapter_structural_validation"
+  ],
+  "not_accepted_as": [
+    "quality pass",
+    "T207 pass",
+    "overall four-axis rescore completion",
+    "real contract consumption",
+    "runtime axis evidence",
+    "resolution of the 27 runtime cross_entity unknowns"
+  ],
+  "residuals": {
+    "R-10_to_R-17": "独立验收列明 R-10..R-17；R-12（ref 边界）/R-13（basis §4.1 复算）/R-17（语义深比较）为 medium，必须在 Q1a-3 真实合同上执行",
+    "R-02_class": "safety 仍为 recorded_old，Q1a-3 必须与 Q1a-1 合并成完整四轴",
+    "real_contract_not_consumed": "adapter 只做结构校验；密文 SHA/解密/§4.1 basis 复算/§5 语义校验属 Q1a-3",
+    "moving_target_incident": "开发在独立验收启动后又改交付（已由经理下令冻结并重验）；登记为过程事实，不作 FAIL"
+  },
+  "conditions_for_Q1a_3": [
+    "must combine Q1a-1 (safety) + Q1a-1b (three axes) into one four-axis result; do not present safety-only or three-axis-only as complete",
+    "must run the R-03 real evidence projection, R-04 custody-side byte-derived identity binding, R-05 explicit-required adapter validation, R-09 real old-card byte comparison",
+    "must consume contract v1 (ciphertext 467dbf77…) and execute its §5 validation plus §4.1 basis recomputation and 7-field deep comparison",
+    "must produce the 9-dispute cross_entity sensitivity band (contract-v1 reading vs custody-B N/A reading), labeled, neither chosen",
+    "must not import or modify p2_hard_evidence.py; only align shape"
+  ],
+  "next": "Q1a-3 派保管执行角色；本接收不构成质量通过、不进入阶段二、不签 GO"
+}

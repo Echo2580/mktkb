@@ -1,0 +1,122 @@
+{
+  "probe": "13-oldcard-write",
+  "assertions_total": 18,
+  "assertions_failed": 0,
+  "failures": [],
+  "results": [
+    {
+      "label": "same path -> old_card_overwrite_refused",
+      "ok": true,
+      "detail": {
+        "expected": "old_card_overwrite_refused",
+        "actual": "old_card_overwrite_refused"
+      }
+    },
+    {
+      "label": "old card bytes unchanged after same-path refusal",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "equivalent path -> old_card_overwrite_refused",
+      "ok": true,
+      "detail": {
+        "expected": "old_card_overwrite_refused",
+        "actual": "old_card_overwrite_refused"
+      }
+    },
+    {
+      "label": "old card bytes unchanged after equivalent-path refusal",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "existing output -> output_exists",
+      "ok": true,
+      "detail": {
+        "expected": "output_exists",
+        "actual": "output_exists"
+      }
+    },
+    {
+      "label": "existing file bytes unchanged",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "old card path without explicit guard -> output_exists",
+      "ok": true,
+      "detail": {
+        "expected": "output_exists",
+        "actual": "output_exists"
+      }
+    },
+    {
+      "label": "old card bytes unchanged after implicit refusal",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "missing parent -> output_parent_missing",
+      "ok": true,
+      "detail": {
+        "expected": "output_parent_missing",
+        "actual": "output_parent_missing"
+      }
+    },
+    {
+      "label": "no partial file created for missing parent",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "write returns sha256 of written bytes",
+      "ok": true,
+      "detail": {
+        "path": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\q1a1b-oldcard-ita7usdp\\axes-report.json",
+        "sha256": "8ec08b0da8c44e6fbc90fcd751ee035f87603d25b631f550744639bfdd1ff15e",
+        "bytes": 2799,
+        "old_card_untouched": true
+      }
+    },
+    {
+      "label": "write reports old_card_untouched",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "written bytes are canonical json + newline",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "written payload parses as JSON",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "duplicate write -> output_exists",
+      "ok": true,
+      "detail": {
+        "expected": "output_exists",
+        "actual": "output_exists"
+      }
+    },
+    {
+      "label": "first written bytes unchanged after duplicate refusal",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "old card bytes unchanged at end",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "old card sha stable",
+      "ok": true,
+      "detail": null
+    }
+  ],
+  "verdict": "PASS"
+}

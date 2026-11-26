@@ -1,0 +1,2137 @@
+{
+  "all_controls_blocked": true,
+  "baseline_never_multi_target": true,
+  "baseline_source": {
+    "exists": true,
+    "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\fix-1\\independent\\_reconstructed_query.py",
+    "sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1"
+  },
+  "cases": {
+    "C1a_anaphora_this_two_with_stores": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例1：纯指代 + 已点名门店（这两个）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的这两个分别放在哪里？"
+    },
+    "C1b_anaphora_these_with_stores": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的这几个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例1：纯指代 + 已点名门店（这几个）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的这几个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的这几个分别放在哪里？"
+    },
+    "C1c_anaphora_they_with_stores": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的它们分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例1 对照：既有指代词（它们）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 4,
+          "kind": "answer",
+          "reason": null,
+          "returned": 4,
+          "text": "共 4 条，当前第 1 页显示 4 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n- 城西店的易拉宝：D区立柱（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": true,
+            "D区立柱": true,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的它们分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的它们分别放在哪里？"
+    },
+    "C1d_resumptive_this_two_stores": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "ambiguous",
+          "reason": "MULTIPLE_ENTITIES",
+          "returned": 2,
+          "text": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店的宣传海报、城西店的宣传海报",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [
+          "这两个店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店这两个店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例1 对照：复指限定语（这两个店 + 显式枚举）",
+      "current": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "ambiguous",
+          "reason": "MULTIPLE_ENTITIES",
+          "returned": 2,
+          "text": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店的宣传海报、城西店的宣传海报",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [
+          "这两个店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城西店这两个店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店这两个店的宣传海报在哪里？"
+    },
+    "C2_anaphora_bare": {
+      "baseline": {
+        "clarification": "请补充要查询的门店；这不是资料中没有答案，补充后可重新提问。",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "clarification",
+          "reason": "MISSING_SLOT",
+          "returned": null,
+          "text": "请补充要查询的门店；这不是资料中没有答案，补充后可重新提问。 可选：城东店、城北店、城西店",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": "store",
+        "rag_owns_turn": false,
+        "reason": "MISSING_SLOT",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [
+            "城东店",
+            "城西店",
+            "城北店"
+          ],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": "store",
+          "price_type": null,
+          "product": null,
+          "store": null,
+          "stores": [],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": []
+      },
+      "class": "反例2：纯指代 + 未点名",
+      "current": {
+        "clarification": "请补充要查询的门店；这不是资料中没有答案，补充后可重新提问。",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "clarification",
+          "reason": "MISSING_SLOT",
+          "returned": null,
+          "text": "请补充要查询的门店；这不是资料中没有答案，补充后可重新提问。 可选：城东店、城北店、城西店",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": "store",
+        "rag_owns_turn": false,
+        "reason": "MISSING_SLOT",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [
+            "城东店",
+            "城西店",
+            "城北店"
+          ],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": "store",
+          "price_type": null,
+          "product": null,
+          "store": null,
+          "stores": [],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": []
+      },
+      "legacy_intent": {
+        "clarification": "请补充要查询的门店或物品。"
+      },
+      "question": "这两个分别放在哪里？"
+    },
+    "C3a_mixed_item_dimension": {
+      "baseline": {
+        "clarification": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。",
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "clarification",
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null,
+          "text": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。 可选：宣传海报、易拉宝",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": "ITEM_AMBIGUOUS",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店的宣传海报、易拉宝和这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "class": "反例3：混合（显式物品 + 指代，物品维）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "store": "城东店"
+        },
+        "items": [
+          "宣传海报",
+          "易拉宝"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": true,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [
+            "宣传海报",
+            "易拉宝"
+          ],
+          "last_kind": null,
+          "last_question": "城东店的宣传海报、易拉宝和这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个物品，请明确要查询的物品。"
+      },
+      "question": "城东店的宣传海报、易拉宝和这两个分别放在哪里？"
+    },
+    "C3b_mixed_store_dimension": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报和这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例3：混合（显式物品 + 指代，门店维）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报和这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的宣传海报和这两个分别放在哪里？"
+    },
+    "C4a_cross_turn_turn1": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "ambiguous",
+          "reason": "MULTIPLE_ENTITIES",
+          "returned": 2,
+          "text": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店的宣传海报、城西店的宣传海报",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例4：跨轮指代（上一轮显式多目标）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的宣传海报在哪里？"
+    },
+    "C4b_cross_turn_turn2": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 2,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "反例4：跨轮指代（本轮纯指代）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 2,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "请补充要查询的门店或物品。"
+      },
+      "question": "这两个分别放在哪里？"
+    },
+    "C5a_anaphora_unknown_store": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "store": "城东店"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n未在资料中找到：城南店（该实体没有匹配记录）。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": true,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": true
+          }
+        },
+        "missing_stores": [
+          "城南店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城南店的这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "class": "反例5：指代 + 词表外门店（城东店 + 城南店）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "store": "城东店"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n未在资料中找到：城南店（该实体没有匹配记录）。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": true,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": true
+          }
+        },
+        "missing_stores": [
+          "城南店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城南店的这两个分别放在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": null
+      },
+      "question": "城东店和城南店的这两个分别放在哪里？"
+    },
+    "C5b_explicit_unknown_store": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报",
+          "store": "城东店"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 1,
+          "kind": "answer",
+          "reason": null,
+          "returned": 1,
+          "text": "根据资料，城东店的宣传海报的位置：A区1号架。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [
+          "城南店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城南店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "class": "反例5 对照：显式枚举 + 词表外门店（无指代）",
+      "current": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报",
+          "store": "城东店"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 1,
+          "kind": "answer",
+          "reason": null,
+          "returned": 1,
+          "text": "根据资料，城东店的宣传海报的位置：A区1号架。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [
+          "城南店"
+        ],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城南店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": null
+      },
+      "question": "城东店和城南店的宣传海报在哪里？"
+    },
+    "P1_two_stores_one_item": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "ambiguous",
+          "reason": "MULTIPLE_ENTITIES",
+          "returned": 2,
+          "text": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店的宣传海报、城西店的宣传海报",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "A 正例：两店一物品",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的宣传海报在哪里？"
+    },
+    "P2_one_store_two_items": {
+      "baseline": {
+        "clarification": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。",
+        "enumerate": false,
+        "field_role": "location",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "clarification",
+          "reason": "ITEM_AMBIGUOUS",
+          "returned": null,
+          "text": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。 可选：宣传海报、易拉宝",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": "ITEM_AMBIGUOUS",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店的宣传海报和易拉宝在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "class": "A 正例：一店两物品",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "store": "城东店"
+        },
+        "items": [
+          "宣传海报",
+          "易拉宝"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城东店的易拉宝：C区门口（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": false,
+            "C区门口": true,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [
+            "宣传海报",
+            "易拉宝"
+          ],
+          "last_kind": null,
+          "last_question": "城东店的宣传海报和易拉宝在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个物品，请明确要查询的物品。"
+      },
+      "question": "城东店的宣传海报和易拉宝在哪里？"
+    },
+    "P3_two_stores_phone": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": false,
+        "field_role": "phone",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 0,
+          "kind": "ambiguous",
+          "reason": "MULTIPLE_ENTITIES",
+          "returned": 5,
+          "text": "资料中有多个符合条件的对象，不能唯一确定，请补充要查询的门店/商品/渠道；这不是资料中没有答案。可选：城东店、城西店",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": false,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": false,
+          "field_role": "phone",
+          "field_roles": [
+            "phone"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的电话是多少？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "A 正例：两店门店级字段（电话）",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "phone",
+        "filters": {},
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店：010-11110001（来源：合作店家信息）\n- 城西店：010-11110002（来源：合作店家信息）\n已显示全部。",
+          "values_present": {
+            "010-11110001": true,
+            "010-11110002": true,
+            "A区1号架": false,
+            "B区2号架": false,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "phone",
+          "field_roles": [
+            "phone"
+          ],
+          "identifier": null,
+          "item": null,
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的电话是多少？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的电话是多少？"
+    },
+    "P4_two_stores_one_item_enumerate_word": {
+      "baseline": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": null,
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报分别在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "class": "A 正例：两店一物品 + 分别",
+      "current": {
+        "clarification": null,
+        "enumerate": true,
+        "field_role": "location",
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "kernel_ask": {
+          "citations": 2,
+          "kind": "answer",
+          "reason": null,
+          "returned": 2,
+          "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的宣传海报：A区1号架（来源：物品位置表）\n- 城西店的宣传海报：B区2号架（来源：物品位置表）\n已显示全部。",
+          "values_present": {
+            "010-11110001": false,
+            "010-11110002": false,
+            "A区1号架": true,
+            "B区2号架": true,
+            "C区门口": false,
+            "D区立柱": false,
+            "E区仓库": false,
+            "城南店": false
+          }
+        },
+        "missing_stores": [],
+        "mode": "record",
+        "pending_slot": null,
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "state_dict": {
+          "as_of": "2026-10-15",
+          "candidates": [],
+          "channel": null,
+          "conversation_id": "",
+          "doc_id": null,
+          "doc_title": null,
+          "enumerate": true,
+          "field_role": "location",
+          "field_roles": [
+            "location"
+          ],
+          "identifier": null,
+          "item": "宣传海报",
+          "items": [
+            "宣传海报"
+          ],
+          "last_kind": null,
+          "last_question": "城东店和城西店的宣传海报分别在哪里？",
+          "page": 1,
+          "page_size": 10,
+          "pending_slot": null,
+          "price_type": null,
+          "product": null,
+          "store": "城东店",
+          "stores": [
+            "城东店",
+            "城西店"
+          ],
+          "turn": 1,
+          "user_id": ""
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的宣传海报分别在哪里？"
+    }
+  },
+  "code_under_test": {
+    "backend/src/mktkb/conversations/service.py": "29b0a29582ee08298c842087ce9f50b4b2c2ccba4103fa03e0c3920bb48984f0",
+    "backend/src/mktkb/rag/query.py": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372"
+  },
+  "external_attempts": [
+    {
+      "detail": "('example.invalid', 80)",
+      "kind": "socket.getaddrinfo"
+    },
+    {
+      "detail": "('192.0.2.1', 80)",
+      "kind": "socket.create_connection"
+    },
+    {
+      "detail": "('example.invalid', 80)",
+      "kind": "socket.create_connection"
+    },
+    {
+      "detail": "('example.invalid', 80)",
+      "kind": "socket.create_connection"
+    }
+  ],
+  "external_attempts_during_probe": 0,
+  "external_attempts_total": 4,
+  "loopback_attempts_total": 0,
+  "positive_controls": [
+    {
+      "attempts": 1,
+      "blocked": true,
+      "error": "OSError: netguard: socket.getaddrinfo blocked",
+      "probe": "dns"
+    },
+    {
+      "attempts": 1,
+      "blocked": true,
+      "error": "OSError: netguard: socket.create_connection blocked",
+      "probe": "direct"
+    },
+    {
+      "attempts": 1,
+      "blocked": true,
+      "error": "URLError: <urlopen error netguard: socket.create_connection blocked>",
+      "probe": "urllib"
+    },
+    {
+      "attempts": 1,
+      "blocked": true,
+      "error": "ConnectError: netguard: socket.create_connection blocked",
+      "probe": "httpx"
+    }
+  ],
+  "proxy_env_removed": [
+    "ALL_PROXY",
+    "HTTPS_PROXY",
+    "HTTP_PROXY",
+    "NODE_USE_ENV_PROXY",
+    "NO_PROXY"
+  ],
+  "questions_are_synthetic": true,
+  "real_h2_surface_read": false,
+  "schema_version": "v3-fix1r1-probe/v0.1"
+}

@@ -1,0 +1,49 @@
+{
+  "frozen_matcher": {
+    "function": "mktkb.evaluation.p2_hard_evidence._ref_matches_unit",
+    "forbidden_ref_old_version": {
+      "doc_code": "D01",
+      "record_code": "P01",
+      "version_number": 2,
+      "locator": {
+        "sheet": "物品位置",
+        "row": 8
+      }
+    },
+    "expected_ref_current_version": {
+      "doc_code": "V04",
+      "record_code": "P01",
+      "version_number": 3,
+      "locator": {
+        "sheet": "物品位置",
+        "row": 8
+      }
+    },
+    "used_unit": {
+      "unit_id": "unit-current-p01",
+      "unit_key": "sheet:物品位置:row:8",
+      "kind": "table_row",
+      "locator": {
+        "sheet": "物品位置",
+        "row": 8
+      },
+      "document_name": "V04_物品位置表_新版V3.xlsx",
+      "version_number": 3,
+      "entity_type": "item",
+      "entity_key": "item|id:p01",
+      "entity_filters": {
+        "store": "城东店",
+        "item": "宣传海报",
+        "item_id": "P01"
+      }
+    },
+    "forbidden_hit": true,
+    "expected_hit": true
+  },
+  "independent_version_aware_check": {
+    "forbidden_match": false,
+    "expected_match": true
+  },
+  "forbidden_value_in_final_text": null,
+  "reading": "冻结匹配器对旧版本 forbidden ref 与实际使用的当前版本行同时返回 True，说明它只用 locator(sheet/row) 命中、不比较 doc_code/record_code/版本；版本感知复核则 forbidden=False / expected=True。"
+}

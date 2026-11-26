@@ -1,0 +1,496 @@
+{
+  "after": {
+    "failures": [],
+    "passed": 16,
+    "total": 16
+  },
+  "after_src": "D:\\GPT项目\\市场部AI知识库\\backend\\src",
+  "before": {
+    "failures": [
+      "A1_doc_word_qingdan",
+      "A2_two_doc_codes",
+      "A3_doc_word_ziliao",
+      "B1_first_turn_explicit",
+      "B2_first_turn_explicit"
+    ],
+    "passed": 11,
+    "total": 16
+  },
+  "before_src": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\mktkb-fix2-prefix-_xz9w041\\src",
+  "cases": {
+    "A1_doc_word_qingdan": {
+      "after": {
+        "citations": 2,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "returned": 2
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_NOT_FOUND",
+        "returned": null
+      },
+      "before_failed_checks": [
+        "reason",
+        "clarification_none",
+        "owns",
+        "kind",
+        "returned",
+        "present:前台内侧墙面",
+        "present:电梯口立柱"
+      ],
+      "before_ok": false,
+      "changed": true,
+      "group": "A_positive",
+      "question": "城东店和城西店的易拉宝那个位置，查物料清单确认下"
+    },
+    "A2_two_doc_codes": {
+      "after": {
+        "citations": 2,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "returned": 2
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 2,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_AMBIGUOUS",
+        "returned": 2
+      },
+      "before_failed_checks": [
+        "reason",
+        "clarification_none",
+        "owns"
+      ],
+      "before_ok": false,
+      "changed": true,
+      "group": "A_positive",
+      "question": "城东店和城西店的宣传海报那个位置在D01和D02里分别是怎么写的"
+    },
+    "A3_doc_word_ziliao": {
+      "after": {
+        "citations": 2,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "returned": 2
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": false,
+        "kind": "no_answer",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_NOT_FOUND",
+        "returned": null
+      },
+      "before_failed_checks": [
+        "reason",
+        "clarification_none",
+        "enumerate",
+        "owns",
+        "kind",
+        "returned",
+        "present:北区一排货架",
+        "present:西区二排货架"
+      ],
+      "before_ok": false,
+      "changed": true,
+      "group": "A_positive",
+      "question": "城东店和城西店的宣传海报那个位置，对照存档资料核一下"
+    },
+    "A4_contact_merge_refused": {
+      "after": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": "SECURITY_RESTRICTED_CONTACT",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": "SECURITY_RESTRICTED_CONTACT",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "A_positive_security",
+      "question": "城东店和城西店的易拉宝那个位置，连门店的联系电话一起发我"
+    },
+    "B1_first_turn_explicit": {
+      "after": {
+        "citations": 1,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": null,
+        "returned": 1
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "returned": 1
+      },
+      "before_failed_checks": [
+        "reason_not",
+        "kind",
+        "citations_min",
+        "present:前台内侧墙面"
+      ],
+      "before_ok": false,
+      "changed": true,
+      "group": "B_positive",
+      "question": "城东店的易拉宝那个张贴要求是怎么说的"
+    },
+    "B2_first_turn_explicit": {
+      "after": {
+        "citations": 1,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": null,
+        "returned": 1
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "returned": 1
+      },
+      "before_failed_checks": [
+        "reason_not",
+        "kind",
+        "citations_min",
+        "present:电梯口立柱"
+      ],
+      "before_ok": false,
+      "changed": true,
+      "group": "B_positive",
+      "question": "城西店的易拉宝那个补给节奏如何安排"
+    },
+    "B3_no_coverage_not_found": {
+      "after": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": null,
+        "returned": 0
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "no_answer",
+        "rag_owns_turn": true,
+        "reason": "ANAPHORA_NEW_CONTENT",
+        "returned": 0
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": true,
+      "group": "B_negative",
+      "question": "城东店的价签卡纸那个张贴要求是怎么说的"
+    },
+    "B4_followup_collapse_kept": {
+      "after": {
+        "citations": 1,
+        "clarification": false,
+        "enumerate": false,
+        "kind": "answer",
+        "rag_owns_turn": false,
+        "reason": null,
+        "returned": 1
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 1,
+        "clarification": false,
+        "enumerate": false,
+        "kind": "answer",
+        "rag_owns_turn": false,
+        "reason": null,
+        "returned": 1
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "B_negative",
+      "question": "城东店的易拉宝在哪里？"
+    },
+    "B5_first_turn_bare_anaphora": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MISSING_SLOT",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MISSING_SLOT",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "B_negative",
+      "question": "这两个分别摆在哪"
+    },
+    "N1_two_stores_two_items": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "ITEM_AMBIGUOUS",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "ITEM_AMBIGUOUS",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "A_negative",
+      "question": "城东店和城西店的易拉宝和宣传海报分别摆在哪"
+    },
+    "N2_bare_anaphora": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "A_negative",
+      "question": "城东店和城西店的这两个分别摆在哪"
+    },
+    "N3_unknown_store_anaphora": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "A_negative",
+      "question": "城东店和郊野店的这几个分别摆在哪"
+    },
+    "N4_missing_document_still": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": false,
+        "kind": "no_answer",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_NOT_FOUND",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": false,
+        "kind": "no_answer",
+        "rag_owns_turn": false,
+        "reason": "DOCUMENT_NOT_FOUND",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "A_negative",
+      "question": "促销活动台账在哪"
+    },
+    "R1_fix1_multi_target": {
+      "after": {
+        "citations": 2,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "returned": 2
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 2,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "returned": 2
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "regression_fix1",
+      "question": "城东店和城西店的宣传海报分别摆在哪"
+    },
+    "R2_fix1r1_pure_anaphora_with_store_pair": {
+      "after": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 0,
+        "clarification": true,
+        "enumerate": true,
+        "kind": "clarification",
+        "rag_owns_turn": false,
+        "reason": "MULTIPLE_ENTITIES",
+        "returned": null
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "regression_fix1r1",
+      "question": "城东店和城西店的这几个分别摆在哪"
+    },
+    "R3_fix1_anaphora_they_planner": {
+      "after": {
+        "citations": 6,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": false,
+        "reason": null,
+        "returned": 6
+      },
+      "after_ok": true,
+      "before": {
+        "citations": 6,
+        "clarification": false,
+        "enumerate": true,
+        "kind": "answer",
+        "rag_owns_turn": false,
+        "reason": null,
+        "returned": 6
+      },
+      "before_failed_checks": [],
+      "before_ok": true,
+      "changed": false,
+      "group": "regression_fix1",
+      "question": "城东店和城西店的它们分别摆在哪"
+    }
+  },
+  "causality": {
+    "flipped_count": 5,
+    "statement": "同一份自建探针只换 src（仓库现状 vs 本包反向重建的改前版），5 个 A/B 正例由失败翻为通过，其余 11 例前后一致。",
+    "unchanged_count": 11
+  },
+  "flipped_to_pass": [
+    "A1_doc_word_qingdan",
+    "A2_two_doc_codes",
+    "A3_doc_word_ziliao",
+    "B1_first_turn_explicit",
+    "B2_first_turn_explicit"
+  ],
+  "schema_version": "v3-fix2-probe-compare/v0.1",
+  "stable_fail": [],
+  "stable_pass": [
+    "A4_contact_merge_refused",
+    "B3_no_coverage_not_found",
+    "B4_followup_collapse_kept",
+    "B5_first_turn_bare_anaphora",
+    "N1_two_stores_two_items",
+    "N2_bare_anaphora",
+    "N3_unknown_store_anaphora",
+    "N4_missing_document_still",
+    "R1_fix1_multi_target",
+    "R2_fix1r1_pure_anaphora_with_store_pair",
+    "R3_fix1_anaphora_they_planner"
+  ]
+}

@@ -1,0 +1,157 @@
+{
+  "baseline_source": {
+    "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\fix-1\\independent\\_reconstructed_query.py",
+    "sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1",
+    "sha256_matches": true
+  },
+  "findings": [
+    "N2/N2b：改前 legacy 判“多个门店”澄清；改后 planner 置 MULTI_TARGET_ENUMERATE 且 _rag_owns_turn=True，产品走 rag 内核并以 4 条（两店全部物品）作答——纯指代目标被放行。",
+    "N5：“它们”仍被 ANAPHORA_WORDS 拦住，_rag_owns_turn=False，产品仍走 legacy 澄清；不属本轮回归。",
+    "P1：显式多目标为设计目标，改前 legacy 澄清、改后枚举作答（预期改进）。"
+  ],
+  "rows": {
+    "N2_this_two": {
+      "baseline_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "current_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "candidates": [
+          "城东店",
+          "城西店"
+        ],
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的这两个分别放在哪里？"
+    },
+    "N2b_these": {
+      "baseline_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "current_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "candidates": [
+          "城东店",
+          "城西店"
+        ],
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的这几个分别放在哪里？"
+    },
+    "N5_they": {
+      "baseline_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "current_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {},
+        "items": [],
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "candidates": [
+          "城东店",
+          "城西店"
+        ],
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的它们分别放在哪里？"
+    },
+    "P1_explicit_multi": {
+      "baseline_planner": {
+        "clarification": null,
+        "enumerate": false,
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [],
+        "rag_owns_turn": false,
+        "reason": null,
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "current_planner": {
+        "clarification": null,
+        "enumerate": true,
+        "filters": {
+          "item": "宣传海报"
+        },
+        "items": [
+          "宣传海报"
+        ],
+        "rag_owns_turn": true,
+        "reason": "MULTI_TARGET_ENUMERATE",
+        "stores": [
+          "城东店",
+          "城西店"
+        ]
+      },
+      "legacy_intent": {
+        "candidates": [
+          "城东店",
+          "城西店"
+        ],
+        "clarification": "问题中包含多个门店，请选择要查询的门店。"
+      },
+      "question": "城东店和城西店的宣传海报在哪里？"
+    }
+  },
+  "schema_version": "v3-fix1-independent-A-anaphora-regression/v0.1"
+}

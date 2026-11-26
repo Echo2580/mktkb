@@ -1,0 +1,19 @@
+# R2-206A 回归汇总（命令 / 退出码 / 通过数 / 是否本批）
+# 工作目录：backend/（除批次 D、E 见下）；basetemp 全在仓库外 D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\
+
+| 批次 | 命令要点 | 退出码 | 结果 | 是否本批 |
+| --- | --- | --- | --- | --- |
+| 红（改前 bytes） | pytest tests/integration/test_r2_206a_contact_gate.py (base sha 69ab6a8c) | 1 | 6 failed / 4 passed | — 红态基线 |
+| 绿（改后 bytes） | pytest tests/integration/test_r2_206a_contact_gate.py | 0 | 10 passed | 本批 |
+| A：tests/rag ×10 | 见 R2-206A-reg-batches.log | 0 | 81 passed | 否（全绿） |
+| B：tests/integration ×10 | 见 R2-206A-reg-batches.log | 0 | 70 passed（13/14/5/3/7/6 + 7/3/9/3） | 否（全绿） |
+| C：tests/unit + tests/evaluation ×7 | 见 R2-206A-reg-batches.log | 0 | 202 passed | 否（全绿） |
+| D：r1_mechanism_repro M5 | pytest docs/.../test_r1_101_m5_payment_scope_refusal.py | 0 | 2 passed | 否（全绿） |
+| F：tests/rag + tests/unit + tests/integration 全量（改后） | 见 R2-206A-reg-full.log | 1 | 1527 passed / 3 failed | 3 例改前即红（改前 bytes 复现 3 failed） |
+| G：tests/evaluation 全量（改后） | 见 R2-206A-reg-evaluation.log | 1 | 49 failed / 2556 passed / 74 errors | 6 个文件改前 bytes 复现 49 failed/127 passed/15 skipped ⇒ 非本批 |
+
+## F 的 3 个失败（改前/改后同红）
+1. tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan（GO/budget 冻结件一致性）
+2. tests/unit/test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552（官方档位额度）
+3. tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge（标识歧义 → conflict 而非 clarification）
+证据：R2-206A-reg-full-3fails-pre.log（同一 3 个 node 在改前 bytes 上 3 failed）。

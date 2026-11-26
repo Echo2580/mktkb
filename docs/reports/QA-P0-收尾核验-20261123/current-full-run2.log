@@ -1,0 +1,2507 @@
+........................................................................ [  1%]
+.....................................................................F.. [  2%]
+........................................................................ [  4%]
+........................................................................ [  5%]
+........................................................................ [  7%]
+...........................F............................................ [  8%]
+........................................................................ [  9%]
+.......................................................................F [ 11%]
+....F................................................................... [ 12%]
+.........................................F.............................. [ 14%]
+............................................F........................... [ 15%]
+........................................................................ [ 16%]
+........................................................................ [ 18%]
+........................................................................ [ 19%]
+....................................F................................... [ 21%]
+........................................................................ [ 22%]
+........................................................................ [ 23%]
+........................................................................ [ 25%]
+.........................F.............................................. [ 26%]
+........................................................................ [ 28%]
+........................................................................ [ 29%]
+........................................................................ [ 30%]
+........................................................................ [ 32%]
+........................................................................ [ 33%]
+........................................................................ [ 35%]
+..........................................s..............ssssssssss.ss.. [ 36%]
+.s..s.ssssssssssssssssssssssssssssssssFFFFFFFFFFFFFEEEEEEEFFFFFFFFFFFFFF [ 37%]
+FFFFFFFF................................................................ [ 39%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+........................................................................ [ 43%]
+........................................................................ [ 45%]
+........................................................................ [ 46%]
+........................................................................ [ 47%]
+........................................................................ [ 49%]
+........................................................................ [ 50%]
+........................................................................ [ 52%]
+........................................................................ [ 53%]
+........................................................................ [ 54%]
+........................................................................ [ 56%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 60%]
+........................................................................ [ 61%]
+........................................................................ [ 63%]
+........................................................................ [ 64%]
+........................................................................ [ 66%]
+........................................................................ [ 67%]
+........................................................................ [ 68%]
+......................................F..F.............................. [ 70%]
+........................................................................ [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 74%]
+........................................................................ [ 75%]
+........................................................................ [ 77%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 81%]
+........................................................................ [ 82%]
+........................................................................ [ 84%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+........................................................................ [ 88%]
+.....F.................................................................. [ 90%]
+........................F............................................... [ 91%]
+........................................................................ [ 92%]
+........................................................................ [ 94%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+.................................................F...................... [ 98%]
+........................................................................ [ 99%]
+........                                                                 [100%]
+=================================== ERRORS ====================================
+_________ ERROR at setup of test_forged_attested_revision_is_rejected _________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_forged_attested_revision_0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ ERROR at setup of test_proof_digest_mismatch_is_rejected ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_proof_digest_mismatch_is_0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______ ERROR at setup of test_binding_proof_from_another_run_is_rejected ______
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_binding_proof_from_anothe0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ ERROR at setup of test_no_correction_claimed_is_rejected ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_no_correction_claimed_is_0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____ ERROR at setup of test_missing_original_mechanical_result_is_rejected ____
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_missing_original_mechanic0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ ERROR at setup of test_missing_binding_proof_is_rejected ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_missing_binding_proof_is_0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__ ERROR at setup of test_zero_rewrite_claim_without_legal_zero_is_rejected ___
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_zero_rewrite_claim_withou0')
+
+    @pytest.fixture
+    def binding_case(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:220: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+================================== FAILURES ===================================
+_________________ test_baseline_list_reads_baseline_json_only _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020507EC2C30>
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_baseline_list_reads_basel0')
+capsys = <_pytest.capture.CaptureFixture object at 0x0000020507EC1490>
+
+    def test_baseline_list_reads_baseline_json_only(monkeypatch, tmp_path, capsys) -> None:
+        root = tmp_path / "baselines"
+        (root / BASELINE_ID).mkdir(parents=True)
+        (root / BASELINE_ID / "baseline.json").write_bytes(b"{}")
+        (root / "not-a-baseline").mkdir()
+        loaded: list = []
+    
+        def fake_load(baseline_id_value, root_arg, **kwargs):
+            loaded.append((baseline_id_value, Path(root_arg)))
+            return SimpleNamespace(
+                baseline_id=baseline_id_value,
+                run_id="run-1",
+                suite="b0",
+                pipeline_version="pipeline",
+                approval=None,
+            )
+    
+        monkeypatch.setattr(cli, "load_baseline", fake_load)
+        code = cli.main(["baseline", "list", "--root", str(root)])
+        out = capsys.readouterr().out
+>       assert code == 0
+E       assert 3 == 0
+
+backend\tests\evaluation\test_cli.py:605: AssertionError
+_______________ test_acceptance_01_business_behavior_unchanged ________________
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000002050819D8E0>
+
+    def test_acceptance_01_business_behavior_unchanged(trace_chat_app) -> None:
+        assert GOLDEN.is_file(), f"golden 缺失: {GOLDEN}"
+        golden = _read_json(GOLDEN)
+        meta = golden["_meta"]
+        # golden 的可信性：来源、采集命令、归一化清单必须与实现一致（文档不得静默漂移）。
+        assert meta["captured_from_commit"] and meta["capture_command"]
+        assert tuple(meta["normalised_fields"]) == NORMALISED_FIELDS
+        assert tuple(meta["asserted_not_recorded"]) == ASSERTED_NOT_RECORDED
+    
+        response = _chat_scenario(trace_chat_app)
+        assert response.status_code == golden["http_status"] == 200
+        trace_header = response.headers.get("X-Trace-ID")
+        assert trace_header and TRACE_ID_RE.fullmatch(trace_header), trace_header
+        assert response.headers.get("X-Request-ID"), "业务响应必须带 X-Request-ID"
+    
+        actual = normalise_chat_payload(response.json())
+>       assert actual == golden["normalised_body"]
+E       AssertionError: assert {'request_id'...有匹配记录）。', ...} == {'request_id'...有匹配记录）。', ...}
+E         
+E         Omitting 11 identical items, use -vv to show
+E         Differing items:
+E         {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]} != {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]}
+E         Use -v to get more diff
+
+backend\tests\evaluation\test_p0_acceptance.py:197: AssertionError
+_____ test_gap_rework_identity_unparsable_pagination_and_candidate_marker _____
+
+captured = {'evidence': {'schema_version': 'p2-hard-evidence-capture/v0.3', 'fixture_kind': 'local_mock', 'bindings': {'run_id': ...k-plan_sha256', 'dataset_version': 'contract-dataset-v1', ...}, 'key': b'J0eDTbyIW2jhcFq6j7NjQAKgcMIEQlXsvYb2YglBfpU='}
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_gap_rework_identity_unpar0')
+
+    def test_gap_rework_identity_unparsable_pagination_and_candidate_marker(
+        captured: dict[str, Any], tmp_path: Path
+    ) -> None:
+        """A-I G1/G2/G4/R4 回归：缺失身份、不可解析响应、分页矛盾、候选观察标记。"""
+        from mktkb.evaluation.p2_evidence_capture import _product_response_block
+    
+        evidence = captured["evidence"]
+        base = copy.deepcopy(evidence["runtime_snapshot"])
+>       assert base["retrieval_use"]["candidate_observation"]["availability"] == "not_observed"
+E       AssertionError: assert 'observed' == 'not_observed'
+E         
+E         - not_observed
+E         ? ----
+E         + observed
+
+backend\tests\evaluation\test_p2_capture_contract_v02.py:296: AssertionError
+______________ test_capture_chain_roundtrip_and_public_boundary _______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_capture_chain_roundtrip_a0')
+
+    @asyncio_test
+    async def test_capture_chain_roundtrip_and_public_boundary(tmp_path: Path) -> None:
+        bindings = _bindings("e2e-chain")
+        writer = _writer(tmp_path, bindings)
+        adapter = _adapter(tmp_path / "run", writer=writer, bindings=bindings)
+        questions = [
+            "活动策划需要哪些步骤？",
+            ENUMERATION_QUESTION,
+            "火星店的宣传海报在哪里？" + SENTINEL,
+            "那城西店呢？",
+        ]
+        turns = []
+        try:
+            await adapter.start()
+            await adapter.ingest()
+            conversation = await adapter.open_conversation()
+            for question in questions:
+                turns.append(
+                    await adapter.ask_turn(
+                        question,
+                        user_id="employee",
+                        conversation_id=conversation,
+                        client_request_id=str(uuid.uuid4()),
+                    )
+                )
+            session = adapter._evidence_session
+            assert session is not None and session.blocked is False
+            assert adapter.network_stats()["outbound_attempts"] == 0
+        finally:
+            await adapter.close()
+    
+        kinds = [turn.kind for turn in turns]
+        assert "answer" in kinds
+        assert any(kind in {"not_found", "clarification", "no_answer"} for kind in kinds), kinds
+    
+        records = [item for item in writer.written if item["kind"] == "turn"]
+        assert len(records) == len(questions)
+        pagination_seen = False
+        for index, record in enumerate(records):
+            evidence = read_encrypted_evidence(
+                Path(record["path"]), key=writer.key, expected_bindings=writer.bindings
+            )
+            assert evidence["schema_version"] == V03
+            assert evidence["completeness"]["status"] == "complete", evidence["completeness"]
+            assert evidence["completeness"]["scoring_readiness"]["four_axis"] is True
+            snapshot = evidence["runtime_snapshot"]
+            binding = snapshot["binding"]
+            assert binding["client_request_id"] == evidence["turn"]["client_request_id"]
+            assert binding["conversation_id"] == evidence["turn"]["conversation_id"]
+            assert binding["post_revision"] == evidence["turn"]["post_revision"]
+            response = snapshot["product_response"]
+            assert response["availability"] == "available"
+            assert response["reason"] is None
+            assert response["http_status"] == 200
+            assert str(response["kind"]) == str(turns[index].kind)
+            assert response["request_id"] == turns[index].request_id
+            assert snapshot["trace"]["availability"] in {"available", "absent"}
+            assert snapshot["retrieval_use"]["availability"] == "complete"
+            plans = [
+                event["payload"]
+                for event in evidence["capture"]["events"]
+                if event["kind"] == "plan_observed"
+            ]
+            marker = snapshot["retrieval_use"]["candidate_observation"]
+            if plans and plans[0]["path"] == "rag":
+>               assert marker == {
+                    "availability": "not_observed",
+                    "reason": "candidate_layer_not_observed",
+                }
+E               AssertionError: assert {'availabilit...reason': None} == {'availabilit...not_observed'}
+E                 
+E                 Differing items:
+E                 {'availability': 'observed'} != {'availability': 'not_observed'}
+E                 {'reason': None} != {'reason': 'candidate_layer_not_observed'}
+E                 Use -v to get more diff
+
+backend\tests\evaluation\test_p2_capture_contract_v02_e2e.py:213: AssertionError
+_____________________ test_frozen_module_sha_is_expected ______________________
+
+    def test_frozen_module_sha_is_expected() -> None:
+>       assert _sha256_file(FROZEN_MODULE) == FROZEN_SHA
+E       AssertionError: assert '3f1c88baa568...58dc30be91ffd' == '49aa66cc443e...79180a9bcd2e8'
+E         
+E         - 49aa66cc443e96995ba8256f1b49688371d851e4faea716c82a79180a9bcd2e8
+E         + 3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd
+
+backend\tests\evaluation\test_p2_empty_scope_proof.py:1121: AssertionError
+_________________ test_differential_against_frozen_primitive __________________
+
+    def test_differential_against_frozen_primitive() -> None:
+        before = _sha256_file(FROZEN_MODULE)
+>       assert before == FROZEN_SHA
+E       AssertionError: assert '3f1c88baa568...58dc30be91ffd' == '49aa66cc443e...79180a9bcd2e8'
+E         
+E         - 49aa66cc443e96995ba8256f1b49688371d851e4faea716c82a79180a9bcd2e8
+E         + 3f1c88baa56838a3fbe02c462b74646bb224dd57f60b115442b58dc30be91ffd
+
+backend\tests\evaluation\test_p2_empty_scope_proof.py:1210: AssertionError
+_________________ test_gate_entry_runs_provenance_by_default __________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_gate_entry_runs_provenanc0')
+
+    @pytest.mark.skipif(not (EXTERNAL_RUNS / "R2").is_dir(),
+                        reason="需要本机历史 run 的 rag/trace 库（仓外）")
+    def test_gate_entry_runs_provenance_by_default(tmp_path: Path) -> None:
+        import importlib.util
+    
+        script = ROOT / "docs/reports/OBS-EVAL/P2/CROSS-SCENARIO-GATE/scripts/wire_real_ncu.py"
+        spec = importlib.util.spec_from_file_location("wire_real_ncu_fu3", script)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+        work = tmp_path / "real"
+        work.mkdir()
+>       inputs_path, payload = module.build_inputs(work)
+                               ^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_fu3_provenance.py:590: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:131: in build_inputs
+    "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/var/eval/baselines/2b40ee9b4740/baseline.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\2b40ee9b4740\\baseline.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_________ test_old_safe_diag_rejection_counterexamples_still_rejected _________
+
+    def test_old_safe_diag_rejection_counterexamples_still_rejected() -> None:
+        for name in (
+            "counterexample-unknown-to-pass",
+            "counterexample-unknown-to-tn",
+            "counterexample-required-block",
+        ):
+>           payload = json.loads((SAFE_DIAG_EVIDENCE / (name + ".json")).read_text(encoding="utf-8"))["input"]
+                                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_hard_evidence.py:2040: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1027: in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/reports/OBS-EVAL/P2/T207-SAFE-DIAG-R1/evidence/independent/counterexample-unknown-to-pass.json')
+mode = 'r', buffering = -1, encoding = 'utf-8', errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\T207-SAFE-DIAG-R1\\evidence\\independent\\counterexample-unknown-to-pass.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________________ test_stale_frozen_template_config_is_rejected ________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_stale_frozen_template_con0')
+
+    def test_stale_frozen_template_config_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_________________ test_same_version_wrong_digest_is_rejected __________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_same_version_wrong_digest0')
+
+    def test_same_version_wrong_digest_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:82: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______________________ test_fake_b0_registry_is_rejected ______________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_fake_b0_registry_is_rejec0')
+
+    def test_fake_b0_registry_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:90: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____ test_fake_registry_at_canonical_root_still_rejected_by_pinned_digest _____
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_fake_registry_at_canonica0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050BD1D670>
+
+    def test_fake_registry_at_canonical_root_still_rejected_by_pinned_digest(tmp_path, monkeypatch):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________________ test_candidate_pipeline_mismatch_is_rejected _________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_candidate_pipeline_mismat0')
+
+    def test_candidate_pipeline_mismatch_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:127: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________________ test_cross_plan_merged_run_rows_are_rejected _________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_cross_plan_merged_run_row0')
+
+    def test_cross_plan_merged_run_rows_are_rejected(tmp_path):
+>       path, _ = build_complete_inputs(tmp_path / "keep")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:135: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________________ test_missing_coverage_case_is_rejected ____________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_missing_coverage_case_is_0')
+
+    def test_missing_coverage_case_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:144: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_____________________ test_not_executed_case_is_rejected ______________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_not_executed_case_is_reje0')
+
+    def test_not_executed_case_is_rejected(tmp_path):
+>       path, _ = build_complete_inputs(tmp_path, public_kwargs={"not_executed": ("N05",)})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:158: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______________ test_h2_v01_card_masquerading_as_v02_is_rejected _______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_v01_card_masquerading_0')
+
+    def test_h2_v01_card_masquerading_as_v02_is_rejected(tmp_path):
+>       path, _ = build_complete_inputs(tmp_path, h2_kwargs={"card_schema": "mktkb.p2.scoring.v0.1"})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:165: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________________ test_h2_required_axis_unknown_is_rejected __________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_required_axis_unknown_0')
+
+    def test_h2_required_axis_unknown_is_rejected(tmp_path):
+        axes = {
+            "safety": {"required": 8, "not_applicable": 22, "unknown": 0},
+            "cross_user": {"required": 30, "not_applicable": 0, "unknown": 0},
+            "cross_entity": {"required": 10, "not_applicable": 20, "unknown": 0},
+            "stale_source": {"required": 1, "not_applicable": 28, "unknown": 1},
+        }
+>       path, _ = build_complete_inputs(tmp_path, h2_kwargs={"annotation_axes": axes})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:178: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____________________ test_h2_real_hard_failure_is_rejected ____________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_real_hard_failure_is_r0')
+
+    def test_h2_real_hard_failure_is_rejected(tmp_path):
+>       path, _ = build_complete_inputs(tmp_path, h2_kwargs={"hard_failure": True})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:185: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________________ test_h2_card_digest_mismatch_is_rejected ___________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_card_digest_mismatch_i0')
+
+    def test_h2_card_digest_mismatch_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:192: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____________ test_h2_source_proof_wrong_batch_binding_is_rejected _____________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_source_proof_wrong_bat0')
+
+    def test_h2_source_proof_wrong_batch_binding_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:201: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________ test_missing_binding_row_is_caught_by_completeness_invariant _________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_missing_binding_row_is_ca0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050D28F9E0>
+
+    def test_missing_binding_row_is_caught_by_completeness_invariant(tmp_path, monkeypatch):
+        """T4-R1 缺陷 1 防回归：若某 run 的 binding 行被丢弃，总门必须阻断而非 pending。"""
+        from mktkb.evaluation import p2_release_binding, p2_release_gate
+    
+>       path, _ = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:304: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________ test_gate_never_passes_when_only_correction_is_reported ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_gate_never_passes_when_on0')
+
+    def test_gate_never_passes_when_only_correction_is_reported(tmp_path):
+        """即使修正视图通过，只要缺原始机械结果就拒（禁止只报修正后）。"""
+>       path, payload = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:321: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_______ test_two_missing_binding_rows_produce_two_distinct_blocked_rows _______
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_two_missing_binding_rows_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050D3E8B00>
+
+    def test_two_missing_binding_rows_produce_two_distinct_blocked_rows(tmp_path, monkeypatch):
+        """T4-R1 复验 D4：多 run 同时缺 binding 行时，必须产出两条不重复的阻断行。"""
+        from mktkb.evaluation import p2_release_binding, p2_release_gate
+    
+>       path, _ = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:339: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ test_d011_suite_planned_below_min_sample_keeps_u_pending ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_d011_suite_planned_below_0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050974C5F0>
+
+    def test_d011_suite_planned_below_min_sample_keeps_u_pending(tmp_path, monkeypatch):
+        """负例 1：把 update_delete 的 p2_standards.total 改成 9（< 10）→ 覆盖不成立，仍 pending。"""
+        import dataclasses
+    
+        from mktkb.evaluation import p2_release_inputs, p2_release_public, p2_release_gate
+        from mktkb.evaluation.p2_b0 import load_approved_b0_config
+    
+        real_config = load_approved_b0_config(ROOT_APPROVED)
+        standards = real_config.standards
+        forged_standards = dataclasses.replace(standards, update_delete_total=9)
+        forged_config = dataclasses.replace(real_config, standards=forged_standards)
+        monkeypatch.setattr(p2_release_inputs, "load_approved_b0_config", lambda path: forged_config)
+    
+>       path, _ = build_complete_inputs(tmp_path, run_level_cases=("U01",), local_controls=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:377: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_____________ test_d011_forged_planned_cases_cannot_fake_coverage _____________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_d011_forged_planned_cases0')
+
+    def test_d011_forged_planned_cases_cannot_fake_coverage(tmp_path):
+        """负例 2：不能靠调用方自报 run 级/计划数伪造覆盖；计划数只认 p2_standards。"""
+        import dataclasses
+    
+        from mktkb.evaluation.p2_b0 import load_approved_b0_config
+        from mktkb.evaluation.p2_release_public import min_sample_coverage
+    
+        config = load_approved_b0_config(ROOT_APPROVED)
+        real = min_sample_coverage(standards=config.standards, gate_config=config,
+                                   suite="update_delete", run_level_evaluated=1)
+        assert real["covered"] is True and real["suite_planned_cases"] == 10
+        # 自报 run 级评估数再大也不改变"计划题数"这一事实
+        inflated = min_sample_coverage(standards=config.standards, gate_config=config,
+                                       suite="update_delete", run_level_evaluated=99)
+        assert inflated["suite_planned_cases"] == 10 and inflated["covered"] is True
+        # 计划数被改成 9 时，即使自报 10 也判不覆盖
+        forged_standards = dataclasses.replace(config.standards, update_delete_total=9)
+        forged = min_sample_coverage(standards=forged_standards, gate_config=config,
+                                     suite="update_delete", run_level_evaluated=10)
+        assert forged["covered"] is False
+        # 输入契约不接受 suite_planned_cases 之类的自报字段
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:411: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_______________ test_d011_run_level_gate_failure_is_not_masked ________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_d011_run_level_gate_failu0')
+
+    def test_d011_run_level_gate_failure_is_not_masked(tmp_path):
+        """负例 3：run 级子集里注入引用失败 → u.hard_gates 必须 fail/blocked。"""
+>       path, _ = build_complete_inputs(
+            tmp_path, run_level_cases=("U01",), local_controls=True,
+            u_kwargs={"failing_citations": True},
+        )
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:420: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________ test_t4r3_non_disclosure_unknown_blocks_both_u_and_aggregate _________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_t4r3_non_disclosure_unkno0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020514258C20>
+
+    def test_t4r3_non_disclosure_unknown_blocks_both_u_and_aggregate(tmp_path, monkeypatch):
+        """T4-R3：汇总行必须与来源行一致——注入非披露 unknown 后两行都必须 blocked。"""
+        import dataclasses
+    
+        from mktkb.evaluation import p2_release_gate, p2_release_public
+    
+>       path, _ = build_complete_inputs(tmp_path, run_level_cases=("U01",), local_controls=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_negative.py:437: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________________ test_complete_synthetic_evidence_passes_gate _________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_complete_synthetic_eviden0')
+
+    def test_complete_synthetic_evidence_passes_gate(tmp_path):
+        """齐备合成证据（真实登记 B0 + 合成 N/C/U/H2）可达 pass。"""
+>       path, _ = build_complete_inputs(tmp_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:43: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ test_three_h2_views_are_separated_and_c25_does_not_block ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_three_h2_views_are_separa0')
+
+    def test_three_h2_views_are_separated_and_c25_does_not_block(tmp_path):
+        """必需轴 / 非必需轴 / 整卡 verified / 总门 四者分列；C25 非必需未知不阻断。"""
+>       path, _ = build_complete_inputs(tmp_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:63: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____________ test_removing_one_section_blocks_then_pending[public] ____________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_removing_one_section_bloc0')
+section = 'public'
+
+    @pytest.mark.parametrize("section", ["public", "u", "h2"])
+    def test_removing_one_section_blocks_then_pending(tmp_path, section):
+        """移除任一段输入：未标 PENDING -> 拒绝；标 PENDING -> 待交付（都不算通过）。"""
+>       path, payload = build_complete_inputs(tmp_path / "complete")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______________ test_removing_one_section_blocks_then_pending[u] _______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_removing_one_section_bloc1')
+section = 'u'
+
+    @pytest.mark.parametrize("section", ["public", "u", "h2"])
+    def test_removing_one_section_blocks_then_pending(tmp_path, section):
+        """移除任一段输入：未标 PENDING -> 拒绝；标 PENDING -> 待交付（都不算通过）。"""
+>       path, payload = build_complete_inputs(tmp_path / "complete")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______________ test_removing_one_section_blocks_then_pending[h2] ______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_removing_one_section_bloc2')
+section = 'h2'
+
+    @pytest.mark.parametrize("section", ["public", "u", "h2"])
+    def test_removing_one_section_blocks_then_pending(tmp_path, section):
+        """移除任一段输入：未标 PENDING -> 拒绝；标 PENDING -> 待交付（都不算通过）。"""
+>       path, payload = build_complete_inputs(tmp_path / "complete")
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:79: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_____________ test_u01_citation_gap_resolved_by_d004_as_observed ______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_u01_citation_gap_resolved0')
+
+    def test_u01_citation_gap_resolved_by_d004_as_observed(tmp_path):
+        """D-004：引用落在同轮 evidence（retrieved 为空）→ 记 observed，不再阻断。
+    
+        判据仍是"引用必须落在已接地单元"：本用例的单元确实在同轮 evidence 里。
+        """
+>       path, _ = build_complete_inputs(tmp_path, u_kwargs={"citation_gap": True})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:107: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+____________ test_binding_proof_shows_original_and_corrected_views ____________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_binding_proof_shows_origi0')
+
+    def test_binding_proof_shows_original_and_corrected_views(tmp_path):
+        """历史绑定：原始机械结果与修正视图必须同时出现，且证明可重算。"""
+>       path, _ = build_complete_inputs(tmp_path, public_kwargs={"with_binding": True})
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:118: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________ test_cli_entry_returns_zero_on_pass_and_four_on_pending ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_cli_entry_returns_zero_on0')
+capsys = <_pytest.capture.CaptureFixture object at 0x000002051425A2A0>
+
+    def test_cli_entry_returns_zero_on_pass_and_four_on_pending(tmp_path, capsys):
+        from mktkb.evaluation import cli
+    
+>       path, _ = build_complete_inputs(tmp_path)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:134: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________________ test_duplicate_u_case_ids_are_rejected ____________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_duplicate_u_case_ids_are_0')
+
+    def test_duplicate_u_case_ids_are_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:150: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_________________ test_forged_applicability_proof_is_rejected _________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_forged_applicability_proo0')
+
+    def test_forged_applicability_proof_is_rejected(tmp_path):
+>       path, payload = build_complete_inputs(tmp_path)
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_positive.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+___________ test_d011_disclosure_row_present_and_masking_impossible ___________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_d011_disclosure_row_prese0')
+
+    def test_d011_disclosure_row_present_and_masking_impossible(tmp_path):
+        """D-011：min-sample 按 suite 计划题数（10>=10）覆盖；run 级子集只披露。"""
+>       path, _ = build_complete_inputs(tmp_path, run_level_cases=("U01",), local_controls=True)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_real_ncu.py:48: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:744: in build_complete_inputs
+    h2 = build_h2(tmp / "h2", **(dict(h2_kwargs or {})))
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\tests\evaluation\test_p2_release_gate_fixtures.py:456: in build_h2
+    "document": str(H2_AUTHORITY), "sha256": file_sha256(H2_AUTHORITY),
+                                             ^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/docs/superpowers/plans/2026-11-20-p2-closeout-2-h2-cards.md')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\docs\\superpowers\\plans\\2026-11-20-p2-closeout-2-h2-cards.md'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______________ test_real_v3_manifest_four_tiers_and_two_tallies _______________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_real_v3_manifest_four_tie0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050CCE0260>
+
+    @pytest.mark.skipif(not (RAG_ROOT / "R2").is_dir(),
+                        reason="需要本机历史 run 的 rag/trace 库（仓外）")
+    def test_real_v3_manifest_four_tiers_and_two_tallies(tmp_path, monkeypatch):
+        """真实 v3 清单：四档原样承接 + 两行 tally + SHA256SUMS 全命中 + U01 非 FAIL。"""
+        out = tmp_path / "real-ncu.json"
+        monkeypatch.setenv("P2_RELEASE_NCU_OUT", str(out))
+        spec = importlib.util.spec_from_file_location("wire_real_ncu", SCRIPT)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader is not None
+        spec.loader.exec_module(module)
+>       assert module.main() == 0  # D-011 后：技术门 pass
+               ^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_real_ncu.py:77: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:192: in main
+    inputs, payload = build_inputs(work)
+                      ^^^^^^^^^^^^^^^^^^
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:131: in build_inputs
+    "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/var/eval/baselines/2b40ee9b4740/baseline.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\2b40ee9b4740\\baseline.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+______ test_u01_binding_proof_forgery_delete_and_cross_run_are_rejected _______
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_u01_binding_proof_forgery0')
+
+    @pytest.mark.skipif(not (RAG_ROOT / "R2").is_dir(),
+                        reason="需要本机历史 run 的 rag/trace 库（仓外）")
+    def test_u01_binding_proof_forgery_delete_and_cross_run_are_rejected(tmp_path):
+        """T4-R1 缺陷 3：U01 的 binding_proof 有实际约束力（伪造/删除/跨 run 都改变输出）。"""
+        module = _load_script_module()
+>       base_inputs, base_payload = module.build_inputs(tmp_path / "base")
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_real_ncu.py:131: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:131: in build_inputs
+    "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/var/eval/baselines/2b40ee9b4740/baseline.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\2b40ee9b4740\\baseline.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+_______________ test_h2_aggregate_is_wired_with_two_hash_kinds ________________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_aggregate_is_wired_wit0')
+
+    @pytest.mark.skipif(not (RAG_ROOT / "R2").is_dir(),
+                        reason="需要本机历史 run 的 rag/trace 库（仓外）")
+    def test_h2_aggregate_is_wired_with_two_hash_kinds(tmp_path):
+        """H2 受限聚合接线：四卡/组合/来源证明逐项 pass；两套哈希分列且不相等。"""
+        module = _load_script_module()
+>       inputs, _ = module.build_inputs(tmp_path / "h2")
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_real_ncu.py:169: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:131: in build_inputs
+    "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/var/eval/baselines/2b40ee9b4740/baseline.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\2b40ee9b4740\\baseline.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+__________ test_h2_card_file_hash_swapped_with_aggregate_is_rejected __________
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_h2_card_file_hash_swapped0')
+
+    def test_h2_card_file_hash_swapped_with_aggregate_is_rejected(tmp_path):
+        """两套哈希混用（把聚合摘要填进 file SHA）→ 阻断，固定原因码。"""
+        module = _load_script_module()
+>       inputs, payload = module.build_inputs(tmp_path / "swap")
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\evaluation\test_p2_release_gate_real_ncu.py:202: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+docs\reports\OBS-EVAL\P2\CROSS-SCENARIO-GATE\scripts\wire_real_ncu.py:131: in build_inputs
+    "baseline_sha256": file_sha256(REGISTRY / "baseline.json"),
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend\src\mktkb\evaluation\p2_release_model.py:239: in file_sha256
+    return sha256_bytes(target.read_bytes())
+                        ^^^^^^^^^^^^^^^^^^^
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1019: in read_bytes
+    with self.open(mode='rb') as f:
+         ^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = WindowsPath('D:/GPT项目/市场部AI知识库/var/eval/baselines/2b40ee9b4740/baseline.json')
+mode = 'rb', buffering = -1, encoding = None, errors = None, newline = None
+
+    def open(self, mode='r', buffering=-1, encoding=None,
+             errors=None, newline=None):
+        """
+        Open the file pointed to by this path and return a file object, as
+        the built-in open() function does.
+        """
+        if "b" not in mode:
+            encoding = io.text_encoding(encoding)
+>       return io.open(self, mode, buffering, encoding, errors, newline)
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\var\\eval\\baselines\\2b40ee9b4740\\baseline.json'
+
+C:\Users\dell1712\.workbuddy\binaries\python\versions\3.12.7\Lib\pathlib.py:1013: FileNotFoundError
+________ test_same_value_single_cited_source_answers_with_that_source _________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000002050B2DB050>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x0000020511783830>, csrf='4e3e48b80a5fbf0ad30080557f8304f...557f8304f7441987b827f294fd9c6e9c9d8f3bbd34'}, upload=<function _write_session.<locals>.<lambda> at 0x0000020509E17740>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000020511781880>, csrf='286941817ad5b91705ed4205da095b4...05da095b46d82e6dec580aab6969560c88532acb7d'}, upload=<function _write_session.<locals>.<lambda> at 0x000002050B141080>)
+
+    def test_same_value_single_cited_source_answers_with_that_source(chat_app, chat_admin, chat_employee):
+        """同值双来源、模型只引用其中一条（正文通知）：必须 answer，来源就是被引用的那一条。"""
+        _seed_same_value_state(chat_app, chat_admin, chat_employee)
+        gateway = chat_app.state.model_gateway
+        gateway.answer_text = STATEMENT
+        first = _ask(chat_employee, QUESTION)
+        assert first["kind"] == "answer", first
+        evidence = _answer_evidence(gateway)
+>       notice_id = _notice_source_id(evidence)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:172: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+evidence = [{'source_id': '4af9f929-9047-447e-988d-7dce02c3ffa2', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', ...'source_id': '67ec4384-3ec0-45f9-a575-53173ed69875', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+    def _notice_source_id(evidence: list[dict]) -> str:
+        """正文通知单元：证据里正文含“临时调整至”的那一条（fixture 正文，非产品常量）。"""
+        for item in evidence:
+            if "临时调整至" in item["text"]:
+                return item["source_id"]
+>       raise AssertionError(evidence)
+E       AssertionError: [{'source_id': '4af9f929-9047-447e-988d-7dce02c3ffa2', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', '别名': '海报', '位置': 'D区暂存柜'}}, {'source_id': '67ec4384-3ec0-45f9-a575-53173ed69875', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:128: AssertionError
+________________ test_same_value_rejects_echo_from_uncited_row ________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x00000205099E6030>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x0000020512064110>, csrf='2ac82c2eb064386c1da5f3f6805ffff...f6805ffff0627a360f2112c29c78dfb6e651330e22'}, upload=<function _write_session.<locals>.<lambda> at 0x0000020514DBA480>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000020508259100>, csrf='12d4701411193d1ae4f3c3b7cfdb99a...b7cfdb99ad0a3d98bfcb0b119dcdf9e41803344d07'}, upload=<function _write_session.<locals>.<lambda> at 0x0000020507C3B060>)
+
+    def test_same_value_rejects_echo_from_uncited_row(chat_app, chat_admin, chat_employee):
+        """未引用行不能为回答背书：只引用正文通知，却回显表格行的标识，仍必须拒绝。"""
+        _seed_same_value_state(chat_app, chat_admin, chat_employee)
+        gateway = chat_app.state.model_gateway
+        gateway.answer_text = STATEMENT
+        first = _ask(chat_employee, QUESTION)
+        assert first["kind"] == "answer", first
+        evidence = _answer_evidence(gateway)
+>       notice_id = _notice_source_id(evidence)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:238: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+evidence = [{'source_id': 'dd87b655-219a-47ff-a7b7-f9c7dfa5b85b', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', ...'source_id': 'c33bc974-1d26-4d67-a547-522293a9d3ed', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+    def _notice_source_id(evidence: list[dict]) -> str:
+        """正文通知单元：证据里正文含“临时调整至”的那一条（fixture 正文，非产品常量）。"""
+        for item in evidence:
+            if "临时调整至" in item["text"]:
+                return item["source_id"]
+>       raise AssertionError(evidence)
+E       AssertionError: [{'source_id': 'dd87b655-219a-47ff-a7b7-f9c7dfa5b85b', 'text': '', 'fields': {'标识': 'P01', '门店': '城东店', '物品': '宣传海报', '别名': '海报', '位置': 'D区暂存柜'}}, {'source_id': 'c33bc974-1d26-4d67-a547-522293a9d3ed', 'text': '', 'fields': {'物品': '宣传海报', '门店': '城东店', '位置': 'D区暂存柜'}}]
+
+backend\tests\integration\test_t09_d4_same_value_sources.py:128: AssertionError
+____________________ test_offline_index_capture_and_guard _____________________
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+add_records = <function add_records.<locals>._add at 0x00000205167999E0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002050D6C9940>
+
+    def test_offline_index_capture_and_guard(rag_index, add_records, monkeypatch):
+        attempts = []
+        def blocked(*args, **kwargs):
+            attempts.append('blocked')
+            raise RuntimeError('blocked')
+        monkeypatch.setattr(socket.socket, 'connect', blocked)
+        monkeypatch.setattr(socket.socket, 'connect_ex', blocked)
+        monkeypatch.setattr(socket, 'create_connection', blocked)
+        monkeypatch.setattr(socket, 'getaddrinfo', blocked)
+        monkeypatch.setattr(httpx.HTTPTransport, 'handle_request', blocked)
+        monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', blocked)
+        monkeypatch.setattr(subprocess, 'Popen', blocked)
+        add_records([{'标识': 'T01', '门店': '虚构甲店', '物品': '虚构桌', '位置': '虚构一区'}])
+        root = Path(__file__).resolve().parents[3]
+        def baseline_module(name, filename):
+            spec = importlib.util.spec_from_file_location(name, root / '.tmp-r2-obs-baseline' / filename)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+>       before_answer = baseline_module('mktkb.rag._r2_baseline_answer', 'backend_src_mktkb_rag_answer.py')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\rag\test_r2_observability_revision2.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\rag\test_r2_observability_revision2.py:30: in baseline_module
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:991: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1128: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x0000020509F70C50>
+path = 'D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-baseline\\backend_src_mktkb_rag_answer.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-baseline\\backend_src_mktkb_rag_answer.py'
+
+<frozen importlib._bootstrap_external>:1186: FileNotFoundError
+_______ test_current_go_and_budget_are_consistent_and_above_three_yuan ________
+
+    def test_current_go_and_budget_are_consistent_and_above_three_yuan():
+        """当前真实 GO/budget（只读）彼此自洽，且阶段额度不低于旧的 3.00 元硬限。
+    
+        2026-11-05 主人签署 PRE-2 后，GO 只声明 ``P1-RETRIEVAL = 3.0``，共享预算改为
+        ``S2-DEV 15.4 + P1-RETRIEVAL 3.0``（总额 20 不变）。这里按签署后的真实配置校验
+        结构关系，不再把旧 ``S2-DEV = 18.4`` 写死。
+        """
+        from mktkb.rag.budget import BudgetLedger
+    
+        tools = _tools()
+        go = json.loads((ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json").read_text(encoding="utf-8"))
+        budget = json.loads(REAL_BUDGET.read_text(encoding="utf-8"))
+        limits = go["scope"]["stage_limits_cny"]
+        stages = budget["stages"]
+    
+        # a) GO 声明的每个阶段额度，都必须在共享预算里有同名且等额的分配。
+        assert limits, "GO 必须声明至少一个阶段额度"
+        for stage, limit_cny in limits.items():
+            assert stage in stages, f"共享预算缺少 GO 阶段 {stage} 的分配"
+>           assert stages[stage] == pytest.approx(limit_cny)
+E           assert 0.5 == 3.0 ± 3.0e-06
+E             
+E             comparison failed
+E             Obtained: 0.5
+E             Expected: 3.0 ± 3.0e-06
+
+backend\tests\rag\test_s4_stage_limit.py:202: AssertionError
+__ test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552 ___
+
+data_dir = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_official_profile_accepted0/app')
+provider_mode = 'live', page_size = 10, top_k = 8, business_date = None
+
+    def resolve_rag_config(
+        *,
+        data_dir: Path,
+        provider_mode: str,
+        page_size: int,
+        top_k: int,
+        business_date: str | None,
+    ) -> tuple[RagConfig, Any | None]:
+        """构造产品侧 rag 配置；live 必须显式预算入口，默认拒绝真实请求。"""
+        if provider_mode == "offline":
+            return (
+                RagConfig(
+                    provider_mode="offline",
+                    data_dir=data_dir,
+                    page_size=page_size,
+                    top_k=top_k,
+                    business_date=business_date,
+                ),
+                None,
+            )
+        if provider_mode != "live":
+            raise ValueError("rag_provider_mode 只允许 offline/live")
+        # live：阶段额度/请求上限显式，账本/预算/GO 固定锚定；缺一不启动，避免不受控付费路径。
+        from ..live_authorization import (
+            LiveGateError,
+            assert_fixed_env_paths,
+            product_stage,
+            resolve_live_gate,
+        )
+        from ..rag.config import positive_float_env, positive_int_env
+    
+        stage = product_stage()
+        stage_limit = positive_float_env("MKTKB_RAG_STAGE_LIMIT_CNY")
+        max_requests = positive_int_env("MKTKB_RAG_MAX_REQUESTS")
+        if stage_limit is None or max_requests is None:
+            raise ValueError(
+                "rag live 必须显式提供 MKTKB_RAG_STAGE_LIMIT_CNY>0 与 MKTKB_RAG_MAX_REQUESTS>0，"
+                "并通过固定共享账本/预算与产品 GO 授权；默认拒绝真实请求"
+            )
+        # GAP-1/1b：环境变量只能“指名”固定共享账本/预算，不能换成新账本或仓库外/软链路径。
+        try:
+            assert_fixed_env_paths(
+                os.environ.get("MKTKB_RAG_BUDGET_LEDGER"),
+                os.environ.get("MKTKB_RAG_BUDGET_JSON"),
+            )
+        except LiveGateError as exc:
+            raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+        default_request_bound = RagConfig(provider_mode="offline", data_dir=data_dir).max_request_cny
+        try:
+>           gate = resolve_live_gate(
+                stage=stage,
+                service="rag",
+                requested_stage_limit_cny=stage_limit,
+                requested_max_requests=max_requests,
+                request_bound_cny=default_request_bound,
+            )
+
+backend\src\mktkb\qa\service.py:812: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+stage = 'S2-H-R3-UNIT', service = 'rag', requested_stage_limit_cny = 5.0
+requested_max_requests = 5, request_bound_cny = 0.1, go_path = None
+ledger_path = None, budget_path = None, now = None
+
+    def resolve_live_gate(
+        *,
+        stage: str,
+        service: str,
+        requested_stage_limit_cny: float,
+        requested_max_requests: int,
+        request_bound_cny: float | None = None,
+        go_path: Path | None = None,
+        ledger_path: Path | None = None,
+        budget_path: Path | None = None,
+        now: datetime | None = None,
+    ) -> LiveGate:
+        """把“环境请求值 + GO + 共享预算分配”收敛成唯一闸门。
+    
+        环境请求值只能收窄 GO：阶段额度与累计请求上限取三者最小值；省略/0/负数由调用方
+        先行拒绝（这里也再校验一次），不允许回落到 GO 额度。
+        """
+        requested_limit = _gate_number(requested_stage_limit_cny, "阶段额度")
+        requested_max_requests = _gate_int(requested_max_requests, "累计请求上限")
+        fixed_budget = _ensure_fixed_file(
+            budget_path if budget_path is not None else SHARED_BUDGET_PATH,
+            SHARED_BUDGET_PATH,
+            "共享预算",
+        )
+        authorization = load_live_authorization(
+            stage=stage, service=service, go_path=go_path, ledger_path=ledger_path, now=now
+        )
+        budget = _load_budget_json(fixed_budget)
+        total_limit = _gate_number(budget.get("limit_cny"), "共享预算 limit_cny")
+        expected_total_limit = project_total_limit_cny()
+        if abs(total_limit - expected_total_limit) > 1e-9:
+>           raise LiveGateError(
+                f"共享预算总上限必须等于当前项目上限 {expected_total_limit} 元"
+                f"（当前 {total_limit}，拒绝替换/放大预算）"
+            )
+E           mktkb.live_authorization.LiveGateError: 共享预算总上限必须等于当前项目上限 40.0 元（当前 1000.0，拒绝替换/放大预算）
+
+backend\src\mktkb\live_authorization.py:662: LiveGateError
+
+The above exception was the direct cause of the following exception:
+
+tmp_path = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_official_profile_accepted0')
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000020512D51580>
+
+    def test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552(tmp_path, monkeypatch) -> None:
+        env = _fixture_env(
+            tmp_path,
+            monkeypatch,
+            bindings=_bindings(),
+        )
+>       config, _budget = resolve_rag_config(
+            data_dir=env["root"] / "app",
+            provider_mode="live",
+            page_size=10,
+            top_k=8,
+            business_date=None,
+        )
+
+backend\tests\unit\test_s2h_r3_official_profile.py:302: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+data_dir = WindowsPath('C:/Users/dell1712/AppData/Local/Temp/mktkb-p0-final/full-run2/test_official_profile_accepted0/app')
+provider_mode = 'live', page_size = 10, top_k = 8, business_date = None
+
+    def resolve_rag_config(
+        *,
+        data_dir: Path,
+        provider_mode: str,
+        page_size: int,
+        top_k: int,
+        business_date: str | None,
+    ) -> tuple[RagConfig, Any | None]:
+        """构造产品侧 rag 配置；live 必须显式预算入口，默认拒绝真实请求。"""
+        if provider_mode == "offline":
+            return (
+                RagConfig(
+                    provider_mode="offline",
+                    data_dir=data_dir,
+                    page_size=page_size,
+                    top_k=top_k,
+                    business_date=business_date,
+                ),
+                None,
+            )
+        if provider_mode != "live":
+            raise ValueError("rag_provider_mode 只允许 offline/live")
+        # live：阶段额度/请求上限显式，账本/预算/GO 固定锚定；缺一不启动，避免不受控付费路径。
+        from ..live_authorization import (
+            LiveGateError,
+            assert_fixed_env_paths,
+            product_stage,
+            resolve_live_gate,
+        )
+        from ..rag.config import positive_float_env, positive_int_env
+    
+        stage = product_stage()
+        stage_limit = positive_float_env("MKTKB_RAG_STAGE_LIMIT_CNY")
+        max_requests = positive_int_env("MKTKB_RAG_MAX_REQUESTS")
+        if stage_limit is None or max_requests is None:
+            raise ValueError(
+                "rag live 必须显式提供 MKTKB_RAG_STAGE_LIMIT_CNY>0 与 MKTKB_RAG_MAX_REQUESTS>0，"
+                "并通过固定共享账本/预算与产品 GO 授权；默认拒绝真实请求"
+            )
+        # GAP-1/1b：环境变量只能“指名”固定共享账本/预算，不能换成新账本或仓库外/软链路径。
+        try:
+            assert_fixed_env_paths(
+                os.environ.get("MKTKB_RAG_BUDGET_LEDGER"),
+                os.environ.get("MKTKB_RAG_BUDGET_JSON"),
+            )
+        except LiveGateError as exc:
+            raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+        default_request_bound = RagConfig(provider_mode="offline", data_dir=data_dir).max_request_cny
+        try:
+            gate = resolve_live_gate(
+                stage=stage,
+                service="rag",
+                requested_stage_limit_cny=stage_limit,
+                requested_max_requests=max_requests,
+                request_bound_cny=default_request_bound,
+            )
+        except LiveGateError as exc:
+>           raise ValueError(f"rag live 授权闸门拒绝：{exc}") from exc
+E           ValueError: rag live 授权闸门拒绝：共享预算总上限必须等于当前项目上限 40.0 元（当前 1000.0，拒绝替换/放大预算）
+
+backend\src\mktkb\qa\service.py:820: ValueError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_cli.py::test_baseline_list_reads_baseline_json_only
+FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_01_business_behavior_unchanged
+FAILED backend\tests\evaluation\test_p2_capture_contract_v02.py::test_gap_rework_identity_unparsable_pagination_and_candidate_marker
+FAILED backend\tests\evaluation\test_p2_capture_contract_v02_e2e.py::test_capture_chain_roundtrip_and_public_boundary
+FAILED backend\tests\evaluation\test_p2_empty_scope_proof.py::test_frozen_module_sha_is_expected
+FAILED backend\tests\evaluation\test_p2_empty_scope_proof.py::test_differential_against_frozen_primitive
+FAILED backend\tests\evaluation\test_p2_fu3_provenance.py::test_gate_entry_runs_provenance_by_default
+FAILED backend\tests\evaluation\test_p2_hard_evidence.py::test_old_safe_diag_rejection_counterexamples_still_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_stale_frozen_template_config_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_same_version_wrong_digest_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_fake_b0_registry_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_fake_registry_at_canonical_root_still_rejected_by_pinned_digest
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_candidate_pipeline_mismatch_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_cross_plan_merged_run_rows_are_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_missing_coverage_case_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_not_executed_case_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_h2_v01_card_masquerading_as_v02_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_h2_required_axis_unknown_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_h2_real_hard_failure_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_h2_card_digest_mismatch_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_h2_source_proof_wrong_batch_binding_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_missing_binding_row_is_caught_by_completeness_invariant
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_gate_never_passes_when_only_correction_is_reported
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_two_missing_binding_rows_produce_two_distinct_blocked_rows
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_d011_suite_planned_below_min_sample_keeps_u_pending
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_d011_forged_planned_cases_cannot_fake_coverage
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_d011_run_level_gate_failure_is_not_masked
+FAILED backend\tests\evaluation\test_p2_release_gate_negative.py::test_t4r3_non_disclosure_unknown_blocks_both_u_and_aggregate
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_complete_synthetic_evidence_passes_gate
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_three_h2_views_are_separated_and_c25_does_not_block
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_removing_one_section_blocks_then_pending[public]
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_removing_one_section_blocks_then_pending[u]
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_removing_one_section_blocks_then_pending[h2]
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_u01_citation_gap_resolved_by_d004_as_observed
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_binding_proof_shows_original_and_corrected_views
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_cli_entry_returns_zero_on_pass_and_four_on_pending
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_duplicate_u_case_ids_are_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_positive.py::test_forged_applicability_proof_is_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_real_ncu.py::test_d011_disclosure_row_present_and_masking_impossible
+FAILED backend\tests\evaluation\test_p2_release_gate_real_ncu.py::test_real_v3_manifest_four_tiers_and_two_tallies
+FAILED backend\tests\evaluation\test_p2_release_gate_real_ncu.py::test_u01_binding_proof_forgery_delete_and_cross_run_are_rejected
+FAILED backend\tests\evaluation\test_p2_release_gate_real_ncu.py::test_h2_aggregate_is_wired_with_two_hash_kinds
+FAILED backend\tests\evaluation\test_p2_release_gate_real_ncu.py::test_h2_card_file_hash_swapped_with_aggregate_is_rejected
+FAILED backend\tests\integration\test_t09_d4_same_value_sources.py::test_same_value_single_cited_source_answers_with_that_source
+FAILED backend\tests\integration\test_t09_d4_same_value_sources.py::test_same_value_rejects_echo_from_uncited_row
+FAILED backend\tests\rag\test_r2_observability_revision2.py::test_offline_index_capture_and_guard
+FAILED backend\tests\rag\test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan
+FAILED backend\tests\unit\test_s2h_r3_official_profile.py::test_official_profile_accepted_by_both_entries_and_worst_case_is_2103552
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_forged_attested_revision_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_proof_digest_mismatch_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_binding_proof_from_another_run_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_no_correction_claimed_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_missing_original_mechanical_result_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_missing_binding_proof_is_rejected
+ERROR backend\tests\evaluation\test_p2_release_gate_negative.py::test_zero_rewrite_claim_without_legal_zero_is_rejected
+48 failed, 5018 passed, 48 skipped, 1 warning, 7 errors in 1474.89s (0:24:34)

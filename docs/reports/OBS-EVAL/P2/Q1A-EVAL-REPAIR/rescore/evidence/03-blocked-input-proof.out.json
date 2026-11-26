@@ -1,0 +1,489 @@
+﻿{
+  "aggregate_old_axes_consistency": {
+    "cross_entity": {
+      "checked_eq_sum": true,
+      "checked_plus_unknown_eq_planned": true,
+      "planned_eq_sum": true
+    },
+    "cross_user": {
+      "checked_eq_sum": true,
+      "checked_plus_unknown_eq_planned": true,
+      "planned_eq_sum": true
+    },
+    "safety": {
+      "checked_eq_sum": true,
+      "checked_plus_unknown_eq_planned": true,
+      "planned_eq_sum": true
+    },
+    "stale_source": {
+      "checked_eq_sum": true,
+      "checked_plus_unknown_eq_planned": true,
+      "planned_eq_sum": true
+    }
+  },
+  "aggregate_old_axes_from_cards": {
+    "cross_entity": {
+      "checked": 3,
+      "not_applicable": 0,
+      "passed": 3,
+      "planned": 30,
+      "unknown": 27,
+      "violations": 0
+    },
+    "cross_user": {
+      "checked": 27,
+      "not_applicable": 0,
+      "passed": 27,
+      "planned": 30,
+      "unknown": 3,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 27,
+      "not_applicable": 24,
+      "passed": 1,
+      "planned": 30,
+      "unknown": 3,
+      "violations": 2
+    },
+    "stale_source": {
+      "checked": 25,
+      "not_applicable": 0,
+      "passed": 25,
+      "planned": 30,
+      "unknown": 5,
+      "violations": 0
+    }
+  },
+  "calls": {
+    "dns": 0,
+    "model": 0,
+    "network": 0,
+    "provider": 0,
+    "real": 0,
+    "retrieval": 0,
+    "socket": 0
+  },
+  "cases": {
+    "failed_from_cards": 11,
+    "passed_from_cards": 19,
+    "total": 30
+  },
+  "conclusion": "4 张旧卡均为聚合卡：detail_export=false，顶层无逐题行，hard_evidence 只有 axes 计数；case-plan 只有 case_id/quality_status/turns(evidence_file,status,turn_index,error)，无轴 state/reason。而 OldCardCase 要求逐题四轴 state+reason、SafetyCaseView/AxesCaseView 均要求该对象，故四轴重评分/11 分诊逐题归属/27 unknown 可判化/敏感性带计数在现有留存物上不可执行。",
+  "fail_closed_probe": {
+    "identity_constructed": true,
+    "rescore_run_empty_cases": "refused:cases_empty"
+  },
+  "module_api_required_inputs": {
+    "q1a1_OldCardCase_axis_key_requirement": "set(self.axes) == set(AXES) 且每轴 state∈AXIS_STATES、reason 非空（p2_evidence_rescore.OldCardCase.__post_init__）",
+    "q1a1_OldCardCase_fields": [
+      "case_id",
+      "stratum",
+      "quality_status",
+      "axes",
+      "missing_codes",
+      "evidence_complete"
+    ],
+    "q1a1_SafetyCaseView_fields": [
+      "old",
+      "safety_applicability",
+      "safety_criterion",
+      "safety_reason",
+      "should_refuse",
+      "forbidden_values",
+      "forbidden_sources",
+      "expected_sources",
+      "version_bindings",
+      "turns"
+    ],
+    "q1a1_rescore_run_required_params": [
+      "identity",
+      "cases"
+    ],
+    "q1a1b_AxesCaseView_fields": [
+      "old",
+      "annotations",
+      "cross_user",
+      "cross_entity",
+      "cross_entity_contract",
+      "stale_source",
+      "stale_source_contract"
+    ],
+    "q1a1b_axes_case_from_q1a2_view_required_kwargs": [
+      "case_id",
+      "old_card"
+    ],
+    "q1a1b_rescore_axes_run_required_params": [
+      "identity",
+      "cases"
+    ]
+  },
+  "per_run": {
+    "r0": {
+      "card_bytes": 5595,
+      "card_sha256": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+      "case_plan_case_row_keys": [
+        "case_id",
+        "quality_status",
+        "turns"
+      ],
+      "case_plan_cases": 26,
+      "case_plan_quality_status_counts": {
+        "fail": 8,
+        "pass": 18
+      },
+      "case_plan_turn_row_keys": [
+        "error",
+        "evidence_file",
+        "status",
+        "turn_index"
+      ],
+      "detail_export": false,
+      "hard_evidence_axes": {
+        "cross_entity": {
+          "checked": 2,
+          "not_applicable": 0,
+          "passed": 2,
+          "planned": 26,
+          "unknown": 24,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 24,
+          "not_applicable": 0,
+          "passed": 24,
+          "planned": 26,
+          "unknown": 2,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 24,
+          "not_applicable": 22,
+          "passed": 1,
+          "planned": 26,
+          "unknown": 2,
+          "violations": 1
+        },
+        "stale_source": {
+          "checked": 23,
+          "not_applicable": 0,
+          "passed": 23,
+          "planned": 26,
+          "unknown": 3,
+          "violations": 0
+        }
+      },
+      "hard_evidence_keys": [
+        "annotation_gap_count",
+        "annotation_gap_resolved_count",
+        "axes",
+        "classification_status",
+        "evidence_complete_cases",
+        "hard_failures_by_kind",
+        "missing_evidence_cases",
+        "schema_version",
+        "verified"
+      ],
+      "has_per_case_array": false,
+      "run_id": "p2-h2-20261114-r1-r1-base_b0",
+      "top_level_keys": [
+        "blocks",
+        "by_stratum",
+        "config_hash",
+        "detail_export",
+        "diagnostics",
+        "errors",
+        "executed",
+        "execution_mode",
+        "failed",
+        "hard_evidence",
+        "hard_failures",
+        "hard_failures_by_kind",
+        "hard_failures_max",
+        "min_pass",
+        "passed",
+        "real_calls",
+        "release_ready",
+        "run_id",
+        "schema_version",
+        "threshold_met",
+        "thresholds_approved",
+        "total"
+      ]
+    },
+    "r1": {
+      "card_bytes": 4412,
+      "card_sha256": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+      "case_plan_case_row_keys": [
+        "case_id",
+        "quality_status",
+        "turns"
+      ],
+      "case_plan_cases": 1,
+      "case_plan_quality_status_counts": {
+        "pass": 1
+      },
+      "case_plan_turn_row_keys": [
+        "error",
+        "evidence_file",
+        "status",
+        "turn_index"
+      ],
+      "detail_export": false,
+      "hard_evidence_axes": {
+        "cross_entity": {
+          "checked": 0,
+          "not_applicable": 0,
+          "passed": 0,
+          "planned": 1,
+          "unknown": 1,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 0,
+          "not_applicable": 0,
+          "passed": 0,
+          "planned": 1,
+          "unknown": 1,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 0,
+          "not_applicable": 0,
+          "passed": 0,
+          "planned": 1,
+          "unknown": 1,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 0,
+          "not_applicable": 0,
+          "passed": 0,
+          "planned": 1,
+          "unknown": 1,
+          "violations": 0
+        }
+      },
+      "hard_evidence_keys": [
+        "annotation_gap_count",
+        "annotation_gap_resolved_count",
+        "axes",
+        "classification_status",
+        "evidence_complete_cases",
+        "hard_failures_by_kind",
+        "missing_evidence_cases",
+        "schema_version",
+        "verified"
+      ],
+      "has_per_case_array": false,
+      "run_id": "p2-h2-20261114-r1-r2-base_b0_plus_v01",
+      "top_level_keys": [
+        "blocks",
+        "by_stratum",
+        "config_hash",
+        "detail_export",
+        "diagnostics",
+        "errors",
+        "executed",
+        "execution_mode",
+        "failed",
+        "hard_evidence",
+        "hard_failures",
+        "hard_failures_by_kind",
+        "hard_failures_max",
+        "min_pass",
+        "passed",
+        "real_calls",
+        "release_ready",
+        "run_id",
+        "schema_version",
+        "threshold_met",
+        "thresholds_approved",
+        "total"
+      ]
+    },
+    "r2": {
+      "card_bytes": 4619,
+      "card_sha256": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+      "case_plan_case_row_keys": [
+        "case_id",
+        "quality_status",
+        "turns"
+      ],
+      "case_plan_cases": 2,
+      "case_plan_quality_status_counts": {
+        "fail": 2
+      },
+      "case_plan_turn_row_keys": [
+        "error",
+        "evidence_file",
+        "status",
+        "turn_index"
+      ],
+      "detail_export": false,
+      "hard_evidence_axes": {
+        "cross_entity": {
+          "checked": 0,
+          "not_applicable": 0,
+          "passed": 0,
+          "planned": 2,
+          "unknown": 2,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 2,
+          "not_applicable": 0,
+          "passed": 2,
+          "planned": 2,
+          "unknown": 0,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 2,
+          "not_applicable": 1,
+          "passed": 0,
+          "planned": 2,
+          "unknown": 0,
+          "violations": 1
+        },
+        "stale_source": {
+          "checked": 1,
+          "not_applicable": 0,
+          "passed": 1,
+          "planned": 2,
+          "unknown": 1,
+          "violations": 0
+        }
+      },
+      "hard_evidence_keys": [
+        "annotation_gap_count",
+        "annotation_gap_resolved_count",
+        "axes",
+        "classification_status",
+        "evidence_complete_cases",
+        "hard_failures_by_kind",
+        "missing_evidence_cases",
+        "schema_version",
+        "verified"
+      ],
+      "has_per_case_array": false,
+      "run_id": "p2-h2-20261114-r1-r3-pre_v05_without_v07",
+      "top_level_keys": [
+        "blocks",
+        "by_stratum",
+        "config_hash",
+        "detail_export",
+        "diagnostics",
+        "errors",
+        "executed",
+        "execution_mode",
+        "failed",
+        "hard_evidence",
+        "hard_failures",
+        "hard_failures_by_kind",
+        "hard_failures_max",
+        "min_pass",
+        "passed",
+        "real_calls",
+        "release_ready",
+        "run_id",
+        "schema_version",
+        "threshold_met",
+        "thresholds_approved",
+        "total"
+      ]
+    },
+    "r3": {
+      "card_bytes": 3923,
+      "card_sha256": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+      "case_plan_case_row_keys": [
+        "case_id",
+        "quality_status",
+        "turns"
+      ],
+      "case_plan_cases": 1,
+      "case_plan_quality_status_counts": {
+        "fail": 1
+      },
+      "case_plan_turn_row_keys": [
+        "error",
+        "evidence_file",
+        "status",
+        "turn_index"
+      ],
+      "detail_export": false,
+      "hard_evidence_axes": {
+        "cross_entity": {
+          "checked": 1,
+          "not_applicable": 0,
+          "passed": 1,
+          "planned": 1,
+          "unknown": 0,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 1,
+          "not_applicable": 0,
+          "passed": 1,
+          "planned": 1,
+          "unknown": 0,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 1,
+          "not_applicable": 1,
+          "passed": 0,
+          "planned": 1,
+          "unknown": 0,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 1,
+          "not_applicable": 0,
+          "passed": 1,
+          "planned": 1,
+          "unknown": 0,
+          "violations": 0
+        }
+      },
+      "hard_evidence_keys": [
+        "annotation_gap_count",
+        "annotation_gap_resolved_count",
+        "axes",
+        "classification_status",
+        "evidence_complete_cases",
+        "hard_failures_by_kind",
+        "missing_evidence_cases",
+        "schema_version",
+        "verified"
+      ],
+      "has_per_case_array": false,
+      "run_id": "p2-h2-20261114-r1-r4-post_v05_without_v01",
+      "top_level_keys": [
+        "blocks",
+        "by_stratum",
+        "config_hash",
+        "detail_export",
+        "diagnostics",
+        "errors",
+        "executed",
+        "execution_mode",
+        "failed",
+        "hard_evidence",
+        "hard_failures",
+        "hard_failures_by_kind",
+        "hard_failures_max",
+        "min_pass",
+        "passed",
+        "real_calls",
+        "release_ready",
+        "run_id",
+        "schema_version",
+        "threshold_met",
+        "thresholds_approved",
+        "total"
+      ]
+    }
+  },
+  "schema_version": "q1a3-blocked-input-proof/v0.1"
+}

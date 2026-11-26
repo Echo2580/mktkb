@@ -1,0 +1,53 @@
+{
+  "schema_version": "p2-h2v3-v3-run-attempt/v0.1",
+  "run_index": 0,
+  "run_id": "p2-h2v3-20261115-r0-base_b0",
+  "attempted": true,
+  "attempt_count": 1,
+  "command": {
+    "entry": "tools/p2_h2_v3_controlled_execute.py",
+    "subcommand": "run",
+    "binding": "D:\\mktkb-p2-h2v3-20261115\\rollback-40\\bindings\\run0-base_b0.binding.json",
+    "run_index": 0,
+    "out_dir": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\out",
+    "evidence_root": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\evidence",
+    "seal_root": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\seal",
+    "evidence_key_file": "D:\\mktkb-p2-h2v3-20261115\\runs\\r0\\ev.key",
+    "env_file": "<repo>\\.env",
+    "env": {
+      "MKTKB_PROJECT_TOTAL_LIMIT_CNY": "40"
+    }
+  },
+  "exit_code": 2,
+  "elapsed_ms": 1954,
+  "output": {
+    "command": "run",
+    "detail": "",
+    "error_code": "code_changed_since_plan",
+    "network": {
+      "external": [],
+      "local": []
+    },
+    "ok": false
+  },
+  "requests_spent": 0,
+  "cny_spent": 0.0,
+  "ledger_before": {
+    "file_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+    "reservation_count": 952,
+    "result_count": 952
+  },
+  "ledger_after": {
+    "file_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+    "reservation_count": 952,
+    "result_count": 952
+  },
+  "side_effects": {
+    "out_dir_created": false,
+    "evidence_root_created": false,
+    "seal_root_created": false,
+    "ledger_written": false,
+    "go_changed": false
+  },
+  "note": "入口在 code_version 复核处拒绝，早于读 .env、开真实门与任何网络动作；network.external/local 均为空。按纪律不重试、不装下一份 GO。"
+}

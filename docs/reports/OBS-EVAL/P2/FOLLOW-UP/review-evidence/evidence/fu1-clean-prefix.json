@@ -1,0 +1,106 @@
+{
+  "probe": "reviewer-fu1",
+  "label": "clean-prefix",
+  "checkout_root": "D:\\mktkb-clean-93486b6",
+  "work_dir": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\fu1-probe-clean-prefix-yafpedab",
+  "python": "3.12.7",
+  "scenarios": [
+    {
+      "scenario": "positive",
+      "run_status": "succeeded",
+      "stop_code": null,
+      "product_revision": 3,
+      "index_status_index_revision": 4,
+      "counters_differ": true,
+      "manifest_index_revision": 3,
+      "binding_index_revision": 3,
+      "binding_complete": true,
+      "binding_missing": [],
+      "trace_identity_bound": true,
+      "manifest_equals_rag_index": false,
+      "manifest_differs_from_product": false,
+      "config_hash_recompute_matches": true,
+      "summary_binding_equals_manifest_binding": true,
+      "traces": [
+        {
+          "case_id": "R01",
+          "turn": 1,
+          "path": "rag",
+          "index_revision": "4",
+          "config_hash_matches_binding": true
+        },
+        {
+          "case_id": "R02",
+          "turn": 1,
+          "path": "legacy",
+          "index_revision": "3",
+          "config_hash_matches_binding": true
+        }
+      ],
+      "all_traces_equal_manifest": false,
+      "trace_paths": [
+        "legacy",
+        "rag"
+      ],
+      "gate_trace_integrity": "fail",
+      "gate_hard_failures": [
+        "trace_integrity"
+      ],
+      "gate_version_binding_failures": [
+        "version_binding"
+      ],
+      "gate_exit_code": 1,
+      "negative_tamper": [
+        {
+          "wrong_value": 3,
+          "trace_integrity": "fail",
+          "version_binding_rows": 1,
+          "mismatched_fields": [
+            "index_revision"
+          ],
+          "exit_code": 1
+        },
+        {
+          "wrong_value": 99,
+          "trace_integrity": "fail",
+          "version_binding_rows": 2,
+          "mismatched_fields": [
+            "index_revision"
+          ],
+          "exit_code": 1
+        }
+      ]
+    },
+    {
+      "scenario": "index_version_unavailable",
+      "run_status": "succeeded",
+      "manifest_index_revision": 3,
+      "binding_complete": true,
+      "binding_missing": [],
+      "binding_config_hash": "b5adb2a02309459e9a6b533321d6c6de4c992a9064d6725e3a6283d01d31da88",
+      "trace_identity_bound": true,
+      "trace_identity_fields": [
+        {
+          "run_id": "p2run-6af559f769124e4d",
+          "config_hash": "b5adb2a02309459e9a6b533321d6c6de4c992a9064d6725e3a6283d01d31da88",
+          "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+          "pipeline_version": "d3ca88d2c515",
+          "index_revision": "4"
+        }
+      ],
+      "gate_rejects_incomplete_manifest": false,
+      "gate_reject_reason": null
+    },
+    {
+      "scenario": "index_drift_mid_run",
+      "run_status": "succeeded",
+      "stop_code": null,
+      "asks_issued": 2,
+      "failure": null,
+      "binding_index_revision": 3,
+      "request_lines": 2,
+      "turns_emitted": 2,
+      "cases_emitted": 2
+    }
+  ]
+}

@@ -1,0 +1,1305 @@
+{
+ "schema_version": "c1p3-field-table/v0.1",
+ "contract_version": "p2-hard-evidence-capture-identity/v0.3",
+ "snapshot_schema_version": "p2-runtime-identity-snapshot/v0.1",
+ "field_count": 167,
+ "required_count": 167,
+ "nullable_count": 35,
+ "top_level_paths": [
+  "binding",
+  "captured_utc",
+  "content_sha256",
+  "contract_version",
+  "effective_temporal",
+  "empty_use_scope_input",
+  "fixture_kind",
+  "public_boundary",
+  "record_identities",
+  "record_identity_summary",
+  "request_owner",
+  "runtime_identity",
+  "schema_version",
+  "source_evidence",
+  "turn_ref"
+ ],
+ "fields": [
+  {
+   "path": "contract_version",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:contract_version"
+  },
+  {
+   "path": "schema_version",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:schema_version"
+  },
+  {
+   "path": "fixture_kind",
+   "type": "enum(local_mock|live_h2)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:fixture_kind"
+  },
+  {
+   "path": "captured_utc",
+   "type": "iso_datetime",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:captured_utc"
+  },
+  {
+   "path": "source_evidence",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:source_evidence"
+  },
+  {
+   "path": "source_evidence.sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:source_evidence.sha256"
+  },
+  {
+   "path": "source_evidence.schema_version",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:source_evidence.schema_version"
+  },
+  {
+   "path": "source_evidence.fixture_kind",
+   "type": "enum(local_mock|live_h2)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:source_evidence.fixture_kind"
+  },
+  {
+   "path": "source_evidence.completeness_status",
+   "type": "enum(complete|incomplete|replayed)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:source_evidence.completeness_status"
+  },
+  {
+   "path": "binding",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding"
+  },
+  {
+   "path": "binding.run_id",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding.run_id"
+  },
+  {
+   "path": "binding.plan_sha256",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding.plan_sha256"
+  },
+  {
+   "path": "binding.scenario_id",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding.scenario_id"
+  },
+  {
+   "path": "binding.fixture_kind",
+   "type": "enum(local_mock|live_h2)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding.fixture_kind"
+  },
+  {
+   "path": "binding.bindings_sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:binding.bindings_sha256"
+  },
+  {
+   "path": "binding.run_binding_sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:binding.run_binding_sha256"
+  },
+  {
+   "path": "binding.business_date_declared",
+   "type": "iso_date",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:binding.business_date_declared"
+  },
+  {
+   "path": "turn_ref",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref"
+  },
+  {
+   "path": "turn_ref.turn_index",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref.turn_index"
+  },
+  {
+   "path": "turn_ref.client_request_id",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref.client_request_id"
+  },
+  {
+   "path": "turn_ref.conversation_id",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref.conversation_id"
+  },
+  {
+   "path": "turn_ref.question_sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref.question_sha256"
+  },
+  {
+   "path": "turn_ref.pre_revision",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:turn_ref.pre_revision"
+  },
+  {
+   "path": "turn_ref.post_revision",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:turn_ref.post_revision"
+  },
+  {
+   "path": "turn_ref.capture_revision",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:turn_ref.capture_revision"
+  },
+  {
+   "path": "turn_ref.response_kind",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:turn_ref.response_kind"
+  },
+  {
+   "path": "turn_ref.http_status",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:turn_ref.http_status"
+  },
+  {
+   "path": "turn_ref.timed_out",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:turn_ref.timed_out"
+  },
+  {
+   "path": "request_owner",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:request_owner"
+  },
+  {
+   "path": "request_owner.availability",
+   "type": "enum(observed|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:request_owner.availability"
+  },
+  {
+   "path": "request_owner.reason",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:request_owner.reason"
+  },
+  {
+   "path": "request_owner.user_ref",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:request_owner.user_ref"
+  },
+  {
+   "path": "request_owner.conversation_ref",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:request_owner.conversation_ref"
+  },
+  {
+   "path": "request_owner.owner_source",
+   "type": "enum(turn_authenticated_user_id|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:request_owner.owner_source"
+  },
+  {
+   "path": "request_owner.auth_material_collected",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:request_owner.auth_material_collected"
+  },
+  {
+   "path": "record_identities",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities"
+  },
+  {
+   "path": "record_identities[]",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[]"
+  },
+  {
+   "path": "record_identities[].source_ref",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].source_ref"
+  },
+  {
+   "path": "record_identities[].layers",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].layers"
+  },
+  {
+   "path": "record_identities[].unit_kind",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].unit_kind"
+  },
+  {
+   "path": "record_identities[].locator_kind",
+   "type": "enum(record|page|heading|other|none|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].locator_kind"
+  },
+  {
+   "path": "record_identities[].doc_code",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].doc_code"
+  },
+  {
+   "path": "record_identities[].base_doc_code",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].base_doc_code"
+  },
+  {
+   "path": "record_identities[].sheet",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].sheet"
+  },
+  {
+   "path": "record_identities[].row",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].row"
+  },
+  {
+   "path": "record_identities[].record_key",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].record_key"
+  },
+  {
+   "path": "record_identities[].record_code",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].record_code"
+  },
+  {
+   "path": "record_identities[].business_version",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].business_version"
+  },
+  {
+   "path": "record_identities[].version_number",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].version_number"
+  },
+  {
+   "path": "record_identities[].record_level",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].record_level"
+  },
+  {
+   "path": "record_identities[].entity_type",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].entity_type"
+  },
+  {
+   "path": "record_identities[].entity_key",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:record_identities[].entity_key"
+  },
+  {
+   "path": "record_identities[].entity_filters",
+   "type": "map[str,str]",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].entity_filters"
+  },
+  {
+   "path": "record_identities[].entity_matchable",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].entity_matchable"
+  },
+  {
+   "path": "record_identities[].code",
+   "type": "enum(record_row_reverse_lookup|record_row_not_in_record_index|runtime_unit_not_record_level|runtime_doc_code_unresolved|runtime_unit_unresolved)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].code"
+  },
+  {
+   "path": "record_identities[].entity_code",
+   "type": "enum(entity_identity_matchable|entity_identity_matchable_nonrole_filters|entity_identity_nonmatchable|entity_identity_document_level|entity_identity_absent|entity_identity_unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identities[].entity_code"
+  },
+  {
+   "path": "record_identity_summary",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary"
+  },
+  {
+   "path": "record_identity_summary.total",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.total"
+  },
+  {
+   "path": "record_identity_summary.record_level",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.record_level"
+  },
+  {
+   "path": "record_identity_summary.not_record_level",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.not_record_level"
+  },
+  {
+   "path": "record_identity_summary.doc_code_unresolved",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.doc_code_unresolved"
+  },
+  {
+   "path": "record_identity_summary.entity_matchable",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.entity_matchable"
+  },
+  {
+   "path": "record_identity_summary.entity_document_level",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.entity_document_level"
+  },
+  {
+   "path": "record_identity_summary.unresolved_units",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.unresolved_units"
+  },
+  {
+   "path": "record_identity_summary.doc_codes",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:record_identity_summary.doc_codes"
+  },
+  {
+   "path": "effective_temporal",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal"
+  },
+  {
+   "path": "effective_temporal.availability",
+   "type": "enum(observed|partial|not_observed)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.availability"
+  },
+  {
+   "path": "effective_temporal.reason",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.reason"
+  },
+  {
+   "path": "effective_temporal.as_of",
+   "type": "iso_date",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.as_of"
+  },
+  {
+   "path": "effective_temporal.as_of_source",
+   "type": "enum(plan_observed|rag_business_date|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.as_of_source"
+  },
+  {
+   "path": "effective_temporal.observed_from",
+   "type": "enum(db_projection_units|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.observed_from"
+  },
+  {
+   "path": "effective_temporal.include_future",
+   "type": "bool",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.include_future"
+  },
+  {
+   "path": "effective_temporal.enumerate",
+   "type": "bool",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.enumerate"
+  },
+  {
+   "path": "effective_temporal.document_versions",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions"
+  },
+  {
+   "path": "effective_temporal.document_versions[]",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[]"
+  },
+  {
+   "path": "effective_temporal.document_versions[].source_ref",
+   "type": "str",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].source_ref"
+  },
+  {
+   "path": "effective_temporal.document_versions[].doc_code",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].doc_code"
+  },
+  {
+   "path": "effective_temporal.document_versions[].version_label",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].version_label"
+  },
+  {
+   "path": "effective_temporal.document_versions[].runtime_version_number",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].runtime_version_number"
+  },
+  {
+   "path": "effective_temporal.document_versions[].product_version_number",
+   "type": "int",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].product_version_number"
+  },
+  {
+   "path": "effective_temporal.document_versions[].code",
+   "type": "enum(version_observed|version_mismatch|version_unresolved)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.document_versions[].code"
+  },
+  {
+   "path": "effective_temporal.declared_baseline_business_date",
+   "type": "iso_date",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:effective_temporal.declared_baseline_business_date"
+  },
+  {
+   "path": "effective_temporal.baseline_used_as_effective",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.baseline_used_as_effective"
+  },
+  {
+   "path": "effective_temporal.code",
+   "type": "enum(effective_temporal_observed|effective_temporal_partial|effective_temporal_not_observed|effective_as_of_not_observed|effective_as_of_ambiguous)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:effective_temporal.code"
+  },
+  {
+   "path": "empty_use_scope_input",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input"
+  },
+  {
+   "path": "empty_use_scope_input.input_version",
+   "type": "enum(c1p2-empty-use-scope-input/v0.1)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.input_version"
+  },
+  {
+   "path": "empty_use_scope_input.turn_status",
+   "type": "enum(complete|partial|unavailable)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.turn_status"
+  },
+  {
+   "path": "empty_use_scope_input.reason",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.reason"
+  },
+  {
+   "path": "empty_use_scope_input.plan",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan"
+  },
+  {
+   "path": "empty_use_scope_input.plan.availability",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.availability"
+  },
+  {
+   "path": "empty_use_scope_input.plan.path",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.path"
+  },
+  {
+   "path": "empty_use_scope_input.plan.mode",
+   "type": "str",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.mode"
+  },
+  {
+   "path": "empty_use_scope_input.plan.as_of",
+   "type": "iso_date",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.as_of"
+  },
+  {
+   "path": "empty_use_scope_input.plan.include_future",
+   "type": "bool",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.include_future"
+  },
+  {
+   "path": "empty_use_scope_input.plan.clarification",
+   "type": "bool",
+   "required": true,
+   "nullable": true,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.plan.clarification"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_evidence",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_evidence"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_evidence.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_evidence.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_evidence.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_evidence.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_evidence.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_evidence.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_output_sources",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_output_sources"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_output_sources.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_output_sources.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_output_sources.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_output_sources.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.model_output_sources.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.model_output_sources.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_facts",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_facts"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_facts.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_facts.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_facts.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_facts.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_facts.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_facts.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_citations",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_citations"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_citations.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_citations.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_citations.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_citations.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_citations.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_citations.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_fact_count",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_fact_count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_fact_count.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_fact_count.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_fact_count.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_fact_count.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.direct_rag_fact_count.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.direct_rag_fact_count.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.answer_result_sources",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.answer_result_sources"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.answer_result_sources.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.answer_result_sources.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.answer_result_sources.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.answer_result_sources.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.answer_result_sources.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.answer_result_sources.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.commit_observed_sources",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.commit_observed_sources"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.commit_observed_sources.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.commit_observed_sources.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.commit_observed_sources.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.commit_observed_sources.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.commit_observed_sources.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.commit_observed_sources.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.entity_inheritance",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.entity_inheritance"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.entity_inheritance.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.entity_inheritance.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.entity_inheritance.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.entity_inheritance.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.entity_inheritance.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.entity_inheritance.refs"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.projection_message_sources",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.projection_message_sources"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.projection_message_sources.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.projection_message_sources.observed"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.projection_message_sources.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.projection_message_sources.count"
+  },
+  {
+   "path": "empty_use_scope_input.use_layers.projection_message_sources.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.use_layers.projection_message_sources.refs"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.retrieval_observed",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.retrieval_observed"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.retrieval_observed.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.retrieval_observed.observed"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.retrieval_observed.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.retrieval_observed.count"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.retrieval_observed.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.retrieval_observed.refs"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.retrieval_observed.truncated",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.retrieval_observed.truncated"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.query_state_candidates",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.query_state_candidates"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.query_state_candidates.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.query_state_candidates.observed"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.query_state_candidates.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.query_state_candidates.count"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.query_state_candidates.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.query_state_candidates.refs"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.query_state_candidates.truncated",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.query_state_candidates.truncated"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.projection_query_state_candidates",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.projection_query_state_candidates"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.projection_query_state_candidates.observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.projection_query_state_candidates.observed"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.projection_query_state_candidates.count",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.projection_query_state_candidates.count"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.projection_query_state_candidates.refs",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.projection_query_state_candidates.refs"
+  },
+  {
+   "path": "empty_use_scope_input.candidate_layers.projection_query_state_candidates.truncated",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.candidate_layers.projection_query_state_candidates.truncated"
+  },
+  {
+   "path": "empty_use_scope_input.all_use_layers_observed",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.all_use_layers_observed"
+  },
+  {
+   "path": "empty_use_scope_input.empty_set_candidate",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.empty_set_candidate"
+  },
+  {
+   "path": "empty_use_scope_input.code",
+   "type": "enum(empty_use_input_complete_empty|empty_use_input_nonempty|empty_use_input_layers_not_observed|empty_use_input_turn_partial|empty_use_input_malformed_event)",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:empty_use_scope_input.code"
+  },
+  {
+   "path": "runtime_identity",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity"
+  },
+  {
+   "path": "runtime_identity.declared",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.declared"
+  },
+  {
+   "path": "runtime_identity.unit_ids",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.unit_ids"
+  },
+  {
+   "path": "runtime_identity.unresolved_unit_ids",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.unresolved_unit_ids"
+  },
+  {
+   "path": "runtime_identity.document_ids",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.document_ids"
+  },
+  {
+   "path": "runtime_identity.version_ids",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.version_ids"
+  },
+  {
+   "path": "runtime_identity.counts",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.counts"
+  },
+  {
+   "path": "runtime_identity.counts.units",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.counts.units"
+  },
+  {
+   "path": "runtime_identity.counts.unresolved",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.counts.unresolved"
+  },
+  {
+   "path": "runtime_identity.counts.documents",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.counts.documents"
+  },
+  {
+   "path": "runtime_identity.counts.versions",
+   "type": "int",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:runtime_identity.counts.versions"
+  },
+  {
+   "path": "public_boundary",
+   "type": "object",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:public_boundary"
+  },
+  {
+   "path": "public_boundary.public_summary_sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:public_boundary.public_summary_sha256"
+  },
+  {
+   "path": "public_boundary.public_summary_keys",
+   "type": "list",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:public_boundary.public_summary_keys"
+  },
+  {
+   "path": "public_boundary.runtime_ids_only_in_declared_blocks",
+   "type": "bool",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:public_boundary.runtime_ids_only_in_declared_blocks"
+  },
+  {
+   "path": "content_sha256",
+   "type": "sha256",
+   "required": true,
+   "nullable": false,
+   "missing_code": "snapshot_missing_field:content_sha256"
+  }
+ ],
+ "fail_closed_codes": {
+  "snapshot_bindings_incomplete": "构造时 bindings 缺冻结 16 键",
+  "snapshot_content_digest_mismatch": "content_sha256 与规范载荷重算不等",
+  "snapshot_contract_version_invalid": "contract_version 不等于本契约版本",
+  "snapshot_credential_material_forbidden": "auth_material_collected 不是 false",
+  "snapshot_decrypt_failed": "Fernet 解密失败（坏 key/截断/非密文）",
+  "snapshot_doc_code_index_invalid": "文档名->doc_code 投影输入类型错",
+  "snapshot_document_version_inconsistent": "document_versions 行与 code 矛盾",
+  "snapshot_effective_temporal_inconsistent": "生效日期/版本块自相矛盾或 baseline 被当作实际值",
+  "snapshot_empty_use_input_inconsistent": "空使用集输入的分层/计数/结论互相矛盾",
+  "snapshot_encryption_required": "拒绝非加密落盘路径/空 key",
+  "snapshot_entity_code_inconsistent": "entity_code 与实体身份形态不一致",
+  "snapshot_entity_matchability_inconsistent": "entity_matchable 与实体类型/键/filters 不一致",
+  "snapshot_enum_invalid": "枚举值不在冻结词表（路径见后缀）",
+  "snapshot_envelope_invalid": "载荷不是 JSON 对象（读取/校验入口）",
+  "snapshot_evidence_not_supported": "证据不是对象或无法构造",
+  "snapshot_expected_bindings_invalid": "读取方 expected_bindings 缺冻结 16 键",
+  "snapshot_fixture_binding_mismatch": "顶层/binding/source_evidence 的 fixture_kind 不一致",
+  "snapshot_fixture_kind_invalid": "fixture_kind 不在 local_mock/live_h2",
+  "snapshot_forbidden_field": "出现密码/token/认证头等凭证键",
+  "snapshot_io_failed": "读写底层失败",
+  "snapshot_json_invalid": "明文不是严格 JSON（重复键/NaN/非 UTF-8）",
+  "snapshot_list_order_invalid": "声明为排序去重的列表未按字典序去重",
+  "snapshot_manifest_binding_mismatch": "清单绑定摘要/计数与内容不符",
+  "snapshot_manifest_count_mismatch": "清单 snapshot_count 与 turns 长度不符",
+  "snapshot_missing_field": "声明字段缺失（路径见后缀）",
+  "snapshot_null_not_allowed": "非可空字段为 null（路径见后缀）",
+  "snapshot_owner_inconsistent": "request_owner 的 availability/reason/source/值互相矛盾",
+  "snapshot_plaintext_secret_rejected": "字符串值形似 Bearer/JWT/Fernet/私钥等明文凭证",
+  "snapshot_public_boundary_violation": "公开摘要含未声明键/运行期 id/与摘要不符",
+  "snapshot_read_failed": "密文不可读",
+  "snapshot_readback_mismatch": "写后读回与写入规范字节不一致",
+  "snapshot_record_identity_inconsistent": "记录身份字段互相矛盾（record_level/record_code/doc_code）",
+  "snapshot_record_index_conflict": "记录索引同一 (doc,sheet,row) 指向不同记录键",
+  "snapshot_record_index_invalid": "记录索引条目缺键/类型错",
+  "snapshot_run_binding_absent": "live_h2 缺 run_binding 摘要（防御；冻结校验通常先行拒绝）",
+  "snapshot_run_binding_mismatch": "run 绑定摘要与期望值不符（跨 run 复用）",
+  "snapshot_run_binding_unexpected": "local_mock 带 run_binding 摘要（防御；同上）",
+  "snapshot_runtime_id_not_declared": "未声明的运行期 id 键出现在非声明位置",
+  "snapshot_runtime_identity_inconsistent": "runtime_identity 声明块与记录身份不一致",
+  "snapshot_schema_version_invalid": "schema_version 不属于本契约/清单 schema",
+  "snapshot_size_invalid": "密文/明文超出大小上限或为空",
+  "snapshot_source_evidence_invalid": "来源回合证据未通过冻结严格校验",
+  "snapshot_source_evidence_mismatch": "snapshot.source_evidence 与调用方给出的证据字节不符",
+  "snapshot_source_evidence_unsupported": "来源回合证据版本不是冻结 v0.3/v0.3-live",
+  "snapshot_summary_mismatch": "record_identity_summary 计数/清单与逐行不一致",
+  "snapshot_turn_binding_mismatch": "回合身份与期望值不符（跨回合复用）",
+  "snapshot_type_invalid": "字段/数组元素类型错（路径见后缀）",
+  "snapshot_unknown_field": "出现未声明键（路径见后缀）",
+  "snapshot_write_failed": "落盘失败（加密/原子替换前）"
+ },
+ "fail_closed_code_count": 49,
+ "public_summary_keys": [
+  "all_use_layers_observed",
+  "candidate_layer_count",
+  "completeness_status",
+  "doc_code_unresolved_count",
+  "document_version_count",
+  "effective_as_of_present",
+  "effective_temporal_status",
+  "empty_set_candidate",
+  "empty_use_codes",
+  "entity_codes",
+  "entity_document_level_count",
+  "entity_matchable_count",
+  "fixture_kind",
+  "not_record_level_count",
+  "owner_attribution_present",
+  "record_codes",
+  "record_identity_total",
+  "record_level_count",
+  "runtime_id_count",
+  "runtime_unit_count",
+  "schema_version",
+  "temporal_codes",
+  "turn_index",
+  "usage_layer_count",
+  "version_mismatch_count"
+ ],
+ "public_summary_key_count": 25,
+ "record_identity_codes": [
+  "record_row_reverse_lookup",
+  "record_row_not_in_record_index",
+  "runtime_unit_not_record_level",
+  "runtime_doc_code_unresolved",
+  "runtime_unit_unresolved"
+ ],
+ "entity_codes": [
+  "entity_identity_matchable",
+  "entity_identity_matchable_nonrole_filters",
+  "entity_identity_nonmatchable",
+  "entity_identity_document_level",
+  "entity_identity_absent",
+  "entity_identity_unavailable"
+ ],
+ "temporal_codes": [
+  "effective_temporal_observed",
+  "effective_temporal_partial",
+  "effective_temporal_not_observed",
+  "effective_as_of_not_observed",
+  "effective_as_of_ambiguous"
+ ],
+ "empty_use_codes": [
+  "empty_use_input_complete_empty",
+  "empty_use_input_nonempty",
+  "empty_use_input_layers_not_observed",
+  "empty_use_input_turn_partial",
+  "empty_use_input_malformed_event"
+ ]
+}

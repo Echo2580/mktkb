@@ -1,0 +1,265 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 1 item
+
+backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_01_business_behavior_unchanged FAILED [100%]
+
+================================== FAILURES ===================================
+_______________ test_acceptance_01_business_behavior_unchanged ________________
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x0000023942BBA8D0>
+
+    def test_acceptance_01_business_behavior_unchanged(trace_chat_app) -> None:
+        assert GOLDEN.is_file(), f"golden 缺失: {GOLDEN}"
+        golden = _read_json(GOLDEN)
+        meta = golden["_meta"]
+        # golden 的可信性：来源、采集命令、归一化清单必须与实现一致（文档不得静默漂移）。
+        assert meta["captured_from_commit"] and meta["capture_command"]
+        assert tuple(meta["normalised_fields"]) == NORMALISED_FIELDS
+        assert tuple(meta["asserted_not_recorded"]) == ASSERTED_NOT_RECORDED
+    
+        response = _chat_scenario(trace_chat_app)
+        assert response.status_code == golden["http_status"] == 200
+        trace_header = response.headers.get("X-Trace-ID")
+        assert trace_header and TRACE_ID_RE.fullmatch(trace_header), trace_header
+        assert response.headers.get("X-Request-ID"), "业务响应必须带 X-Request-ID"
+    
+        actual = normalise_chat_payload(response.json())
+>       assert actual == golden["normalised_body"]
+E       AssertionError: assert {'request_id': '<uuid>', 'message_id': '<uuid>', 'kind': 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。\n- t003d-dataset.xlsx / 台账 第 7 行（记录 <record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n未在资料中找到：城东店（该实体没有匹配记录）。', 'revision': 1, 'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', 'locator': {'sheet': '台账', 'row': 7, 'header_row': 6, 'cell_types': {'门店': 's', '物品': 's', '数量': 'n', '标识': 's', '位置': 's'}}, 'published_at': '<timestamp>'}], 'candidates': [], 'conflicts': [], 'missing_fields': [], 'pagination': {'page': 1, 'page_size': 10, 'total': 1, 'returned': 1, 'has_more': False, 'next_page': None}, 'error_code': None, 'retryable': False} == {'request_id': '<uuid>', 'message_id': '<uuid>', 'kind': 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。\n- t003d-dataset.xlsx / 台账 第 7 行（记录 <record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n未在资料中找到：城东店（该实体没有匹配记录）。', 'revision': 1, 'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', 'locator': {'sheet': '台账', 'row': 7, 'header_row': 6, 'cells': [{'column': 'A', 'column_index': 1, 'raw_type': 's', 'number_format': 'General', 'display': '滨江店', 'header': '门店'}, {'column': 'B', 'column_index': 2, 'raw_type': 's', 'number_format': 'General', 'display': '宣传海报', 'header': '物品'}, {'column': 'C', 'column_index': 3, 'raw_type': 'n', 'number_format': 'General', 'display': '40', 'header': '数量'}, {'column': 'D', 'column_index': 4, 'raw_type': 's', 'number_format': 'General', 'display': 'QF001', 'header': '标识'}, {'column': 'E', 'column_index': 5, 'raw_type': 's', 'number_format': 'General', 'display': 'B区1号货架第二层', 'header': '位置'}], 'cell_types': {'门店': 's', '物品': 's', '数量': 'n', '标识': 's', '位置': 's'}}, 'published_at': '<timestamp>'}], 'candidates': [], 'conflicts': [], 'missing_fields': [], 'pagination': {'page': 1, 'page_size': 10, 'total': 1, 'returned': 1, 'has_more': False, 'next_page': None}, 'error_code': None, 'retryable': False}
+E         
+E         Common items:
+E         {'candidates': [],
+E          'conflicts': [],
+E          'error_code': None,
+E          'kind': 'answer',
+E          'message_id': '<uuid>',
+E          'missing_fields': [],
+E          'pagination': {'has_more': False,
+E                         'next_page': None,
+E                         'page': 1,
+E                         'page_size': 10,
+E                         'returned': 1,
+E                         'total': 1},
+E          'request_id': '<uuid>',
+E          'retryable': False,
+E          'revision': 1,
+E          'text': '共 1 条，当前第 1 页显示 1 条。\n'
+E                  '- t003d-dataset.xlsx / 台账 第 7 行（记录 '
+E                  '<record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n'
+E                  '未在资料中找到：城东店（该实体没有匹配记录）。'}
+E         Differing items:
+E         {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]} != {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]}
+E         
+E         Full diff:
+E           {
+E               'request_id': '<uuid>',
+E               'message_id': '<uuid>',
+E               'kind': 'answer',
+E               'text': '共 1 条，当前第 1 页显示 1 条。\n'
+E               '- t003d-dataset.xlsx / 台账 第 7 行（记录 '
+E               '<record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n'
+E               '未在资料中找到：城东店（该实体没有匹配记录）。',
+E               'revision': 1,
+E               'sources': [
+E                   {
+E                       'source_id': '<uuid>',
+E                       'document_name': 't003d-dataset.xlsx',
+E                       'version_number': 1,
+E                       'status': 'active',
+E                       'locator': {
+E                           'sheet': '台账',
+E                           'row': 7,
+E                           'header_row': 6,
+E         -                 'cells': [
+E         -                     {
+E         -                         'column': 'A',
+E         -                         'column_index': 1,
+E         -                         'raw_type': 's',
+E         -                         'number_format': 'General',
+E         -                         'display': '滨江店',
+E         -                         'header': '门店',
+E         -                     },
+E         -                     {
+E         -                         'column': 'B',
+E         -                         'column_index': 2,
+E         -                         'raw_type': 's',
+E         -                         'number_format': 'General',
+E         -                         'display': '宣传海报',
+E         -                         'header': '物品',
+E         -                     },
+E         -                     {
+E         -                         'column': 'C',
+E         -                         'column_index': 3,
+E         -                         'raw_type': 'n',
+E         -                         'number_format': 'General',
+E         -                         'display': '40',
+E         -                         'header': '数量',
+E         -                     },
+E         -                     {
+E         -                         'column': 'D',
+E         -                         'column_index': 4,
+E         -                         'raw_type': 's',
+E         -                         'number_format': 'General',
+E         -                         'display': 'QF001',
+E         -                         'header': '标识',
+E         -                     },
+E         -                     {
+E         -                         'column': 'E',
+E         -                         'column_index': 5,
+E         -                         'raw_type': 's',
+E         -                         'number_format': 'General',
+E         -                         'display': 'B区1号货架第二层',
+E         -                         'header': '位置',
+E         -                     },
+E         -                 ],
+E                           'cell_types': {
+E                               '门店': 's',
+E                               '物品': 's',
+E                               '数量': 'n',
+E                               '标识': 's',
+E                               '位置': 's',
+E                           },
+E                       },
+E                       'published_at': '<timestamp>',
+E                   },
+E               ],
+E               'candidates': [],
+E               'conflicts': [],
+E               'missing_fields': [],
+E               'pagination': {
+E                   'page': 1,
+E                   'page_size': 10,
+E                   'total': 1,
+E                   'returned': 1,
+E                   'has_more': False,
+E                   'next_page': None,
+E               },
+E               'error_code': None,
+E               'retryable': False,
+E           }
+
+backend\tests\evaluation\test_p0_acceptance.py:197: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\evaluation\test_p0_acceptance.py::test_acceptance_01_business_behavior_unchanged - AssertionError: assert {'request_id': '<uuid>', 'message_id': '<uuid>', 'kind': 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。\n- t003d-dataset.xlsx / 台账 第 7 行（记录 <record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n未在资料中找到：城东店（该实体没有匹配记录）。', 'revision': 1, 'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', 'locator': {'sheet': '台账', 'row': 7, 'header_row': 6, 'cell_types': {'门店': 's', '物品': 's', '数量': 'n', '标识': 's', '位置': 's'}}, 'published_at': '<timestamp>'}], 'candidates': [], 'conflicts': [], 'missing_fields': [], 'pagination': {'page': 1, 'page_size': 10, 'total': 1, 'returned': 1, 'has_more': False, 'next_page': None}, 'error_code': None, 'retryable': False} == {'request_id': '<uuid>', 'message_id': '<uuid>', 'kind': 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。\n- t003d-dataset.xlsx / 台账 第 7 行（记录 <record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n未在资料中找到：城东店（该实体没有匹配记录）。', 'revision': 1, 'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', 'locator': {'sheet': '台账', 'row': 7, 'header_row': 6, 'cells': [{'column': 'A', 'column_index': 1, 'raw_type': 's', 'number_format': 'General', 'display': '滨江店', 'header': '门店'}, {'column': 'B', 'column_index': 2, 'raw_type': 's', 'number_format': 'General', 'display': '宣传海报', 'header': '物品'}, {'column': 'C', 'column_index': 3, 'raw_type': 'n', 'number_format': 'General', 'display': '40', 'header': '数量'}, {'column': 'D', 'column_index': 4, 'raw_type': 's', 'number_format': 'General', 'display': 'QF001', 'header': '标识'}, {'column': 'E', 'column_index': 5, 'raw_type': 's', 'number_format': 'General', 'display': 'B区1号货架第二层', 'header': '位置'}], 'cell_types': {'门店': 's', '物品': 's', '数量': 'n', '标识': 's', '位置': 's'}}, 'published_at': '<timestamp>'}], 'candidates': [], 'conflicts': [], 'missing_fields': [], 'pagination': {'page': 1, 'page_size': 10, 'total': 1, 'returned': 1, 'has_more': False, 'next_page': None}, 'error_code': None, 'retryable': False}
+  
+  Common items:
+  {'candidates': [],
+   'conflicts': [],
+   'error_code': None,
+   'kind': 'answer',
+   'message_id': '<uuid>',
+   'missing_fields': [],
+   'pagination': {'has_more': False,
+                  'next_page': None,
+                  'page': 1,
+                  'page_size': 10,
+                  'returned': 1,
+                  'total': 1},
+   'request_id': '<uuid>',
+   'retryable': False,
+   'revision': 1,
+   'text': '共 1 条，当前第 1 页显示 1 条。\n'
+           '- t003d-dataset.xlsx / 台账 第 7 行（记录 '
+           '<record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n'
+           '未在资料中找到：城东店（该实体没有匹配记录）。'}
+  Differing items:
+  {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]} != {'sources': [{'source_id': '<uuid>', 'document_name': 't003d-dataset.xlsx', 'version_number': 1, 'status': 'active', ...}]}
+  
+  Full diff:
+    {
+        'request_id': '<uuid>',
+        'message_id': '<uuid>',
+        'kind': 'answer',
+        'text': '共 1 条，当前第 1 页显示 1 条。\n'
+        '- t003d-dataset.xlsx / 台账 第 7 行（记录 '
+        '<record-ref>）：门店=滨江店；物品=宣传海报；数量=40；标识=QF001；位置=B区1号货架第二层\n'
+        '未在资料中找到：城东店（该实体没有匹配记录）。',
+        'revision': 1,
+        'sources': [
+            {
+                'source_id': '<uuid>',
+                'document_name': 't003d-dataset.xlsx',
+                'version_number': 1,
+                'status': 'active',
+                'locator': {
+                    'sheet': '台账',
+                    'row': 7,
+                    'header_row': 6,
+  -                 'cells': [
+  -                     {
+  -                         'column': 'A',
+  -                         'column_index': 1,
+  -                         'raw_type': 's',
+  -                         'number_format': 'General',
+  -                         'display': '滨江店',
+  -                         'header': '门店',
+  -                     },
+  -                     {
+  -                         'column': 'B',
+  -                         'column_index': 2,
+  -                         'raw_type': 's',
+  -                         'number_format': 'General',
+  -                         'display': '宣传海报',
+  -                         'header': '物品',
+  -                     },
+  -                     {
+  -                         'column': 'C',
+  -                         'column_index': 3,
+  -                         'raw_type': 'n',
+  -                         'number_format': 'General',
+  -                         'display': '40',
+  -                         'header': '数量',
+  -                     },
+  -                     {
+  -                         'column': 'D',
+  -                         'column_index': 4,
+  -                         'raw_type': 's',
+  -                         'number_format': 'General',
+  -                         'display': 'QF001',
+  -                         'header': '标识',
+  -                     },
+  -                     {
+  -                         'column': 'E',
+  -                         'column_index': 5,
+  -                         'raw_type': 's',
+  -                         'number_format': 'General',
+  -                         'display': 'B区1号货架第二层',
+  -                         'header': '位置',
+  -                     },
+  -                 ],
+                    'cell_types': {
+                        '门店': 's',
+                        '物品': 's',
+                        '数量': 'n',
+                        '标识': 's',
+                        '位置': 's',
+                    },
+                },
+                'published_at': '<timestamp>',
+            },
+        ],
+        'candidates': [],
+        'conflicts': [],
+        'missing_fields': [],
+        'pagination': {
+            'page': 1,
+            'page_size': 10,
+            'total': 1,
+            'returned': 1,
+            'has_more': False,
+            'next_page': None,
+        },
+        'error_code': None,
+        'retryable': False,
+    }
+======================== 1 failed, 1 warning in 2.15s =========================

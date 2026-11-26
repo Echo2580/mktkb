@@ -1,0 +1,31 @@
+{
+  "schema_version": "p2-h2v3-run-status/v0.1",
+  "run_index": 0,
+  "run_id": "p2-h2v3-20261115-r0-base_b0",
+  "scenario_id": "base_b0",
+  "business_date": "2026-10-15",
+  "status": "ABORTED",
+  "stop_code": "adapter_error",
+  "error_code": "run_not_succeeded",
+  "failure_attribution": {
+    "turn_index": 0,
+    "product_error_code": "INDEX_NOT_READY",
+    "product_message_kind": "service_error",
+    "product_request_status": "succeeded",
+    "capture_completeness": "incomplete",
+    "capture_missing_event_kinds": [
+      "plan_observed"
+    ],
+    "capture_error": "plan_observation_count_invalid",
+    "ledger_chat_result_error_code": "EvidenceCaptureIncomplete",
+    "chain": "答案返回 INDEX_NOT_READY（索引未就绪：context_observed count=0）→ 缺 plan_observed → EvidenceCaptureIncomplete → adapter_error → status=aborted"
+  },
+  "requests_used_attempts": 9,
+  "requests_outbound": 8,
+  "settled_cny_ledger_delta": 0.0203535,
+  "entered_next_run": false,
+  "note": "按纪律在首个失败 run 立即停止：未装 r1 GO、未重试、未加钱、未手工修分。",
+  "attempts": 1,
+  "retried": false,
+  "manual_score_fix": false
+}

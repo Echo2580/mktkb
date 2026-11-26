@@ -1,0 +1,1587 @@
+{
+ "schema_version": "p2h2v3-effective-range-proof/v0.1",
+ "phase": "effective-range-proof-r1",
+ "question": "把 失效日期 的留空改成哨兵 未声明 之后，_effective_range 的返回值是否逐 unit 不变？表头是否恢复？",
+ "method": "真实 parse_document 解析 6 个 xlsx；对每个 unit 造 (哨兵 / R0 的 None / 空串 / 键缺失) 四种 raw_fields，分别调冻结分类器 p2_hard_evidence._effective_range 与 rag.chunking.effective_dates，要求逐值相等",
+ "frozen_classifier": {
+  "path": "backend/src/mktkb/evaluation/p2_hard_evidence.py",
+  "sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+  "functions": [
+   "_parse_date_text:1452",
+   "_collect_dates:1464",
+   "_effective_range:1481"
+  ]
+ },
+ "chunking": {
+  "path": "backend/src/mktkb/rag/chunking.py",
+  "sha256": "33cf8b40219530b73636ed0a6b934e7178ea8b4a7dd24207391f1e418a38eed7",
+  "functions": [
+   "parse_date:142",
+   "effective_dates:154"
+  ]
+ },
+ "r0_reference": {
+  "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/08-header-detection-finding.json",
+  "sha256": "f557a2ce540ad636787762dcbe4d7fe8cf4c67cc6f67a534dd1bd86ef0aab3f9"
+ },
+ "header_check": {
+  "D01": {
+   "path": "normal/D01_物品位置表.xlsx",
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row_r1": 7,
+   "parser_header_row_r0": 7,
+   "header_restored": true,
+   "changed_vs_r0": false,
+   "units_r1": 9,
+   "units_r0": 9
+  },
+  "D02": {
+   "path": "normal/D02_合作店家信息.xlsx",
+   "target_sheet": "店家信息",
+   "declared_header_row": 4,
+   "parser_header_row_r1": 4,
+   "parser_header_row_r0": 4,
+   "header_restored": true,
+   "changed_vs_r0": false,
+   "units_r1": 4,
+   "units_r0": 4
+  },
+  "V03": {
+   "path": "variants/V03_物品位置表_历史V1.xlsx",
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row_r1": 7,
+   "parser_header_row_r0": 7,
+   "header_restored": true,
+   "changed_vs_r0": false,
+   "units_r1": 9,
+   "units_r0": 9
+  },
+  "V04": {
+   "path": "variants/V04_物品位置表_新版V3.xlsx",
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row_r1": 7,
+   "parser_header_row_r0": 7,
+   "header_restored": true,
+   "changed_vs_r0": false,
+   "units_r1": 9,
+   "units_r0": 9
+  },
+  "V05": {
+   "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row_r1": 7,
+   "parser_header_row_r0": 8,
+   "header_restored": true,
+   "changed_vs_r0": true,
+   "units_r1": 8,
+   "units_r0": 7
+  },
+  "V06": {
+   "path": "variants/V06_合作店家信息_新电话.xlsx",
+   "target_sheet": "店家信息",
+   "declared_header_row": 4,
+   "parser_header_row_r1": 4,
+   "parser_header_row_r0": 5,
+   "header_restored": true,
+   "changed_vs_r0": true,
+   "units_r1": 4,
+   "units_r0": 3
+  }
+ },
+ "semantic_invariance": {
+  "units_compared_total": 43,
+  "units_applicable_sentinel": 11,
+  "note": "只有原本留空的 unit（R1 里装哨兵）参与「哨兵 vs 留空」等价判定；其余 unit 的 失效日期 是真实日期，两轮逐字节相同（见 02r1）",
+  "triple_mismatch_units": [],
+  "chunking_mismatch_units": [],
+  "sentinel_triples": [
+   {
+    "unit_key": "sheet:物品位置:row:8",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:9",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:10",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:11",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:12",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:13",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:物品位置:row:14",
+    "triple": [
+     "range",
+     "2026-12-01",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:店家信息:row:5",
+    "triple": [
+     "range",
+     "2026-11-16",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:店家信息:row:6",
+    "triple": [
+     "range",
+     "2026-11-16",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:店家信息:row:7",
+    "triple": [
+     "range",
+     "2026-11-16",
+     null
+    ],
+    "to_dates_collected": []
+   },
+   {
+    "unit_key": "sheet:店家信息:row:8",
+    "triple": [
+     "range",
+     "2026-11-16",
+     null
+    ],
+    "to_dates_collected": []
+   }
+  ],
+  "sentinel_triples_all_right_side_skipped": true,
+  "sentinel_triples_distinct": [
+   [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   [
+    "range",
+    "2026-12-01",
+    null
+   ]
+  ]
+ },
+ "not_a_date": {
+  "sentinel": "未声明",
+  "hard_evidence_parse_date_text": null,
+  "chunking_parse_date": null,
+  "chunking_effective_dates_on_sentinel_only": [
+   null,
+   null
+  ],
+  "hard_evidence_collect_dates_on_sentinel_only": [],
+  "ok": true
+ },
+ "checks": {
+  "all_six_headers_restored": true,
+  "v05_header_back_to_7": true,
+  "v06_header_back_to_4": true,
+  "other_four_unchanged_vs_r0": true,
+  "effective_range_identical_all_units": true,
+  "chunking_effective_dates_identical_all_units": true,
+  "sentinel_side_is_skipped_not_dated": true,
+  "sentinel_units_exactly_11": true,
+  "sentinel_never_parsed_as_date": true
+ },
+ "result": "HEADER_RESTORED_AND_RANGE_SEMANTICS_UNCHANGED",
+ "units": [
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:8",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:9",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-07-15",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-07-15",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-07-15",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-07-15",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:10",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:11",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:12",
+   "effective_to_raw": "2026-09-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-09-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-09-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:13",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-10-29",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-10-29",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-10-29",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-10-29",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:14",
+   "effective_to_raw": "2026-10-31",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-31"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:15",
+   "effective_to_raw": "2026-10-15",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-05-01",
+    "2026-10-15"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-05-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-10-15"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D01",
+   "sheet": "备用物料表",
+   "unit_key": "sheet:备用物料表:row:4",
+   "effective_to_raw": null,
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "none",
+    null,
+    null
+   ],
+   "triple_r0_none": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_empty": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_absent": [
+    "none",
+    null,
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D02",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:5",
+   "effective_to_raw": "2026-11-15",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-15"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D02",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:6",
+   "effective_to_raw": "2026-11-15",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-15"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D02",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:7",
+   "effective_to_raw": "2026-11-15",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-15"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "D02",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:8",
+   "effective_to_raw": "2026-11-15",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-02-02",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-15"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:8",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:9",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:10",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:11",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:12",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:13",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:14",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:15",
+   "effective_to_raw": "2026-04-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-01-05",
+    "2026-04-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-01-05",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-04-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V03",
+   "sheet": "备用物料表",
+   "unit_key": "sheet:备用物料表:row:4",
+   "effective_to_raw": null,
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "none",
+    null,
+    null
+   ],
+   "triple_r0_none": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_empty": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_absent": [
+    "none",
+    null,
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:8",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:9",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:10",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:11",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:12",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:13",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:14",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:15",
+   "effective_to_raw": "2026-11-30",
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "range",
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-01",
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [
+    "2026-11-30"
+   ],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V04",
+   "sheet": "备用物料表",
+   "unit_key": "sheet:备用物料表:row:4",
+   "effective_to_raw": null,
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "none",
+    null,
+    null
+   ],
+   "triple_r0_none": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_empty": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_absent": [
+    "none",
+    null,
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:8",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:9",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:10",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:11",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:12",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:13",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "物品位置",
+   "unit_key": "sheet:物品位置:row:14",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-12-01",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V05",
+   "sheet": "备用物料表",
+   "unit_key": "sheet:备用物料表:row:4",
+   "effective_to_raw": null,
+   "applicable_sentinel_unit": false,
+   "triple_sentinel": [
+    "none",
+    null,
+    null
+   ],
+   "triple_r0_none": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_empty": [
+    "ambiguous",
+    null,
+    null
+   ],
+   "triple_absent": [
+    "none",
+    null,
+    null
+   ],
+   "triple_equal_all_shapes": null,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": null
+  },
+  {
+   "source_id": "V06",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:5",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V06",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:6",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V06",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:7",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  },
+  {
+   "source_id": "V06",
+   "sheet": "店家信息",
+   "unit_key": "sheet:店家信息:row:8",
+   "effective_to_raw": "未声明",
+   "applicable_sentinel_unit": true,
+   "triple_sentinel": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_r0_none": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_empty": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_absent": [
+    "range",
+    "2026-11-16",
+    null
+   ],
+   "triple_equal_all_shapes": true,
+   "to_dates_collected": [],
+   "chunking_effective_dates_equal": true
+  }
+ ]
+}

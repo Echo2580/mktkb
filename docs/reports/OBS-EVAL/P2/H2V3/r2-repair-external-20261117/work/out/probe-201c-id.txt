@@ -1,0 +1,61 @@
+======================================================================
+CASE H2V3-C08
+  ref[0] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  -- turn[0] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=9 unit_key_len=16
+     retrieval: scope=rag_candidate_upper_bound candidate=True empty=False truncated=False ids=1
+     retrieval: scope=legacy_retrieve_initial candidate=False empty=False truncated=False ids=1
+     plan: path=legacy mode=record enumerate=False include_future=False as_of_len=10 state_as_of_len=10 filters_keys=['item', 'store'] statelast=None pending=None
+     model_input: evidence=1 ctx_q=0 ctx_e_keys=['item', 'store']
+  rag_business_date_present=True
+======================================================================
+CASE H2V3-C14
+  ref[0] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  -- turn[0] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=11 unit_key_len=17
+     retrieval: scope=rag_candidate_upper_bound candidate=True empty=False truncated=False ids=1
+     retrieval: scope=legacy_retrieve_initial candidate=False empty=False truncated=False ids=1
+     plan: path=legacy mode=record enumerate=False include_future=False as_of_len=10 state_as_of_len=10 filters_keys=['item', 'store'] statelast=None pending=None
+     model_input: evidence=1 ctx_q=0 ctx_e_keys=['item', 'store']
+  -- turn[1] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=11 unit_key_len=17
+     entity_inheritance: entity_type=store entity_key_shape=no_pipe source=True
+     entity_inheritance: entity_type=item entity_key_shape=no_pipe source=True
+     retrieval: scope=rag_candidate_upper_bound candidate=True empty=False truncated=False ids=1
+     retrieval: scope=legacy_retrieve_initial candidate=False empty=False truncated=False ids=1
+     plan: path=legacy mode=record enumerate=False include_future=False as_of_len=10 state_as_of_len=10 filters_keys=['item', 'store'] statelast=None pending=None
+     model_input: evidence=1 ctx_q=1 ctx_e_keys=['item', 'store']
+  rag_business_date_present=True
+======================================================================
+CASE H2V3-C19
+  ref[0] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  -- turn[0] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=9 unit_key_len=16
+     retrieval: scope=rag_candidate_upper_bound candidate=True empty=False truncated=False ids=1
+     retrieval: scope=legacy_retrieve_initial candidate=False empty=False truncated=False ids=1
+     plan: path=legacy mode=document enumerate=False include_future=True as_of_len=10 state_as_of_len=10 filters_keys=['doc_id', 'item', 'store'] statelast=None pending=None
+     model_input: evidence=1 ctx_q=0 ctx_e_keys=['item', 'store']
+  rag_business_date_present=True
+======================================================================
+CASE H2V3-C25
+  ref[0] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  -- turn[0] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=8 unit_key_len=16
+     direct_rag.facts=1 cited=1
+       facts[0].keys=['doc_id', 'entity_key', 'entity_label', 'field_label', 'field_role', 'revision', 'source_chunk_id', 'source_unit_id', 'value', 'version_id']
+         entity_type=None entity_key_shape=type_only_tail entity_key_seg=('head_len=4', 'tail_no_tag') has_source_unit_id=True source_unit_id_resolves=True field_role=location value_len=5
+         fact_key_eq_unit_key=False fact_type_eq_unit_type=False fact_key_seg=('head_len=4', 'tail_no_tag') unit_key_seg=('head_len=4', 'tag=id')
+     plan: path=rag mode=record enumerate=True include_future=False as_of_len=10 state_as_of_len=10 filters_keys=['doc_id', 'item', 'store'] statelast=None pending=None
+  rag_business_date_present=True
+======================================================================
+CASE H2V3-C29
+  ref[0] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  ref[1] doc_code=False record_code_len=3 locator={'sheet': 'str', 'row': 'int', 'version_number': 'int'}
+  -- turn[0] units=1
+     units[0]: entity_type=item entity_key_shape=type_id entity_key_seg=('head_len=4', 'tag=id') entity_filters_keys=['item', 'item_id', 'store'] version_state=published active=True deleted=False kind=table_row loc_row=10 unit_key_len=17
+     direct_rag.facts=1 cited=1
+       facts[0].keys=['doc_id', 'entity_key', 'entity_label', 'field_label', 'field_role', 'revision', 'source_chunk_id', 'source_unit_id', 'value', 'version_id']
+         entity_type=None entity_key_shape=type_only_tail entity_key_seg=('head_len=4', 'tail_no_tag') has_source_unit_id=True source_unit_id_resolves=True field_role=location value_len=8
+         fact_key_eq_unit_key=False fact_type_eq_unit_type=False fact_key_seg=('head_len=4', 'tail_no_tag') unit_key_seg=('head_len=4', 'tag=id')
+     plan: path=rag mode=record enumerate=True include_future=False as_of_len=10 state_as_of_len=10 filters_keys=['item'] statelast=None pending=None
+  rag_business_date_present=True

@@ -1,8 +1,0 @@
-# 反证：把 open_live_gate 的 missing 计算临时还原成"无条件五项"后运行新测试 b)，
-# 命令：pytest backend/tests/evaluation/test_p2_live_wiring.py -k opens_for_plan_without_ocr --tb=short
-# （还原是内存外的临时写盘；跑完立即写回修正版，sha256 与修正版逐字节相同）
-    raise P2LiveConfigError("live_operation_not_authorized", f"GO 未授权 {missing}")
-E   mktkb.evaluation.p2_live.P2LiveConfigError: live_operation_not_authorized: GO 未授权 ['ocr']
-FAILED backend\tests\evaluation\test_p2_live_wiring.py::test_live_gate_opens_for_plan_without_ocr_items
-1 failed, 27 deselected, 1 warning in 0.37s
-# 修正版 p2_live.py sha256: 1a5b86f600bb697cca4277e0298d76bd0ad3ae744f4dc948c0df81ee74355f68

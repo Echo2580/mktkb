@@ -1,0 +1,494 @@
+{
+  "aggregate": {
+    "limit_dropped_note": "facts 只为被引行构造；分页/歧义的行在引用之前就被丢弃，不进本阶梯（真实两案被引单元各 1 条）",
+    "mode": "red_plan_first_role_only",
+    "netguard": {
+      "blocked_attempts": 2,
+      "outbound_allowed": 0,
+      "positive_control_attempts": 2,
+      "positive_control_blocked": true
+    },
+    "rendered_but_not_fact": 0,
+    "shapes": 13,
+    "totals": {
+      "all_fields_representative_only": 3,
+      "cross_field_conflict": 0,
+      "dedup_dropped": 1,
+      "fact_built": 12,
+      "limit_dropped": 0,
+      "role_not_requested": 31,
+      "role_value_missing": 2,
+      "undetermined": 0,
+      "value_rejected_by_validate": 0
+    }
+  },
+  "ok": true,
+  "results": [
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 3,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 2,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 4,
+      "fact_count": 1,
+      "fact_roles": [
+        "effective_to"
+      ],
+      "note": "C21 形；只请求一端 ⇒ 另一端 role_not_requested（= 真实 L4 缺项形态）",
+      "plan_roles": [
+        "effective_to"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "alias",
+        "effective_from",
+        "effective_to",
+        "identifier",
+        "item",
+        "location",
+        "store"
+      ],
+      "shape": "C21_red_single_end"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 3,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 2,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 4,
+      "fact_count": 1,
+      "fact_roles": [
+        "effective_to"
+      ],
+      "note": "同一行；显式请求两端 ⇒ 两个日期都进 facts（代码未改）",
+      "plan_roles": [
+        "effective_to"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "alias",
+        "effective_from",
+        "effective_to",
+        "identifier",
+        "item",
+        "location",
+        "store"
+      ],
+      "shape": "C21_green_both_ends"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 6,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 5,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 1,
+      "fact_count": 1,
+      "fact_roles": [
+        "phone"
+      ],
+      "note": "C27 形；只请求电话 ⇒ 地址 role_not_requested",
+      "plan_roles": [
+        "phone"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "address",
+        "contact",
+        "effective_from",
+        "effective_to",
+        "phone",
+        "status",
+        "store"
+      ],
+      "shape": "C27_red_single_phone"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 6,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 5,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 1,
+      "fact_count": 1,
+      "fact_roles": [
+        "phone"
+      ],
+      "note": "同一行；显式请求地址+电话 ⇒ 两条都进 facts",
+      "plan_roles": [
+        "phone"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "address",
+        "contact",
+        "effective_from",
+        "effective_to",
+        "phone",
+        "status",
+        "store"
+      ],
+      "shape": "C27_green_both_contact"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 6,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 5,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 1,
+      "fact_count": 1,
+      "fact_roles": [
+        "phone"
+      ],
+      "note": "概念词（联系方式）只映射到 phone；地址/联系人仍 role_not_requested",
+      "plan_roles": [
+        "phone"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "address",
+        "contact",
+        "effective_from",
+        "effective_to",
+        "phone",
+        "status",
+        "store"
+      ],
+      "shape": "C27_bundle_word"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 7,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 2,
+        "limit_dropped": 0,
+        "role_not_requested": 5,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 1,
+      "fact_count": 2,
+      "fact_roles": [
+        "phone"
+      ],
+      "note": "C27 facts=2 的另一种同形：同一请求角色由两列承载 ⇒ 2 条 facts、5 条未请求",
+      "plan_roles": [
+        "phone"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "address",
+        "contact",
+        "effective_from",
+        "effective_to",
+        "phone",
+        "status",
+        "store"
+      ],
+      "shape": "C27_two_phone_columns"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 6,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 5,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 1,
+      "fact_count": 1,
+      "fact_roles": [
+        "phone"
+      ],
+      "note": "C27 真实 facts=2 的同形：请求 phone+status ⇒ 2 条 facts、4 条 role_not_requested",
+      "plan_roles": [
+        "phone"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "address",
+        "contact",
+        "effective_from",
+        "effective_to",
+        "phone",
+        "status",
+        "store"
+      ],
+      "shape": "C27_two_roles_fact2"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 3,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 2,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 4,
+      "fact_count": 1,
+      "fact_roles": [
+        "effective_to"
+      ],
+      "note": "假设形：复合词（有效期）+ 一端字段词 ⇒ 只请求一端；与真实 C21 facts=1 同形",
+      "plan_roles": [
+        "effective_to"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "alias",
+        "effective_from",
+        "effective_to",
+        "identifier",
+        "item",
+        "location",
+        "store"
+      ],
+      "shape": "H_c21_window_word"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "no_answer",
+      "answer_reason": "NO_RECORD_FOR_ENTITY",
+      "cited_record_rows": 0,
+      "code_total": 1,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 0,
+        "limit_dropped": 0,
+        "role_not_requested": 0,
+        "role_value_missing": 1,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 0,
+      "fact_count": 0,
+      "fact_roles": [],
+      "note": "排除形：未登记词（到期）只落到泛化 date ⇒ 该行无 date 角色，退化成无记录",
+      "plan_roles": [
+        "date"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [],
+      "shape": "H_c21_deadline_word"
+    },
+    {
+      "all_fields": true,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 3,
+      "codes": {
+        "all_fields_representative_only": 3,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 0,
+        "limit_dropped": 0,
+        "role_not_requested": 0,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 4,
+      "fact_count": 1,
+      "fact_roles": [
+        "identifier"
+      ],
+      "note": "无字段请求 ⇒ all_fields 只造 1 条代表事实；其余角色值只渲染不进 facts",
+      "plan_roles": [],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "alias",
+        "effective_from",
+        "effective_to",
+        "identifier",
+        "item",
+        "location",
+        "store"
+      ],
+      "shape": "C21_all_fields"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 2,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 2,
+        "limit_dropped": 0,
+        "role_not_requested": 0,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 3,
+      "fact_count": 2,
+      "fact_roles": [
+        "price"
+      ],
+      "note": "同角色两列 ⇒ 两列都进 facts（第一/二轮多列渲染修复的形态）",
+      "plan_roles": [
+        "price"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "identifier",
+        "item",
+        "price",
+        "store"
+      ],
+      "shape": "same_role_two_columns"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "answer",
+      "answer_reason": "none",
+      "cited_record_rows": 1,
+      "code_total": 2,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 1,
+        "fact_built": 1,
+        "limit_dropped": 0,
+        "role_not_requested": 0,
+        "role_value_missing": 0,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 3,
+      "fact_count": 1,
+      "fact_roles": [
+        "price"
+      ],
+      "note": "同角色同值两列 ⇒ 1 条 fact + 1 条 dedup_dropped",
+      "plan_roles": [
+        "price"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [
+        "identifier",
+        "item",
+        "price",
+        "store"
+      ],
+      "shape": "same_role_same_value"
+    },
+    {
+      "all_fields": false,
+      "answer_kind": "no_answer",
+      "answer_reason": "NO_RECORD_FOR_ENTITY",
+      "cited_record_rows": 0,
+      "code_total": 1,
+      "codes": {
+        "all_fields_representative_only": 0,
+        "cross_field_conflict": 0,
+        "dedup_dropped": 0,
+        "fact_built": 0,
+        "limit_dropped": 0,
+        "role_not_requested": 0,
+        "role_value_missing": 1,
+        "undetermined": 0,
+        "value_rejected_by_validate": 0
+      },
+      "entity_role_candidates": 0,
+      "fact_count": 0,
+      "fact_roles": [],
+      "note": "请求了该行没有的角色 ⇒ role_value_missing（fail-closed，无 facts）",
+      "plan_roles": [
+        "effective_to"
+      ],
+      "rendered_but_not_fact": 0,
+      "row_roles": [],
+      "shape": "requested_role_absent"
+    }
+  ]
+}

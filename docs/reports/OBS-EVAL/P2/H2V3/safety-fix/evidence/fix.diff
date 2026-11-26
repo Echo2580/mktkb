@@ -1,0 +1,240 @@
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -31,6 +31,9 @@
+     }
+ )
+ DOCUMENT_FIELD_ROLES: frozenset[str] = frozenset({"height", "clause"})
++#: v3-safety-fix：个人联系信息字段角色（店家记录独有）。物品记录 + 这些角色的同一请求
++#: 属于跨资料合并，规划层直接给出安全拒答原因（答案层在任何检索/模型之前收口）。
++RESTRICTED_CONTACT_ROLES: frozenset[str] = frozenset({"contact", "phone", "address"})
+ FIELD_WORDS: dict[str, tuple[str, ...]] = {
+     "location": ("位置", "在哪", "哪里", "哪儿", "搁哪", "搁哪儿", "放哪", "放到哪", "放在哪", "存放", "位于", "所在"),
+     "price": ("参考供价", "建议零售价", "会员价", "档期特价", "箱促价", "组合价", "零售价", "价格", "单价", "多少钱", "售价", "特价", "供价"),
+@@ -1869,6 +1872,30 @@
+     if include_future and any(word in question for word in ("通知", "调整后", "调整之后", "按")):
+         mode = "document"
+ 
++    # v3-safety-fix：本轮显式点名了物品目标，同时要店家个人联系信息（联系人/电话/地址）。
++    # 物品记录与店家联系信息分属两份资料，合并提供属于受限个人信息范围；在检索与任何
++    # 模型调用之前整体拒答（纯店家级联系信息查询、只问物品位置等非个人字段不受影响）。
++    if (
++        (bool(item_hits) or identifier is not None)
++        and set(field_roles) & RESTRICTED_CONTACT_ROLES
++        and not is_policy_question(question)
++    ):
++        return QueryPlan(
++            question=question,
++            mode="record",
++            query_text=question,
++            field_role=state.field_role,
++            field_label=state.field_role,
++            filters=filters,
++            terms=_terms(question),
++            state=state,
++            enumerate=state.enumerate,
++            page=state.page,
++            page_size=state.page_size,
++            include_future=include_future,
++            reason="SECURITY_RESTRICTED_CONTACT",
++        )
++
+     missing = _required_missing(state, mode)
+     if missing:
+         candidates = _clarification_candidates(state, missing=missing, lexicon=lexicon)
+
+--- a/backend/src/mktkb/conversations/service.py
++++ b/backend/src/mktkb/conversations/service.py
+@@ -2436,6 +2436,16 @@
+             has_intent=plan.intent is not None,
+             clarification=bool(plan.clarification),
+             requested_fields=len(plan.requested_fields),
++            security_refusal=bool(plan.security_refusal),
++        )
++    # v3-safety-fix：物品记录与店家个人联系信息（联系人/电话/地址）的跨资料合并请求，
++    # 在任何检索/模型调用之前按安全策略整体拒答；不按题号或固定整句特判。
++    if plan.security_refusal:
++        return _Result(
++            kind="not_found",
++            text=copy_module.text(plan.security_refusal),
++            revision=revision,
++            reason=plan.security_refusal,
+         )
+     if plan.unknown_identifier:
+         return _Result(
+
+diff --git a/backend/src/mktkb/conversations/intent.py b/backend/src/mktkb/conversations/intent.py
+index 7811497..6c45a59 100644
+--- a/backend/src/mktkb/conversations/intent.py
++++ b/backend/src/mktkb/conversations/intent.py
+@@ -23,6 +23,7 @@ from ..rag.query import (
+     GENERIC_FIELD_WORDS,
+     financial_metric_question,
+     identifier_shape,
++    is_policy_question,
+     is_regulation_question,
+     match_identifier,
+ )
+@@ -32,10 +33,15 @@ from ..text_zh import iter_store_names
+ FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
+     "位置": ("位置", "在哪", "哪里", "放哪", "放到哪", "放在哪", "哪儿", "存放"),
+     "联系人": ("联系人",),
+-    "电话": ("联系电话", "电话", "号码"),
++    "电话": ("联系电话", "电话", "号码", "手机号", "手机号码", "联系方式"),
+     "地址": ("地址",),
+     "合作状态": ("合作状态", "合作关系", "合作"),
+ }
++#: v3-safety-fix：个人联系信息字段。它们只出现在店家记录里，物品位置表没有这些列；
++#: 同一请求同时要“物品目标 + 这些字段”时属于跨资料合并，按安全策略整体拒答。
++RESTRICTED_CONTACT_FIELDS: frozenset[str] = frozenset({"联系人", "电话", "地址"})
++#: 物品型裸追问可继承的字段：只限物品记录行上存在的字段（位置）。
++ITEM_LEVEL_FOLLOWUP_FIELDS: frozenset[str] = frozenset({"位置"})
+ # 业务上可能被问到、但当前资料/契约没有的字段：只用于 missing_fields 说明
+ MISSING_FIELD_SYNONYMS: dict[str, tuple[str, ...]] = {
+     "负责人": ("负责人",),
+@@ -184,6 +190,9 @@ class IntentPlan:
+     #: T207-FIX-CONFLICT/N08：问题以照片/图片为事实来源。首版无图片输入通道，
+     #: 也不做实物识别；service 层在检索后按范围外拒答（不得退化成澄清）。
+     image_not_supported: bool = False
++    #: v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并请求。
++    #: 非空时 service 层在检索/模型之前按安全策略整体拒答（固定 reason，不按题号/固定串特判）。
++    security_refusal: str | None = None
+ 
+ 
+ def load_lexicon(db: Session) -> EntityLexicon:
+@@ -508,6 +517,42 @@ def parse_question(
+             unknown_store=unknown_store,
+         )
+ 
++    record_fields = _field_hits(question, FIELD_SYNONYMS)
++    missing_fields = _missing_field_hits(
++        question, has_record_entity=bool(stores) and bool(item_labels)
++    )
++    # "负责人"是资料未记录的字段，不能被当作联系人命中
++    if "负责人" in missing_fields:
++        record_fields = [name for name in record_fields if name != "联系人"]
++        if any(normalize(word) in normalize(question) for word in ("负责人",)):
++            record_fields = []
++
++    # v3-safety-fix：本轮点名的物品目标 + 个人联系信息字段（联系人/电话/地址）=
++    # 跨资料（物品位置表 + 店家信息表）合并，属于受限个人信息范围。这条判定只依赖
++    # 本轮显式实体与字段，放在多实体澄清之前，保证同类请求一律按安全拒答收口，
++    # 不因“多个目标”退化成澄清。纯店家级联系信息查询（无物品目标）不在此列。
++    if (
++        (item_labels or identifier)
++        and set(record_fields) & RESTRICTED_CONTACT_FIELDS
++        and not is_regulation_question(question)
++        and not is_policy_question(question)
++    ):
++        filters: dict[str, str] = {}
++        if len(stores) == 1:
++            filters["store"] = stores[0]
++        if len(item_labels) == 1:
++            filters["item"] = item_labels[0]
++        return IntentPlan(
++            mode="record",
++            intent=QueryIntent(
++                mode="record", entity_filters=filters, requested_fields=tuple(record_fields)
++            ),
++            requested_fields=tuple(record_fields),
++            missing_fields=tuple(missing_fields),
++            entities=dict(filters),
++            security_refusal="SECURITY_RESTRICTED_CONTACT",
++        )
++
+     if len(stores) > 1:
+         return IntentPlan(
+             mode="record",
+@@ -533,16 +578,6 @@ def parse_question(
+     explicit_item = item is not None
+     previous_item = _previous_item(context_questions, lexicon)
+ 
+-    record_fields = _field_hits(question, FIELD_SYNONYMS)
+-    missing_fields = _missing_field_hits(
+-        question, has_record_entity=bool(stores) and bool(item_labels)
+-    )
+-    # "负责人"是资料未记录的字段，不能被当作联系人命中
+-    if "负责人" in missing_fields:
+-        record_fields = [name for name in record_fields if name != "联系人"]
+-        if any(normalize(word) in normalize(question) for word in ("负责人",)):
+-            record_fields = []
+-
+     # 明确实体可继承：新明确对象覆盖旧对象；问题没有新对象时补足上下文中的实体。
+     # 门店级字段（联系人/电话/地址/合作状态）不继承物品，避免把店家记录误配到物品行。
+     # D-IA-2：短追问（只补一个门店值）必须保留上一轮的物品与所问字段；新的完整问题
+@@ -577,6 +612,27 @@ def parse_question(
+     if item is None and inherited_item and not store_level and (bare_followup or not explicit_store):
+         item = inherited_item
+ 
++    # v3-safety-fix（跨实体污染）：只点名“另一个物品”的裸追问（如上一轮问城东店展架位置，
++    # 本轮只问“宣传海报呢？”）不能落成无边界的正文的检索——那会把同名不同店的记录行一起
++    # 送进证据面（“门店”条件丢失）。上下文里门店唯一且上一轮问的是物品行字段时，按
++    # “继承门店 + 上一轮字段 + 本轮物品”收敛为记录型计划。
++    if (
++        explicit_item
++        and not explicit_store
++        and not record_fields
++        and not missing_fields
++        and store_level is False
++        and context_questions
++        and context_entities.get("store")
++        and _bare_entity_followup(question, stores=[str(item)], lexicon=lexicon)
++    ):
++        previous_fields = _field_hits(context_questions[-1], FIELD_SYNONYMS)
++        inherited_fields = [
++            name for name in previous_fields if name in ITEM_LEVEL_FOLLOWUP_FIELDS
++        ]
++        if inherited_fields:
++            record_fields = inherited_fields
++
+     entities: dict[str, str] = {}
+     if store:
+         entities["store"] = store
+diff --git a/backend/src/mktkb/copy.py b/backend/src/mktkb/copy.py
+index f848204..61a1cb0 100644
+--- a/backend/src/mktkb/copy.py
++++ b/backend/src/mktkb/copy.py
+@@ -431,6 +431,19 @@ _COPY_ENTRIES: tuple[CopyEntry, ...] = (
+         material_related=False,
+         requires_user_input=True,
+     ),
++    _entry(
++        # v3-safety-fix：安全策略拒答。物品记录（物品位置表）与店家联系人/电话/地址
++        # （店家信息表）属于两份不同资料；把两者合并提供的请求按受限个人信息处理，
++        # 在检索/模型之前整体拒答。文案为固定骨架，不含任何来源值的占位。
++        "SECURITY_RESTRICTED_CONTACT",
++        "该请求要把物品记录与店家联系人、电话或地址等个人联系信息合并提供，"
++        "属于受限个人信息范围，不能据此作答；"
++        "这不是资料中没有答案，也不代表该信息未被登记；"
++        "请改为只询问物品位置等非个人联系信息后重新提问。",
++        retryable=True,
++        material_related=False,
++        requires_user_input=True,
++    ),
+     _entry(
+         # P1-FIX/B：指代追问里的制度/流程话题（如“报销规则”）进入正文查询后，
+         # 证据里没有可支撑该话题的正文；如实说明“找到的资料里没有”，不拿无关正文冒充。
+diff --git a/backend/src/mktkb/rag/answer.py b/backend/src/mktkb/rag/answer.py
+index e56b281..a1ca558 100644
+--- a/backend/src/mktkb/rag/answer.py
++++ b/backend/src/mktkb/rag/answer.py
+@@ -124,6 +124,20 @@ def answer_question(
+         )
+         _commit(index, plan.state)
+         return answer
++    if plan.reason == "SECURITY_RESTRICTED_CONTACT":
++        # v3-safety-fix：物品记录 + 店家个人联系信息（联系人/电话/地址）的跨资料合并，
++        # 在检索/模型之前整体拒答；文案是固定骨架，不含任何来源值。
++        answer = RagAnswer(
++            kind="no_answer",
++            question=question,
++            text=copy_module.text("SECURITY_RESTRICTED_CONTACT"),
++            state=plan.state.to_dict(),
++            reason="SECURITY_RESTRICTED_CONTACT",
++            answer_source="refusal",
++            diagnostics=_finish_diagnostics(index, diagnostics, started),
++        )
++        _commit(index, plan.state)
++        return answer
+     if plan.clarification:
+         text = plan.clarification
+         if plan.candidates:

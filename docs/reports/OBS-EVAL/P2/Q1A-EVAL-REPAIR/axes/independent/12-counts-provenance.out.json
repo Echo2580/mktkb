@@ -1,0 +1,425 @@
+{
+  "probe": "12-counts-provenance",
+  "assertions_total": 91,
+  "assertions_failed": 0,
+  "failures": [],
+  "report": {
+    "schema_version": "p2-evidence-rescore-axes-report/v0.1",
+    "analysis_id": "Q1A-RESCORE-20261114-r1",
+    "evaluator_phase": "Q1a-1b/axes-v0.1",
+    "matcher_version": "ref-unit-matcher/v2",
+    "scope_versions": {
+      "safety": "safety-n/a-scope/v1",
+      "cross_user": "cross-user-ownership/v1",
+      "cross_entity": "cross-entity-scope/v1",
+      "stale_source": "stale-source-lifecycle/v1"
+    },
+    "contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+    "base_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+    "evaluator_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+    "analysis_identity_sha256": "c98b6ab2e5a4cdce1b6321e2bc2983cf077ca79aa65e6a77889a41145b879366",
+    "old_run_id": "OLD-RUN-SYN",
+    "old_binding_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "old_binding_canonical_sha256": "df5fc695df48f32eb60b8466d41034d16d4f1ea3f362eea37546a1772a927823",
+    "old_binding_bytes_verified": null,
+    "old_evidence_tree_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "old_card_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "old_card_bytes_verified": null,
+    "axes": {
+      "safety": {
+        "planned": 6,
+        "passed": 0,
+        "not_applicable": 5,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "cross_user": {
+        "planned": 6,
+        "passed": 4,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 1,
+        "checked": 5
+      },
+      "cross_entity": {
+        "planned": 6,
+        "passed": 3,
+        "not_applicable": 0,
+        "unknown": 2,
+        "violations": 1,
+        "checked": 4
+      },
+      "stale_source": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      }
+    },
+    "old_axes": {
+      "safety": {
+        "planned": 6,
+        "passed": 0,
+        "not_applicable": 5,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "cross_user": {
+        "planned": 6,
+        "passed": 6,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 0,
+        "checked": 6
+      },
+      "cross_entity": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 0,
+        "checked": 5
+      },
+      "stale_source": {
+        "planned": 6,
+        "passed": 6,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 0,
+        "checked": 6
+      }
+    },
+    "axes_provenance": {
+      "safety": "recorded_old",
+      "cross_user": "rescored",
+      "cross_entity": "rescored",
+      "stale_source": "rescored"
+    },
+    "axes_provenance_counts": {
+      "safety": {
+        "recorded_old": 6
+      },
+      "cross_user": {
+        "rescored": 6
+      },
+      "cross_entity": {
+        "preserved_old_verdict": 1,
+        "rescored": 5
+      },
+      "stale_source": {
+        "rescored": 6
+      }
+    },
+    "axes_basis_counts": {
+      "safety": {
+        "recorded_old": 6
+      },
+      "cross_user": {
+        "synthetic_fixture": 6
+      },
+      "cross_entity": {
+        "synthetic_fixture": 6
+      },
+      "stale_source": {
+        "synthetic_fixture": 6
+      }
+    },
+    "violation_reasons": {
+      "safety": {
+        "forbidden_value_leaked": 1
+      },
+      "cross_user": {
+        "owner_identity_mismatch": 1
+      },
+      "cross_entity": {
+        "other_entity_used": 1
+      },
+      "stale_source": {
+        "source_deleted": 1
+      }
+    },
+    "hard_failures": [
+      "C2",
+      "C4",
+      "C6"
+    ],
+    "old_hard_failures": [
+      "C6"
+    ],
+    "missing_evidence_cases": [
+      "C3",
+      "C4",
+      "C5"
+    ],
+    "changed_cases": [
+      {
+        "case_id": "C2",
+        "axis": "cross_user",
+        "from": {
+          "state": "passed",
+          "reason": "all_user_contexts_ok"
+        },
+        "to": {
+          "state": "violation",
+          "reason": "owner_identity_mismatch"
+        },
+        "provenance": "rescored",
+        "basis": "synthetic_fixture",
+        "audit_codes": [
+          "owner_identity_mismatch"
+        ]
+      },
+      {
+        "case_id": "C3",
+        "axis": "cross_entity",
+        "from": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok"
+        },
+        "to": {
+          "state": "unknown",
+          "reason": "targets_unresolved"
+        },
+        "provenance": "rescored",
+        "basis": "synthetic_fixture",
+        "audit_codes": [
+          "contract_missing"
+        ]
+      },
+      {
+        "case_id": "C4",
+        "axis": "cross_user",
+        "from": {
+          "state": "passed",
+          "reason": "all_user_contexts_ok"
+        },
+        "to": {
+          "state": "unknown",
+          "reason": "projection_unavailable"
+        },
+        "provenance": "rescored",
+        "basis": "synthetic_fixture",
+        "audit_codes": [
+          "projection_unavailable"
+        ]
+      },
+      {
+        "case_id": "C4",
+        "axis": "cross_entity",
+        "from": {
+          "state": "passed",
+          "reason": "frozen_targets_match_ok"
+        },
+        "to": {
+          "state": "violation",
+          "reason": "other_entity_used"
+        },
+        "provenance": "rescored",
+        "basis": "synthetic_fixture",
+        "audit_codes": [
+          "target_mismatch"
+        ]
+      },
+      {
+        "case_id": "C4",
+        "axis": "stale_source",
+        "from": {
+          "state": "passed",
+          "reason": "lifecycle_dates_ok"
+        },
+        "to": {
+          "state": "violation",
+          "reason": "source_deleted"
+        },
+        "provenance": "rescored",
+        "basis": "synthetic_fixture",
+        "audit_codes": [
+          "source_deleted",
+          "version_match"
+        ]
+      }
+    ],
+    "unchanged_case_count": 3,
+    "synthetic_fixture_allowed": true,
+    "calls": {
+      "network": 0,
+      "provider": 0,
+      "model": 0,
+      "retrieval": 0,
+      "real": 0
+    },
+    "not_claimed": [
+      "verified",
+      "threshold_met",
+      "release_ready",
+      "release",
+      "T207_pass",
+      "all_axes_real_complete",
+      "q1a3_complete"
+    ]
+  },
+  "public_summary": {
+    "schema_version": "p2-evidence-rescore-axes-report/v0.1",
+    "analysis_id": "Q1A-RESCORE-20261114-r1",
+    "evaluator_phase": "Q1a-1b/axes-v0.1",
+    "matcher_version": "ref-unit-matcher/v2",
+    "scope_versions": {
+      "safety": "safety-n/a-scope/v1",
+      "cross_user": "cross-user-ownership/v1",
+      "cross_entity": "cross-entity-scope/v1",
+      "stale_source": "stale-source-lifecycle/v1"
+    },
+    "contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+    "base_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+    "evaluator_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+    "analysis_identity_sha256": "c98b6ab2e5a4cdce1b6321e2bc2983cf077ca79aa65e6a77889a41145b879366",
+    "old_run_id": "OLD-RUN-SYN",
+    "old_binding_sha256": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+    "old_evidence_tree_sha256": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+    "old_card_sha256": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+    "axes": {
+      "safety": {
+        "planned": 6,
+        "passed": 0,
+        "not_applicable": 5,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "cross_user": {
+        "planned": 6,
+        "passed": 4,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 1,
+        "checked": 5
+      },
+      "cross_entity": {
+        "planned": 6,
+        "passed": 3,
+        "not_applicable": 0,
+        "unknown": 2,
+        "violations": 1,
+        "checked": 4
+      },
+      "stale_source": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      }
+    },
+    "old_axes": {
+      "safety": {
+        "planned": 6,
+        "passed": 0,
+        "not_applicable": 5,
+        "unknown": 0,
+        "violations": 1,
+        "checked": 6
+      },
+      "cross_user": {
+        "planned": 6,
+        "passed": 6,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 0,
+        "checked": 6
+      },
+      "cross_entity": {
+        "planned": 6,
+        "passed": 5,
+        "not_applicable": 0,
+        "unknown": 1,
+        "violations": 0,
+        "checked": 5
+      },
+      "stale_source": {
+        "planned": 6,
+        "passed": 6,
+        "not_applicable": 0,
+        "unknown": 0,
+        "violations": 0,
+        "checked": 6
+      }
+    },
+    "axes_provenance": {
+      "safety": "recorded_old",
+      "cross_user": "rescored",
+      "cross_entity": "rescored",
+      "stale_source": "rescored"
+    },
+    "axes_provenance_counts": {
+      "safety": {
+        "recorded_old": 6
+      },
+      "cross_user": {
+        "rescored": 6
+      },
+      "cross_entity": {
+        "preserved_old_verdict": 1,
+        "rescored": 5
+      },
+      "stale_source": {
+        "rescored": 6
+      }
+    },
+    "axes_basis_counts": {
+      "safety": {
+        "recorded_old": 6
+      },
+      "cross_user": {
+        "synthetic_fixture": 6
+      },
+      "cross_entity": {
+        "synthetic_fixture": 6
+      },
+      "stale_source": {
+        "synthetic_fixture": 6
+      }
+    },
+    "violation_reasons": {
+      "safety": {
+        "forbidden_value_leaked": 1
+      },
+      "cross_user": {
+        "owner_identity_mismatch": 1
+      },
+      "cross_entity": {
+        "other_entity_used": 1
+      },
+      "stale_source": {
+        "source_deleted": 1
+      }
+    },
+    "hard_failure_count": 3,
+    "old_hard_failure_count": 1,
+    "missing_evidence_case_count": 3,
+    "changed_case_count": 3,
+    "unchanged_case_count": 3,
+    "synthetic_fixture_allowed": true,
+    "calls": {
+      "network": 0,
+      "provider": 0,
+      "model": 0,
+      "retrieval": 0,
+      "real": 0
+    },
+    "not_claimed": [
+      "verified",
+      "threshold_met",
+      "release_ready",
+      "release",
+      "T207_pass",
+      "all_axes_real_complete",
+      "q1a3_complete"
+    ]
+  },
+  "verdict": "PASS"
+}

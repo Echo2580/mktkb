@@ -1,0 +1,62 @@
+============================= test session starts =============================
+platform win32 -- Python 3.12.7, pytest-9.1.1, pluggy-1.7.0 -- D:\GPT项目\市场部AI知识库\.venv\Scripts\python.exe
+rootdir: D:\GPT项目\市场部AI知识库\backend
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 40 items
+
+backend\tests\evaluation\test_p2_candidate_report.py::test_real_mirror_reports_quality_fail_not_ready_without_overall_success PASSED [  2%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_single_scenario_verified_true_cannot_be_extrapolated PASSED [  5%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs0-succeeded] PASSED [  7%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs1-failed] PASSED [ 10%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs2-partial] PASSED [ 12%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs3-not_run] PASSED [ 15%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_execution_aggregate_status_mapping[runs4-not_run] PASSED [ 17%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_failed_execution_report_renders_failed_not_not_run PASSED [ 20%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_missing_scope_unknown_is_not_reported_as_wrong_answers PASSED [ 22%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_recorded_status_is_not_passed_off_as_rescored PASSED [ 25%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_scores_from_different_rounds_are_not_merged PASSED [ 27%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_funding_lines_separate_current_snapshot_and_archived_old_line PASSED [ 30%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_card_release_ready_true_or_detail_export_is_rejected PASSED [ 32%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_card_threshold_met_must_match_counts PASSED [ 35%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_candidate_archive_verify_restore_list_diff_roundtrip PASSED [ 37%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_blocked_archive_keeps_quality_fail_and_is_never_publishable PASSED [ 40%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_diff_between_archives_of_different_rounds_is_not_score_comparable PASSED [ 42%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_diff_between_archives_of_different_pipeline_is_not_comparable PASSED [ 45%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_archive_refuses_approved_source_and_writes_nothing PASSED [ 47%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_archive_refuses_existing_target_without_touching_it PASSED [ 50%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_archive_refuses_holdout_source PASSED [ 52%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_report_rejects_private_per_case_payload PASSED [ 55%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-publishable] PASSED [ 57%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-release_baseline] PASSED [ 60%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-gate_approved] PASSED [ 62%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-has_approval] PASSED [ 65%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-state] PASSED [ 67%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_metadata_upgrade_or_state_flip[<lambda>-\u5b57\u6bb5] PASSED [ 70%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_payload_digest_drift PASSED [ 72%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_inner_manifest_path_escape PASSED [ 75%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_unregistered_extra_file PASSED [ 77%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_missing_artifact PASSED [ 80%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_report_digest_drift PASSED [ 82%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_verify_rejects_reparse_point PASSED [ 85%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_restore_refuses_formal_registry_root_and_inside_archive PASSED [ 87%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_restore_refuses_existing_target PASSED [ 90%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_list_rejects_invalid_archive_and_is_sorted PASSED [ 92%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_candidate_flow_never_calls_approve_baseline PASSED [ 95%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_candidate_manifest_identity_is_recomputable PASSED [ 97%]
+backend\tests\evaluation\test_p2_candidate_report.py::test_import_and_report_path_make_zero_external_attempts PASSED [100%]
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 40 passed, 1 warning in 2.85s ========================
+
+[meta]
+command=.venv\Scripts\python.exe -m pytest backend/tests/evaluation/test_p2_candidate_report.py -p no:cacheprovider -v
+cwd=D:\GPT项目\市场部AI知识库
+exit_code=0
+env=MKTKB_NO_DOTENV=1 PYTHONDONTWRITEBYTECODE=1 PYTHONIOENCODING=utf-8
+result=40 passed, 1 warning

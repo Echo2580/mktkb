@@ -209,7 +209,8 @@ npm run dev
 ```powershell
 # 全量自动化测试（预算门相关用例需要与 .env.example 一致的总额度）
 $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
-.\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp backend\.pytest-tmp\readme
+$pytestTemp = Join-Path ([System.IO.Path]::GetTempPath()) ('mktkb-pytest-' + [guid]::NewGuid().ToString('N'))
+.\.venv\Scripts\python.exe -B -m pytest backend/tests -q -p no:cacheprovider --basetemp $pytestTemp
 ```
 
 - `backend/tests/unit`：解析器、分词、意图、模型协议等纯单元用例
@@ -220,11 +221,13 @@ $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
 
 **真实质量矩阵**（2026-11-04，v0.1 冻结版）：40 题真实调用实测 **31/40**，其中精确记录题 **24/24**、语义 / 扫描件题 **7/16**。失败集中在流程规范类问题的「记录路」路由缺陷，详见 [错误记录](错误记录-20261104.md)。
 
-> P0 阶段将引入确定性离线评测：B0 40 题 + Bad Case 13 题 → Replay / Local 双模式 → 硬门禁 + 分 stratum 质量门禁 → Baseline / Diff 报告。评测方案见 [设计文档](docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md) 与 [P0 计划](docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md)。
+> P0 已交付确定性离线评测，包括 Replay / Local、双层发布门禁、Baseline / Diff 报告。设计与实施记录可在 Git 中查看 `docs/superpowers/specs/2026-11-04-mktkb-observability-evaluation-design.md` 和 `docs/superpowers/plans/2026-11-04-mktkb-observability-evaluation-p0.md`。
 
 ## 📊 当前状态与已知限制
 
-**v0.1 本地交付版**（2026-11-04 冻结，tag `v0.1-local-20261104`）：
+**当前进度**见[项目现状](docs/PROJECT_STATUS.md)，包含当前 Git 基线、未提交工作、验收证据与待验证事项。
+
+**历史快照 · v0.1 本地交付版**（2026-11-04 冻结，tag `v0.1-local-20261104`）：
 
 | 指标 | 值 |
 | --- | --- |
@@ -234,7 +237,7 @@ $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
 | 本地演示索引 | 25 文档 / 642 units / 457 chunks |
 | 部署状态 | 未部署公网；无域名 / HTTPS |
 
-**已知缺陷**（本版冻结不修，待 P0 评测门禁建立后按顺序修复）：
+**v0.1 冻结时记录的缺陷**：
 
 | 编号 | 级别 | 问题 |
 | --- | --- | --- |
@@ -244,7 +247,7 @@ $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
 | D6 | P2 | 字段错配 / 含糊问题直接吐整条记录，未澄清 |
 | D3 | P2 | 澄清文案与实际原因不符 |
 
-**其他限制**：
+**v0.1 冻结时记录的其他限制**：
 
 - 未部署公网；无 HTTPS / 域名；未做多浏览器与真机验收
 - 容量（100 资料 / 10000 记录 / 3 并发）与供应商错误形态（429 / 超时 / 5xx）未系统验证
@@ -257,10 +260,10 @@ $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
 | 阶段 | 内容 | 状态 |
 | --- | --- | --- |
 | **v0.1 本地交付** | 资料管理 / 检索 / 问答 / 权限 / 预算账本 / 一键启动 / 真实链路小样本验证 | ✅ 已冻结（`v0.1-local-20261104`） |
-| **P0 评测与可观测性** | Trace 内核 + SQLite 存储、确定性评测器（Replay / Local）、双层发布门禁、Baseline / Diff、JSON / Markdown / HTML 报告 | 📐 设计定稿，任务拆解待审 |
-| **P1 修复与检索评测** | 按 D4 → D1 → D5 → D6 → D3 修复；Holdout 30；真实 embedding / rerank 的检索级评测；监控 API | 🗓 计划 |
-| **P2 真实效果评测** | 预算内 live 端到端评测；Ragas 软指标；可选 Langfuse 导出 | 🗓 计划 |
-| **P3 看板与部署** | 历史趋势 / 告警看板；HTTPS / 域名部署与备份恢复 | 🗓 计划 |
+| **P0 评测与可观测性** | Trace 内核、SQLite、确定性评测与双层门禁 | 已收尾，见 `35815c3` |
+| **P1 修复与检索评测** | 问答缺陷修复、检索评测与监控 API | 已集成到 `main`，见 `59107fc` |
+| **P2 真实效果评测** | 受控真实评测、冻结候选与门禁 | v0.3 冻结候选已有发布决定，限制见 `cb74457` |
+| **P3 知识运营** | 运营总览、问答诊断与评测、知识资产 | T306 独立验收通过，已本地提交，见 `2f4b006`；真实环境验证待补证 |
 
 ## 📁 目录结构
 
@@ -288,7 +291,8 @@ $env:MKTKB_PROJECT_TOTAL_LIMIT_CNY = "20.0"
 | [技术方案](市场部AI知识库-技术方案.md) | 选型、数据设计、导入 / 检索 / 发布 / 部署方案 |
 | [接口与数据契约](docs/接口与数据契约.md) | API 契约、错误码、六类结果结构 |
 | [验收矩阵](docs/验收矩阵.md) | 功能验收项与判定口径 |
-| [项目进度](docs/项目进度.md) | 分阶段进度、裁决与证据索引 |
+| [项目现状](docs/PROJECT_STATUS.md) | 当前已提交基线、工作区进度与接手入口 |
+| [历史项目进度](docs/项目进度.md) | v0.1 阶段进度、裁决与证据索引 |
 | [本地交付说明](本地交付说明-20261104.md) | v0.1 可用入口、实测结果、成本与未覆盖项 |
 | [错误记录](错误记录-20261104.md) | 缺陷台账（ERR-20261104-01 ~ 07） |
 | [测试场景对照](测试场景对照与注意事项-20261104.md) | 手工验收场景与判分口径 |

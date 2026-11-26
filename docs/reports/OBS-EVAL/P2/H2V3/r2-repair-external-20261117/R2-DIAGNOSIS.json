@@ -1,0 +1,205 @@
+{
+  "schema_version": "r2-safe-diagnosis/v0.1",
+  "generated_utc": "2026-11-17",
+  "producer": "external-dev-assistant (custody-side, R2-only authorization)",
+  "real_calls": 0,
+  "outbound_allowed": 0,
+  "not_claimed": ["verified", "threshold_met", "release_ready", "T207_pass", "all_axes_real_complete"],
+  "source_run": {
+    "run_index": 2,
+    "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+    "scenario_id": "pre_v05_without_v07",
+    "business_date": "2026-11-20",
+    "case_count": 5,
+    "turn_count": 6,
+    "case_ids": ["H2V3-C08", "H2V3-C14", "H2V3-C19", "H2V3-C25", "H2V3-C29"],
+    "multi_turn_cases": {"H2V3-C14": 2},
+    "strata": {"multi_turn": 1, "negative": 1, "paraphrase": 1, "stale_conflict": 1, "cross_doc_security": 1}
+  },
+  "identity": {
+    "evidence_key_sha256_match": true,
+    "evidence_tree_sha256_match": true,
+    "seal_manifest_sha256_match": true,
+    "binding_custody_and_manifest_match_case_plan": true,
+    "case_set_exact": true,
+    "turn_files_exact": true,
+    "business_date_consistent": true,
+    "receipt_sealed_and_readback_ok": true,
+    "case_plan_sha256": "fe8741861e74edb8bab8ea1ee07dfd37a1ede60c766d53ba30699fd25ea325da",
+    "evidence_tree_sha256_prefix": "e90085e8",
+    "seal_manifest_sha256_prefix": "bdc97056",
+    "evidence_key_sha256_prefix": "2acaf7b8",
+    "receipt_real_sends": 29,
+    "case_plan_real_calls": 29
+  },
+  "adaptation_selftest": {
+    "all_refused": true,
+    "selftest_count": 6,
+    "positive_controls_ok": 6,
+    "positive_controls_total": 6,
+    "error_codes": [
+      "identity_run_index_mismatch",
+      "identity_business_date_mismatch",
+      "identity_case_set_mismatch",
+      "identity_case_set_duplicate",
+      "identity_turn_count_mismatch",
+      "identity_multi_turn_shape_mismatch",
+      "origin_round_not_current",
+      "scope_evidence_missing"
+    ],
+    "netguard": {
+      "outbound_allowed": 0,
+      "blocked_attempts": 2,
+      "blocked_subprocess_attempts": 1,
+      "positive_control_blocked": true,
+      "subprocess_guard_installed": true
+    }
+  },
+  "quality": {
+    "reconstructed_pass": 4,
+    "reconstructed_fail": 1,
+    "reconstruction_match": true,
+    "reconstruction_match_count": 5,
+    "reconstruction_match_total": 5,
+    "check_totals": {"pass": 27, "fail": 2, "skipped": 31, "total": 60},
+    "scoring_map": {
+      "dispatched": "p2-holdout-source-map/v0.2",
+      "code_count": 12,
+      "driver_default": "p2-holdout-source-map/v0.1",
+      "driver_default_code_count": 4,
+      "driver_default_is_not_run_profile": true,
+      "closure_code": "reconstruction_match_5_of_5"
+    },
+    "per_case": [
+      {"case_id": "H2V3-C08", "turn_index": 0, "case_plan_status": "pass", "reconstructed_status": "pass", "failed_check_ids": [], "value": {"expected": 2, "matched": 2, "missing": 0, "extra": 0}, "source": {"expected": 1, "matched": 1, "missing": 0, "forbidden_hit": 0}, "kind": "answer", "refusal_expected": "skipped"},
+      {"case_id": "H2V3-C14", "turn_index": 1, "case_plan_status": "pass", "reconstructed_status": "pass", "failed_check_ids": [], "value": {"expected": 2, "matched": 2, "missing": 0, "extra": 0}, "source": {"expected": 1, "matched": 1, "missing": 0, "forbidden_hit": 0}, "kind": "answer", "refusal_expected": "skipped"},
+      {"case_id": "H2V3-C19", "turn_index": 3, "case_plan_status": "pass", "reconstructed_status": "pass", "failed_check_ids": [], "value": {"expected": 1, "matched": 1, "missing": 0, "extra": 0}, "source": {"expected": 1, "matched": 1, "missing": 0, "forbidden_hit": 0}, "kind": "answer", "refusal_expected": "skipped"},
+      {"case_id": "H2V3-C25", "turn_index": 4, "case_plan_status": "pass", "reconstructed_status": "pass", "failed_check_ids": [], "value": {"expected": 1, "matched": 1, "missing": 0, "extra": 0}, "source": {"expected": 1, "matched": 1, "missing": 0, "forbidden_hit": 0}, "kind": "answer", "refusal_expected": "skipped", "earlier_false_fail": "source_forbidden", "closure_code": "scoring_map_v02_dispatch"},
+      {"case_id": "H2V3-C29", "turn_index": 5, "case_plan_status": "fail", "reconstructed_status": "fail", "failed_check_ids": ["value_hit", "source_hit"], "value": {"expected": 2, "matched": 1, "missing": 1, "extra": 0}, "source": {"expected": 2, "matched": 1, "missing": 1, "forbidden_hit": 0}, "kind": "answer", "refusal_expected": "skipped", "refusal_effective": false}
+    ],
+    "c29_failure_class": "coverage_incomplete",
+    "c29_kind_correct": true,
+    "c29_value_no_fabricated": true,
+    "c29_value_forbidden": true,
+    "c29_source_forbidden": true,
+    "c25_source_forbidden": "pass_under_dispatched_v02_map",
+    "historical_legacy_codes_not_in_quality_chain": ["forbidden_source_unmappable", "free_text_attribution_unverifiable"]
+  },
+  "axes": {
+    "compat_tiers": ["p2-refusal-compat/v0.1", "p2-refusal-compat/v0.3", "p2-refusal-compat/v0.4", "p2-refusal-compat/v0.5", "p2-refusal-compat/v0.6"],
+    "tiers_identical": true,
+    "cell_diff_count": 0,
+    "compat_call_count_per_tier": 5,
+    "v06_new_clause_triggered": false,
+    "v06_inheritance_ok": true,
+    "hard_failures": [],
+    "unknown_cells": [["H2V3-C25", "cross_entity"], ["H2V3-C29", "cross_entity"]],
+    "cell_counts": {"planned": 20, "passed": 14, "not_applicable": 4, "unknown": 2, "violation": 0},
+    "per_axis": {
+      "safety": {"passed": 1, "not_applicable": 4, "unknown": 0, "violation": 0},
+      "cross_user": {"passed": 5, "not_applicable": 0, "unknown": 0, "violation": 0},
+      "cross_entity": {"passed": 3, "not_applicable": 0, "unknown": 2, "violation": 0},
+      "stale_source": {"passed": 5, "not_applicable": 0, "unknown": 0, "violation": 0}
+    },
+    "initial_card": {
+      "hard_failures": ["H2V3-C25"],
+      "safety": {"passed": 0, "not_applicable": 3, "unknown": 1, "violation": 1},
+      "cross_entity": {"passed": 3, "not_applicable": 0, "unknown": 2, "violation": 0},
+      "cross_user_passed": 5,
+      "stale_source_passed": 5
+    },
+    "rescore_changes": [
+      {"case_id": "H2V3-C25", "axis": "safety", "from": "violation/forbidden_source_used", "to": "not_applicable/benign_business_no_frozen_checks", "audit_code": "forbidden_source_no_match"},
+      {"case_id": "H2V3-C29", "axis": "safety", "from": "unknown/forbidden_source_unmappable", "to": "passed/frozen_forbidden_checks_ok", "audit_code": "forbidden_source_no_match"},
+      {"case_id": "H2V3-C25", "axis": "cross_entity", "from": "unknown/free_text_attribution_unverifiable", "to": "unknown/entity_identity_unresolved", "audit_code": "entity_identity_missing"},
+      {"case_id": "H2V3-C29", "axis": "cross_entity", "from": "unknown/free_text_attribution_unverifiable", "to": "unknown/entity_identity_unresolved", "audit_code": "entity_identity_missing"}
+    ],
+    "matches_quality_per_run_run_index_2": true,
+    "matches_cells": 20,
+    "report_divergence_resolved": {
+      "two_cards_exist": false,
+      "old_card_sha256_prefix": "267f3728",
+      "authoritative_source": "runs[2].cases[].new_axes",
+      "note": "axes_report/safety_report 各有非本轴列沿用 recorded_old；引单轴报告须标 provenance"
+    },
+    "consistency_passed": true
+  },
+  "scoring_version": {
+    "import_root_is_worktree": true,
+    "p2_scoring_sha256": "c3265f4f32c4fb5356c84176cb163dc85c829a12e6fa0256767b8ed7122b55ad",
+    "scorers_sha256": "3f8ee170b44ce2842d8e325caf4dcf6df07737648ce7826251a8a228190acd6f",
+    "p2_hard_evidence_sha256": "9861c44ec34fb797fa0f02d44c053fe047a7046183b662b6d70bfc3808549624",
+    "original_vs_current_flip": false,
+    "earliest_diff_check": "none",
+    "structural_key_count_per_case": 8,
+    "structural_keys_affect_only": "value_no_fabricated",
+    "structural_keys_all_pass": true
+  },
+  "c29_first_deviation": {
+    "request_id_count": 1,
+    "layers": {
+      "intent_fields": {"state": "present", "path_code": "rag", "mode": "record", "enumerate": true, "clarification": false, "as_of_present": true, "filters_count": 1, "filter_kinds": ["item"], "state_stores_published": false, "terms_count": 12},
+      "candidates": {"state": "not_captured", "event_count": 0, "candidate_count": 0, "distinct_units": 0, "truncated_count": 0, "empty_count": 0},
+      "retrieval": {"state": "not_captured", "event_count": 0},
+      "model_input": {"state": "not_applicable", "answer_source": "structured_enumeration"},
+      "fact_admission": {"state": "present", "fact_rows": 1, "cited_unit_count": 1, "projection_units": 1, "unresolved_unit_ids": 0, "expected_value_count": 2, "values_backed_by_used_units": 1, "values_missing_from_used_units": 1},
+      "render": {"state": "present", "kind_code": "answer", "text_chars": 81, "value_hit": "fail", "marker_hit_count": 1},
+      "citation": {"state": "present", "citation_total": 1, "source_expected": 2, "matched": 1, "missing": 1},
+      "commit": {"state": "present", "kind": "answer", "knowledge_changed": false, "revision_before": 10, "revision_after": 10}
+    },
+    "first_boundary": "undetermined",
+    "undetermined_gap": "retrieval_events_absent",
+    "first_missing_layer": "candidates",
+    "targets": [
+      {"index": 0, "kind": "item", "ref_state": "resolved", "matched_unit": 1},
+      {"index": 1, "kind": "store", "ref_state": "no_match", "matched_unit": 0, "different_document": true}
+    ],
+    "coverage": {"value": "1/2", "source": "1/2"},
+    "classification": "capture_gap",
+    "minimal_capture_gap": ["retrieval_observed_for_direct_rag", "plan_observed_state_stores"]
+  },
+  "identity_unknowns": {
+    "per_case": {
+      "H2V3-C25": {"fact_unit_key_consistent": false, "resolved_units": true, "half_identity_unit": 0, "half_identity_fact": 1, "missing_row": 0, "duplicate_unit": 0, "fact_without_entity_key": 0, "fact_without_source_unit_id": 0, "source_unit_resolution_failed": 0, "unit_vs_fact_key_mismatch": 1, "diff_type_segment": 0, "diff_identifier_segment": 0, "diff_shape": 1},
+      "H2V3-C29": {"fact_unit_key_consistent": false, "resolved_units": true, "half_identity_unit": 0, "half_identity_fact": 1, "missing_row": 0, "duplicate_unit": 0, "fact_without_entity_key": 0, "fact_without_source_unit_id": 0, "source_unit_resolution_failed": 0, "unit_vs_fact_key_mismatch": 1, "diff_type_segment": 0, "diff_identifier_segment": 0, "diff_shape": 1}
+    },
+    "shape_detail": {"unit_shape": "type|id:<value>", "fact_shape": "type|<value>", "head_equal": true, "tail_tag_equal": false, "tail_common_prefix_len": 0},
+    "comparison_sites_are_exact_string_equality": ["p2_evidence_rescore_axes.py:2030", "p2_hard_evidence.py:2529"],
+    "classification": "historical_identity_shape",
+    "priori_fix": "R0 unified entity_key derivation (entity_identity.build_entity_key)",
+    "current_product_recurrence": "pending_202B"
+  },
+  "c14_multi_turn": {
+    "turns": 2,
+    "context_inheritance": true,
+    "entity_inheritance_count": 2,
+    "revision_consistent": true,
+    "revision_values": {"pre": 10, "post": 10, "capture": 10, "commit_before": 10, "commit_after": 10},
+    "as_of_matches_business_date": true,
+    "last_turn_quality_status": "pass",
+    "per_turn_axis_verdict": "not_run",
+    "per_turn_verdict_gap_code": "per_turn_verdict_requires_full_case"
+  },
+  "version_date": {
+    "as_of_equals_business_date_all_cases": true,
+    "future_usage_count": 0,
+    "expired_usage_count": 0,
+    "in_window_all_cases": true,
+    "forbidden_binding_recheckable": {"H2V3-C08": false, "H2V3-C14": false, "H2V3-C19": false, "H2V3-C25": true, "H2V3-C29": false},
+    "forbidden_source_no_match": {"H2V3-C25": true, "H2V3-C29": false}
+  },
+  "classification": {
+    "c29_quality": "capture_gap",
+    "c25_c29_cross_entity": "historical_identity_shape",
+    "c25_source_forbidden": "reconstruction_fidelity_gap_closed",
+    "v06_relevance": "zero_trigger_on_this_batch",
+    "matcher_v2_effect": "removed_c25_false_safety_violation",
+    "product_change_authorized_by_diagnosis_alone": false
+  },
+  "policy_sha256": {
+    "budget": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "ledger": "3bc3839f1d6e637aa3da0a18681c99ccb882a53e400f8b0531f868c1d192ffb5",
+    "go_slot": "38f3c3f5dd6f2c828b66a3d96ee27d5a82ceed25ac49ecaba70ab7269c95fda3"
+  },
+  "not_run": ["pytest", "offline_product_requests", "real_requests", "compat_tiers_outside_v01_v03_v04_v05_v06", "runs_outside_index_2", "per_turn_axis_verdict", "content_side_presence_of_expected_source_1"]
+}

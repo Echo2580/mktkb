@@ -1,0 +1,180 @@
+{
+  "at_utc": "2026-11-16T09:42:51.084249+00:00",
+  "authorization": {
+    "budget_sha256": "891263d81c4e15d851fc89eaaf1bf27e1116c29a1332022c076de977de52c50a",
+    "go_sha256": "d933e1c85da4b7d16cca5797869c3d7fef9128e5161b8a99099d928ff689d618",
+    "ledger_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "max_request_cny": 0.5,
+    "max_requests": "unlimited",
+    "production_ready": true,
+    "requests_remaining": "unlimited",
+    "requests_used": 1459,
+    "stage_remaining_cny": 11.736965400000011
+  },
+  "authorization_error": null,
+  "binding_sha256": "2536a52eb2dc8ce04398baeff1add06654feac77334a2385e78a709b5841c464",
+  "business_date": "2026-10-15",
+  "checks": [
+    {
+      "code": null,
+      "name": "binding",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "code_version",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "plan_binding",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "plan_dial",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "plan_recompute",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "ingest_batch_derivation",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "public_binding",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "dataset_shape",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "contract_binding",
+      "ok": true
+    },
+    {
+      "code": "index_embedding_batches_v3_derived",
+      "name": "contract_validate_run",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "source_map",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "go_binding",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "preflight",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "authorization",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "zero_write",
+      "ok": true
+    },
+    {
+      "code": null,
+      "name": "zero_send",
+      "ok": true
+    }
+  ],
+  "go": {
+    "expires_utc": "2026-11-17T23:59:59+08:00",
+    "file_sha256": "80b668d7e85debd2995f7bf29954cf28773cdbfa71abe02ddd7aec874b7e4b0a",
+    "max_requests": "unlimited",
+    "plan_id_match": true,
+    "plan_sha_match": true,
+    "sha256": "d933e1c85da4b7d16cca5797869c3d7fef9128e5161b8a99099d928ff689d618",
+    "slot": "fixed"
+  },
+  "mode": "full_contract_reload",
+  "ok": true,
+  "plan_file_sha256": "fe78a9ea3cddf9a5828d61fea565d89f0adc7f7f9f114591ee5edabadde6e937",
+  "plan_id": "P2-H2V3-20261115-r0-base_b0",
+  "plan_sha256": "92db70353028699f63dc6cbd4d4f02a07f40bceb41c445b8568fe6fb81acb354",
+  "preflight": {
+    "center_needs_cny": {
+      "answer_retrieval": 0.637568,
+      "independent": 0.0,
+      "judge": 0.0,
+      "ocr": 0.0
+    },
+    "center_remaining_cny": {
+      "answer_retrieval": 6.386965399999994,
+      "independent": 2.0,
+      "judge": 3.0,
+      "ocr": 0.34999999999999964
+    },
+    "ok": true,
+    "reasons": [],
+    "requests_planned": 65,
+    "requests_remaining": "unlimited",
+    "requests_used": 1459,
+    "stage_limit_cny": 20.0,
+    "stage_remaining_cny": 11.736965400000011,
+    "total_limit_cny": 40.0,
+    "total_remaining_cny": 16.66602090000007,
+    "worst_case_cny": 0.637568
+  },
+  "quota": {
+    "cumulative_after_four_runs": null,
+    "exceeds_gate": null,
+    "gate_cap_sources": [
+      "plan.max_requests=unlimited",
+      "go.scope.max_requests=unlimited"
+    ],
+    "gate_enforced_by": [
+      "plan_dial.max_requests=unlimited",
+      "authorize_p2.go.scope.max_requests=unlimited",
+      "p2_authorization.P2Gate.item_quota(plan_sha256+item_id)",
+      "amount_gate(total/stage/cost_center)"
+    ],
+    "gate_mode": "unlimited",
+    "governance_cap": "unlimited",
+    "not_enforced_reason": "unlimited_no_cumulative_request_gate",
+    "plan_set": null,
+    "remaining_before": "unlimited",
+    "requests_this_run": 65,
+    "total_requests_all_runs": null,
+    "used_before": 1459
+  },
+  "reasons": [],
+  "run_index": 0,
+  "scenario_id": "base_b0",
+  "schema_version": "p2-h2v3-controlled-check/v0.1",
+  "tool": "p2-h2v3-controlled-entry/v0.1",
+  "zero_send": {
+    "external": [],
+    "external_attempts": 0,
+    "local": [],
+    "local_attempts": 0
+  },
+  "zero_write": {
+    "budget_sha256_after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "budget_sha256_before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "budget_unchanged": true,
+    "ledger_sha256_after": "940f77ca477383930a608244768259397b1ff6ccd65377e81c6b6b94d87b0ed5",
+    "ledger_sha256_before": "940f77ca477383930a608244768259397b1ff6ccd65377e81c6b6b94d87b0ed5",
+    "ledger_unchanged": true,
+    "reservation_count": 1459,
+    "result_count": 1459
+  }
+}

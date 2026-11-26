@@ -1,0 +1,367 @@
+{
+ "schema_version": "c1p3-independent-review/v1",
+ "date": "2026-11-14",
+ "role": "C1-P3 全新独立验收（非开发、非经理）",
+ "branch": "codex/p2-e2e",
+ "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+ "staged": 0,
+ "commits_created": 0,
+ "verdict": "PASS_WITH_DISAGREEMENTS",
+ "verdict_basis": {
+  "taskbook_requirements": "3/3 成立（版本化契约、合成+Mock 落盘读回断言、fail-closed 固定码）",
+  "red_lines": "M-C1P1-01 行级护栏生效；M-C1P2-01 在契约层留下 class C 口子（R-01）",
+  "blocking_for_clean_pass": [
+   "R-01",
+   "R-02",
+   "R-03",
+   "R-04",
+   "R-05"
+  ]
+ },
+ "items": {
+  "contract_completeness": {
+   "status": "PASS",
+   "field_rows_generated": 167,
+   "field_rows_doc": 167,
+   "field_rows_identical": true,
+   "required_fields": 167,
+   "nullable_fields": 35,
+   "code_families_module": 49,
+   "code_families_doc": 49,
+   "code_families_identical": true,
+   "public_summary_keys": 25,
+   "use_layers": 9,
+   "candidate_layers": 3
+  },
+  "fail_closed": {
+   "status": "PASS",
+   "counterexamples": 53,
+   "defensive_experiments": 6,
+   "triggered_code_families": 49,
+   "untouched_code_families": [],
+   "unexpected_accepts": [],
+   "defensive_reachability": {
+    "snapshot_io_failed": "reachable-but-untested",
+    "snapshot_readback_mismatch": "fault-injection-only",
+    "snapshot_run_binding_absent": "shadowed-by-frozen-validator",
+    "snapshot_run_binding_unexpected": "shadowed-by-frozen-validator"
+   }
+  },
+  "mock_full_chain": {
+   "status": "PASS",
+   "turns": 3,
+   "leaf_equality_total": 479,
+   "checks": 59,
+   "failed_checks": [],
+   "key_fields": {
+    "record_code": "W01 (doc S01 / sheet / row 2) on disk readback",
+    "as_of": "2026-09-01 via plan_observed",
+    "empty_use_input": "9 use + 3 candidate layers; nonempty declared; empty_set_candidate=false"
+   },
+   "adapter_outbound_attempts": 0,
+   "netguard": {
+    "loopback_connect": 1
+   }
+  },
+  "collection_boundary": {
+   "status": "PASS_WITH_RESIDUAL",
+   "contract_forbids": [
+    "password hash",
+    "session token",
+    "HTTP auth header",
+    "runtime database row id"
+   ],
+   "refusals": [
+    {
+     "name": "password_hash_key",
+     "refused": true,
+     "code": "snapshot_forbidden_field:request_owner.password_hash"
+    },
+    {
+     "name": "session_token_key",
+     "refused": true,
+     "code": "snapshot_forbidden_field:request_owner.session_token"
+    },
+    {
+     "name": "authorization_header_key",
+     "refused": true,
+     "code": "snapshot_forbidden_field:record_identities[0].entity_filters.authorization"
+    },
+    {
+     "name": "runtime_row_id_key",
+     "refused": true,
+     "code": "snapshot_runtime_id_not_declared:record_identities[0].db_row_id"
+    },
+    {
+     "name": "runtime_unit_id_key",
+     "refused": true,
+     "code": "snapshot_runtime_id_not_declared:record_identities[0].unit_id"
+    },
+    {
+     "name": "bearer_value",
+     "refused": true,
+     "code": "snapshot_plaintext_secret_rejected:request_owner.user_ref"
+    }
+   ],
+   "refused": 6,
+   "total": 6,
+   "residual": "R-07（值级形态启发式）"
+  },
+  "preservation": {
+   "status": "PASS",
+   "c_freeze_12": 12,
+   "c_freeze_mismatch": 0,
+   "tracked_modified": 15,
+   "tracked_modified_mismatch": 0,
+   "q1a1_protected": 38,
+   "q1a1_mismatch": 0,
+   "repo_files_28": 28,
+   "repo_files_mismatch": 0,
+   "foreign_untracked_baseline": 2086,
+   "foreign_untracked_changed": 0,
+   "foreign_untracked_missing": 0,
+   "disallowed_added": [],
+   "contract_v2_unchanged": true,
+   "git": {
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "branch": "codex/p2-e2e",
+    "head_matches_taskbook": true,
+    "branch_matches_taskbook": true,
+    "commit_count": 172,
+    "staged_count": 0,
+    "tracked_modified_count": 15,
+    "tracked_modified_paths_equal_baseline": true,
+    "untracked_entries": 214
+   }
+  },
+  "zero_call": {
+   "status": "PASS",
+   "clean_external_attempts": 0,
+   "positive_control": {
+    "attempts": 4,
+    "blocked": 4,
+    "external_attempts_recorded": 4
+   },
+   "negative_control": {
+    "raised": true,
+    "error": "external_attempts_nonzero:4:[{'kind': 'create_connection_external', 'detail': \"('203.0.113.9', 9)\"}, {'kind': 'dns_getaddrinfo_external', 'detail': 'example.invalid'}, {'kind': 'http_client_external',"
+   }
+  },
+  "test_quality": {
+   "status": "PASS",
+   "exit_code": 0,
+   "test_functions": 26,
+   "assert_statements": 132,
+   "tests_with_fixed_code_path_assertion": 19,
+   "skip_xfail": [],
+   "always_true": [],
+   "mock_or_patch": [],
+   "code_families_referenced": 45,
+   "coverage_assertion_for_49_codes": false,
+   "residual": "R-10"
+  },
+  "red_line_M_C1P1_01": {
+   "status": "PASS_WITH_SEAMS",
+   "paragraph_rows": 4,
+   "record_level_rows": 4,
+   "paragraph_rows_entity_matchable": [
+    "False"
+   ],
+   "summary_entity_document_level": 0,
+   "public_summary_not_record_level_count": 4,
+   "naive_document_level_matches": 4,
+   "entity_key_runtime_id_rows": [
+    "24c20b78-d622-48e9-9611-58849719931c"
+   ],
+   "seams": [
+    "R-02",
+    "R-03",
+    "R-04"
+   ]
+  },
+  "red_line_M_C1P2_01": {
+   "status": "PASS_WITH_SEAM",
+   "genuine_class_c_turns": [],
+   "class_c_payload": "accepted",
+   "class_c_flags": {
+    "empty_set_candidate": true,
+    "all_use_layers_observed": true,
+    "retrieval_observed_observed": false,
+    "code": "empty_use_input_complete_empty"
+   },
+   "builder_empty_attempts": {
+    "entity_inheritance_empty_string": "{\"code\": \"empty_use_input_malformed_event\", \"all_use_layers_observed\": false, \"empty_set_candidate\": false}",
+    "entity_inheritance_removed": "rejected:snapshot_source_evidence_invalid"
+   },
+   "seams": [
+    "R-01",
+    "R-11"
+   ]
+  },
+  "entity_key_space": {
+   "status": "MISMATCH",
+   "target_side_key": "item|城北店|折叠桌",
+   "runtime_side_keys": [
+    "item|id:w01"
+   ],
+   "public_fixture_runtime_keys": [
+    "item|id:p01",
+    "item|id:p02"
+   ],
+   "residual": "R-04"
+  }
+ },
+ "residuals": [
+  {
+   "id": "R-01",
+   "severity": "medium",
+   "topic": "class C / empty_set_candidate 口径与 M-C1P2-01 冲突",
+   "detail": "契约 §7.1 将『9 层 observed + 计数 0』直接称为空集充分条件，未要求 retrieval marker；读回校验接受 class C 载荷的 empty_set_candidate=true（实测 ACCEPTED）。",
+   "evidence": [
+    "out/04-redlines.json",
+    "docs/evaluation/p2-hard-evidence-capture-v0_3.md:437"
+   ],
+   "owner": "P3 契约文本 + 校验器；P4 必须按 M-C1P2-01 处理"
+  },
+  {
+   "id": "R-02",
+   "severity": "medium",
+   "topic": "§8 运行期 id 白名单只查键名不查值",
+   "detail": "entity_key 可携带 doc:<uuid>|unit:<uuid>（无 id 表头表格行）或 document|<uuid>，均通过校验。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现"
+  },
+  {
+   "id": "R-03",
+   "severity": "medium",
+   "topic": "entity_document_level 指标覆盖不足（M-C1P1-01 护栏失真）",
+   "detail": "只数 entity_type=='document'；实测 8 行中 4 行为段落级（record_level=false、entity absent），计数为 0。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现 + 公开摘要；P4 必须按 record_level/entity_code 判粒度"
+  },
+  {
+   "id": "R-04",
+   "severity": "medium",
+   "topic": "目标侧与运行期 entity_key 键空间不同构",
+   "detail": "合同 v2 R-ENT-1（chunking._entity）产出名称型 item|门店|物品；运行期在公开 D01 上为 item|id:p01/p02；无 id 表头时为含 uuid 的 run-unstable 复合键。§7.2(3) 的等式匹配不可直接执行，最简单结果是系统性 no-match（cross_entity 继续 unknown）。",
+   "evidence": [
+    "out/08-entity-key-space.json",
+    "out/08b-public-fixture-entity-shape.json"
+   ],
+   "owner": "跨包（P1/P4）"
+  },
+  {
+   "id": "R-05",
+   "severity": "medium",
+   "topic": "读回侧不强制 record_code == record_key",
+   "detail": "把 record_code 改为 W99（record_key=W01）并重算摘要后校验通过；契约 §5.1 的赋值规则未被强制。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现；P4 若依赖 record_code 需自行复算"
+  },
+  {
+   "id": "R-06",
+   "severity": "low",
+   "topic": "entity_filters 的键名绕过运行期 id 检查",
+   "detail": "entity_filters.document_id=… 通过校验，与 §8『任何位置一律拒绝』矛盾。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现"
+  },
+  {
+   "id": "R-07",
+   "severity": "low",
+   "topic": "凭证/会话值检测为形态启发式",
+   "detail": "x-auth-header='sid=deadbeefcafe'、32-hex token 作 user_ref 均通过；契约只承诺『形似』检测。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现（已文档化限制）"
+  },
+  {
+   "id": "R-08",
+   "severity": "low",
+   "topic": "baseline 非冒充只靠自声明布尔",
+   "detail": "declared_baseline_business_date == as_of 且 baseline_used_as_effective=false 通过校验，读回侧无法重算。",
+   "evidence": [
+    "out/04-redlines.json"
+   ],
+   "owner": "P3 实现"
+  },
+  {
+   "id": "R-09",
+   "severity": "low",
+   "topic": "snapshot_io_failed 可达但开发未测；4 个防御码只有 2 个文档注记",
+   "detail": "io_failed 用文件占位 run 目录真实触发；readback_mismatch/run_binding_absent/run_binding_unexpected 正常不可达，故障注入可触发。",
+   "evidence": [
+    "out/03-failclosed.json"
+   ],
+   "owner": "P3 测试/文档"
+  },
+  {
+   "id": "R-10",
+   "severity": "low",
+   "topic": "测试套件无 49 码覆盖断言",
+   "detail": "26 项测试无 skip/xfail/恒真、断言到字段级，但 45/49 码仅在 OBSERVED_CODES 记录，无覆盖断言。",
+   "evidence": [
+    "out/07-test-quality.json"
+   ],
+   "owner": "P3 测试"
+  },
+  {
+   "id": "R-11",
+   "severity": "low",
+   "topic": "builder 侧 empty_set_candidate=true 不可达",
+   "detail": "all_use_layers_observed 要求 entity_inheritance 事件，而该事件必带非空 source_unit_id → 计数≥1；3 个合成回合均为 false。",
+   "evidence": [
+    "out/04-redlines.json",
+    "out/02-mock-chain.json"
+   ],
+   "owner": "P3 实现；P2/P4 不得期待该标记翻 true"
+  }
+ ],
+ "self_computed_evidence": {
+  "probe_scripts": [
+   "build_aggregate.py",
+   "capture_harness.py",
+   "netguard_independent.py",
+   "probe_01_contract.py",
+   "probe_02_mock_chain.py",
+   "probe_03_failclosed.py",
+   "probe_04_redlines.py",
+   "probe_05_zerocall.py",
+   "probe_06_preservation.py",
+   "probe_07_tests.py",
+   "probe_08_entity_key_space.py",
+   "probe_08b_public_fixture.py",
+   "synth_corpus.py"
+  ],
+  "out_files": [
+   "01-contract.json",
+   "02-capture-cache.json",
+   "02-mock-chain.json",
+   "03-failclosed.json",
+   "04-redlines.json",
+   "05-zero-call.json",
+   "06-preservation.json",
+   "07-test-quality.json",
+   "08-entity-key-space.json",
+   "08b-public-fixture-entity-shape.json"
+  ],
+  "review_sha256": "b887fc2b86c5e8af05cf192711796f8466fb31e70a906088d01a17d983555aaa"
+ },
+ "not_claimed": [
+  "P3 质量通过",
+  "T207 通过",
+  "release/threshold/baseline 批准",
+  "C1-2 授权",
+  "P2 完成",
+  "真实 H2 采集行为"
+ ]
+}

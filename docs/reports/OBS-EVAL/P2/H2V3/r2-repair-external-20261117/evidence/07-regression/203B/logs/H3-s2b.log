@@ -1,0 +1,571 @@
+python.exe : 
+所在位置 行:9 字符: 3
++   & $py -X utf8 -m pytest $n[1] -q -p no:cacheprovider -p r2baseline  ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[r2baseline] VERIFIED mktkb.__file__=D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\__init__.py
+[r2baseline] alt_src=D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src other_mktkb_path_entries_removed=2
+EEEEEEEE                                                                 [100%]
+=================================== ERRORS ====================================
+__________ ERROR at setup of test_identifier_locates_the_unique_row ___________
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_identifie..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FB314F0>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+_ ERROR at setup of test_unknown_identifier_and_conflicting_scope_are_refused _
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_unknown_i..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FB332F0>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+_______ ERROR at setup of test_ambiguous_identifier_candidates_converge _______
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_ambiguous..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FDACC20>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+__ ERROR at setup of test_multi_row_candidates_carry_identifier_and_converge __
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_multi_row..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FB33920>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+______ ERROR at setup of test_replaced_identifier_is_no_longer_available ______
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_replaced_..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FDAF200>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+_______ ERROR at setup of test_bare_store_followup_keeps_item_and_field _______
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_bare_stor..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FC19070>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+____ ERROR at setup of test_item_switch_and_store_level_field_reset_slots _____
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_item_swit..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FDAEC30>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+____ ERROR at setup of test_bare_store_after_store_level_field_keeps_field ____
+
+b_settings = Settings(app_name='市场部 AI 知识库', data_dir=WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/basetemp-203b/H3-s2b/test_bare_stor..._embedding_retry_seconds=30.0, trace_enabled=False, trace_db_path=None, trace_content_mode='hash', trace_hmac_key=None)
+
+    @pytest.fixture
+    def b_app(b_settings: Settings):
+        gateway = EvidenceEchoGateway()
+>       app = create_app(b_settings, model_gateway=gateway)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:85: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\main.py:159: in create_app
+    run_migrations(settings.resolved_database_url())
+D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\src\mktkb\db.py:101: in run_migrations
+    command.upgrade(config, "head")
+..\.venv\Lib\site-packages\alembic\command.py:467: in upgrade
+    script = ScriptDirectory.from_config(config)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+..\.venv\Lib\site-packages\alembic\script\base.py:180: in from_config
+    return ScriptDirectory(
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <alembic.script.base.ScriptDirectory object at 0x0000019E9FC18A70>
+dir = WindowsPath('D:/mktkb-p2-h2v3-r2-20261117/baseline/head/backend/migrations')
+file_template = '%(rev)s_%(slug)s', truncate_slug_length = None
+version_locations = None, sourceless = False, output_encoding = 'utf-8'
+timezone = None, hooks = [], recursive_version_locations = False
+messaging_opts = immutabledict({'quiet': False})
+
+    def __init__(
+        self,
+        dir: str | os.PathLike[str],  # noqa: A002
+        file_template: str = _default_file_template,
+        truncate_slug_length: int | None = 40,
+        version_locations: None | (Sequence[str | os.PathLike[str]]) = None,
+        sourceless: bool = False,
+        output_encoding: str = "utf-8",
+        timezone: str | None = None,
+        hooks: list[PostWriteHookConfig] = [],
+        recursive_version_locations: bool = False,
+        messaging_opts: MessagingOptions = cast(
+            "MessagingOptions", util.EMPTY_DICT
+        ),
+    ) -> None:
+        self.dir = _preserving_path_as_str(dir)
+        self.version_locations = [
+            _preserving_path_as_str(p) for p in version_locations or ()
+        ]
+        self.file_template = file_template
+        self.truncate_slug_length = truncate_slug_length or 40
+        self.sourceless = sourceless
+        self.output_encoding = output_encoding
+        self.revision_map = revision.RevisionMap(self._load_revisions)
+        self.timezone = timezone
+        self.hooks = hooks
+        self.recursive_version_locations = recursive_version_locations
+        self.messaging_opts = messaging_opts
+    
+        if not os.access(dir, os.F_OK):
+>           raise util.CommandError(
+                f"Path doesn't exist: {dir}.  Please use "
+                "the 'init' command to create a new "
+                "scripts folder."
+            )
+E           alembic.util.exc.CommandError: Path doesn't exist: D:\mktkb-p2-h2v3-r2-20261117\baseline\head\backend\migrations.  Please use the 'init' command to create a new scripts folder.
+
+..\.venv\Lib\site-packages\alembic\script\base.py:99: CommandError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+ERROR tests/integration/test_s2b_intent_semantics.py::test_identifier_locates_the_unique_row
+ERROR tests/integration/test_s2b_intent_semantics.py::test_unknown_identifier_and_conflicting_scope_are_refused
+ERROR tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge
+ERROR tests/integration/test_s2b_intent_semantics.py::test_multi_row_candidates_carry_identifier_and_converge
+ERROR tests/integration/test_s2b_intent_semantics.py::test_replaced_identifier_is_no_longer_available
+ERROR tests/integration/test_s2b_intent_semantics.py::test_bare_store_followup_keeps_item_and_field
+ERROR tests/integration/test_s2b_intent_semantics.py::test_item_switch_and_store_level_field_reset_slots
+ERROR tests/integration/test_s2b_intent_semantics.py::test_bare_store_after_store_level_field_keeps_field
+1 warning, 8 errors in 0.71s

@@ -1,0 +1,65 @@
+{
+  "schema_version": "v3-fix1-independent-A-baseline-reconstruct/v0.1",
+  "target": "backend/src/mktkb/rag/query.py",
+  "current_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+  "expected_baseline_sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1",
+  "reconstructed_sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1",
+  "reconstructed_sha256_lf": "402cd001df5b1d070e66a90bb5aad59ff8ecd4a35943c0e0057ea914f55c1d8f",
+  "reconstructed_bytes": 78740,
+  "line_endings": "crlf_preserved",
+  "matches_expected": true,
+  "applied": [
+    {
+      "count": 1,
+      "old_head": "    stores: tuple[str, ...],"
+    },
+    {
+      "count": 1,
+      "old_head": "        state.item = previous.item"
+    },
+    {
+      "count": 1,
+      "old_head": "        state.stores = ()"
+    },
+    {
+      "count": 1,
+      "old_head": "    # v3-fix-1/A：多目标物品只在“本轮明确点名多个物品”时进入状态；换了门店/改问单物品"
+    },
+    {
+      "count": 1,
+      "old_head": "    # v3-fix-1/A：本轮明确点名多个物品时，“物品”这一维已给出，不再要求补门店。"
+    },
+    {
+      "count": 1,
+      "old_head": "if not (state.product or has_item_scope or state.identifier):"
+    },
+    {
+      "count": 1,
+      "old_head": "if not (state.store or has_item_scope or state.product or state.identifier):"
+    },
+    {
+      "count": 1,
+      "old_head": "if not any((state.store, has_item_scope, state.product, state.identifier, state."
+    },
+    {
+      "count": 1,
+      "old_head": "    # v3-fix-1/A：同一轮内**明确提出**的多个目标（同一维度 ≥2、另一维度 ≤1）按多目标"
+    },
+    {
+      "count": 1,
+      "old_head": "        items=item_hits if (multi_target and multi_items) else (),"
+    },
+    {
+      "count": 1,
+      "old_head": "    if multi_target:"
+    },
+    {
+      "count": 1,
+      "old_head": "    if len(item_hits) > 1 and not multi_target:"
+    },
+    {
+      "count": 1,
+      "old_head": "    if multi_target and plan_reason is None:"
+    }
+  ]
+}

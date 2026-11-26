@@ -1,0 +1,223 @@
+{
+ "schema_version": "c1p1impl-ir02-ir03/v0.1",
+ "ir02": {
+  "two_target_outcomes": [
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ]
+  ],
+  "three_target_outcomes": [
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ]
+  ],
+  "cross_key_outcomes": [
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ]
+  ],
+  "repeat_outcomes": [
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ],
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ],
+   [
+    "passed",
+    "cross_entity_targets_match_ok"
+   ]
+  ],
+  "order_rows": [
+   {
+    "order": 0,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ]
+   },
+   {
+    "order": 1,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ]
+   },
+   {
+    "order": 0,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 1,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 2,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 3,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 4,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 5,
+    "targets": [
+     "item|storea|itema",
+     "item|storea|itema",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "three"
+   },
+   {
+    "order": 0,
+    "targets": [
+     "item|storeb|itemb",
+     "item|storea|itema"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "cross_key"
+   },
+   {
+    "order": 1,
+    "targets": [
+     "item|storea|itema",
+     "item|storeb|itemb"
+    ],
+    "outcome": [
+     "passed",
+     "cross_entity_targets_match_ok"
+    ],
+    "kind": "cross_key"
+   }
+  ],
+  "order_independent": true
+ },
+ "ir03": {
+  "rows": {
+   "same_entity": {
+    "state": "passed",
+    "reason": "cross_entity_targets_match_ok",
+    "audit": [
+     "record_identities[0]:target_matched",
+     "cross_entity_targets_match_ok"
+    ]
+   },
+   "consistent_other_entity": {
+    "state": "violation",
+    "reason": "other_entity_used",
+    "audit": [
+     "record_identities[0]:other_entity_used"
+    ]
+   },
+   "key_b_filters_a": {
+    "state": "unknown",
+    "reason": "entity_key_space_incompatible",
+    "audit": [
+     "record_identities[0]:entity_key_space_incompatible"
+    ]
+   },
+   "key_a_filters_b": {
+    "state": "unknown",
+    "reason": "identity_unresolved",
+    "audit": [
+     "record_identities[0]:identity_unresolved"
+    ]
+   },
+   "id_key_filters_a": {
+    "state": "passed",
+    "reason": "cross_entity_targets_match_ok",
+    "audit": [
+     "record_identities[0]:key_space_aligned_by_role_filters",
+     "cross_entity_targets_match_ok"
+    ]
+   },
+   "store_key_b_filters_a": {
+    "state": "unknown",
+    "reason": "entity_key_space_incompatible",
+    "audit": [
+     "record_identities[0]:entity_key_space_incompatible"
+    ]
+   }
+  },
+  "match_plus_contradiction": {
+   "state": "unknown",
+   "reason": "entity_key_space_incompatible",
+   "reversed": [
+    "unknown",
+    "entity_key_space_incompatible"
+   ],
+   "order_independent": true
+  },
+  "consistent_other_entity_is_violation": true,
+  "contradictory_is_not_pass": true
+ }
+}

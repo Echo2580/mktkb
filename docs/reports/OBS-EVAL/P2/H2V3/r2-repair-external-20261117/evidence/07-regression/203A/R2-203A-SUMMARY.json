@@ -1,0 +1,96 @@
+{
+  "task": "T-R2-203A",
+  "scope": "R2-202C 跨实体取数联结 副作用复核（分页/结构数字、diag、同门店多行、多页）",
+  "date": "2026-11-17",
+  "python": "3.12.7 (-X utf8)",
+  "basetemp_root": "D:\\mktkb-p2-h2v3-r2-20261117\\basetemp-203a",
+  "readonly": {
+    "backend_src_modified": false,
+    "existing_tests_modified": false,
+    "git_write_operations": false,
+    "files_created": [
+      "evidence/07-regression/203A/R2-203A-REPORT.md",
+      "evidence/07-regression/203A/R2-203A-SUMMARY.json",
+      "evidence/07-regression/203A/conftest.py",
+      "evidence/07-regression/203A/probe_203a_multirow_multipage.py",
+      "evidence/07-regression/203A/probe_203a_value_no_fabricated_layers.py",
+      "evidence/07-regression/203A/probe-artifacts/*.json"
+    ]
+  },
+  "subject_hashes": {
+    "backend/src/mktkb/rag/retrieval.py": {"sha256_prefix": "aee14c827578fa79", "bytes": 34458, "matches_task_brief": true},
+    "backend/src/mktkb/rag/answer.py": {"sha256_prefix": "b89622beb20f0d73", "bytes": 58877, "matches_task_brief": true},
+    "backend/src/mktkb/rag/facts.py": {"sha256_prefix": "cf795cfd16fe15fd", "bytes": 28961, "matches_task_brief": true}
+  },
+  "nodes": [
+    {"id": "102d", "path": "backend/tests/evaluation/test_r1_102d_turn_pagination.py", "exit_code": 0, "passed": 8, "failed": 0},
+    {"id": "102a", "path": "backend/tests/evaluation/test_r1_102a_structural_numbers.py", "exit_code": 0, "passed": 9, "failed": 0},
+    {"id": "103-http-structural", "path": "backend/tests/integration/test_r1_103_http_structural_numbers.py", "exit_code": 0, "passed": 3, "failed": 0},
+    {"id": "103-http-scope-refusal", "path": "backend/tests/integration/test_r1_103_http_scope_and_refusal.py", "exit_code": 0, "passed": 3, "failed": 0},
+    {"id": "104-scoring-probes", "path": "docs/reports/OBS-EVAL/P2/H2V3/r1-repair-external-20261117/work/r1_104_probes/test_r1_104_scoring_probes.py", "exit_code": 0, "passed": 9, "failed": 0},
+    {"id": "104-scope-refusal-probes", "path": "docs/reports/OBS-EVAL/P2/H2V3/r1-repair-external-20261117/work/r1_104_probes/test_r1_104_scope_refusal_probes.py", "exit_code": 0, "passed": 10, "failed": 0},
+    {"id": "202c-batch-own", "path": "backend/tests/integration/test_r2_202c_c29_join_rag.py", "exit_code": 0, "passed": 13, "failed": 0},
+    {"id": "202a-mechanism", "path": "backend/tests/integration/test_r2_202a_c29_mechanism_synthetic.py", "exit_code": 0, "passed": 13, "failed": 0},
+    {"id": "r2-regressions", "path": "backend/tests/rag/test_r2_regressions.py", "exit_code": 0, "passed": 6, "failed": 0},
+    {"id": "203a-probe-multirow-multipage", "path": "evidence/07-regression/203A/probe_203a_multirow_multipage.py", "exit_code": 0, "passed": 7, "failed": 0},
+    {"id": "203a-probe-layers", "path": "evidence/07-regression/203A/probe_203a_value_no_fabricated_layers.py", "exit_code": 0, "passed": 6, "failed": 0}
+  ],
+  "totals": {"nodes": 11, "tests": 87, "failed": 0},
+  "value_no_fabricated": {
+    "layer_p2": {
+      "structural_token_source": "p2_scoring.py:1003-1013 = citation_structural_number_keys(citations) | _pagination_number_keys(outcome.pagination)",
+      "pagination_whitelist": "p2_scoring.py:828-834 (total,page,page_size,returned,next_page; int only)",
+      "allowed_union": "scorers.py:718-735",
+      "new_number_2_grounded": true,
+      "why": "answer.py:917 页头文字与 answer_source=structured_enumeration (answer.py:955) 同生；conversations/service.py:2401-2412 在该条件下必下发 pagination；product_adapter.py:812-827 原类型采集 ⇒ total=2 进入结构 token",
+      "measured": {"after_with_pagination": "pass (structural_numbers>=2)", "after_without_pagination": "fail extra=[1,2]", "before_with_pagination": "pass"}
+    },
+    "layer_p1": {
+      "structural_token_source": "runner.py:1578/1622/1802/2112/2119 均不传 allowed_number_keys/structural_number_keys ⇒ 仅 _gold_number_keys (scorers.py:422-429)",
+      "after_change_effect": "若金标/题面含旧计数 1 而不含 2，则同形态用例由 pass 变 fail（已用合成用例固定）",
+      "real_dataset_hit": "NOT-RUN (需索引/模型)"
+    },
+    "paginates_only_if_emitted": {"pagination_absent_is_reachable_when_header_present": false}
+  },
+  "diag_filter_miss": {
+    "producer": "rag/retrieval.py:610-612",
+    "priority": "qa/service.py:56-63 (filter_miss 高于 dedup_dropped/limit_dropped)",
+    "closed_enum": "observability/evaluation_capture.py:243-265",
+    "collection_points": ["qa/service.py:631", "qa/service.py:652"],
+    "callers": {"product": "conversations/service.py:2606", "evaluation": "evaluation/product_adapter.py:1905"},
+    "answer_path_passes_diag": false,
+    "answer_path_evidence": "rag/answer.py:187 index.search(plan, limit=limit) 无 diag",
+    "measured": {"join_enabled": {"diag": {"filter": "filter_miss"}, "store_join_present": true}, "join_disabled": {"diag": {}, "store_join_present": false}},
+    "impact": {
+      "product_answers": "none",
+      "evaluation_scores": "none",
+      "diagnostic_attribution": "new false-positive reading ('filter too tight') and masking of limit_dropped on join turns"
+    }
+  },
+  "multirow_multipage_counts": {
+    "control_one_store_row_each": {"total": 2, "returned": 2, "rendered_lines": 2, "sources": 2, "consistent": true},
+    "same_store_two_store_rows": {"total": 3, "returned": 3, "rendered_lines": 3, "sources": 3, "consistent": true, "all_rows_joined": true, "latest_only": false, "semantic_conflict": "同一门店同时输出 合作中 与 暂停合作"},
+    "before_join_disabled_two_rows": {"total": 1, "returned": 1, "rendered_lines": 1, "sources": 1},
+    "multipage_page_size_1": {"total": 3, "returned": 1, "rendered_lines": 1, "has_more": true, "next_page": 2, "double_counted": false, "page1_contains_asked_field": false}
+  },
+  "regression_triage": {
+    "failures_in_scope": 0,
+    "triage_needed": false,
+    "head_export_used_as_baseline": false,
+    "head_export_reason": "HEAD 早于 R0/R1 与 202C：102a collection ImportError(P2_PAGINATION_NUMBER_KEYS)、102d 8 failed、103 1 failed+2 error / 3 error ⇒ 不能隔离 202C",
+    "before_baseline_method": "retrieval._store_join_chunks 关闭（本批唯一入口，202C 自带 test_join_entry_sensitivity_restores_red 同口径）",
+    "rollback_patch_applied": false,
+    "rollback_patch_reason": "无失败需归因；且反向应用需写 backend/src，与只读纪律冲突"
+  },
+  "network_guard": {
+    "all_runs_zero_external": true,
+    "self_built_probes": {"uses_t09_network_guard": true, "explicit_external_assert_per_test": true, "subprocess_blocked": true}
+  },
+  "not_run": [
+    "P2 live/holdout run（真实语料上的 value_no_fabricated / pagination_*）",
+    "P1 live run（是否存在被本批触发 pass→fail 的 P1 用例）",
+    "C29 真实 case 的 total 1→2（任务书已实测，本报告用合成同形态复现）",
+    "真实 page_size=10 的多页翻页链路（只测 page_size=1）"
+  ],
+  "manager_decisions": ["R2-203A-D1", "R2-203A-D2", "R2-203A-D3", "R2-203A-D4"]
+}

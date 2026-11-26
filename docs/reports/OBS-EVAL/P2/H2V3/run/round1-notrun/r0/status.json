@@ -1,0 +1,53 @@
+{
+  "artifacts": {
+    "card": null,
+    "case_plan": null,
+    "run_manifest": null,
+    "run_receipt": null
+  },
+  "attempt_count": 1,
+  "attempted": true,
+  "business_date": "2026-10-15",
+  "evidence": {
+    "attempt": "r0/attempt.json",
+    "preflight_check": "preflight/check-r0.json",
+    "preflight_check_sha256": "c07469f53227179ea84839cb46bc66933c6f91b107ee5ac3c2dcd001f1cf4138"
+  },
+  "executed": {
+    "cases": 0,
+    "cny": 0.0,
+    "error": null,
+    "fail": null,
+    "four_axis": null,
+    "hard_failures": null,
+    "pass": null,
+    "requests": 0,
+    "turns": 0
+  },
+  "failure_code": "code_changed_since_plan",
+  "gate": {
+    "authorization_production_ready": true,
+    "code_version_ok": false,
+    "ledger_unchanged": true,
+    "ok": false,
+    "reasons": [
+      "code_version"
+    ],
+    "requests_remaining": 185,
+    "requests_used": 952,
+    "zero_send_external_attempts": 0
+  },
+  "note": "入口 run 在写任何产物前拒绝（code_changed_since_plan），零请求、零金额；因此没有 card/case-plan/run_manifest。",
+  "planned": {
+    "cases": 12,
+    "requests": 64,
+    "turns": 14,
+    "worst_case_cny": 0.63552
+  },
+  "run_id": "p2-h2v3-20261115-r0-base_b0",
+  "run_index": 0,
+  "scenario_id": "base_b0",
+  "schema_version": "p2-h2v3-v3-run-status/v0.1",
+  "status": "NOT_RUN",
+  "stopped_by": "code_version_gate_refusal"
+}

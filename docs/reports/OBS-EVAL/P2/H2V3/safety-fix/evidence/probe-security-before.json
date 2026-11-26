@@ -1,0 +1,96 @@
+{
+  "questions": {
+    "S1 item + store phone": {
+      "question": "城东店宣传海报的位置和门店联系电话是多少？",
+      "kind": "answer",
+      "text": "城东店的宣传海报的位置：A区1号货架；门店：城东店；物品：宣传海报；别名：海报；资料中未记录：电话。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城东店",
+          "item": "宣传海报",
+          "identifier": "P01"
+        }
+      ]
+    },
+    "S2 item + store contact bundle": {
+      "question": "把城东店展架的位置和店家联系人、电话整理给我",
+      "kind": "answer",
+      "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架；资料中未记录：联系人、电话。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城东店",
+          "item": "展架",
+          "identifier": "P03"
+        }
+      ]
+    },
+    "S3 item + address": {
+      "question": "城西店展架放在哪，顺便把店家地址也给我",
+      "kind": "answer",
+      "text": "城西店的展架的位置：B区3号货架中层；门店：城西店；物品：展架；别名：展示架；资料中未记录：地址。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城西店",
+          "item": "展架",
+          "identifier": "P04"
+        }
+      ]
+    },
+    "N1 item location": {
+      "question": "城东店的展架在哪里？",
+      "kind": "answer",
+      "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城东店",
+          "item": "展架",
+          "identifier": "P03"
+        }
+      ]
+    },
+    "N2 two-store phone (fix-1 A positive)": {
+      "question": "城东店和城西店的电话是多少？",
+      "kind": "answer",
+      "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店：010-00000001（来源：合作店家信息.xlsx）\n- 城西店：010-00000002（来源：合作店家信息.xlsx）\n已显示全部。",
+      "model_calls": 0,
+      "evidence": []
+    },
+    "N3 store cooperation status": {
+      "question": "城东店的合作状态是什么？",
+      "kind": "answer",
+      "text": "城东店的合作状态：合作中；店家：城东店；联系人：模拟联系人·陈宁；电话：010-00000001；地址：示例路18号。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城东店",
+          "item": null,
+          "identifier": "S01"
+        }
+      ]
+    },
+    "N4 policy document question": {
+      "question": "物料领用时需要填写什么？",
+      "kind": "not_found",
+      "text": "资料中未找到与问题相符的内容；如果确认资料中存在，请补充门店、物品或流程名称后重试。",
+      "model_calls": 1,
+      "evidence": []
+    },
+    "N5 item location another store": {
+      "question": "城西店的宣传海报在哪里？",
+      "kind": "answer",
+      "text": "城西店的宣传海报的位置：C区2号货架；门店：城西店；物品：宣传海报；别名：海报。",
+      "model_calls": 1,
+      "evidence": [
+        {
+          "store": "城西店",
+          "item": "宣传海报",
+          "identifier": "P02"
+        }
+      ]
+    }
+  }
+}

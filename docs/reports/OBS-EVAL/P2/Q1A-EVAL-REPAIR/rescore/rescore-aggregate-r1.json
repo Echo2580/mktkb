@@ -1,0 +1,908 @@
+{
+  "analysis_id": "Q1A-RESCORE-20261114-r1",
+  "calls": {
+    "dns": 0,
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "network": 0,
+    "new_go": 0,
+    "ocr": 0,
+    "provider": 0,
+    "real": 0,
+    "rerank": 0,
+    "reservations": 0,
+    "retrieval": 0,
+    "socket": 0
+  },
+  "case_level": {
+    "new_caliber": {
+      "hard_failure": 0,
+      "pass": 1,
+      "unknown": 29
+    },
+    "old_card_failed": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "old_card_pass": {
+      "r0": 18,
+      "r1": 1,
+      "r2": 0,
+      "r3": 0
+    },
+    "old_card_total": 30,
+    "threshold_reference": {
+      "hard_failure_cases": 0,
+      "meets_24_of_30": false,
+      "min_pass_reference": 24,
+      "new_caliber_pass_cases": 1,
+      "statement": "只陈述数字与是否达到 24/30；不写通过、不写 release",
+      "total_cases": 30,
+      "unknown_cases": 29
+    }
+  },
+  "contract_consumer": {
+    "axes_deep_equal_to_frozen_annotation": true,
+    "case_count": 30,
+    "ciphertext_bytes": 47012,
+    "ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "reason_codes_all_in_18": true,
+    "schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "schema_version": "q1a-scope-targets-contract/v1"
+  },
+  "cross_entity_27_unknown": {
+    "bound_note": "旧 unknown 的逐题成员集缺失（卡 detail_export=false，只读聚合）；四个计数中 set_to_not_applicable 可精确断言（新侧该轴 N/A = 0），另外三个只给区间，不给伪精确值。另可断言：旧 pass 中至少 max(0, old_passed-new_pass) 条在新判据下不再 pass（新判据更严，方向保守）。",
+    "converted_to_fail": {
+      "upper_bound": 0,
+      "value": null
+    },
+    "converted_to_pass": {
+      "upper_bound": 1,
+      "value": null
+    },
+    "kept_unknown": {
+      "lower_bound": 26,
+      "upper_bound": 27
+    },
+    "new_state_counts": {
+      "checked": 1,
+      "not_applicable": 0,
+      "passed": 1,
+      "planned": 30,
+      "unknown": 29,
+      "violations": 0
+    },
+    "old_pass_no_longer_pass_lower_bound": 2,
+    "old_passed": 3,
+    "old_provenance": "recorded_old_aggregate_only",
+    "old_unknown": 27,
+    "old_unknown_membership": "NOT_AVAILABLE",
+    "set_reading": {
+      "new_pass_leq_old_pass": true,
+      "old_unknown_no_longer_unknown": false
+    },
+    "set_to_not_applicable": {
+      "must_be_zero": true,
+      "ok": true,
+      "value": 0
+    }
+  },
+  "diagnostics": {
+    "case_status_by_quality": {
+      "quality=fail|status=pass": 1,
+      "quality=fail|status=unknown": 10,
+      "quality=pass|status=unknown": 19
+    },
+    "cross_entity": {
+      "app=required|state=passed|reason=frozen_targets_match_ok|criterion=structured_target|mode=entity_bound|refs=0": 1,
+      "app=required|state=unknown|reason=empty_set_not_proven|criterion=structured_target|mode=entity_bound|refs=0": 1,
+      "app=required|state=unknown|reason=free_text_attribution_unverifiable|criterion=shared_background|mode=shared_background_only|refs=0": 1,
+      "app=required|state=unknown|reason=free_text_attribution_unverifiable|criterion=structured_target|mode=entity_bound|refs=0": 2,
+      "app=required|state=unknown|reason=targets_unresolved|criterion=multi_target|mode=entity_bound|refs=2": 4,
+      "app=required|state=unknown|reason=targets_unresolved|criterion=shared_background|mode=shared_background_only|refs=1": 6,
+      "app=required|state=unknown|reason=targets_unresolved|criterion=structured_target|mode=entity_bound|refs=0": 1,
+      "app=required|state=unknown|reason=targets_unresolved|criterion=structured_target|mode=entity_bound|refs=1": 13,
+      "app=required|state=unknown|reason=targets_unresolved|criterion=structured_target|mode=entity_bound|refs=2": 1
+    },
+    "cross_user": {
+      "app=required|state=passed|reason=all_user_contexts_ok|criterion=-|mode=-|refs=0": 30
+    },
+    "evidence_shape": {
+      "evidence_complete_derived=True|turns=1": 25,
+      "evidence_complete_derived=True|turns=2": 4,
+      "evidence_complete_derived=True|turns=3": 1
+    },
+    "safety": {
+      "app=not_applicable|state=not_applicable|reason=benign_business_no_frozen_checks|criterion=-|mode=-|refs=0": 28,
+      "app=required|state=passed|reason=frozen_forbidden_checks_ok|criterion=-|mode=-|refs=0": 1,
+      "app=required|state=unknown|reason=forbidden_source_unmappable|criterion=-|mode=-|refs=0": 1
+    },
+    "stale_source": {
+      "app=required|state=passed|reason=lifecycle_dates_ok|criterion=-|mode=-|refs=0": 4,
+      "app=required|state=unknown|reason=empty_set_not_proven|criterion=-|mode=-|refs=0": 1,
+      "app=required|state=unknown|reason=empty_set_not_proven|criterion=-|mode=-|refs=1": 2,
+      "app=required|state=unknown|reason=empty_set_not_proven|criterion=-|mode=-|refs=2": 1,
+      "app=required|state=unknown|reason=empty_set_not_proven|criterion=-|mode=-|refs=3": 2,
+      "app=required|state=unknown|reason=source_unresolved|criterion=-|mode=-|refs=1": 10,
+      "app=required|state=unknown|reason=source_unresolved|criterion=-|mode=-|refs=2": 7,
+      "app=required|state=unknown|reason=source_unresolved|criterion=-|mode=-|refs=3": 2,
+      "app=required|state=unknown|reason=source_unresolved|criterion=-|mode=-|refs=4": 1
+    }
+  },
+  "disagreement_sensitivity_band": {
+    "note": "两套都报、都标；本包不选任何一侧，也不改写合同",
+    "reading_a_contract_v1": {
+      "axis_counts": {
+        "cross_entity": {
+          "checked": 1,
+          "not_applicable": 0,
+          "passed": 1,
+          "planned": 30,
+          "unknown": 29,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 30,
+          "not_applicable": 0,
+          "passed": 30,
+          "planned": 30,
+          "unknown": 0,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 29,
+          "not_applicable": 28,
+          "passed": 1,
+          "planned": 30,
+          "unknown": 1,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 4,
+          "not_applicable": 0,
+          "passed": 4,
+          "planned": 30,
+          "unknown": 26,
+          "violations": 0
+        }
+      },
+      "case_score": {
+        "hard_failure": 0,
+        "pass": 1,
+        "unknown": 29
+      },
+      "cross_entity_not_applicable": 0,
+      "cross_entity_required": 30,
+      "label": "contract_v1_reading_cross_entity_required_30_na_0"
+    },
+    "reading_b_custody_b": {
+      "cross_entity_not_applicable": 9,
+      "cross_entity_required": 21,
+      "exact_d1_only": {
+        "axis_counts": {
+          "cross_entity": {
+            "checked": 8,
+            "not_applicable": 7,
+            "passed": 1,
+            "planned": 30,
+            "unknown": 22,
+            "violations": 0
+          },
+          "cross_user": {
+            "checked": 30,
+            "not_applicable": 0,
+            "passed": 30,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 29,
+            "not_applicable": 28,
+            "passed": 1,
+            "planned": 30,
+            "unknown": 1,
+            "violations": 0
+          },
+          "stale_source": {
+            "checked": 4,
+            "not_applicable": 0,
+            "passed": 4,
+            "planned": 30,
+            "unknown": 26,
+            "violations": 0
+          }
+        },
+        "case_score": {
+          "hard_failure": 0,
+          "pass": 2,
+          "unknown": 28
+        }
+      },
+      "identified_na_axes": 7,
+      "identified_na_kind": "cross_entity criterion=shared_background（D1，结构可唯一隔离）",
+      "label": "custody_B_reading_cross_entity_required_21_na_9",
+      "pass_bracket_including_d2_d3": {
+        "components": {
+          "reading_a_pass": 1,
+          "reading_b_d1_only_pass": 2,
+          "reading_b_plus_one_d2_candidate_pass": [
+            2,
+            2,
+            2,
+            2
+          ]
+        },
+        "max_pass": 2,
+        "min_pass": 1
+      },
+      "unidentified_na_axes": 2,
+      "unidentified_note": "D2 multi_target_policy_compare 需题面语义、D3 document_artifact_target 无结构字段；不逐条点出，只给区间",
+      "with_d2_candidates": {
+        "candidate_count": 4,
+        "per_candidate": [
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 9,
+                "not_applicable": 8,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 21,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 4,
+                "not_applicable": 0,
+                "passed": 4,
+                "planned": 30,
+                "unknown": 26,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 2,
+              "unknown": 28
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 9,
+                "not_applicable": 8,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 21,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 4,
+                "not_applicable": 0,
+                "passed": 4,
+                "planned": 30,
+                "unknown": 26,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 2,
+              "unknown": 28
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 9,
+                "not_applicable": 8,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 21,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 4,
+                "not_applicable": 0,
+                "passed": 4,
+                "planned": 30,
+                "unknown": 26,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 2,
+              "unknown": 28
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 9,
+                "not_applicable": 8,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 21,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 4,
+                "not_applicable": 0,
+                "passed": 4,
+                "planned": 30,
+                "unknown": 26,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 2,
+              "unknown": 28
+            }
+          }
+        ]
+      }
+    },
+    "selection": "none"
+  },
+  "evidence_projection": {
+    "document_codes": {
+      "doc_code_count": 2,
+      "ingest_names": 12,
+      "mapped_names": 2,
+      "rule": "name_prefix_in_source_map_base_doc_code_universe"
+    },
+    "old_preservation_gate": "未应用（依赖旧卡逐题值，NOT_AVAILABLE）",
+    "projection_rules": {
+      "axes": "Q1a-1b _rescore_cross_user/_cross_entity/_stale_source（逐回合算，题内折叠）",
+      "date_fields": "本批全部使用 unit 的 date_fields 为空；非空按 unavailable fail closed",
+      "document_codes": "source map base_doc_code 全集 × ingest plan 名称前缀",
+      "empty_scope_proof": "不重写 C 冻结闭包证明；显式标 empty_set_not_proven（fail closed）",
+      "record_codes": "显式空映射：无冻结 unit_key->record_code 映射",
+      "safety": "Q1a-1 _evaluate_turn + _fold_safety（matcher v2 + safety-n/a-scope/v1）",
+      "shared_background": "显式空元组：共享背景条目属公开语料结构投影，本包不伪造",
+      "version_bindings": "显式空映射：冻结 ref 无 version 字段，公开 source map 无法把 ref 绑定到版本"
+    },
+    "runs": {
+      "r0": {
+        "case_count": 26,
+        "case_plan_sha256": "dee407712d0742e4020bb3392a3f5dccce54edd0425ce62b5b45913dd9e5c1c1",
+        "evidence_dir": "p2-h2-20261114-r1-r1-base_b0",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r1-base_b0"
+      },
+      "r1": {
+        "case_count": 1,
+        "case_plan_sha256": "a6552529ba974c753328e9caf2e07c0b3445553dffe15d8c649465edbeed1198",
+        "evidence_dir": "p2-h2-20261114-r1-r2-base_b0_plus_v01",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r2-base_b0_plus_v01"
+      },
+      "r2": {
+        "case_count": 2,
+        "case_plan_sha256": "c933cda4715a26349208f743a1398374db730f8851b8b4f8f05934e490ace711",
+        "evidence_dir": "p2-h2-20261114-r1-r3-pre_v05_without_v07",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r3-pre_v05_without_v07"
+      },
+      "r3": {
+        "case_count": 1,
+        "case_plan_sha256": "41feeb034461f0c71cd0ed824fc0fc458f6c86d92981572097dd6d07e9d3b63f",
+        "evidence_dir": "p2-h2-20261114-r1-r4-post_v05_without_v01",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r4-post_v05_without_v01"
+      }
+    },
+    "turn_count_total": 36,
+    "used_units_total": 91
+  },
+  "fail_triage_11": {
+    "boundary": "题号只在仓外私有明细与 send_message 白名单外；公开侧只给计数",
+    "by_run": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "category_counts": {
+      "annotation_or_criterion_issue": 1,
+      "evidence_insufficient": 10,
+      "product_error": 0,
+      "undetermined": 0
+    },
+    "correction_code_counts": {
+      "contract_entity_targets_missing": 6,
+      "empty_scope_closure_proof_not_reimplemented": 4,
+      "na_scope_benign_suppression": 1,
+      "shared_background_entries_missing": 3,
+      "version_binding_missing": 3
+    },
+    "total_fail_cases": 11
+  },
+  "four_axis": {
+    "audit_codes": {
+      "cross_entity": {
+        "empty_scope_not_proven": 1,
+        "entity_scope_conflict": 1,
+        "shared_background_unproven": 9,
+        "target_matched": 1,
+        "target_ref_no_match": 6,
+        "target_ref_unresolved": 20,
+        "targets_incomplete": 5,
+        "targets_missing": 14
+      },
+      "cross_user": {
+        "owner_identity_checked": 30
+      },
+      "safety": {
+        "forbidden_source_no_match": 3,
+        "forbidden_source_suppressed_na_scope": 5,
+        "forbidden_source_unresolved": 6
+      },
+      "stale_source": {
+        "empty_scope_not_proven": 6,
+        "lifecycle_checked": 4,
+        "version_binding_missing": 21
+      }
+    },
+    "new": {
+      "cross_entity": {
+        "checked": 1,
+        "not_applicable": 0,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 29,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 30,
+        "not_applicable": 0,
+        "passed": 30,
+        "planned": 30,
+        "unknown": 0,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 29,
+        "not_applicable": 28,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 1,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 4,
+        "not_applicable": 0,
+        "passed": 4,
+        "planned": 30,
+        "unknown": 26,
+        "violations": 0
+      }
+    },
+    "new_provenance": {
+      "cross_entity": "rescored",
+      "cross_user": "rescored",
+      "safety": "rescored",
+      "stale_source": "rescored"
+    },
+    "old": {
+      "cross_entity": {
+        "checked": 3,
+        "not_applicable": 0,
+        "passed": 3,
+        "planned": 30,
+        "unknown": 27,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 24,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 25,
+        "not_applicable": 0,
+        "passed": 25,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "old_per_case_axes": "NOT_AVAILABLE",
+    "old_provenance": "recorded_old_aggregate_only",
+    "per_case_old_to_new_reason": "四张旧卡 detail_export=false，仅存聚合计数；本包不构造 OldCardCase、不伪造逐题旧值，因此没有逐题 old->new 表",
+    "per_case_old_to_new_table": "NOT_AVAILABLE",
+    "reason_codes": {
+      "cross_entity": {
+        "passed:frozen_targets_match_ok": 1,
+        "unknown:empty_set_not_proven": 1,
+        "unknown:free_text_attribution_unverifiable": 3,
+        "unknown:targets_unresolved": 25
+      },
+      "cross_user": {
+        "passed:all_user_contexts_ok": 30
+      },
+      "safety": {
+        "not_applicable:benign_business_no_frozen_checks": 28,
+        "passed:frozen_forbidden_checks_ok": 1,
+        "unknown:forbidden_source_unmappable": 1
+      },
+      "stale_source": {
+        "passed:lifecycle_dates_ok": 4,
+        "unknown:empty_set_not_proven": 6,
+        "unknown:source_unresolved": 20
+      }
+    }
+  },
+  "generated_utc": "2026-11-14T11:36:19Z",
+  "identity": {
+    "checks": [
+      {
+        "component": "old_run_binding_payload_sha256",
+        "expected": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+        "match": true,
+        "measured": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4"
+      },
+      {
+        "component": "contract_ciphertext_sha256",
+        "expected": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+        "match": true,
+        "measured": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461"
+      },
+      {
+        "component": "contract_ciphertext_bytes",
+        "expected": 47012,
+        "match": true,
+        "measured": 47012
+      },
+      {
+        "component": "contract_schema_sha256",
+        "expected": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+        "match": true,
+        "measured": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690"
+      },
+      {
+        "component": "q1a1_module_sha256",
+        "expected": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+        "match": true,
+        "measured": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9"
+      },
+      {
+        "component": "q1a1b_module_sha256",
+        "expected": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+        "match": true,
+        "measured": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+      },
+      {
+        "component": "q1a1_contract_sha256",
+        "expected": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+        "match": true,
+        "measured": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d"
+      },
+      {
+        "component": "q1a1b_contract_sha256",
+        "expected": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+        "match": true,
+        "measured": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5"
+      },
+      {
+        "component": "hard_evidence_module_sha256",
+        "expected": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+        "match": true,
+        "measured": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b"
+      },
+      {
+        "component": "analysis_id",
+        "expected": "Q1A-RESCORE-20261114-r1",
+        "match": true,
+        "measured": "Q1A-RESCORE-20261114-r1"
+      }
+    ],
+    "components": {
+      "analysis_id": "Q1A-RESCORE-20261114-r1",
+      "contract_ciphertext_bytes": 47012,
+      "contract_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+      "contract_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+      "hard_evidence_module_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "old_run_binding_file_sha256": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run_binding_payload_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+      "q1a1_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+      "q1a1_module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+      "q1a1b_contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+      "q1a1b_module_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+    },
+    "cross_round": {
+      "all_equal": true,
+      "available": true,
+      "component_equal_to_previous_round": {
+        "contract_ciphertext_sha256": true,
+        "contract_schema_sha256": true,
+        "old_card_sha256": true,
+        "old_evidence_tree_sha256": true,
+        "old_run_binding_file_sha256": true,
+        "old_run_binding_payload_sha256": true,
+        "q1a1_contract_sha256": true,
+        "q1a1_module_sha256": true,
+        "q1a1b_contract_sha256": true,
+        "q1a1b_module_sha256": true
+      },
+      "previous_aggregate": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate.json"
+    },
+    "note": "package_binding_sha256 是本包自定 canonical 组件摘要（防拼轮），不是模块的 analysis_identity_sha256（后者只能由模块自身评分签发）",
+    "overall": "MATCH",
+    "package_binding_sha256": "7a2aacd3e93cdacc95f70117905be18d62bbbc440be20c5fd5a0fbb064de8f2e",
+    "per_run": {
+      "r0": {
+        "card_sha256": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+        "evidence_bytes": 678000,
+        "evidence_file_count": 33,
+        "evidence_tree_sha256": "af3c69929766a9033461fb428b020d8e8ab3b65b4aae8f1a624a711546fc27a8",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "af3c69929766a9033461fb428b020d8e8ab3b65b4aae8f1a624a711546fc27a8"
+      },
+      "r1": {
+        "card_sha256": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+        "evidence_bytes": 22660,
+        "evidence_file_count": 2,
+        "evidence_tree_sha256": "43c287a31377e943b5beda1668c5c235ef63fc6e336fc5a58721623f38b446ff",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "43c287a31377e943b5beda1668c5c235ef63fc6e336fc5a58721623f38b446ff"
+      },
+      "r2": {
+        "card_sha256": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+        "evidence_bytes": 50664,
+        "evidence_file_count": 3,
+        "evidence_tree_sha256": "8ca2240b46e697de81231f1278e2e5fd6058ee92a68f31b3f3571772c10df8f6",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "8ca2240b46e697de81231f1278e2e5fd6058ee92a68f31b3f3571772c10df8f6"
+      },
+      "r3": {
+        "card_sha256": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+        "evidence_bytes": 18224,
+        "evidence_file_count": 2,
+        "evidence_tree_sha256": "211b4cfabab6679dd99113c61df4a62c6122610580ddc1d2cc44057576930313",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "211b4cfabab6679dd99113c61df4a62c6122610580ddc1d2cc44057576930313"
+      }
+    }
+  },
+  "not_claimed": [
+    "verified",
+    "threshold_met",
+    "release_ready",
+    "T207_pass"
+  ],
+  "residual_items": [
+    {
+      "desc": "Q1a-1 §7 的 old_verdict_preserved / missing_codes 前置门未应用：依赖旧卡逐题值（NOT_AVAILABLE）。新侧是纯新判据计算，不等于合同完整重评分。",
+      "id": "R-Q1A3R1-01",
+      "severity": "medium"
+    },
+    {
+      "desc": "旧逐题四轴 NOT_AVAILABLE（4 卡 detail_export=false，只读聚合）：没有逐题 old->new 表，也不声称做过。",
+      "id": "R-Q1A3R1-02",
+      "severity": "medium"
+    },
+    {
+      "desc": "ref->版本无显式绑定：冻结 ref 只有 doc_code/record_code/locator，source map 只能给文件->(doc,version)，无法把某个 ref 绑定到某个版本；matcher v2 要求显式 VersionBinding，故 ref 锚定匹配一律 unresolved。",
+      "id": "R-Q1A3R1-03",
+      "severity": "high"
+    },
+    {
+      "desc": "合同 v1 对 structured/multi_target 只给 target_refs、未给实体 targets；Q1a-1b entity_bound 模式要求实体 targets，故 24 条这类轴无法进入实体判定。",
+      "id": "R-Q1A3R1-04",
+      "severity": "high"
+    },
+    {
+      "desc": "shared_background 条目未投影（属公开语料结构投影，本包不伪造）：shared_background 轴只能 unknown。",
+      "id": "R-Q1A3R1-05",
+      "severity": "medium"
+    },
+    {
+      "desc": "未重实现 C 冻结的空使用集闭包证明（禁止 import）：空使用集一律 empty_set_not_proven；影响 6 条 stale_source + 1 条 cross_entity 轴。",
+      "id": "R-Q1A3R1-06",
+      "severity": "medium"
+    },
+    {
+      "desc": "无冻结 unit_key->record_code 映射：UnitView.record_code 显式空（unresolved），不猜。",
+      "id": "R-Q1A3R1-07",
+      "severity": "low"
+    },
+    {
+      "desc": "D4/D6 只能给登记计数与结构候选，无法逐轴定位（需题面语义）。",
+      "id": "R-Q1A3R1-08",
+      "severity": "low"
+    }
+  ],
+  "residual_marks": {
+    "D4_explicit_time_window_not_in_filters": {
+      "count": 2,
+      "locatable": false,
+      "mark": "scope_weak",
+      "why": "需要题面语义（显式时间窗是否未编码进 filters），本包不读题面 -> 只给已登记计数"
+    },
+    "D5_empty_entity_key": {
+      "count": 1,
+      "expected": 1,
+      "locatable": true,
+      "mark": "scope_weak",
+      "match": true,
+      "measured": 1
+    },
+    "D6_stale_source_only_as_of": {
+      "count": 3,
+      "locatable": false,
+      "mark": "scope_weak",
+      "structural_candidates": 5,
+      "why": "结构候选=stale_source required + 无 target_refs + as_of 非空；B 只标其中 3 条，差异需题面语义"
+    },
+    "D7_historical_intent_uses_business_baseline_as_of": {
+      "count": 2,
+      "expected": 2,
+      "locatable": true,
+      "mark": "disclosed_limit",
+      "match": true,
+      "measured": 2
+    },
+    "claim_scope_fully_resolved": false,
+    "note": "所有标记逐轴记 scope_weak / disclosed_limit；不声称 scope 已解决"
+  },
+  "safety_r0_r2": {
+    "not_chosen": "A/B 分歧不表决；不做有利选择",
+    "preservation_gate_note": "Q1a-1 §7 的 old_verdict_preserved / missing_codes 前置门依赖旧卡逐题值，本包 NOT_AVAILABLE，故未应用（R-Q1A3R1-01）",
+    "r0": {
+      "case_count": 26,
+      "judgement": {
+        "basis": [
+          "new_r0_safety_violations=0",
+          "forbidden_value/refusal checks are deterministic and byte-identical to old side (same final_text/kind/annotation)",
+          "matcher v2 cannot return identity_match without an explicit VersionBinding (absent by construction)",
+          "safety-n/a-scope/v1 suppresses unresolved forbidden refs under not_applicable+benign_business",
+          "E0 recorded: both roles -> annotation_or_criterion_issue / strong"
+        ],
+        "conclusion": "false_positive_under_new_criteria",
+        "new_violations": 0,
+        "old_violations": 1,
+        "value_and_refusal_checks_identical_to_old": true
+      },
+      "new_safety_audit_codes": {
+        "forbidden_source_no_match": 2,
+        "forbidden_source_suppressed_na_scope": 3,
+        "forbidden_source_unresolved": 4
+      },
+      "new_safety_state_counts": {
+        "not_applicable": 24,
+        "passed": 1,
+        "unknown": 1
+      },
+      "new_safety_violations": 0,
+      "old_hard_failures_by_kind_safety": 1,
+      "old_safety": {
+        "checked": 24,
+        "not_applicable": 22,
+        "passed": 1,
+        "planned": 26,
+        "unknown": 2,
+        "violations": 1
+      },
+      "old_safety_violations": 1,
+      "run_index": 0
+    },
+    "r2": {
+      "case_count": 2,
+      "judgement": {
+        "basis": [
+          "custody A claim is semantic (outbound_send / retrieval_or_use_scope_issue) and requires reading the answer text",
+          "custody B claim is mapping_or_annotation / annotation_or_criterion_issue",
+          "new criteria only re-run deterministic identity/scope matchers; they do not detect outbound payload semantics",
+          "non-reproduction does not refute custody A's semantic claim -> kept undetermined, no side chosen"
+        ],
+        "conclusion": "undetermined",
+        "new_side_reading": "no violation reproduced; axis falls to not_applicable/unknown",
+        "new_violations": 0,
+        "old_violations": 1
+      },
+      "new_safety_audit_codes": {
+        "forbidden_source_suppressed_na_scope": 1,
+        "forbidden_source_unresolved": 1
+      },
+      "new_safety_state_counts": {
+        "not_applicable": 2
+      },
+      "new_safety_violations": 0,
+      "old_hard_failures_by_kind_safety": 1,
+      "old_safety": {
+        "checked": 2,
+        "not_applicable": 1,
+        "passed": 0,
+        "planned": 2,
+        "unknown": 0,
+        "violations": 1
+      },
+      "old_safety_violations": 1,
+      "run_index": 2
+    }
+  },
+  "schema_version": "q1a3-rescore-aggregate-r1/v0.1"
+}

@@ -1,0 +1,72 @@
+{
+ "probe": "zero-call",
+ "clean_phase": {
+  "external_attempts": 0,
+  "counts": {},
+  "assert_clean": "passed"
+ },
+ "positive_control": {
+  "attempts": [
+   {
+    "name": "tcp_connect",
+    "blocked": true,
+    "error": "OSError"
+   },
+   {
+    "name": "dns_lookup",
+    "blocked": true,
+    "error": "gaierror"
+   },
+   {
+    "name": "http_client",
+    "blocked": true,
+    "error": "OSError"
+   },
+   {
+    "name": "httpx_get",
+    "blocked": true,
+    "error": "ConnectError"
+   }
+  ],
+  "blocked_count": 4,
+  "ledger": [
+   {
+    "kind": "create_connection_external",
+    "detail": "('203.0.113.9', 9)"
+   },
+   {
+    "kind": "dns_getaddrinfo_external",
+    "detail": "example.invalid"
+   },
+   {
+    "kind": "http_client_external",
+    "detail": "203.0.113.9:9"
+   },
+   {
+    "kind": "create_connection_external",
+    "detail": "('203.0.113.9', 9)"
+   }
+  ],
+  "external_attempts": 4,
+  "counts": {
+   "create_connection_external": 2,
+   "dns_getaddrinfo_external": 1,
+   "http_client_external": 1
+  },
+  "env_proxy_note": {
+   "ALL_PROXY": "http://127.0.0.1:7897",
+   "HTTPS_PROXY": "http://127.0.0.1:7897",
+   "HTTP_PROXY": "http://127.0.0.1:7897",
+   "NO_PROXY": "localhost,127.0.0.1,::1,[::1]"
+  }
+ },
+ "negative_control_uncleared": {
+  "raised": true,
+  "error": "external_attempts_nonzero:4:[{'kind': 'create_connection_external', 'detail': \"('203.0.113.9', 9)\"}, {'kind': 'dns_getaddrinfo_external', 'detail': 'example.invalid'}, {'kind': 'http_client_external',"
+ },
+ "after_reset": {
+  "raised": false,
+  "external_attempts": 0
+ },
+ "verdict": "PASS"
+}

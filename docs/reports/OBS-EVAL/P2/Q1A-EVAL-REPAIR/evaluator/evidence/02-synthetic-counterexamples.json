@@ -1,0 +1,193 @@
+{
+  "entries": [
+    {
+      "audit_codes": [
+        "forbidden_source_no_match"
+      ],
+      "changed": true,
+      "expected": "no_match/doc_mismatch; old violation -> N/A",
+      "matcher": {
+        "code": "doc_mismatch",
+        "verdict": "no_match"
+      },
+      "new": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "old": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "provenance": "rescored",
+      "scenario": "doc_code_differs_same_row_sheet"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_no_match"
+      ],
+      "changed": true,
+      "expected": "no_match/record_mismatch; old violation -> N/A",
+      "matcher": {
+        "code": "record_mismatch",
+        "verdict": "no_match"
+      },
+      "new": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "old": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "provenance": "rescored",
+      "scenario": "record_code_differs"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_no_match"
+      ],
+      "changed": true,
+      "expected": "no_match/version_mismatch; old violation -> N/A",
+      "matcher": {
+        "code": "version_mismatch",
+        "verdict": "no_match"
+      },
+      "new": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "old": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "provenance": "rescored",
+      "scenario": "same_document_name_different_version"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_unresolved",
+        "forbidden_source_suppressed_na_scope"
+      ],
+      "changed": true,
+      "expected": "unresolved/ref_version_unresolved; old violation -> N/A (scope suppression)",
+      "matcher": {
+        "code": "ref_version_unresolved",
+        "verdict": "unresolved"
+      },
+      "new": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "old": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "provenance": "rescored",
+      "scenario": "version_unresolved_na_benign_suppressed"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_hit"
+      ],
+      "changed": true,
+      "expected": "match; old N/A -> violation (real hit not suppressed)",
+      "matcher": {
+        "code": "identity_match",
+        "verdict": "match"
+      },
+      "new": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "provenance": "rescored",
+      "scenario": "identity_complete_hit_in_na_scope"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_hit",
+        "ref_role_conflict"
+      ],
+      "changed": true,
+      "expected": "match; old N/A -> violation + ref_role_conflict",
+      "matcher": {
+        "code": "identity_match",
+        "verdict": "match"
+      },
+      "new": {
+        "reason": "forbidden_source_used",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "provenance": "rescored",
+      "scenario": "expected_and_forbidden_both_match"
+    },
+    {
+      "audit_codes": [
+        "forbidden_source_unresolved"
+      ],
+      "changed": false,
+      "expected": "unresolved; required -> unknown forbidden_source_unmappable",
+      "matcher": {
+        "code": "ref_version_unresolved",
+        "verdict": "unresolved"
+      },
+      "new": {
+        "reason": "forbidden_source_unmappable",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "forbidden_source_unmappable",
+        "state": "unknown"
+      },
+      "provenance": "rescored",
+      "scenario": "unknown_propagation_required_scope"
+    },
+    {
+      "audit_codes": [
+        "old_verdict_preserved"
+      ],
+      "changed": false,
+      "expected": "match but old unknown annotation_unknown is preserved (fail closed)",
+      "matcher": {
+        "code": "identity_match",
+        "verdict": "match"
+      },
+      "new": {
+        "reason": "annotation_unknown",
+        "state": "unknown"
+      },
+      "old": {
+        "reason": "annotation_unknown",
+        "state": "unknown"
+      },
+      "provenance": "preserved_old_verdict",
+      "scenario": "old_gate_verdict_preserved"
+    },
+    {
+      "audit_codes": [
+        "forbidden_value_hit"
+      ],
+      "changed": true,
+      "expected": "violation forbidden_value_leaked (values are scope-independent)",
+      "matcher": null,
+      "new": {
+        "reason": "forbidden_value_leaked",
+        "state": "violation"
+      },
+      "old": {
+        "reason": "benign_business_no_frozen_checks",
+        "state": "not_applicable"
+      },
+      "provenance": "rescored",
+      "scenario": "forbidden_value_in_na_scope"
+    }
+  ],
+  "schema_version": "q1a1-synthetic-counterexamples/v1"
+}

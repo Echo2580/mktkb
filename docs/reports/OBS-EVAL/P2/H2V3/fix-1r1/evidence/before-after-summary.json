@@ -1,0 +1,461 @@
+{
+ "after": {
+  "all_controls_blocked": true,
+  "external_attempts_during_probe": 0,
+  "path": "docs\\reports\\OBS-EVAL\\P2\\H2V3\\fix-1r1\\evidence\\planner-after.json",
+  "query_sha256": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef"
+ },
+ "baseline_source": {
+  "exists": true,
+  "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\H2V3\\fix-1\\independent\\_reconstructed_query.py",
+  "sha256": "5a7ed26b73a3ab658deff6384b5fdcc67596860345153cec4ec4f72cb350e1e1"
+ },
+ "before": {
+  "all_controls_blocked": true,
+  "external_attempts_during_probe": 0,
+  "path": "docs\\reports\\OBS-EVAL\\P2\\H2V3\\fix-1r1\\evidence\\planner-before.json",
+  "query_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372"
+ },
+ "positive_cases_still_released": [
+  "P1_two_stores_one_item",
+  "P2_one_store_two_items",
+  "P3_two_stores_phone",
+  "P4_two_stores_one_item_enumerate_word"
+ ],
+ "r1_changed_cases": [
+  "C1a_anaphora_this_two_with_stores",
+  "C1b_anaphora_these_with_stores",
+  "C3a_mixed_item_dimension",
+  "C3b_mixed_store_dimension",
+  "C5a_anaphora_unknown_store"
+ ],
+ "r1_fixed_cases": [
+  "C1a_anaphora_this_two_with_stores",
+  "C1b_anaphora_these_with_stores",
+  "C3a_mixed_item_dimension",
+  "C3b_mixed_store_dimension"
+ ],
+ "rows": {
+  "C1a_anaphora_this_two_with_stores": {
+   "after_r1": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MULTIPLE_ENTITIES"
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": false,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "反例1：纯指代 + 已点名门店（这两个）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的这两个分别放在哪里？"
+  },
+  "C1b_anaphora_these_with_stores": {
+   "after_r1": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MULTIPLE_ENTITIES"
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": false,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "反例1：纯指代 + 已点名门店（这几个）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的这几个分别放在哪里？"
+  },
+  "C1c_anaphora_they_with_stores": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 4,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "class": "反例1 对照：既有指代词（它们）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的它们分别放在哪里？"
+  },
+  "C1d_resumptive_this_two_stores": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 2,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 2,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 2,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "class": "反例1 对照：复指限定语（这两个店 + 显式枚举）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店这两个店的宣传海报在哪里？"
+  },
+  "C2_anaphora_bare": {
+   "after_r1": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MISSING_SLOT"
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MISSING_SLOT"
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MISSING_SLOT"
+   },
+   "class": "反例2：纯指代 + 未点名",
+   "legacy_intent_clarification": "请补充要查询的门店或物品。",
+   "question": "这两个分别放在哪里？"
+  },
+  "C3a_mixed_item_dimension": {
+   "after_r1": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "ITEM_AMBIGUOUS"
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "ITEM_AMBIGUOUS"
+   },
+   "before_eq_after": false,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "反例3：混合（显式物品 + 指代，物品维）",
+   "legacy_intent_clarification": "问题中包含多个物品，请明确要查询的物品。",
+   "question": "城东店的宣传海报、易拉宝和这两个分别放在哪里？"
+  },
+  "C3b_mixed_store_dimension": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "before_eq_after": false,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "反例3：混合（显式物品 + 指代，门店维）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的宣传海报和这两个分别放在哪里？"
+  },
+  "C4a_cross_turn_turn1": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "after_restores_baseline_route": false,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 2,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "反例4：跨轮指代（上一轮显式多目标）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的宣传海报在哪里？"
+  },
+  "C4b_cross_turn_turn2": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "class": "反例4：跨轮指代（本轮纯指代）",
+   "legacy_intent_clarification": "请补充要查询的门店或物品。",
+   "question": "这两个分别放在哪里？"
+  },
+  "C5a_anaphora_unknown_store": {
+   "after_r1": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "MULTIPLE_ENTITIES"
+   },
+   "after_restores_baseline_route": false,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "before_eq_after": false,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "class": "反例5：指代 + 词表外门店（城东店 + 城南店）",
+   "legacy_intent_clarification": null,
+   "question": "城东店和城南店的这两个分别放在哪里？"
+  },
+  "C5b_explicit_unknown_store": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 1,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 1,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 1,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "class": "反例5 对照：显式枚举 + 词表外门店（无指代）",
+   "legacy_intent_clarification": null,
+   "question": "城东店和城南店的宣传海报在哪里？"
+  },
+  "P1_two_stores_one_item": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "after_restores_baseline_route": false,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 2,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "A 正例：两店一物品",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的宣传海报在哪里？"
+  },
+  "P2_one_store_two_items": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "after_restores_baseline_route": false,
+   "baseline_fix1_legacy": {
+    "clarification": true,
+    "kernel_kind": "clarification",
+    "kernel_returned": null,
+    "rag_owns_turn": false,
+    "reason": "ITEM_AMBIGUOUS"
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "A 正例：一店两物品",
+   "legacy_intent_clarification": "问题中包含多个物品，请明确要查询的物品。",
+   "question": "城东店的宣传海报和易拉宝在哪里？"
+  },
+  "P3_two_stores_phone": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "after_restores_baseline_route": false,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "ambiguous",
+    "kernel_returned": 5,
+    "rag_owns_turn": false,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "A 正例：两店门店级字段（电话）",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的电话是多少？"
+  },
+  "P4_two_stores_one_item_enumerate_word": {
+   "after_r1": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "after_restores_baseline_route": true,
+   "baseline_fix1_legacy": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": null
+   },
+   "before_eq_after": true,
+   "before_r1_fix1_a": {
+    "clarification": false,
+    "kernel_kind": "answer",
+    "kernel_returned": 2,
+    "rag_owns_turn": true,
+    "reason": "MULTI_TARGET_ENUMERATE"
+   },
+   "class": "A 正例：两店一物品 + 分别",
+   "legacy_intent_clarification": "问题中包含多个门店，请选择要查询的门店。",
+   "question": "城东店和城西店的宣传海报分别在哪里？"
+  }
+ },
+ "schema_version": "v3-fix1r1-before-after/v0.1"
+}

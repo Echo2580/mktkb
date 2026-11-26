@@ -1,0 +1,53 @@
+﻿# v3 语料返工 R1 · 执行记录（按实际执行顺序，全部 exit=0）
+# 采集时间：2026-11-15（Asia/Shanghai）；CPython 3.12.7 / openpyxl 3.1.5；零真实调用
+
+$ .venv\Scripts\python.exe -B "00r1-baseline.py"   # exit=0
+  -> evidence-r1/00r1-baseline.json
+  -> phase before-r1：15 tracked modified / 224 untracked / C 冻结 12 mismatch 0 / 交付件 13 文件
+
+$ .venv\Scripts\python.exe -B "02r1-verify-cells.py"   # exit=0
+  -> evidence-r1/02r1-cell-diff.json
+  -> result CELL_IDENTICAL_EXCEPT_TWO_NEW_COLUMNS_AND_SENTINEL
+
+$ .venv\Scripts\python.exe -B "03r1-determinism.py"   # exit=0
+  -> evidence-r1/03r1-determinism.json
+  -> result BYTE_IDENTICAL_TWICE_AND_DELIVERED（13/13）
+
+$ .venv\Scripts\python.exe -B "04r1-keyspace-proof.py"   # exit=0
+  -> evidence-r1/04r1-keyspace-proof.json
+  -> result aligned（36/36，neg 0，sentinel audit ok）
+
+$ .venv\Scripts\python.exe -B "05r1-normalized-digest.py"   # exit=0
+  -> evidence-r1/05r1-normalized-digest.json
+  -> result PROJECTION_IDENTICAL（v3 digest 变、投影相等）
+
+$ .venv\Scripts\python.exe -B "06r1-source-map.py"   # exit=0
+  -> evidence-r1/06r1-source-map.json
+  -> 重出 docs/evaluation/p2-holdout-v3.source-map.json（三处 sha 均变）
+
+$ .venv\Scripts\python.exe -B "07r1-effective-range-proof.py"   # exit=0
+  -> evidence-r1/07r1-effective-range-proof.json
+  -> result HEADER_RESTORED_AND_RANGE_SEMANTICS_UNCHANGED
+
+$ .venv\Scripts\python.exe -B "08r1-consistency-selfcheck.py"   # exit=0
+  -> evidence-r1/08r1-consistency-selfcheck.json
+  -> result CONSISTENT（49/49）
+
+$ .venv\Scripts\python.exe -B "11r1-defect-repro.py"   # exit=0
+  -> evidence-r1/11r1-defect-repro.json
+  -> verdict REPRODUCED（8/8）
+
+$ .venv\Scripts\python.exe -B "09r1-preservation.py"   # exit=0
+  -> evidence-r1/09r1-preservation.json
+  -> result PRESERVED
+
+$ .venv\Scripts\python.exe -B "10r1-zero-call.py"   # exit=0
+  -> evidence-r1/10r1-zero-call.json
+  -> result ZERO_EXTERNAL_CALLS（11 runs / 0 external / 正对照拦截成立）
+
+# 说明
+# 1) 01r1-build-corpus.py 单独执行：先 --output <空临时目录> 干跑，再 --output fixtures/acceptance-h2v3 --replace-existing 原地重建；
+#    两条命令的退出码均为 0（被 09r1 的"交付件哈希"与 03r1 的"双跑三重相等"间接复核）。
+# 2) 10r1-zero-call.py 会再拉起 01r1/02r1/03r1/04r1/05r1/06r1/07r1/08r1/11r1/09r1 各一遍（带 netguard），故上面 11 次即最终态。
+# 3) 无任何脚本联网；正对照证明守卫会拦外部 connect 与外部 DNS。
+# 4) 未执行 00-snapshot-before.py（上一轮已采，且其脚本"已存在即拒绝"）。本轮基线是 00r1-baseline.py，同样"已存在即拒绝"。

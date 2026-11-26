@@ -1,0 +1,41 @@
+{
+  "case": "old formal entry (v2 recompute) vs synthetic v3 single-run binding",
+  "command": [
+    ".venv/Scripts/python.exe",
+    "tools/p2_h2_controlled_execute.py",
+    "recompute",
+    "--env-file",
+    "<TMP:repro-workspace:env-file>",
+    "--run-binding",
+    "<TMP:repro-workspace:json>",
+    "--run-index",
+    "0",
+    "--evidence-dir",
+    "<TMP:repro-workspace:dir>",
+    "--evidence-key-file",
+    "<TMP:repro-workspace:key-file>",
+    "--case-plan",
+    "<TMP:repro-workspace:json>",
+    "--holdout-root",
+    "<TMP:repro-workspace:dir>",
+    "--holdout-key-file",
+    "<TMP:repro-workspace:key-file>",
+    "--project-total-limit-cny",
+    "40"
+  ],
+  "exit_code": 2,
+  "outbound": 0,
+  "payload": {
+    "detail": "",
+    "error_code": "run_binding_invalid",
+    "ok": false,
+    "real_sends": 0,
+    "schema_version": "p2-h2-controlled-entry/v0.1",
+    "secrets_printed": false
+  },
+  "real_model_calls": 0,
+  "repo_env_read": false,
+  "schema_version": "p2-fu2-reproduction/v0.1",
+  "stderr_lines": 0,
+  "stdout_lines": 1
+}

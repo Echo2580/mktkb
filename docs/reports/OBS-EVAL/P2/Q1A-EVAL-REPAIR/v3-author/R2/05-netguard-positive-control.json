@@ -1,0 +1,69 @@
+{
+ "guard_version": "v3r2-strict-netguard/v1",
+ "blocked": 6,
+ "total": 6,
+ "real_connects": 0,
+ "probes": [
+  {
+   "probe": "example.com:80",
+   "blocked": true
+  },
+  {
+   "probe": "example.com:443",
+   "blocked": true
+  },
+  {
+   "probe": "127.0.0.1:7897",
+   "blocked": true
+  },
+  {
+   "probe": "getaddrinfo example.com",
+   "blocked": true
+  },
+  {
+   "probe": "urllib http://example.com/",
+   "blocked": true
+  },
+  {
+   "probe": "http.client example.com:80",
+   "blocked": true
+  }
+ ],
+ "counters": {
+  "socket_connect": 0,
+  "socket_connect_ex": 0,
+  "create_connection": 3,
+  "dns_getaddrinfo": 1,
+  "http_client_connect": 1,
+  "urllib_urlopen": 1,
+  "blocked": 6,
+  "installed": true,
+  "guard_version": "v3r2-strict-netguard/v1"
+ },
+ "details": [
+  {
+   "kind": "create_connection",
+   "detail": "('example.com', 80)"
+  },
+  {
+   "kind": "create_connection",
+   "detail": "('example.com', 443)"
+  },
+  {
+   "kind": "create_connection",
+   "detail": "('127.0.0.1', 7897)"
+  },
+  {
+   "kind": "dns_getaddrinfo",
+   "detail": "example.com"
+  },
+  {
+   "kind": "urllib_urlopen",
+   "detail": "http://example.com/"
+  },
+  {
+   "kind": "http_client_connect",
+   "detail": "example.com:80"
+  }
+ ]
+}

@@ -1,0 +1,3252 @@
+{
+ "bindings": {
+  "assignment_sha256": "independent-assignment_sha256",
+  "code_version": "independent-code_version",
+  "config_sha256": "independent-config_sha256",
+  "custody_sha256": "independent-custody_sha256",
+  "dataset_version": "independent-synthetic-v1",
+  "fixture_kind": "local_mock",
+  "index_revision": "3",
+  "label_version": "independent-v1",
+  "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "pipeline_version": "d3ca88d2c515",
+  "plan_id": "independent-plan_id",
+  "plan_sha256": "independent-plan_sha256",
+  "run_id": "independent-chain",
+  "scenario_contract_sha256": "independent-scenario_contract_sha256",
+  "scenario_id": "independent-scenario_id",
+  "suite": "p2-holdout"
+ },
+ "evidence": [
+  {
+   "adapter_components": {
+    "dataset_version": "independent-synthetic-v1",
+    "index_revision": 3,
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "provider": {
+     "chat": {
+      "model": "mock-chat",
+      "provider": "p2-mock",
+      "transport": "MockTransport"
+     },
+     "embedding": {
+      "impl": "MockEmbeddingProvider",
+      "model": "text-embedding-v4",
+      "provider": "p2-mock"
+     },
+     "ocr": "disabled",
+     "rerank": {
+      "impl": "MockReranker",
+      "model": "gte-rerank-v2",
+      "provider": "p2-mock"
+     }
+    },
+    "suite": "p2-holdout"
+   },
+   "bindings": {
+    "assignment_sha256": "independent-assignment_sha256",
+    "code_version": "independent-code_version",
+    "config_sha256": "independent-config_sha256",
+    "custody_sha256": "independent-custody_sha256",
+    "dataset_version": "independent-synthetic-v1",
+    "fixture_kind": "local_mock",
+    "index_revision": "3",
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "plan_id": "independent-plan_id",
+    "plan_sha256": "independent-plan_sha256",
+    "run_id": "independent-chain",
+    "scenario_contract_sha256": "independent-scenario_contract_sha256",
+    "scenario_id": "independent-scenario_id",
+    "suite": "p2-holdout"
+   },
+   "capture": {
+    "errors": [],
+    "event_count": 10,
+    "events": [
+     {
+      "kind": "claim_observed",
+      "payload": {
+       "attempt": 1,
+       "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "initial_revision": 3,
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "replay": false,
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "user_message_id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+       "user_message_seq": 1
+      },
+      "seq": 1
+     },
+     {
+      "kind": "context_observed",
+      "payload": {
+       "count": 0,
+       "empty": true,
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71"
+      },
+      "seq": 2
+     },
+     {
+      "kind": "query_state_observed",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "request_id": null,
+       "row_present": false,
+       "state_json": {},
+       "state_keys": [],
+       "stored_conversation_id": null,
+       "stored_user_id": null,
+       "turn": null,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 3
+     },
+     {
+      "kind": "plan_observed",
+      "payload": {
+       "as_of": "2026-09-01",
+       "clarification": false,
+       "enumerate": false,
+       "filters": {},
+       "include_future": false,
+       "mode": "document",
+       "path": "legacy",
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "state_as_of": "2026-09-01",
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "state_last_kind": null,
+       "state_pending_slot": null,
+       "terms": [
+        "独立",
+        "验收",
+        "入库",
+        "流程",
+        "一共",
+        "几步"
+       ]
+      },
+      "seq": 4
+     },
+     {
+      "kind": "query_state_saved",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "previous_conversation_id": null,
+       "previous_user_id": null,
+       "request_id": null,
+       "row_present": false,
+       "state_json": {
+        "as_of": "2026-09-01",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": null,
+        "field_roles": [],
+        "identifier": null,
+        "item": null,
+        "last_kind": null,
+        "last_question": "独立验收入库流程一共分哪几步？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 1,
+        "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+       },
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "turn": 1,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 5
+     },
+     {
+      "kind": "retrieval_observed",
+      "payload": {
+       "candidate": false,
+       "empty": false,
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "scope": "legacy_retrieve_initial",
+       "truncated": false,
+       "unit_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ]
+      },
+      "seq": 6
+     },
+     {
+      "kind": "model_input",
+      "payload": {
+       "context_entities": {},
+       "context_questions": [],
+       "evidence": [
+        {
+         "fields": {},
+         "source_id": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+         "text": "独立验收入库流程"
+        }
+       ],
+       "purpose": "answer",
+       "question": "独立验收入库流程一共分哪几步？",
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71"
+      },
+      "seq": 7
+     },
+     {
+      "kind": "model_output",
+      "payload": {
+       "error_code": null,
+       "provider_request_id": "sha256:9b3faaeca53d617beae12e16feee937a",
+       "purpose": "answer",
+       "query_terms": [],
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "retryable": false,
+       "source_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ],
+       "status": "ok",
+       "text": "独立验收入库流程",
+       "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 64,
+        "total_tokens": 96
+       }
+      },
+      "seq": 8
+     },
+     {
+      "kind": "answer_result",
+      "payload": {
+       "candidates": 0,
+       "conflicts": 0,
+       "error_code": null,
+       "kind": "answer",
+       "missing_fields": [],
+       "reason": null,
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "source_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ],
+       "text": "独立验收入库流程"
+      },
+      "seq": 9
+     },
+     {
+      "kind": "commit_observed",
+      "payload": {
+       "assistant_seq": 2,
+       "error_code": null,
+       "kind": "answer",
+       "knowledge_changed": false,
+       "message_id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+       "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+       "requested_kind": "answer",
+       "revision_after": 3,
+       "revision_before": 3,
+       "source_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ],
+       "text": "独立验收入库流程"
+      },
+      "seq": 10
+     }
+    ],
+    "schema_version": "mktkb.eval-capture/v0.1",
+    "seq": 10,
+    "sink_id": "d0b97639c1ec43b48e869890adbe4334",
+    "status": "active"
+   },
+   "completeness": {
+    "errors": [],
+    "missing_event_kinds": [],
+    "replay": false,
+    "required_event_kinds": [
+     "claim_observed",
+     "context_observed",
+     "plan_observed",
+     "answer_result",
+     "commit_observed"
+    ],
+    "scoring_readiness": {
+     "four_axis": true,
+     "quality_rescore": true,
+     "reasons": []
+    },
+    "status": "complete"
+   },
+   "db_projection": {
+    "capture_revision": 3,
+    "conversation": {
+     "created_at": "2026-11-14T13:54:32.352623",
+     "deleted": false,
+     "deleted_at": null,
+     "id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "updated_at": "2026-11-14T13:54:32.398711"
+    },
+    "errors": [],
+    "message_sources": [
+     {
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "message_id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+      "source_id": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24"
+     }
+    ],
+    "messages": [
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.359970",
+      "error_code": null,
+      "id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 1,
+      "text": "独立验收入库流程一共分哪几步？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.398711",
+      "error_code": null,
+      "id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+      "kind": "answer",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 2,
+      "text": "独立验收入库流程"
+     }
+    ],
+    "pre_revision": 3,
+    "query_states": [
+     {
+      "keys": [
+       "as_of",
+       "candidates",
+       "channel",
+       "conversation_id",
+       "doc_id",
+       "doc_title",
+       "enumerate",
+       "field_role",
+       "field_roles",
+       "identifier",
+       "item",
+       "last_kind",
+       "last_question",
+       "page",
+       "page_size",
+       "pending_slot",
+       "price_type",
+       "product",
+       "store",
+       "stores",
+       "turn",
+       "user_id"
+      ],
+      "state_json": {
+       "as_of": "2026-09-01",
+       "candidates": [],
+       "channel": null,
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "doc_id": null,
+       "doc_title": null,
+       "enumerate": false,
+       "field_role": null,
+       "field_roles": [],
+       "identifier": null,
+       "item": null,
+       "last_kind": null,
+       "last_question": "独立验收入库流程一共分哪几步？",
+       "page": 1,
+       "page_size": 10,
+       "pending_slot": null,
+       "price_type": null,
+       "product": null,
+       "store": null,
+       "stores": [],
+       "turn": 1,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "stored_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "stored_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+     }
+    ],
+    "query_states_available": true,
+    "rag_business_date": "2026-09-01",
+    "request": {
+     "attempt": 1,
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "created_at": "2026-11-14T13:54:32.359970",
+     "error_code": null,
+     "error_retryable": false,
+     "finished_at": "2026-11-14T13:54:32.398711",
+     "id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+     "payload_sha256": "af522915d4f778447418772f34eab6506324bc4d0e5f0f2d2825f7f2e1eed3cb",
+     "result_message_id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+     "started_at": "2026-11-14T13:54:32.359970",
+     "status": "succeeded",
+     "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "user_message_id": "f9c700eb-6dba-4580-9945-27b3517f3165"
+    },
+    "schema_version": "p2-hard-evidence-capture-db/v0.1",
+    "snapshot_utc": "2026-11-14T13:54:32+00:00",
+    "truncations": [],
+    "units": [
+     {
+      "active": true,
+      "active_version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "document_name": "synth_flow.docx",
+      "entity_filters": {},
+      "entity_key": null,
+      "entity_type": null,
+      "kind": "paragraph",
+      "locator": {
+       "heading": "独立验收入库流程",
+       "paragraph": 1,
+       "style": "Heading 1"
+      },
+      "published_at": "2026-11-14T13:54:32.324121",
+      "raw_fields": {},
+      "text": "独立验收入库流程",
+      "unit_id": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+      "unit_key": "paragraph:1",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "version_number": 1,
+      "version_state": "published"
+     }
+    ],
+    "unresolved_unit_ids": []
+   },
+   "fixture_kind": "local_mock",
+   "runtime_snapshot": {
+    "binding": {
+     "capture_revision": 3,
+     "client_request_id": "372ea1f9-5463-4ea7-9fae-5591c9f5a410",
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "post_revision": 3,
+     "pre_revision": 3
+    },
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "product_response": {
+     "availability": "available",
+     "error_code": null,
+     "http_status": 200,
+     "kind": "answer",
+     "message_id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+     "missing_fields": [],
+     "pagination": null,
+     "reason": null,
+     "request_id": "3b4d7211-4c21-475e-85a0-bc75b007fb71",
+     "retryable": false,
+     "revision": 3,
+     "sources": [
+      {
+       "document_name": "synth_flow.docx",
+       "locator": {
+        "heading": "独立验收入库流程",
+        "paragraph": 1,
+        "style": "Heading 1"
+       },
+       "published_at": "2026-11-14T13:54:32.324121",
+       "source_id": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+       "status": "active",
+       "version_number": 1
+      }
+     ],
+     "timed_out": false
+    },
+    "retrieval_use": {
+     "availability": "complete",
+     "candidate_observation": {
+      "availability": "observed",
+      "reason": null
+     },
+     "candidates": [
+      {
+       "candidate": false,
+       "empty": false,
+       "scope": "legacy_retrieve_initial",
+       "seq": 6,
+       "truncated": false,
+       "unit_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ]
+      }
+     ],
+     "direct_rag_citations": [],
+     "direct_rag_facts": [],
+     "final_citations": [
+      "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+     ],
+     "inheritance": [],
+     "model_evidence": [
+      {
+       "purpose": "answer",
+       "seq": 7,
+       "unit_ids": [
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+       ]
+      }
+     ],
+     "reason": null
+    },
+    "schema_version": "p2-runtime-snapshot/v0.1",
+    "trace": {
+     "availability": "available",
+     "model_failure_reason": "unknown",
+     "outcome": "answer",
+     "path": "legacy",
+     "reason": null,
+     "spans": [
+      "intent_parse",
+      "retrieve",
+      "model_answer",
+      "answer_validate",
+      "commit"
+     ],
+     "status": "ok",
+     "trace_id": "8ec9448dffae4ae39cd609bf808e9040"
+    }
+   },
+   "schema_version": "p2-hard-evidence-capture/v0.3",
+   "turn": {
+    "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "capture_revision": 3,
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "client_request_id": "372ea1f9-5463-4ea7-9fae-5591c9f5a410",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "http_status": 200,
+    "post_revision": 3,
+    "pre_revision": 3,
+    "question_sha256": "1525362d369df14a485dd90ca638d25bc334bb6e374937c3480d00d502ba04e6",
+    "started_utc": "2026-11-14T13:54:32+00:00",
+    "timed_out": false,
+    "turn_index": 0
+   }
+  },
+  {
+   "adapter_components": {
+    "dataset_version": "independent-synthetic-v1",
+    "index_revision": 3,
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "provider": {
+     "chat": {
+      "model": "mock-chat",
+      "provider": "p2-mock",
+      "transport": "MockTransport"
+     },
+     "embedding": {
+      "impl": "MockEmbeddingProvider",
+      "model": "text-embedding-v4",
+      "provider": "p2-mock"
+     },
+     "ocr": "disabled",
+     "rerank": {
+      "impl": "MockReranker",
+      "model": "gte-rerank-v2",
+      "provider": "p2-mock"
+     }
+    },
+    "suite": "p2-holdout"
+   },
+   "bindings": {
+    "assignment_sha256": "independent-assignment_sha256",
+    "code_version": "independent-code_version",
+    "config_sha256": "independent-config_sha256",
+    "custody_sha256": "independent-custody_sha256",
+    "dataset_version": "independent-synthetic-v1",
+    "fixture_kind": "local_mock",
+    "index_revision": "3",
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "plan_id": "independent-plan_id",
+    "plan_sha256": "independent-plan_sha256",
+    "run_id": "independent-chain",
+    "scenario_contract_sha256": "independent-scenario_contract_sha256",
+    "scenario_id": "independent-scenario_id",
+    "suite": "p2-holdout"
+   },
+   "capture": {
+    "errors": [],
+    "event_count": 11,
+    "events": [
+     {
+      "kind": "claim_observed",
+      "payload": {
+       "attempt": 1,
+       "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "initial_revision": 3,
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "replay": false,
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "user_message_id": "c4bd3c6f-d454-4f60-8297-e84cab0c4704",
+       "user_message_seq": 3
+      },
+      "seq": 1
+     },
+     {
+      "kind": "context_observed",
+      "payload": {
+       "count": 1,
+       "empty": false,
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f"
+      },
+      "seq": 2
+     },
+     {
+      "kind": "context_message",
+      "payload": {
+       "message_id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+       "origin": "history_user_question",
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "role": "user",
+       "seq": 1,
+       "text": "独立验收入库流程一共分哪几步？"
+      },
+      "seq": 3
+     },
+     {
+      "kind": "query_state_observed",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "request_id": null,
+       "row_present": true,
+       "state_json": {
+        "as_of": "2026-09-01",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": null,
+        "field_roles": [],
+        "identifier": null,
+        "item": null,
+        "last_kind": null,
+        "last_question": "独立验收入库流程一共分哪几步？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 1,
+        "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+       },
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "stored_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "stored_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "turn": 1,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 4
+     },
+     {
+      "kind": "plan_observed",
+      "payload": {
+       "as_of": "2026-09-01",
+       "clarification": false,
+       "enumerate": false,
+       "filters": {
+        "item": "折叠桌"
+       },
+       "include_future": false,
+       "mode": "record",
+       "path": "legacy",
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "state_as_of": "2026-09-01",
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "state_last_kind": null,
+       "state_pending_slot": null,
+       "terms": [
+        "独立",
+        "验收",
+        "仓储",
+        "折叠桌",
+        "数量"
+       ]
+      },
+      "seq": 5
+     },
+     {
+      "kind": "query_state_saved",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "previous_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "previous_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "request_id": null,
+       "row_present": true,
+       "state_json": {
+        "as_of": "2026-09-01",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": "quantity",
+        "field_roles": [
+         "quantity"
+        ],
+        "identifier": null,
+        "item": "折叠桌",
+        "last_kind": null,
+        "last_question": "独立验收仓储里折叠桌的数量是多少？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 2,
+        "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+       },
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "turn": 2,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 6
+     },
+     {
+      "kind": "retrieval_observed",
+      "payload": {
+       "candidate": false,
+       "empty": false,
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "scope": "legacy_retrieve_initial",
+       "truncated": false,
+       "unit_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ]
+      },
+      "seq": 7
+     },
+     {
+      "kind": "model_input",
+      "payload": {
+       "context_entities": {
+        "item": "折叠桌"
+       },
+       "context_questions": [
+        "独立验收入库流程一共分哪几步？"
+       ],
+       "evidence": [
+        {
+         "fields": {
+          "数量": 12,
+          "物品名称": "折叠桌",
+          "编号": "W01",
+          "门店": "城北店"
+         },
+         "source_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+         "text": "编号: W01 | 物品名称: 折叠桌 | 门店: 城北店 | 数量: 12"
+        }
+       ],
+       "purpose": "answer",
+       "question": "独立验收仓储里折叠桌的数量是多少？",
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f"
+      },
+      "seq": 8
+     },
+     {
+      "kind": "model_output",
+      "payload": {
+       "error_code": null,
+       "provider_request_id": "sha256:b5115c8f7be41f7567b142d61f56945a",
+       "purpose": "answer",
+       "query_terms": [],
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "retryable": false,
+       "source_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ],
+       "status": "ok",
+       "text": "编号：W01；物品名称：折叠桌；门店：城北店",
+       "usage": {
+        "completion_tokens": 32,
+        "prompt_tokens": 64,
+        "total_tokens": 96
+       }
+      },
+      "seq": 9
+     },
+     {
+      "kind": "answer_result",
+      "payload": {
+       "candidates": 0,
+       "conflicts": 0,
+       "error_code": null,
+       "kind": "answer",
+       "missing_fields": [],
+       "reason": null,
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "source_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ],
+       "text": "编号：W01；物品名称：折叠桌；门店：城北店"
+      },
+      "seq": 10
+     },
+     {
+      "kind": "commit_observed",
+      "payload": {
+       "assistant_seq": 4,
+       "error_code": null,
+       "kind": "answer",
+       "knowledge_changed": false,
+       "message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+       "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+       "requested_kind": "answer",
+       "revision_after": 3,
+       "revision_before": 3,
+       "source_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ],
+       "text": "编号：W01；物品名称：折叠桌；门店：城北店"
+      },
+      "seq": 11
+     }
+    ],
+    "schema_version": "mktkb.eval-capture/v0.1",
+    "seq": 11,
+    "sink_id": "9495575f0ef3475ba733aa3db84e0871",
+    "status": "active"
+   },
+   "completeness": {
+    "errors": [],
+    "missing_event_kinds": [],
+    "replay": false,
+    "required_event_kinds": [
+     "claim_observed",
+     "context_observed",
+     "plan_observed",
+     "answer_result",
+     "commit_observed"
+    ],
+    "scoring_readiness": {
+     "four_axis": true,
+     "quality_rescore": true,
+     "reasons": []
+    },
+    "status": "complete"
+   },
+   "db_projection": {
+    "capture_revision": 3,
+    "conversation": {
+     "created_at": "2026-11-14T13:54:32.352623",
+     "deleted": false,
+     "deleted_at": null,
+     "id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "updated_at": "2026-11-14T13:54:32.436899"
+    },
+    "errors": [],
+    "message_sources": [
+     {
+      "document_id": "f8dbf2d8-d4cc-4438-b838-9bc4d513848e",
+      "message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+      "source_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+      "version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba"
+     }
+    ],
+    "messages": [
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.359970",
+      "error_code": null,
+      "id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 1,
+      "text": "独立验收入库流程一共分哪几步？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.398711",
+      "error_code": null,
+      "id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+      "kind": "answer",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 2,
+      "text": "独立验收入库流程"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.420104",
+      "error_code": null,
+      "id": "c4bd3c6f-d454-4f60-8297-e84cab0c4704",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 3,
+      "text": "独立验收仓储里折叠桌的数量是多少？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.436899",
+      "error_code": null,
+      "id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+      "kind": "answer",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 4,
+      "text": "编号：W01；物品名称：折叠桌；门店：城北店"
+     }
+    ],
+    "pre_revision": 3,
+    "query_states": [
+     {
+      "keys": [
+       "as_of",
+       "candidates",
+       "channel",
+       "conversation_id",
+       "doc_id",
+       "doc_title",
+       "enumerate",
+       "field_role",
+       "field_roles",
+       "identifier",
+       "item",
+       "last_kind",
+       "last_question",
+       "page",
+       "page_size",
+       "pending_slot",
+       "price_type",
+       "product",
+       "store",
+       "stores",
+       "turn",
+       "user_id"
+      ],
+      "state_json": {
+       "as_of": "2026-09-01",
+       "candidates": [],
+       "channel": null,
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "doc_id": null,
+       "doc_title": null,
+       "enumerate": false,
+       "field_role": "quantity",
+       "field_roles": [
+        "quantity"
+       ],
+       "identifier": null,
+       "item": "折叠桌",
+       "last_kind": null,
+       "last_question": "独立验收仓储里折叠桌的数量是多少？",
+       "page": 1,
+       "page_size": 10,
+       "pending_slot": null,
+       "price_type": null,
+       "product": null,
+       "store": null,
+       "stores": [],
+       "turn": 2,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "stored_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "stored_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+     }
+    ],
+    "query_states_available": true,
+    "rag_business_date": "2026-09-01",
+    "request": {
+     "attempt": 1,
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "created_at": "2026-11-14T13:54:32.420104",
+     "error_code": null,
+     "error_retryable": false,
+     "finished_at": "2026-11-14T13:54:32.436899",
+     "id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+     "payload_sha256": "7df8e7c82933fdcf8af44a0e3d5e8f8fe6dff08b1a352bd44d0066f7fbf6e165",
+     "result_message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+     "started_at": "2026-11-14T13:54:32.420104",
+     "status": "succeeded",
+     "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "user_message_id": "c4bd3c6f-d454-4f60-8297-e84cab0c4704"
+    },
+    "schema_version": "p2-hard-evidence-capture-db/v0.1",
+    "snapshot_utc": "2026-11-14T13:54:32+00:00",
+    "truncations": [],
+    "units": [
+     {
+      "active": true,
+      "active_version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "f8dbf2d8-d4cc-4438-b838-9bc4d513848e",
+      "document_name": "synth_stock.xlsx",
+      "entity_filters": {
+       "item": "折叠桌",
+       "item_id": "W01",
+       "store": "城北店"
+      },
+      "entity_key": "item|id:w01",
+      "entity_type": "item",
+      "kind": "table_row",
+      "locator": {
+       "cell_types": {
+        "数量": "n",
+        "物品名称": "s",
+        "编号": "s",
+        "门店": "s"
+       },
+       "cells": [
+        {
+         "column": "A",
+         "column_index": 1,
+         "display": "W01",
+         "header": "编号",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "B",
+         "column_index": 2,
+         "display": "折叠桌",
+         "header": "物品名称",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "C",
+         "column_index": 3,
+         "display": "城北店",
+         "header": "门店",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "D",
+         "column_index": 4,
+         "display": "12",
+         "header": "数量",
+         "number_format": "General",
+         "raw_type": "n"
+        }
+       ],
+       "header_row": 1,
+       "row": 2,
+       "sheet": "独立验收仓储"
+      },
+      "published_at": "2026-11-14T13:54:32.191910",
+      "raw_fields": {
+       "数量": 12,
+       "物品名称": "折叠桌",
+       "编号": "W01",
+       "门店": "城北店"
+      },
+      "text": "编号: W01 | 物品名称: 折叠桌 | 门店: 城北店 | 数量: 12",
+      "unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+      "unit_key": "sheet:独立验收仓储:row:2",
+      "version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "version_number": 1,
+      "version_state": "published"
+     }
+    ],
+    "unresolved_unit_ids": []
+   },
+   "fixture_kind": "local_mock",
+   "runtime_snapshot": {
+    "binding": {
+     "capture_revision": 3,
+     "client_request_id": "3335856a-68a1-442c-a8a3-29120ddc60c5",
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "post_revision": 3,
+     "pre_revision": 3
+    },
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "product_response": {
+     "availability": "available",
+     "error_code": null,
+     "http_status": 200,
+     "kind": "answer",
+     "message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+     "missing_fields": [],
+     "pagination": null,
+     "reason": null,
+     "request_id": "16144769-9ca3-45f5-ad52-88bfe295941f",
+     "retryable": false,
+     "revision": 3,
+     "sources": [
+      {
+       "document_name": "synth_stock.xlsx",
+       "locator": {
+        "cell_types": {
+         "数量": "n",
+         "物品名称": "s",
+         "编号": "s",
+         "门店": "s"
+        },
+        "cells": [
+         {
+          "column": "A",
+          "column_index": 1,
+          "display": "W01",
+          "header": "编号",
+          "number_format": "General",
+          "raw_type": "s"
+         },
+         {
+          "column": "B",
+          "column_index": 2,
+          "display": "折叠桌",
+          "header": "物品名称",
+          "number_format": "General",
+          "raw_type": "s"
+         },
+         {
+          "column": "C",
+          "column_index": 3,
+          "display": "城北店",
+          "header": "门店",
+          "number_format": "General",
+          "raw_type": "s"
+         },
+         {
+          "column": "D",
+          "column_index": 4,
+          "display": "12",
+          "header": "数量",
+          "number_format": "General",
+          "raw_type": "n"
+         }
+        ],
+        "header_row": 1,
+        "row": 2,
+        "sheet": "独立验收仓储"
+       },
+       "published_at": "2026-11-14T13:54:32.191910",
+       "source_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+       "status": "active",
+       "version_number": 1
+      }
+     ],
+     "timed_out": false
+    },
+    "retrieval_use": {
+     "availability": "complete",
+     "candidate_observation": {
+      "availability": "observed",
+      "reason": null
+     },
+     "candidates": [
+      {
+       "candidate": false,
+       "empty": false,
+       "scope": "legacy_retrieve_initial",
+       "seq": 7,
+       "truncated": false,
+       "unit_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ]
+      }
+     ],
+     "direct_rag_citations": [],
+     "direct_rag_facts": [],
+     "final_citations": [
+      "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+     ],
+     "inheritance": [],
+     "model_evidence": [
+      {
+       "purpose": "answer",
+       "seq": 8,
+       "unit_ids": [
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+       ]
+      }
+     ],
+     "reason": null
+    },
+    "schema_version": "p2-runtime-snapshot/v0.1",
+    "trace": {
+     "availability": "available",
+     "model_failure_reason": "unknown",
+     "outcome": "answer",
+     "path": "legacy",
+     "reason": null,
+     "spans": [
+      "intent_parse",
+      "retrieve",
+      "model_answer",
+      "answer_validate",
+      "commit"
+     ],
+     "status": "ok",
+     "trace_id": "d366173bc62d40b695e5363d8c224c6e"
+    }
+   },
+   "schema_version": "p2-hard-evidence-capture/v0.3",
+   "turn": {
+    "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "capture_revision": 3,
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "client_request_id": "3335856a-68a1-442c-a8a3-29120ddc60c5",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "http_status": 200,
+    "post_revision": 3,
+    "pre_revision": 3,
+    "question_sha256": "1839082d7de89c75aa3ab2250b065ee6ade4b5c38828d521842a6d7e4b52b6cc",
+    "started_utc": "2026-11-14T13:54:32+00:00",
+    "timed_out": false,
+    "turn_index": 1
+   }
+  },
+  {
+   "adapter_components": {
+    "dataset_version": "independent-synthetic-v1",
+    "index_revision": 3,
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "provider": {
+     "chat": {
+      "model": "mock-chat",
+      "provider": "p2-mock",
+      "transport": "MockTransport"
+     },
+     "embedding": {
+      "impl": "MockEmbeddingProvider",
+      "model": "text-embedding-v4",
+      "provider": "p2-mock"
+     },
+     "ocr": "disabled",
+     "rerank": {
+      "impl": "MockReranker",
+      "model": "gte-rerank-v2",
+      "provider": "p2-mock"
+     }
+    },
+    "suite": "p2-holdout"
+   },
+   "bindings": {
+    "assignment_sha256": "independent-assignment_sha256",
+    "code_version": "independent-code_version",
+    "config_sha256": "independent-config_sha256",
+    "custody_sha256": "independent-custody_sha256",
+    "dataset_version": "independent-synthetic-v1",
+    "fixture_kind": "local_mock",
+    "index_revision": "3",
+    "label_version": "independent-v1",
+    "manifest_sha256": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+    "pipeline_version": "d3ca88d2c515",
+    "plan_id": "independent-plan_id",
+    "plan_sha256": "independent-plan_sha256",
+    "run_id": "independent-chain",
+    "scenario_contract_sha256": "independent-scenario_contract_sha256",
+    "scenario_id": "independent-scenario_id",
+    "suite": "p2-holdout"
+   },
+   "capture": {
+    "errors": [],
+    "event_count": 13,
+    "events": [
+     {
+      "kind": "claim_observed",
+      "payload": {
+       "attempt": 1,
+       "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "initial_revision": 3,
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "replay": false,
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "user_message_id": "a364589c-cd8e-4c90-a8a8-d72e66ac8727",
+       "user_message_seq": 5
+      },
+      "seq": 1
+     },
+     {
+      "kind": "context_observed",
+      "payload": {
+       "count": 2,
+       "empty": false,
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e"
+      },
+      "seq": 2
+     },
+     {
+      "kind": "context_message",
+      "payload": {
+       "message_id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+       "origin": "history_user_question",
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "role": "user",
+       "seq": 1,
+       "text": "独立验收入库流程一共分哪几步？"
+      },
+      "seq": 3
+     },
+     {
+      "kind": "context_message",
+      "payload": {
+       "message_id": "c4bd3c6f-d454-4f60-8297-e84cab0c4704",
+       "origin": "history_user_question",
+       "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "role": "user",
+       "seq": 3,
+       "text": "独立验收仓储里折叠桌的数量是多少？"
+      },
+      "seq": 4
+     },
+     {
+      "kind": "entity_inheritance",
+      "payload": {
+       "entity_key": "城北店",
+       "entity_type": "store",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "source": "latest_assistant_message_source",
+       "source_message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+       "source_unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      },
+      "seq": 5
+     },
+     {
+      "kind": "entity_inheritance",
+      "payload": {
+       "entity_key": "折叠桌",
+       "entity_type": "item",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "source": "latest_assistant_message_source",
+       "source_message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+       "source_unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      },
+      "seq": 6
+     },
+     {
+      "kind": "query_state_observed",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "request_id": null,
+       "row_present": true,
+       "state_json": {
+        "as_of": "2026-09-01",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": "quantity",
+        "field_roles": [
+         "quantity"
+        ],
+        "identifier": null,
+        "item": "折叠桌",
+        "last_kind": null,
+        "last_question": "独立验收仓储里折叠桌的数量是多少？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 2,
+        "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+       },
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "stored_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "stored_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "turn": 2,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 7
+     },
+     {
+      "kind": "plan_observed",
+      "payload": {
+       "as_of": "2026-09-01",
+       "clarification": true,
+       "enumerate": false,
+       "filters": {},
+       "include_future": false,
+       "mode": "document",
+       "path": "legacy",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "state_as_of": "2026-09-01",
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "state_last_kind": null,
+       "state_pending_slot": null,
+       "terms": [
+        "编号",
+        "台账",
+        "折叠",
+        "哪个",
+        "门店"
+       ]
+      },
+      "seq": 8
+     },
+     {
+      "kind": "query_state_saved",
+      "payload": {
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "last_kind": null,
+       "pending_slot": null,
+       "previous_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "previous_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+       "request_id": null,
+       "row_present": true,
+       "state_json": {
+        "as_of": "2026-09-01",
+        "candidates": [],
+        "channel": null,
+        "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+        "doc_id": null,
+        "doc_title": null,
+        "enumerate": false,
+        "field_role": "location",
+        "field_roles": [
+         "location"
+        ],
+        "identifier": null,
+        "item": "折叠凳",
+        "last_kind": null,
+        "last_question": "无编号台账里折叠凳在哪个门店？",
+        "page": 1,
+        "page_size": 10,
+        "pending_slot": null,
+        "price_type": null,
+        "product": null,
+        "store": null,
+        "stores": [],
+        "turn": 3,
+        "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+       },
+       "state_keys": [
+        "as_of",
+        "candidates",
+        "channel",
+        "conversation_id",
+        "doc_id",
+        "doc_title",
+        "enumerate",
+        "field_role",
+        "field_roles",
+        "identifier",
+        "item",
+        "last_kind",
+        "last_question",
+        "page",
+        "page_size",
+        "pending_slot",
+        "price_type",
+        "product",
+        "store",
+        "stores",
+        "turn",
+        "user_id"
+       ],
+       "turn": 3,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "seq": 9
+     },
+     {
+      "kind": "retrieval_observed",
+      "payload": {
+       "candidate": true,
+       "empty": false,
+       "request_id": null,
+       "scope": "rag_candidate_upper_bound",
+       "truncated": false,
+       "unit_ids": [
+        "1f928d0f-269a-4671-9a3c-05d72c81290b",
+        "24c20b78-d622-48e9-9611-58849719931c",
+        "2d50a620-e7c5-4a20-8678-4b255830dd32",
+        "66418616-6e43-4a11-9e9f-9a027ae83edf",
+        "b4610071-958b-468e-92cf-8bd626d451f5",
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+        "d7be6a55-98ee-49ed-88d7-a28be8d8b044"
+       ]
+      },
+      "seq": 10
+     },
+     {
+      "kind": "retrieval_observed",
+      "payload": {
+       "candidate": false,
+       "empty": false,
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "scope": "legacy_retrieve_initial",
+       "truncated": false,
+       "unit_ids": [
+        "24c20b78-d622-48e9-9611-58849719931c"
+       ]
+      },
+      "seq": 11
+     },
+     {
+      "kind": "answer_result",
+      "payload": {
+       "candidates": 0,
+       "conflicts": 0,
+       "error_code": null,
+       "kind": "not_found",
+       "missing_fields": [
+        "位置"
+       ],
+       "reason": null,
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "source_ids": [],
+       "text": "资料中未记录：位置；记录缺失不等于服务异常，请核对字段名称或改问其它字段。"
+      },
+      "seq": 12
+     },
+     {
+      "kind": "commit_observed",
+      "payload": {
+       "assistant_seq": 6,
+       "error_code": null,
+       "kind": "not_found",
+       "knowledge_changed": false,
+       "message_id": "9a10d52d-53c9-4827-941e-ef001ce48041",
+       "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+       "requested_kind": "not_found",
+       "revision_after": 3,
+       "revision_before": 3,
+       "source_ids": [],
+       "text": "资料中未记录：位置；记录缺失不等于服务异常，请核对字段名称或改问其它字段。"
+      },
+      "seq": 13
+     }
+    ],
+    "schema_version": "mktkb.eval-capture/v0.1",
+    "seq": 13,
+    "sink_id": "927a1488dd5743a4965fc0b7256eb0a7",
+    "status": "active"
+   },
+   "completeness": {
+    "errors": [],
+    "missing_event_kinds": [],
+    "replay": false,
+    "required_event_kinds": [
+     "claim_observed",
+     "context_observed",
+     "plan_observed",
+     "answer_result",
+     "commit_observed"
+    ],
+    "scoring_readiness": {
+     "four_axis": true,
+     "quality_rescore": true,
+     "reasons": []
+    },
+    "status": "complete"
+   },
+   "db_projection": {
+    "capture_revision": 3,
+    "conversation": {
+     "created_at": "2026-11-14T13:54:32.352623",
+     "deleted": false,
+     "deleted_at": null,
+     "id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "updated_at": "2026-11-14T13:54:32.492313"
+    },
+    "errors": [],
+    "message_sources": [],
+    "messages": [
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.359970",
+      "error_code": null,
+      "id": "f9c700eb-6dba-4580-9945-27b3517f3165",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 1,
+      "text": "独立验收入库流程一共分哪几步？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.398711",
+      "error_code": null,
+      "id": "580d4c6e-2e80-4e11-a3b5-34b14fa1c582",
+      "kind": "answer",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 2,
+      "text": "独立验收入库流程"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.420104",
+      "error_code": null,
+      "id": "c4bd3c6f-d454-4f60-8297-e84cab0c4704",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 3,
+      "text": "独立验收仓储里折叠桌的数量是多少？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.436899",
+      "error_code": null,
+      "id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+      "kind": "answer",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 4,
+      "text": "编号：W01；物品名称：折叠桌；门店：城北店"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.454370",
+      "error_code": null,
+      "id": "a364589c-cd8e-4c90-a8a8-d72e66ac8727",
+      "kind": null,
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": null,
+      "role": "user",
+      "seq": 5,
+      "text": "无编号台账里折叠凳在哪个门店？"
+     },
+     {
+      "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "created_at": "2026-11-14T13:54:32.492313",
+      "error_code": null,
+      "id": "9a10d52d-53c9-4827-941e-ef001ce48041",
+      "kind": "not_found",
+      "owner_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+      "revision": 3,
+      "role": "assistant",
+      "seq": 6,
+      "text": "资料中未记录：位置；记录缺失不等于服务异常，请核对字段名称或改问其它字段。"
+     }
+    ],
+    "pre_revision": 3,
+    "query_states": [
+     {
+      "keys": [
+       "as_of",
+       "candidates",
+       "channel",
+       "conversation_id",
+       "doc_id",
+       "doc_title",
+       "enumerate",
+       "field_role",
+       "field_roles",
+       "identifier",
+       "item",
+       "last_kind",
+       "last_question",
+       "page",
+       "page_size",
+       "pending_slot",
+       "price_type",
+       "product",
+       "store",
+       "stores",
+       "turn",
+       "user_id"
+      ],
+      "state_json": {
+       "as_of": "2026-09-01",
+       "candidates": [],
+       "channel": null,
+       "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+       "doc_id": null,
+       "doc_title": null,
+       "enumerate": false,
+       "field_role": "location",
+       "field_roles": [
+        "location"
+       ],
+       "identifier": null,
+       "item": "折叠凳",
+       "last_kind": null,
+       "last_question": "无编号台账里折叠凳在哪个门店？",
+       "page": 1,
+       "page_size": 10,
+       "pending_slot": null,
+       "price_type": null,
+       "product": null,
+       "store": null,
+       "stores": [],
+       "turn": 3,
+       "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+      },
+      "stored_conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+      "stored_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace"
+     }
+    ],
+    "query_states_available": true,
+    "rag_business_date": "2026-09-01",
+    "request": {
+     "attempt": 1,
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "created_at": "2026-11-14T13:54:32.454370",
+     "error_code": null,
+     "error_retryable": false,
+     "finished_at": "2026-11-14T13:54:32.492313",
+     "id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+     "payload_sha256": "0cec118a5ccf9d9ee25fa957abd940cc4c21ddd39e41463cb85bf358117deb74",
+     "result_message_id": "9a10d52d-53c9-4827-941e-ef001ce48041",
+     "started_at": "2026-11-14T13:54:32.454370",
+     "status": "succeeded",
+     "user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+     "user_message_id": "a364589c-cd8e-4c90-a8a8-d72e66ac8727"
+    },
+    "schema_version": "p2-hard-evidence-capture-db/v0.1",
+    "snapshot_utc": "2026-11-14T13:54:32+00:00",
+    "truncations": [],
+    "units": [
+     {
+      "active": true,
+      "active_version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "f8dbf2d8-d4cc-4438-b838-9bc4d513848e",
+      "document_name": "synth_stock.xlsx",
+      "entity_filters": {
+       "item": "遮阳棚",
+       "item_id": "W03",
+       "store": "城北店"
+      },
+      "entity_key": "item|id:w03",
+      "entity_type": "item",
+      "kind": "table_row",
+      "locator": {
+       "cell_types": {
+        "数量": "n",
+        "物品名称": "s",
+        "编号": "s",
+        "门店": "s"
+       },
+       "cells": [
+        {
+         "column": "A",
+         "column_index": 1,
+         "display": "W03",
+         "header": "编号",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "B",
+         "column_index": 2,
+         "display": "遮阳棚",
+         "header": "物品名称",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "C",
+         "column_index": 3,
+         "display": "城北店",
+         "header": "门店",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "D",
+         "column_index": 4,
+         "display": "3",
+         "header": "数量",
+         "number_format": "General",
+         "raw_type": "n"
+        }
+       ],
+       "header_row": 1,
+       "row": 4,
+       "sheet": "独立验收仓储"
+      },
+      "published_at": "2026-11-14T13:54:32.191910",
+      "raw_fields": {
+       "数量": 3,
+       "物品名称": "遮阳棚",
+       "编号": "W03",
+       "门店": "城北店"
+      },
+      "text": "编号: W03 | 物品名称: 遮阳棚 | 门店: 城北店 | 数量: 3",
+      "unit_id": "1f928d0f-269a-4671-9a3c-05d72c81290b",
+      "unit_key": "sheet:独立验收仓储:row:4",
+      "version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "ca1588c6-4393-41ea-b558-3ae60d4ed57c",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "2fd937fa-63ba-4c9d-b234-cbd890d6da4d",
+      "document_name": "synth_loose.xlsx",
+      "entity_filters": {
+       "item": "折叠凳",
+       "store": "城北店"
+      },
+      "entity_key": "item|城北店|折叠凳|doc:2fd937fa-63ba-4c9d-b234-cbd890d6da4d|unit:24c20b78-d622-48e9-9611-58849719931c",
+      "entity_type": "item",
+      "kind": "table_row",
+      "locator": {
+       "cell_types": {
+        "物品名称": "s",
+        "物品编号": "s",
+        "门店": "s"
+       },
+       "cells": [
+        {
+         "column": "A",
+         "column_index": 1,
+         "display": "B-77",
+         "header": "物品编号",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "B",
+         "column_index": 2,
+         "display": "折叠凳",
+         "header": "物品名称",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "C",
+         "column_index": 3,
+         "display": "城北店",
+         "header": "门店",
+         "number_format": "General",
+         "raw_type": "s"
+        }
+       ],
+       "header_row": 1,
+       "row": 2,
+       "sheet": "无编号台账"
+      },
+      "published_at": "2026-11-14T13:54:32.255058",
+      "raw_fields": {
+       "物品名称": "折叠凳",
+       "物品编号": "B-77",
+       "门店": "城北店"
+      },
+      "text": "物品编号: B-77 | 物品名称: 折叠凳 | 门店: 城北店",
+      "unit_id": "24c20b78-d622-48e9-9611-58849719931c",
+      "unit_key": "sheet:无编号台账:row:2",
+      "version_id": "ca1588c6-4393-41ea-b558-3ae60d4ed57c",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "document_name": "synth_flow.docx",
+      "entity_filters": {},
+      "entity_key": null,
+      "entity_type": null,
+      "kind": "paragraph",
+      "locator": {
+       "heading": "独立验收入库流程",
+       "paragraph": 2,
+       "style": "Normal"
+      },
+      "published_at": "2026-11-14T13:54:32.324121",
+      "raw_fields": {},
+      "text": "第一步：收货登记，核对运单与实物数量。",
+      "unit_id": "2d50a620-e7c5-4a20-8678-4b255830dd32",
+      "unit_key": "paragraph:2",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "document_name": "synth_flow.docx",
+      "entity_filters": {},
+      "entity_key": null,
+      "entity_type": null,
+      "kind": "paragraph",
+      "locator": {
+       "heading": "独立验收入库流程",
+       "paragraph": 4,
+       "style": "Normal"
+      },
+      "published_at": "2026-11-14T13:54:32.324121",
+      "raw_fields": {},
+      "text": "第三步：分区上架，更新库存记录。",
+      "unit_id": "66418616-6e43-4a11-9e9f-9a027ae83edf",
+      "unit_key": "paragraph:4",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "document_name": "synth_flow.docx",
+      "entity_filters": {},
+      "entity_key": null,
+      "entity_type": null,
+      "kind": "paragraph",
+      "locator": {
+       "heading": "独立验收入库流程",
+       "paragraph": 3,
+       "style": "Normal"
+      },
+      "published_at": "2026-11-14T13:54:32.324121",
+      "raw_fields": {},
+      "text": "第二步：外观质检，记录破损情况。",
+      "unit_id": "b4610071-958b-468e-92cf-8bd626d451f5",
+      "unit_key": "paragraph:3",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "9b58ee6e-e401-4ea0-871a-f5c0f5124cec",
+      "document_name": "synth_flow.docx",
+      "entity_filters": {},
+      "entity_key": null,
+      "entity_type": null,
+      "kind": "paragraph",
+      "locator": {
+       "heading": "独立验收入库流程",
+       "paragraph": 1,
+       "style": "Heading 1"
+      },
+      "published_at": "2026-11-14T13:54:32.324121",
+      "raw_fields": {},
+      "text": "独立验收入库流程",
+      "unit_id": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+      "unit_key": "paragraph:1",
+      "version_id": "e4aaeefe-de50-43fd-bd33-dd14e2af9d24",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "f8dbf2d8-d4cc-4438-b838-9bc4d513848e",
+      "document_name": "synth_stock.xlsx",
+      "entity_filters": {
+       "item": "折叠桌",
+       "item_id": "W01",
+       "store": "城北店"
+      },
+      "entity_key": "item|id:w01",
+      "entity_type": "item",
+      "kind": "table_row",
+      "locator": {
+       "cell_types": {
+        "数量": "n",
+        "物品名称": "s",
+        "编号": "s",
+        "门店": "s"
+       },
+       "cells": [
+        {
+         "column": "A",
+         "column_index": 1,
+         "display": "W01",
+         "header": "编号",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "B",
+         "column_index": 2,
+         "display": "折叠桌",
+         "header": "物品名称",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "C",
+         "column_index": 3,
+         "display": "城北店",
+         "header": "门店",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "D",
+         "column_index": 4,
+         "display": "12",
+         "header": "数量",
+         "number_format": "General",
+         "raw_type": "n"
+        }
+       ],
+       "header_row": 1,
+       "row": 2,
+       "sheet": "独立验收仓储"
+      },
+      "published_at": "2026-11-14T13:54:32.191910",
+      "raw_fields": {
+       "数量": 12,
+       "物品名称": "折叠桌",
+       "编号": "W01",
+       "门店": "城北店"
+      },
+      "text": "编号: W01 | 物品名称: 折叠桌 | 门店: 城北店 | 数量: 12",
+      "unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+      "unit_key": "sheet:独立验收仓储:row:2",
+      "version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "version_number": 1,
+      "version_state": "published"
+     },
+     {
+      "active": true,
+      "active_version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "date_fields": {},
+      "document_deleted": false,
+      "document_id": "f8dbf2d8-d4cc-4438-b838-9bc4d513848e",
+      "document_name": "synth_stock.xlsx",
+      "entity_filters": {
+       "item": "折叠椅",
+       "item_id": "W02",
+       "store": "城南店"
+      },
+      "entity_key": "item|id:w02",
+      "entity_type": "item",
+      "kind": "table_row",
+      "locator": {
+       "cell_types": {
+        "数量": "n",
+        "物品名称": "s",
+        "编号": "s",
+        "门店": "s"
+       },
+       "cells": [
+        {
+         "column": "A",
+         "column_index": 1,
+         "display": "W02",
+         "header": "编号",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "B",
+         "column_index": 2,
+         "display": "折叠椅",
+         "header": "物品名称",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "C",
+         "column_index": 3,
+         "display": "城南店",
+         "header": "门店",
+         "number_format": "General",
+         "raw_type": "s"
+        },
+        {
+         "column": "D",
+         "column_index": 4,
+         "display": "7",
+         "header": "数量",
+         "number_format": "General",
+         "raw_type": "n"
+        }
+       ],
+       "header_row": 1,
+       "row": 3,
+       "sheet": "独立验收仓储"
+      },
+      "published_at": "2026-11-14T13:54:32.191910",
+      "raw_fields": {
+       "数量": 7,
+       "物品名称": "折叠椅",
+       "编号": "W02",
+       "门店": "城南店"
+      },
+      "text": "编号: W02 | 物品名称: 折叠椅 | 门店: 城南店 | 数量: 7",
+      "unit_id": "d7be6a55-98ee-49ed-88d7-a28be8d8b044",
+      "unit_key": "sheet:独立验收仓储:row:3",
+      "version_id": "dd7ead1a-ceaf-4274-8779-d3208d6fdcba",
+      "version_number": 1,
+      "version_state": "published"
+     }
+    ],
+    "unresolved_unit_ids": []
+   },
+   "fixture_kind": "local_mock",
+   "runtime_snapshot": {
+    "binding": {
+     "capture_revision": 3,
+     "client_request_id": "a0d5cf3d-ab22-4836-9017-866b12459f5f",
+     "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+     "post_revision": 3,
+     "pre_revision": 3
+    },
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "product_response": {
+     "availability": "available",
+     "error_code": null,
+     "http_status": 200,
+     "kind": "not_found",
+     "message_id": "9a10d52d-53c9-4827-941e-ef001ce48041",
+     "missing_fields": [
+      "位置"
+     ],
+     "pagination": null,
+     "reason": null,
+     "request_id": "caa19a2d-02cf-4885-948e-3267e6380b2e",
+     "retryable": false,
+     "revision": 3,
+     "sources": [],
+     "timed_out": false
+    },
+    "retrieval_use": {
+     "availability": "complete",
+     "candidate_observation": {
+      "availability": "observed",
+      "reason": null
+     },
+     "candidates": [
+      {
+       "candidate": true,
+       "empty": false,
+       "scope": "rag_candidate_upper_bound",
+       "seq": 10,
+       "truncated": false,
+       "unit_ids": [
+        "1f928d0f-269a-4671-9a3c-05d72c81290b",
+        "24c20b78-d622-48e9-9611-58849719931c",
+        "2d50a620-e7c5-4a20-8678-4b255830dd32",
+        "66418616-6e43-4a11-9e9f-9a027ae83edf",
+        "b4610071-958b-468e-92cf-8bd626d451f5",
+        "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+        "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+        "d7be6a55-98ee-49ed-88d7-a28be8d8b044"
+       ]
+      },
+      {
+       "candidate": false,
+       "empty": false,
+       "scope": "legacy_retrieve_initial",
+       "seq": 11,
+       "truncated": false,
+       "unit_ids": [
+        "24c20b78-d622-48e9-9611-58849719931c"
+       ]
+      }
+     ],
+     "direct_rag_citations": [],
+     "direct_rag_facts": [],
+     "final_citations": [],
+     "inheritance": [
+      {
+       "entity_key": "城北店",
+       "entity_type": "store",
+       "source": "latest_assistant_message_source",
+       "source_message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+       "source_unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      },
+      {
+       "entity_key": "折叠桌",
+       "entity_type": "item",
+       "source": "latest_assistant_message_source",
+       "source_message_id": "cacaf4fb-3cf8-4dc4-aa72-5bb900b7d70a",
+       "source_unit_id": "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      }
+     ],
+     "model_evidence": [],
+     "reason": null
+    },
+    "schema_version": "p2-runtime-snapshot/v0.1",
+    "trace": {
+     "availability": "available",
+     "model_failure_reason": "unknown",
+     "outcome": "not_found",
+     "path": "legacy_with_rag_candidates",
+     "reason": null,
+     "spans": [
+      "intent_parse",
+      "recall",
+      "exact_recall",
+      "lexical_recall",
+      "vector_recall",
+      "embedding_query",
+      "fuse",
+      "hard_filter",
+      "rerank",
+      "recall",
+      "lexical_recall",
+      "vector_recall",
+      "embedding_query",
+      "fuse",
+      "hard_filter",
+      "rerank",
+      "retrieve",
+      "entity_conflict_check",
+      "commit"
+     ],
+     "status": "ok",
+     "trace_id": "af00f65bb03a49c69542179f15c94862"
+    }
+   },
+   "schema_version": "p2-hard-evidence-capture/v0.3",
+   "turn": {
+    "authenticated_user_id": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "capture_revision": 3,
+    "captured_utc": "2026-11-14T13:54:32+00:00",
+    "client_request_id": "a0d5cf3d-ab22-4836-9017-866b12459f5f",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "http_status": 200,
+    "post_revision": 3,
+    "pre_revision": 3,
+    "question_sha256": "1097cde9d9836902d35ae29d39747ce7813a1932cd4640ba828488d07f7b0b9f",
+    "started_utc": "2026-11-14T13:54:32+00:00",
+    "timed_out": false,
+    "turn_index": 2
+   }
+  }
+ ],
+ "snapshots": [
+  {
+   "contract_version": "p2-hard-evidence-capture-identity/v0.3",
+   "schema_version": "p2-runtime-identity-snapshot/v0.1",
+   "fixture_kind": "local_mock",
+   "captured_utc": "2026-11-14T12:00:00+00:00",
+   "source_evidence": {
+    "sha256": "6059e94dda8dac7a11fdb1e90fe3733d632cf7c40aad0cd95893001a245c6cb1",
+    "schema_version": "p2-hard-evidence-capture/v0.3",
+    "fixture_kind": "local_mock",
+    "completeness_status": "complete"
+   },
+   "binding": {
+    "run_id": "independent-chain",
+    "plan_sha256": "independent-plan_sha256",
+    "scenario_id": "independent-scenario_id",
+    "fixture_kind": "local_mock",
+    "bindings_sha256": "17e6c8514da39ec37ce6332e4afa6e92bf4557938211993e4e8b4af1e29ad9ed",
+    "run_binding_sha256": null,
+    "business_date_declared": null
+   },
+   "turn_ref": {
+    "turn_index": 0,
+    "client_request_id": "372ea1f9-5463-4ea7-9fae-5591c9f5a410",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "question_sha256": "1525362d369df14a485dd90ca638d25bc334bb6e374937c3480d00d502ba04e6",
+    "pre_revision": 3,
+    "post_revision": 3,
+    "capture_revision": 3,
+    "response_kind": "answer",
+    "http_status": 200,
+    "timed_out": false
+   },
+   "request_owner": {
+    "availability": "observed",
+    "reason": null,
+    "user_ref": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "conversation_ref": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "owner_source": "turn_authenticated_user_id",
+    "auth_material_collected": false
+   },
+   "record_identities": [
+    {
+     "source_ref": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+     "layers": [
+      "answer_result_sources",
+      "commit_observed_sources",
+      "model_evidence",
+      "model_output_sources",
+      "projection_message_sources"
+     ],
+     "unit_kind": "paragraph",
+     "locator_kind": "heading",
+     "doc_code": "S03",
+     "base_doc_code": "S03",
+     "sheet": null,
+     "row": null,
+     "record_key": null,
+     "record_code": null,
+     "business_version": null,
+     "version_number": 1,
+     "record_level": false,
+     "entity_type": null,
+     "entity_key": null,
+     "entity_filters": {},
+     "entity_matchable": false,
+     "code": "runtime_unit_not_record_level",
+     "entity_code": "entity_identity_absent"
+    }
+   ],
+   "record_identity_summary": {
+    "total": 1,
+    "record_level": 0,
+    "not_record_level": 1,
+    "doc_code_unresolved": 0,
+    "entity_matchable": 0,
+    "entity_document_level": 0,
+    "unresolved_units": 0,
+    "doc_codes": [
+     "S03"
+    ]
+   },
+   "effective_temporal": {
+    "availability": "observed",
+    "reason": null,
+    "as_of": "2026-09-01",
+    "as_of_source": "plan_observed",
+    "observed_from": "db_projection_units",
+    "include_future": false,
+    "enumerate": false,
+    "document_versions": [
+     {
+      "source_ref": "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+      "doc_code": "S03",
+      "version_label": null,
+      "runtime_version_number": 1,
+      "product_version_number": 1,
+      "code": "version_observed"
+     }
+    ],
+    "declared_baseline_business_date": null,
+    "baseline_used_as_effective": false,
+    "code": "effective_temporal_observed"
+   },
+   "empty_use_scope_input": {
+    "input_version": "c1p2-empty-use-scope-input/v0.1",
+    "turn_status": "complete",
+    "reason": null,
+    "plan": {
+     "availability": true,
+     "path": "legacy",
+     "mode": "document",
+     "as_of": "2026-09-01",
+     "include_future": false,
+     "clarification": false
+    },
+    "use_layers": {
+     "model_evidence": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ]
+     },
+     "model_output_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ]
+     },
+     "direct_rag_facts": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_citations": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_fact_count": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "answer_result_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ]
+     },
+     "commit_observed_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ]
+     },
+     "entity_inheritance": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "projection_message_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ]
+     }
+    },
+    "candidate_layers": {
+     "retrieval_observed": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+      ],
+      "truncated": false
+     },
+     "query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     },
+     "projection_query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     }
+    },
+    "all_use_layers_observed": false,
+    "empty_set_candidate": false,
+    "code": "empty_use_input_nonempty"
+   },
+   "runtime_identity": {
+    "declared": true,
+    "unit_ids": [
+     "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42"
+    ],
+    "unresolved_unit_ids": [],
+    "document_ids": [
+     "9b58ee6e-e401-4ea0-871a-f5c0f5124cec"
+    ],
+    "version_ids": [
+     "e4aaeefe-de50-43fd-bd33-dd14e2af9d24"
+    ],
+    "counts": {
+     "units": 1,
+     "unresolved": 0,
+     "documents": 1,
+     "versions": 1
+    }
+   },
+   "public_boundary": {
+    "public_summary_sha256": "3c8a5f2dafebfc956298a7d36fbba1b8ddbd49feb410612af7ea18f23fc363ec",
+    "public_summary_keys": [
+     "all_use_layers_observed",
+     "candidate_layer_count",
+     "completeness_status",
+     "doc_code_unresolved_count",
+     "document_version_count",
+     "effective_as_of_present",
+     "effective_temporal_status",
+     "empty_set_candidate",
+     "empty_use_codes",
+     "entity_codes",
+     "entity_document_level_count",
+     "entity_matchable_count",
+     "fixture_kind",
+     "not_record_level_count",
+     "owner_attribution_present",
+     "record_codes",
+     "record_identity_total",
+     "record_level_count",
+     "runtime_id_count",
+     "runtime_unit_count",
+     "schema_version",
+     "temporal_codes",
+     "turn_index",
+     "usage_layer_count",
+     "version_mismatch_count"
+    ],
+    "runtime_ids_only_in_declared_blocks": true
+   },
+   "content_sha256": "836dd5fb09caf33bf3438b277ee3829b8fb3aede3d0daa67024323783ee392d8"
+  },
+  {
+   "contract_version": "p2-hard-evidence-capture-identity/v0.3",
+   "schema_version": "p2-runtime-identity-snapshot/v0.1",
+   "fixture_kind": "local_mock",
+   "captured_utc": "2026-11-14T12:00:00+00:00",
+   "source_evidence": {
+    "sha256": "7714ec41d169c346cf0768600f437efcd33d504a6a224ccd92302a86b2fd057c",
+    "schema_version": "p2-hard-evidence-capture/v0.3",
+    "fixture_kind": "local_mock",
+    "completeness_status": "complete"
+   },
+   "binding": {
+    "run_id": "independent-chain",
+    "plan_sha256": "independent-plan_sha256",
+    "scenario_id": "independent-scenario_id",
+    "fixture_kind": "local_mock",
+    "bindings_sha256": "17e6c8514da39ec37ce6332e4afa6e92bf4557938211993e4e8b4af1e29ad9ed",
+    "run_binding_sha256": null,
+    "business_date_declared": null
+   },
+   "turn_ref": {
+    "turn_index": 1,
+    "client_request_id": "3335856a-68a1-442c-a8a3-29120ddc60c5",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "question_sha256": "1839082d7de89c75aa3ab2250b065ee6ade4b5c38828d521842a6d7e4b52b6cc",
+    "pre_revision": 3,
+    "post_revision": 3,
+    "capture_revision": 3,
+    "response_kind": "answer",
+    "http_status": 200,
+    "timed_out": false
+   },
+   "request_owner": {
+    "availability": "observed",
+    "reason": null,
+    "user_ref": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "conversation_ref": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "owner_source": "turn_authenticated_user_id",
+    "auth_material_collected": false
+   },
+   "record_identities": [
+    {
+     "source_ref": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+     "layers": [
+      "answer_result_sources",
+      "commit_observed_sources",
+      "model_evidence",
+      "model_output_sources",
+      "projection_message_sources"
+     ],
+     "unit_kind": "table_row",
+     "locator_kind": "record",
+     "doc_code": "S01",
+     "base_doc_code": "S01",
+     "sheet": "独立验收仓储",
+     "row": 2,
+     "record_key": "W01",
+     "record_code": "W01",
+     "business_version": "V1",
+     "version_number": 1,
+     "record_level": true,
+     "entity_type": "item",
+     "entity_key": "item|id:w01",
+     "entity_filters": {
+      "item": "折叠桌",
+      "item_id": "W01",
+      "store": "城北店"
+     },
+     "entity_matchable": true,
+     "code": "record_row_reverse_lookup",
+     "entity_code": "entity_identity_matchable_nonrole_filters"
+    }
+   ],
+   "record_identity_summary": {
+    "total": 1,
+    "record_level": 1,
+    "not_record_level": 0,
+    "doc_code_unresolved": 0,
+    "entity_matchable": 1,
+    "entity_document_level": 0,
+    "unresolved_units": 0,
+    "doc_codes": [
+     "S01"
+    ]
+   },
+   "effective_temporal": {
+    "availability": "observed",
+    "reason": null,
+    "as_of": "2026-09-01",
+    "as_of_source": "plan_observed",
+    "observed_from": "db_projection_units",
+    "include_future": false,
+    "enumerate": false,
+    "document_versions": [
+     {
+      "source_ref": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+      "doc_code": "S01",
+      "version_label": "V1",
+      "runtime_version_number": 1,
+      "product_version_number": 1,
+      "code": "version_observed"
+     }
+    ],
+    "declared_baseline_business_date": null,
+    "baseline_used_as_effective": false,
+    "code": "effective_temporal_observed"
+   },
+   "empty_use_scope_input": {
+    "input_version": "c1p2-empty-use-scope-input/v0.1",
+    "turn_status": "complete",
+    "reason": null,
+    "plan": {
+     "availability": true,
+     "path": "legacy",
+     "mode": "record",
+     "as_of": "2026-09-01",
+     "include_future": false,
+     "clarification": false
+    },
+    "use_layers": {
+     "model_evidence": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     },
+     "model_output_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     },
+     "direct_rag_facts": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_citations": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_fact_count": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "answer_result_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     },
+     "commit_observed_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     },
+     "entity_inheritance": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "projection_message_sources": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     }
+    },
+    "candidate_layers": {
+     "retrieval_observed": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ],
+      "truncated": false
+     },
+     "query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     },
+     "projection_query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     }
+    },
+    "all_use_layers_observed": false,
+    "empty_set_candidate": false,
+    "code": "empty_use_input_nonempty"
+   },
+   "runtime_identity": {
+    "declared": true,
+    "unit_ids": [
+     "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+    ],
+    "unresolved_unit_ids": [],
+    "document_ids": [
+     "f8dbf2d8-d4cc-4438-b838-9bc4d513848e"
+    ],
+    "version_ids": [
+     "dd7ead1a-ceaf-4274-8779-d3208d6fdcba"
+    ],
+    "counts": {
+     "units": 1,
+     "unresolved": 0,
+     "documents": 1,
+     "versions": 1
+    }
+   },
+   "public_boundary": {
+    "public_summary_sha256": "6e2bd5c861b0186778ee8ce5dd4c5ebc44678e44a51b8c21a0cd51f35bcd88d0",
+    "public_summary_keys": [
+     "all_use_layers_observed",
+     "candidate_layer_count",
+     "completeness_status",
+     "doc_code_unresolved_count",
+     "document_version_count",
+     "effective_as_of_present",
+     "effective_temporal_status",
+     "empty_set_candidate",
+     "empty_use_codes",
+     "entity_codes",
+     "entity_document_level_count",
+     "entity_matchable_count",
+     "fixture_kind",
+     "not_record_level_count",
+     "owner_attribution_present",
+     "record_codes",
+     "record_identity_total",
+     "record_level_count",
+     "runtime_id_count",
+     "runtime_unit_count",
+     "schema_version",
+     "temporal_codes",
+     "turn_index",
+     "usage_layer_count",
+     "version_mismatch_count"
+    ],
+    "runtime_ids_only_in_declared_blocks": true
+   },
+   "content_sha256": "6f1b060173cb06f0c0119c9de183accb305d5aaf32ba5cdf5951666f1a735bf2"
+  },
+  {
+   "contract_version": "p2-hard-evidence-capture-identity/v0.3",
+   "schema_version": "p2-runtime-identity-snapshot/v0.1",
+   "fixture_kind": "local_mock",
+   "captured_utc": "2026-11-14T12:00:00+00:00",
+   "source_evidence": {
+    "sha256": "85985f9381213e81aa059c61c6b311e0ab4a8c201c7711d558897fd3631d9eca",
+    "schema_version": "p2-hard-evidence-capture/v0.3",
+    "fixture_kind": "local_mock",
+    "completeness_status": "complete"
+   },
+   "binding": {
+    "run_id": "independent-chain",
+    "plan_sha256": "independent-plan_sha256",
+    "scenario_id": "independent-scenario_id",
+    "fixture_kind": "local_mock",
+    "bindings_sha256": "17e6c8514da39ec37ce6332e4afa6e92bf4557938211993e4e8b4af1e29ad9ed",
+    "run_binding_sha256": null,
+    "business_date_declared": null
+   },
+   "turn_ref": {
+    "turn_index": 2,
+    "client_request_id": "a0d5cf3d-ab22-4836-9017-866b12459f5f",
+    "conversation_id": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "question_sha256": "1097cde9d9836902d35ae29d39747ce7813a1932cd4640ba828488d07f7b0b9f",
+    "pre_revision": 3,
+    "post_revision": 3,
+    "capture_revision": 3,
+    "response_kind": "not_found",
+    "http_status": 200,
+    "timed_out": false
+   },
+   "request_owner": {
+    "availability": "observed",
+    "reason": null,
+    "user_ref": "e0d345a7-f7ee-4830-9ec8-be3385690ace",
+    "conversation_ref": "48b037e9-8225-4a65-86cf-e215c7a5a5d6",
+    "owner_source": "turn_authenticated_user_id",
+    "auth_material_collected": false
+   },
+   "record_identities": [
+    {
+     "source_ref": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+     "layers": [
+      "entity_inheritance"
+     ],
+     "unit_kind": "table_row",
+     "locator_kind": "record",
+     "doc_code": "S01",
+     "base_doc_code": "S01",
+     "sheet": "独立验收仓储",
+     "row": 2,
+     "record_key": "W01",
+     "record_code": "W01",
+     "business_version": "V1",
+     "version_number": 1,
+     "record_level": true,
+     "entity_type": "item",
+     "entity_key": "item|id:w01",
+     "entity_filters": {
+      "item": "折叠桌",
+      "item_id": "W01",
+      "store": "城北店"
+     },
+     "entity_matchable": true,
+     "code": "record_row_reverse_lookup",
+     "entity_code": "entity_identity_matchable_nonrole_filters"
+    }
+   ],
+   "record_identity_summary": {
+    "total": 1,
+    "record_level": 1,
+    "not_record_level": 0,
+    "doc_code_unresolved": 0,
+    "entity_matchable": 1,
+    "entity_document_level": 0,
+    "unresolved_units": 0,
+    "doc_codes": [
+     "S01"
+    ]
+   },
+   "effective_temporal": {
+    "availability": "observed",
+    "reason": null,
+    "as_of": "2026-09-01",
+    "as_of_source": "plan_observed",
+    "observed_from": "db_projection_units",
+    "include_future": false,
+    "enumerate": false,
+    "document_versions": [
+     {
+      "source_ref": "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+      "doc_code": "S01",
+      "version_label": "V1",
+      "runtime_version_number": 1,
+      "product_version_number": null,
+      "code": "version_observed"
+     }
+    ],
+    "declared_baseline_business_date": null,
+    "baseline_used_as_effective": false,
+    "code": "effective_temporal_observed"
+   },
+   "empty_use_scope_input": {
+    "input_version": "c1p2-empty-use-scope-input/v0.1",
+    "turn_status": "complete",
+    "reason": null,
+    "plan": {
+     "availability": true,
+     "path": "legacy",
+     "mode": "document",
+     "as_of": "2026-09-01",
+     "include_future": false,
+     "clarification": true
+    },
+    "use_layers": {
+     "model_evidence": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "model_output_sources": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_facts": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_citations": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "direct_rag_fact_count": {
+      "observed": false,
+      "count": 0,
+      "refs": []
+     },
+     "answer_result_sources": {
+      "observed": true,
+      "count": 0,
+      "refs": []
+     },
+     "commit_observed_sources": {
+      "observed": true,
+      "count": 0,
+      "refs": []
+     },
+     "entity_inheritance": {
+      "observed": true,
+      "count": 1,
+      "refs": [
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+      ]
+     },
+     "projection_message_sources": {
+      "observed": true,
+      "count": 0,
+      "refs": []
+     }
+    },
+    "candidate_layers": {
+     "retrieval_observed": {
+      "observed": true,
+      "count": 8,
+      "refs": [
+       "1f928d0f-269a-4671-9a3c-05d72c81290b",
+       "24c20b78-d622-48e9-9611-58849719931c",
+       "2d50a620-e7c5-4a20-8678-4b255830dd32",
+       "66418616-6e43-4a11-9e9f-9a027ae83edf",
+       "b4610071-958b-468e-92cf-8bd626d451f5",
+       "cbc655e1-a77b-4a52-82bb-5ffdb6b43b42",
+       "d35dbd1b-0d49-4566-8269-e4d3fef4091a",
+       "d7be6a55-98ee-49ed-88d7-a28be8d8b044"
+      ],
+      "truncated": false
+     },
+     "query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     },
+     "projection_query_state_candidates": {
+      "observed": true,
+      "count": 0,
+      "refs": [],
+      "truncated": false
+     }
+    },
+    "all_use_layers_observed": false,
+    "empty_set_candidate": false,
+    "code": "empty_use_input_nonempty"
+   },
+   "runtime_identity": {
+    "declared": true,
+    "unit_ids": [
+     "d35dbd1b-0d49-4566-8269-e4d3fef4091a"
+    ],
+    "unresolved_unit_ids": [],
+    "document_ids": [
+     "f8dbf2d8-d4cc-4438-b838-9bc4d513848e"
+    ],
+    "version_ids": [
+     "dd7ead1a-ceaf-4274-8779-d3208d6fdcba"
+    ],
+    "counts": {
+     "units": 1,
+     "unresolved": 0,
+     "documents": 1,
+     "versions": 1
+    }
+   },
+   "public_boundary": {
+    "public_summary_sha256": "683fb2627a8e1ed798564d7278f64d3acea0e3dffecd7d187789f293a20d47cb",
+    "public_summary_keys": [
+     "all_use_layers_observed",
+     "candidate_layer_count",
+     "completeness_status",
+     "doc_code_unresolved_count",
+     "document_version_count",
+     "effective_as_of_present",
+     "effective_temporal_status",
+     "empty_set_candidate",
+     "empty_use_codes",
+     "entity_codes",
+     "entity_document_level_count",
+     "entity_matchable_count",
+     "fixture_kind",
+     "not_record_level_count",
+     "owner_attribution_present",
+     "record_codes",
+     "record_identity_total",
+     "record_level_count",
+     "runtime_id_count",
+     "runtime_unit_count",
+     "schema_version",
+     "temporal_codes",
+     "turn_index",
+     "usage_layer_count",
+     "version_mismatch_count"
+    ],
+    "runtime_ids_only_in_declared_blocks": true
+   },
+   "content_sha256": "12ba56b7f85ea74dd19a2131c845f5d4e6cd1ec794bbcfe5782001519020da28"
+  }
+ ],
+ "doc_codes": {
+  "synth_stock.xlsx": "S01",
+  "synth_loose.xlsx": "S02",
+  "synth_flow.docx": "S03"
+ },
+ "record_index": [
+  {
+   "doc_code": "S01",
+   "sheet": "独立验收仓储",
+   "row": 2,
+   "record_key": "W01",
+   "business_version": "V1"
+  },
+  {
+   "doc_code": "S01",
+   "sheet": "独立验收仓储",
+   "row": 3,
+   "record_key": "W02",
+   "business_version": "V1"
+  },
+  {
+   "doc_code": "S01",
+   "sheet": "独立验收仓储",
+   "row": 4,
+   "record_key": "W03",
+   "business_version": "V1"
+  },
+  {
+   "doc_code": "S02",
+   "sheet": "无编号台账",
+   "row": 2,
+   "record_key": "B-77",
+   "business_version": "V1"
+  }
+ ],
+ "corpus": {
+  "stock_sheet": "独立验收仓储",
+  "loose_sheet": "无编号台账",
+  "stock_rows": [
+   {
+    "row": 2,
+    "record_key": "W01"
+   },
+   {
+    "row": 3,
+    "record_key": "W02"
+   },
+   {
+    "row": 4,
+    "record_key": "W03"
+   }
+  ],
+  "loose_rows": [
+   {
+    "row": 2,
+    "record_key": "B-77"
+   }
+  ]
+ },
+ "questions": {
+  "flow": "独立验收入库流程一共分哪几步？",
+  "stock": "独立验收仓储里折叠桌的数量是多少？",
+  "loose": "无编号台账里折叠凳在哪个门店？"
+ },
+ "business_date": "2026-09-01",
+ "user": "employee",
+ "temp_root": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\c1p3-independent-chain-gao2c4fu"
+}

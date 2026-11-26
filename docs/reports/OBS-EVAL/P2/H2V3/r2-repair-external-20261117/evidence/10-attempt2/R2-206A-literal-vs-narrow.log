@@ -1,0 +1,133 @@
+# 临床对照实验：字面语义（restricted 非空且 others 非空）⇒ 4 个既有安全用例转红
+# source: D:\mktkb-p2-h2v3-r2-20261117\basetemp-206a\logs\literal-probe.log
+
+................FF.F...............F.....                                [100%]
+================================== FAILURES ===================================
+_ test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u7684\u4f4d\u7f6e\u548c\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f] _
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+add_records = <function add_records.<locals>._add at 0x000002501BA971A0>
+make_doc = <function make_doc.<locals>._make at 0x000002501BA97B00>
+question = '甲店立牌的位置和联系电话是多少？'
+
+    @pytest.mark.parametrize(
+        "question",
+        [
+            "甲店立牌的电话是多少？",
+            "甲店立牌的地址是多少？",
+            "甲店立牌的位置和联系电话是多少？",
+            "甲店立牌找谁对接，电话和地址是多少？",
+        ],
+    )
+    def test_item_plus_phone_or_address_still_refused(rag_index, add_records, make_doc, question):
+        _add(rag_index, add_records, make_doc, RESTRICTED_ROW, "D-c12b-restricted")
+    
+        answer = rag_index.ask(question, user_id="u", conversation_id="c12b-restricted")
+    
+>       assert answer.kind == "no_answer", (answer.kind, answer.text)
+E       AssertionError: ('answer', '根据资料，甲店的立牌的位置：甲区。')
+E       assert 'answer' == 'no_answer'
+E         
+E         - no_answer
+E         ? ---
+E         + answer
+
+tests\rag\test_r0_c12b_boundary_synthetic.py:147: AssertionError
+_ test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u627e\u8c01\u5bf9\u63a5\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f] _
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+add_records = <function add_records.<locals>._add at 0x000002501B4FC360>
+make_doc = <function make_doc.<locals>._make at 0x000002501B4FEFC0>
+question = '甲店立牌找谁对接，电话和地址是多少？'
+
+    @pytest.mark.parametrize(
+        "question",
+        [
+            "甲店立牌的电话是多少？",
+            "甲店立牌的地址是多少？",
+            "甲店立牌的位置和联系电话是多少？",
+            "甲店立牌找谁对接，电话和地址是多少？",
+        ],
+    )
+    def test_item_plus_phone_or_address_still_refused(rag_index, add_records, make_doc, question):
+        _add(rag_index, add_records, make_doc, RESTRICTED_ROW, "D-c12b-restricted")
+    
+        answer = rag_index.ask(question, user_id="u", conversation_id="c12b-restricted")
+    
+>       assert answer.kind == "no_answer", (answer.kind, answer.text)
+E       AssertionError: ('answer', '根据资料，甲店的立牌的联系人：阿甲经理。')
+E       assert 'answer' == 'no_answer'
+E         
+E         - no_answer
+E         ? ---
+E         + answer
+
+tests\rag\test_r0_c12b_boundary_synthetic.py:147: AssertionError
+____________________ test_cross_entity_phone_still_refused ____________________
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+add_records = <function add_records.<locals>._add at 0x000002501BD1D440>
+make_doc = <function make_doc.<locals>._make at 0x000002501BD1D080>
+
+    def test_cross_entity_phone_still_refused(rag_index, add_records, make_doc):
+        add_records(
+            [
+                {"标识": "P01", "门店": "甲店", "物品": "立牌", "位置": "甲区", "电话": "010-55550000"},
+                {"标识": "P02", "门店": "乙店", "物品": "立牌", "位置": "乙区", "电话": "010-55550001"},
+            ],
+            doc=make_doc(doc_id="D-c12b-cross", title="合成门店资料"),
+        )
+    
+        answer = rag_index.ask(
+            "甲店和乙店立牌的位置及联系电话是多少？",
+            user_id="u",
+            conversation_id="c12b-cross",
+        )
+    
+>       assert answer.kind == "no_answer", (answer.kind, answer.text)
+E       AssertionError: ('answer', '共 2 条，当前第 1 页显示 2 条。
+E         - 甲店的立牌：甲区（来源：合成门店资料）
+E         - 乙店的立牌：乙区（来源：合成门店资料）
+E         已显示全部。')
+E       assert 'answer' == 'no_answer'
+E         
+E         - no_answer
+E         ? ---
+E         + answer
+
+tests\rag\test_r0_c12b_boundary_synthetic.py:187: AssertionError
+____________ test_c27_item_plus_contact_ask_still_security_refused ____________
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+
+    def test_c27_item_plus_contact_ask_still_security_refused(rag_index):
+        """物品记录 + 联系信息（本轮新增的“对接”问法同样算联系信息）仍整体拒答。"""
+        _add_row(rag_index, ITEM_CONTACT_ROW, doc_id="D-r011-safe-both")
+    
+        answer = rag_index.ask(
+            "甲店立牌找谁对接，电话是多少？",
+            user_id="u",
+            conversation_id="r011-safe-both",
+        )
+    
+>       assert answer.kind == "no_answer", (answer.kind, answer.text)
+E       AssertionError: ('answer', '根据资料，甲店的立牌的联系人：阿甲经理。')
+E       assert 'answer' == 'no_answer'
+E         
+E         - no_answer
+E         ? ---
+E         + answer
+
+tests\rag\test_r0_11_contact_family.py:218: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u7684\u4f4d\u7f6e\u548c\u8054\u7cfb\u7535\u8bdd\u662f\u591a\u5c11\uff1f]
+FAILED tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\u7532\u5e97\u7acb\u724c\u627e\u8c01\u5bf9\u63a5\uff0c\u7535\u8bdd\u548c\u5730\u5740\u662f\u591a\u5c11\uff1f]
+FAILED tests/rag/test_r0_c12b_boundary_synthetic.py::test_cross_entity_phone_still_refused
+FAILED tests/rag/test_r0_11_contact_family.py::test_c27_item_plus_contact_ask_still_security_refused
+4 failed, 37 passed, 1 warning in 7.09s

@@ -1,0 +1,108 @@
+{
+  "all_refused": true,
+  "case_plan_sha256": "fe8741861e74edb8bab8ea1ee07dfd37a1ede60c766d53ba30699fd25ea325da",
+  "cases": [
+    {
+      "case": "r1_binding_mixed",
+      "error_code": "identity_run_index_mismatch",
+      "positive_control_ok": true,
+      "refused": true
+    },
+    {
+      "case": "wrong_business_date",
+      "error_code": "identity_business_date_mismatch",
+      "positive_control_ok": true,
+      "refused": true
+    },
+    {
+      "case": "wrong_case_set",
+      "error_code": "identity_case_set_mismatch",
+      "positive_control_ok": true,
+      "refused": true,
+      "variants": [
+        {
+          "error_code": "identity_case_set_mismatch",
+          "label": "case_set_missing",
+          "refused": true
+        },
+        {
+          "error_code": "identity_case_set_mismatch",
+          "label": "case_set_extra",
+          "refused": true
+        },
+        {
+          "error_code": "identity_case_set_duplicate",
+          "label": "case_set_duplicate",
+          "refused": true
+        },
+        {
+          "error_code": "identity_case_set_mismatch",
+          "label": "case_set_swapped",
+          "refused": true
+        }
+      ]
+    },
+    {
+      "case": "wrong_turn_shape",
+      "error_code": "identity_turn_count_mismatch",
+      "positive_control_ok": true,
+      "refused": true,
+      "variants": [
+        {
+          "error_code": "identity_turn_count_mismatch",
+          "label": "c14_turn_missing",
+          "refused": true
+        },
+        {
+          "error_code": "identity_multi_turn_shape_mismatch",
+          "label": "multi_turn_moved",
+          "refused": true
+        }
+      ]
+    },
+    {
+      "case": "stale_card_as_current",
+      "error_code": "origin_round_not_current",
+      "positive_control_ok": true,
+      "refused": true
+    },
+    {
+      "case": "missing_scope_evidence",
+      "error_code": "scope_evidence_missing",
+      "positive_control_ok": true,
+      "refused": true,
+      "variants": [
+        {
+          "error_code": "scope_evidence_missing",
+          "label": "projection_missing",
+          "refused": true
+        },
+        {
+          "error_code": "scope_evidence_missing",
+          "label": "capture_missing",
+          "refused": true
+        },
+        {
+          "error_code": "scope_evidence_missing",
+          "label": "projection_units_missing",
+          "refused": true
+        }
+      ]
+    }
+  ],
+  "netguard": {
+    "blocked_attempts": 2,
+    "blocked_subprocess_attempts": 1,
+    "outbound_allowed": 0,
+    "positive_control_attempts": 3,
+    "positive_control_blocked": true,
+    "subprocess_guard_installed": true
+  },
+  "ok": true,
+  "positive_controls_ok": 6,
+  "positive_controls_total": 6,
+  "round_label": "r2",
+  "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+  "run_index": 2,
+  "selftest_count": 6
+}

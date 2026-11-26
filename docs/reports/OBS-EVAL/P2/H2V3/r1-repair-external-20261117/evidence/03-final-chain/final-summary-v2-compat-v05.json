@@ -1,0 +1,240 @@
+{
+  "axes_file": {
+    "compat": "p2-refusal-compat/v0.5",
+    "matcher_version": "ref-unit-matcher/v2",
+    "path_role": "recompute-v2-r1-v05.json",
+    "schema_version": "p2-h2v3-axes-v2-recompute/v0.2-r0-same-round",
+    "scope_contract_passed": null,
+    "sha256": "94beeae83e2403bc2e7a1a30bec6b57777d1aefdff0b8d4d6e2c19c8eb992a83"
+  },
+  "axes_matcher_v2": {
+    "cross_entity": {
+      "checked": 5,
+      "not_applicable": 0,
+      "passed": 3,
+      "planned": 8,
+      "unknown": 3,
+      "violations": 2
+    },
+    "cross_user": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 8,
+      "not_applicable": 7,
+      "passed": 0,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 1
+    },
+    "stale_source": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_initial": {
+    "cross_entity": {
+      "checked": 5,
+      "not_applicable": 0,
+      "passed": 3,
+      "planned": 8,
+      "unknown": 3,
+      "violations": 2
+    },
+    "cross_user": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 8,
+      "not_applicable": 7,
+      "passed": 0,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 1
+    },
+    "stale_source": {
+      "checked": 8,
+      "not_applicable": 0,
+      "passed": 8,
+      "planned": 8,
+      "unknown": 0,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_previous_historical": {
+    "cross_entity": {
+      "checked": 4,
+      "not_applicable": 0,
+      "passed": 3,
+      "planned": 8,
+      "unknown": 4,
+      "violations": 1
+    },
+    "cross_user": {
+      "checked": 7,
+      "not_applicable": 0,
+      "passed": 7,
+      "planned": 8,
+      "unknown": 1,
+      "violations": 0
+    },
+    "safety": {
+      "checked": 7,
+      "not_applicable": 6,
+      "passed": 0,
+      "planned": 8,
+      "unknown": 1,
+      "violations": 1
+    },
+    "stale_source": {
+      "checked": 6,
+      "not_applicable": 0,
+      "passed": 6,
+      "planned": 8,
+      "unknown": 2,
+      "violations": 0
+    }
+  },
+  "axes_matcher_v2_previous_historical_meaning": "compose historical card; comparison only",
+  "axes_matcher_v2_version": "ref-unit-matcher/v2",
+  "consistency": {
+    "checks": [
+      "axes_case_id_unique_exact_coverage",
+      "axes_per_case_quality_sum_equals_run_quality",
+      "axes_hard_failed_flags_equal_violation_union",
+      "axes_axis_four_state_counts_equal_case_count",
+      "axes_unknown_cases_not_hidden",
+      "quality_cases_equal_case_plan_set",
+      "quality_status_equals_axes_quality_status",
+      "quality_hard_failed_flags_equal_derived_union",
+      "receipt_run_scenario_business_date_match_axes"
+    ],
+    "passed": true
+  },
+  "hard_failure_count": 3,
+  "hard_failure_source": "validated_per_case_axes.new_axes[*].state==violation",
+  "hard_failures": [
+    "H2V3-C13",
+    "H2V3-C22",
+    "H2V3-C28"
+  ],
+  "hard_failures_initial": [
+    "H2V3-C13",
+    "H2V3-C22",
+    "H2V3-C28"
+  ],
+  "hard_failures_previous_historical": [
+    "H2V3-C13",
+    "H2V3-C28"
+  ],
+  "judgement": {
+    "hard_failures": 3,
+    "hard_threshold_met": false,
+    "min_pass": 24,
+    "note": "t207 是按全量 30 题声明的闸；子集产物沿用同一规则计算，不代表全量通过",
+    "pass": 4,
+    "pass_threshold_met": false,
+    "t207_passed": false
+  },
+  "ledger": {
+    "after": {
+      "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+      "file_sha256": "34e74c627c3542378bd2f8d2a10c863cab8f9d1ccd262a0c0babe0f472fde233",
+      "lines": 3753,
+      "paired": true,
+      "project_accounted_cny": 24.5479103,
+      "reservation_count": 1876,
+      "result_count": 1876,
+      "stage_p2_live_cny": 9.4769658
+    }
+  },
+  "not_claimed": [
+    "release",
+    "T207_pass",
+    "all_axes_real_complete"
+  ],
+  "requests": {
+    "attempts_reserved_sum": 34,
+    "real_sends_sum": 30,
+    "settled_cny_sum": 0.084618
+  },
+  "role": "fullverify 子集汇总（r0 修复版：同轮初判 + 校验后硬失败；run 子集见 subset）",
+  "runs": [
+    {
+      "axes_file_sha256": "94beeae83e2403bc2e7a1a30bec6b57777d1aefdff0b8d4d6e2c19c8eb992a83",
+      "business_date": "2026-07-15",
+      "case_count": 8,
+      "case_plan_sha256": "259bcbb279c9a012539bce9ec5ec2d7c30aed5cbd2d59dcf6f2de316d7ba55d9",
+      "error": 0,
+      "error_code": null,
+      "fail": 4,
+      "hard_failures": [
+        "H2V3-C13",
+        "H2V3-C22",
+        "H2V3-C28"
+      ],
+      "ok": true,
+      "pass": 4,
+      "quality": {
+        "error": 0,
+        "fail": 4,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "quality_source": "validated_per_case_axes.new_axes[*].state==violation",
+      "real_sends": 30,
+      "requests_attempts_reserved": 34,
+      "run_id": "p2-h2v3-20261115-r1-base_b0_plus_v01",
+      "run_index": 1,
+      "run_receipt_sha256": "100498800f74e541d2bcfc4222c38deebd4671b9fe3daec91e2539908330906e",
+      "scenario_id": "base_b0_plus_v01",
+      "settled_cny": 0.084618,
+      "status": "succeeded",
+      "stop_code": null,
+      "turn_count": 10,
+      "turn_error_codes": {},
+      "turn_executed": 10,
+      "v3_entry_sidecar_sha256": "28f2b78fd045618bbca5124ec9e3614743ca85daf410060320af89976aa5d2e7"
+    }
+  ],
+  "schema_version": "p2-h2v3-final-summary/v0.2-r0-same-round",
+  "source_round": "current",
+  "subset": {
+    "case_count": 8,
+    "is_full_suite": false,
+    "runs": [
+      1
+    ]
+  },
+  "tag": "compat-v05",
+  "thresholds": {
+    "declared_scope": "full suite (4 runs / 30 cases)",
+    "evaluated_scope": "subset [1] / 8 cases",
+    "hard_failures_max": 0,
+    "min_pass": 24,
+    "threshold_applicable_to_this_artifact": false
+  },
+  "totals": {
+    "cases": 8,
+    "error": 0,
+    "fail": 4,
+    "hard_failures": 3,
+    "not_executed": 0,
+    "pass": 4,
+    "turns": 10
+  }
+}

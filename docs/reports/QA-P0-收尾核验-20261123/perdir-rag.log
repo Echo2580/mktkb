@@ -1,0 +1,94 @@
+........................................................................ [ 12%]
+........................................................................ [ 24%]
+........................................................................ [ 36%]
+........................................................................ [ 48%]
+........................................................................ [ 60%]
+.......................................................................F [ 72%]
+........................................................................ [ 84%]
+..................F..................................................... [ 97%]
+.................                                                        [100%]
+================================== FAILURES ===================================
+____________________ test_offline_index_capture_and_guard _____________________
+
+rag_index = RagIndex(path='rag.sqlite3', mode='offline')
+add_records = <function add_records.<locals>._add at 0x0000019E8D0FCC20>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000019E8CED73B0>
+
+    def test_offline_index_capture_and_guard(rag_index, add_records, monkeypatch):
+        attempts = []
+        def blocked(*args, **kwargs):
+            attempts.append('blocked')
+            raise RuntimeError('blocked')
+        monkeypatch.setattr(socket.socket, 'connect', blocked)
+        monkeypatch.setattr(socket.socket, 'connect_ex', blocked)
+        monkeypatch.setattr(socket, 'create_connection', blocked)
+        monkeypatch.setattr(socket, 'getaddrinfo', blocked)
+        monkeypatch.setattr(httpx.HTTPTransport, 'handle_request', blocked)
+        monkeypatch.setattr(httpx.AsyncHTTPTransport, 'handle_async_request', blocked)
+        monkeypatch.setattr(subprocess, 'Popen', blocked)
+        add_records([{'标识': 'T01', '门店': '虚构甲店', '物品': '虚构桌', '位置': '虚构一区'}])
+        root = Path(__file__).resolve().parents[3]
+        def baseline_module(name, filename):
+            spec = importlib.util.spec_from_file_location(name, root / '.tmp-r2-obs-baseline' / filename)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            return module
+>       before_answer = baseline_module('mktkb.rag._r2_baseline_answer', 'backend_src_mktkb_rag_answer.py')
+                        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+backend\tests\rag\test_r2_observability_revision2.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+backend\tests\rag\test_r2_observability_revision2.py:30: in baseline_module
+    spec.loader.exec_module(module)
+<frozen importlib._bootstrap_external>:991: in exec_module
+    ???
+<frozen importlib._bootstrap_external>:1128: in get_code
+    ???
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+self = <_frozen_importlib_external.SourceFileLoader object at 0x0000019E8CED5940>
+path = 'D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-baseline\\backend_src_mktkb_rag_answer.py'
+
+>   ???
+E   FileNotFoundError: [Errno 2] No such file or directory: 'D:\\GPT项目\\市场部AI知识库\\.tmp-r2-obs-baseline\\backend_src_mktkb_rag_answer.py'
+
+<frozen importlib._bootstrap_external>:1186: FileNotFoundError
+_______ test_current_go_and_budget_are_consistent_and_above_three_yuan ________
+
+    def test_current_go_and_budget_are_consistent_and_above_three_yuan():
+        """当前真实 GO/budget（只读）彼此自洽，且阶段额度不低于旧的 3.00 元硬限。
+    
+        2026-11-05 主人签署 PRE-2 后，GO 只声明 ``P1-RETRIEVAL = 3.0``，共享预算改为
+        ``S2-DEV 15.4 + P1-RETRIEVAL 3.0``（总额 20 不变）。这里按签署后的真实配置校验
+        结构关系，不再把旧 ``S2-DEV = 18.4`` 写死。
+        """
+        from mktkb.rag.budget import BudgetLedger
+    
+        tools = _tools()
+        go = json.loads((ROOT / "docs" / "evidence" / "LOCAL-R1-20261101" / "PM" / "S2-LIVE-GO.json").read_text(encoding="utf-8"))
+        budget = json.loads(REAL_BUDGET.read_text(encoding="utf-8"))
+        limits = go["scope"]["stage_limits_cny"]
+        stages = budget["stages"]
+    
+        # a) GO 声明的每个阶段额度，都必须在共享预算里有同名且等额的分配。
+        assert limits, "GO 必须声明至少一个阶段额度"
+        for stage, limit_cny in limits.items():
+            assert stage in stages, f"共享预算缺少 GO 阶段 {stage} 的分配"
+>           assert stages[stage] == pytest.approx(limit_cny)
+E           assert 0.5 == 3.0 ± 3.0e-06
+E             
+E             comparison failed
+E             Obtained: 0.5
+E             Expected: 3.0 ± 3.0e-06
+
+backend\tests\rag\test_s4_stage_limit.py:202: AssertionError
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED backend\tests\rag\test_r2_observability_revision2.py::test_offline_index_capture_and_guard
+FAILED backend\tests\rag\test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan
+2 failed, 591 passed, 1 warning in 48.88s

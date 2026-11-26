@@ -1,0 +1,36 @@
+role-map round: test counts (SAFE: fixed codes / ints / bools / sha256 only)
+env: MKTKB_PROJECT_TOTAL_LIMIT_CNY=20.0 ; python -B -m pytest -q -p no:cacheprovider ; basetemp backend\.pytest-tmp\rolemap*
+netguard: blocked_attempts=2 positive_control_attempts=2 positive_control_blocked=true outbound_allowed=0
+product_code_changed=false
+new_test_file=backend/tests/rag/test_r0_8_role_map_synthetic.py
+new_tool_file=work/r0_role_map.py
+suite.new_role_map_synthetic=24 passed
+suite.backend_tests_rag=497 passed / 1 failed
+suite.backend_tests_rag.failed_ids=test_s4_stage_limit::test_current_go_and_budget_are_consistent_and_above_three_yuan
+suite.backend_tests_rag.failed_known=true
+suite.unit_test_conversations_plus_unit_test_retrieval=60 passed
+suite.integration_test_visible_index=29 passed
+suite.safety_three=16 passed
+suite.safety_three.ids=test_t207_security_precedence_synthetic,test_t207_v8_safety_contract_synthetic,test_v3_safety_fix_e2e
+flaky_note.concurrent_same_basetemp_causes_budget_cross_process_fail=true
+flaky_note.rerun_alone_passed=1
+code.c21.facts=1
+code.c21.expected=1
+code.c21.missing=1
+code.c21.requested_role_count=1
+code.c21.candidate_count=3
+code.c21.required_role_not_requested=2
+code.c27.facts=2
+code.c27.expected=2
+code.c27.missing=1
+code.c27.requested_role_count_lower=1
+code.c27.requested_role_count_upper=2
+code.c27.candidate_count=6
+code.c27.required_role_not_requested_lower=4
+code.c27.required_role_not_requested_upper=5
+word_classes.total=15
+word_classes.mapped=14
+word_classes.unmapped=other
+candidate_roles.reachable=7
+candidate_roles.unreachable=0
+verdict=vocabulary_fix_not_confirmable_from_safe_layer

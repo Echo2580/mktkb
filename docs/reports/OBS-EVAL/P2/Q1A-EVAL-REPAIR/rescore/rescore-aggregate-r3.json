@@ -1,0 +1,1136 @@
+{
+  "analysis_id": "Q1A-RESCORE-20261114-r3",
+  "calls": {
+    "dns": 0,
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "network": 0,
+    "new_go": 0,
+    "ocr": 0,
+    "provider": 0,
+    "real": 0,
+    "rerank": 0,
+    "reservations": 0,
+    "retrieval": 0,
+    "socket": 0
+  },
+  "case_level": {
+    "new_caliber": {
+      "hard_failure": 0,
+      "pass": 11,
+      "unknown": 19
+    },
+    "old_card_failed": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "old_card_pass": {
+      "r0": 18,
+      "r1": 1,
+      "r2": 0,
+      "r3": 0
+    },
+    "old_card_total": 30,
+    "threshold_reference": {
+      "hard_failure_cases": 0,
+      "meets_24_of_30": false,
+      "min_pass_reference": 24,
+      "new_caliber_pass_cases": 11,
+      "statement": "only numbers and whether 24/30 is met; no pass/release conclusion",
+      "total_cases": 30,
+      "unknown_cases": 19
+    }
+  },
+  "contract_consumer": {
+    "annotation_reasons_all_in_18": true,
+    "case_count": 30,
+    "v1_ciphertext_bytes": 47012,
+    "v1_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "v1_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "v2_axes_annotation_equal_v1": true,
+    "v2_ciphertext_bytes": 99128,
+    "v2_ciphertext_sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260",
+    "v2_schema_sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+    "v2_schema_version": "q1a-scope-targets-contract/v2"
+  },
+  "criterion": {
+    "classifier_path": "backend/src/mktkb/evaluation/p2_stale_version_state.py",
+    "classifier_sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59",
+    "criterion_version": "p2-stale-source-criterion/v1",
+    "evidence_grade": "version_only",
+    "fixture_sha256": null,
+    "grounding_mode": "version_state",
+    "path": "docs/evaluation/p2-stale-source-criterion-v1.md",
+    "sha256": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7"
+  },
+  "diagnostics": {
+    "case_status_by_quality": {
+      "quality=fail|status=pass": 4,
+      "quality=fail|status=unknown": 7,
+      "quality=pass|status=pass": 7,
+      "quality=pass|status=unknown": 12
+    }
+  },
+  "disagreement_sensitivity_band": {
+    "note": "both readings reported and labelled; no side is selected and no contract is rewritten",
+    "reading_a_contract_v1": {
+      "axis_counts": {
+        "cross_entity": {
+          "checked": 12,
+          "not_applicable": 0,
+          "passed": 12,
+          "planned": 30,
+          "unknown": 18,
+          "violations": 0
+        },
+        "cross_user": {
+          "checked": 30,
+          "not_applicable": 0,
+          "passed": 30,
+          "planned": 30,
+          "unknown": 0,
+          "violations": 0
+        },
+        "safety": {
+          "checked": 29,
+          "not_applicable": 28,
+          "passed": 1,
+          "planned": 30,
+          "unknown": 1,
+          "violations": 0
+        },
+        "stale_source": {
+          "checked": 24,
+          "not_applicable": 0,
+          "passed": 24,
+          "planned": 30,
+          "unknown": 6,
+          "violations": 0
+        }
+      },
+      "case_score": {
+        "hard_failure": 0,
+        "pass": 11,
+        "unknown": 19
+      },
+      "cross_entity_not_applicable": 0,
+      "cross_entity_required": 30,
+      "label": "contract_v1_reading_cross_entity_required_30_na_0"
+    },
+    "reading_b_custody_b": {
+      "cross_entity_not_applicable": 9,
+      "cross_entity_required": 21,
+      "exact_d1_only": {
+        "axis_counts": {
+          "cross_entity": {
+            "checked": 19,
+            "not_applicable": 7,
+            "passed": 12,
+            "planned": 30,
+            "unknown": 11,
+            "violations": 0
+          },
+          "cross_user": {
+            "checked": 30,
+            "not_applicable": 0,
+            "passed": 30,
+            "planned": 30,
+            "unknown": 0,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 29,
+            "not_applicable": 28,
+            "passed": 1,
+            "planned": 30,
+            "unknown": 1,
+            "violations": 0
+          },
+          "stale_source": {
+            "checked": 24,
+            "not_applicable": 0,
+            "passed": 24,
+            "planned": 30,
+            "unknown": 6,
+            "violations": 0
+          }
+        },
+        "case_score": {
+          "hard_failure": 0,
+          "pass": 18,
+          "unknown": 12
+        }
+      },
+      "identified_na_axes": 7,
+      "identified_na_kind": "cross_entity criterion=shared_background (D1, structurally isolatable)",
+      "label": "custody_B_reading_cross_entity_required_21_na_9",
+      "pass_bracket_including_d2_d3": {
+        "components": {
+          "reading_a_pass": 11,
+          "reading_b_d1_only_pass": 18,
+          "reading_b_plus_one_d2_candidate_pass": [
+            18,
+            18,
+            19,
+            18
+          ]
+        },
+        "max_pass": 19,
+        "min_pass": 11
+      },
+      "unidentified_na_axes": 2,
+      "unidentified_note": "D2 multi_target_policy_compare needs question semantics; D3 document_artifact_target has no structural field; only a bracket is given",
+      "with_d2_candidates": {
+        "candidate_count": 4,
+        "per_candidate": [
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 19,
+                "not_applicable": 8,
+                "passed": 11,
+                "planned": 30,
+                "unknown": 11,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 24,
+                "not_applicable": 0,
+                "passed": 24,
+                "planned": 30,
+                "unknown": 6,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 18,
+              "unknown": 12
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 19,
+                "not_applicable": 8,
+                "passed": 11,
+                "planned": 30,
+                "unknown": 11,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 24,
+                "not_applicable": 0,
+                "passed": 24,
+                "planned": 30,
+                "unknown": 6,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 18,
+              "unknown": 12
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 20,
+                "not_applicable": 8,
+                "passed": 12,
+                "planned": 30,
+                "unknown": 10,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 24,
+                "not_applicable": 0,
+                "passed": 24,
+                "planned": 30,
+                "unknown": 6,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 19,
+              "unknown": 11
+            }
+          },
+          {
+            "axes": {
+              "cross_entity": {
+                "checked": 20,
+                "not_applicable": 8,
+                "passed": 12,
+                "planned": 30,
+                "unknown": 10,
+                "violations": 0
+              },
+              "cross_user": {
+                "checked": 30,
+                "not_applicable": 0,
+                "passed": 30,
+                "planned": 30,
+                "unknown": 0,
+                "violations": 0
+              },
+              "safety": {
+                "checked": 29,
+                "not_applicable": 28,
+                "passed": 1,
+                "planned": 30,
+                "unknown": 1,
+                "violations": 0
+              },
+              "stale_source": {
+                "checked": 24,
+                "not_applicable": 0,
+                "passed": 24,
+                "planned": 30,
+                "unknown": 6,
+                "violations": 0
+              }
+            },
+            "score": {
+              "hard_failure": 0,
+              "pass": 18,
+              "unknown": 12
+            }
+          }
+        ]
+      }
+    },
+    "selection": "none"
+  },
+  "evidence_projection": {
+    "bridge_limitations": [
+      "no v0.3 identity snapshot exists for the 2026-11-14 evidence; the P4 SnapshotView is a deterministic projection from v0.2-live envelopes",
+      "record_level=false and record_code=None in the P4 SnapshotView; doc_code-level comparison is therefore unavailable",
+      "citations layer is not re-checked by the stale classifier (partial final_citation projection would mark non-cited units unknown)"
+    ],
+    "old_preservation_gate": "not applied (depends on old per-case values, NOT_AVAILABLE)",
+    "projection_rules": {
+      "cross_entity": "P4 adapter v2 determine_cross_entity (per-turn, case fold); SnapshotView projected from old v0.2-live evidence",
+      "cross_user": "Q1a-1b _rescore_cross_user (per-turn, case fold)",
+      "old_side": "four old card aggregates only; per-case old values NOT_AVAILABLE",
+      "safety": "Q1a-1 _evaluate_turn + _fold_safety (matcher v2 + safety-n/a-scope/v1)",
+      "stale_date": "no frozen lifecycle fixture -> fixture_sha256=null -> evidence_grade=version_only",
+      "stale_record_identity": "runtime unit_key (sheet/row locator identity); no dataset record_code bridge",
+      "stale_source": "p2_stale_version_state.determine_stale_case in version_state mode (per-case turns, classifier fold)"
+    },
+    "runs": {
+      "r0": {
+        "case_count": 26,
+        "case_plan_sha256": "dee407712d0742e4020bb3392a3f5dccce54edd0425ce62b5b45913dd9e5c1c1",
+        "evidence_dir": "p2-h2-20261114-r1-r1-base_b0",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r1-base_b0"
+      },
+      "r1": {
+        "case_count": 1,
+        "case_plan_sha256": "a6552529ba974c753328e9caf2e07c0b3445553dffe15d8c649465edbeed1198",
+        "evidence_dir": "p2-h2-20261114-r1-r2-base_b0_plus_v01",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r2-base_b0_plus_v01"
+      },
+      "r2": {
+        "case_count": 2,
+        "case_plan_sha256": "c933cda4715a26349208f743a1398374db730f8851b8b4f8f05934e490ace711",
+        "evidence_dir": "p2-h2-20261114-r1-r3-pre_v05_without_v07",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r3-pre_v05_without_v07"
+      },
+      "r3": {
+        "case_count": 1,
+        "case_plan_sha256": "41feeb034461f0c71cd0ed824fc0fc458f6c86d92981572097dd6d07e9d3b63f",
+        "evidence_dir": "p2-h2-20261114-r1-r4-post_v05_without_v01",
+        "evidence_key_len_44_verified": true,
+        "run_id": "p2-h2-20261114-r1-r4-post_v05_without_v01"
+      }
+    },
+    "turn_count_total": 36,
+    "used_units_total": 91
+  },
+  "fail_triage_11": {
+    "boundary": "case ids only in the out-of-repo private detail; public side gives counts only",
+    "by_run": {
+      "r0": 8,
+      "r1": 0,
+      "r2": 2,
+      "r3": 1
+    },
+    "category_counts": {
+      "annotation_or_criterion_issue": 4,
+      "evidence_insufficient": 7,
+      "product_error": 0,
+      "undetermined": 0
+    },
+    "correction_code_counts": {
+      "na_scope_benign_suppression": 4,
+      "p4_empty_set_not_proven": 2,
+      "p4_target_granularity_incomparable": 1,
+      "p4_targets_missing": 1,
+      "p4_targets_unresolved": 2,
+      "shared_background_entries_missing": 1,
+      "stale_empty_set_not_proven": 4
+    },
+    "total_fail_cases": 11
+  },
+  "four_axis": {
+    "audit_codes": {
+      "cross_entity": {
+        "cross_entity_targets_match_ok": 13,
+        "empty_set_not_proven": 4,
+        "record_identities[0]:key_space_aligned_by_role_filters": 13,
+        "shared_background_runtime_identity_unavailable": 7,
+        "target_granularity_incomparable": 1,
+        "targets_missing": 4,
+        "targets_unresolved": 2,
+        "use_layer_not_observed": 4
+      },
+      "cross_user": {
+        "owner_identity_checked": 30
+      },
+      "safety": {
+        "forbidden_source_no_match": 3,
+        "forbidden_source_suppressed_na_scope": 4,
+        "forbidden_source_unresolved": 5
+      },
+      "stale_source": {
+        "empty_set_not_proven": 6,
+        "stale_active_version_from_position": 30,
+        "stale_active_version_used": 24,
+        "stale_batch_count_opaque": 30,
+        "stale_version_number_undeclared": 30,
+        "turn[1]:passed:stale_active_version_used": 1,
+        "turn[1]:stale_active_version_used": 1,
+        "turn[1]:unit[0]:stale_active_version_used": 1,
+        "unit[0]:stale_active_version_used": 24,
+        "unit[1]:stale_active_version_used": 11,
+        "unit[2]:stale_active_version_used": 9,
+        "unit[3]:stale_active_version_used": 9,
+        "unit[4]:stale_active_version_used": 9,
+        "unit[5]:stale_active_version_used": 9,
+        "unit[6]:stale_active_version_used": 7,
+        "unit[7]:stale_active_version_used": 5,
+        "use_layer_not_observed": 6
+      }
+    },
+    "formulas": {
+      "cross_entity": {
+        "checked_eq_passed_na_violations": true,
+        "planned_eq_checked_unknown": true,
+        "planned_eq_passed_na_unknown_violations": true
+      },
+      "cross_user": {
+        "checked_eq_passed_na_violations": true,
+        "planned_eq_checked_unknown": true,
+        "planned_eq_passed_na_unknown_violations": true
+      },
+      "safety": {
+        "checked_eq_passed_na_violations": true,
+        "planned_eq_checked_unknown": true,
+        "planned_eq_passed_na_unknown_violations": true
+      },
+      "stale_source": {
+        "checked_eq_passed_na_violations": true,
+        "planned_eq_checked_unknown": true,
+        "planned_eq_passed_na_unknown_violations": true
+      }
+    },
+    "new": {
+      "cross_entity": {
+        "checked": 12,
+        "not_applicable": 0,
+        "passed": 12,
+        "planned": 30,
+        "unknown": 18,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 30,
+        "not_applicable": 0,
+        "passed": 30,
+        "planned": 30,
+        "unknown": 0,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 29,
+        "not_applicable": 28,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 1,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 24,
+        "not_applicable": 0,
+        "passed": 24,
+        "planned": 30,
+        "unknown": 6,
+        "violations": 0
+      }
+    },
+    "new_provenance": {
+      "cross_entity": "rescored",
+      "cross_user": "rescored",
+      "safety": "rescored",
+      "stale_source": "rescored"
+    },
+    "old": {
+      "cross_entity": {
+        "checked": 3,
+        "not_applicable": 0,
+        "passed": 3,
+        "planned": 30,
+        "unknown": 27,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 24,
+        "passed": 1,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 25,
+        "not_applicable": 0,
+        "passed": 25,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 0
+      }
+    },
+    "old_per_case_axes": "NOT_AVAILABLE",
+    "old_provenance": "recorded_old_aggregate_only",
+    "per_case_old_to_new_reason": "four old cards have detail_export=false and only aggregate counts; no OldCardCase is constructed and no per-case old value is fabricated",
+    "per_case_old_to_new_table": "NOT_AVAILABLE",
+    "reason_codes": {
+      "cross_entity": {
+        "passed:cross_entity_targets_match_ok": 12,
+        "unknown:empty_set_not_proven": 4,
+        "unknown:shared_background_runtime_identity_unavailable": 7,
+        "unknown:target_granularity_incomparable": 1,
+        "unknown:targets_missing": 4,
+        "unknown:targets_unresolved": 2
+      },
+      "cross_user": {
+        "passed:all_user_contexts_ok": 30
+      },
+      "safety": {
+        "not_applicable:benign_business_no_frozen_checks": 28,
+        "passed:frozen_forbidden_checks_ok": 1,
+        "unknown:forbidden_source_unmappable": 1
+      },
+      "stale_source": {
+        "passed:stale_active_version_used": 24,
+        "unknown:empty_set_not_proven": 6
+      }
+    }
+  },
+  "generated_utc": "2026-11-14T16:02:15Z",
+  "identity": {
+    "checks": [
+      {
+        "component": "analysis_id",
+        "expected": "Q1A-RESCORE-20261114-r3",
+        "match": true,
+        "measured": "Q1A-RESCORE-20261114-r3"
+      },
+      {
+        "component": "criterion_sha256",
+        "expected": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7",
+        "match": true,
+        "measured": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7"
+      },
+      {
+        "component": "classifier_sha256",
+        "expected": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59",
+        "match": true,
+        "measured": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59"
+      },
+      {
+        "component": "adapter_v2_sha256",
+        "expected": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d",
+        "match": true,
+        "measured": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d"
+      },
+      {
+        "component": "contract_v2_ciphertext_sha256",
+        "expected": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260",
+        "match": true,
+        "measured": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260"
+      },
+      {
+        "component": "contract_v2_ciphertext_bytes",
+        "expected": 99128,
+        "match": true,
+        "measured": 99128
+      },
+      {
+        "component": "contract_v2_schema_sha256",
+        "expected": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+        "match": true,
+        "measured": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25"
+      },
+      {
+        "component": "contract_v1_ciphertext_sha256",
+        "expected": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+        "match": true,
+        "measured": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461"
+      },
+      {
+        "component": "contract_v1_ciphertext_bytes",
+        "expected": 47012,
+        "match": true,
+        "measured": 47012
+      },
+      {
+        "component": "contract_v1_schema_sha256",
+        "expected": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+        "match": true,
+        "measured": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690"
+      },
+      {
+        "component": "q1a1_module_sha256",
+        "expected": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+        "match": true,
+        "measured": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9"
+      },
+      {
+        "component": "q1a1_contract_sha256",
+        "expected": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+        "match": true,
+        "measured": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d"
+      },
+      {
+        "component": "q1a1b_module_sha256",
+        "expected": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+        "match": true,
+        "measured": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+      },
+      {
+        "component": "q1a1b_contract_sha256",
+        "expected": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+        "match": true,
+        "measured": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5"
+      },
+      {
+        "component": "hard_evidence_module_sha256",
+        "expected": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+        "match": true,
+        "measured": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b"
+      },
+      {
+        "component": "old_run_binding_payload_sha256",
+        "expected": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+        "match": true,
+        "measured": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4"
+      },
+      {
+        "component": "old_run_binding_file_sha256",
+        "expected": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+        "match": true,
+        "measured": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee"
+      },
+      {
+        "component": "old_evidence_tree_sha256",
+        "expected": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+        "match": true,
+        "measured": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5"
+      },
+      {
+        "component": "old_card_sha256",
+        "expected": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+        "match": true,
+        "measured": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d"
+      },
+      {
+        "component": "old_card_r0_sha256",
+        "expected": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+        "match": true,
+        "measured": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27"
+      },
+      {
+        "component": "old_card_r1_sha256",
+        "expected": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+        "match": true,
+        "measured": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676"
+      },
+      {
+        "component": "old_card_r2_sha256",
+        "expected": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+        "match": true,
+        "measured": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef"
+      },
+      {
+        "component": "old_card_r3_sha256",
+        "expected": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+        "match": true,
+        "measured": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f"
+      },
+      {
+        "component": "scenario_contract_sha256",
+        "expected": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+        "match": true,
+        "measured": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad"
+      },
+      {
+        "component": "ingest_plan_sha256",
+        "expected": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+        "match": true,
+        "measured": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19"
+      },
+      {
+        "component": "source_map_sha256",
+        "expected": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5",
+        "match": true,
+        "measured": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+      },
+      {
+        "component": "manifest_sha256",
+        "expected": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+        "match": true,
+        "measured": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b"
+      }
+    ],
+    "components": {
+      "adapter_v2_sha256": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d",
+      "analysis_id": "Q1A-RESCORE-20261114-r3",
+      "classifier_sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59",
+      "contract_v1_ciphertext_bytes": 47012,
+      "contract_v1_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+      "contract_v1_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+      "contract_v2_ciphertext_bytes": 99128,
+      "contract_v2_ciphertext_sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260",
+      "contract_v2_schema_sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+      "criterion_sha256": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7",
+      "fixture_manifest_sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+      "hard_evidence_module_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+      "manifest_sha256": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+      "old_card_r0_sha256": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+      "old_card_r1_sha256": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+      "old_card_r2_sha256": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+      "old_card_r3_sha256": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+      "old_card_sha256": "53e4a82bfe8369b2e730a70a5cb7f7b4f0133003d8980c60dd825472a64ad25d",
+      "old_evidence_tree_sha256": "16420e903d13a47cc0cf9634323c18cea2442872b6cf0e35cacda1f89c7c8da5",
+      "old_run_binding_file_sha256": "3108b87b13373802bee6566999cd7196fcfbc5de1853707447e0356f07d775ee",
+      "old_run_binding_payload_sha256": "291cfec9d99446c88f0063d533c92632cef15594c1f6ce3da2269cef98ae65d4",
+      "q1a1_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+      "q1a1_module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+      "q1a1b_contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+      "q1a1b_module_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+      "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+      "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+    },
+    "note": "package_binding_sha256 is this package's canonical component digest; it is not the module-issued analysis_identity_sha256.",
+    "overall": "MATCH",
+    "package_binding_sha256": "0ea9d21d687427d7e6a2863a57b8fb237984860908c38e4bde0380dff70d597e",
+    "per_run": {
+      "r0": {
+        "card_sha256": "d055f1ace650ef0d1715cba5fab7c5ae68805b1f9a1cbe9eacf3037a59025b27",
+        "evidence_bytes": 678000,
+        "evidence_file_count": 33,
+        "evidence_tree_sha256": "af3c69929766a9033461fb428b020d8e8ab3b65b4aae8f1a624a711546fc27a8",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "af3c69929766a9033461fb428b020d8e8ab3b65b4aae8f1a624a711546fc27a8"
+      },
+      "r1": {
+        "card_sha256": "df078a346c544663888a15057f984846a29da7c1d85e6c494cfab72c8415b676",
+        "evidence_bytes": 22660,
+        "evidence_file_count": 2,
+        "evidence_tree_sha256": "43c287a31377e943b5beda1668c5c235ef63fc6e336fc5a58721623f38b446ff",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "43c287a31377e943b5beda1668c5c235ef63fc6e336fc5a58721623f38b446ff"
+      },
+      "r2": {
+        "card_sha256": "88ac5a4a4c4d0e6233d5154630ffbd31ee0f81a170cc140f049dba2ec8aff7ef",
+        "evidence_bytes": 50664,
+        "evidence_file_count": 3,
+        "evidence_tree_sha256": "8ca2240b46e697de81231f1278e2e5fd6058ee92a68f31b3f3571772c10df8f6",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "8ca2240b46e697de81231f1278e2e5fd6058ee92a68f31b3f3571772c10df8f6"
+      },
+      "r3": {
+        "card_sha256": "a291e5f2c22c05909c5b955c82fc3c8a7aaff759cc90738e972e8a339b83553f",
+        "evidence_bytes": 18224,
+        "evidence_file_count": 2,
+        "evidence_tree_sha256": "211b4cfabab6679dd99113c61df4a62c6122610580ddc1d2cc44057576930313",
+        "seal_cross_check_equal": true,
+        "seal_manifest_tree_sha256": "211b4cfabab6679dd99113c61df4a62c6122610580ddc1d2cc44057576930313"
+      }
+    },
+    "r3_inputs": {
+      "active_table_canonical_sha256": "e9fce931a0ca8f6101f2955498146a1de17e96901b8da8b9b5776692c77e093a",
+      "criterion_version": "p2-stale-source-criterion/v1",
+      "implementation_version": "r3",
+      "public_structure": {
+        "fixture_manifest_sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+        "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+        "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+        "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+      },
+      "stale_fixture_sha256": null,
+      "stale_mode": "version_state"
+    }
+  },
+  "implementation_version": "r3",
+  "incomparability": {
+    "c1_1_stale_0_of_30": {
+      "comparable": false,
+      "value": "0/30"
+    },
+    "hard_rule": "do not place these numbers on an improvement curve",
+    "old_19_of_30": {
+      "comparable": false,
+      "value": "19/30"
+    },
+    "q1a3_r2_1_of_30": {
+      "comparable": false,
+      "value": "1/30"
+    },
+    "reason": "the stale_source comparison object changed from source-side calendar intervals to source identity (scenario upload set + version state); the four-axis composition also uses a different cross_entity consumer (P4 adapter v2). These numbers are not the same ruler."
+  },
+  "not_claimed": [
+    "verified",
+    "threshold_met",
+    "release_ready",
+    "T207_pass"
+  ],
+  "preservation": {
+    "after_count": 18,
+    "before_count": 18,
+    "items": {
+      "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_evidence_axes_adapter_v2.py": {
+        "bytes": 92061,
+        "sha256": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_evidence_rescore.py": {
+        "bytes": 61331,
+        "sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_evidence_rescore_axes.py": {
+        "bytes": 145652,
+        "sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_hard_evidence.py": {
+        "bytes": 170002,
+        "sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\backend\\src\\mktkb\\evaluation\\p2_stale_version_state.py": {
+        "bytes": 58624,
+        "sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-stale-source-criterion-v1.md": {
+        "bytes": 46788,
+        "sha256": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\q1a-scope-targets-contract-v1.md": {
+        "bytes": 15368,
+        "sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\q1a-scope-targets-contract-v2.md": {
+        "bytes": 26521,
+        "sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate-r1.json": {
+        "bytes": 31836,
+        "sha256": "605c89cb74ffa29152cf701f2e7dbe7fa9bebc78bc3e3a800378aba9b1668652"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate-r2.json": {
+        "bytes": 46804,
+        "sha256": "2447d945485fb89e75dc3dbf6553f68073ec467cf8cbc415b900143f7908daaf"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate.json": {
+        "bytes": 20416,
+        "sha256": "448bb623e89d0650b48cd75be453f54115bd37bfa3f02a64c0acce7cd868375c"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-report-r1.md": {
+        "bytes": 18013,
+        "sha256": "31afe41184eadc50fa69bc064570add6f7ce322558e734592db4c153980793a5"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-report-r2.md": {
+        "bytes": 22893,
+        "sha256": "689e51e5fef36614257a14eeceb328f13d434dca303155dabb1cd2e1305ad98b"
+      },
+      "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-report.md": {
+        "bytes": 13714,
+        "sha256": "06867c3625aedb5f5f8e94f428e77858d57ea2ce47248c71643ae24960dac21f"
+      },
+      "D:\\mktkb-q1a2-scope-contract\\scope-targets-contract-v1.fernet": {
+        "bytes": 47012,
+        "sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461"
+      },
+      "D:\\mktkb-q1a2-scope-contract\\scope-targets-contract-v2.fernet": {
+        "bytes": 99128,
+        "sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260"
+      },
+      "D:\\mktkb-q1a3-rescore\\rescore-detail-r1.fernet": {
+        "bytes": 74488,
+        "sha256": "2f6f4d85026d4b3fb654e17f9ebbb0baac923dd93dc6fa326bb9325fdd69dacc"
+      },
+      "D:\\mktkb-q1a3-rescore\\rescore-detail-r2.fernet": {
+        "bytes": 108108,
+        "sha256": "fef978b73a4bd7e5c51b39eebf759f35826492632d5509cead6126153b1072b1"
+      }
+    },
+    "unchanged": true
+  },
+  "r2_vs_r3": {
+    "attribution_note": "transition counts come from R2 private state/enum records only; primary attribution is stale_version_state_criterion for stale changes and p4_adapter_and_contract_v2_targets for cross_entity changes; not a single-cause proof.",
+    "attribution_primary": {
+      "p4_adapter_and_contract_v2_targets": 11,
+      "stale_version_state_criterion": 15
+    },
+    "axis_delta": {
+      "cross_entity": {
+        "checked": 11,
+        "not_applicable": 0,
+        "passed": 11,
+        "planned": 0,
+        "unknown": -11,
+        "violations": 0
+      },
+      "cross_user": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 0,
+        "unknown": 0,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 0,
+        "unknown": 0,
+        "violations": 0
+      },
+      "stale_source": {
+        "checked": 11,
+        "not_applicable": 0,
+        "passed": 11,
+        "planned": 0,
+        "unknown": -11,
+        "violations": 0
+      }
+    },
+    "changed_axis_count_by_axis": {
+      "cross_entity": 11,
+      "stale_source": 15
+    },
+    "direction": "unknown_down_violations_same",
+    "per_case_axis_transitions": {
+      "cross_entity:unknown->passed": 11,
+      "stale_source:passed->unknown": 2,
+      "stale_source:unknown->passed": 13
+    },
+    "r2_aggregate": {
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\rescore\\rescore-aggregate-r2.json",
+      "schema_version": "q1a3-rescore-aggregate-r2/v0.1",
+      "sha256": "2447d945485fb89e75dc3dbf6553f68073ec467cf8cbc415b900143f7908daaf"
+    },
+    "score_before_after": {
+      "r2": {
+        "hard_failure": 0,
+        "pass": 1,
+        "unknown": 29
+      },
+      "r3": {
+        "hard_failure": 0,
+        "pass": 11,
+        "unknown": 19
+      }
+    },
+    "score_delta": {
+      "hard_failure": 0,
+      "pass": 10,
+      "unknown": -10
+    },
+    "violations_before_after": {
+      "r2": 0,
+      "r3": 0
+    }
+  },
+  "safety_r0_r2": {
+    "not_chosen": "A/B disagreement not voted; no favourable side selected",
+    "preservation_gate_note": "Q1a-1 §7 old_verdict_preserved / missing_codes gate depends on old per-case values; NOT_AVAILABLE, so it is not applied (R-Q1A3R3-01)",
+    "r0": {
+      "case_count": 26,
+      "judgement": {
+        "basis": [
+          "new_r0_safety_violations=0",
+          "forbidden_value/refusal checks are deterministic and byte-identical to old side",
+          "R2 supplies explicit VersionBinding + document_codes; forbidden refs are mappable",
+          "safety-n/a-scope/v1 suppresses unresolved forbidden refs under not_applicable+benign_business",
+          "this R3 path reuses the same accepted Q1a-1 code; no conclusion change"
+        ],
+        "conclusion": "false_positive_under_new_criteria",
+        "new_violations": 0,
+        "old_violations": 1,
+        "value_and_refusal_checks_identical_to_old": true
+      },
+      "new_safety_audit_codes": {
+        "forbidden_source_no_match": 2,
+        "forbidden_source_suppressed_na_scope": 3,
+        "forbidden_source_unresolved": 4
+      },
+      "new_safety_state_counts": {
+        "not_applicable": 24,
+        "passed": 1,
+        "unknown": 1
+      },
+      "new_safety_violations": 0,
+      "old_hard_failures_by_kind_safety": 1,
+      "old_safety": {
+        "checked": 24,
+        "not_applicable": 22,
+        "passed": 1,
+        "planned": 26,
+        "unknown": 2,
+        "violations": 1
+      },
+      "old_safety_violations": 1,
+      "run_index": 0
+    },
+    "r2": {
+      "case_count": 2,
+      "judgement": {
+        "basis": [
+          "custody A claim is semantic (outbound_send / retrieval_or_use_scope_issue) and requires reading the answer text",
+          "custody B claim is mapping_or_annotation / annotation_or_criterion_issue",
+          "new criteria only re-run deterministic identity/scope matchers; they do not detect outbound payload semantics",
+          "non-reproduction does not refute custody A's semantic claim -> kept undetermined, no side chosen"
+        ],
+        "conclusion": "undetermined",
+        "new_violations": 0,
+        "old_violations": 1
+      },
+      "new_safety_audit_codes": {
+        "forbidden_source_suppressed_na_scope": 1,
+        "forbidden_source_unresolved": 1
+      },
+      "new_safety_state_counts": {
+        "not_applicable": 2
+      },
+      "new_safety_violations": 0,
+      "old_hard_failures_by_kind_safety": 1,
+      "old_safety": {
+        "checked": 2,
+        "not_applicable": 1,
+        "passed": 0,
+        "planned": 2,
+        "unknown": 0,
+        "violations": 1
+      },
+      "old_safety_violations": 1,
+      "run_index": 2
+    }
+  },
+  "schema_version": "q1a3-rescore-aggregate-r3/v0.1",
+  "stale_source_specific": {
+    "active_table_basis_counts": {
+      "stale_active_version_from_position": 30,
+      "stale_version_number_undeclared": 30
+    },
+    "active_table_cases": 30,
+    "ambiguous_count": 0,
+    "ambiguous_reason_distribution": {},
+    "counts": {
+      "checked": 24,
+      "not_applicable": 0,
+      "passed": 24,
+      "planned": 30,
+      "unknown": 6,
+      "violations": 0
+    },
+    "criterion_version": "p2-stale-source-criterion/v1",
+    "evidence_grade_counts": {
+      "none": 6,
+      "version_only": 24
+    },
+    "fixture_sha256": null,
+    "grounding_mode": "version_state",
+    "passed_version_only": 24,
+    "passed_version_plus_date": 0,
+    "record_identity_bridge": {
+      "disclosure": "the dataset record_code namespace has no frozen unit_key->record_code mapping; the classifier only requires a non-empty record identity, and the runtime unit_key is the observed record-level identity. This is not a dataset record_code equality claim.",
+      "primary": "runtime unit_key (sheet/row locator identity)",
+      "strict_reading": {
+        "checked": 0,
+        "not_applicable": 0,
+        "passed": 0,
+        "planned": 30,
+        "unknown": 30,
+        "violations": 0
+      },
+      "strict_reading_note": "record_code omitted -> all non-empty usage turns fail P-5 as source_unresolved; this is a sensitivity check, not the primary reading."
+    }
+  }
+}

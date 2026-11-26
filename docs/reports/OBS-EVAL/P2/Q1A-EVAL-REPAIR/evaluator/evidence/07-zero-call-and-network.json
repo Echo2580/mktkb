@@ -1,0 +1,71 @@
+{
+  "analysis_id": "Q1A-RESCORE-20261114-r1",
+  "calls": {
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "network": 0,
+    "ocr": 0,
+    "provider": 0,
+    "real": 0,
+    "rerank": 0,
+    "retrieval": 0
+  },
+  "commands": [
+    ".venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1",
+    ".venv/Scripts/python.exe docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/evaluator/evidence/03-gen-counterexamples.py ..."
+  ],
+  "execution_entrypoints_used": [
+    "pytest（仅新增测试）"
+  ],
+  "module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+  "real_inputs_read": {
+    "key_or_env_file": false,
+    "ledger_or_go": false,
+    "private_ciphertext": false,
+    "private_custody_sessions": false,
+    "real_h2_cases_or_outputs": false
+  },
+  "runtime_network_guard": {
+    "applied_to": "backend/tests/evaluation/test_p2_evidence_rescore.py",
+    "asserted_at_teardown": true,
+    "external_attempts": 0,
+    "fixture": "acceptance.support.netguard.t09_network_guard",
+    "source": "pytest run exit 0（01-pytest.txt）",
+    "tests": 20
+  },
+  "schema_version": "q1a1-zero-call-and-network/v1",
+  "static_import_scan": {
+    "forbidden_modules": [
+      "httpx",
+      "requests",
+      "urllib",
+      "urllib3",
+      "http.client",
+      "socket",
+      "openai",
+      "mktkb.evaluation.p2_live",
+      "mktkb.evaluation.product_adapter",
+      "mktkb.rag"
+    ],
+    "imports": [
+      "__future__",
+      "collections",
+      "collections.abc",
+      "dataclasses",
+      "hashlib",
+      "json",
+      "os",
+      "pathlib",
+      "re",
+      "types",
+      "typing"
+    ],
+    "matched_forbidden_modules": [],
+    "module": "backend/src/mktkb/evaluation/p2_evidence_rescore.py",
+    "no_monkeypatch_calls": true,
+    "no_old_evaluator_import": true,
+    "scan_result": "PASS"
+  },
+  "test_sha256": "3eab734260d25dc3c72f23740a8f54c38d8279d209c19c5b94f31bd5ddf91163"
+}

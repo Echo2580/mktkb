@@ -1,0 +1,119 @@
+﻿{
+  "public_structure": {
+    "active_by_scenario": {
+      "base_b0": {
+        "active_doc_count": 6,
+        "active_version_multiset": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "ambiguous_count": 0
+      },
+      "base_b0_plus_v01": {
+        "active_doc_count": 7,
+        "active_version_multiset": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          1,
+          2
+        ],
+        "ambiguous_count": 0
+      },
+      "post_v05_without_v01": {
+        "active_doc_count": 7,
+        "active_version_multiset": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          4
+        ],
+        "ambiguous_count": 0
+      },
+      "pre_v05_without_v07": {
+        "active_doc_count": 7,
+        "active_version_multiset": [
+          1,
+          1,
+          1,
+          1,
+          1,
+          2,
+          3
+        ],
+        "ambiguous_count": 0
+      }
+    },
+    "active_table_canonical_sha256": "e9fce931a0ca8f6101f2955498146a1de17e96901b8da8b9b5776692c77e093a",
+    "binding_rule": "ref.doc_code -> scenario active upload set (source_indices + ingest order) -> source_map base_doc_code/version_number or fixture-manifest business_version; explicit variant code binds only when that exact version is active; 0/ambiguous -> unresolved",
+    "hardcoded_version_literals": 0,
+    "input_hashes": {
+      "fixture_manifest_sha256": "6889915267c5127312f1ee9308362ce0198277b1a916a2e6413dd48b5d2755b6",
+      "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+      "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+      "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5"
+    },
+    "scenario_count": 4,
+    "source_origin_counts": {
+      "fixture_manifest_normal": 6,
+      "fixture_manifest_variant": 2,
+      "source_map": 4
+    },
+    "source_rows": 12
+  },
+  "ref_binding_coverage": {
+    "alias_normalized": 5,
+    "bound": 71,
+    "bound_by_basis": {
+      "ingest_order": 63,
+      "source_map": 8
+    },
+    "by_collection": {
+      "expected_sources": {
+        "bound": 29,
+        "refs": 29,
+        "unbound": 0
+      },
+      "forbidden_sources": {
+        "bound": 13,
+        "refs": 15,
+        "unbound": 2
+      },
+      "relevant_units": {
+        "bound": 29,
+        "refs": 29,
+        "unbound": 0
+      }
+    },
+    "refs": 73,
+    "unbound": 2,
+    "unbound_by_reason": {
+      "ref_version_not_active": 2
+    }
+  },
+  "unit_doc_code_coverage": {
+    "resolved": 135,
+    "unit_shapes": {
+      "run=r0|namekind=display_D|candidate_versions=[1]|unit_version=1|reason=resolved_by_product_name": 94,
+      "run=r0|namekind=variant_basename|candidate_versions=[1, 2]|unit_version=2|reason=resolved_by_product_name": 31,
+      "run=r1|namekind=variant_basename|candidate_versions=[1, 2]|unit_version=2|reason=resolved_by_product_name": 1,
+      "run=r1|namekind=variant_basename|candidate_versions=[1]|unit_version=1|reason=resolved_by_product_name": 1,
+      "run=r2|namekind=display_D|candidate_versions=[1]|unit_version=2|reason=resolved_by_product_name": 1,
+      "run=r2|namekind=variant_basename|candidate_versions=[1, 2]|unit_version=3|reason=resolved_by_product_name": 7
+    },
+    "units": 135,
+    "unresolved_by_reason": {
+      "resolved_by_product_name": 135
+    },
+    "unresolved_shapes": {}
+  }
+}

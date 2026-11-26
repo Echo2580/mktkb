@@ -1,0 +1,317 @@
+{
+  "probe": "18-dev-evidence-audit",
+  "assertions_total": 38,
+  "assertions_failed": 0,
+  "results": [
+    {
+      "label": "manifest schema/algorithm",
+      "ok": true,
+      "detail": "q1a1b-hash-manifest/v1"
+    },
+    {
+      "label": "manifest lists 13 files",
+      "ok": true,
+      "detail": 13
+    },
+    {
+      "label": "manifest 13/13 file hashes match actual bytes",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "label": "manifest module sha == actual",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "manifest test sha == actual",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "manifest contract sha == actual",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "manifest self_hash_excluded",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "manifest commit_or_stage_performed false",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "01-pytest: 22 collected",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "01-pytest: 22 passed",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "01-pytest: 20 passed (Q1a-1 regression)",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "01-pytest: three EXIT_CODE 0",
+      "ok": true,
+      "detail": 3
+    },
+    {
+      "label": "01-pytest: no skipped/xfail/error",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "01-pytest hash matches manifest",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "zero-call: all call counters zero",
+      "ok": true,
+      "detail": {
+        "embedding": 0,
+        "judge": 0,
+        "model": 0,
+        "network": 0,
+        "ocr": 0,
+        "provider": 0,
+        "real": 0,
+        "rerank": 0,
+        "retrieval": 0
+      }
+    },
+    {
+      "label": "zero-call: module/test/contract sha match actual",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "zero-call: real_inputs_read all false",
+      "ok": true,
+      "detail": {
+        "key_or_env_file": false,
+        "ledger_or_go": false,
+        "private_ciphertext": false,
+        "private_custody_sessions": false,
+        "real_h2_cases_or_outputs": false
+      }
+    },
+    {
+      "label": "zero-call: staged_or_committed false",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "zero-call: netguard external attempts 0 and teardown asserted",
+      "ok": true,
+      "detail": {
+        "applied_to": [
+          "backend/tests/evaluation/test_p2_evidence_rescore_axes.py",
+          "backend/tests/evaluation/test_p2_evidence_rescore.py"
+        ],
+        "asserted_at_teardown": true,
+        "external_attempts": 0,
+        "fixture": "acceptance.support.netguard.t09_network_guard",
+        "regression_tests": 20,
+        "source": "01-pytest.txt（两次 run exit 0）",
+        "tests": 22
+      }
+    },
+    {
+      "label": "zero-call: static import scan PASS with no forbidden hits",
+      "ok": true,
+      "detail": {
+        "forbidden_modules": [
+          "base64",
+          "cryptography",
+          "http.client",
+          "httpx",
+          "mktkb.evaluation.p2_hard_evidence",
+          "mktkb.evaluation.p2_live",
+          "mktkb.evaluation.product_adapter",
+          "mktkb.rag",
+          "openai",
+          "requests",
+          "socket",
+          "urllib",
+          "urllib3"
+        ],
+        "imports": [
+          "__future__",
+          "collections.abc",
+          "dataclasses",
+          "datetime",
+          "hashlib",
+          "json",
+          "os",
+          "p2_evidence_rescore",
+          "pathlib",
+          "re",
+          "types",
+          "typing"
+        ],
+        "matched_forbidden_modules": [],
+        "module": "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py",
+        "no_ciphertext_or_key_access": true,
+        "no_frozen_evaluator_import": true,
+        "no_monkeypatch_calls": true,
+        "no_os_environ": true,
+        "no_subprocess": true,
+        "scan_result": "PASS"
+      }
+    },
+    {
+      "label": "after-manifest all_match true",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "after-manifest evaluator count 35/35",
+      "ok": true,
+      "detail": null
+    },
+    {
+      "label": "after-manifest c_freeze_12: 12 items match actual",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "label": "after-manifest tracked_modified_15: 15 items match actual",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "label": "after-manifest q1a1_protected: 38 items match actual",
+      "ok": true,
+      "detail": {}
+    },
+    {
+      "label": "counterexamples: 10 entries",
+      "ok": true,
+      "detail": 10
+    },
+    {
+      "label": "counterexamples: expected starts with new state/reason",
+      "ok": true,
+      "detail": []
+    },
+    {
+      "label": "counterexamples: provenance in allowed set",
+      "ok": true,
+      "detail": [
+        "rescored",
+        "rescored",
+        "rescored",
+        "rescored",
+        "rescored",
+        "rescored",
+        "rescored",
+        "preserved_old_verdict",
+        "rescored",
+        "rescored"
+      ]
+    },
+    {
+      "label": "03-gen-counterexamples.py: no forbidden imports",
+      "ok": true,
+      "detail": {
+        "imports": [
+          "__future__",
+          "json",
+          "mktkb.evaluation",
+          "pathlib",
+          "sys"
+        ],
+        "bad": []
+      }
+    },
+    {
+      "label": "03-gen-counterexamples.py: no os.environ access",
+      "ok": true,
+      "detail": "03-gen-counterexamples.py"
+    },
+    {
+      "label": "05-verify-protected.py: no forbidden imports",
+      "ok": true,
+      "detail": {
+        "imports": [
+          "__future__",
+          "datetime",
+          "hashlib",
+          "json",
+          "pathlib",
+          "subprocess",
+          "sys"
+        ],
+        "bad": []
+      }
+    },
+    {
+      "label": "05-verify-protected.py: no os.environ access",
+      "ok": true,
+      "detail": "05-verify-protected.py"
+    },
+    {
+      "label": "07-build-zero-call-evidence.py: no forbidden imports",
+      "ok": true,
+      "detail": {
+        "imports": [
+          "__future__",
+          "ast",
+          "hashlib",
+          "json",
+          "pathlib",
+          "sys"
+        ],
+        "bad": []
+      }
+    },
+    {
+      "label": "07-build-zero-call-evidence.py: no os.environ access",
+      "ok": true,
+      "detail": "07-build-zero-call-evidence.py"
+    },
+    {
+      "label": "06-build-hash-manifest.py: no forbidden imports",
+      "ok": true,
+      "detail": {
+        "imports": [
+          "__future__",
+          "hashlib",
+          "json",
+          "pathlib",
+          "subprocess",
+          "sys"
+        ],
+        "bad": []
+      }
+    },
+    {
+      "label": "06-build-hash-manifest.py: no os.environ access",
+      "ok": true,
+      "detail": "06-build-hash-manifest.py"
+    },
+    {
+      "label": "dev-report hash table rows all match actual bytes",
+      "ok": true,
+      "detail": {
+        "rows": 11,
+        "mismatch": {}
+      }
+    },
+    {
+      "label": "dev-report table covers >= 11 files",
+      "ok": true,
+      "detail": 11
+    }
+  ],
+  "verdict": "PASS"
+}

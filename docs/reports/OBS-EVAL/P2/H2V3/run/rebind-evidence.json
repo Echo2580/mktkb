@@ -1,0 +1,423 @@
+{
+  "schema_version": "p2-h2v3-v3-rebind-evidence/v0.1",
+  "role": "v3 基线重绑 + 真实执行（本包只刷新 binding，不改计划/GO/预算/账本）",
+  "rebind_utc": "2026-11-15T07:44:16+08:00",
+  "reason": "计划与 GO 生成于 2026-11-15T06:30:39+08:00（rollback-40 计划集），此后经授权修复 fix-1r1 改了 backend/src/mktkb/rag/query.py（06:55:45，f73fc735…→82776def…），入口的代码冻结门按设计以 code_changed_since_plan 拒绝了旧 binding；独立验收已给出 PASS_WITH_DISAGREEMENTS 且判定可跑真实基线。经理裁定选项 A：用当前代码重生成计划与 binding，计划逐字节不变则 GO 的 plan_sha256 绑定仍有效，只刷新 binding。",
+  "authorization_and_acceptance": [
+    {
+      "kind": "manager_ruling",
+      "what": "选项 A（刷新 binding，不换计划/GO）",
+      "reference": "docs/reports/OBS-EVAL/P2/H2V3/run/round1-notrun/run-report.md §8/§8.1（选项 A 及 shadow 逐字节比对）"
+    },
+    {
+      "kind": "independent_acceptance",
+      "what": "fix-1r1 独立评审判定与可跑性结论",
+      "reference": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/review-aggregate.json",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "runnable_real_baseline": true,
+      "conditions": [
+        "必须使用 40 元口径的 rollback-40 计划/绑定/GO",
+        "rollback-40 check 4/4 ok、zero_send=0、zero_write 不变、reservation_count=952",
+        "混合指代（D1）/跨轮（D2）/相邻量化形式（D4）为跑前已知残余"
+      ]
+    },
+    {
+      "kind": "fix_record",
+      "what": "fix-1r1 开发记录（授权修复范围与改动）",
+      "reference": "docs/reports/OBS-EVAL/P2/H2V3/fix-1r1/dev-report.md"
+    }
+  ],
+  "baseline": {
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged": 0,
+    "plan_generated_local": "2026-11-15T06:30:39+08:00",
+    "query_py_current_sha256": "82776def986afa6defd37d75f6596a51dc1402fcdbe4725c7aa7d7d1ecc27fef",
+    "query_py_pre_r1_sha256": "f73fc7353501e09e65a474fc2599fa4235e1db5d72fc4ea802e0e881f680c372",
+    "plan_set_before": "D:\\mktkb-p2-h2v3-20261115\\rollback-40",
+    "plan_set_after": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1"
+  },
+  "code_version": {
+    "before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+    "after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+    "changed": true,
+    "scope": [
+      "backend/src/mktkb/**/*.py（排除 __pycache__）",
+      "tools/p2_h2_controlled_execute.py",
+      "tools/p2_h2_v3_controlled_execute.py"
+    ],
+    "explanation": "before 是计划生成时的代码摘要（fix-1/A 后、fix-1r1 前），after 是当前树（含 fix-1r1）。"
+  },
+  "plan_identity": {
+    "all_byte_identical": true,
+    "all_plan_sha256_unchanged": true,
+    "all_go_plan_sha256_match": true,
+    "per_run": [
+      {
+        "run_index": 0,
+        "scenario_id": "base_b0",
+        "plan_file": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans\\run0-base_b0.plan.json",
+        "plan_file_sha256_before": "3f1c0014c766e1317ecaa018ff3352ea30d38b0e5cee197319984eee5e5dad81",
+        "plan_file_sha256_after": "3f1c0014c766e1317ecaa018ff3352ea30d38b0e5cee197319984eee5e5dad81",
+        "plan_byte_identical": true,
+        "plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+        "go_plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+        "go_plan_sha256_match": true,
+        "total_requests": 64,
+        "worst_case_cny": 0.63552
+      },
+      {
+        "run_index": 1,
+        "scenario_id": "base_b0_plus_v01",
+        "plan_file": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans\\run1-base_b0_plus_v01.plan.json",
+        "plan_file_sha256_before": "b1ba1ffc4e173906371d445ce1d60d8d0c8f3cbc94e765d3efba686ac3b4f577",
+        "plan_file_sha256_after": "b1ba1ffc4e173906371d445ce1d60d8d0c8f3cbc94e765d3efba686ac3b4f577",
+        "plan_byte_identical": true,
+        "plan_sha256": "4691e9c366fa4393640f7bbf4d5e25de7b012b8f9fd4a5425f519867d281ad97",
+        "go_plan_sha256": "4691e9c366fa4393640f7bbf4d5e25de7b012b8f9fd4a5425f519867d281ad97",
+        "go_plan_sha256_match": true,
+        "total_requests": 49,
+        "worst_case_cny": 0.460672
+      },
+      {
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "plan_file": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans\\run2-pre_v05_without_v07.plan.json",
+        "plan_file_sha256_before": "59ae317b34d72a459606d23ff80faa0a05421193eb7273cd8f9a0643b146b6e2",
+        "plan_file_sha256_after": "59ae317b34d72a459606d23ff80faa0a05421193eb7273cd8f9a0643b146b6e2",
+        "plan_byte_identical": true,
+        "plan_sha256": "9896ae4ecb30ea5c696dcc160bb9a318194808f15badccde4f92e75980f857bb",
+        "go_plan_sha256": "9896ae4ecb30ea5c696dcc160bb9a318194808f15badccde4f92e75980f857bb",
+        "go_plan_sha256_match": true,
+        "total_requests": 35,
+        "worst_case_cny": 0.287872
+      },
+      {
+        "run_index": 3,
+        "scenario_id": "post_v05_without_v01",
+        "plan_file": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans\\run3-post_v05_without_v01.plan.json",
+        "plan_file_sha256_before": "989cdc94852190bc4e657c831000a2be189c3db2127787a9560edec0f7c01293",
+        "plan_file_sha256_after": "989cdc94852190bc4e657c831000a2be189c3db2127787a9560edec0f7c01293",
+        "plan_byte_identical": true,
+        "plan_sha256": "8f662d59f9a8988f601e5c8de419ba46f118fae498f48b0c5e74ff25c0e48e9f",
+        "go_plan_sha256": "8f662d59f9a8988f601e5c8de419ba46f118fae498f48b0c5e74ff25c0e48e9f",
+        "go_plan_sha256_match": true,
+        "total_requests": 37,
+        "worst_case_cny": 0.291968
+      }
+    ],
+    "conclusion": "四份 plan 逐字节不变、plan_sha256 不变且与四份 GO 的 scope 逐值一致，故现有 4 份 GO 仍有效。"
+  },
+  "binding_refresh": {
+    "per_run": [
+      {
+        "run_index": 0,
+        "scenario_id": "base_b0",
+        "run_id": "p2-h2v3-20261115-r0-base_b0",
+        "business_date": "2026-10-15",
+        "code_version_before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+        "code_version_after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+        "config_sha256_before": "284946a5d7406cbfd9999947ba480d2a9216d38da708817162e1025dd87a6e29",
+        "config_sha256_after": "b1799ff982fe5d20265c00b87d6508ca4aa80dd764b5b092fc3f561347dab111",
+        "binding_sha256_before": "e4721c872baa22f5c77d4eb728b9ef011f5a296dd0bb7a5a2db06e1ce2a842f2",
+        "binding_sha256_after": "2ca148c23124991aca17071d6e70d2245f464bad1aa42bcf2325aa348f65fec7",
+        "binding_file_sha256_before": "d7a9bd07183e1d13be13b2d6493d5e40c7ad1fccbf86330ec35acfc29b57179b",
+        "binding_file_sha256_after": "08cb5528773eefa921221900bc0985d58c3e1bc31af022edd5b47dada4ecbb89",
+        "changed_binding_leaves": [
+          "code_version",
+          "config.code_version",
+          "config_sha256",
+          "runs[0].evidence_bindings.code_version",
+          "runs[0].evidence_bindings.config_sha256",
+          "runs[0].plan_file"
+        ],
+        "changed_config_leaves": [
+          "code_version"
+        ],
+        "unchanged_facts": {
+          "dataset_manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+          "scenario_binding_sha256": {
+            "scenario_contract_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+            "assignment_sha256": "78940fd6e3c0e2ca64686590d3c418d5158ca8851204642cc253d65f4963e0ca",
+            "custody_sha256": "0fa7dbe0e233db87732a60a245c1baa74a3c48e28de892f7b9a07cadfc40c543",
+            "subset_sha256": "95751fa385c7feb974eecbf32838bceec11c1cdf4112b7530a407b740171f1a9",
+            "scenario_ingest_sha256": "b44b75cd94f1ae93d3be1e2b91f9c882124fe07647590b8aa5a71ed93f785698"
+          },
+          "case_count": 12,
+          "turn_count": 14,
+          "total_requests": 64,
+          "worst_case_cny": 0.63552,
+          "max_requests": 1137,
+          "project_total_limit_cny": 40.0
+        }
+      },
+      {
+        "run_index": 1,
+        "scenario_id": "base_b0_plus_v01",
+        "run_id": "p2-h2v3-20261115-r1-base_b0_plus_v01",
+        "business_date": "2026-07-15",
+        "code_version_before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+        "code_version_after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+        "config_sha256_before": "b8648faa593b282aacf6590396f4aebd99e13390a51c3c1131a9f13be23faec0",
+        "config_sha256_after": "f36fed73a1096ca1c32fc31f4e14c5024610823ba073ca80634d094488832d63",
+        "binding_sha256_before": "53ff67db66dc37c134884d766a79f8c8c9d244aacb6c9e5e7f8d84d5b5f4cdcb",
+        "binding_sha256_after": "8458b6e124a36416a504c86fd312c9bcfb33ad75b8a4f82883934e6e41765406",
+        "binding_file_sha256_before": "f085de1b2948c377bba3aee7eca03a54af7c056293b576be550761f0078c41f8",
+        "binding_file_sha256_after": "e91173d7acbd9dbc7127bd3b01975ff5732a9b634e8c0d92e53a42780af6a135",
+        "changed_binding_leaves": [
+          "code_version",
+          "config.code_version",
+          "config_sha256",
+          "runs[0].evidence_bindings.code_version",
+          "runs[0].evidence_bindings.config_sha256",
+          "runs[0].plan_file"
+        ],
+        "changed_config_leaves": [
+          "code_version"
+        ],
+        "unchanged_facts": {
+          "dataset_manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+          "scenario_binding_sha256": {
+            "scenario_contract_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+            "assignment_sha256": "78940fd6e3c0e2ca64686590d3c418d5158ca8851204642cc253d65f4963e0ca",
+            "custody_sha256": "0fa7dbe0e233db87732a60a245c1baa74a3c48e28de892f7b9a07cadfc40c543",
+            "subset_sha256": "a4767d5061f99edc3e7f30a60deedc825134a957df88ef6be6aaf242d434a317",
+            "scenario_ingest_sha256": "84d6c66c343ff3078dfdc83b1fcf12c7741deebc7ab506c7896c0d81e5b0e76c"
+          },
+          "case_count": 8,
+          "turn_count": 10,
+          "total_requests": 49,
+          "worst_case_cny": 0.460672,
+          "max_requests": 1137,
+          "project_total_limit_cny": 40.0
+        }
+      },
+      {
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+        "business_date": "2026-11-20",
+        "code_version_before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+        "code_version_after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+        "config_sha256_before": "9910cfd972c602a9e78e00838a2f868d3428f4bd168d8628b20b33aedf08d43f",
+        "config_sha256_after": "7919e56f330f1be57d242a576859bd53e4e31388a39f87dd1d3dba675e7533b4",
+        "binding_sha256_before": "908a3a531a6dc6d9ec0af15db7111add30b8c77c08f64cf295250ba4b9fa7e35",
+        "binding_sha256_after": "544c76c6e3340423924eaaaf85e0ec7ef49cc70a0d1cf1550759a5fa4525be72",
+        "binding_file_sha256_before": "1ec2fc50297ea86daf7b74a43c51a88597eaf5dbcd75aec62869aaa278ba879c",
+        "binding_file_sha256_after": "759831c5521f18323c65fc64803fe4be890e3bcef48de7fe49933f77d421b26f",
+        "changed_binding_leaves": [
+          "code_version",
+          "config.code_version",
+          "config_sha256",
+          "runs[0].evidence_bindings.code_version",
+          "runs[0].evidence_bindings.config_sha256",
+          "runs[0].plan_file"
+        ],
+        "changed_config_leaves": [
+          "code_version"
+        ],
+        "unchanged_facts": {
+          "dataset_manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+          "scenario_binding_sha256": {
+            "scenario_contract_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+            "assignment_sha256": "78940fd6e3c0e2ca64686590d3c418d5158ca8851204642cc253d65f4963e0ca",
+            "custody_sha256": "0fa7dbe0e233db87732a60a245c1baa74a3c48e28de892f7b9a07cadfc40c543",
+            "subset_sha256": "e7bdd49b51a61661461aead20ea312d893fd6919859d41640a1e9bd95ee56c2c",
+            "scenario_ingest_sha256": "457220f84446da3dccac7883cef4c74e948de1c463cb253aef7cea6c2fba199e"
+          },
+          "case_count": 5,
+          "turn_count": 6,
+          "total_requests": 35,
+          "worst_case_cny": 0.287872,
+          "max_requests": 1137,
+          "project_total_limit_cny": 40.0
+        }
+      },
+      {
+        "run_index": 3,
+        "scenario_id": "post_v05_without_v01",
+        "run_id": "p2-h2v3-20261115-r3-post_v05_without_v01",
+        "business_date": "2026-12-15",
+        "code_version_before": "efe1c66ef290b612650bbf9417dd9cf659b1f77b35cbf37c70b0bbd15d659a1c",
+        "code_version_after": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+        "config_sha256_before": "38e6ca1fe9938c0a299940fda2f15d44311862779c4ff59be5381e6b7c7da8cb",
+        "config_sha256_after": "3236a3fde739d498854344e873469e1350c51a6a5e5916539b7a0fe8b07dbb2a",
+        "binding_sha256_before": "2e9dae52458d397d83a7f21bc78954f2b6eec5169a06bc685647feadc1625ecd",
+        "binding_sha256_after": "aaf3579fe083e2965cd14083cd0f9348b23ee601f0ac307bf489c77b73bb15b9",
+        "binding_file_sha256_before": "b59088dfe5383dedd2ddf7c50804517327b21b90fbe7b65189cced9846db5777",
+        "binding_file_sha256_after": "09efdff1497ad07b7355b9150f918f84bcaca1db7a3ab6b3222f9cc9f33df1cb",
+        "changed_binding_leaves": [
+          "code_version",
+          "config.code_version",
+          "config_sha256",
+          "runs[0].evidence_bindings.code_version",
+          "runs[0].evidence_bindings.config_sha256",
+          "runs[0].plan_file"
+        ],
+        "changed_config_leaves": [
+          "code_version"
+        ],
+        "unchanged_facts": {
+          "dataset_manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+          "scenario_binding_sha256": {
+            "scenario_contract_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+            "assignment_sha256": "78940fd6e3c0e2ca64686590d3c418d5158ca8851204642cc253d65f4963e0ca",
+            "custody_sha256": "0fa7dbe0e233db87732a60a245c1baa74a3c48e28de892f7b9a07cadfc40c543",
+            "subset_sha256": "91c5693cebabce110c8d0fbdf3ff0d2704b3ca5bc392dacf562a06ecf637d1df",
+            "scenario_ingest_sha256": "f7663bfc3a7e84894881cc47cb6272213bd2dd0b47e945d5888408b5b048ba97"
+          },
+          "case_count": 5,
+          "turn_count": 6,
+          "total_requests": 37,
+          "worst_case_cny": 0.291968,
+          "max_requests": 1137,
+          "project_total_limit_cny": 40.0
+        }
+      }
+    ],
+    "binding_file_used_for_runs": {
+      "r0": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\bindings\\run0-base_b0.binding.json",
+      "r1": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\bindings\\run1-base_b0_plus_v01.binding.json",
+      "r2": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\bindings\\run2-pre_v05_without_v07.binding.json",
+      "r3": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\bindings\\run3-post_v05_without_v01.binding.json"
+    }
+  },
+  "check_only": {
+    "all_ok": true,
+    "all_production_ready": true,
+    "zero_external_attempts": true,
+    "ledger_unchanged_all": true,
+    "budget_unchanged_all": true,
+    "per_run": [
+      {
+        "run_index": 0,
+        "evidence": "preflight/rebind-check-r0.json",
+        "mode": "full_contract_reload",
+        "ok": true,
+        "reasons": [],
+        "production_ready": true,
+        "requests_planned": 64,
+        "requests_used": 952,
+        "requests_remaining": 185,
+        "stage_remaining_cny": 12.867561699999994,
+        "worst_case_cny": 0.63552,
+        "go_file_sha256": "dbc198c8bf8ee11c844d0393c9091b25a0b5e6d1281c872cd6b254854fe5217d",
+        "go_plan_sha_match": true,
+        "zero_send_external": 0,
+        "zero_send_local": 0,
+        "ledger_unchanged": true,
+        "budget_unchanged": true,
+        "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+        "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+        "quota": {
+          "cumulative_after_four_runs": 1137,
+          "exceeds_gate": false,
+          "governance_cap": 1500,
+          "plan_set": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans",
+          "remaining_before": 548,
+          "requests_this_run": 64,
+          "total_requests_all_runs": 185,
+          "used_before": 952
+        }
+      },
+      {
+        "run_index": 1,
+        "evidence": "preflight/rebind-check-r1.json",
+        "mode": "plan_only",
+        "ok": true,
+        "reasons": [],
+        "production_ready": true,
+        "requests_planned": 49,
+        "requests_used": 952,
+        "requests_remaining": 185,
+        "stage_remaining_cny": 12.867561699999994,
+        "worst_case_cny": 0.460672,
+        "go_file_sha256": "a8516ac3d71a9fd9595a000652c534b4809b6cc288cc505a40773688a82fb1b2",
+        "go_plan_sha_match": true,
+        "zero_send_external": 0,
+        "zero_send_local": 0,
+        "ledger_unchanged": true,
+        "budget_unchanged": true,
+        "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+        "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+        "quota": {
+          "cumulative_after_four_runs": 1137,
+          "exceeds_gate": false,
+          "governance_cap": 1500,
+          "plan_set": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans",
+          "remaining_before": 548,
+          "requests_this_run": 49,
+          "total_requests_all_runs": 185,
+          "used_before": 952
+        }
+      },
+      {
+        "run_index": 2,
+        "evidence": "preflight/rebind-check-r2.json",
+        "mode": "plan_only",
+        "ok": true,
+        "reasons": [],
+        "production_ready": true,
+        "requests_planned": 35,
+        "requests_used": 952,
+        "requests_remaining": 185,
+        "stage_remaining_cny": 12.867561699999994,
+        "worst_case_cny": 0.287872,
+        "go_file_sha256": "d7edf6d256cd19882a682604bb31689e9f0be9ed76a8d8d6f8f09de2a3e4d4e1",
+        "go_plan_sha_match": true,
+        "zero_send_external": 0,
+        "zero_send_local": 0,
+        "ledger_unchanged": true,
+        "budget_unchanged": true,
+        "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+        "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+        "quota": {
+          "cumulative_after_four_runs": 1137,
+          "exceeds_gate": false,
+          "governance_cap": 1500,
+          "plan_set": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans",
+          "remaining_before": 548,
+          "requests_this_run": 35,
+          "total_requests_all_runs": 185,
+          "used_before": 952
+        }
+      },
+      {
+        "run_index": 3,
+        "evidence": "preflight/rebind-check-r3.json",
+        "mode": "plan_only",
+        "ok": true,
+        "reasons": [],
+        "production_ready": true,
+        "requests_planned": 37,
+        "requests_used": 952,
+        "requests_remaining": 185,
+        "stage_remaining_cny": 12.867561699999994,
+        "worst_case_cny": 0.291968,
+        "go_file_sha256": "d681b673837d681574dfcf18a11984463599d1856c0641411580146916e3b1a4",
+        "go_plan_sha_match": true,
+        "zero_send_external": 0,
+        "zero_send_local": 0,
+        "ledger_unchanged": true,
+        "budget_unchanged": true,
+        "ledger_sha256": "ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9",
+        "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+        "quota": {
+          "cumulative_after_four_runs": 1137,
+          "exceeds_gate": false,
+          "governance_cap": 1500,
+          "plan_set": "D:\\mktkb-p2-h2v3-20261115\\rebind-r1\\plans",
+          "remaining_before": 548,
+          "requests_this_run": 37,
+          "total_requests_all_runs": 185,
+          "used_before": 952
+        }
+      }
+    ]
+  },
+  "verdict": "PLAN_BYTE_IDENTICAL__GO_STILL_VALID__BINDING_REFRESHED",
+  "residual": [
+    "本次重绑只刷新 binding 的 code_version/config_sha256/binding_sha256 与 plan_file 绝对路径；计划、GO、预算、账本、语料、评测模块均未改。",
+    "check-only 的 r0 为 full_contract_reload，r1..r3 为 plan_only（不加载私有数据集），四者均 ok=true 且 production_ready=true。"
+  ]
+}

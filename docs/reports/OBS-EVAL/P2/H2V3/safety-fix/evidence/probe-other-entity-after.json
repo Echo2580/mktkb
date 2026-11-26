@@ -1,0 +1,238 @@
+{
+  "cases": {
+    "M1 single entity location then phone follow-up": [
+      {
+        "question": "城东店的展架在哪里？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "那它的电话呢？",
+        "kind": "answer",
+        "text": "城东店的电话：010-00000001；店家：城东店；联系人：模拟联系人·陈宁；地址：示例路18号；合作状态：合作中。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "28860930-ac0b-4613-8ed7-71ffd92206a0",
+            "store": "城东店",
+            "item": null,
+            "identifier": "S01"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店"
+        }
+      }
+    ],
+    "M2 single entity then sibling item": [
+      {
+        "question": "城东店的展架在哪里？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "宣传海报呢？",
+        "kind": "answer",
+        "text": "城东店的宣传海报的位置：A区1号货架；门店：城东店；物品：宣传海报；别名：海报。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "335d2503-2c95-4379-9363-c966fecf1dff",
+            "store": "城东店",
+            "item": "宣传海报",
+            "identifier": "P01"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "宣传海报"
+        }
+      }
+    ],
+    "M3 single entity then other store": [
+      {
+        "question": "城东店的展架在哪里？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "城西店呢？",
+        "kind": "answer",
+        "text": "城西店的展架的位置：B区3号货架中层；门店：城西店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e0c138be-725c-4fd1-8675-67a06aea3467",
+            "store": "城西店",
+            "item": "展架",
+            "identifier": "P04"
+          }
+        ],
+        "context_entities": {
+          "store": "城西店",
+          "item": "展架"
+        }
+      }
+    ],
+    "M4 multi target then anaphora": [
+      {
+        "question": "城东店和城西店的展架在哪里？",
+        "kind": "answer",
+        "text": "共 2 条，当前第 1 页显示 2 条。\n- 城东店的展架：A区2号货架底层（来源：物品位置表.xlsx）\n- 城西店的展架：B区3号货架中层（来源：物品位置表.xlsx）\n已显示全部。",
+        "model_calls": 0,
+        "evidence": [],
+        "context_entities": {}
+      },
+      {
+        "question": "那它的位置呢？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      }
+    ],
+    "M5 single entity then field anaphora": [
+      {
+        "question": "城东店的展架在哪里？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "它的位置呢？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      }
+    ],
+    "M6 store switch then store field": [
+      {
+        "question": "城东店的展架在哪里？",
+        "kind": "answer",
+        "text": "城东店的展架的位置：A区2号货架底层；门店：城东店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e693c009-66be-4964-a039-89448f33270e",
+            "store": "城东店",
+            "item": "展架",
+            "identifier": "P03"
+          }
+        ],
+        "context_entities": {
+          "store": "城东店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "城西店",
+        "kind": "answer",
+        "text": "城西店的展架的位置：B区3号货架中层；门店：城西店；物品：展架；别名：展示架。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "e0c138be-725c-4fd1-8675-67a06aea3467",
+            "store": "城西店",
+            "item": "展架",
+            "identifier": "P04"
+          }
+        ],
+        "context_entities": {
+          "store": "城西店",
+          "item": "展架"
+        }
+      },
+      {
+        "question": "电话呢？",
+        "kind": "answer",
+        "text": "城西店的电话：010-00000002；店家：城西店；联系人：模拟联系人·王平；地址：示例路26号；合作状态：合作中。",
+        "model_calls": 1,
+        "evidence": [
+          {
+            "source_id": "b7105077-fd4d-4056-812c-f7e483a43d8d",
+            "store": "城西店",
+            "item": null,
+            "identifier": "S02"
+          }
+        ],
+        "context_entities": {
+          "store": "城西店"
+        }
+      }
+    ]
+  }
+}

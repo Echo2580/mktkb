@@ -1,0 +1,213 @@
+diff --git a/tools/p2_h2_v3_controlled_execute.py b/tools/p2_h2_v3_controlled_execute.py
+index 46e8ba1..9b94fdd 100644
+--- a/tools/p2_h2_v3_controlled_execute.py
++++ b/tools/p2_h2_v3_controlled_execute.py
+@@ -5,48 +5,51 @@
+ 1. ``plan-private``：用 v3 loader 生成四 run 的私有计划 + 每 run 一份 binding 文档
+    （计划含 case_id，只能写仓外；仓内不落明文计划）；
+ 2. ``check-only``：零发送预检。重算计划（``build_holdout_plan``，与
+    ``ValidatedScenarioContract.build_plan`` 同一调用）→ 复算 ``scenario_plan_mismatch``；
+    可选 ``--reload-contract`` 用 v3 loader 在内存复核完整契约；再走
+    ``preflight_p2`` / ``authorize_p2``（固定 GO/预算/账本）给出 ``production_ready``；
+ 3. ``run``：单 run 真实执行（``--run-index i``，串行、首错停、不重试）。复用 v2 的
+    ``_execute_loaded`` 骨架（GO/plan/ledger 绑定 → 真实门 → ``run_live_p2`` → 封存 → 回执），
+    外层只在 v3 差异处包一层 ``dispatched_scoring_map``。
+ 
+-与 v2 入口的差异（仅这四处）：
++与 v2 入口的差异（仅这五处）：
+ - **loader**：``p2_holdout_scenarios_v3.load_v3_scenario_contract``（v3 语料根/保管件）；
+ - **source-map 分发**：``p2_holdout_v3_scoring.dispatched_scoring_map``（/v0.2）；
+ - **per-run business_date**：每 run 自己的 L1 日期（``p2_holdout_run_date``），
+   ``rag_business_date == manifest_business_date == run_date``；binding 文档一 run 一份；
+ - **预算 50**：进程内在导入前显式设置 ``MKTKB_PROJECT_TOTAL_LIMIT_CNY=50``，
+   使 ``p2_holdout_plan.H2_PROJECT_TOTAL_LIMIT_CNY`` 与 ``budget.json`` 的 ``limit_cny`` 逐值一致。
+-  调用方若显式设了别的值，本入口拒绝（不静默改写主人给的上限）。
++  调用方若显式设了别的值，本入口拒绝（不静默改写主人给的上限）；
++- **执行层 delta 透传**：check 层已授权的 ``authorized_delta``（index_embedding 批数
++  9/10/13/15）显式传给执行核心（``_execution_contract`` → 只放宽这一格的
++  ``_V3BatchContract``），否则 ``p2_runner`` 会按冻结 ``RECIPES`` 逐值重建并拒整 run。
+ 
+ 安全边界：
+ - ``check-only`` / ``plan-private`` 安装 socket 守卫并做一次正对照（外部连接在 connect 前被拦），
+   结束时外部尝试计数必须为 0；不 reserve、不扣费、不写共享账本；
+ - 本工具不读取 .env 以外的凭据；``run`` 才读主人指定的 ``<repo>/.env``（v2 同一白名单）；
+ - stdout/证据只输出固定码、计数、hash、路径；不输出题面/答案/凭据。
+ """
+ 
+ from __future__ import annotations
+ 
+ import argparse
+ import asyncio
+ import hashlib
+ import importlib.util
+ import json
+ import os
+ import re
+ import socket
+ import sys
+-from dataclasses import dataclass
++from dataclasses import dataclass, field
+ from datetime import datetime, timezone
+ from pathlib import Path
+ from typing import Any, Mapping, NoReturn, Sequence
+ 
+ PROJECT_ROOT = Path(__file__).resolve().parents[1]
+ BACKEND_SRC = PROJECT_ROOT / "backend" / "src"
+ if str(BACKEND_SRC) not in sys.path:
+     sys.path.insert(0, str(BACKEND_SRC))
+ 
+ TOTAL_LIMIT_ENV = "MKTKB_PROJECT_TOTAL_LIMIT_CNY"
+@@ -814,64 +817,120 @@ def _decrypt_annotation(path: Path, key_file: Path) -> dict[str, Any]:
+         _refuse("annotation_decrypt_failed")
+     try:
+         payload = json.loads(plain.decode("utf-8"))
+     except (ValueError, UnicodeDecodeError):
+         _refuse("annotation_decrypt_failed")
+     if not isinstance(payload, dict):
+         _refuse("annotation_decrypt_failed")
+     return payload
+ 
+ 
++@dataclass(frozen=True, repr=False)
+ class _V3BatchContract(ValidatedScenarioContract):
+     """在冻结契约之上**只**放宽 ``index_embedding.requests`` 一格的执行期复算。
+ 
+     冻结 ``ValidatedScenarioContract.validate_run`` 用 v2 配方（RECIPES=8/9/11/13）重建
+     期望计划并逐值比较；v3 计划按语料实测 B=9/10/13/15 生成。``p2_live`` 的
+     ``validate_scenario_execution`` 会在首个预留前再调一次 ``validate_run``，且只认
+     ``isinstance(..., ValidatedScenarioContract)``。本子类继承同一封印类：仅当「其余逐值
+     相同、唯一差异是 index_embedding 项的 requests、且该值等于 v3 派生值」时放行；其余任何
+     差异仍按原码 ``scenario_plan_mismatch`` 拒绝。产品/评测模块一字未改。
++
++    ``_authorized`` 是 **check 层已授权** 的 delta（``contract_validate_run.authorized_delta``）：
++    执行层不是自行放宽，而是必须与授权值逐值一致才放行；缺授权则维持冻结契约的原始拒绝。
+     """
+ 
++    _authorized: Mapping[str, Any] | None = field(default=None, repr=False)
++
+     def validate_run(self, plan, dataset, ingest):  # noqa: ANN001 - 与冻结签名一致
+         try:
+             super().validate_run(plan, dataset, ingest)
+             return
+         except ScenarioError as exc:
+             if str(getattr(exc, "code", "")) != "scenario_plan_mismatch":
+                 raise
+         binding = plan.scenario_binding
+         scenario = str(dict(binding or {}).get("scenario_id") or "")
+         expected = super().build_plan(
+             scenario,
+             plan_id=plan.plan_id,
+             created_utc=plan.created_utc,
+             plan_version=plan.plan_version,
+             max_requests=plan.max_requests,
+         )
+         delta = _authorized_batch_delta(plan, expected, scenario)
+         if not delta.get("ok"):
+             raise ScenarioError("scenario_plan_mismatch")
++        if self._authorized is None:
++            # 执行层没拿到 check 层授权：不放宽（等价于冻结契约的原始拒绝）。
++            raise ScenarioError("scenario_plan_mismatch")
++        authorized, observed = dict(self._authorized), dict(delta["delta"])
++        if (
++            str(authorized.get("item_id")) != str(observed.get("item_id"))
++            or int(authorized.get("plan_requests", -1)) != int(observed["plan_requests"])
++            or int(authorized.get("contract_recipe_requests", -1))
++            != int(observed["contract_recipe_requests"])
++        ):
++            # 授权值与执行期实测值不一致：拒绝，不按“较小者”凑合。
++            raise ScenarioError("scenario_plan_mismatch")
+ 
+ 
+-def _wrap_v3_contract(contract: ValidatedScenarioContract) -> _V3BatchContract:
++def _wrap_v3_contract(
++    contract: ValidatedScenarioContract, *, authorized: Mapping[str, Any] | None = None
++) -> _V3BatchContract:
+     return _V3BatchContract(
+         contract._dataset,  # noqa: SLF001 - 同一进程内复用已校验字段
+         contract._assignments,  # noqa: SLF001
+         contract._bindings,  # noqa: SLF001
+         contract._ingest,  # noqa: SLF001
+         contract._proof,  # noqa: SLF001
+         contract._axis_counts,  # noqa: SLF001
+         contract._gaps,  # noqa: SLF001
++        None if authorized is None else dict(authorized),
+     )
+ 
+ 
++def _execution_contract(
++    bundle: V3Bundle,
++    plan: P2RunPlan,
++    contract_state: Mapping[str, Any],
++    scenario: str,
++) -> ValidatedScenarioContract:
++    """把 check 层已授权的 delta 显式交给执行层（v2 执行核心只认 ``ValidatedScenarioContract``）。
++
++    - 计划与 v2 配方逐值相同（``contract_state.code is None``）→ 原契约原样返回，v2 行为不变；
++    - check 层给出 ``authorized_delta`` → 三方逐值校验（授权值 == 计划值 == census 派生值）
++      后返回只放宽这一格的子类；
++    - 其余任何形状 → 拒绝，绝不“顺手放宽”。
++    """
++    if contract_state.get("ok") is not True:
++        _refuse("scenario_plan_mismatch", str(contract_state.get("code") or ""))
++    authorized = contract_state.get("authorized_delta")
++    if not authorized:
++        if contract_state.get("code") is not None:
++            _refuse("scenario_plan_mismatch", str(contract_state.get("code") or ""))
++        return bundle.contract
++    delta = dict(authorized)
++    items = [item for item in plan.items if item.operation == "index_embedding"]
++    if len(items) != 1:
++        _refuse("exec_contract_invalid", "ingest_item")
++    derived = _v3_ingest_batches(scenario)
++    if not (
++        str(delta.get("item_id")) == str(items[0].item_id)
++        and int(delta.get("plan_requests", -1)) == int(items[0].requests) == int(derived)
++        and int(delta.get("contract_recipe_requests", -1)) > 0
++        and str(delta.get("derived_from")) == "v3_ingest_batch_census"
++    ):
++        _refuse("exec_contract_invalid", "authorized_delta")
++    return _wrap_v3_contract(bundle.contract, authorized=delta)
++
++
+ def load_v3_bundle(inputs: Mapping[str, Mapping[str, Any]]) -> V3Bundle:
+     manifest_path = Path(inputs["holdout_manifest"]["path"])
+     key_file = Path(inputs["scenario_key_file"]["path"])
+     root = manifest_path.parent
+     v2.check_runtime_options(
+         v2.RuntimeOptions(
+             holdout_root=root,
+             holdout_key_file=key_file,
+             project_total_limit_cny=V3_PROJECT_TOTAL_LIMIT_CNY,
+         )
+@@ -1945,29 +2004,30 @@ def run_command(
+         seal_root=checked_paths.seal_root,
+         evidence_key_file=checked_paths.evidence_key_file,
+         process_env=process_env,
+         now=now,
+         plaintext_needles=v2._plaintext_needles(
+             bundle.dataset, getattr(bundle.dataset, "labels", None)
+         ),
+     )
+     subset = bundle.contract.subset(scenario)
+     ingest = bundle.contract.ingest_plan(scenario)
++    exec_contract = _execution_contract(bundle, plan, contract_state, scenario)
+     with wiring.dispatched_scoring_map(contract_v3.V3_SOURCE_MAP) as dispatch:
+         receipt = asyncio.run(
+             v2._execute_loaded(
+                 binding_doc=document,
+                 run_entry=run_entry,
+                 plan=plan,
+                 dataset=subset,
+                 ingest_plan=ingest,
+-                contract=bundle.contract,
++                contract=exec_contract,
+                 options=options,
+             )
+         )
+     sidecar = {
+         "schema_version": RUN_RECEIPT_SCHEMA_VERSION,
+         "tool": TOOL_SCHEMA_VERSION,
+         "run_index": int(run_index),
+         "scenario_id": scenario,
+         "business_date": str(document["business_date"]),
+         "anchor_business_date": bundle.anchor_business_date,

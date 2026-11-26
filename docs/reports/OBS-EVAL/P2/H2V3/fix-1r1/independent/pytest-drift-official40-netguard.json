@@ -1,0 +1,97 @@
+{
+  "proxy_env_removed": [
+    "ALL_PROXY",
+    "HTTPS_PROXY",
+    "HTTP_PROXY",
+    "NODE_USE_ENV_PROXY",
+    "NO_PROXY"
+  ],
+  "proxy_registry_after_env_removal": {
+    "http": "http://127.0.0.1:7897",
+    "https": "http://127.0.0.1:7897",
+    "ftp": "http://127.0.0.1:7897"
+  },
+  "guard": [
+    "socket.connect",
+    "socket.connect_ex",
+    "socket.create_connection",
+    "socket.getaddrinfo"
+  ],
+  "loopback_policy": "allowed_and_counted_except_local_proxy_port_7897",
+  "proxy_attempts_total": 1,
+  "proxy_attempts": [
+    {
+      "kind": "socket.create_connection",
+      "detail": "('127.0.0.1', 7897)"
+    }
+  ],
+  "positive_controls": [
+    {
+      "probe": "dns_getaddrinfo",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "OSError: independent netguard: socket.getaddrinfo blocked"
+    },
+    {
+      "probe": "direct_tcp_192_0_2_1",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "OSError: independent netguard: socket.create_connection blocked"
+    },
+    {
+      "probe": "urllib_proxyhandler_empty",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "URLError: <urlopen error independent netguard: socket.create_connection blocked>"
+    },
+    {
+      "probe": "httpx_trust_env_false",
+      "blocked": true,
+      "attempts": 1,
+      "proxy_attempts": 0,
+      "error": "ConnectError: independent netguard: socket.create_connection blocked"
+    },
+    {
+      "probe": "local_proxy_127_0_0_1_7897",
+      "blocked": true,
+      "attempts": 0,
+      "proxy_attempts": 1,
+      "error": "OSError: independent netguard: local proxy socket.create_connection blocked"
+    }
+  ],
+  "all_controls_blocked": true,
+  "external_attempts_total": 4,
+  "external_attempts_during_session": 0,
+  "external_attempts": [
+    {
+      "kind": "socket.getaddrinfo",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('192.0.2.1', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    }
+  ],
+  "loopback_attempts_total": 0,
+  "loopback_targets_unique": [],
+  "loopback_attempts_sample": [],
+  "counts": {
+    "collected": 22,
+    "passed": 21,
+    "failed": 1,
+    "skipped": 0,
+    "error": 0
+  },
+  "exitstatus": 1
+}

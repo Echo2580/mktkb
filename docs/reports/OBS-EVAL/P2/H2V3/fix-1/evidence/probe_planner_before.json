@@ -1,0 +1,191 @@
+{
+  "rows": {
+    "Q1_single_target": {
+      "question": "城东店的宣传海报在哪里？",
+      "rag_planner": {
+        "mode": "record",
+        "clarification": null,
+        "reason": null,
+        "filters": {
+          "store": "城东店",
+          "item": "宣传海报"
+        },
+        "field_role": "location",
+        "enumerate": false,
+        "candidates": [],
+        "state_stores": [
+          "城东店"
+        ],
+        "rag_owns_turn": false
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": null,
+        "entities": {
+          "store": "城东店",
+          "item": "宣传海报"
+        },
+        "requested_fields": [
+          "位置"
+        ],
+        "filters": {
+          "store": "城东店",
+          "item": "宣传海报"
+        },
+        "candidates": []
+      }
+    },
+    "Q2_two_stores_one_item": {
+      "question": "城东店和城西店的宣传海报在哪里？",
+      "rag_planner": {
+        "mode": "record",
+        "clarification": null,
+        "reason": null,
+        "filters": {
+          "item": "宣传海报"
+        },
+        "field_role": "location",
+        "enumerate": false,
+        "candidates": [],
+        "state_stores": [
+          "城东店",
+          "城西店"
+        ],
+        "rag_owns_turn": false
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": "问题中包含多个门店，请选择要查询的门店。",
+        "entities": {},
+        "requested_fields": [],
+        "filters": null,
+        "candidates": [
+          "城东店",
+          "城西店"
+        ]
+      }
+    },
+    "Q3_one_store_two_items": {
+      "question": "城东店的宣传海报和易拉宝在哪里？",
+      "rag_planner": {
+        "mode": "record",
+        "clarification": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。",
+        "reason": "ITEM_AMBIGUOUS",
+        "filters": {},
+        "field_role": "location",
+        "enumerate": false,
+        "candidates": [
+          "宣传海报",
+          "易拉宝"
+        ],
+        "state_stores": [
+          "城东店"
+        ],
+        "rag_owns_turn": false
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": "问题中包含多个物品，请明确要查询的物品。",
+        "entities": {},
+        "requested_fields": [],
+        "filters": null,
+        "candidates": [
+          "宣传海报",
+          "易拉宝"
+        ]
+      }
+    },
+    "Q4_two_stores_two_items": {
+      "question": "城东店和城西店的宣传海报和易拉宝在哪里？",
+      "rag_planner": {
+        "mode": "record",
+        "clarification": "问题包含多个物品，请选择要查询的物品；这不是资料中没有答案。",
+        "reason": "ITEM_AMBIGUOUS",
+        "filters": {},
+        "field_role": "location",
+        "enumerate": false,
+        "candidates": [
+          "宣传海报",
+          "易拉宝"
+        ],
+        "state_stores": [
+          "城东店",
+          "城西店"
+        ],
+        "rag_owns_turn": false
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": "问题中包含多个门店，请选择要查询的门店。",
+        "entities": {},
+        "requested_fields": [],
+        "filters": null,
+        "candidates": [
+          "城东店",
+          "城西店"
+        ]
+      }
+    },
+    "Q5_two_stores_with_enumerate_word": {
+      "question": "城东店和城西店的宣传海报分别在哪里？",
+      "rag_planner": {
+        "mode": "record",
+        "clarification": null,
+        "reason": null,
+        "filters": {
+          "item": "宣传海报"
+        },
+        "field_role": "location",
+        "enumerate": true,
+        "candidates": [],
+        "state_stores": [
+          "城东店",
+          "城西店"
+        ],
+        "rag_owns_turn": true
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": "问题中包含多个门店，请选择要查询的门店。",
+        "entities": {},
+        "requested_fields": [],
+        "filters": null,
+        "candidates": [
+          "城东店",
+          "城西店"
+        ]
+      }
+    },
+    "Q6_multi_target_no_field": {
+      "question": "城东店和城西店的海报和易拉宝",
+      "rag_planner": {
+        "mode": "document",
+        "clarification": null,
+        "reason": null,
+        "filters": {
+          "item": "易拉宝"
+        },
+        "field_role": null,
+        "enumerate": false,
+        "candidates": [],
+        "state_stores": [
+          "城东店",
+          "城西店"
+        ],
+        "rag_owns_turn": false
+      },
+      "legacy_intent": {
+        "mode": "record",
+        "clarification": "问题中包含多个门店，请选择要查询的门店。",
+        "entities": {},
+        "requested_fields": [],
+        "filters": null,
+        "candidates": [
+          "城东店",
+          "城西店"
+        ]
+      }
+    }
+  },
+  "outbound_attempts": []
+}

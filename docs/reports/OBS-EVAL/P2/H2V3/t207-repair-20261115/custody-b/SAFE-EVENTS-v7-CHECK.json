@@ -1,0 +1,51 @@
+{
+  "status": "blocked",
+  "scope": "source_and_synthetic_only",
+  "inputs": [
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_events_v7.py",
+      "sha256": "2055b42b7ba3de610c7b50e4abc2bb64e59c233e811ce1f654187630b6137ab2"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-EVENTS-v7-PREPARE.md",
+      "sha256": "06f08db676096ac4fb6e0e78bcb5891f404f4ca7c59d60701139cd5c81ca6fdc"
+    },
+    {
+      "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/SAFE-EVENTS-v7-SELFTEST.json",
+      "sha256": "7a16b72e4f2ca4358c4a9677c8829f4257925410e818a9a92e3205ae21f7d3c9"
+    }
+  ],
+  "v6_binding_checks_retained": true,
+  "static_whitelists_from_declared_source_literals": true,
+  "self_test_exit_code": 0,
+  "independent_synthetic_observed": {
+    "duplicate_stage_ids_determinate": true,
+    "empty_stage_determinate": true,
+    "null_required_filter_determinate": true,
+    "direct_rag_fact_unit_ignored": true,
+    "duplicate_projected_unit_overwritten": true,
+    "absent_row_with_state_determinate": true
+  },
+  "required_corrections": [
+    "unknown_for_duplicate_units_ids_and_incomplete_filter",
+    "unknown_for_relevant_truncation_and_unresolved",
+    "include_or_separately_label_direct_rag_fact_units",
+    "preserve_unknown_for_state_row_conflict",
+    "explicitly_handle_empty_stage_and_stage_scope"
+  ],
+  "network_controls": {
+    "socket": true,
+    "urllib": true,
+    "httpx": true
+  },
+  "real_evidence_read": false,
+  "product_test_run": false,
+  "protected_hash_before": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  },
+  "protected_hash_after": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  }
+}

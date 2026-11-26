@@ -1,0 +1,289 @@
+ M .claude/handoffs/_index.md
+ M backend/src/mktkb/conversations/intent.py
+ M backend/src/mktkb/conversations/service.py
+ M backend/src/mktkb/copy.py
+ M backend/src/mktkb/evaluation/cli.py
+ M backend/src/mktkb/evaluation/p2_authorization.py
+ M backend/src/mktkb/evaluation/p2_contracts.py
+ M backend/src/mktkb/evaluation/p2_diagnostics.py
+ M backend/src/mktkb/evaluation/p2_holdout_plan.py
+ M backend/src/mktkb/evaluation/p2_holdout_scenarios.py
+ M backend/src/mktkb/evaluation/p2_live.py
+ M backend/src/mktkb/evaluation/p2_runner.py
+ M backend/src/mktkb/evaluation/p2_scoring.py
+ M backend/src/mktkb/evaluation/product_adapter.py
+ M backend/src/mktkb/qa/service.py
+ M backend/src/mktkb/rag/answer.py
+ M backend/src/mktkb/rag/budget.py
+ M backend/src/mktkb/rag/index.py
+ M backend/src/mktkb/rag/query.py
+ M backend/src/mktkb/rag/retrieval.py
+ M backend/src/mktkb/rag/types.py
+ M backend/src/mktkb/retrieval/service.py
+ M backend/tests/integration/test_p1_t103_record_fallback_http.py
+ M backend/tests/integration/test_t207_fix_conflict_r1.py
+ M backend/tests/observability/test_paths_e2e.py
+ M backend/tests/rag/test_query_state.py
+ M backend/tests/unit/test_conversations.py
+ M backend/tests/unit/test_p1_t103_record_fallback.py
+ M docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/manager.md
+?? %SystemDrive%/
+?? .claude/handoffs/2026-11-10-154731-p2-project-manager.md
+?? .claude/handoffs/2026-11-10-p2-progress.md
+?? .claude/handoffs/2026-11-11-171153-t207-quality-repair.md
+?? .claude/handoffs/2026-11-11-t207-a-closeout-paused.md
+?? .claude/handoffs/2026-11-12-081943-t207-quality-repair-paused.md
+?? .claude/handoffs/2026-11-12-150626-t207-scenario-offline-paused.md
+?? .claude/handoffs/2026-11-13-t207-h2-blocked-paused.md
+?? .claude/handoffs/2026-11-14-114409-t207-quality-deferred-manager.md
+?? .claude/handoffs/2026-11-14-1355-t207-engine-closeout-manager.md
+?? .claude/handoffs/2026-11-14-t207-offline-execution-brief.md
+?? .claude/handoffs/2026-11-16-001048-t207-independent-review-and-go.md
+?? .claude/handoffs/2026-11-16-085727-t207-real-h2-r0-r1-execution.md
+?? .claude/handoffs/2026-11-16-pm-paused-unlimited-01a1deaa.md
+?? .claude/handoffs/2026-11-16-pm-t207-acceptance-running-01a1deaa.md
+?? .claude/handoffs/2026-11-16-pm-takeover-readonly.md
+?? .claude/handoffs/prompts/P2-PAUSE-HANDOFF.md
+?? .claude/handoffs/prompts/P2-R2-dev.md
+?? .claude/handoffs/prompts/P2-R2-verify.md
+?? .claude/handoffs/prompts/P2-T201-dev.md
+?? .claude/handoffs/prompts/P2-T201-verify.md
+?? .claude/handoffs/prompts/P2-T202-custodian.md
+?? .claude/handoffs/prompts/P2-T202-dev.md
+?? .claude/handoffs/prompts/P2-T202-verify.md
+?? .claude/handoffs/prompts/P2-T203-R1-dev.md
+?? .claude/handoffs/prompts/P2-T203-R1-verify.md
+?? .claude/handoffs/prompts/P2-T203-dev.md
+?? .claude/handoffs/prompts/P2-T203-verify.md
+?? .claude/handoffs/prompts/P2-T204-dev.md
+?? .claude/handoffs/prompts/P2-T204-verify.md
+?? .claude/handoffs/prompts/P2-T205-dev.md
+?? .claude/handoffs/prompts/P2-T205-verify.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-dev.md
+?? .claude/handoffs/prompts/P2-T206-LIVE-verify.md
+?? .claude/handoffs/prompts/P2-T206-PLAN-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T206-PRE-dev.md
+?? .claude/handoffs/prompts/P2-T206-PRE-verify.md
+?? .claude/handoffs/prompts/P2-T206-pilot-verify.md
+?? .claude/handoffs/prompts/P2-T206-prep-dev.md
+?? .claude/handoffs/prompts/P2-T207-CUSTODY-V2-annotate.md
+?? .claude/handoffs/prompts/P2-T207-CUSTODY-V2-review.md
+?? .claude/handoffs/prompts/P2-T207-CUSTODY-V3-annotate.md
+?? .claude/handoffs/prompts/P2-T207-CUSTODY-V3-review.md
+?? .claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-EVIDENCE-CAPTURE-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-A-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-B-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R2-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-R2-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-CONFLICT-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2DIAG-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2DIAG-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2KIND-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2KIND-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2MAP-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2MAP-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2MAP-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2PURGE-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2PURGE-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2SCORE-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2SCORE-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2SCORE-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-H2SCORE-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-LIVECAP-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-LIVECAP-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-LIVEGATE-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-LIVEGATE-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-P-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-S-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-S-verify.md
+?? .claude/handoffs/prompts/P2-T207-FIX-SCORE-dev.md
+?? .claude/handoffs/prompts/P2-T207-FIX-SCORE-verify.md
+?? .claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-R2-dev.md
+?? .claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-dev.md
+?? .claude/handoffs/prompts/P2-T207-H2-LIVE-ENTRY-verify.md
+?? .claude/handoffs/prompts/P2-T207-H2-RETEST-verify.md
+?? .claude/handoffs/prompts/P2-T207-HARD-CLASSIFY-dev.md
+?? .claude/handoffs/prompts/P2-T207-HARD-CLASSIFY-verify.md
+?? .claude/handoffs/prompts/P2-T207-PRODUCT-ROOT-FIX-dev.md
+?? .claude/handoffs/prompts/P2-T207-PRODUCT-ROOT-FIX-verify.md
+?? .claude/handoffs/prompts/P2-T207-R4PREP-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-R4PREP-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-R4PREP-R2-dev.md
+?? .claude/handoffs/prompts/P2-T207-R4PREP-dev.md
+?? .claude/handoffs/prompts/P2-T207-R4PREP-verify.md
+?? .claude/handoffs/prompts/P2-T207-SAFE-DIAG-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-SAFE-DIAG-dev.md
+?? .claude/handoffs/prompts/P2-T207-SAFE-DIAG-verify.md
+?? .claude/handoffs/prompts/P2-T207-SCENARIO-R1-dev.md
+?? .claude/handoffs/prompts/P2-T207-SCENARIO-R1-verify.md
+?? .claude/handoffs/prompts/P2-T207-SCENARIO-dev.md
+?? .claude/handoffs/prompts/P2-T207-SCENARIO-verify.md
+?? .claude/handoffs/prompts/P2-T207-prep-dev.md
+?? .claude/handoffs/prompts/P2-T207-product-date-recon.md
+?? .claude/handoffs/t207-lead/
+?? backend/requirements-ragas-eval.lock
+?? backend/src/mktkb/evaluation/p2_candidate_report.py
+?? backend/src/mktkb/evaluation/p2_empty_scope_proof.py
+?? backend/src/mktkb/evaluation/p2_evidence_axes_adapter_v2.py
+?? backend/src/mktkb/evaluation/p2_evidence_capture.py
+?? backend/src/mktkb/evaluation/p2_evidence_io.py
+?? backend/src/mktkb/evaluation/p2_evidence_rescore.py
+?? backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py
+?? backend/src/mktkb/evaluation/p2_evidence_snapshot_v03.py
+?? backend/src/mktkb/evaluation/p2_hard_evidence.py
+?? backend/src/mktkb/evaluation/p2_holdout_run_date.py
+?? backend/src/mktkb/evaluation/p2_holdout_scenarios_v3.py
+?? backend/src/mktkb/evaluation/p2_holdout_source_map.py
+?? backend/src/mktkb/evaluation/p2_holdout_v3_scoring.py
+?? backend/src/mktkb/evaluation/p2_stale_version_state.py
+?? backend/src/mktkb/evaluation/ragas_adapter.py
+?? backend/src/mktkb/evaluation/ragas_p2_gate.py
+?? backend/src/mktkb/observability/evaluation_capture.py
+?? backend/tests/evaluation/test_p2_candidate_report.py
+?? backend/tests/evaluation/test_p2_capture_contract_v02.py
+?? backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py
+?? backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py
+?? backend/tests/evaluation/test_p2_cross_entity_scope_v02.py
+?? backend/tests/evaluation/test_p2_empty_scope_proof.py
+?? backend/tests/evaluation/test_p2_eval_tool_repair.py
+?? backend/tests/evaluation/test_p2_eval_tool_repair_e2e.py
+?? backend/tests/evaluation/test_p2_evidence_axes_adapter_v2.py
+?? backend/tests/evaluation/test_p2_evidence_capture.py
+?? backend/tests/evaluation/test_p2_evidence_capture_e2e.py
+?? backend/tests/evaluation/test_p2_evidence_io.py
+?? backend/tests/evaluation/test_p2_evidence_rescore.py
+?? backend/tests/evaluation/test_p2_evidence_rescore_axes.py
+?? backend/tests/evaluation/test_p2_evidence_snapshot_v03.py
+?? backend/tests/evaluation/test_p2_h2_controlled_entry.py
+?? backend/tests/evaluation/test_p2_h2_historical_audit.py
+?? backend/tests/evaluation/test_p2_hard_evidence.py
+?? backend/tests/evaluation/test_p2_judge_budget.py
+?? backend/tests/evaluation/test_p2_model_failure_reason_capture.py
+?? backend/tests/evaluation/test_p2_product_behavior_repair.py
+?? backend/tests/evaluation/test_p2_product_root_fix.py
+?? backend/tests/evaluation/test_p2_ragas_adapter.py
+?? backend/tests/evaluation/test_p2_ragas_gate_wiring.py
+?? backend/tests/evaluation/test_p2_stale_version_state.py
+?? backend/tests/evaluation/test_p2_t207_r10_independent_review.py
+?? backend/tests/evaluation/test_p2_t207_r10_rework.py
+?? backend/tests/evaluation/test_p2_t207_r1_independent_review.py
+?? backend/tests/evaluation/test_p2_t207_r1_rework.py
+?? backend/tests/evaluation/test_p2_t207_r8_independent_review.py
+?? backend/tests/evaluation/test_p2_t207_r8_rework.py
+?? backend/tests/evaluation/test_p2_t207_r9_independent_review.py
+?? backend/tests/evaluation/test_p2_t207_r9_rework.py
+?? backend/tests/evaluation/test_p2_t207_rework_independent_review.py
+?? backend/tests/evaluation/test_p2_v3_wiring.py
+?? backend/tests/evaluation/test_t207_binding_retention_synthetic.py
+?? backend/tests/integration/test_v3_safety_fix_e2e.py
+?? backend/tests/observability/test_evaluation_capture.py
+?? backend/tests/rag/test_t207_candidate_scope_synthetic.py
+?? backend/tests/rag/test_t207_conflict_synthetic.py
+?? backend/tests/rag/test_t207_multi_store_synthetic.py
+?? backend/tests/rag/test_t207_security_precedence_synthetic.py
+?? backend/tests/rag/test_t207_title_prefix_synthetic.py
+?? backend/tests/rag/test_t207_v8_enumeration_synthetic.py
+?? backend/tests/rag/test_v3_fix1_business_date_filter.py
+?? backend/tests/rag/test_v3_fix1_multi_target.py
+?? backend/tests/rag/test_v3_fix1r1_anaphora_multi_target.py
+?? backend/tests/rag/test_v3_fix2_first_turn_record_answer.py
+?? backend/tests/rag/test_v3_fix2_record_scope_not_clarified.py
+?? backend/tests/unit/test_t207_context_sources_synthetic.py
+?? backend/tests/unit/test_t207_record_duplicate_synthetic.py
+?? backend/tests/unit/test_t207_v8_followup_synthetic.py
+?? backend/tests/unit/test_t207_v8_safety_contract_synthetic.py
+?? backend/tests/unit/test_v3_fix1_wiring.py
+?? backend/tests/unit/test_v3_safety_fix_policy.py
+?? docs/evaluation/p2-evidence-rescore-v0_1.md
+?? docs/evaluation/p2-evidence-rescore-v0_2.md
+?? docs/evaluation/p2-h2-scenarios-H2v3.json
+?? docs/evaluation/p2-hard-evidence-capture-v0_1.md
+?? docs/evaluation/p2-hard-evidence-capture-v0_2.md
+?? docs/evaluation/p2-hard-evidence-capture-v0_3.md
+?? docs/evaluation/p2-hard-evidence-classification-v0_1.md
+?? docs/evaluation/p2-hard-evidence-classification-v0_2.md
+?? docs/evaluation/p2-holdout-v3-dataset.md
+?? docs/evaluation/p2-holdout-v3.authoring-aggregate.json
+?? docs/evaluation/p2-holdout-v3.source-map.json
+?? docs/evaluation/p2-ragas-contract.md
+?? docs/evaluation/p2-ragas-gate-wiring-contract.md
+?? docs/evaluation/p2-source-lifecycle-v1.json
+?? docs/evaluation/p2-stale-source-criterion-v1.md
+?? docs/evaluation/p2-stale-source-criterion-v1_1.md
+?? docs/evaluation/q1a-scope-targets-contract-v1.md
+?? docs/evaluation/q1a-scope-targets-contract-v2.md
+?? docs/reports/OBS-EVAL/P2/H2V3/
+?? docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/
+?? docs/reports/OBS-EVAL/P2/T207-CAPTURE-CONTRACT-R2/
+?? docs/reports/OBS-EVAL/P2/T207-CROSS-ENTITY-SCOPE-R1/
+?? docs/reports/OBS-EVAL/P2/T207-CUSTODY-SEMANTIC-R2/
+?? docs/reports/OBS-EVAL/P2/T207-CUSTODY-V3/
+?? docs/reports/OBS-EVAL/P2/T207-CUSTODY/
+?? docs/reports/OBS-EVAL/P2/T207-EVAL-TOOL-REPAIR/
+?? docs/reports/OBS-EVAL/P2/T207-EVIDENCE-CAPTURE-R1/
+?? docs/reports/OBS-EVAL/P2/T207-EVIDENCE-CAPTURE/
+?? docs/reports/OBS-EVAL/P2/T207-FAILURE-REVIEW-R1/
+?? docs/reports/OBS-EVAL/P2/T207-H2-LIVE-ENTRY/
+?? docs/reports/OBS-EVAL/P2/T207-H2-OFFLINE-READINESS/
+?? docs/reports/OBS-EVAL/P2/T207-H2-RETEST/
+?? docs/reports/OBS-EVAL/P2/T207-HARD-CLASSIFY/
+?? docs/reports/OBS-EVAL/P2/T207-HISTORICAL-AUDIT/
+?? docs/reports/OBS-EVAL/P2/T207-PLAINTEXT-CACHE-BOUNDARY/
+?? docs/reports/OBS-EVAL/P2/T207-PRODUCT-BEHAVIOR-REPAIR-R1/
+?? docs/reports/OBS-EVAL/P2/T207-PRODUCT-ROOT-FIX/
+?? docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/pricing-check-20261112.md
+?? docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/product-date-recon.md
+?? docs/reports/OBS-EVAL/P2/T207-REASON-CAPTURE-R1/
+?? docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/
+?? docs/reports/OBS-EVAL/P2/T208-GATE-WIRING-OFFLINE/
+?? docs/reports/OBS-EVAL/P2/T208-OFFLINE/
+?? docs/reports/OBS-EVAL/P2/T209-PREP/
+?? docs/superpowers/plans/2026-11-10-mktkb-p2-taskbook.md
+?? docs/superpowers/plans/2026-11-12-t207-step1-deepseek-taskbook.md
+?? docs/superpowers/plans/2026-11-12-t207-through-h2-deepseek-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-custody-semantic-review-r2-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-evaluation-tool-repair-deepseek-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-failure-review-and-reason-capture-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-historical-evidence-audit-deepseek-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-plaintext-cache-boundary-taskbook.md
+?? docs/superpowers/plans/2026-11-13-t207-product-behavior-repair-r1-taskbook.md
+?? docs/superpowers/plans/2026-11-14-h2-v3-design-spec.md
+?? docs/superpowers/plans/2026-11-14-p2-completion-roadmap.md
+?? docs/superpowers/plans/2026-11-14-p2-engineering-before-quality-continuation.md
+?? docs/superpowers/plans/2026-11-14-q1a-c1-1-instrument-taskbook.md
+?? docs/superpowers/plans/2026-11-14-q1a-evaluation-repair-taskbook.md
+?? docs/superpowers/plans/2026-11-14-q1a-phase1-work-order.md
+?? docs/superpowers/plans/2026-11-14-t207-capture-entity-offline-readiness-taskbook.md
+?? docs/superpowers/plans/2026-11-14-t207-quality-deferred-engineering-taskbook.md
+?? docs/superpowers/plans/2026-11-14-t207-r10-rework-taskbook.md
+?? docs/superpowers/plans/2026-11-14-t207-r11-rework-taskbook.md
+?? docs/superpowers/plans/2026-11-15-h2-v3-authoring-plan.md
+?? docs/superpowers/plans/2026-11-15-h2-v3-corpus-modification-spec.md
+?? docs/superpowers/plans/2026-11-16-r0-external-ai-repair-taskbook.md
+?? docs/面试/
+?? fixtures/acceptance-h2v3/
+?? tmp_run_a.txt
+?? tmp_run_b.txt
+?? tools/p2_h2_controlled_execute.py
+?? tools/p2_h2_historical_audit.py
+?? tools/p2_h2_v3_controlled_execute.py
+?? tools/p2_v3_mock_dryrun.py

@@ -1,0 +1,216 @@
+..........................................................F............. [  9%]
+........................................................................ [ 18%]
+........................................................................ [ 27%]
+....FF.................................................................. [ 36%]
+........................................................................ [ 45%]
+.................F...................................................... [ 54%]
+........................................................................ [ 63%]
+....................................F................................... [ 72%]
+........................................................................ [ 81%]
+........................................................................ [ 90%]
+........................................................................ [100%]
+================================== FAILURES ===================================
+______________ test_g08_short_budget_cancels_inflight_model_call ______________
+
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000002326A4DF350>, csrf='c85637b93065aef9e5c53a7cc03ce30...7cc03ce30f540e6bf5411012c20770cea8706bfa0b'}, upload=<function _write_session.<locals>.<lambda> at 0x000002326ACB9E40>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x0000023267DA4050>, csrf='29f8d118ad62390ebdf312477793e41...477793e4102771a055dce1337f4180a2c33da077fe'}, upload=<function _write_session.<locals>.<lambda> at 0x000002326ACB9940>)
+chat_app = <fastapi.applications.FastAPI object at 0x0000023267D1ECF0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002326A4DF8C0>
+
+    def test_g08_short_budget_cancels_inflight_model_call(chat_admin, chat_employee, chat_app, monkeypatch):
+        """PM06-02：缩短总预算时由自身 MODEL_TIMEOUT 及时结束，且只调用一次模型。"""
+        _publish_ready(chat_admin, chat_app, path=D02, revision=0)
+        conversation = _create(chat_employee)
+        gateway = chat_app.state.model_gateway
+    
+        async def slow_complete(request, *, timeout_seconds):
+            gateway.calls.append(
+                {
+                    "purpose": request.purpose,
+                    "question": request.question,
+                    "timeout_seconds": timeout_seconds,
+                    "evidence": [item.source_id for item in request.evidence],
+                }
+            )
+            await asyncio.sleep(2)
+            return CompletionOutput(
+                text="城东店的联系电话是010-00000001。",
+                source_ids=tuple(item.source_id for item in request.evidence),
+            )
+    
+        monkeypatch.setattr(gateway, "complete", slow_complete)
+        monkeypatch.setattr(service, "BUDGET_SECONDS", 0.2)
+        started = time.monotonic()
+        response = _ask(chat_employee, conversation, "城东店的联系电话是什么？")
+        elapsed = time.monotonic() - started
+        facts = _r1_facts(chat_employee, conversation, gateway.calls, response, elapsed)
+        _dump_r1("r1-budget-cancel.json", facts)
+        payload = facts["response"]
+        assert facts["status"] == 200
+        assert payload["kind"] == "service_error", payload
+        assert payload["error_code"] == "MODEL_TIMEOUT"
+        assert payload["retryable"] is True
+        assert payload["sources"] == []
+        assert elapsed < 1.0, f"总预算 0.2s 却耗时 {elapsed:.3f}s"
+>       assert len(facts["calls"]) == 1, "取消后不得重复调用模型"
+E       AssertionError: 取消后不得重复调用模型
+E       assert 0 == 1
+E        +  where 0 = len([])
+
+tests\integration\test_chat.py:1047: AssertionError
+_________ test_document_overshoot_falls_back_to_body_and_marks_trace __________
+
+t103_trace_env = namespace(app=<fastapi.applications.FastAPI object at 0x000002326D2F61E0>, admin=namespace(client=<starlette.testclien...ssion.<locals>.<lambda> at 0x000002326E036A20>), unit=<mktkb.documents.models.SourceUnit object at 0x000002326DC496D0>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002326D2FD640>
+
+    def test_document_overshoot_falls_back_to_body_and_marks_trace(
+        t103_trace_env: SimpleNamespace, monkeypatch
+    ) -> None:
+        env = t103_trace_env
+        _force_truncated(monkeypatch, env.unit, record=False)
+    
+>       response, body = _ask(env.employee, "物料领用通知图片要求先填写什么？")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_p1_t103_record_fallback_http.py:159: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = namespace(client=<starlette.testclient.TestClient object at 0x000002326B7D7530>, headers={'Origin': 'http://testserver...0bc8168f42212bcc9909ff4f1258d05e5cef10c020696883'}, upload=<function _session.<locals>.<lambda> at 0x000002326E036A20>)
+question = '物料领用通知图片要求先填写什么？'
+
+    def _ask(session: SimpleNamespace, question: str) -> tuple[object, dict]:
+        created = session.client.post("/api/v1/conversations", json={}, headers=session.headers)
+        assert created.status_code == 201, created.text
+        response = session.client.post(
+            f"/api/v1/conversations/{created.json()['id']}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=session.headers,
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"50eb069d-bc2f-40c9-ab94-78ea031bb557"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_p1_t103_record_fallback_http.py:62: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=50eb069d-bc2f-40c9-ab94-78ea031bb557
+__________ test_record_overshoot_returns_honest_count_and_candidates __________
+
+t103_trace_env = namespace(app=<fastapi.applications.FastAPI object at 0x000002326DE1A420>, admin=namespace(client=<starlette.testclien...ssion.<locals>.<lambda> at 0x0000023266A893A0>), unit=<mktkb.documents.models.SourceUnit object at 0x000002326D27F380>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000023267C34B00>
+
+    def test_record_overshoot_returns_honest_count_and_candidates(
+        t103_trace_env: SimpleNamespace, monkeypatch
+    ) -> None:
+        env = t103_trace_env
+        _force_truncated(monkeypatch, env.unit, record=True)
+    
+>       response, body = _ask(env.employee, "滨江店的宣传海报在哪里？")
+                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_p1_t103_record_fallback_http.py:180: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+session = namespace(client=<starlette.testclient.TestClient object at 0x000002326DAAE9C0>, headers={'Origin': 'http://testserver...8c41b3b90656e3d2ccf9e8f91213773e174e66c77ad0bd00'}, upload=<function _session.<locals>.<lambda> at 0x0000023266A893A0>)
+question = '滨江店的宣传海报在哪里？'
+
+    def _ask(session: SimpleNamespace, question: str) -> tuple[object, dict]:
+        created = session.client.post("/api/v1/conversations", json={}, headers=session.headers)
+        assert created.status_code == 201, created.text
+        response = session.client.post(
+            f"/api/v1/conversations/{created.json()['id']}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=session.headers,
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"b43d9319-4c16-4525-9743-b61250137800"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_p1_t103_record_fallback_http.py:62: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=b43d9319-4c16-4525-9743-b61250137800
+____________ test_conflict_recheck_db_error_is_fail_closed_not_500 ____________
+
+chat_app = <fastapi.applications.FastAPI object at 0x0000023267CE7350>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000002326AAE5A00>, csrf='476c51ce926b64f66b3d87b28d22f82...b28d22f824cffec7d27819c82f7fb44db997feed41'}, upload=<function _write_session.<locals>.<lambda> at 0x000002326BB8E520>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000002326A50A510>, csrf='769a4e430620c60e7468b26486ee4e1...6486ee4e1f24560d21ebe549e86ea055a7f6d9d4c7'}, upload=<function _write_session.<locals>.<lambda> at 0x000002326BF15580>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000002326BDA1EE0>
+
+    def test_conflict_recheck_db_error_is_fail_closed_not_500(
+        chat_app, chat_admin, chat_employee, monkeypatch
+    ):
+        """同实体复核遇到 DB 层 OperationalError：放弃复核（不披露冲突），不得冒泡成 500。"""
+        _publish(chat_app, chat_admin, path=D01)
+        original = service_module._retrieve
+        probes = {"count": 0}
+    
+        def retrieve_raises_on_probe(db_factory, intent, revision, limit=20, *, candidate_ids=None):
+            if candidate_ids is None and getattr(intent, "mode", None) == "record":
+                probes["count"] += 1
+                raise OperationalError("SELECT 1", {}, Exception("database is locked"))
+            return original(db_factory, intent, revision, limit=limit, candidate_ids=candidate_ids)
+    
+        monkeypatch.setattr(service_module, "_retrieve", retrieve_raises_on_probe)
+    
+>       payload = _ask(chat_employee, "城东店的宣传海报现在放在哪里？")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_t207_fix_conflict_r1.py:173: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+ns = namespace(client=<starlette.testclient.TestClient object at 0x000002326A50A510>, csrf='769a4e430620c60e7468b26486ee4e1...6486ee4e1f24560d21ebe549e86ea055a7f6d9d4c7'}, upload=<function _write_session.<locals>.<lambda> at 0x000002326BF15580>)
+question = '城东店的宣传海报现在放在哪里？'
+
+    def _ask(ns, question: str) -> dict:
+        created = ns.client.post("/api/v1/conversations", json={}, headers=ns.headers)
+        assert created.status_code == 201, created.text
+        conversation = created.json()["id"]
+        response = ns.client.post(
+            f"/api/v1/conversations/{conversation}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=ns.headers,
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"e40c7b72-ef03-4b6c-9bd5-53e67c2a3cd7"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_t207_fix_conflict_r1.py:100: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=e40c7b72-ef03-4b6c-9bd5-53e67c2a3cd7
+____ test_legacy_clarification_binds_outcome_without_fabricated_retrieval _____
+
+trace_chat_app = <fastapi.applications.FastAPI object at 0x000002326A863170>
+
+    def test_legacy_clarification_binds_outcome_without_fabricated_retrieval(trace_chat_app):
+        admin, employee = _admin(trace_chat_app), _employee(trace_chat_app)
+        _dataset(trace_chat_app, admin)
+        conversation_id = _conversation(employee)
+    
+        response = _ask(employee, conversation_id, CLARIFICATION_QUESTION)
+        assert response.status_code == 200, response.text
+        body = response.json()
+>       assert body["kind"] == "clarification", body
+E       AssertionError: {'request_id': 'f69afb95-a83c-430f-9ba0-27f84e27abcc', 'message_id': 'ddc37e42-0525-4237-af11-a7d108d7b352', 'kind': 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 城东店的展架：A区前台（来源：t003d-dataset.xlsx）
+E         未在资料中找到：滨江店（该实体没有匹配记录）。', ...}
+E       assert 'answer' == 'clarification'
+E         
+E         - clarification
+E         + answer
+
+tests\observability\test_paths_e2e.py:355: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_chat.py::test_g08_short_budget_cancels_inflight_model_call
+FAILED tests/integration/test_p1_t103_record_fallback_http.py::test_document_overshoot_falls_back_to_body_and_marks_trace
+FAILED tests/integration/test_p1_t103_record_fallback_http.py::test_record_overshoot_returns_honest_count_and_candidates
+FAILED tests/integration/test_t207_fix_conflict_r1.py::test_conflict_recheck_db_error_is_fail_closed_not_500
+FAILED tests/observability/test_paths_e2e.py::test_legacy_clarification_binds_outcome_without_fabricated_retrieval
+5 failed, 787 passed, 1 warning in 420.72s (0:07:00)

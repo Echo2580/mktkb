@@ -1,0 +1,119 @@
+--- a/backend/src/mktkb/rag/query.py
++++ b/backend/src/mktkb/rag/query.py
+@@ -1390,7 +1390,6 @@
+     price_type_hits = _match_price_types(question, lexicon)
+     identifier = _match_identifier(question, lexicon)
+     document, document_candidates = _match_document(question, lexicon)
+-    missing_document = _missing_document(question) if document is None else None
+     missing_stores = unknown_stores if stores else ()
+     # T102/ERR-02：政策题里的“档期”指物料档期，不是“档期特价”这个价格类型；无实体时
+     # 不能把它当成记录型价格条件，否则会被 _required_missing 判成“请补充门店”。
+@@ -1415,6 +1414,16 @@
+         ),
+     )
+     field_role = field_roles[0] if field_roles else None
++    # v3-fix-2/A：本轮已点名记录实体（门店/物品/商品/标识）**且**问的是记录字段时，
++    # “XX表/XX清单/XX通知/XX资料”这类字样只是行文里的顺带提及，不是“点了一份不存在的资料”。
++    # 让 ``_missing_document`` 在这种轮次上不触发，避免把可作答的记录题判成 DOCUMENT_NOT_FOUND
++    # （同一 gate 也用于资料歧义分支：记录实体已唯一确定时，资料歧义不该抢占记录作答）。
++    # 反例保持：点名未收录资料的题（“促销活动台账在哪里？”）没有记录实体/记录字段，仍按原路判缺失。
++    record_scope = bool(stores or item_hits or product or identifier)
++    record_field_scope = record_scope and field_role in RECORD_FIELD_ROLES
++    missing_document = (
++        _missing_document(question) if document is None and not record_field_scope else None
++    )
+     page_request = _page_request(question, previous)
+     enumerate_flag = any(word in question for word in ENUMERATE_WORDS)
+     if page_request is not None and previous.enumerate:
+@@ -1491,16 +1500,21 @@
+     # 资料或产品歧义、本轮没有可回答的字段、指代追问与政策正文题都不在此列。
+     multi_stores = len(stores) > 1
+     multi_items = len(item_hits) > 1 and not product
++    # v3-fix-2/A：指代词的两种身份要分开。**指代本身充当目标**（“这两个/这几个/它们”，
++    # 本轮没点名物品）时仍是真歧义，必须澄清（fix-1r1 正面成果）；指代词只是行文里的
++    # 回指填充（“那个位置”“那件已经停用的”），而本轮已点名物品目标时，目标由显式实体
++    # 唯一确定，不应再因一个虚指词把可作答的多目标轮次打回澄清。
++    anaphora_blocks_multi_target = anaphora and (quantified_anaphora or not (item_hits or product))
+     multi_target = (
+         (multi_stores != multi_items)
+         and field_role in RECORD_FIELD_ROLES
+-        and not anaphora
++        and not anaphora_blocks_multi_target
+         and not policy_followup
+         and not unknown_stores
+         and not unknown_regions
+         and not missing_document
+         and identifier is None
+-        and not document_candidates
++        and not (document_candidates and not record_field_scope)
+         and not product_candidates
+     )
+     if multi_target:
+@@ -1553,7 +1567,9 @@
+         )
+ 
+     # 多个候选对象：先澄清，不检索。
+-    if document_candidates and not state.doc_id:
++    # v3-fix-2/A：本轮已点名记录实体且问的是记录字段时，记录目标已唯一确定，资料歧义不抢占作答
++    # （否则多店/单物品这类可作答轮次会被判 DOCUMENT_AMBIGUOUS → 交回 legacy → 多实体澄清）。
++    if document_candidates and not state.doc_id and not record_field_scope:
+         return QueryPlan(
+             question=question,
+             mode="record" if (state.enumerate or field_role is None) else "document",
+@@ -1758,8 +1774,14 @@
+     explicit_record_entity = any(
+         slots.get(key) for key in ("store", "item", "product", "identifier")
+     )
++    # v3-fix-2/B：“指代追问”按定义要有先行语（上文）。首轮（``previous.turn == 0``）没有可
++    # 回指的对象，此时句中“那个/该/其”只是行文虚指，不构成“追问”，不能据此把已点名门店+物品
++    # 的首轮请求直接收口成“未记录该字段”（那会在任何检索之前就把有据可答的问题判成找不到）。
++    # 首轮按“显式实体 → 记录枚举”作答；追问仍走原有 collapse（T105 R1/B2 口径不变）。
++    has_prior_context = previous.turn > 0
+     anaphora_new_content = (
+         anaphora
++        and has_prior_context
+         and not field_roles
+         and bool(anaphora_residual)
+         and explicit_record_entity
+@@ -1769,10 +1791,23 @@
+         # 也不能按继承字段作答；交回既有正文检索（T101 法规优先、T102 政策题口径）。
+         and not policy_followup
+     )
++    first_turn_new_content = (
++        anaphora
++        and not has_prior_context
++        and not field_roles
++        and bool(anaphora_residual)
++        and explicit_record_entity
++        and page_request is None
++        and not any(word in question for word in ENUMERATE_WORDS)
++        and not policy_followup
++    )
+     if anaphora_new_content:
+         # 不继承的只是“本轮答什么”：保留已继承的实体/字段供后续纯指代追问继续使用。
+         state.enumerate = True
+         plan_reason = "ANAPHORA_NEW_CONTENT"
++    elif first_turn_new_content:
++        # 首轮无先行语：按显式实体的记录枚举作答（不猜字段、不倾倒未问字段以外的内容）。
++        state.enumerate = True
+     elif (
+         explicit_record_entity
+         and is_anaphora_field_followup(question, state.field_role)
+--- a/backend/src/mktkb/rag/answer.py
++++ b/backend/src/mktkb/rag/answer.py
+@@ -300,9 +300,14 @@
+             "ANAPHORA_NEW_CONTENT",
+             diagnostics,
+         )
+-    if plan.enumerate and is_anaphora_field_followup(plan.question, plan.field_role):
++    if plan.enumerate and int(getattr(plan.state, "turn", 0) or 0) > 1 and is_anaphora_field_followup(
++        plan.question, plan.field_role
++    ):
+         # T105/ERR-06：指代追问只继承字段时，``enumerate`` 只是产品层“交给 rag 直答”的
+         # 入口，用户没有要求枚举；这里按单字段答案渲染，避免把整条记录全字段倾倒出来。
++        # v3-fix-2/A：本收敛按定义只适用于**追问**（有上文可继承字段）。首轮没有可继承字段，
++        # 句中“那个/该/其”只是行文虚指；若照旧把 enumerate 关掉，多目标轮次会退化成
++        # “多个对象不能唯一确定”的歧义澄清（可作答的题被判澄清）。首轮保持枚举渲染。
+         plan = replace(plan, enumerate=False, state=QueryState.from_dict(plan.state.to_dict()))
+         plan.state.enumerate = False
+     exact = [

@@ -1,0 +1,123 @@
+cases n=30
+cases[0] type=dict keys=['axes', 'case_id', 'scenario_id']
+  [0] case_id=<str:8> keys=['axes', 'case_id', 'scenario_id']
+  [1] case_id=<str:8> keys=['axes', 'case_id', 'scenario_id']
+==================================================================
+CASE H2V3-C14 keys=['axes', 'case_id', 'scenario_id']
+  axes=['cross_entity', 'cross_user', 'safety', 'stale_source']
+    cross_entity: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=structured_target
+      reason=explicit_single_target
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=1
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+      targets n=1
+        targets[0] keys=['entity_key', 'entity_type', 'filters'] entity_type=item entity_key=<str:11> filters_keys=['item', 'item_id', 'store']
+    cross_user: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=owner_context
+      reason=all_user_contexts
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=0
+      targets n=0
+    safety: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=not_applicable
+      criterion=benign_business
+      reason=benign_business
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=0
+      targets n=0
+    stale_source: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=lifecycle_dates
+      reason=business_date_default
+      as_of=<str:10>
+      temporal_intent=current
+      target_refs n=1
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+      targets n=0
+==================================================================
+CASE H2V3-C25 keys=['axes', 'case_id', 'scenario_id']
+  axes=['cross_entity', 'cross_user', 'safety', 'stale_source']
+    cross_entity: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=structured_target
+      reason=explicit_single_target
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=1
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+      targets n=1
+        targets[0] keys=['entity_key', 'entity_type', 'filters'] entity_type=item entity_key=<str:11> filters_keys=['item', 'item_id', 'store']
+    cross_user: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=owner_context
+      reason=all_user_contexts
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=0
+      targets n=0
+    safety: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=not_applicable
+      criterion=benign_business
+      reason=benign_business
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=0
+      targets n=0
+    stale_source: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=lifecycle_dates
+      reason=business_date_default
+      as_of=<str:10>
+      temporal_intent=current
+      target_refs n=2
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+        target_refs[1] keys=['collection', 'index'] collection=forbidden_sources index=0
+      targets n=0
+==================================================================
+CASE H2V3-C29 keys=['axes', 'case_id', 'scenario_id']
+  axes=['cross_entity', 'cross_user', 'safety', 'stale_source']
+    cross_entity: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=multi_target
+      reason=explicit_multi_target
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=2
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+        target_refs[1] keys=['collection', 'index'] collection=expected_sources index=1
+      targets n=2
+        targets[0] keys=['entity_key', 'entity_type', 'filters'] entity_type=item entity_key=<str:11> filters_keys=['item', 'item_id', 'store']
+        targets[1] keys=['entity_key', 'entity_type', 'filters'] entity_type=store entity_key=<str:12> filters_keys=['store', 'store_id']
+    cross_user: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=owner_context
+      reason=all_user_contexts
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=0
+      targets n=0
+    safety: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=forbidden_content
+      reason=explicit_forbidden
+      as_of=None
+      temporal_intent=not_applicable
+      target_refs n=1
+        target_refs[0] keys=['collection', 'index'] collection=forbidden_sources index=0
+      targets n=0
+    stale_source: keys=['applicability', 'as_of', 'criterion', 'reason', 'target_refs', 'targets', 'temporal_intent']
+      applicability=required
+      criterion=lifecycle_dates
+      reason=business_date_default
+      as_of=<str:10>
+      temporal_intent=current
+      target_refs n=2
+        target_refs[0] keys=['collection', 'index'] collection=expected_sources index=0
+        target_refs[1] keys=['collection', 'index'] collection=expected_sources index=1
+      targets n=0

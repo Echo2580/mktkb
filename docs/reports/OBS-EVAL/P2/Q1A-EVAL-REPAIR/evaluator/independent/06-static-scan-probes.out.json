@@ -1,0 +1,253 @@
+{"probe": "L3-note", "module_hits": [], "test_hits": [{"line": 3, "token": "H2", "text": "只使用自建合成 unit/turn/旧卡与仓库内公开契约；不读真实 H2/标签/私有密文/key/.env，"}, {"line": 3, "token": ".env", "text": "只使用自建合成 unit/turn/旧卡与仓库内公开契约；不读真实 H2/标签/私有密文/key/.env，"}]}
+{
+  "schema": "q1a1-independent-static-scan/v1",
+  "module": {
+    "path": "backend/src/mktkb/evaluation/p2_evidence_rescore.py",
+    "imports": [
+      "__future__",
+      "collections",
+      "collections.abc",
+      "dataclasses",
+      "hashlib",
+      "json",
+      "os",
+      "pathlib",
+      "re",
+      "types",
+      "typing"
+    ],
+    "open_calls": 1,
+    "read_bytes_calls": 1,
+    "private_hits": []
+  },
+  "test": {
+    "path": "backend/tests/evaluation/test_p2_evidence_rescore.py",
+    "imports": [
+      "__future__",
+      "acceptance.support.netguard",
+      "ast",
+      "hashlib",
+      "json",
+      "mktkb.evaluation",
+      "mktkb.evaluation.p2_hard_evidence",
+      "mktkb.evaluation.product_adapter",
+      "pathlib",
+      "pytest",
+      "sys",
+      "types",
+      "typing"
+    ],
+    "private_hits": [
+      {
+        "line": 3,
+        "token": "H2",
+        "text": "只使用自建合成 unit/turn/旧卡与仓库内公开契约；不读真实 H2/标签/私有密文/key/.env，"
+      },
+      {
+        "line": 3,
+        "token": ".env",
+        "text": "只使用自建合成 unit/turn/旧卡与仓库内公开契约；不读真实 H2/标签/私有密文/key/.env，"
+      }
+    ],
+    "pytest_skip_or_xfail": false
+  },
+  "contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+  "check_count": 23,
+  "failed_count": 0,
+  "failures": [],
+  "checks": [
+    {
+      "probe": "L1",
+      "check": "模块导入集合等于白名单",
+      "got": [
+        "__future__",
+        "collections",
+        "collections.abc",
+        "dataclasses",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "re",
+        "types",
+        "typing"
+      ],
+      "want": [
+        "__future__",
+        "collections",
+        "collections.abc",
+        "dataclasses",
+        "hashlib",
+        "json",
+        "os",
+        "pathlib",
+        "re",
+        "types",
+        "typing"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "L1",
+      "check": "模块无网络/provider/product/旧评测器/私有模块导入",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L1",
+      "check": "模块 os 调用仅 fsync（无 environ/getenv）",
+      "got": [
+        "os.fsync"
+      ],
+      "want": [
+        "os.fsync"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无危险调用",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块只有一处 open 调用",
+      "got": [
+        "target.open"
+      ],
+      "want": [
+        "target.open"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "open 调用使用独占新建模式 \"xb\"",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 \"w\" 模式打开",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 \"a\" 模式打开",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 \"r\" 模式打开",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 \"rb\" 模式打开",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 read_text/read_string 等文本读取",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 write_text 写入",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块未导入 pytest",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块无 monkeypatch.setattr 调用",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L2",
+      "check": "模块内容读取仅为 read_bytes（哈希校验）",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "L3",
+      "check": "模块源码私有材料关键词零命中",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L3",
+      "check": "测试无私有材料读取路径常量",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试导入 netguard",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试引用 t09_network_guard",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试无 pytest.skip/xfail 装饰器",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试无 assert True / or True",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试仅对 product_adapter 做拦截断言（非旧评测器）",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "L4",
+      "check": "测试未 monkeypatch p2_hard_evidence",
+      "got": false,
+      "want": false,
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,4163 @@
+{
+ "exitstatus": 1,
+ "counts": {
+  "passed": 591,
+  "failed": 2,
+  "error": 0,
+  "skipped": 0
+ },
+ "collected": 593,
+ "tests": [
+  {
+   "nodeid": "tests/rag/test_budget.py::test_summary_and_reserve_settle_separate_accounting",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.018125000000509317,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget.py::test_failed_request_keeps_conservative_charge_and_stage_cap",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.02102759999797854,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget.py::test_invalid_ledger_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00827449999997043,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget.py::test_secret_redaction",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005018999981984962,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget.py::test_cross_process_reservations_do_not_overspend",
+   "outcome": "passed",
+   "when": "",
+   "duration": 2.2365086000027077,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_old_succeeded_small_usage_does_not_release",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01252310000018042,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_old_failed_and_orphan_results_stay_conservative",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014163899999402929,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_new_unsettled_reservation_keeps_full_amount",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.010081500000524102,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_legacy_reservation_rejects_new_evidence_and_keeps_full",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014854599998216145,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_new_reservation_with_old_settle_keeps_full",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013209699998697033,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_success_releases_only_unused_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01588160000028438,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_embedding_releases_from_total_tokens_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014454900003329385,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_rerank_releases_from_total_tokens_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013690200001292396,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_higher_conservative_rate_allowed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.011433200001192745,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_provider_billed_stays_null_in_versioned_result",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013477299999067327,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[missing_hit]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015768999999636435,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[missing_total]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015137899999899673,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[total_mismatch]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014004900000145426,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[cache_split]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01512439999896742,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[bool_prompt]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015380099999674712,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[float_completion]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015076199999384698,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[negative_miss]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014376100001754821,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[nan_prompt]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014659899999969639,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[reasoning_over]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01588419999825419,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[reasoning_bool]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014920400000846712,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[finish_length]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01621800000066287,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[streamed]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01513390000036452,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[http_500]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014737800000148127,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[http_bool]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015440899998793611,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[content_incomplete]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014436100002058083,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[content_not_parsed]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015593999998600339,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[over_cap_prompt]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014779299999645445,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[over_cap_completion]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.016257900000709924,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[wrong_host]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015108300000065356,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[wrong_region]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014771200001632678,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[wrong_source]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014530699998431373,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[wrong_sha]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015535799999270239,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_chat_invalid_evidence_never_releases[unknown_usage_field]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01518950000172481,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_new_reservation_evidence_kind_provider_model_mismatch_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.017851200002041878,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.018865100002585677,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.021355699998821365,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.021181599997362355,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-3]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01565689999915776,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-4]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01916490000257909,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-5]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013511600000128965,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[rerank-6]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013156799997886992,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-7]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013422099998933845,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-8]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013639499999044347,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-9]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01473939999959839,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-10]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01373529999909806,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[rerank-11]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013716600000407198,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-12]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013562399999500485,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_total_token_invalid_evidence_never_releases[embedding-13]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013525599999411497,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_extra_usage_never_overrides_total",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.011645699998553027,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_policy_rate_floor_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004808999983652029,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_policy_unknown_sources_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0003994999988208292,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_policy_snapshot_roundtrip_and_whitelist",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005171000011614524,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_policy_snapshot_tampering_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005440000004455214,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_reserve_rejects_mismatched_policy",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.006596600000193575,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_snapshot_persists_counts_without_generic_redaction",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.008672799998748815,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_duplicate_settlement_rejected_and_replay_stable",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01797199999782606,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_restart_reopen_unsettled_keeps_full_then_releases",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01600759999928414,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_cross_process_double_settlement_only_one_result",
+   "outcome": "passed",
+   "when": "",
+   "duration": 2.0036946999989595,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_release_then_new_reserve_same_lock_accounting",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01706190000004426,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_request_count_not_reset_by_settlement",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.018388999998933286,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_recomputed_charge_above_reserve_kept_not_masked",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014633499999035848,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_tampered_low_charge_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014983200002461672,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_tampered_settlement_declared_amount_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014873399997668457,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_unknown_policy_snapshot_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.012332800000876887,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement.py::test_orphan_versioned_result_fails_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.009558499998092884,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_exception_text_does_not_echo_value[version]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.016821999997773673,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_exception_text_does_not_echo_value[model]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.016410999998697662,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_exception_text_does_not_echo_value[kind]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015178899999227724,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_other_fields_do_not_echo[schema_version]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013508700001693796,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_other_fields_do_not_echo[rates]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015572300000712858,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_other_fields_do_not_echo[caps]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014090599999690312,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_invalid_snapshot_other_fields_do_not_echo[extra_field]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014350800000102026,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_nested_exception_propagation_does_not_echo",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00957130000097095,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_settlement_modules_have_no_logging_surface",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0017442000007577008,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_arbitrary_reason_uses_fallback",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0063400000017281855,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[none]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.005741700000726269,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[int]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.006448300000556628,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[float]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0058707000007416354,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[dict]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.006102899998950306,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[list]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.005930400000579539,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejected_result_event_non_string_reason_falls_back[bytes]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00499859999945329,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_sanitize_settlement_reason_whitelist_table",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00042810000013560057,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_reachable_rejection_paths_keep_stable_reasons[chat-unknown-key]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014623699998992379,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_reachable_rejection_paths_keep_stable_reasons[chat-secret-value]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014123099997959798,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_reachable_rejection_paths_keep_stable_reasons[embedding-unknown-key]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013844700000845478,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_settle_usage_sanitizes_non_whitelisted_decision_reason",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013913199998569326,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_replay_exception_reason_sanitized",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.011492099998577032,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_normal_success_settlement_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014910100000633975,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_rejection_event_replay_fails_closed_but_stable",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014692500002638553,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_old_settle_path_unchanged_full_amount",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014267300000938121,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_duplicate_settlement_still_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013593799998488976,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_echo.py::test_d1_unknown_usage_key_still_whitelisted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014716599998791935,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_unknown_usage_key_never_persisted_or_reasoned[chat]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01555719999851135,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_unknown_usage_key_never_persisted_or_reasoned[embedding]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015029399999548332,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_unknown_usage_key_never_persisted_or_reasoned[rerank]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015326500000810483,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_http_failure_before_usage_check_still_filters_usage",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013572099998782505,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_unknown_usage_key_with_nested_value_not_persisted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013417100000879145,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_non_mapping_usage_rejects_cleanly_without_persisting_value",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013660900000104448,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_non_string_usage_key_not_rewritten_into_ledger",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.012255599998752587,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_allowed_key_non_count_value_not_persisted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014348799999424955,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_secret_shaped_value_under_allowed_key_not_persisted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013830299998517148,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_legacy_reservation_rejection_filters_usage",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013939100001152838,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_invalid_policy_snapshot_rejection_filters_usage",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015284700000847806,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_evaluate_settlement_rejection_usage_fields_sanitized",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006416999985958682,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_sanitize_usage_for_kind_whitelist_and_value_bounds",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00042239999856974464,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_normal_accepted_settlement_keeps_whitelist_and_release",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01463060000060068,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_budget_settlement_rejection_leak.py::test_old_settle_path_unchanged_full_amount",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01600749999852269,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_chunking.py::test_table_row_keeps_title_header_sheet_and_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0017867000005935552,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_chunking.py::test_long_table_row_chunks_preserve_key_conditions_and_all_fields",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01268030000028375,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_chunking.py::test_text_chunks_overlap_and_keep_page_paragraph_context",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007798000024195062,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_chunking.py::test_long_paragraph_is_split_but_traceable_to_same_unit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000556999999389518,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_embedding_provider.py::test_embedding_accepts_1024_and_batches_at_ten",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00668260000020382,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_embedding_provider.py::test_embedding_rejects_wrong_dimensions_and_nan",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001451199999792152,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_embedding_provider.py::test_embedding_rejects_wrong_count_and_retries_429_once",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0032729000013205223,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_embedding_provider.py::test_embedding_timeout_is_bounded_and_key_is_not_in_repr",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006565999992744764,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_embedding_provider.py::test_embedding_429_exhausted_is_rate_limited",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.002341800000067451,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_facts_rejection.py::test_correct_fact_passes_and_forged_value_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.5402476000017487,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_facts_rejection.py::test_correct_value_with_unrelated_value_is_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06689379999988887,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_facts_rejection.py::test_cross_entity_and_cross_field_are_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07115490000069258,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_facts_rejection.py::test_deleted_source_is_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0679403000012826,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_facts_rejection.py::test_empty_facts_are_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0616148000008252,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_hybrid.py::test_more_than_100_candidates_scored_before_truncation",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.34502450000036333,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_hybrid.py::test_hard_filter_not_overridden_by_vector",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06217740000283811,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_hybrid.py::test_semantic_synonym_query_reaches_text_evidence",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.043820300001243595,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_hybrid.py::test_evidence_citations_have_source_and_revision",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06125100000099337,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_index_cache.py::test_cache_reused_across_documents_and_delete_does_not_delete_cache",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08695040000020526,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_index_cache.py::test_version_supersede_and_activate",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10044299999935902,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_index_cache.py::test_cache_key_distinguishes_model_dimensions_and_provider",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004881999993813224,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_plan_derived_amounts_match_manager_conditional_route",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006126999978732783,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_plan_rejects_weaker_bounds_or_parallel_route",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00045420000060403254,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_plan_bindings_pass_and_field_names_are_stable",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006266000018513296,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_missing_plan_binding_field_refused_before_any_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007827999979781453,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_tampered_plan_binding_refused_without_echoing_go_raw_values",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008016999981919071,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_bool_type_confusion_in_binding_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006085000022721943,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_pass_with_isolated_ledger",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.009456699999645934,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_refuse_unprovable_capacity_or_budget[overrides0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.007721700001638965,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_refuse_unprovable_capacity_or_budget[overrides1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.008524599998054327,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_refuse_unprovable_capacity_or_budget[overrides2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.009064300000318326,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_refuse_stage_mismatch_or_bad_history",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.010649399999238085,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_gate_limits_refuse_rag_single_bound_below_ocr_price",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.008918099998481921,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_executor_counts_and_refuses_beyond_plan",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006016999996063532,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_executor_serial_route_refuses_concurrent_boundary",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005669999991368968,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_executor_failure_stops_and_never_retries",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005064000015408965,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_execution.py::test_executor_ocr_modes_have_separate_plan_counts",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00046490000022458844,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_safe_request_id_hashes_all_external_ids_and_keeps_internal_refs_idempotent",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00044359999992593657,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_safe_dimensions_accepts_int_range_and_rejects_secret_or_bad_types",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004143999994994374,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_safe_http_status_and_error_code_are_controlled",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00035969999953522347,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_usage_whitelist_vs_evidence_mapping",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0003797000008489704,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_build_evidence_rejects_kind_mismatch_and_bad_request_sha",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004195000001345761,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_embedding_success_releases_unused_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.015379999998913263,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_embedding_over_cap_keeps_full_and_raises",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013753699999142555,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_embedding_missing_total_keeps_full",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014547200000379235,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_embedding_unknown_usage_field_fails_closed_without_secret_leak",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.013400199999523466,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_embedding_http_failure_keeps_full_and_no_settlement_block",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014161499999318039,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_legacy_embedding_path_still_uses_old_settle",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07362509999984468,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_legacy_path_sanitizes_unsafe_request_id_and_usage",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.011938900001041475,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_rerank_success_and_over_cap",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.024268199998914497,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_chat_success_releases_huge_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014406700000108685,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_chat_missing_cache_split_keeps_full",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01375739999821235,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_chat_over_cap_keeps_full",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.014274000001023524,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_chat_finish_not_stop_keeps_full_without_settlement",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01416599999902246,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_controlled_usage.py::test_versioned_replay_is_idempotent_and_keeps_history",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.01813919999767677,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_canonical_go_bindings_are_accepted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010095000034198165,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_strict_type_helper_distinguishes_all_scalar_types",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00042860000030486844,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.chat_requests-136.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007838999990781303,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.chat_prompt_tokens_cap-1536.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007122999995772261,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.chat_completion_tokens_cap-256.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008097000009001931,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.max_input_tokens-6144.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007203000004665228,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.max_output_tokens-800.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007699999987380579,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.context_ceiling_tokens-1048576.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0009359000014228513,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.input_price_per_million_cny-2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008108000020001782,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[chat.output_price_per_million_cny-8]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008612000037828693,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.embedding_requests-111.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008782000022620196,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.rerank_requests-94.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006680000005871989,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_max_calls-13.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0012447000008251052,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_max_tiles_per_page-1.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007277000004251022,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_max_attempts-1.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007820999999239575,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.embedding_dimensions-1024.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006849000001238892,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_text_requests-12.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007172000005084556,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_table_requests-1.0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006521999985125149,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_text_price_cny-0.5]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007718000015302096,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_numeric_type_confusion_refused_before_any_send[rag.ocr_table_price_cny-0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000841200000650133,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_bool_int_and_secret_confusion_refused_without_echo",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000744500002838322,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_missing_binding_field_still_refused_with_field_name",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000563599998713471,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_controlled_budget_counts_only_after_success_settle",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000615399998423527,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_plan_limit_refused_before_inner_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00042360000043117907,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_budget_denial_releases_without_stop_and_without_extra_reserve",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005133999984536786,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_failed_settle_after_actual_post_stops_all_channels",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006899999989400385,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_failed_settle_before_post_releases_without_stop",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007798000024195062,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_settle_usage_rejection_stops_all_channels",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006966000000829808,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_serial_boundary_refuses_second_concurrent_reserve_without_ledger_call",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0012858000009146053,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_embedding_wrapper_delegates_and_does_not_double_count",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005696999996871455,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_embedding_wrapper_failure_stops_executor",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005144000024301931,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_ocr_wrapper_pre_send_refusal_keeps_running_but_counts_success_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007306000006792601,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_ocr_wrapper_real_failure_stops_executor",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005968000023131026,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_ocr_kind_mapping_is_text_table_classified",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005788999987998977,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_j2_r2_controlled_entry.py::test_rag_chat_wrapper_counts_chat_and_refuses_at_limit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005305999984557275,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_legacy_compare.py::test_old_and_new_same_material_price_contrast",
+   "outcome": "passed",
+   "when": "",
+   "duration": 1.9291317999977764,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_poster_position_and_golden_display_height",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.90731550000055,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_oolong_nka_combo_price_and_follow_up",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.9696836999992229,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_enumeration_all_reports_total_and_no_fake_top_k",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.86675379999906,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_ambiguous_then_clarification_answer",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.8664776000005077,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_current_vs_notice_future",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.952711800000543,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_offline_e2e.py::test_unknown_store_is_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.8279117999973096,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_unknown_region_clears_inherited_store_and_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001706999999441905,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[\\u9ec4\\u91d1\\u9648\\u5217\\u4f4d\\u7684\\u9ad8\\u5ea6\\u533a\\u95f4\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006773999994038604,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[\\u534e\\u4e1c\\u5927\\u533a\\u73b0\\u5728\\u53eb\\u4ec0\\u4e48\\u540d\\u5b57\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005395000007410999,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[B\\u533a1\\u53f7\\u8d27\\u67b6\\u7b2c\\u4e8c\\u5c42\\u5728\\u54ea\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005811000009998679,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[\\u7ecf\\u9500\\u5546\\u8de8\\u533a\\u4e32\\u8d27\\u7b2c\\u4e8c\\u6b21\\u4f1a\\u600e\\u4e48\\u5904\\u7406\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005032999997638399,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[\\u57ce\\u4e1c\\u5e97\\u7269\\u6599\\u533a\\u7684\\u6d77\\u62a5\\u5728\\u54ea\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004969999990862561,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_not_misread[\\u57ce\\u5e02\\u7247\\u533a\\u600e\\u4e48\\u5212\\u5206\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005053999993833713,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_detected[\\u57ce\\u897f\\u533a\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u5728\\u54ea\\uff1f-expected0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000586899997870205,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_detected[\\u57ce\\u5357\\u7247\\u533a\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u5728\\u54ea\\uff1f-expected1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005880000007891795,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_detected[\\u82cf\\u57ce\\u5e02\\u57ce\\u897f\\u533a\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u5728\\u54ea\\uff1f-expected2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005401999987952877,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_region_like_words_are_detected[\\u8bf7\\u95ee\\u57ce\\u897f\\u533a\\u6709\\u6d77\\u62a5\\u5417\\uff1f-expected3]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005349000002752291,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_policy_question_does_not_inherit_previous_entities",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007707999993726844,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_policy_list_request_keeps_enumeration",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006150000008346979,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_policy_question_with_field_like_word_still_resets",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007002000020293053,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_topic_switch_without_entity_or_field_resets",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007257999986904906,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_field_followup_still_inherits_previous_store_and_item",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006607000013900688,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_anaphora_followup_still_inherits_previous_entities",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007386000015685568,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t102_state_inheritance.py::test_page_request_keeps_enumeration_state",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000623500000074273,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_location_followup_answers_location_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07755179999912798,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_quantity_followup_answers_quantity_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08116560000053141,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_price_followup_answers_price_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07653570000002219,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_spec_followup_answers_spec_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07496319999881962,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_without_context_asks_which_field",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04828019999877142,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_without_entity_clarifies_referent",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04729069999848434,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_without_unique_entity_does_not_dump_fields",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.1444255999995221,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_after_multi_field_question_asks_which_field",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.070984199999657,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_explicit_enumeration_is_not_treated_as_field_followup",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07960920000368787,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_page_after_enumeration_keeps_pagination",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.14758960000108345,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_bare_page_after_enumeration_keeps_pagination",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.14319829999840294,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_new_content_record_field_followup_answers_that_field_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0760519999985263,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_new_content_non_field_followup_does_not_dump",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09052999999767053,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_policy_followup_answers_from_policy_text",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09218119999786722,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_regulation_followup_answers_regulation_not_inherited_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u4ef7\\u683c\\u6b3a\\u8bc8\\u89c4\\u5b9a\\u662f\\u4ec0\\u4e48\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09108820000255946,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_regulation_followup_answers_regulation_not_inherited_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u76f8\\u5173\\u89c4\\u5b9a\\u662f\\u4ec0\\u4e48\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09075909999774012,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_regulation_followup_answers_regulation_not_inherited_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u9002\\u7528\\u7684\\u4ef7\\u683c\\u6b3a\\u8bc8\\u89c4\\u5b9a\\u662f\\u4ec0\\u4e48\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09057579999898735,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_regulation_followup_after_spec_does_not_inherit_spec",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09091920000173559,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_process_followup_answers_from_document",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09201289999873552,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_anaphora_date_followup_without_field_does_not_claim_no_record",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07218770000145014,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_bare_policy_question_without_anaphora_still_answers_from_text",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.1767122000001109,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_policy_word_plus_field_word_answers_single_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u6807\\u51c6\\u89c4\\u683c\\u662f\\u4ec0\\u4e48\\uff1f-A2 \\u94dc\\u7248\\u7eb8 157g-forbidden0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0778136999997514,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_policy_word_plus_field_word_answers_single_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u4ef7\\u683c\\u6807\\u51c6\\u662f\\u4ec0\\u4e48\\uff1f-2.6-forbidden1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07808300000033341,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_policy_word_plus_field_word_answers_single_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u63d0\\u4ea4\\u6570\\u91cf\\u5462-20-forbidden2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0780534000004991,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_reimburse_rule_followup_is_honest_refusal",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08754299999964132,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_field_named_rule_words_stay_record_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u9648\\u5217\\u89c4\\u5219\\u5462]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07476580000184185,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_p1_t105_anaphora_field.py::test_field_named_rule_words_stay_record_field[\\u90a3\\u4e2a\\u6d77\\u62a5\\u7684\\u6263\\u5206\\u89c4\\u5219\\u662f\\u4ec0\\u4e48\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08136150000063935,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_phrasings_and_conflict.py::test_multiple_natural_phrasings_return_same_exact_value",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.11859739999999874,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_phrasings_and_conflict.py::test_conflicting_active_sources_are_shown_not_upload_time_picked",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06965000000127475,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_phrasings_and_conflict.py::test_expired_business_price_is_not_current_answer",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06811839999863878,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_clarification_then_follow_up_keeps_conditions",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0675215000010212,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_cross_user_state_isolation",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06274579999990237,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_topic_switch_clears_stale_entities",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08271749999948952,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_enumeration_larger_than_top_k_reports_total_and_more",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2961778000008053,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_state_roundtrip_keeps_candidates_and_pagination",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004847000018344261,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_query_state.py::test_t207_capture_raw_querystate_identity_and_save",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05880339999930584,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_10_effective_role_not_swallow.py::test_effective_role_does_not_swallow_field_word_without_joiner",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005331999982445268,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_10_effective_role_not_swallow.py::test_effective_role_alone_stays_single",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00044580000212590676,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_10_effective_role_not_swallow.py::test_price_qualifier_is_never_carried",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004197000016574748,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_10_effective_role_not_swallow.py::test_non_effective_first_role_keeps_old_behaviour",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007427000000461703,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_10_effective_role_not_swallow.py::test_joiner_path_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006156999988888856,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_contact_column_is_rendered_when_question_asks_who_to_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06071750000228349,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_contact_column_is_rendered_on_enumeration_path",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06287969999902998,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_contact_only_question_renders_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.055544900002132636,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_phone_only_question_does_not_render_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0595430999983364,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_address_only_question_does_not_carry_phone_or_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05653850000089733,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_phone_address_question_is_not_family_expanded",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07532100000025821,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_item_plus_phone_only_still_security_refused_without_contact_name",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0530546999998478,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_item_plus_contact_ask_still_security_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04242040000099223,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_c27_rendered_values_are_real_cells",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06122460000005958,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_contact_ask_synonyms_are_registered",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008324999980686698,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_bare_who_is_not_a_contact_word",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00045700000009674113,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_single_field_plans_stay_single",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00047849999828031287,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_11_contact_family.py::test_contact_words_do_not_bypass_policy_short_circuit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00035379999826545827,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_search_without_diag_is_result_identical",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05901290000110748,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_search_with_diag_does_not_write_retrieval_state",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.051243300000351155,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_kind_miss_when_plan_is_not_record",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04329390000020794,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_term_miss_when_record_terms_are_empty",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.051657299998623785,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_vector_unavailable_when_query_embedding_is_disabled",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.040963199999168864,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_limit_dropped_when_top_k_truncates_fused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.060848900000564754,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_dedup_dropped_when_enumerate_collapses_split_unit_chunks",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07959010000013222,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_12_candidate_drop_reason_retrieval.py::test_filter_miss_when_hard_filter_drops_candidates",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.048066700001072604,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c02_enumeration_answer_does_not_leak_machine_fingerprint_digits",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.056161900000006426,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c02_multi_record_answer_keeps_stable_marker_without_digits",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06469690000085393,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c21_c27_single_role_enumerate_renders_every_column_of_that_role",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0641419000003225,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c21_c27_multi_field_enumerate_renders_every_requested_role",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06899799999882816,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_adjacent_normal_single_value_enumerate_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06280020000122022,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_adjacent_normal_non_enumerate_conflict_still_reports_both_values",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.160095100001854,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_adjacent_safety_item_contact_enumeration_still_refuses",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0577982000013435,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c12_legacy_store_only_retrieval_keeps_item_row_for_mixed_fields",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.25391879999915545,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c12_store_only_contact_question_stays_store_scoped",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2608362999999372,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_4_synthetic_repairs.py::test_c12_store_only_location_question_stays_item_scoped",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2518523000017012,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c21_single_record_question_renders_unregistered_sibling_price_column",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.061240699998961645,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c21_adjacent_normal_single_price_column_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.059138099999472615,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c27_two_field_question_renders_unregistered_sibling_spec_column",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06449149999934889,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c27_adjacent_normal_two_registered_fields_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06180000000131258,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c21_date_question_renders_unregistered_sibling_date_column",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06118570000035106,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c27_quantity_question_renders_unregistered_sibling_quantity_column",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.061223800001243944,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_r05_spec_question_does_not_leak_price",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06051389999993262,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_r05_position_question_still_hides_prices_and_phone",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.058472700000493205,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_r05_restricted_contact_boundary_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05551930000001448,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_r05_non_enumerate_two_price_columns_still_conflict",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05705180000040855,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c12_requested_field_without_registered_role_is_not_a_trim_reason",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.25822449999941455,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_5_synthetic_repairs.py::test_c12_all_role_resolvable_fields_still_trim_unrelated_rows",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.26436049999938405,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_c21_shaped_question_renders_both_date_columns",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.17165590000149678,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_c21_shaped_question_with_comma_renders_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.057853699998304364,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_c21_shaped_question_with_conjunction_and_short_wording_renders_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06248310000046331,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_c27_shaped_question_renders_both_contact_columns",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06037050000304589,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_c27_shaped_question_without_list_joiner_keeps_single_field",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05796730000292882,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_qualifier_field_word_does_not_drag_the_other_field",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05874230000154057,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_single_field_date_question_keeps_exactly_one_role",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05942269999832206,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_single_field_short_validity_question_is_not_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06086999999934051,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_single_field_phone_question_does_not_add_address",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06114440000055765,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_single_field_spec_question_does_not_leak_price",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.057659800002511474,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_every_rendered_value_comes_from_the_cited_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0643621000017447,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_item_contact_request_still_restricted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.040545399999246,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_6_synthetic_repairs.py::test_all_fields_request_still_hides_restricted_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05583360000127868,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_c21_shape_single_end_leaves_other_end_out_of_facts",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.061642399998163455,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_c27_shape_single_phone_leaves_address_out_of_facts",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.062054399997578,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_c21_shape_requesting_both_ends_builds_both_facts",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06460030000198458,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_c27_shape_requesting_both_contact_columns_builds_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06708309999885387,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_c27_real_facts_two_shape_is_two_requested_roles",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06945099999757076,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_same_role_two_columns_both_enter_facts",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06083200000284705,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_same_role_same_value_is_deduped_not_dropped",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.062244800001280964,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_all_fields_enumeration_builds_one_representative_fact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.062135899999702815,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_requested_role_absent_is_fail_closed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05726240000149119,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_single_field_questions_do_not_drag_other_columns",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.23755329999949026,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_every_fact_value_comes_from_the_cited_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10446149999916088,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_plan_under_request_reproduces_the_facts_deficit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06674160000147822,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_7_facts_admission_synthetic.py::test_no_silent_drop_under_non_all_fields",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.1261763999991672,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_c21_projected_shape_reproduces_fact_one_role_not_requested_two",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08482619999995222,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_c27_projected_shape_role_not_requested_is_four_or_five",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07870839999668533,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[effective_from0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10428949999914039,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[effective_to0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07662559999880614,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[location]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.076525299999048,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[address]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07531329999983427,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[contact]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07385290000092937,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[effective_from1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07562250000046333,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[effective_to1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07281309999962104,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[phone]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0788286999995762,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_each_projected_candidate_role_turns_green_once_requested[status]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07675490000110585,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_single_end_question_does_not_carry_the_other_end",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05772579999938898,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_single_phone_question_does_not_carry_address",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0615706999979011,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[effective_from0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05582219999996596,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[effective_to0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06112370000118972,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[location]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.060072000000218395,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[address]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.19185960000140767,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[contact]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05798700000195822,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[effective_from1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0585637999993196,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[effective_to1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05636249999770371,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[phone]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06146369999987655,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_fact_value_comes_from_the_cited_row[status]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.058109500001592096,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_every_projected_candidate_role_is_reachable_from_the_word_table",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000767400000768248,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_8_role_map_synthetic.py::test_only_non_candidate_record_role_without_query_word_is_issued_quantity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00042609999945852906,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_item_plus_store_field_joins_same_store_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.275778100000025,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_joined_store_row_is_window_filtered",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.27663599999868893,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_single_item_attribute_does_not_join_store_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.27513920000092185,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_store_level_label_only_keeps_item_target",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2701849000004586,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_requested_contact_joins_only_when_the_item_target_exists",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.28245130000141216,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_store_row_outside_candidate_bound_is_not_joined",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2759676000005129,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_multiple_item_targets_do_not_join_store_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2769234999996115,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_join_synthetic.py::test_join_is_the_switch_for_the_second_source",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.26531489999979385,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_role_trim_cuts_six_to_one_only_when_one_row_carries_role",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2754350999985036,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_role_trim_keeps_both_when_each_expected_row_carries_a_requested_role",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2729634999996051,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_entity_filter_equality_needs_an_inconsistent_bound",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2825902999993559,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_window_filter_can_produce_the_same_shape",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.413407099998949,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_naive_trim_removal_leaks_unrelated_rows",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2796498000006977,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_conflict_slice_never_yields_one",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.3020053000000189,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_limit_cannot_shrink_below_limit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.30348200000116776,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_single_entity_single_record_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.27798779999830003,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_candidate_bound_is_part_of_the_contract[requested0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2747097000010399,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_legacy_trim_identifiability_synthetic.py::test_candidate_bound_is_part_of_the_contract[requested1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.28101540000170644,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_text_face_recall_synthetic.py::test_c12_document_face_recall_comes_from_question_terms",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.058281699997678516,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12_text_face_recall_synthetic.py::test_c12_superseded_notice_text_stays_outside_candidates",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.056443199999193894,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_refusal_roles_are_narrow_subset_and_role_set_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004996999996365048,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_planner_allows_item_plus_contact_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008130000005621696,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_contact_only_is_answered_with_contact_value",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0660624000011012,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_contact_name_is_answered",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0635297000007995,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_all_fields_with_contact_only_is_answered",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0642346999993606,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\\u7532\\u5e97\\u7acb\\u724c\\u7684\\u7535\\u8bdd\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04610040000079607,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\\u7532\\u5e97\\u7acb\\u724c\\u7684\\u5730\\u5740\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.051027999999860185,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\\u7532\\u5e97\\u7acb\\u724c\\u7684\\u4f4d\\u7f6e\\u548c\\u8054\\u7cfb\\u7535\\u8bdd\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04878099999950791,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_plus_phone_or_address_still_refused[\\u7532\\u5e97\\u7acb\\u724c\\u627e\\u8c01\\u5bf9\\u63a5\\uff0c\\u7535\\u8bdd\\u548c\\u5730\\u5740\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04702299999917159,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_item_all_fields_with_phone_still_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05852239999876474,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_cross_entity_phone_still_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04811850000078266,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r0_c12b_boundary_synthetic.py::test_policy_question_with_contact_word_is_not_security_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0009391999992658384,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_explicit_field_scopes_survive_paging",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0020851000008406118,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_explicit_field_scopes_render_only_matching_records",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08434310000120604,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_explicit_field_scopes_reject_ambiguous_store_rows",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07240610000008019,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_topic_turn_does_not_filter_by_previous_store",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07444500000019616,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_bare_followup_after_topic_turn_keeps_unique_store_scope",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0860106000018277,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_explicit_multi_store_question_still_enumerates",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09766269999818178,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_topic_turn_retains_scope_without_making_it_a_filter",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.23967009999796574,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_retained_scope_turn_is_owned_by_rag_kernel",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000930500000322354,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102b_cross_turn_store_scope.py::test_later_explicit_store_replaces_scope_without_guessing",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08678879999933997,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_m5_multifield_with_contract_and_account_is_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04990019999968354,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_credential_request_without_contact_is_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05132380000031844,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_planner_refuses_m5_shape_before_retrieval",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010696999997890089,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_location_plus_contact_only_still_answers",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07127630000104546,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_contact_only_still_answers_without_unrequested_fields",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06914389999838022,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_phone_request_is_still_security_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.048231499999019434,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_102c_restricted_multifield.py::test_regulation_clause_question_is_not_swallowed_by_credential_words",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011943999998038635,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106a_legacy_store_scope.py::test_legacy_followup_keeps_unique_store_scope",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.5611786999998003,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106a_legacy_store_scope.py::test_explicit_two_store_question_still_lists_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.5459943999976531,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106a_legacy_store_scope.py::test_same_store_cross_table_join_still_works",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.6281034999992698,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106a_legacy_store_scope.py::test_scope_helper_never_narrows_multi_store_turns",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006917999999132007,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_planner_targets_the_asked_store_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0016240999993897276,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_two_stores_asked_the_same_field_is_not_narrowed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010145000014745165,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_explicit_list_both_stores_is_not_narrowed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008394999986194307,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_single_store_question_is_unchanged",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0006869000008009607,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_primary_store_answer_uses_target_values_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07126059999791323,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_other_store_is_explained_as_status_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07027800000105344,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_explicit_list_both_stores_still_answers_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07051070000125037,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_106b_primary_store_target.py::test_single_store_question_still_answers",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07125980000091658,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_go_gate_rejects_existing_documents_and_structured_weak_files",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.059305000000676955,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_channel_spacing_and_composite_channel_are_normalized",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10139020000133314,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_e05_aliases_named_enumeration_and_sensitive_exclusion",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.11138999999820953,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_rerank_counts_query_per_candidate_and_enforces_limits",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.012903800001367927,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_record_effective_window_and_status_conflict",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07302120000167633,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_wrong_entity_and_per_bottle_are_not_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08714559999862104,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_interrogative_is_not_an_unknown_store",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05114839999987453,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_fact_doc_and_unit_binding_are_enforced",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07115950000115845,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_legacy_comparison_rebuilds_from_empty_database",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.26088440000057744,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r1_regressions.py::test_cli_has_no_dev_defaults",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0016948000011325348,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_observability_revision2.py::test_offline_index_capture_and_guard",
+   "outcome": "failed",
+   "when": "call",
+   "duration": 0.042199299999992945,
+   "exc": "FileNotFoundError: [Errno 2] No such file or directory: 'D:\\\\GPT项目\\\\市场部AI知识库\\\\.tmp-r2-obs-baseline\\\\backend_src_mktkb_rag_answer.py'"
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_embedding_rejects_byte_upper_over_official_single_limit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.004533799999990151,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_request_hard_cap_default_deny",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.011456500000349479,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_index_plan_audits_batches_cost_and_request_count",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.03016859999843291,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_e01_multi_field_identifier_suffix_and_unit",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.5019631999984995,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_missing_document_and_docx_enumeration_fail_explicitly",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.059887999999773456,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r2_regressions.py::test_units_are_derived_from_fields_not_fixed_whitelist",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08597310000004654,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_budget_ledger_defaults_to_zero_requests",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.008772299999691313,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_go_rejects_any_ledger_path_other_than_fixed_shared",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.03333259999999427,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_embedding_reserves_official_request_maximum",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.022166499999002554,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_chat_blocks_without_official_input_output_limits",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.004053100001328858,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_embedding_usage_above_official_max_is_not_accepted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.012427300000126706,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_plan_contains_all_call_faces_and_stage_block",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.15127820000088832,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r3_regressions.py::test_two_store_enumeration_reports_missing_entity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06678049999936775,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_limit_is_conversation_count_but_plan_counts_all_turns",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.027027000000089174,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_plan_retry_and_existing_cumulative_request_accounting",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07409969999935129,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_plan_can_use_chat_env_without_http",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07098649999898043,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_plan_reports_chat_per_request_cap_without_relaxing_budget",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0714849999967555,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_multi_store_filters_exactly_and_discloses_missing",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0705627999996068,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r4_regressions.py::test_multi_store_unknown_is_disclosed_without_cross_entity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07635150000169233,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_structural_upper_ignores_observed_trace",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.3652671999989252,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_trace_rejects_negative_and_non_integer_and_build_mismatch",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.3169493000023067,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_build_upper_sums_per_document_batches",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05359409999800846,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_retry_factor_applies_to_structural_upper",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10829980000016803,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_chat_upper_unproven_blocks_unless_record_only",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.17648890000054962,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_cache_naming_is_corrected_without_claiming_cache",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10254619999977876,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_no_query_embedding_is_enforced_at_runtime",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06729339999947115,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_record_only_never_constructs_chat",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0480003000011493,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_fresh_and_resumed_state_stay_within_structural_upper",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.27094169999872975,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_different_vector_semantics_never_exceed_upper",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.139801900000748,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_live_entry_blocks_before_http_when_structural_upper_exceeds_scope",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0905797999985225,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_live_entry_mock_transport_is_labeled_and_counted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.1775078000009671,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_live_report_attributes_budget_exhaustion",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.7285317000005307,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_report_preserves_costs_and_marks_interruption",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10286739999901329,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_plan_regressions.py::test_reserve_persisted_but_unreturned_is_counted_as_own",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.11772099999870989,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_requested_store_without_record_is_disclosed_not_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07547879999947327,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_three_stores_one_without_record_keeps_valid_values",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08237800000097195,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_single_store_without_record_says_so_without_numbers",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06628620000083174,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_recorded_store_is_not_disclosed_as_missing",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0811773000004905,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u548c\\u60a6\\u5e7f\\u573a\\u5e97\\u548c\\u661f\\u6d77\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u661f\\u6d77\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07382940000024973,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u548c\\u60a6\\u5e7f\\u573a\\u5e97\\u3001\\u661f\\u6d77\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u661f\\u6d77\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08122109999931126,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u548c\\u60a6\\u5e7f\\u573a\\u5e97\\u4e0e\\u661f\\u6d77\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u661f\\u6d77\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07933109999976296,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u548c\\u60a6\\u5e7f\\u573a\\u5e97\\u53ca\\u661f\\u6d77\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u661f\\u6d77\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07835400000112713,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u548c\\u60a6\\u5e7f\\u573a\\u5e97\\u548c\\u548c\\u5e73\\u91cc\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u548c\\u5e73\\u91cc\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07238930000130495,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_name_is_extracted_whole[\\u68a7\\u6850\\u91cc\\u5e97\\u548cXX\\u4e0d\\u5b58\\u5728\\u5e97\\u7684\\u7aef\\u67b6\\u4fa7\\u677f\\u5206\\u522b\\u6709\\u591a\\u5c11-\\u4e0d\\u5b58\\u5728\\u5e97]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07332950000090932,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_unknown_store_starting_with_connector_keeps_first_char",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05108799999834446,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_all_unknown_stores_refuse_and_name_every_one",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.055997200001002057,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_disclosure_line_with_unrequested_store_is_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07372959999702289,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_disclosure_cannot_carry_forged_quantity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07985910000206786,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_recorded_store_cannot_be_claimed_missing",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07531730000118841,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_entity_cannot_take_another_entitys_true_value",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07785689999764145,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_appending_missing_line_when_nothing_is_missing_is_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08123130000058154,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_validator_rejects_disclosure_disabled_by_incomplete_coverage",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2585789000004297,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_validator_rejects_disclosure_of_unrequested_entity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07208599999830767,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r5_regressions.py::test_paged_result_does_not_claim_entity_is_missing",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.10879729999942356,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_live_requires_explicit_positive_max_requests[extra0]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.041026299997611204,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_live_requires_explicit_positive_max_requests[extra1]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04187699999965844,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_live_requires_explicit_positive_max_requests[extra2]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04164900000068883,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_live_positive_quota_is_narrowed_by_go_scope",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05139659999986179,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_reserve_event_carries_run_id_for_late_recovery",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.012131800000133808,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_attribution_separates_reserved_post_and_transport",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.030840399997032364,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_real_transport_does_not_claim_verified_calls",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.029623699998410302,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_counting_numbers_cannot_replace_field_values",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0755167999996047,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_identifier_and_source_digits_cannot_replace_field_values",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06980389999989711,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_values_equal_to_page_or_one_two_three_still_pass",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07392210000034538,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_identifier_question_still_answerable",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08190150000154972,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_all_requested_entities_without_records_are_named",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0570361000009143,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_r6_regressions.py::test_paged_last_page_is_not_called_all_shown",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07407299999795214,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_rerank_parses_scores_and_top_n",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0009592999995220453,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_rerank_429_is_bounded",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.002636599998368183,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_config_rejects_invalid_limits_and_live_without_key",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0004962000002706191,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_missing_budget_is_rejected_before_http",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005123999999341322,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_chat_prices_can_be_read_from_environment_without_leaking",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000605199998972239,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_rerank_and_config.py::test_chat_max_output_tokens_is_enforced_before_http",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00058069999977306,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a1_cross_store_same_identifier_is_ambiguous",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06581089999781398,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a2_both_candidate_followups_converge",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08394250000128523,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a3_same_location_across_stores_still_ambiguous",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05517060000238416,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a4_same_store_different_items_is_ambiguous_and_converges",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08391139999912411,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a5_same_scope_conflicting_locations_stay_conflict",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06500779999987572,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a6_same_name_different_identifiers_keeps_item_semantics",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.059346400001231814,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a6_qualified_identifier_uses_only_its_own_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06478310000056808,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a6_unknown_identifier_returns_no_evidence",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.044280200001594494,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a6_identifier_with_mismatched_store_is_refused",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05774849999943399,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s2b_identifier_scope.py::test_a7_fact_entity_key_matches_source_chunk",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07661519999965094,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_go_declared_stage_limit_above_three_yuan_is_accepted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.03686280000147235,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_stage_limit_is_min_of_parameter_go_and_budget",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.025611600000047474,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_stage_limit_requires_finite_positive_parameter",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.025904800000716932,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_missing_go_stage_limit_is_rejected_not_defaulted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.025790100000449456,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_missing_budget_stage_allocation_is_rejected_not_defaulted",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.026434799998241942,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_budget_without_stages_object_is_rejected",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.026947499998641433,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_legacy_go_stage_limit_field_still_supported",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.026680199998736498,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_s4_stage_limit.py::test_current_go_and_budget_are_consistent_and_above_three_yuan",
+   "outcome": "failed",
+   "when": "call",
+   "duration": 0.02677120000043942,
+   "exc": "assert 0.5 == 3.0 ± 3.0e-06\n  \n  comparison failed\n  Obtained: 0.5\n  Expected: 3.0 ± 3.0e-06"
+  },
+  {
+   "nodeid": "tests/rag/test_t207_candidate_scope_synthetic.py::test_multi_store_hard_filter_rejects_unrequested_store",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011656000006041722,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_candidate_scope_synthetic.py::test_multi_item_hard_filter_rejects_unrequested_item",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0009023000002343906,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_candidate_scope_synthetic.py::test_multi_item_no_match_never_answers_another_item",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0585324000021501,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_candidate_scope_synthetic.py::test_previous_single_item_does_not_narrow_new_multiple_items",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010036999992735218,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_candidate_scope_synthetic.py::test_vector_candidates_respect_multiple_items",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.054688800000803894,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_conflict_synthetic.py::test_overlapping_distinct_values_remain_conflict",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.4984896999994817,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_multi_store_synthetic.py::test_explicit_multiple_stores_clear_previous_single_record_id",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011492999983602203,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_multi_store_synthetic.py::test_explicit_record_id_is_preserved",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007590000004711328,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_multi_store_synthetic.py::test_two_stores_then_single_store_never_returns_other_store",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08872989999690617,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_contact_request_refuses_before_ambiguity",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001215599999341066,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_without_contact_still_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001499300000432413,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_cross_product_contact_refusal_has_no_citations",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04987060000166821,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_unknown_store_cannot_bypass_existing_contact_policy",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.00062929999694461,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_unrelated_unknown_store_remains_unknown",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005176999984541908,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_security_precedence_synthetic.py::test_legacy_financial_topic_does_not_hide_contact_request",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005108000004838686,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_title_prefix_synthetic.py::test_numbered_upload_title_matches_human_title",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007885999984864611,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_title_prefix_synthetic.py::test_other_underscore_titles_keep_existing_meaning",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005464999994728714,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_v8_enumeration_synthetic.py::test_item_all_fields_does_not_disclose_restricted_contact",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05777000000125554,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_v8_enumeration_synthetic.py::test_store_contact_without_item_remains_available",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06631530000049679,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_t207_v8_enumeration_synthetic.py::test_item_all_fields_without_contact_remains_available",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06442320000132895,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_filter_drops_superseded_version_and_keeps_order",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2958987999991223,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_only_current_version_is_not_killed",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.3001664000003075,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_closed_interval_boundaries_keep_the_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.31202070000108506,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_undeclared_end_keeps_the_row",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2995461000009527,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_explicit_future_phrasing_skips_the_filter",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.28578790000028675,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_business_date_filter.py::test_as_of_must_be_iso_date",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0005583000001934124,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_multi_target_is_executed_not_clarified[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001277900000786758,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_multi_target_is_executed_not_clarified[\\u57ce\\u4e1c\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u548c\\u6613\\u62c9\\u5b9d\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011530000010679942,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_multi_target_is_executed_not_clarified[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u7535\\u8bdd\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0016247999992629047,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_multi_target_state_keeps_all_named_targets",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001960599998710677,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_two_stores_one_item_answers_both_targets",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07727229999909468,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_one_store_two_items_answers_both_targets",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0787904000007984,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_two_stores_store_level_field_answers_both",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07174569999915548,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_two_stores_two_items_still_clarify",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05470389999936742,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_unknown_store_is_not_treated_as_multi_target",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07012209999993502,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_unnamed_targets_still_clarify",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05164660000264121,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1_multi_target.py::test_multi_target_without_answerable_field_is_not_released",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.04714990000138641,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_pure_anaphora_with_named_stores_clarifies[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0014603999989049044,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_pure_anaphora_with_named_stores_clarifies[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u8fd9\\u51e0\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0013810000018565916,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_pure_anaphora_with_named_stores_clarifies_in_kernel",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.054877700000361074,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_bare_anaphora_without_targets_still_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0542622000011761,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_existing_anaphor_word_they_still_not_multi_target",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0009910999997373438,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_mixed_explicit_items_plus_anaphora_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.051790699997582124,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_mixed_explicit_item_plus_anaphora_does_not_expand",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08707940000203962,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_cross_turn_anaphora_does_not_reenumerate_table",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.09737609999865526,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_anaphora_with_unknown_store_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.051521599998523016,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_resumptive_quantifier_is_not_treated_as_bare_anaphora[\\u57ce\\u4e1c\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u548c\\u6613\\u62c9\\u5b9d\\u8fd9\\u4e24\\u4e2a\\u7269\\u54c1\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011184999984834576,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_resumptive_quantifier_is_not_treated_as_bare_anaphora[\\u57ce\\u4e1c\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u3001\\u6613\\u62c9\\u5b9d\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011095999980170745,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_resumptive_quantifier_is_not_treated_as_bare_anaphora[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u8fd9\\u4e24\\u5bb6\\u7684\\u7535\\u8bdd\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0013029999990976648,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_store_resumptive_phrase_is_not_bare_anaphora",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0012318999997660285,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_fix1_positive_cases_stay_released[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011992999989161035,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_fix1_positive_cases_stay_released[\\u57ce\\u4e1c\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u548c\\u6613\\u62c9\\u5b9d\\u5728\\u54ea\\u91cc\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0008146999989548931,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py::test_fix1_positive_cases_stay_released[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u7535\\u8bdd\\u662f\\u591a\\u5c11\\uff1f]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011954000001423992,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_first_turn_explicit_entity_is_not_collapsed_to_not_recorded[\\u57ce\\u4e1c\\u5e97\\u7684\\u5c55\\u67b6\\u90a3\\u4e2a\\u9648\\u5217\\u89c4\\u77e9\\u662f\\u600e\\u4e48\\u5b9a\\u7684]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010529999999562278,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_first_turn_explicit_entity_is_not_collapsed_to_not_recorded[\\u57ce\\u4e1c\\u5e97\\u7684\\u5ba3\\u4f20\\u6d77\\u62a5\\u90a3\\u4e2a\\u4e0a\\u67b6\\u8282\\u594f\\u5982\\u4f55\\u5b89\\u6392]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.000857100001667277,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_first_turn_explicit_entity_answers_from_record",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.2539903000015329,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_known_store_without_record_still_not_found",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06388690000130737,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_followup_new_content_still_collapses_to_not_recorded",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.07741050000186078,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_first_turn_record_answer.py::test_first_turn_bare_anaphora_still_clarifies",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05090599999857659,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_record_scope_with_document_words_is_answered_not_clarified[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u4ef7\\u7b7e\\u5361\\u7eb8\\u90a3\\u4e2a\\u4f4d\\u7f6e\\uff0c\\u6309\\u5e97\\u5bb6\\u8d44\\u6599\\u786e\\u8ba4\\u4e00\\u4e0b]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.001518499999292544,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_record_scope_with_document_words_is_answered_not_clarified[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u4ef7\\u7b7e\\u5361\\u7eb8\\u90a3\\u4e2a\\u4f4d\\u7f6e\\u5728D01\\u548cD02\\u91cc\\u5206\\u522b\\u662f\\u591a\\u5c11]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0012427000001480337,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_missing_document_still_fires_without_record_scope",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0007147999986045761,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_multi_store_single_item_answers_instead_of_clarifying",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.08043809999981022,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_item_scope_with_contact_request_still_refused_before_retrieval",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.05540140000084648,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u4ef7\\u7b7e\\u5361\\u7eb8\\u548c\\u5ba3\\u4f20\\u6d77\\u62a5\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010968999977194471,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0011431000002630753,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u5357\\u5e97\\u7684\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.0010277999990648823,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies_in_kernel[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u4ef7\\u7b7e\\u5361\\u7eb8\\u548c\\u5ba3\\u4f20\\u6d77\\u62a5\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.06017950000205019,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies_in_kernel[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u897f\\u5e97\\u7684\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.057546000000002095,
+   "exc": ""
+  },
+  {
+   "nodeid": "tests/rag/test_v3_fix2_record_scope_not_clarified.py::test_genuine_ambiguity_still_clarifies_in_kernel[\\u57ce\\u4e1c\\u5e97\\u548c\\u57ce\\u5357\\u5e97\\u7684\\u8fd9\\u4e24\\u4e2a\\u5206\\u522b\\u653e\\u5728\\u54ea\\u91cc]",
+   "outcome": "passed",
+   "when": "",
+   "duration": 0.056718600000749575,
+   "exc": ""
+  }
+ ]
+}

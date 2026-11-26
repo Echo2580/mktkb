@@ -1,0 +1,98 @@
+{
+  "case_id": "H2V3-C27",
+  "cited_rows": 1,
+  "dropped_cols": [
+    7
+  ],
+  "excluded": {
+    "commit_filter": true,
+    "dedup_dropped": true,
+    "same_role_multi_column_dropped": true,
+    "value_absent_in_cited_row": true
+  },
+  "expected_count": 2,
+  "fact_count": 2,
+  "facts": [
+    {
+      "col_index": 6,
+      "fact_index": 0,
+      "role": "phone"
+    },
+    {
+      "col_index": 1,
+      "fact_index": 1,
+      "role": "address"
+    }
+  ],
+  "fix": {
+    "conditions": [
+      "only question-lexicon change; no corpus/body read, no dataset/label/threshold/frozen-criteria change",
+      "contact role must not trip RESTRICTED_CONTACT_ROLES gate (no item/identifier in this case; phone+address already requested without tripping)",
+      "offline synthetic regression must cover the non-lexicon contact wording and keep restricted-contact refusals unchanged"
+    ],
+    "fixable_without_body_or_labels": "conditional",
+    "not_in": [
+      "rag/answer.py",
+      "rag/facts.py"
+    ],
+    "point": "rag/query.py:FIELD_WORDS.contact (+_match_fields 并列扩展)"
+  },
+  "fixed_code": "role_missing",
+  "missing_count": 1,
+  "missing_roles": [
+    "contact"
+  ],
+  "ok": true,
+  "per_value": [
+    {
+      "col_index": 7,
+      "fact_role": "",
+      "i": 0,
+      "in_answer_text": false,
+      "in_commit_text": false,
+      "in_facts": false,
+      "role": "contact"
+    },
+    {
+      "col_index": 6,
+      "fact_role": "phone",
+      "i": 1,
+      "in_answer_text": true,
+      "in_commit_text": true,
+      "in_facts": true,
+      "role": "phone"
+    }
+  ],
+  "plan_field_roles": [
+    "phone",
+    "address"
+  ],
+  "question_words": {
+    "address_word": true,
+    "contact_role_word_absent": true,
+    "non_lexicon_contact_ask": true,
+    "phone_word": true
+  },
+  "role_column_counts": {
+    "address": 1,
+    "all": {
+      "address": 1,
+      "contact": 1,
+      "effective_from": 1,
+      "effective_to": 1,
+      "identifier": 1,
+      "phone": 1,
+      "status": 1,
+      "store": 1
+    },
+    "contact": 1,
+    "phone": 1
+  },
+  "row_columns": 8,
+  "sha256": {
+    "layer": "2b9e9d49892c7506408c3e3ca26714b744e498d548ae0a077fc78bfa21155e3f",
+    "roles": "76d16536c56e115d02d2334cda08c0f6ecc7c9ab32bd54602a46c08d78b3ea89",
+    "shape": "586c3e317bd30eec14addde238576086ba404f2859af928e00e51102a51bc13a",
+    "words": "36326c90ada0781a91c93e3537c41a2da0480a7d4bc7a6436471cb4543a7fbb1"
+  }
+}

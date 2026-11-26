@@ -1,0 +1,93 @@
+python.exe : 
+所在位置 行:22 字符: 3
++   & $pybin -X utf8 -m pytest tests/integration/test_s2b_intent_semant ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[r2baseline] VERIFIED mktkb.__file__=D:\mktkb-p2-h2v3-r2-20261117\baseline\mix3\backend\src\mktkb\__init__.py
+[r2baseline] alt_src=D:\mktkb-p2-h2v3-r2-20261117\baseline\mix3\backend\src other_mktkb_path_entries_removed=2
+..FF..FF                                                                 [100%]
+================================== FAILURES ===================================
+________________ test_ambiguous_identifier_candidates_converge ________________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x0000021E5FA78620>, 'admin': <starlette.testclient.TestClient object ...af42df1d5e2263307add6141f5b9eb9924d'}, 'employee': <starlette.testclient.TestClient object at 0x0000021E5FC1BEF0>, ...}
+
+    def test_ambiguous_identifier_candidates_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        opening = _ask(client, conversation, "标识 IB-777 在哪里？")
+>       assert opening["kind"] == "clarification", opening
+E       AssertionError: {'request_id': '3d4fd239-df59-4006-810c-e869364c185b', 'message_id': '0b067c34-6651-46c3-8eab-f7accf059453', 'kind': 'conflict', 'text': '资料中存在冲突：江湾店的立牌的位置有多个有效值：C区一层（来源：dup.xlsx）；C区二层（来源：dup.xlsx）。未按上传时间自动选择其一。', ...}
+E       assert 'conflict' == 'clarification'
+E         
+E         - clarification
+E         + conflict
+
+tests\integration\test_s2b_intent_semantics.py:196: AssertionError
+___________ test_multi_row_candidates_carry_identifier_and_converge ___________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x0000021E5C61B4D0>, 'admin': <starlette.testclient.TestClient object ...4ff8bb28bb7143842d26511b1c5edef2667'}, 'employee': <starlette.testclient.TestClient object at 0x0000021E61EF55E0>, ...}
+
+    def test_multi_row_candidates_carry_identifier_and_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        opening = _ask(client, conversation, "湖滨店的展架在哪里？")
+>       assert opening["kind"] == "clarification", opening
+E       AssertionError: {'request_id': 'b634a751-6630-45eb-bf0c-01118e1500a1', 'message_id': 'd0043c15-5cba-475e-bdbe-bd817fbce63c', 'kind': 'service_error', 'text': '检索索引暂不可用，本次回答未完成。这是服务调用失败，不是资料中没有答案；可稍后重新提问。服务端不会因重试而重复保存同一条回答。', ...}
+E       assert 'service_error' == 'clarification'
+E         
+E         - clarification
+E         + service_error
+
+tests\integration\test_s2b_intent_semantics.py:209: AssertionError
+_____________ test_item_switch_and_store_level_field_reset_slots ______________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x0000021E5FB19250>, 'admin': <starlette.testclient.TestClient object ...d76a7024fcd7f5e3f9682998f02372fc58b'}, 'employee': <starlette.testclient.TestClient object at 0x0000021E5FD1BB30>, ...}
+
+    def test_item_switch_and_store_level_field_reset_slots(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        assert _ask(client, conversation, "展架的数量是多少？")["kind"] == "answer"
+        switched = _ask(client, conversation, "礼品袋的数量是多少？")
+        assert switched["kind"] == "answer", switched
+        assert set(_rows(switched)) == {9, 10}, switched
+        assert "31" not in switched["text"] and "展架" not in switched["text"], switched
+    
+        conversation = _conversation(client)
+        assert _ask(client, conversation, "展架的数量是多少？")["kind"] == "answer"
+        phone = _ask(client, conversation, "湖滨店的电话是多少？")
+>       assert phone["kind"] == "answer", phone
+E       AssertionError: {'request_id': 'b98138ef-75f3-4847-a87a-e446e7017d13', 'message_id': 'f8c65332-334c-4d06-86b8-343d4f1dbdf5', 'kind': 'service_error', 'text': '检索索引暂不可用，本次回答未完成。这是服务调用失败，不是资料中没有答案；可稍后重新提问。服务端不会因重试而重复保存同一条回答。', ...}
+E       assert 'service_error' == 'answer'
+E         
+E         - answer
+E         + service_error
+
+tests\integration\test_s2b_intent_semantics.py:259: AssertionError
+_____________ test_bare_store_after_store_level_field_keeps_field _____________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x0000021E5FAFA660>, 'admin': <starlette.testclient.TestClient object ...c5d0ee58c56c6eba1c9948744ed0b031ac4'}, 'employee': <starlette.testclient.TestClient object at 0x0000021E5C61BC50>, ...}
+
+    def test_bare_store_after_store_level_field_keeps_field(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+>       assert _ask(client, conversation, "湖滨店的电话是多少？")["kind"] == "answer"
+E       AssertionError: assert 'service_error' == 'answer'
+E         
+E         - answer
+E         + service_error
+
+tests\integration\test_s2b_intent_semantics.py:268: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge
+FAILED tests/integration/test_s2b_intent_semantics.py::test_multi_row_candidates_carry_identifier_and_converge
+FAILED tests/integration/test_s2b_intent_semantics.py::test_item_switch_and_store_level_field_reset_slots
+FAILED tests/integration/test_s2b_intent_semantics.py::test_bare_store_after_store_level_field_keeps_field
+4 failed, 4 passed, 1 warning in 12.14s

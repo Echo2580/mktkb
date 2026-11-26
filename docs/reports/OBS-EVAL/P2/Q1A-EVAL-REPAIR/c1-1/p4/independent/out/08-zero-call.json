@@ -1,0 +1,279 @@
+{
+ "probe": "08-zero-call",
+ "generated_utc": "2026-11-14T14:27:41.846887+00:00",
+ "check_count": 13,
+ "failure_count": 0,
+ "verdict": "PASS",
+ "checks": [
+  {
+   "name": "clean_segment_external_zero",
+   "ok": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   }
+  },
+  {
+   "name": "clean_segment_attempts",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "pass": {
+     "cross_entity": "passed",
+     "stale_source": "unknown"
+    },
+    "class_c": {
+     "cross_entity": "passed",
+     "stale_source": "passed"
+    },
+    "document": {
+     "cross_entity": "unknown",
+     "stale_source": "unknown"
+    }
+   }
+  },
+  {
+   "name": "positive_control_all_blocked",
+   "ok": true,
+   "detail": {
+    "actual": 7,
+    "expected": 7,
+    "extra": [
+     {
+      "label": "socket.create_connection",
+      "blocked": true,
+      "error": "blocked network attempt: socket.create_connection ('203.0.113.1', 80)",
+      "recorded": 1
+     },
+     {
+      "label": "socket.getaddrinfo",
+      "blocked": true,
+      "error": "blocked network attempt: socket.getaddrinfo ('example.invalid', 80)",
+      "recorded": 2
+     },
+     {
+      "label": "socket.connect",
+      "blocked": true,
+      "error": "blocked network attempt: socket.connect ('203.0.113.1', 80)",
+      "recorded": 3
+     },
+     {
+      "label": "socket.connect_ex",
+      "blocked": true,
+      "error": "blocked network attempt: socket.connect_ex ('203.0.113.1', 80)",
+      "recorded": 4
+     },
+     {
+      "label": "socket.gethostbyname",
+      "blocked": true,
+      "error": "blocked network attempt: socket.gethostbyname example.invalid",
+      "recorded": 5
+     },
+     {
+      "label": "http.client.connect",
+      "blocked": true,
+      "error": "blocked network attempt: http.client.connect ('203.0.113.1', 80)",
+      "recorded": 6
+     },
+     {
+      "label": "httpx",
+      "blocked": true,
+      "error": "blocked network attempt: httpx.HTTPTransport.handle_request http://203.0.113.1/",
+      "recorded": 7
+     }
+    ]
+   }
+  },
+  {
+   "name": "positive_control_all_recorded",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   }
+  },
+  {
+   "name": "positive_control_external_count",
+   "ok": true,
+   "detail": {
+    "actual": 7,
+    "expected": 7
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "kinds": [
+     "http.client.connect",
+     "httpx.HTTPTransport.handle_request",
+     "socket.connect",
+     "socket.connect_ex",
+     "socket.create_connection",
+     "socket.getaddrinfo",
+     "socket.gethostbyname"
+    ],
+    "missing": []
+   }
+  },
+  {
+   "name": "negative_control_dirty_ledger_raises",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": 7
+  },
+  {
+   "name": "clean_ledger_passes_after_clear",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   }
+  },
+  {
+   "name": "post_control_workload_external_zero",
+   "ok": true,
+   "detail": {
+    "actual": 0,
+    "expected": 0
+   }
+  },
+  {
+   "name": "post_control_workload_same_results",
+   "ok": true,
+   "detail": {
+    "actual": {
+     "pass": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     },
+     "class_c": {
+      "cross_entity": "passed",
+      "stale_source": "passed"
+     },
+     "document": {
+      "cross_entity": "unknown",
+      "stale_source": "unknown"
+     }
+    },
+    "expected": {
+     "pass": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     },
+     "class_c": {
+      "cross_entity": "passed",
+      "stale_source": "passed"
+     },
+     "document": {
+      "cross_entity": "unknown",
+      "stale_source": "unknown"
+     }
+    }
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "proxy_keys": [
+     "HTTP_PROXY",
+     "HTTPS_PROXY",
+     "ALL_PROXY",
+     "http_proxy",
+     "https_proxy"
+    ],
+    "note": "守卫在 connect/getaddrinfo/httpx 三层拦截，且 httpx 显式 trust_env=False"
+   }
+  }
+ ],
+ "clean_external": 0,
+ "controls": [
+  {
+   "label": "socket.create_connection",
+   "blocked": true,
+   "error": "blocked network attempt: socket.create_connection ('203.0.113.1', 80)",
+   "recorded": 1
+  },
+  {
+   "label": "socket.getaddrinfo",
+   "blocked": true,
+   "error": "blocked network attempt: socket.getaddrinfo ('example.invalid', 80)",
+   "recorded": 2
+  },
+  {
+   "label": "socket.connect",
+   "blocked": true,
+   "error": "blocked network attempt: socket.connect ('203.0.113.1', 80)",
+   "recorded": 3
+  },
+  {
+   "label": "socket.connect_ex",
+   "blocked": true,
+   "error": "blocked network attempt: socket.connect_ex ('203.0.113.1', 80)",
+   "recorded": 4
+  },
+  {
+   "label": "socket.gethostbyname",
+   "blocked": true,
+   "error": "blocked network attempt: socket.gethostbyname example.invalid",
+   "recorded": 5
+  },
+  {
+   "label": "http.client.connect",
+   "blocked": true,
+   "error": "blocked network attempt: http.client.connect ('203.0.113.1', 80)",
+   "recorded": 6
+  },
+  {
+   "label": "httpx",
+   "blocked": true,
+   "error": "blocked network attempt: httpx.HTTPTransport.handle_request http://203.0.113.1/",
+   "recorded": 7
+  }
+ ],
+ "guard_kinds": [
+  "http.client.connect",
+  "httpx.HTTPTransport.handle_request",
+  "socket.connect",
+  "socket.connect_ex",
+  "socket.create_connection",
+  "socket.getaddrinfo",
+  "socket.gethostbyname"
+ ],
+ "workload": {
+  "pass": {
+   "cross_entity": "passed",
+   "stale_source": "unknown"
+  },
+  "class_c": {
+   "cross_entity": "passed",
+   "stale_source": "passed"
+  },
+  "document": {
+   "cross_entity": "unknown",
+   "stale_source": "unknown"
+  }
+ },
+ "proxy_env": [
+  "HTTP_PROXY",
+  "HTTPS_PROXY",
+  "ALL_PROXY",
+  "http_proxy",
+  "https_proxy"
+ ]
+}

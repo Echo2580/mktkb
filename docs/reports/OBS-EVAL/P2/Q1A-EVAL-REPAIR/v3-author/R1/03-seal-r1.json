@@ -1,0 +1,140 @@
+{
+  "schema_version": "p2-v3-seal-r1/v1",
+  "operation": "R1 re-seal after four-state + ruling C/B/D edits",
+  "files": {
+    "questions.jsonl": {
+      "plaintext_bytes": 14920,
+      "plaintext_sha256": "d2aa028715919b043e3033e24db146c6de551c8f3fe4cd86458057b0d82f3400",
+      "ciphertext_bytes": 19980,
+      "ciphertext_sha256": "2f55006c4de448118daf8c4b1904f84bf19a276921e994e61134d150400a4c49"
+    },
+    "labels.jsonl": {
+      "plaintext_bytes": 24740,
+      "plaintext_sha256": "82931a50d75cace69d6f4993a454eabad15572fa6384793efa9ecf13b2bd4818",
+      "ciphertext_bytes": 33080,
+      "ciphertext_sha256": "5de0c1254e44622ea631e6d5f2845434adcde3ee11443862a3b6cd79b9ea94a7"
+    },
+    "targets.jsonl": {
+      "plaintext_bytes": 34297,
+      "plaintext_sha256": "4cda7e09e5cd4f36c96ca299db1ce0f61c8857737c8be5d203c3554aa054f45a",
+      "ciphertext_bytes": 45816,
+      "ciphertext_sha256": "0cb9623c496253f5ae1d260e6f737000b99d3afbc62367e14f933bd7cf79b3d3"
+    },
+    "authoring-record.jsonl": {
+      "plaintext_bytes": 74997,
+      "plaintext_sha256": "12f20fc1356e157b8843fb7537ca51ebe000ec83bb1cf578cec9d4df01910329",
+      "ciphertext_bytes": 100088,
+      "ciphertext_sha256": "7d52bb72c76d23b9fc44417376e1cf48256c0111c290f20c37f411f3a96a7b24"
+    }
+  },
+  "readback": {
+    "questions.jsonl": {
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    "labels.jsonl": {
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    "targets.jsonl": {
+      "bytes_equal": true,
+      "sha256_equal": true
+    },
+    "authoring-record.jsonl": {
+      "bytes_equal": true,
+      "sha256_equal": true
+    }
+  },
+  "loader": {
+    "case_count": 30,
+    "label_count": 30,
+    "strata": {
+      "paraphrase": 10,
+      "multi_turn": 5,
+      "negative": 5,
+      "stale_conflict": 5,
+      "cross_doc_security": 5
+    },
+    "turn_stats": {
+      "total_turns": 36,
+      "max_turns_per_case": 3,
+      "turn_histogram": {
+        "1": 25,
+        "2": 4,
+        "3": 1
+      }
+    },
+    "recomputed_turns": 36,
+    "recomputed_histogram": {
+      "1": 25,
+      "2": 4,
+      "3": 1
+    },
+    "metadata_mismatch_count": 0,
+    "expected_kind": {
+      "answer": 25,
+      "not_found": 2,
+      "refusal": 3
+    }
+  },
+  "sealed_root": {
+    "questions.jsonl.fernet": {
+      "bytes": 19980,
+      "sha256": "2f55006c4de448118daf8c4b1904f84bf19a276921e994e61134d150400a4c49"
+    },
+    "labels.jsonl.fernet": {
+      "bytes": 33080,
+      "sha256": "5de0c1254e44622ea631e6d5f2845434adcde3ee11443862a3b6cd79b9ea94a7"
+    },
+    "targets.jsonl.fernet": {
+      "bytes": 45816,
+      "sha256": "0cb9623c496253f5ae1d260e6f737000b99d3afbc62367e14f933bd7cf79b3d3"
+    },
+    "authoring-record.jsonl.fernet": {
+      "bytes": 100088,
+      "sha256": "7d52bb72c76d23b9fc44417376e1cf48256c0111c290f20c37f411f3a96a7b24"
+    },
+    "manifest.json": {
+      "bytes": 1066,
+      "sha256": "54f9bb3e2c65a0d5816f4718d262975028d9a52fe55ac77449d51e99848ec16e"
+    },
+    "source-map.json": {
+      "bytes": 2648,
+      "sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8"
+    }
+  },
+  "manifest": {
+    "schema_version": "p2-holdout-manifest/v0.1",
+    "dataset_version": "P2-HOLDOUT-v3",
+    "suite": "p2-holdout",
+    "label_version": "p2-holdout-v3-2026-11-15",
+    "case_count": 30,
+    "strata": {
+      "paraphrase": 10,
+      "multi_turn": 5,
+      "negative": 5,
+      "stale_conflict": 5,
+      "cross_doc_security": 5
+    },
+    "business_date": "2026-10-28",
+    "created_utc": "2026-11-14T18:28:05Z",
+    "author": "v3-author",
+    "encryption": {
+      "kind": "fernet",
+      "key_id": "p2-holdout-v3"
+    },
+    "questions_plaintext_sha256": "d2aa028715919b043e3033e24db146c6de551c8f3fe4cd86458057b0d82f3400",
+    "labels_plaintext_sha256": "82931a50d75cace69d6f4993a454eabad15572fa6384793efa9ecf13b2bd4818",
+    "questions_ciphertext_sha256": "2f55006c4de448118daf8c4b1904f84bf19a276921e994e61134d150400a4c49",
+    "labels_ciphertext_sha256": "5de0c1254e44622ea631e6d5f2845434adcde3ee11443862a3b6cd79b9ea94a7",
+    "turn_stats": {
+      "total_turns": 36,
+      "max_turns_per_case": 3,
+      "turn_histogram": {
+        "1": 25,
+        "2": 4,
+        "3": 1
+      }
+    }
+  }
+}

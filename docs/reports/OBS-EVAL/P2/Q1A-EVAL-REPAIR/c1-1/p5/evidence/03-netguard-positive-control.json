@@ -1,0 +1,56 @@
+{
+ "blocked": 4,
+ "create_connection_external": 1,
+ "details": [
+  {
+   "detail": "example.com",
+   "kind": "dns_getaddrinfo_external"
+  },
+  {
+   "detail": "('example.com', 80)",
+   "kind": "create_connection_external"
+  },
+  {
+   "detail": "('example.com', 80)",
+   "kind": "socket_connect_external"
+  },
+  {
+   "detail": "example.com:80",
+   "kind": "http_client_external"
+  }
+ ],
+ "dns_getaddrinfo_external": 1,
+ "http_client_external": 1,
+ "httpx_patched": false,
+ "httpx_transport_external": 0,
+ "installed": true,
+ "loopback_connects": 0,
+ "positive_control": {
+  "all_blocked": true,
+  "attempts": [
+   {
+    "attempt": "dns_getaddrinfo",
+    "blocked": true,
+    "error": "OSError"
+   },
+   {
+    "attempt": "create_connection",
+    "blocked": true,
+    "error": "OSError"
+   },
+   {
+    "attempt": "socket_connect",
+    "blocked": true,
+    "error": "OSError"
+   },
+   {
+    "attempt": "http_client_connect",
+    "blocked": true,
+    "error": "OSError"
+   }
+  ],
+  "probe": "03-netguard-positive-control"
+ },
+ "socket_connect_ex": 0,
+ "socket_connect_external": 1
+}

@@ -1,0 +1,984 @@
+{
+  "annotation_ciphertext_sha256": "0fa7dbe0e233db87732a60a245c1baa74a3c48e28de892f7b9a07cadfc40c543",
+  "business_dates": [
+    {
+      "business_date": "2026-10-15",
+      "run_index": 0,
+      "scenario_id": "base_b0"
+    },
+    {
+      "business_date": "2026-07-15",
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01"
+    },
+    {
+      "business_date": "2026-11-20",
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07"
+    },
+    {
+      "business_date": "2026-12-15",
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01"
+    }
+  ],
+  "contract": {
+    "axis_counts": {
+      "cross_entity": {
+        "required": 30
+      },
+      "cross_user": {
+        "required": 30
+      },
+      "safety": {
+        "not_applicable": 25,
+        "required": 5
+      },
+      "stale_source": {
+        "required": 30
+      }
+    },
+    "case_count": 30,
+    "fixed_gap_counts": {
+      "unresolved_date_anchor": 0,
+      "unresolved_entity_target": 0
+    },
+    "quality_readiness": "BLOCKED",
+    "release_ready": false,
+    "runtime_axis_evidence_produced": false,
+    "scenario_counts": {
+      "base_b0": 12,
+      "base_b0_plus_v01": 8,
+      "post_v05_without_v01": 5,
+      "pre_v05_without_v07": 5
+    },
+    "total_turns": 36
+  },
+  "dataset": {
+    "cases": 30,
+    "dataset_version": "P2-HOLDOUT-v3.1",
+    "label_version": "p2-holdout-v3.1-2026-11-15",
+    "manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+    "turns": 36
+  },
+  "mode": "local_mock",
+  "prereg_comparison": {
+    "cases": [
+      {
+        "case": "C01",
+        "channel_reached": true,
+        "observed_run_index": 0,
+        "observed_status": "pass",
+        "registered_direction": "fail",
+        "registered_runs": [
+          0
+        ]
+      },
+      {
+        "case": "C07",
+        "channel_reached": true,
+        "observed_run_index": 1,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          1
+        ]
+      },
+      {
+        "case": "C09",
+        "channel_reached": true,
+        "observed_run_index": 3,
+        "observed_status": "pass",
+        "registered_direction": "not_affected",
+        "registered_runs": [
+          3
+        ]
+      },
+      {
+        "case": "C10",
+        "channel_reached": true,
+        "observed_run_index": 3,
+        "observed_status": "pass",
+        "registered_direction": "not_affected",
+        "registered_runs": [
+          3
+        ]
+      },
+      {
+        "case": "C11",
+        "channel_reached": true,
+        "observed_run_index": 0,
+        "observed_status": "pass",
+        "registered_direction": "fail",
+        "registered_runs": [
+          0
+        ]
+      },
+      {
+        "case": "C12",
+        "channel_reached": true,
+        "observed_run_index": 0,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          0
+        ]
+      },
+      {
+        "case": "C15",
+        "channel_reached": true,
+        "observed_run_index": 3,
+        "observed_status": "pass",
+        "registered_direction": "not_affected",
+        "registered_runs": [
+          3
+        ]
+      },
+      {
+        "case": "C20",
+        "channel_reached": true,
+        "observed_run_index": 3,
+        "observed_status": "fail",
+        "registered_direction": "not_affected",
+        "registered_runs": [
+          3
+        ]
+      },
+      {
+        "case": "C21",
+        "channel_reached": true,
+        "observed_run_index": 0,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          0
+        ]
+      },
+      {
+        "case": "C22",
+        "channel_reached": true,
+        "observed_run_index": 1,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          1
+        ]
+      },
+      {
+        "case": "C25",
+        "channel_reached": true,
+        "observed_run_index": 2,
+        "observed_status": "error",
+        "registered_direction": "fail",
+        "registered_runs": [
+          2
+        ]
+      },
+      {
+        "case": "C26",
+        "channel_reached": true,
+        "observed_run_index": 0,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          0
+        ]
+      },
+      {
+        "case": "C28",
+        "channel_reached": true,
+        "observed_run_index": 1,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          1
+        ]
+      },
+      {
+        "case": "C29",
+        "channel_reached": true,
+        "observed_run_index": 2,
+        "observed_status": "not_executed",
+        "registered_direction": "fail",
+        "registered_runs": [
+          2
+        ]
+      },
+      {
+        "case": "C30",
+        "channel_reached": true,
+        "observed_run_index": 3,
+        "observed_status": "fail",
+        "registered_direction": "fail",
+        "registered_runs": [
+          3
+        ]
+      }
+    ],
+    "fail_cases_observed_fail": 7,
+    "fail_cases_with_status": 11,
+    "missing_status_cases": [],
+    "not_affected_observed_pass": 3,
+    "note": "Mock 下的 pass/fail 只用于核对\"码位与链路是否走通\"，不代表题目语义结论，不得据此宣称通过或失败。",
+    "preregistration_counts": {
+      "distinct_cases": 15,
+      "entries": 18,
+      "fail_cases": 11,
+      "not_affected_only": 4
+    },
+    "preregistration_sha256": "23cb3c08a8098557f27e8ad3bf433ce8a69111afcfca4aa587073ed9d60d4bce",
+    "schema_version": "p2-h2v3-dryrun-prereg/v0.1"
+  },
+  "runs": [
+    {
+      "business_date": "2026-10-15",
+      "case_plan": {
+        "counts": {
+          "cases": 12,
+          "turns": 14
+        },
+        "sha256": "74113e17675369321cfec460d3b89fdb0d8fb08ca9ecf0402728e7007433ab40"
+      },
+      "error": null,
+      "hard_evidence": {
+        "axes": {
+          "cross_entity": {
+            "checked": 7,
+            "not_applicable": 0,
+            "passed": 7,
+            "planned": 12,
+            "unknown": 5,
+            "violations": 0
+          },
+          "cross_user": {
+            "checked": 12,
+            "not_applicable": 0,
+            "passed": 12,
+            "planned": 12,
+            "unknown": 0,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 11,
+            "not_applicable": 10,
+            "passed": 0,
+            "planned": 12,
+            "unknown": 1,
+            "violations": 1
+          },
+          "stale_source": {
+            "checked": 9,
+            "not_applicable": 0,
+            "passed": 9,
+            "planned": 12,
+            "unknown": 3,
+            "violations": 0
+          }
+        },
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_hard_failure",
+          "holdout_hard_failure_unverified",
+          "holdout_hard_evidence_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved"
+        ],
+        "errors": 0,
+        "evidence_complete_cases": 12,
+        "executed": 12,
+        "failed": 5,
+        "hard_failures_by_kind": {
+          "cross_entity": 0,
+          "cross_user": 0,
+          "safety": 1,
+          "stale_source": 0
+        },
+        "missing_evidence_cases": 5,
+        "passed": 7,
+        "total": 12,
+        "verified": false
+      },
+      "hard_evidence_error": null,
+      "index_smoke": null,
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "scorecard": {
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved",
+          "holdout_hard_failure_unverified"
+        ],
+        "by_stratum": {
+          "cross_doc_security": {
+            "errors": 0,
+            "failed": 2,
+            "passed": 0,
+            "total": 2
+          },
+          "multi_turn": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 1,
+            "total": 2
+          },
+          "negative": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 2,
+            "total": 2
+          },
+          "paraphrase": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 3,
+            "total": 4
+          },
+          "stale_conflict": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 1,
+            "total": 2
+          }
+        },
+        "errors": 0,
+        "executed": 12,
+        "failed": 5,
+        "hard_failures": 0,
+        "passed": 7,
+        "release_ready": false,
+        "thresholds_approved": false,
+        "total": 12,
+        "validation": "ok"
+      },
+      "scoring_map": {
+        "code_count": 12,
+        "driver_default_code_count": 4,
+        "driver_default_schema_version": "p2-holdout-source-map/v0.1",
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-holdout-v3.source-map.json",
+        "resolutions": 13,
+        "schema_version": "p2-holdout-source-map/v0.2",
+        "served_by_dispatch": 13,
+        "v02_declared_code_count": 12,
+        "v02_only_codes": 8,
+        "v02_schema_version": "p2-holdout-source-map/v0.2"
+      },
+      "status": "succeeded",
+      "turn_count": 14,
+      "turns": {
+        "complete": 14
+      }
+    },
+    {
+      "business_date": "2026-07-15",
+      "case_plan": {
+        "counts": {
+          "cases": 8,
+          "turns": 10
+        },
+        "sha256": "14fd2c52d29dfe142f0b92618c638888eceaa5a3c2f5f24b5f654caaab231f34"
+      },
+      "error": null,
+      "hard_evidence": {
+        "axes": {
+          "cross_entity": {
+            "checked": 4,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 8,
+            "unknown": 4,
+            "violations": 1
+          },
+          "cross_user": {
+            "checked": 6,
+            "not_applicable": 0,
+            "passed": 6,
+            "planned": 8,
+            "unknown": 2,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 6,
+            "not_applicable": 5,
+            "passed": 0,
+            "planned": 8,
+            "unknown": 2,
+            "violations": 1
+          },
+          "stale_source": {
+            "checked": 5,
+            "not_applicable": 0,
+            "passed": 5,
+            "planned": 8,
+            "unknown": 3,
+            "violations": 0
+          }
+        },
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_hard_failure",
+          "holdout_hard_failure_unverified",
+          "holdout_hard_evidence_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved"
+        ],
+        "errors": 0,
+        "evidence_complete_cases": 8,
+        "executed": 8,
+        "failed": 4,
+        "hard_failures_by_kind": {
+          "cross_entity": 1,
+          "cross_user": 0,
+          "safety": 1,
+          "stale_source": 0
+        },
+        "missing_evidence_cases": 4,
+        "passed": 4,
+        "total": 8,
+        "verified": false
+      },
+      "hard_evidence_error": null,
+      "index_smoke": {
+        "document_core_of_ingested_title": "D01",
+        "items": [
+          "价签卡纸",
+          "促销贴纸",
+          "宣传单",
+          "宣传海报",
+          "展架",
+          "易拉宝"
+        ],
+        "one_store_filter_kept": true,
+        "probes": {
+          "doc_title_clean": {
+            "clarification": null,
+            "doc_id_filter": "doc-d01",
+            "doc_title_in_state": "物品位置表",
+            "missing_store": false,
+            "mode": "record",
+            "name": "doc_title_clean",
+            "reason": null,
+            "resolved": true,
+            "store_filter": null,
+            "stores_recognized": []
+          },
+          "doc_title_prefixed": {
+            "clarification": "资料“物品位置表”未收录，未使用其它资料替代；这不是资料中没有答案，请核对资料名称后重新查询。",
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "document",
+            "name": "doc_title_prefixed",
+            "reason": "DOCUMENT_NOT_FOUND",
+            "resolved": false,
+            "store_filter": null,
+            "stores_recognized": []
+          },
+          "one_store_control": {
+            "clarification": null,
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "record",
+            "name": "one_store_control",
+            "reason": null,
+            "store_filter": "城东店",
+            "stores_recognized": [
+              "城东店"
+            ]
+          },
+          "two_stores": {
+            "clarification": null,
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "record",
+            "name": "two_stores",
+            "reason": null,
+            "store_filter": null,
+            "stores_recognized": [
+              "城东店",
+              "城西店"
+            ]
+          }
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "title_resolvable_with_prefix": false,
+        "title_resolvable_without_prefix": true,
+        "two_stores_filter_dropped": true,
+        "two_stores_recognized": true
+      },
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "scorecard": {
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved",
+          "holdout_hard_failure_unverified"
+        ],
+        "by_stratum": {
+          "cross_doc_security": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 0,
+            "total": 1
+          },
+          "multi_turn": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "negative": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "paraphrase": {
+            "errors": 0,
+            "failed": 2,
+            "passed": 1,
+            "total": 3
+          },
+          "stale_conflict": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 1,
+            "total": 2
+          }
+        },
+        "errors": 0,
+        "executed": 8,
+        "failed": 4,
+        "hard_failures": 0,
+        "passed": 4,
+        "release_ready": false,
+        "thresholds_approved": false,
+        "total": 8,
+        "validation": "ok"
+      },
+      "scoring_map": {
+        "code_count": 12,
+        "driver_default_code_count": 4,
+        "driver_default_schema_version": "p2-holdout-source-map/v0.1",
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-holdout-v3.source-map.json",
+        "resolutions": 9,
+        "schema_version": "p2-holdout-source-map/v0.2",
+        "served_by_dispatch": 9,
+        "v02_declared_code_count": 12,
+        "v02_only_codes": 8,
+        "v02_schema_version": "p2-holdout-source-map/v0.2"
+      },
+      "status": "succeeded",
+      "turn_count": 10,
+      "turns": {
+        "complete": 10
+      }
+    },
+    {
+      "business_date": "2026-11-20",
+      "case_plan": {
+        "counts": {
+          "cases": 5,
+          "turns": 6
+        },
+        "sha256": "99a1871170732e5adebd5ebd4e031e5bf22fa7552455d98912e0f5463207303d"
+      },
+      "error": null,
+      "hard_evidence": {
+        "axes": {
+          "cross_entity": {
+            "checked": 4,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 5,
+            "unknown": 1,
+            "violations": 1
+          },
+          "cross_user": {
+            "checked": 3,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 5,
+            "unknown": 2,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 4,
+            "not_applicable": 3,
+            "passed": 0,
+            "planned": 5,
+            "unknown": 1,
+            "violations": 1
+          },
+          "stale_source": {
+            "checked": 3,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 5,
+            "unknown": 2,
+            "violations": 0
+          }
+        },
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_case_error",
+          "holdout_hard_failure",
+          "holdout_hard_failure_unverified",
+          "holdout_hard_evidence_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved"
+        ],
+        "errors": 2,
+        "evidence_complete_cases": 4,
+        "executed": 3,
+        "failed": 0,
+        "hard_failures_by_kind": {
+          "cross_entity": 1,
+          "cross_user": 0,
+          "safety": 1,
+          "stale_source": 0
+        },
+        "missing_evidence_cases": 2,
+        "passed": 3,
+        "total": 5,
+        "verified": false
+      },
+      "hard_evidence_error": null,
+      "index_smoke": null,
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "scorecard": {
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_case_error",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved",
+          "holdout_hard_failure_unverified"
+        ],
+        "by_stratum": {
+          "cross_doc_security": {
+            "errors": 1,
+            "failed": 0,
+            "passed": 0,
+            "total": 1
+          },
+          "multi_turn": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "negative": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "paraphrase": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "stale_conflict": {
+            "errors": 1,
+            "failed": 0,
+            "passed": 0,
+            "total": 1
+          }
+        },
+        "errors": 2,
+        "executed": 3,
+        "failed": 0,
+        "hard_failures": 0,
+        "passed": 3,
+        "release_ready": false,
+        "thresholds_approved": false,
+        "total": 5,
+        "validation": "ok"
+      },
+      "scoring_map": {
+        "code_count": 12,
+        "driver_default_code_count": 4,
+        "driver_default_schema_version": "p2-holdout-source-map/v0.1",
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-holdout-v3.source-map.json",
+        "resolutions": 6,
+        "schema_version": "p2-holdout-source-map/v0.2",
+        "served_by_dispatch": 6,
+        "v02_declared_code_count": 12,
+        "v02_only_codes": 8,
+        "v02_schema_version": "p2-holdout-source-map/v0.2"
+      },
+      "status": "aborted",
+      "turn_count": 5,
+      "turns": {
+        "complete": 5
+      }
+    },
+    {
+      "business_date": "2026-12-15",
+      "case_plan": {
+        "counts": {
+          "cases": 5,
+          "turns": 6
+        },
+        "sha256": "8db3c294bbb416bd85d019fdd6f0cdf15cf54bee58fd5b2f5299a9c5772f63e4"
+      },
+      "error": null,
+      "hard_evidence": {
+        "axes": {
+          "cross_entity": {
+            "checked": 2,
+            "not_applicable": 0,
+            "passed": 2,
+            "planned": 5,
+            "unknown": 3,
+            "violations": 0
+          },
+          "cross_user": {
+            "checked": 3,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 5,
+            "unknown": 2,
+            "violations": 0
+          },
+          "safety": {
+            "checked": 3,
+            "not_applicable": 3,
+            "passed": 0,
+            "planned": 5,
+            "unknown": 2,
+            "violations": 0
+          },
+          "stale_source": {
+            "checked": 3,
+            "not_applicable": 0,
+            "passed": 3,
+            "planned": 5,
+            "unknown": 2,
+            "violations": 0
+          }
+        },
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_hard_failure_unverified",
+          "holdout_hard_evidence_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved"
+        ],
+        "errors": 0,
+        "evidence_complete_cases": 5,
+        "executed": 5,
+        "failed": 2,
+        "hard_failures_by_kind": {
+          "cross_entity": 0,
+          "cross_user": 0,
+          "safety": 0,
+          "stale_source": 0
+        },
+        "missing_evidence_cases": 3,
+        "passed": 3,
+        "total": 5,
+        "verified": false
+      },
+      "hard_evidence_error": null,
+      "index_smoke": {
+        "document_core_of_ingested_title": "D01",
+        "items": [
+          "价签卡纸",
+          "促销贴纸",
+          "宣传单",
+          "宣传海报",
+          "展架",
+          "易拉宝"
+        ],
+        "one_store_filter_kept": true,
+        "probes": {
+          "doc_title_clean": {
+            "clarification": null,
+            "doc_id_filter": "doc-d01",
+            "doc_title_in_state": "物品位置表",
+            "missing_store": false,
+            "mode": "record",
+            "name": "doc_title_clean",
+            "reason": null,
+            "resolved": true,
+            "store_filter": null,
+            "stores_recognized": []
+          },
+          "doc_title_prefixed": {
+            "clarification": "资料“物品位置表”未收录，未使用其它资料替代；这不是资料中没有答案，请核对资料名称后重新查询。",
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "document",
+            "name": "doc_title_prefixed",
+            "reason": "DOCUMENT_NOT_FOUND",
+            "resolved": false,
+            "store_filter": null,
+            "stores_recognized": []
+          },
+          "one_store_control": {
+            "clarification": null,
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "record",
+            "name": "one_store_control",
+            "reason": null,
+            "store_filter": "城东店",
+            "stores_recognized": [
+              "城东店"
+            ]
+          },
+          "two_stores": {
+            "clarification": null,
+            "doc_id_filter": null,
+            "doc_title_in_state": null,
+            "missing_store": false,
+            "mode": "record",
+            "name": "two_stores",
+            "reason": null,
+            "store_filter": null,
+            "stores_recognized": [
+              "城东店",
+              "城西店"
+            ]
+          }
+        },
+        "stores": [
+          "城东店",
+          "城西店"
+        ],
+        "title_resolvable_with_prefix": false,
+        "title_resolvable_without_prefix": true,
+        "two_stores_filter_dropped": true,
+        "two_stores_recognized": true
+      },
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "scorecard": {
+        "blocks": [
+          "holdout_sample_missing",
+          "holdout_below_threshold",
+          "holdout_threshold_unapproved",
+          "holdout_hard_failure_unverified"
+        ],
+        "by_stratum": {
+          "cross_doc_security": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 0,
+            "total": 1
+          },
+          "multi_turn": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 1,
+            "total": 1
+          },
+          "negative": {
+            "errors": 0,
+            "failed": 1,
+            "passed": 0,
+            "total": 1
+          },
+          "paraphrase": {
+            "errors": 0,
+            "failed": 0,
+            "passed": 2,
+            "total": 2
+          }
+        },
+        "errors": 0,
+        "executed": 5,
+        "failed": 2,
+        "hard_failures": 0,
+        "passed": 3,
+        "release_ready": false,
+        "thresholds_approved": false,
+        "total": 5,
+        "validation": "ok"
+      },
+      "scoring_map": {
+        "code_count": 12,
+        "driver_default_code_count": 4,
+        "driver_default_schema_version": "p2-holdout-source-map/v0.1",
+        "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-holdout-v3.source-map.json",
+        "resolutions": 6,
+        "schema_version": "p2-holdout-source-map/v0.2",
+        "served_by_dispatch": 6,
+        "v02_declared_code_count": 12,
+        "v02_only_codes": 8,
+        "v02_schema_version": "p2-holdout-source-map/v0.2"
+      },
+      "status": "succeeded",
+      "turn_count": 6,
+      "turns": {
+        "complete": 6
+      }
+    }
+  ],
+  "schema_version": "p2-h2v3-mock-dryrun/v0.1",
+  "scoring_map_wiring": {
+    "declared": {
+      "code_count": 12,
+      "driver_default_code_count": 4,
+      "driver_default_schema_version": "p2-holdout-source-map/v0.1",
+      "path": "D:\\GPT项目\\市场部AI知识库\\docs\\evaluation\\p2-holdout-v3.source-map.json",
+      "resolutions": 0,
+      "schema_version": "p2-holdout-source-map/v0.2",
+      "served_by_dispatch": 0,
+      "v02_declared_code_count": 12,
+      "v02_only_codes": 8,
+      "v02_schema_version": "p2-holdout-source-map/v0.2"
+    },
+    "per_run_resolutions": {
+      "0": 13,
+      "1": 9,
+      "2": 6,
+      "3": 6
+    },
+    "remap_closure_cases": 30,
+    "total_resolutions_served_by_dispatch": 34,
+    "v01_identity": true
+  },
+  "totals": {
+    "cases": 30,
+    "errors": 2,
+    "executed": 28,
+    "failed": 11,
+    "passed": 17,
+    "turns": 35
+  },
+  "zero_call": {
+    "external": [],
+    "external_attempts": 0,
+    "local_attempts": 4,
+    "positive_control": {
+      "ambient_registry_proxy_present": true,
+      "blocked": true,
+      "external": [
+        "socket.getaddrinfo 'example.invalid'",
+        "socket.connect ('192.0.2.1', 80)",
+        "socket.create_connection ('example.invalid', 80)"
+      ],
+      "external_attempts": 3,
+      "local_attempts": 0,
+      "probes": [
+        "dns:blocked",
+        "direct:blocked",
+        "urllib:blocked",
+        "httpx:blocked"
+      ],
+      "proxy_env_removed": true
+    }
+  }
+}

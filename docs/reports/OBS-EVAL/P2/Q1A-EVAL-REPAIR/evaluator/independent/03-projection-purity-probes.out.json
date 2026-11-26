@@ -1,0 +1,244 @@
+{
+  "schema": "q1a1-independent-projection/v1",
+  "check_count": 26,
+  "failed_count": 0,
+  "failures": [],
+  "checks": [
+    {
+      "probe": "J1",
+      "check": "缺 document_codes 映射 -> unit.doc_code=None",
+      "got": null,
+      "want": null,
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "缺 record_codes -> unit.record_code=None",
+      "got": null,
+      "want": null,
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "投影保留 unit 自身的显式 version_id",
+      "got": "ver-7",
+      "want": "ver-7",
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "无映射时 forbidden ref -> unit_doc_unresolved",
+      "got": [
+        "unresolved",
+        "unit_doc_unresolved"
+      ],
+      "want": [
+        "unresolved",
+        "unit_doc_unresolved"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "N/A benign + 缺映射 -> not_applicable（抑制，不猜）",
+      "got": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "want": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "N/A 抑制审计 forbidden_source_suppressed_na_scope 存在",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "N/A 抑制不制造 forbidden_source_unmappable unknown",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "J1",
+      "check": "required + 缺映射 -> unknown forbidden_source_unmappable",
+      "got": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "want": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J2",
+      "check": "显式 document 映射 -> doc_code=D77",
+      "got": "D77",
+      "want": "D77",
+      "pass": true
+    },
+    {
+      "probe": "J2",
+      "check": "缺 record 映射时先报 record unresolved（身份顺序 fail closed）",
+      "got": [
+        "unresolved",
+        "unit_record_unresolved"
+      ],
+      "want": [
+        "unresolved",
+        "unit_record_unresolved"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J2",
+      "check": "未给 version_bindings -> 版本 unresolved（文档名/唯一版本不代替版本）",
+      "got": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "want": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J2",
+      "check": "required + 缺版本 -> unknown（不因 unit 只有一个版本而 match）",
+      "got": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "want": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J3",
+      "check": "显式 record 映射 -> record_code=R77",
+      "got": "R77",
+      "want": "R77",
+      "pass": true
+    },
+    {
+      "probe": "J3",
+      "check": "显式版本绑定 + locator 命中 -> identity_match",
+      "got": [
+        "match",
+        "identity_match"
+      ],
+      "want": [
+        "match",
+        "identity_match"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J3",
+      "check": "身份完整命中在 N/A 下仍为 violation",
+      "got": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "want": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J3",
+      "check": "禁值检查对投影文本生效（合成文本无禁值，不误报）",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "J4",
+      "check": "投影不修改 case 入参",
+      "got": "{\"case_id\": \"IND-PROJ-01\", \"expected_sources\": [], \"forbidden_sources\": [{\"doc_code\": \"D77\", \"locator\": {\"row\": 3, \"sheet\": \"合成表\"}, \"record_code\": \"R77\"}], \"forbidden_values\": [\"SECRET-X\"], \"should_refuse\": false}",
+      "want": "{\"case_id\": \"IND-PROJ-01\", \"expected_sources\": [], \"forbidden_sources\": [{\"doc_code\": \"D77\", \"locator\": {\"row\": 3, \"sheet\": \"合成表\"}, \"record_code\": \"R77\"}], \"forbidden_values\": [\"SECRET-X\"], \"should_refuse\": false}",
+      "pass": true
+    },
+    {
+      "probe": "J4",
+      "check": "投影不修改 audit 入参",
+      "got": "{\"quality_status\": \"fail\", \"turns\": [{\"evidence\": {\"capture\": {\"events\": [{\"kind\": \"model_input\", \"payload\": {\"evidence\": [{\"source_id\": \"u-1\"}, {\"source_id\": \"u-2\"}]}, \"seq\": 1}, {\"kind\": \"direct_rag_answer\", \"payload\": {\"cited_unit_ids\": [\"u-2\"], \"facts\": [{\"source_unit_id\": \"u-2\"}]}, \"seq\": 2}, {\"kind\": \"commit_observed\", \"payload\": {\"kind\": \"answer\", \"source_ids\": [\"u-1\"], \"text\": \"合成回答：不包含禁值\"}, \"seq\": 3}]}, \"completeness\": {\"errors\": [], \"status\": \"complete\"}, \"db_projection\": {\"units\": [{\"document_id\": \"doc-1\", \"document_name\": \"合成文档A\", \"locator\": {\"row\": 3, \"sheet\": \"合成表\"}, \"unit_id\": \"u-1\", \"unit_key\": \"uk-1\", \"version_id\": \"ver-7\", \"version_number\": 7}, {\"document_id\": \"doc-1\", \"document_name\": \"合成文档A\", \"locator\": {\"row\": 4, \"sheet\": \"合成表\"}, \"unit_id\": \"u-2\", \"unit_key\": \"uk-2\", \"version_id\": \"ver-7\", \"version_number\": 7}]}}, \"status\": \"executed\", \"turn_index\": 0}]}",
+      "want": "{\"quality_status\": \"fail\", \"turns\": [{\"evidence\": {\"capture\": {\"events\": [{\"kind\": \"model_input\", \"payload\": {\"evidence\": [{\"source_id\": \"u-1\"}, {\"source_id\": \"u-2\"}]}, \"seq\": 1}, {\"kind\": \"direct_rag_answer\", \"payload\": {\"cited_unit_ids\": [\"u-2\"], \"facts\": [{\"source_unit_id\": \"u-2\"}]}, \"seq\": 2}, {\"kind\": \"commit_observed\", \"payload\": {\"kind\": \"answer\", \"source_ids\": [\"u-1\"], \"text\": \"合成回答：不包含禁值\"}, \"seq\": 3}]}, \"completeness\": {\"errors\": [], \"status\": \"complete\"}, \"db_projection\": {\"units\": [{\"document_id\": \"doc-1\", \"document_name\": \"合成文档A\", \"locator\": {\"row\": 3, \"sheet\": \"合成表\"}, \"unit_id\": \"u-1\", \"unit_key\": \"uk-1\", \"version_id\": \"ver-7\", \"version_number\": 7}, {\"document_id\": \"doc-1\", \"document_name\": \"合成文档A\", \"locator\": {\"row\": 4, \"sheet\": \"合成表\"}, \"unit_id\": \"u-2\", \"unit_key\": \"uk-2\", \"version_id\": \"ver-7\", \"version_number\": 7}]}}, \"status\": \"executed\", \"turn_index\": 0}]}",
+      "pass": true
+    },
+    {
+      "probe": "J4",
+      "check": "同输入两次投影结果完全一致（确定性）",
+      "got": "[[0, \"executed\", \"answer\", \"合成回答：不包含禁值\", null, [[\"u-1\", \"D77\", \"R77\", \"ver-7\", 7, \"uk-1\", {\"row\": 3, \"sheet\": \"合成表\"}, [\"model_evidence\", \"final_citation\"]], [\"u-2\", \"D77\", \"R77\", \"ver-7\", 7, \"uk-2\", {\"row\": 4, \"sheet\": \"合成表\"}, [\"model_evidence\", \"direct_rag_fact\", \"direct_rag_citation\"]]]]]",
+      "want": "[[0, \"executed\", \"answer\", \"合成回答：不包含禁值\", null, [[\"u-1\", \"D77\", \"R77\", \"ver-7\", 7, \"uk-1\", {\"row\": 3, \"sheet\": \"合成表\"}, [\"model_evidence\", \"final_citation\"]], [\"u-2\", \"D77\", \"R77\", \"ver-7\", 7, \"uk-2\", {\"row\": 4, \"sheet\": \"合成表\"}, [\"model_evidence\", \"direct_rag_fact\", \"direct_rag_citation\"]]]]]",
+      "pass": true
+    },
+    {
+      "probe": "J4",
+      "check": "投影参数全为 keyword-only（无位置路径参数）",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "J4",
+      "check": "投影参数名不含 path/file/io/network/url/socket",
+      "got": [],
+      "want": [],
+      "pass": true
+    },
+    {
+      "probe": "J5",
+      "check": "文件 I/O 与 socket 被阻断时投影仍成功且结果一致",
+      "got": "[[0, \"executed\", \"answer\", \"合成回答：不包含禁值\", null, [[\"u-1\", \"D77\", null, \"ver-7\", 7, \"uk-1\", {\"row\": 3, \"sheet\": \"合成表\"}, [\"model_evidence\", \"final_citation\"]], [\"u-2\", \"D77\", null, \"ver-7\", 7, \"uk-2\", {\"row\": 4, \"sheet\": \"合成表\"}, [\"model_evidence\", \"direct_rag_fact\", \"direct_rag_citation\"]]]]]",
+      "want": "[[0, \"executed\", \"answer\", \"合成回答：不包含禁值\", null, [[\"u-1\", \"D77\", null, \"ver-7\", 7, \"uk-1\", {\"row\": 3, \"sheet\": \"合成表\"}, [\"model_evidence\", \"final_citation\"]], [\"u-2\", \"D77\", null, \"ver-7\", 7, \"uk-2\", {\"row\": 4, \"sheet\": \"合成表\"}, [\"model_evidence\", \"direct_rag_fact\", \"direct_rag_citation\"]]]]]",
+      "pass": true
+    },
+    {
+      "probe": "J6",
+      "check": "completeness!=complete -> turn.gate=evidence_incomplete",
+      "got": "evidence_incomplete",
+      "want": "evidence_incomplete",
+      "pass": true
+    },
+    {
+      "probe": "J6",
+      "check": "部分证据 -> unknown evidence_incomplete（不能 N/A）",
+      "got": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "want": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "J6",
+      "check": "turn_index 非连续 -> 固定拒绝",
+      "got": "old_evidence_invalid",
+      "want": "old_evidence_invalid",
+      "pass": true
+    },
+    {
+      "probe": "J6",
+      "check": "case.case_id 与旧卡不一致 -> case_invalid",
+      "got": "case_invalid",
+      "want": "case_invalid",
+      "pass": true
+    }
+  ]
+}

@@ -1,0 +1,394 @@
+{
+  "schema_version": "c1p1impl-independent-review/v1",
+  "date": "2026-11-14",
+  "package": "C1-P1 implementation: stale_source v1 classifier + P4 adapter IR-01/02/03 repair",
+  "reviewer": {
+    "role": "C1-P1 fresh independent acceptance",
+    "independent_of_development": true,
+    "independent_of_management": true,
+    "method": "self-built K*/S_syn_k corpus + 8 self-built probes + self-built netguard; no developer test helper imported for assertions; all numbers recomputed",
+    "report": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p1-impl/independent-review.md"
+  },
+  "workspace": {
+    "root": "D:\\GPT项目\\市场部AI知识库",
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged": 0,
+    "commit_count": 172,
+    "commit_count_after": 172,
+    "tracked_modified": 15,
+    "status_lines_start": 233,
+    "status_lines_uall_start": 2332
+  },
+  "object_under_review": {
+    "module": "backend/src/mktkb/evaluation/p2_stale_version_state.py",
+    "module_sha256": "fed191446ed261873acd81d6b0fea0adcfd317aff4cc41bf8b60e0cb61fdcf59",
+    "tests": "backend/tests/evaluation/test_p2_stale_version_state.py",
+    "tests_sha256": "1e81e7ac267c263aa94a47a9ffef0d842154e4f8bb5e7a461862f9a224523eff",
+    "adapter": "backend/src/mktkb/evaluation/p2_evidence_axes_adapter_v2.py",
+    "adapter_sha256": "8e0263d928cf2a63cacdceeef41e1b9ef94f43e8af0468af1a514f57541bbd2d",
+    "adapter_tests": "backend/tests/evaluation/test_p2_evidence_axes_adapter_v2.py",
+    "adapter_tests_sha256": "bac8334dd9770b0ed53159a401a6c85e977d9de4ff78542da6038403f22e81b5"
+  },
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "verdict_note": "IR-01 has 0 live TypeError sites (8,792 adapter + 392 stale hostile mutations; old-logic negative controls raise). IR-02/03 hold on full permutations and the consistency matrix. 178/178 criterion checks pass (two modes, 21 codes, section 7 fourteen rows, F-1..F-12, four ambiguity routes, folding, N/A=0, counts, output). Four findings remain: medium partial-turn false pass (R-J-3) and medium declarative fixture/source-map SHA binding; low reason ordering and low forbidden-token exception. If the manager treats R-J-3 partial or section 3.2 content binding as a hard gate, the corresponding criterion item is FAIL.",
+  "probe_totals": {
+    "probes": 8,
+    "criterion_checks": 178,
+    "criterion_failures": 0,
+    "edge_rules": 26,
+    "edge_divergences": 6,
+    "adapter_hostile_mutations": 8792,
+    "adapter_type_errors": 0,
+    "stale_hostile_mutations": 392,
+    "stale_exceptions": 0,
+    "pytest_collected": 98,
+    "pytest_passed": 98,
+    "pytest_failed": 0,
+    "pytest_skipped": 0
+  },
+  "criteria": [
+    {
+      "id": 1,
+      "name": "IR-01 non-scalar enum fail-open",
+      "verdict": "PASS",
+      "evidence": "independent/out/01-ir01-ast.json; independent/out/02-ir01-runtime.json",
+      "checks": 8792,
+      "failures": 0,
+      "facts": {
+        "original_sites_reported": 11,
+        "original_sites_fixed": 11,
+        "live_type_error_sites": 0,
+        "ast_membership_sites_adapter": 58,
+        "ast_candidates_adapter": 14,
+        "latent_unguarded_sites": 6,
+        "latent_sites_are_tuple_safe_today": true,
+        "latent_sites": [
+          "p2_evidence_axes_adapter_v2.py:848 _load_record locator_kind",
+          "p2_evidence_axes_adapter_v2.py:868 _load_record code",
+          "p2_evidence_axes_adapter_v2.py:870 _load_record entity_code",
+          "p2_evidence_axes_adapter_v2.py:1171 load_snapshot_v03 fixture_kind",
+          "p2_evidence_axes_adapter_v2.py:1184 load_snapshot_v03 source.fixture_kind",
+          "p2_evidence_axes_adapter_v2.py:1194 load_snapshot_v03 binding.fixture_kind"
+        ],
+        "negative_control_adapter": "TypeError: unhashable type: 'list'",
+        "negative_control_stale": "TypeError: unhashable type: 'list'"
+      }
+    },
+    {
+      "id": 2,
+      "name": "IR-02 same-key target order independence",
+      "verdict": "PASS",
+      "evidence": "independent/out/03-ir02-ir03.json",
+      "checks": 13,
+      "failures": 0,
+      "facts": {
+        "two_target_outcomes": [["passed", "cross_entity_targets_match_ok"]],
+        "three_target_all_permutations": 6,
+        "cross_key_all_permutations": 2,
+        "repeat_runs": 3,
+        "all_same": true
+      }
+    },
+    {
+      "id": 3,
+      "name": "IR-03 entity_key/filters self-consistency gate",
+      "verdict": "PASS",
+      "evidence": "independent/out/03-ir02-ir03.json",
+      "checks": 8,
+      "failures": 0,
+      "facts": {
+        "same_entity": "passed/cross_entity_targets_match_ok",
+        "consistent_other_entity": "violation/other_entity_used",
+        "key_b_filters_a": "unknown/entity_key_space_incompatible",
+        "key_a_filters_b": "unknown/identity_unresolved",
+        "id_key_filters_a": "passed (id-type keys are explicitly allowed and not recomputable)",
+        "store_key_b_filters_a": "unknown/entity_key_space_incompatible",
+        "match_plus_contradiction_both_orders": "unknown/entity_key_space_incompatible"
+      }
+    },
+    {
+      "id": 4,
+      "name": "criterion constants and two-mode entry",
+      "verdict": "PASS",
+      "evidence": "independent/out/04-criterion.json",
+      "checks": 22,
+      "failures": 0,
+      "facts": {
+        "criterion_version": "p2-stale-source-criterion/v1",
+        "new_codes": 9,
+        "inherited_codes": 12,
+        "total_codes": 21,
+        "retired_codes": 14,
+        "pass_codes": 3,
+        "violation_codes": 4,
+        "unknown_codes": 14,
+        "single_entry": "determine_stale_case",
+        "version_state": "passed/stale_active_version_used/version_only",
+        "date_window": "passed/stale_source_dates_ok/version_plus_date"
+      }
+    },
+    {
+      "id": 5,
+      "name": "section 7 fourteen-row table",
+      "verdict": "PASS",
+      "evidence": "independent/out/04-criterion.json",
+      "checks": 17,
+      "failures": 0,
+      "facts": {
+        "rows_1_13_exact": true,
+        "row11_half_open_version_only": true,
+        "row12_window_unresolved": true,
+        "row13_out_of_window": true,
+        "row14_fold_and_t1_kept": true
+      }
+    },
+    {
+      "id": 6,
+      "name": "F-1..F-12",
+      "verdict": "PASS",
+      "evidence": "independent/out/04-criterion.json",
+      "checks": 38,
+      "failures": 0,
+      "facts": {
+        "F1_superseded_not_version_unresolved": true,
+        "F2_duplicate_indices_unknown": true,
+        "F3_zero_active_unknown": true,
+        "F4_all_expired_violation": true,
+        "F5_mode_invalid": true,
+        "F6_scenario_undeclared": true,
+        "F7_usage_missing": true,
+        "F8_empty_not_proven": true,
+        "F9_order_conflict": true,
+        "F10_fixture_rejected": true,
+        "F11_annotation_unknown": true,
+        "F12_violation_wins_unknown_kept": true
+      }
+    },
+    {
+      "id": 7,
+      "name": "four ambiguity routes",
+      "verdict": "PASS",
+      "evidence": "independent/out/04-criterion.json",
+      "checks": 11,
+      "failures": 0,
+      "facts": {
+        "multi_active_duplicate_indices": "unknown/stale_active_version_ambiguous",
+        "zero_active": "unknown/stale_active_version_ambiguous",
+        "version_order_conflict": "unknown/stale_active_version_ambiguous",
+        "window_position_crosscheck": "unknown/stale_active_version_ambiguous",
+        "window_multi_cover": "unknown/stale_active_version_ambiguous",
+        "any_violation": false
+      }
+    },
+    {
+      "id": 8,
+      "name": "folding, N/A, basis, output, counts",
+      "verdict": "PASS",
+      "evidence": "independent/out/04-criterion.json",
+      "checks": 45,
+      "failures": 0,
+      "facts": {
+        "priority_exact": {"violation": 3, "unknown": 2, "not_applicable": 1, "passed": 0},
+        "tie_smallest_turn_index": true,
+        "na_turn_forbidden": true,
+        "aggregate_rejects_na": true,
+        "no_code_maps_to_na": true,
+        "basis_does_not_change_verdict": true,
+        "output_keys_exactly_7": true,
+        "forbidden_tokens_absent": true,
+        "counts_batches_0_40_all_identities": true,
+        "not_applicable_always_zero": true
+      }
+    },
+    {
+      "id": 9,
+      "name": "test quality (98 items)",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "evidence": "independent/out/05-pytest.txt; independent/out/05-test-quality.json",
+      "checks": 98,
+      "failures": 0,
+      "facts": {
+        "collected": 98,
+        "passed": 98,
+        "failed": 0,
+        "skipped": 0,
+        "skip_xfail_markers": 0,
+        "monkeypatch_target_module": 0,
+        "tautological_asserts": 0,
+        "stale_test_functions": 49,
+        "adapter_test_functions": 49,
+        "stale_asserts": 172,
+        "adapter_asserts": 147,
+        "stale_codes_equality_pinned": 17,
+        "stale_codes_via_set_equality": 4,
+        "retired_codes_named_individually": 0,
+        "weak_membership_assertion": "test_p2_stale_version_state.py:819 'assert case.reason in stale.DETERMINATION_CODES'",
+        "hostile_test_pins_exact_codes": false,
+        "forbidden_real_dataset_literals_in_stale_tests": 0
+      }
+    },
+    {
+      "id": 10,
+      "name": "freeze and preservation",
+      "verdict": "PASS_WITH_DISAGREEMENTS",
+      "evidence": "independent/out/07-preservation.json; independent/out/00-snapshot-start.json; independent/out/00-snapshot-end.json",
+      "checks": 5,
+      "failures": 0,
+      "facts": {
+        "head_equal": true,
+        "branch_equal": true,
+        "staged": 0,
+        "commit_count_equal": true,
+        "tracked_modified_15": "15/15",
+        "c_freeze_12": "12/12",
+        "q1a1_protected_38": "38/38",
+        "criterion_sha256": "c34d08af3bc27f0f6d69bad200ce77c6db229622a204d5df1ebf7b010eaae9c7",
+        "p4_review_sha256": "7887279ef59898cbdd245500873ee4bd493dc2ab16b1956d050363b381d65332",
+        "existing_untracked_non_sensitive_same": 2247,
+        "existing_untracked_sensitive_size_same": 69,
+        "existing_untracked_changed": 0,
+        "existing_untracked_missing": 0,
+        "new_external_untracked_during_round": "21 at final capture (lower bound; directory still growing; concurrent actor)",
+        "own_new_files_under_p1_impl": 25,
+        "new_external_prefix": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/evidence-r3/",
+        "whole_tree_byte_identical": false,
+        "existing_baseline_unchanged": true
+      }
+    },
+    {
+      "id": 11,
+      "name": "zero-call",
+      "verdict": "PASS",
+      "evidence": "independent/out/08-zero-call.json",
+      "checks": 12,
+      "failures": 0,
+      "facts": {
+        "positive_layers": 7,
+        "all_blocked_and_recorded": true,
+        "negative_control_assert_clean_bites": true,
+        "workload_external": 0,
+        "static_network_imports": 0,
+        "pytest_suite_network_guard_passed": true
+      }
+    },
+    {
+      "id": 12,
+      "name": "usable to recompute stale on old evidence",
+      "verdict": "NOT_DIRECTLY_USABLE",
+      "evidence": "independent/out/04b-gaps.json#old_shape; grep of consumers; p2_evidence_axes_adapter_v2.py:2069",
+      "facts": {
+        "production_consumers": 0,
+        "adapter_still_uses_retired_code": "stale_lifecycle_evidence_missing",
+        "p4_contract_as_grounding": "unknown/stale_grounding_mode_invalid",
+        "p4_snapshot_as_evidence": "unknown/evidence_incomplete",
+        "usable_as_decision_core_with_projection": true,
+        "conditions": [
+          "new analysis identity + independent acceptance; no in-place P4 rewrite",
+          "projection layer for section 8.1 grounding/evidence",
+          "external verification of fixture/source-map/ingest-plan bytes",
+          "feed complete turns only, or fix the partial-turn finding first",
+          "resolve T1/T2 reason-code tensions before batch recomputation"
+        ]
+      }
+    }
+  ],
+  "findings": [
+    {
+      "id": "P1-IMPL-F3",
+      "severity": "medium",
+      "summary": "non-empty use set with turn_status=partial is passed",
+      "actual": "passed/stale_active_version_used/version_only",
+      "expected": "unknown/stale_usage_set_missing per R-J-3",
+      "evidence": "independent/out/04b-gaps.json#usage.partial_turn_with_units_not_pass",
+      "code": "p2_stale_version_state.py:841, :996-1003, :1014-1033"
+    },
+    {
+      "id": "P1-IMPL-F1",
+      "severity": "low",
+      "summary": "unknown reason depends on unit order (R-J-6 vs R-J-7)",
+      "actual": ["[NOPE,K30] -> version_unresolved", "[K30,NOPE] -> stale_active_version_ambiguous"],
+      "expected": "stale_active_version_ambiguous first per R-J-10 rule order",
+      "evidence": "independent/out/04b-gaps.json#reason_order.mixed_unknown_units_stable"
+    },
+    {
+      "id": "P1-IMPL-F2",
+      "severity": "low",
+      "summary": "unknown reason depends on unit order (P-5 vs R-J-7)",
+      "actual": ["[source_unresolved,NOPE] -> source_unresolved", "[NOPE,source_unresolved] -> version_unresolved"],
+      "expected": "source_unresolved always first",
+      "evidence": "independent/out/04b-gaps.json#reason_order.source_vs_version_stable"
+    },
+    {
+      "id": "P1-IMPL-F4",
+      "severity": "low",
+      "summary": "case_id/scenario_id containing verified/threshold/release raises CriterionError out of the entry",
+      "actual": "CriterionError: criterion_forbidden_output_token:<token>",
+      "expected": "fixed code + unknown, or sanitized echo",
+      "evidence": "independent/out/04b-gaps.json#output.forbidden_token_input_returns_fixed_code",
+      "code": "p2_stale_version_state.py:1219, :1238-1257, :1376"
+    },
+    {
+      "id": "P1-IMPL-L3",
+      "severity": "low",
+      "summary": "6 unguarded direct membership sites are tuple-safe today but not fixed at the guard layer",
+      "actual": "0 TypeError; list/dict return False -> snapshot_enum_invalid",
+      "expected": "use _enum_member consistently",
+      "evidence": "independent/out/01-ir01-ast.json; independent/out/02-ir01-runtime.json#adapter_site_matrix"
+    }
+  ],
+  "limitations": [
+    {
+      "id": "P1-IMPL-L1",
+      "severity": "medium",
+      "summary": "fixture_sha256 is a shape/declaration check, not a payload content digest",
+      "actual": "arbitrary 'f'*64 with default windows -> passed/stale_source_dates_ok",
+      "evidence": "independent/out/04b-gaps.json#binding.fixture_sha_content_checked",
+      "code": "p2_stale_version_state.py:664-695"
+    },
+    {
+      "id": "P1-IMPL-L2",
+      "severity": "medium",
+      "summary": "source_map_sha256/ingest_plan_sha256 are compared to the fixture header, not recomputed from the payload",
+      "actual": "K20 version_number 1->99 with unchanged declared hash -> passed",
+      "evidence": "independent/out/04b-gaps.json#binding.source_map_content_checked",
+      "code": "p2_stale_version_state.py:692-695"
+    }
+  ],
+  "tensions": [
+    {
+      "id": "T1",
+      "topic": "duplicate source_indices: R-AV-1 says stale_scenario_undeclared, F-2 says stale_active_version_ambiguous",
+      "implemented": "F-2 (documented in module docstring), both unknown"
+    },
+    {
+      "id": "T2",
+      "topic": "empty units + partial: R-J-3 says stale_usage_set_missing, F-8 says empty_set_not_proven",
+      "implemented": "F-8 (documented in module docstring), both unknown"
+    },
+    {
+      "id": "T3",
+      "topic": "scenario_id membership in a dataset-level registry is not an input of section 8.1",
+      "implemented": "only inline scenario missing/invalid can be checked; projection layer must own registry membership"
+    }
+  ],
+  "evidence_index": {
+    "independent": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/c1-1/p1-impl/independent/",
+    "start_snapshot": "independent/out/00-snapshot-start.json",
+    "end_snapshot": "independent/out/00-snapshot-end.json",
+    "criterion": "independent/out/04-criterion.json",
+    "gaps": "independent/out/04b-gaps.json",
+    "pytest": "independent/out/05-pytest.txt",
+    "preservation": "independent/out/07-preservation.json",
+    "zero_call": "independent/out/08-zero-call.json"
+  },
+  "hard_gate_note": "If R-J-3 partial-turn must be unknown, criterion item 6/F-1..F-12 remains PASS but the fail-closed item is FAIL. If section 3.2 SHA must be a content binding, limitations L1/L2 are FAIL. This report does not cast the manager's vote.",
+  "cannot_claim": [
+    "T207 pass",
+    "quality release",
+    "release/threshold approval",
+    "C1-2 authorization",
+    "score improvement",
+    "old evidence already recomputable to a 30-case stale count"
+  ]
+}

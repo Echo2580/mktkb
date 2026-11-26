@@ -1,0 +1,167 @@
+{
+ "schema_version": "c1p1impl-zero-call/v0.1",
+ "checks": [
+  {
+   "name": "positive.socket.connect",
+   "pass": true,
+   "detail": {
+    "layer": "socket.connect",
+    "blocked": true,
+    "recorded": [
+     "socket.connect"
+    ]
+   }
+  },
+  {
+   "name": "positive.socket.connect_ex",
+   "pass": true,
+   "detail": {
+    "layer": "socket.connect_ex",
+    "blocked": true,
+    "recorded": [
+     "socket.connect_ex"
+    ]
+   }
+  },
+  {
+   "name": "positive.socket.create_connection",
+   "pass": true,
+   "detail": {
+    "layer": "socket.create_connection",
+    "blocked": true,
+    "recorded": [
+     "socket.create_connection"
+    ]
+   }
+  },
+  {
+   "name": "positive.socket.getaddrinfo",
+   "pass": true,
+   "detail": {
+    "layer": "socket.getaddrinfo",
+    "blocked": true,
+    "recorded": [
+     "socket.getaddrinfo"
+    ]
+   }
+  },
+  {
+   "name": "positive.socket.gethostbyname",
+   "pass": true,
+   "detail": {
+    "layer": "socket.gethostbyname",
+    "blocked": true,
+    "recorded": [
+     "socket.gethostbyname"
+    ]
+   }
+  },
+  {
+   "name": "positive.http.client.connect",
+   "pass": true,
+   "detail": {
+    "layer": "http.client.connect",
+    "blocked": true,
+    "recorded": [
+     "http.client.connect"
+    ]
+   }
+  },
+  {
+   "name": "positive.httpx.handle_request",
+   "pass": true,
+   "detail": {
+    "layer": "httpx.handle_request",
+    "blocked": true,
+    "recorded": [
+     "httpx.handle_request"
+    ]
+   }
+  },
+  {
+   "name": "negative.assert_clean_bites",
+   "pass": true,
+   "detail": {
+    "raised": true
+   }
+  },
+  {
+   "name": "workload.external_zero",
+   "pass": true,
+   "detail": {
+    "events": []
+   }
+  },
+  {
+   "name": "workload.ran",
+   "pass": true,
+   "detail": {
+    "stale_cases": 4,
+    "adapter_axes": 2
+   }
+  },
+  {
+   "name": "static.stale.no_network_imports",
+   "pass": true,
+   "detail": []
+  },
+  {
+   "name": "static.adapter.no_network_imports",
+   "pass": true,
+   "detail": []
+  }
+ ],
+ "failures": [],
+ "positive_controls": [
+  {
+   "layer": "socket.connect",
+   "blocked": true,
+   "recorded": [
+    "socket.connect"
+   ]
+  },
+  {
+   "layer": "socket.connect_ex",
+   "blocked": true,
+   "recorded": [
+    "socket.connect_ex"
+   ]
+  },
+  {
+   "layer": "socket.create_connection",
+   "blocked": true,
+   "recorded": [
+    "socket.create_connection"
+   ]
+  },
+  {
+   "layer": "socket.getaddrinfo",
+   "blocked": true,
+   "recorded": [
+    "socket.getaddrinfo"
+   ]
+  },
+  {
+   "layer": "socket.gethostbyname",
+   "blocked": true,
+   "recorded": [
+    "socket.gethostbyname"
+   ]
+  },
+  {
+   "layer": "http.client.connect",
+   "blocked": true,
+   "recorded": [
+    "http.client.connect"
+   ]
+  },
+  {
+   "layer": "httpx.handle_request",
+   "blocked": true,
+   "recorded": [
+    "httpx.handle_request"
+   ]
+  }
+ ],
+ "external": 0
+}

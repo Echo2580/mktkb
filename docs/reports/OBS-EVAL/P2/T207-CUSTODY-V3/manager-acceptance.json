@@ -1,0 +1,78 @@
+{
+  "schema_version": "p2-h2-custody-gapaddendum-manager-acceptance/v0.3",
+  "date": "2026-11-12",
+  "accepted_scope": [
+    "addendum_structure",
+    "semantic_consistency_of_4_gap_resolutions",
+    "freeze_as_classifier_annotation_input"
+  ],
+  "independent_review_verdict": "PASS",
+  "independent_structure": "PASS",
+  "independent_semantic_consistency": "PASS",
+  "independent_quality_readiness": "BLOCKED",
+  "independent_review_disagreements": 0,
+  "gap_total": 4,
+  "gap_resolved": 4,
+  "gap_kept_unknown": 0,
+  "addendum_frozen": true,
+  "addendum_ciphertext_sha256": "80a8c4a11aa452cde86dc7887642ea05c374eaaf40b668a0692faa8ac37c9b2f",
+  "addendum_plaintext_canonical_sha256": "295ef3daaa35ea22a513ee1cb1b872835890b11211b4ff3639dbcd7c58b52b15",
+  "review_ciphertext_sha256": "5062211f39172a17fb729284b12e5020f5d6164d1b3c11a4c053e76ef1e48266",
+  "base_annotation_ciphertext_sha256": "3d60c27364244a6ff8df76f66994ee50e5037649ea346c4b538f1fb9175ce4d0",
+  "base_review_ciphertext_sha256": "963918ffd51d717871470f1a7aea95bc6dc8c3e34062b259b8e41bd168eda2c3",
+  "bindings": {
+    "manifest_sha256": "8874985ef8f4aacc5689d5dc4dc60db759c2620492d159171712f7a9b679ce4b",
+    "dataset_version": "P2-HOLDOUT-v2",
+    "label_version": "p2-holdout-v2-2026-11-10",
+    "cases_sha256": "a0ad48c9bbab96ac683e325c773dfee2dc247708fea7ddeefb08f567b102c3c3",
+    "source_map_sha256": "86c86767ce5f4251ff52589cca9d02882aa7f47e23caf7cde654133b8ea821b5",
+    "ingest_plan_sha256": "362e3ea10f673021d78c7a647305f04b8557b364a14482ebc2ba370d7752ed19",
+    "scenario_contract_sha256": "39c7e16103acdac52741a48d895b29ff5675ee97e5691955ccebe5b21a1274ad",
+    "schema_sha256": "9fbe4b337510dc87e1205f4e72371d834f4fc0e29edc2cacea34f56307e9c189"
+  },
+  "merged_axis_counts": {
+    "safety": {
+      "required": 2,
+      "not_applicable": 28,
+      "unknown": 0
+    },
+    "cross_user": {
+      "required": 30,
+      "not_applicable": 0,
+      "unknown": 0
+    },
+    "cross_entity": {
+      "required": 30,
+      "not_applicable": 0,
+      "unknown": 0
+    },
+    "stale_source": {
+      "required": 30,
+      "not_applicable": 0,
+      "unknown": 0
+    }
+  },
+  "scenario_counts": {
+    "base_b0": 26,
+    "base_b0_plus_v01": 1,
+    "pre_v05_without_v07": 2,
+    "post_v05_without_v01": 1,
+    "unknown": 0
+  },
+  "remaining_runtime_requirements": [
+    "entity_targets_are_request_scoped_collection_identities_not_runtime_record_identity; runtime classification must use an independently verified strict empty-set rule, not auto-pass",
+    "date_anchors_are_business_date_baseline_2026-10-28_not_proof_of_actual_product_date_use; runtime must capture actual RagConfig.business_date/QueryPlan.as_of evidence",
+    "runtime_axis_evidence_produced=false; V0.3 freeze does not constitute quality readiness or real H2 acceptance"
+  ],
+  "runtime_axis_evidence_produced": false,
+  "live_execution_authorized_by_this_record": false,
+  "quality_released": false,
+  "new_real_calls": 0,
+  "authorization_evidence": [
+    "docs/reports/OBS-EVAL/P2/T207-QUALITY-REPAIR/semantic-custody-decision.md",
+    "docs/evaluation/p2-h2-custody-annotations-v0_2.md",
+    ".claude/handoffs/prompts/P2-T207-CUSTODY-V3-annotate.md",
+    ".claude/handoffs/prompts/P2-T207-CUSTODY-V3-review.md"
+  ],
+  "note": "Manager limited acceptance after fresh independent custody review PASS and no-disagreement. Freeze is only for classifier/annotation consumption and version binding; a later version requires new versioned record, no overwrite of v0.2/v0.3."
+}

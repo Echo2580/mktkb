@@ -1,0 +1,447 @@
+﻿P2-HOLDOUT-v3 corpus run log (UTC+08:00)
+
+=== 00-snapshot-before.py ===
+{"phase": "before", "branch": "codex/p2-e2e", "head": "97b0066726e5b8d6f94cbc0b63a890084550c106", "staged": 0, "tracked_modified_count": 15, "untracked_count": 224, "v2_corpus_file_count": 35, "c_freeze_mismatch": 0, "out": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\v3-corpus\\evidence\\00-snapshot-before.json"}
+--- exit=0
+
+=== 02-verify-cells.py ===
+{
+ "totals": {
+  "workbooks_compared": 6,
+  "projection_cells_compared": 475,
+  "projection_cells_differing": 0,
+  "existing_cells_modified": 0,
+  "sheets_total_v3": 14,
+  "target_sheets": 6,
+  "unchanged_sheets": 8,
+  "header_ok_all": true,
+  "sheet_names_equal_all": true,
+  "sheet_states_equal_all": true,
+  "new_column_cells_expected": 78,
+  "new_column_cells_written": 67,
+  "new_column_cells_blank": 11,
+  "new_column_dates_mismatched": 0,
+  "new_column_extra_cells": 0,
+  "non_text_date_cells": 0,
+  "merged_into_new_columns": 0,
+  "max_column_increase_all_two": true
+ },
+ "checks": {
+  "projection_identical": true,
+  "no_existing_cell_modified": true,
+  "headers_verbatim": true,
+  "sheet_names_and_order": true,
+  "sheet_visibility": true,
+  "dates_match_l1": true,
+  "dates_are_text": true,
+  "no_extra_cells_in_new_columns": true,
+  "no_merged_cells_in_new_columns": true,
+  "two_columns_added_per_target_sheet": true,
+  "new_cell_slots_expect_78_data": true,
+  "total_new_cell_slots_expect_90": true
+ },
+ "result": "CELL_IDENTICAL_EXCEPT_TWO_NEW_COLUMNS"
+}
+--- exit=0
+
+=== 03-reproduce-twice.py ===
+{
+ "totals": {
+  "files": 13,
+  "all_equal": 13,
+  "mismatched": 0
+ },
+ "result": "BYTE_IDENTICAL_TWICE_AND_DELIVERED",
+ "zip_contract": {
+  "entry_order": [
+   "[Content_Types].xml",
+   "_rels/.rels",
+   "docProps/app.xml",
+   "docProps/core.xml",
+   "xl/_rels/workbook.xml.rels",
+   "xl/styles.xml",
+   "xl/theme/theme1.xml",
+   "xl/workbook.xml",
+   "xl/worksheets/sheet1.xml",
+   "xl/worksheets/sheet2.xml",
+   "xl/worksheets/sheet3.xml"
+  ],
+  "date_times": [
+   [
+    1980,
+    1,
+    1,
+    0,
+    0,
+    0
+   ]
+  ],
+  "compress_types": [
+   0
+  ],
+  "create_systems": [
+   0
+  ],
+  "external_attrs": [
+   25165824
+  ],
+  "sample": "fixtures/acceptance-h2v3/normal/D01_物品位置表.xlsx"
+ }
+}
+--- exit=0
+
+=== 04-keyspace-proof.py ===
+NOT ALIGNABLE: P08@D01v4 ['record_rows_found=0']
+NOT ALIGNABLE: S02@D02v2 ['record_rows_found=0']
+NOT ALIGNABLE: P07@D01v4 ['record_rows_found=0']
+NOT ALIGNABLE: P08@D01v4 ['record_rows_found=0']
+NOT ALIGNABLE: S03@D02v2 ['record_rows_found=0']
+NOT ALIGNABLE: P07@D01v4 ['record_rows_found=0']
+NOT ALIGNABLE: S02@D02v2 ['record_rows_found=0']
+{
+ "summary": {
+  "declared_cases": 30,
+  "declared_targets": 36,
+  "alignable": 29,
+  "not_alignable": 7,
+  "multi_target_cases": 6,
+  "distinct_records_used": 10,
+  "units_total": 41,
+  "units_id_typed": 28,
+  "runs": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "cases_with_any_unalignable_target": 6,
+  "header_detection_mismatch_sources": [
+   "V05",
+   "V06"
+  ],
+  "negative_probes_ok": true
+ },
+ "negative_probes": {
+  "spare_sheet_units": 4,
+  "spare_sheet_units_non_id_typed": 4,
+  "spare_sheet_units_id_typed": 0,
+  "hidden_draft_sheet_ingested": 0,
+  "hidden_draft_sheet_present_in_files": 4,
+  "non_id_units_total": 13,
+  "p05_p06_in_declared_targets": 0,
+  "document_or_uuid_keys": 0,
+  "record_key_stability_violations": 0,
+  "records_with_stable_key": 12
+ },
+ "result": "misaligned"
+}
+--- exit=1
+
+=== 05-normalized-digest.py ===
+{
+ "v3_normalized_digest": "393514997dc26db0bf92d3800312203a15f2adbe46060f6783b4228321b41d35",
+ "original_column_projection": true,
+ "result": "PROJECTION_IDENTICAL"
+}
+--- exit=0
+
+=== 06-build-source-map.py ===
+{
+ "path": "docs/evaluation/p2-holdout-v3.source-map.json",
+ "bytes": 2402,
+ "sha256": "7ded23f19304be292a9b42de58f2058a84a0196e69723b561f4e5ccdb0772b93",
+ "schema_version": "p2-holdout-source-map/v0.2",
+ "source_count": 12,
+ "bijection_with_l1": true,
+ "frozen_v01_values_unchanged": true,
+ "dates_present": false,
+ "top_level_keys": [
+  "schema_version",
+  "sources",
+  "basis",
+  "lifecycle_ref",
+  "corpus_ref"
+ ]
+}
+--- exit=0
+
+=== 08-header-detection-finding.py ===
+{
+ "affected": {
+  "V03": {
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ]
+  },
+  "D01": {
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ]
+  },
+  "V04": {
+   "parser_header_row": 7,
+   "expected_header_row": 7,
+   "id_values_detected": [
+    "P01",
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ]
+  },
+  "V05": {
+   "parser_header_row": 8,
+   "expected_header_row": 7,
+   "id_values_detected": []
+  },
+  "D02": {
+   "parser_header_row": 4,
+   "expected_header_row": 4,
+   "id_values_detected": [
+    "S01",
+    "S02",
+    "S03",
+    "S04"
+   ]
+  },
+  "V06": {
+   "parser_header_row": 5,
+   "expected_header_row": 4,
+   "id_values_detected": []
+  }
+ },
+ "simulation": {
+  "V05": {
+   "cells_filled": 7,
+   "parser_header_row": 7,
+   "id_values_detected": [
+    "P02",
+    "P03",
+    "P04",
+    "P05",
+    "P06",
+    "P07",
+    "P08"
+   ],
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:物品位置:row:8",
+     "effective_range": [
+      "range",
+      "2026-12-01",
+      null
+     ]
+    },
+    {
+     "unit_key": "sheet:物品位置:row:9",
+     "effective_range": [
+      "range",
+      "2026-12-01",
+      null
+     ]
+    }
+   ]
+  },
+  "V06": {
+   "cells_filled": 4,
+   "parser_header_row": 4,
+   "id_values_detected": [
+    "S01",
+    "S02",
+    "S03",
+    "S04"
+   ],
+   "effective_ranges_sample": [
+    {
+     "unit_key": "sheet:店家信息:row:5",
+     "effective_range": [
+      "range",
+      "2026-11-16",
+      null
+     ]
+    },
+    {
+     "unit_key": "sheet:店家信息:row:6",
+     "effective_range": [
+      "range",
+      "2026-11-16",
+      null
+     ]
+    }
+   ]
+  }
+ }
+}
+--- exit=0
+
+=== 07-preservation.py ===
+{
+ "checks": {
+  "branch_unchanged": true,
+  "head_unchanged_no_commits": true,
+  "staged_empty": true,
+  "tracked_modified_paths_unchanged": true,
+  "tracked_modified_count_15": true,
+  "prior_untracked_preserved": true,
+  "new_untracked_inside_declared_scope": true,
+  "v2_corpus_byte_identical": true,
+  "v2_corpus_file_count_unchanged": true,
+  "c_freeze_12_unchanged": true,
+  "readonly_inputs_unchanged": true,
+  "v3_corpus_13_files": true,
+  "source_map_present": true
+ },
+ "result": "PRESERVED",
+ "new_untracked_count": 0,
+ "untracked_count": 224
+}
+--- exit=0
+
+=== 09-zero-call.py ===
+{
+ "totals": {
+  "runs": 9,
+  "external_attempts": 0,
+  "positive_control_blocked": true,
+  "guards_written": 9,
+  "exits_ok": true
+ },
+ "result": "ZERO_EXTERNAL_CALLS"
+}
+--- exit=0
+
+=== CORRECTIVE PASS (incident note) ===
+第一次收尾重跑时 00-snapshot-before.py 覆盖了真正基线；已给 00 加幂等保护，
+用 00a-restore-baseline.py 做减法重建（222 = 224 - 2 个本轮新增顶层 untracked），
+重建依据写在 00-snapshot-before.json 的 capture_note/reconstruction。以下为重建后的复算。
+
+=== 00a-restore-baseline.py ===
+{"restored": "D:\\GPT项目\\市场部AI知识库\\docs\\reports\\OBS-EVAL\\P2\\Q1A-EVAL-REPAIR\\v3-corpus\\evidence\\00-snapshot-before.json", "tracked_modified_count": 15, "staged": 0, "untracked_count": 222, "c_freeze_mismatch": 0}
+--- exit=0
+
+=== 07-preservation.py ===
+{
+ "checks": {
+  "branch_unchanged": true,
+  "head_unchanged_no_commits": true,
+  "staged_empty": true,
+  "tracked_modified_paths_unchanged": true,
+  "tracked_modified_count_15": true,
+  "prior_untracked_preserved": true,
+  "new_untracked_inside_declared_scope": true,
+  "v2_corpus_byte_identical": true,
+  "v2_corpus_file_count_unchanged": true,
+  "c_freeze_12_unchanged": true,
+  "readonly_inputs_unchanged": true,
+  "v3_corpus_13_files": true,
+  "source_map_present": true
+ },
+ "result": "PRESERVED",
+ "new_untracked_count": 2,
+ "untracked_count": 224
+}
+--- exit=0
+
+=== 09-zero-call.py ===
+{
+ "totals": {
+  "runs": 9,
+  "external_attempts": 0,
+  "positive_control_blocked": true,
+  "guards_written": 9,
+  "exits_ok": true
+ },
+ "result": "ZERO_EXTERNAL_CALLS"
+}
+--- exit=0
+
+=== FINAL PASS: 02 (with byte-equality block) + 09-zero-call ===
+{
+ "totals": {
+  "workbooks_compared": 6,
+  "projection_cells_compared": 475,
+  "projection_cells_differing": 0,
+  "existing_cells_modified": 0,
+  "sheets_total_v3": 14,
+  "target_sheets": 6,
+  "unchanged_sheets": 8,
+  "header_ok_all": true,
+  "sheet_names_equal_all": true,
+  "sheet_states_equal_all": true,
+  "new_column_cells_expected": 78,
+  "new_column_cells_written": 67,
+  "new_column_cells_blank": 11,
+  "new_column_dates_mismatched": 0,
+  "new_column_extra_cells": 0,
+  "non_text_date_cells": 0,
+  "merged_into_new_columns": 0,
+  "max_column_increase_all_two": true
+ },
+ "checks": {
+  "projection_identical": true,
+  "no_existing_cell_modified": true,
+  "headers_verbatim": true,
+  "sheet_names_and_order": true,
+  "sheet_visibility": true,
+  "dates_match_l1": true,
+  "dates_are_text": true,
+  "no_extra_cells_in_new_columns": true,
+  "no_merged_cells_in_new_columns": true,
+  "two_columns_added_per_target_sheet": true,
+  "new_cell_slots_expect_78_data": true,
+  "total_new_cell_slots_expect_90": true,
+  "unchanged_files_byte_identical_6": true,
+  "changed_files_all_sha_differ": true
+ },
+ "result": "CELL_IDENTICAL_EXCEPT_TWO_NEW_COLUMNS",
+ "unchanged_files": {
+  "expected_unchanged": 6,
+  "unchanged_byte_identical": 6,
+  "changed_files_sha_differs": 6,
+  "docx_pdf_identical": 6
+ }
+}
+--- exit=0
+{
+ "totals": {
+  "runs": 9,
+  "external_attempts": 0,
+  "positive_control_blocked": true,
+  "guards_written": 9,
+  "exits_ok": true
+ },
+ "result": "ZERO_EXTERNAL_CALLS"
+}
+--- exit=0
+
+=== pytest (v2 corpus guard subset) ===
+....                                                                     [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+4 passed, 23 deselected, 1 warning in 0.06s
+--- exit=0

@@ -1,0 +1,73 @@
+{
+ "schema_version": "p2h2v3-normalized-digest/v0.1",
+ "phase": "normalized-digest",
+ "scheme": {
+  "canonical_json": "json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(',', ':'))",
+  "hash": "sha256(utf-8 bytes of canonical json)",
+  "xlsx": "\u5168\u90e8\u5de5\u4f5c\u8868\u6309\u8868\u540d\u987a\u5e8f\uff1bcells \u8986\u76d6 A1..(max_col,max_row) \u77e9\u5f62\uff0c\u7a7a\u683c\u8f93\u51fa [row,col,data_type,'']\uff1b\u542b merged/col_widths/row_heights",
+  "binary": "docx/pdf \u8f93\u51fa {bytes, sha256}\uff08\u8fd9\u4e9b\u6587\u4ef6\u8981\u6c42\u9010\u5b57\u8282\u590d\u5236\uff09",
+  "why": "OOXML \u91cd\u6253\u5305\u5fc5\u7136\u6539 zip \u5b57\u8282\uff1b\u89c4\u8303\u5316\u6458\u8981\u53ea\u4f9d\u8d56\u5355\u5143\u683c\u503c\u4e0e\u8868\u7ed3\u6784\uff0c\u6545\u53ef\u8de8\u5b9e\u73b0\u6bd4\u5bf9"
+ },
+ "inputs": {
+  "v3_root": "D:\\GPT\u9879\u76ee\\\u5e02\u573a\u90e8AI\u77e5\u8bc6\u5e93\\fixtures\\acceptance-h2v3",
+  "v2_root": "D:\\GPT\u9879\u76ee\\\u5e02\u573a\u90e8AI\u77e5\u8bc6\u5e93\\fixtures\\acceptance",
+  "files": [
+   "normal/D01_\u7269\u54c1\u4f4d\u7f6e\u8868.xlsx",
+   "normal/D02_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f.xlsx",
+   "normal/D03_\u5e02\u573a\u90e8\u5de5\u4f5c\u6307\u5357.docx",
+   "normal/D04_\u6d3b\u52a8\u7b56\u5212\u6d41\u7a0b.docx",
+   "normal/D05_\u7269\u6599\u9886\u7528\u89c4\u8303.pdf",
+   "normal/D06_\u5e97\u5bb6\u8d44\u6599\u7ef4\u62a4\u8bf4\u660e.pdf",
+   "variants/V03_\u7269\u54c1\u4f4d\u7f6e\u8868_\u5386\u53f2V1.xlsx",
+   "variants/V04_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3.xlsx",
+   "variants/V05_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3_\u79fb\u9664P01.xlsx",
+   "variants/V06_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f_\u65b0\u7535\u8bdd.xlsx",
+   "variants/V01_\u4e34\u65f6\u7269\u6599\u4f4d\u7f6e\u901a\u77e5.pdf",
+   "variants/V07_\u7269\u6599\u4f4d\u7f6e\u72ec\u7acb\u901a\u77e5.pdf"
+  ],
+  "file_count": 12
+ },
+ "v3_normalized": {
+  "digest": "393514997dc26db0bf92d3800312203a15f2adbe46060f6783b4228321b41d35",
+  "per_file": {
+   "normal/D01_\u7269\u54c1\u4f4d\u7f6e\u8868.xlsx": "b83078aa233cab9b4accb64b313e8dedfa667b56eceac5fb66a37be4e7c2ce47",
+   "normal/D02_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f.xlsx": "89b8e54cd4b9b1e9fe90d35c33dd278739d06f226ad69bb8d70afd7612cb7fd2",
+   "normal/D03_\u5e02\u573a\u90e8\u5de5\u4f5c\u6307\u5357.docx": "0337f8acdccca575d3848ee3525e78ba1e6bdd918906764d0b551dc3bd974e2b",
+   "normal/D04_\u6d3b\u52a8\u7b56\u5212\u6d41\u7a0b.docx": "90582f03e5ed857188792bbf9abb7670808f374fe760459cbeb5d522a392c17b",
+   "normal/D05_\u7269\u6599\u9886\u7528\u89c4\u8303.pdf": "40b1d12eadca48c6d979ca14b7df79f4f5f56a73e94a23f9a5c17b3853304186",
+   "normal/D06_\u5e97\u5bb6\u8d44\u6599\u7ef4\u62a4\u8bf4\u660e.pdf": "a64c322c5010bece4cd8490ced66d404145d73a6480f53feb8a9669924b96c82",
+   "variants/V01_\u4e34\u65f6\u7269\u6599\u4f4d\u7f6e\u901a\u77e5.pdf": "310c4b42a67f53d8020e69284cb34adc5d497ab44370991c9a768ad20f4d21f7",
+   "variants/V03_\u7269\u54c1\u4f4d\u7f6e\u8868_\u5386\u53f2V1.xlsx": "5492182315e7aa2ebc003635188491276ed6db3731d3cead74df515eb1edfd1e",
+   "variants/V04_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3.xlsx": "8a527d6b7309897a3dc2e65bd87fb9efec7e64ca016cd769402eecbfe21487e6",
+   "variants/V05_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3_\u79fb\u9664P01.xlsx": "931a6ca42ff352fc2861b249899251d69e54a673f84844d311a855d4852a22e1",
+   "variants/V06_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f_\u65b0\u7535\u8bdd.xlsx": "4a31c00014613dbf49ef6ff0a6d79c2d737d1a66fdc911ba3a958f1df63dfe40",
+   "variants/V07_\u7269\u6599\u4f4d\u7f6e\u72ec\u7acb\u901a\u77e5.pdf": "5852fc66f73f9927daae543ad41d1c6184f2960bf8ce90ed77f891eeb63865a9"
+  }
+ },
+ "original_column_projection": {
+  "v3_digest": "363f8eb66aea27041715225f5f2baebdda317aa65f9f67a42026793c05d6a1c6",
+  "v2_digest": "363f8eb66aea27041715225f5f2baebdda317aa65f9f67a42026793c05d6a1c6",
+  "equal": true,
+  "per_file_equal": {
+   "normal/D01_\u7269\u54c1\u4f4d\u7f6e\u8868.xlsx": true,
+   "normal/D02_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f.xlsx": true,
+   "normal/D03_\u5e02\u573a\u90e8\u5de5\u4f5c\u6307\u5357.docx": true,
+   "normal/D04_\u6d3b\u52a8\u7b56\u5212\u6d41\u7a0b.docx": true,
+   "normal/D05_\u7269\u6599\u9886\u7528\u89c4\u8303.pdf": true,
+   "normal/D06_\u5e97\u5bb6\u8d44\u6599\u7ef4\u62a4\u8bf4\u660e.pdf": true,
+   "variants/V03_\u7269\u54c1\u4f4d\u7f6e\u8868_\u5386\u53f2V1.xlsx": true,
+   "variants/V04_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3.xlsx": true,
+   "variants/V05_\u7269\u54c1\u4f4d\u7f6e\u8868_\u65b0\u7248V3_\u79fb\u9664P01.xlsx": true,
+   "variants/V06_\u5408\u4f5c\u5e97\u5bb6\u4fe1\u606f_\u65b0\u7535\u8bdd.xlsx": true,
+   "variants/V01_\u4e34\u65f6\u7269\u6599\u4f4d\u7f6e\u901a\u77e5.pdf": true,
+   "variants/V07_\u7269\u6599\u4f4d\u7f6e\u72ec\u7acb\u901a\u77e5.pdf": true
+  }
+ },
+ "third_party_recompute": [
+  "\u5728\u540c\u4e00\u5206\u652f\u4e0a\u8fd0\u884c\uff1a.venv\\Scripts\\python.exe 05-normalized-digest.py",
+  "\u628a\u8f93\u51fa v3_normalized.digest \u4e0e 05-normalized-digest.json \u91cc delivered \u7684\u503c\u9010\u5b57\u6bd4\u8f83",
+  "\u628a original_column_projection.equal \u5fc5\u987b\u4e3a true\uff08\u5426\u5219\u8bf4\u660e\u539f\u6709\u5355\u5143\u683c\u88ab\u6539\uff09",
+  "\u53ea\u6bd4\u89c4\u8303\u5316\u6458\u8981\uff0c\u4e0d\u8981\u6bd4 zip \u5b57\u8282\uff1bzip \u5b57\u8282\u53ea\u4f5c\u89c2\u6d4b\u8bb0\u5f55\uff0803-determinism.json\uff09"
+ ],
+ "result": "PROJECTION_IDENTICAL"
+}

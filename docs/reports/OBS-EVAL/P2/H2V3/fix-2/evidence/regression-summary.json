@@ -1,0 +1,295 @@
+{
+  "pytest": [
+    {
+      "label": "fix-2 A（本轮新增：记录范围不被资料缺失/歧义抢占）",
+      "target": "tests/rag/test_v3_fix2_record_scope_not_clarified.py",
+      "summary": "11 passed, 1 warning in 0.77s",
+      "passed": 11,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "fix-2 B（本轮新增：首轮显式实体不再判未记录）",
+      "target": "tests/rag/test_v3_fix2_first_turn_record_answer.py",
+      "summary": "6 passed, 1 warning in 0.75s",
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "fix-1/A planner 多目标枚举",
+      "target": "tests/rag/test_v3_fix1_multi_target.py",
+      "summary": "11 passed, 1 warning in 0.93s",
+      "passed": 11,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "fix-1/B 业务日过滤",
+      "target": "tests/rag/test_v3_fix1_business_date_filter.py",
+      "summary": "6 passed, 1 warning in 1.91s",
+      "passed": 6,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "fix-1r1 纯指代仍澄清",
+      "target": "tests/rag/test_v3_fix1r1_anaphora_multi_target.py",
+      "summary": "16 passed, 1 warning in 0.80s",
+      "passed": 16,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "fix-1 产品接线",
+      "target": "tests/unit/test_v3_fix1_wiring.py",
+      "summary": "5 passed, 1 warning in 0.39s",
+      "passed": 5,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "safety-fix 安全拒答策略（拒答缺失修复）",
+      "target": "tests/unit/test_v3_safety_fix_policy.py",
+      "summary": "19 passed, 1 warning in 0.41s",
+      "passed": 19,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "safety-fix 端到端（含跨实体继承）",
+      "target": "tests/integration/test_v3_safety_fix_e2e.py",
+      "summary": "9 passed, 1 warning in 9.11s",
+      "passed": 9,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    },
+    {
+      "label": "多目标 trace 路径（observability）",
+      "target": "tests/observability/test_paths_e2e.py",
+      "summary": "19 passed, 1 warning in 15.94s",
+      "passed": 19,
+      "failed": 0,
+      "errors": 0,
+      "exit_code": 0
+    }
+  ],
+  "pytest_totals": {
+    "passed": 102,
+    "failed": 0,
+    "errors": 0,
+    "all_exit_zero": true
+  },
+  "fix1_A_independent_probe": {
+    "cases": 13,
+    "failures": [],
+    "outbound_attempts": 0,
+    "all_ok": true
+  },
+  "safety_fix_security_probe": {
+    "S1 item + store phone": {
+      "kind": "not_found",
+      "model_calls": 0,
+      "citations": 0
+    },
+    "S2 item + store contact bundle": {
+      "kind": "not_found",
+      "model_calls": 0,
+      "citations": 0
+    },
+    "S3 item + address": {
+      "kind": "not_found",
+      "model_calls": 0,
+      "citations": 0
+    },
+    "N1 item location": {
+      "kind": "answer",
+      "model_calls": 1,
+      "citations": 1
+    },
+    "N2 two-store phone (fix-1 A positive)": {
+      "kind": "answer",
+      "model_calls": 0,
+      "citations": 0
+    },
+    "N3 store cooperation status": {
+      "kind": "answer",
+      "model_calls": 1,
+      "citations": 1
+    },
+    "N4 policy document question": {
+      "kind": "not_found",
+      "model_calls": 1,
+      "citations": 0
+    },
+    "N5 item location another store": {
+      "kind": "answer",
+      "model_calls": 1,
+      "citations": 1
+    }
+  },
+  "safety_fix_security_probe_positives_all_refused": true,
+  "safety_fix_security_probe_negatives": {
+    "N1 item location": "answer",
+    "N2 two-store phone (fix-1 A positive)": "answer",
+    "N3 store cooperation status": "answer",
+    "N4 policy document question": "not_found",
+    "N5 item location another store": "answer"
+  },
+  "safety_fix_security_probe_identical_to_previous_round": true,
+  "safety_fix_entity_probe": {
+    "M1 single entity location then phone follow-up": [
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          null
+        ]
+      }
+    ],
+    "M2 single entity then sibling item": [
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "宣传海报"
+        ]
+      }
+    ],
+    "M3 single entity then other store": [
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城西店"
+        ],
+        "items": [
+          "展架"
+        ]
+      }
+    ],
+    "M4 multi target then anaphora": [
+      {
+        "kind": "answer",
+        "stores": [],
+        "items": []
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      }
+    ],
+    "M5 single entity then field anaphora": [
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      }
+    ],
+    "M6 store switch then store field": [
+      {
+        "kind": "answer",
+        "stores": [
+          "城东店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城西店"
+        ],
+        "items": [
+          "展架"
+        ]
+      },
+      {
+        "kind": "answer",
+        "stores": [
+          "城西店"
+        ],
+        "items": [
+          null
+        ]
+      }
+    ]
+  },
+  "safety_fix_entity_probe_identical_to_previous_round": true,
+  "netguard_targeted": {
+    "counts": {
+      "collected": 102,
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0,
+      "error": 0
+    },
+    "all_controls_blocked": true,
+    "external_attempts_during_session": 0,
+    "exitstatus": 0,
+    "proxy_env_removed": [
+      "ALL_PROXY",
+      "HTTPS_PROXY",
+      "HTTP_PROXY",
+      "NODE_USE_ENV_PROXY",
+      "NO_PROXY"
+    ]
+  }
+}

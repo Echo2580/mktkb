@@ -1,0 +1,254 @@
+{
+  "aggregate_vs_cases_bidirectional": {
+    "axis_counts": "aggregate.new_axes == 逐题 new_axes 重算",
+    "changed_cases": "aggregate.changed_cases == 初判/重评 (state,reason) 不同的 case 集合",
+    "hard_failures": "aggregate.hard_failures == 逐题 violation 并集 == run.new_hard_failures",
+    "quality_counts": "run.quality == 逐题 quality_status 计数",
+    "unknown": "aggregate.unknown_cases == 逐题 unknown 的 case 集合；逐 (case,axis) 计数见 r2-axis-flips.json"
+  },
+  "business_date_check": {
+    "expected": "2026-11-20",
+    "gated_per_tier": true,
+    "passed": true
+  },
+  "case_plan_quality": {
+    "case_plan_sha256": "fe8741861e74edb8bab8ea1ee07dfd37a1ede60c766d53ba30699fd25ea325da",
+    "cases_compared": 5,
+    "matched": 5,
+    "mismatched": [],
+    "result": "5/5"
+  },
+  "checks": [
+    "v0.1:case_id_unique_exact_coverage",
+    "v0.1:four_state_counts_equal_case_count",
+    "v0.1:aggregate_equals_per_case_new_axes",
+    "v0.1:hard_failed_flags_equal_violation_union",
+    "v0.1:unknown_pairs_not_hidden",
+    "v0.1:quality_counts_equal_per_case",
+    "v0.1:historical_card_comparison_only",
+    "v0.1:single_run_isolation",
+    "v0.3:case_id_unique_exact_coverage",
+    "v0.3:four_state_counts_equal_case_count",
+    "v0.3:aggregate_equals_per_case_new_axes",
+    "v0.3:hard_failed_flags_equal_violation_union",
+    "v0.3:unknown_pairs_not_hidden",
+    "v0.3:quality_counts_equal_per_case",
+    "v0.3:historical_card_comparison_only",
+    "v0.3:single_run_isolation",
+    "v0.4:case_id_unique_exact_coverage",
+    "v0.4:four_state_counts_equal_case_count",
+    "v0.4:aggregate_equals_per_case_new_axes",
+    "v0.4:hard_failed_flags_equal_violation_union",
+    "v0.4:unknown_pairs_not_hidden",
+    "v0.4:quality_counts_equal_per_case",
+    "v0.4:historical_card_comparison_only",
+    "v0.4:single_run_isolation",
+    "v0.5:case_id_unique_exact_coverage",
+    "v0.5:four_state_counts_equal_case_count",
+    "v0.5:aggregate_equals_per_case_new_axes",
+    "v0.5:hard_failed_flags_equal_violation_union",
+    "v0.5:unknown_pairs_not_hidden",
+    "v0.5:quality_counts_equal_per_case",
+    "v0.5:historical_card_comparison_only",
+    "v0.5:single_run_isolation",
+    "v0.6:case_id_unique_exact_coverage",
+    "v0.6:four_state_counts_equal_case_count",
+    "v0.6:aggregate_equals_per_case_new_axes",
+    "v0.6:hard_failed_flags_equal_violation_union",
+    "v0.6:unknown_pairs_not_hidden",
+    "v0.6:quality_counts_equal_per_case",
+    "v0.6:historical_card_comparison_only",
+    "v0.6:single_run_isolation"
+  ],
+  "consistency_passed": true,
+  "generated_utc": "2026-11-17T08:24:50+00:00",
+  "historical_card": {
+    "fields": [
+      "historical_axes",
+      "historical_quality_status",
+      "historical_missing_codes",
+      "historical_card_sha256",
+      "historical_card_source"
+    ],
+    "note": "历史卡只用于对照；任何门状态都取本轮初判/重评",
+    "participates_in_gate": false,
+    "role_only_comparison_only": true
+  },
+  "not_claimed": [
+    "verified",
+    "threshold_met",
+    "release",
+    "T207_pass"
+  ],
+  "public_quality_per_run_run2": {
+    "cells_compared": 20,
+    "matched": true,
+    "mismatched_cells": [],
+    "public_case_count": 5,
+    "sha256": "6955099bd296db222054b1552dc3e13f070fe6c6e4653becd47f9729fcb3f642",
+    "source": "fullverify-20261116/evidence/quality-per-run.json#run_index=2 (read-only)"
+  },
+  "run": {
+    "business_date": "2026-11-20",
+    "case_count": 5,
+    "case_ids": [
+      "H2V3-C08",
+      "H2V3-C14",
+      "H2V3-C19",
+      "H2V3-C25",
+      "H2V3-C29"
+    ],
+    "case_plan_sha256": "fe8741861e74edb8bab8ea1ee07dfd37a1ede60c766d53ba30699fd25ea325da",
+    "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+    "run_index": 2,
+    "scenario_id": "pre_v05_without_v07",
+    "turn_count": 6
+  },
+  "schema_version": "p2-h2v3-r2-consistency/v1",
+  "single_run_isolation": {
+    "asserted_all_tiers": true,
+    "case_records_run_index_set_all_tiers": [
+      2
+    ],
+    "expected_run_index": 2,
+    "no_other_run_case_leak": true,
+    "runs_out_all_tiers": [
+      2
+    ],
+    "selected_runs_all_tiers": [
+      2
+    ]
+  },
+  "tiers": [
+    {
+      "aggregate_equals_per_case": true,
+      "compat": "p2-refusal-compat/v0.1",
+      "hard_failures": [],
+      "quality": {
+        "error": 0,
+        "fail": 1,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "script_consistency_passed": true,
+      "sha256": "30fa7f2c06a4759a5a5120f4809eeb53d17c1378c61c7bba86f69d4c9f84e472",
+      "source_file": "recompute-v2-r2-v01.json",
+      "tier": "v0.1",
+      "unknown_pairs": [
+        [
+          "H2V3-C25",
+          "cross_entity"
+        ],
+        [
+          "H2V3-C29",
+          "cross_entity"
+        ]
+      ]
+    },
+    {
+      "aggregate_equals_per_case": true,
+      "compat": "p2-refusal-compat/v0.3",
+      "hard_failures": [],
+      "quality": {
+        "error": 0,
+        "fail": 1,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "script_consistency_passed": true,
+      "sha256": "aed78b40abce625c99da0fcbc0fa45155c046e80f34bc823bfc7204112ae1d64",
+      "source_file": "recompute-v2-r2-03.json",
+      "tier": "v0.3",
+      "unknown_pairs": [
+        [
+          "H2V3-C25",
+          "cross_entity"
+        ],
+        [
+          "H2V3-C29",
+          "cross_entity"
+        ]
+      ]
+    },
+    {
+      "aggregate_equals_per_case": true,
+      "compat": "p2-refusal-compat/v0.4",
+      "hard_failures": [],
+      "quality": {
+        "error": 0,
+        "fail": 1,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "script_consistency_passed": true,
+      "sha256": "ea1394a33cfe30f7bbb591558fa4aacba8b288362b8090f5a50ec843925f406b",
+      "source_file": "recompute-v2-r2-04.json",
+      "tier": "v0.4",
+      "unknown_pairs": [
+        [
+          "H2V3-C25",
+          "cross_entity"
+        ],
+        [
+          "H2V3-C29",
+          "cross_entity"
+        ]
+      ]
+    },
+    {
+      "aggregate_equals_per_case": true,
+      "compat": "p2-refusal-compat/v0.5",
+      "hard_failures": [],
+      "quality": {
+        "error": 0,
+        "fail": 1,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "script_consistency_passed": true,
+      "sha256": "1295971ce947f8180768c986f1e8ba56e969c55466cdea240e6dd7fd129addb3",
+      "source_file": "recompute-v2-r2-05.json",
+      "tier": "v0.5",
+      "unknown_pairs": [
+        [
+          "H2V3-C25",
+          "cross_entity"
+        ],
+        [
+          "H2V3-C29",
+          "cross_entity"
+        ]
+      ]
+    },
+    {
+      "aggregate_equals_per_case": true,
+      "compat": "p2-refusal-compat/v0.6",
+      "hard_failures": [],
+      "quality": {
+        "error": 0,
+        "fail": 1,
+        "not_executed": 0,
+        "pass": 4
+      },
+      "script_consistency_passed": true,
+      "sha256": "cc0e6d6353b24b839f8fd5f4dc8b2afa1106684af9ff8d076e0d89bd2cd1efc5",
+      "source_file": "recompute-v2-r2-06.json",
+      "tier": "v0.6",
+      "unknown_pairs": [
+        [
+          "H2V3-C25",
+          "cross_entity"
+        ],
+        [
+          "H2V3-C29",
+          "cross_entity"
+        ]
+      ]
+    }
+  ],
+  "turn_count_check": {
+    "case_plan_turns": 6,
+    "expected": 6,
+    "passed": true
+  }
+}

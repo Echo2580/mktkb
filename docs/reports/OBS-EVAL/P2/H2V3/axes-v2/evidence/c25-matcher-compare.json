@@ -1,0 +1,64 @@
+{
+  "calls": {
+    "model": 0,
+    "network": 0,
+    "provider": 0,
+    "real": 0,
+    "retrieval": 0
+  },
+  "matcher_version": "ref-unit-matcher/v2",
+  "rows": [
+    {
+      "case_id": "H2V3-C25",
+      "diagnostic": {
+        "diagnostic_kind": "same_ref_wrong_version_binding",
+        "v2_code": "version_mismatch",
+        "v2_verdict": "no_match",
+        "version_number": 2
+      },
+      "ref_bound_version_number": 3,
+      "ref_doc_code": "V04",
+      "ref_index": 0,
+      "role": "expected_sources",
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "unit_doc_code": "V04",
+      "unit_record_code_resolved": true,
+      "unit_version_number": 3,
+      "v1_ref_matches_unit": true,
+      "v1_verdict": "match",
+      "v2_code": "identity_match",
+      "v2_verdict": "match"
+    },
+    {
+      "case_id": "H2V3-C25",
+      "diagnostic": {
+        "diagnostic_kind": "same_ref_wrong_version_binding",
+        "v2_code": "doc_mismatch",
+        "v2_verdict": "no_match",
+        "version_number": 1
+      },
+      "ref_bound_version_number": 2,
+      "ref_doc_code": "D01",
+      "ref_index": 0,
+      "role": "forbidden_sources",
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "unit_doc_code": "V04",
+      "unit_record_code_resolved": true,
+      "unit_version_number": 3,
+      "v1_ref_matches_unit": true,
+      "v1_verdict": "match",
+      "v2_code": "doc_mismatch",
+      "v2_verdict": "no_match"
+    }
+  ],
+  "schema_version": "p2-h2v3-axes-v2-c25-matcher-compare/v0.1",
+  "summary": {
+    "v1_true_count": 2,
+    "v2_match_count": 1,
+    "v2_no_match_count": 1,
+    "v2_unresolved_count": 0
+  },
+  "version_binding_source": "p2-holdout-v3.source-map/v0.2"
+}

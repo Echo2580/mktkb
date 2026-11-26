@@ -1,0 +1,35 @@
+{
+  "all_equal_prior_round_end": true,
+  "diff": "evidence/fix-2.diff",
+  "diff_files": [
+    "backend/src/mktkb/rag/answer.py",
+    "backend/src/mktkb/rag/query.py"
+  ],
+  "files": [
+    {
+      "crlf_preserved": true,
+      "equals_prior_round_end": true,
+      "hunks": 6,
+      "hunks_applied": 6,
+      "path": "backend/src/mktkb/rag/query.py",
+      "prior_round_after_sha256": "fc55db53f2b7a00292b538a3797f6ba456b6d871c95df026065bd5b74feb4549",
+      "rebuilt_sha256": "fc55db53f2b7a00292b538a3797f6ba456b6d871c95df026065bd5b74feb4549"
+    },
+    {
+      "crlf_preserved": true,
+      "equals_prior_round_end": true,
+      "hunks": 1,
+      "hunks_applied": 1,
+      "path": "backend/src/mktkb/rag/answer.py",
+      "prior_round_after_sha256": "55778d8f1446aaedc836c194b1ed9c82d8d3a54b89cb14046ac2175981aca63a",
+      "rebuilt_sha256": "55778d8f1446aaedc836c194b1ed9c82d8d3a54b89cb14046ac2175981aca63a"
+    }
+  ],
+  "method": "自建 unified-diff 反向应用（按 new-file 坐标精确替换，无 fuzz）；期望值取自 safety-fix 独立产物 fix-sha.json 的 after_sha256。",
+  "notes": [
+    "只反演 fix-2.diff 涉及的两个文件；overlay 其余文件由 copytree 复制，与仓库现状逐字节相同。",
+    "改前 == 上一轮收尾，说明本轮 diff 未回退既有改动（否则 SHA 不可能相等）。"
+  ],
+  "overlay_src": "C:\\Users\\dell1712\\AppData\\Local\\Temp\\mktkb-fix2-prefix-_xz9w041\\src",
+  "schema_version": "v3-fix2-independent-reconstruct/v0.1"
+}

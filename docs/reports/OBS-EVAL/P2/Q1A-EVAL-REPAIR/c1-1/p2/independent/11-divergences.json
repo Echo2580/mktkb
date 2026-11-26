@@ -1,0 +1,3931 @@
+{
+ "schema_version": "c1p2-independent-divergences/v0.1",
+ "frozen_sha_before": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+ "frozen_sha_after": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+ "frozen_unchanged": true,
+ "summary": {
+  "total": 72,
+  "ours_proven": 23,
+  "frozen_proven": 13,
+  "equal_proven": 12,
+  "equal_not_proven": 48,
+  "extension_proven": 11,
+  "stricter_not_proven": 1,
+  "uncoded": []
+ },
+ "divergence_classes": {
+  "retrieval_candidates_are_usage_only_in_frozen": 8,
+  "query_state_candidates_are_usage_only_in_frozen": 1,
+  "no_retrieval_marker_only_in_new": 2,
+  "stricter_entity_inheritance": 1
+ },
+ "rows": [
+  {
+   "case": "legacy_no_model_retrieval_empty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "legacy_model_answer_no_retrieval",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_absent/not_found",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_absent",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "legacy_model_answer_retrieval_empty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_empty/not_found",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "rag_direct_empty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "rag_direct/retrieval_empty/not_found",
+    "branch": "rag_direct",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "rag_query_expansion_empty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "rag_direct/retrieval_empty/not_found",
+    "branch": "rag_direct",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "clarification_template_suffix",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/clarification",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "clarification",
+    "outcome_class": "clarification",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "clarification_template_base",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/clarification",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "clarification",
+    "outcome_class": "clarification",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "knowledge_changed_template",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/knowledge_changed",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "knowledge_changed",
+    "outcome_class": "knowledge_changed",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_query_state_empty_candidates",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_query_state_empty_state",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "context_history_no_usage",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "template_whitespace_normalized",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "equal_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "factual_answer_kind",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/retrieval_empty/answer",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "answer",
+    "outcome_class": "factual",
+    "detail": "outcome_kind_is_not_no_fact",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "legacy_no_model_no_retrieval_no_marker",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_no_model_without_retrieval_or_positive_no_retrieval_marker",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "model_events_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "model_input_without_output",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "model_events_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_answer_model_pair_incomplete",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "model_events_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "model_output_without_input",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "model_events_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_answer_model_pair_incomplete",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "model_events_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "duplicate_model_answer",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_inconsistent",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_answer_model_duplicate",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "legacy_query_expansion_model",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_unexpected_model_purpose",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "rag_answer_model",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "rag_unexpected_model_purpose",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "rag_missing_direct_rag",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "rag_direct_rag_count_invalid",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "legacy_with_direct_rag",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_inconsistent",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "legacy_has_direct_rag",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "retrieval_candidate_used_in_model",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:model_evidence=1",
+    "usage_layers": [
+     "model_evidence"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "model_evidence": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [
+      "u1"
+     ],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": false,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "retrieval_candidate_used_in_final",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:answer_result_sources=1,commit_observed_sources=1",
+    "usage_layers": [
+     "answer_result_sources",
+     "commit_observed_sources"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "answer_sources": [
+      "u1"
+     ],
+     "commit_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [
+      "u1"
+     ],
+     "commit_observed.source_ids": [
+      "u1"
+     ],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": false,
+     "commit_observed.source_ids": false,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "message_sources_nonempty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:projection_message_sources=1",
+    "usage_layers": [
+     "projection_message_sources"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "message_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": false
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_unit_usage",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:model_evidence=1",
+    "usage_layers": [
+     "model_evidence"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "model_evidence": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [
+      "u1"
+     ],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": false,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_unresolved_usage",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:model_evidence=1",
+    "usage_layers": [
+     "model_evidence"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "model_evidence": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [
+      "u1"
+     ],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": false,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": [
+     "u1"
+    ]
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "template_mismatch",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/retrieval_empty/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "template_mismatch:not_found",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "template_identity_unverified"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "commit_answer_text_mismatch",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_inconsistent",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "answer_commit_text_mismatch",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "commit_answer_kind_mismatch",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_inconsistent",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "answer_commit_kind_mismatch",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_inconsistent"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_envelope_key",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_envelope_key",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "unknown_usage_field"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_capture_key",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_capture_key",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "unknown_usage_field"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_event_key",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_event_key",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "unknown_usage_field"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 2,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_event_field",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_event_field:retrieval_observed",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "unknown_usage_field"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 2,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_projection_key",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_projection_key",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "unknown_usage_field"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unknown_projection_row_key",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "unknown_usage_field",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection.units_unknown_key",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_projection_units",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection_key_missing:units",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_capture_errors",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "capture.errors_not_list",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "capture_errors_present",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "capture_errors_present",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_truncations_present",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection_truncations_present",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "projection_errors_present",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection_errors_present",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "query_states_unavailable",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection.query_states_unavailable",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_completeness",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "completeness_not_complete",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "completeness_incomplete",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "completeness_not_complete",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_required_event",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "required_event_count:commit_observed",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "duplicate_required_event",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "required_event_count:answer_result",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "model_input_missing_evidence",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "event_payload_invalid:model_input",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "direct_rag_fact_count_mismatch",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "rag_direct/unknown/unknown",
+    "branch": "rag_direct",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "direct_rag_answer.fact_count_mismatch",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "direct_rag_facts_nonempty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "rag_direct/unknown/unknown",
+    "branch": "rag_direct",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:direct_rag_fact_count=1,direct_rag_facts=1",
+    "usage_layers": [
+     "direct_rag_fact_count",
+     "direct_rag_facts"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "direct_rag_facts": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [
+      "u1"
+     ],
+     "direct_rag_answer.cited_unit_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": false,
+     "direct_rag_answer.cited_unit_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "model_output_sources_nonempty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:model_output_sources=1",
+    "usage_layers": [
+     "model_output_sources"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "model_output_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": [
+      "u1"
+     ]
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": false
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "answer_sources_nonempty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:answer_result_sources=1",
+    "usage_layers": [
+     "answer_result_sources"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "answer_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [
+      "u1"
+     ],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": false,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "commit_sources_nonempty",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:commit_observed_sources=1",
+    "usage_layers": [
+     "commit_observed_sources"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "commit_sources": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [
+      "u1"
+     ],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": false,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "retrieval_blank_unit_id",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "retrieval_observed.unit_ids_blank",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "   "
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "query_state_candidates_used",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:model_evidence=1",
+    "usage_layers": [
+     "model_evidence"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [
+     "u1"
+    ],
+    "usage_nonempty": {
+     "model_evidence": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [
+      "u1"
+     ],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": false,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "capture_error_event",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "evidence_incomplete",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "capture_error_event",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "evidence_incomplete"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "plan_unknown_path",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "unknown_plan_path",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "other",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_turn",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "turn_not_mapping",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_capture",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "capture_not_mapping",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "?",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "missing_projection",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "branch_evidence_missing",
+    "branch": "unknown",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "db_projection_not_mapping",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "branch_evidence_missing"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "unattributable_projection_unit",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_no_model/unknown/unknown",
+    "branch": "legacy_no_model",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "projection_units_unattributable",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "no_divergence",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "entity_inheritance_usage_with_projection_row",
+   "declared_divergence": null,
+   "declared_stricter": false,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:entity_inheritance=1",
+    "usage_layers": [
+     "entity_inheritance"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "equal_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "entity_inheritance": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_legacy_no_model",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_candidates_unused/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_legacy_model",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_candidates_unused/not_found",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_rag",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "rag_direct/retrieval_candidates_unused/not_found",
+    "branch": "rag_direct",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "rag",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "direct_rag_answer.facts": [],
+     "direct_rag_answer.cited_unit_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "direct_rag_answer.facts": true,
+     "direct_rag_answer.cited_unit_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_clarification",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_candidates_unused/clarification",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "clarification",
+    "outcome_class": "clarification",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_no_answer",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_candidates_unused/no_answer",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "no_answer",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_with_unresolved",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_candidates_unused/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1",
+     "u2"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": [
+     "u2"
+    ]
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "retrieval_candidates_unused_knowledge_changed",
+   "declared_divergence": "frozen_retrieval_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_candidates_unused/knowledge_changed",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "knowledge_changed",
+    "outcome_class": "knowledge_changed",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u1"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u1"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "query_state_candidates_unused",
+   "declared_divergence": "frozen_query_state_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_empty/not_found",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_empty",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "projection_query_state_candidates"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "query_state_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [
+     "u-prior"
+    ],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "multi_turn_partial_empty",
+   "declared_divergence": "frozen_query_state_candidates_are_usage",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_model_answer/retrieval_candidates_unused/not_found",
+    "branch": "legacy_model_answer",
+    "retrieval": "retrieval_candidates_unused",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": [
+     "projection_query_state_candidates",
+     "retrieval_observed"
+    ]
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "empty_set_not_proven"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "retrieval_candidates_are_usage_only_in_frozen",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [
+     "u-now"
+    ],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [
+     "u-prior"
+    ],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [
+     "u-now"
+    ],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": true
+   }
+  },
+  {
+   "case": "no_retrieval_positive_snapshot_legacy_no_model",
+   "declared_divergence": "frozen_requires_retrieval_marker_for_legacy_no_model",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_absent/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_absent",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "model_events_missing"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "no_retrieval_marker_only_in_new",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": {
+     "schema_version": "p2-runtime-snapshot/v0.1",
+     "availability": "complete",
+     "reason": null,
+     "candidate_observation": {
+      "availability": "not_observed",
+      "reason": "no_retrieval_observed"
+     },
+     "candidates": []
+    },
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": false
+   }
+  },
+  {
+   "case": "no_retrieval_positive_snapshot_with_context",
+   "declared_divergence": "frozen_requires_retrieval_marker_for_legacy_no_model",
+   "declared_stricter": false,
+   "ours": {
+    "proven": true,
+    "code": "empty_use_scope_ok",
+    "shape": "legacy_no_model/retrieval_absent/not_found",
+    "branch": "legacy_no_model",
+    "retrieval": "retrieval_absent",
+    "outcome": "not_found",
+    "outcome_class": "refusal",
+    "detail": "usage_layers_explicit_empty",
+    "usage_layers": [],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": false,
+    "reason": "model_events_missing"
+   },
+   "verdict": "extension_proven",
+   "structural_class": "no_retrieval_marker_only_in_new",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 0,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {},
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true
+    },
+    "all_applicable_usage_explicit_empty": true,
+    "positive_no_retrieval_marker": {
+     "schema_version": "p2-runtime-snapshot/v0.1",
+     "availability": "complete",
+     "reason": null,
+     "candidate_observation": {
+      "availability": "not_observed",
+      "reason": "no_retrieval_observed"
+     },
+     "candidates": []
+    },
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": true,
+    "extension_has_candidate_layer": false
+   }
+  },
+  {
+   "case": "entity_inheritance_without_projection_row",
+   "declared_divergence": "frozen_does_not_track_entity_inheritance",
+   "declared_stricter": true,
+   "ours": {
+    "proven": false,
+    "code": "empty_set_not_proven",
+    "shape": "legacy_model_answer/unknown/unknown",
+    "branch": "legacy_model_answer",
+    "retrieval": "unknown",
+    "outcome": "unknown",
+    "outcome_class": "unknown",
+    "detail": "usage_layers_nonempty:entity_inheritance=1",
+    "usage_layers": [
+     "entity_inheritance"
+    ],
+    "candidate_sources": []
+   },
+   "frozen": {
+    "proven": true,
+    "reason": "empty_use_scope_ok"
+   },
+   "verdict": "stricter_not_proven",
+   "structural_class": "stricter_entity_inheritance",
+   "facts": {
+    "plan_path": "legacy",
+    "retrieval_event_count": 1,
+    "retrieval_unit_ids": [],
+    "query_state_event_candidates": [],
+    "query_state_projection_candidates": [],
+    "usage_nonempty": {
+     "entity_inheritance": [
+      "u1"
+     ]
+    },
+    "applicable_usage_containers": {
+     "answer_result.source_ids": [],
+     "commit_observed.source_ids": [],
+     "projection.message_sources": [],
+     "model_input.evidence": [],
+     "model_output.source_ids": []
+    },
+    "applicable_usage_explicit_empty": {
+     "answer_result.source_ids": true,
+     "commit_observed.source_ids": true,
+     "projection.message_sources": true,
+     "model_input.evidence": true,
+     "model_output.source_ids": true
+    },
+    "all_applicable_usage_explicit_empty": false,
+    "positive_no_retrieval_marker": null,
+    "projection_units": [],
+    "projection_unresolved": []
+   },
+   "consistency": {
+    "declared_matches_structural": true,
+    "extension_has_explicit_empty_usage": null,
+    "extension_has_candidate_layer": null
+   }
+  }
+ ]
+}

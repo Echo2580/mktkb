@@ -1,0 +1,31 @@
+{
+  "all_blocked": true,
+  "attempted_count": 4,
+  "external_count": 4,
+  "guard_schema_version": "p2-h2v3-axes-v2-netguard/v0.1",
+  "loopback_calls": 0,
+  "proxy_env_left": [],
+  "proxy_env_removed_at_import": [
+    "ALL_PROXY",
+    "HTTP_PROXY",
+    "HTTPS_PROXY",
+    "NO_PROXY",
+    "NODE_USE_ENV_PROXY"
+  ],
+  "results": {
+    "direct_tcp": "OSError: netguard-axes-v2: outbound blocked",
+    "dns_getaddrinfo": "OSError: netguard-axes-v2: outbound blocked",
+    "httpx_trust_env_false": "ConnectError: netguard-axes-v2: outbound blocked",
+    "requests_trust_env_false": "SKIPPED_NO_REQUESTS",
+    "urllib_proxyhandler_empty": "URLError: <urlopen error netguard-axes-v2: outbound blocked>"
+  },
+  "schema_version": "p2-h2v3-axes-v2-netguard-positive-control/v0.1",
+  "skipped": [
+    "requests_trust_env_false"
+  ],
+  "urllib_getproxies": {
+    "ftp": "http://127.0.0.1:7897",
+    "http": "http://127.0.0.1:7897",
+    "https": "http://127.0.0.1:7897"
+  }
+}

@@ -1,0 +1,1679 @@
+{
+  "probe": "11-axis-semantics",
+  "assertions_total": 90,
+  "assertions_failed": 0,
+  "failures": [],
+  "results": [
+    {
+      "label": "cross_user: annotation object missing -> unknown",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: annotation object missing -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: annotation object missing -> unknown",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_object_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: 7-field missing -> unknown annotation_field_missing",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_invalid",
+          "annotation_field_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: extra key -> unknown annotation_field_invalid",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_invalid"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_invalid"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: bad applicability -> unknown",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_invalid"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "annotation_field_invalid"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: basis+source missing -> unknown with basis_missing/source_marker_missing",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "basis_missing",
+          "source_marker_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "basis_missing",
+          "source_marker_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: synthetic source rejected when allow_synthetic_fixture=False",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "source_marker_untrusted"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "source_marker_untrusted"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: synthetic source accepted when allow_synthetic_fixture=True",
+      "axis": "cross_user",
+      "expected": {
+        "state": "passed",
+        "reason": "all_user_contexts_ok",
+        "audit": []
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "all_user_contexts_ok",
+        "audit": [
+          "owner_identity_checked"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: source=unresolved always untrusted",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "source_marker_untrusted"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "source_marker_untrusted"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: applicability=unknown -> unknown annotation_unknown_scope",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_unknown_scope"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_unknown_scope"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: criterion=unknown -> unknown",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_unknown_scope"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_unknown_scope"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: reason=ambiguous_semantics -> unknown (no guessing)",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_reason_uncertain"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "annotation_reason_uncertain"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: fully consistent -> passed",
+      "axis": "cross_user",
+      "expected": {
+        "state": "passed",
+        "reason": "all_user_contexts_ok",
+        "audit": []
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "all_user_contexts_ok",
+        "audit": [
+          "owner_identity_checked"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: not_applicable illegal -> unknown never N-A",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": null,
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: N/A reason inside frozen cross_user unknown table",
+      "ok": true,
+      "actual": "evidence_incomplete"
+    },
+    {
+      "label": "cross_user: projection unavailable -> unknown projection_unavailable",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "projection_unavailable",
+        "audit": [
+          "projection_unavailable"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "projection_unavailable",
+        "audit": [
+          "projection_unavailable"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: missing request_id -> unknown projection_unavailable",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "projection_unavailable",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "projection_unavailable",
+        "audit": [
+          "projection_unavailable"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: zero claims -> unknown claim_missing",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "claim_missing",
+        "audit": [
+          "claim_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "claim_missing",
+        "audit": [
+          "claim_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: two claims -> unknown claim_missing",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "claim_missing",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "claim_missing",
+        "audit": [
+          "claim_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: authenticated identity missing -> unknown identity_projection_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "identity_projection_mismatch",
+        "audit": [
+          "identity_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "identity_projection_mismatch",
+        "audit": [
+          "identity_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: authenticated != owner -> violation owner_identity_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "owner_identity_mismatch",
+        "audit": [
+          "owner_identity_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "owner_identity_mismatch",
+        "audit": [
+          "owner_identity_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: claim owner != owner -> violation owner_identity_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "owner_identity_mismatch",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "owner_identity_mismatch",
+        "audit": [
+          "owner_identity_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: claim request != request -> unknown identity_projection_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "identity_projection_mismatch",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "identity_projection_mismatch",
+        "audit": [
+          "identity_projection_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: request.user != owner -> violation request_owner_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "request_owner_mismatch",
+        "audit": [
+          "request_owner_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "request_owner_mismatch",
+        "audit": [
+          "request_owner_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: context count mismatch -> unknown context_evidence_missing",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "context_evidence_missing",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "context_evidence_missing",
+        "audit": [
+          "context_evidence_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: context owner other -> violation other_user_context",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "other_user_context",
+        "audit": [
+          "context_owner_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_user_context",
+        "audit": [
+          "context_owner_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: query state stored other user -> violation other_user_query_state",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "other_user_query_state",
+        "audit": [
+          "query_state_owner_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_user_query_state",
+        "audit": [
+          "query_state_owner_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: query state projection unavailable -> unknown query_state_unavailable",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "query_state_unavailable",
+        "audit": [
+          "query_state_unavailable"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "query_state_unavailable",
+        "audit": [
+          "query_state_unavailable"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: entity inheritance from other user -> violation other_user_entity_inheritance",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "other_user_entity_inheritance",
+        "audit": [
+          "entity_inheritance_owner_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_user_entity_inheritance",
+        "audit": [
+          "entity_inheritance_owner_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: result message missing -> unknown result_message_unavailable",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "result_message_unavailable",
+        "audit": [
+          "result_message_unavailable"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "result_message_unavailable",
+        "audit": [
+          "result_message_unavailable"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: result owner mismatch -> violation result_message_owner_mismatch",
+      "axis": "cross_user",
+      "expected": {
+        "state": "violation",
+        "reason": "result_message_owner_mismatch",
+        "audit": [
+          "result_message_owner_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "result_message_owner_mismatch",
+        "audit": [
+          "result_message_owner_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: target match -> passed frozen_targets_match_ok",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "target_matched"
+        ]
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "target_matched"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: other entity in model_evidence -> violation other_entity_used",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": [
+          "target_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": [
+          "target_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: other entity citation-only -> violation citation_entity_mismatch",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "violation",
+        "reason": "citation_entity_mismatch",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "citation_entity_mismatch",
+        "audit": [
+          "target_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: contract missing -> unknown targets_unresolved",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: entity_bound with zero targets -> unknown targets_unresolved",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: entity_bound targets incomplete -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_incomplete"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_incomplete"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: contract bindings mismatch -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_binding_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_binding_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: contract bindings missing -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_binding_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_binding_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: contract case mismatch -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_case_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "contract_case_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: annotation targets != contract targets -> unknown targets_unresolved",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "annotation_targets_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "annotation_targets_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: multi_target with one contract target -> unknown targets_incomplete",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_incomplete"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "audit": [
+          "targets_incomplete"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: verified no-entity scope -> not_applicable",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "not_applicable",
+        "reason": "no_entity_scope_verified",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "actual": {
+        "state": "not_applicable",
+        "reason": "no_entity_scope_verified",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: N/A but contract entity_bound -> unknown entity_scope_conflict",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: N/A with wrong criterion -> unknown annotation_unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: required but contract no_entity_scope -> unknown entity_scope_conflict",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "entity_scope_conflict"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: shared background covered -> passed",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "shared_background_matched"
+        ]
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "shared_background_matched"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: shared background plan_filters missing -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "plan_filters_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "plan_filters_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: shared background unproven unit -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "shared_background_unproven"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "shared_background_unproven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: structured entity inside shared_background mode -> unknown entity_scope_conflict",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "entity_scope_conflict"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: entity_bound free-text unit unverifiable -> unknown",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "shared_background_unproven"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "free_text_attribution_unverifiable",
+        "audit": [
+          "shared_background_unproven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: entity identity incomplete -> unknown entity_identity_unresolved",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_identity_unresolved",
+        "audit": [
+          "entity_identity_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_identity_unresolved",
+        "audit": [
+          "entity_identity_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: target_ref matched but entity conflicts -> unknown entity_scope_conflict",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "target_ref_conflict"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_scope_conflict",
+        "audit": [
+          "target_ref_conflict",
+          "target_ref_resolved"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: direct fact matching target -> passed",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": []
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "target_matched"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: direct fact other entity -> violation other_entity_used",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": [
+          "target_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: fact without backing unit -> unknown entity_identity_unresolved",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "entity_identity_unresolved",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "entity_identity_unresolved",
+        "audit": [
+          "entity_identity_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: empty scope proven -> passed",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: empty scope not proven -> unknown empty_set_not_proven",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "unknown",
+        "reason": "empty_set_not_proven",
+        "audit": [
+          "empty_scope_not_proven"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "empty_set_not_proven",
+        "audit": [
+          "empty_scope_not_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: old unknown stays unknown, N/A blocked",
+      "expected": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "provenance": "preserved_old_verdict"
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "targets_unresolved",
+        "provenance": "preserved_old_verdict",
+        "audit": [
+          "empty_scope_proven",
+          "unknown_to_na_blocked"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: old unknown can be rescored to pass",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": []
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "frozen_targets_match_ok",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: old violation preserved on gate code",
+      "expected": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "provenance": "preserved_old_verdict"
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "provenance": "preserved_old_verdict",
+        "audit": [
+          "old_verdict_preserved",
+          "preserved_gate"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_entity: old violation without gate is rescored (not silently upgraded)",
+      "axis": "cross_entity",
+      "expected": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "other_entity_used",
+        "audit": [
+          "target_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: consistent published/active -> passed",
+      "axis": "stale_source",
+      "expected": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": [
+          "lifecycle_checked",
+          "version_match"
+        ]
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": [
+          "lifecycle_checked",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: deleted document -> violation source_deleted",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "source_deleted",
+        "audit": [
+          "source_deleted"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "source_deleted",
+        "audit": [
+          "source_deleted",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: not published -> violation source_not_published",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "source_not_published",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "source_not_published",
+        "audit": [
+          "source_not_published",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: inactive -> violation source_not_active",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "source_not_active",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "source_not_active",
+        "audit": [
+          "source_not_active",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: active but different active version -> violation source_not_active",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "source_not_active",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "source_not_active",
+        "audit": [
+          "source_not_active",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: lifecycle missing for used unit -> unknown lifecycle_unavailable",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": [
+          "lifecycle_unavailable"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": [
+          "lifecycle_unavailable",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: document_deleted None -> unknown lifecycle_unavailable",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": [
+          "lifecycle_unavailable",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: date_state ambiguous -> unknown date_unresolved",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "date_unresolved",
+        "audit": [
+          "date_unresolved"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "date_unresolved",
+        "audit": [
+          "date_unresolved",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: date_state unavailable -> unknown lifecycle_unavailable",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "lifecycle_unavailable",
+        "audit": [
+          "lifecycle_unavailable",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: range without boundaries -> unknown date_unresolved",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "date_unresolved",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "date_unresolved",
+        "audit": [
+          "date_unresolved",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: future source as current -> violation future_source_as_current",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "future_source_as_current",
+        "audit": [
+          "future_source_as_current"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "future_source_as_current",
+        "audit": [
+          "future_source_as_current",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: future_explicit + include_future=True -> passed",
+      "axis": "stale_source",
+      "expected": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": []
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": [
+          "lifecycle_checked",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: future_explicit + include_future=False -> violation",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "future_source_as_current",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "future_source_as_current",
+        "audit": [
+          "future_source_as_current",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: future_explicit + include_future=None -> unknown annotation_unknown",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "include_future_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "include_future_missing",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: expired source -> violation source_expired",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "source_expired",
+        "audit": [
+          "source_expired"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "source_expired",
+        "audit": [
+          "source_expired",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: dated source without actual as_of -> unknown as_of_missing",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "as_of_missing",
+        "audit": [
+          "as_of_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "as_of_missing",
+        "audit": [
+          "as_of_missing",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: annotation as_of conflicts actual -> violation date_intent_conflict",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "date_intent_conflict",
+        "audit": [
+          "date_conflict"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "date_intent_conflict",
+        "audit": [
+          "date_conflict",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: constrained ref version mismatch -> violation citation_version_mismatch",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "citation_version_mismatch",
+        "audit": [
+          "version_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "citation_version_mismatch",
+        "audit": [
+          "version_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: constrained ref binding missing -> unknown source_unresolved",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "source_unresolved",
+        "audit": [
+          "version_binding_missing"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "source_unresolved",
+        "audit": [
+          "version_binding_missing"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: final citation source unresolvable -> unknown citation_source_unresolved",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "citation_source_unresolved",
+        "audit": [
+          "citation_source_unresolved"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "citation_source_unresolved",
+        "audit": [
+          "citation_source_unresolved",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: final citation document mismatch -> violation citation_version_mismatch",
+      "axis": "stale_source",
+      "expected": {
+        "state": "violation",
+        "reason": "citation_version_mismatch",
+        "audit": []
+      },
+      "actual": {
+        "state": "violation",
+        "reason": "citation_version_mismatch",
+        "audit": [
+          "version_match",
+          "version_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: not_applicable illegal -> unknown annotation_unknown",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: no units + proven empty scope -> passed",
+      "axis": "stale_source",
+      "expected": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "actual": {
+        "state": "passed",
+        "reason": "lifecycle_dates_ok",
+        "audit": [
+          "empty_scope_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: no units + unproven empty scope -> unknown empty_set_not_proven",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "empty_set_not_proven",
+        "audit": []
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "empty_set_not_proven",
+        "audit": [
+          "empty_scope_not_proven"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: old unknown never upgraded to N/A/pass",
+      "expected": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "annotation_unknown",
+        "audit": [
+          "scope_mode_mismatch"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "stale_source: old error quality -> unknown turn_error",
+      "axis": "stale_source",
+      "expected": {
+        "state": "unknown",
+        "reason": "turn_error",
+        "audit": [
+          "quality_error_override"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "turn_error",
+        "audit": [
+          "lifecycle_checked",
+          "quality_error_override",
+          "version_match"
+        ]
+      },
+      "ok": true
+    },
+    {
+      "label": "cross_user: old evidence_complete=False blocks pass -> unknown evidence_incomplete",
+      "axis": "cross_user",
+      "expected": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "evidence_incomplete_override"
+        ]
+      },
+      "actual": {
+        "state": "unknown",
+        "reason": "evidence_incomplete",
+        "audit": [
+          "evidence_incomplete_override",
+          "owner_identity_checked"
+        ]
+      },
+      "ok": true
+    }
+  ],
+  "verdict": "PASS"
+}

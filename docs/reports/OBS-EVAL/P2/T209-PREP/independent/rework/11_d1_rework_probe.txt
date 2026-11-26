@@ -1,0 +1,54 @@
+﻿[PASS] D1-all-failed-4 status=failed :: failed
+[PASS] D1-all-failed-4 to_dict status 一致 :: failed
+[PASS] D1-all-failed-4 from_dict canonical 往返
+[PASS] D1-mixed-2-2 status=partial :: partial
+[PASS] D1-mixed-2-2 to_dict status 一致 :: partial
+[PASS] D1-mixed-2-2 from_dict canonical 往返
+[PASS] D1-all-not_run status=not_run :: not_run
+[PASS] D1-all-not_run to_dict status 一致 :: not_run
+[PASS] D1-all-not_run from_dict canonical 往返
+[PASS] D1-zero-run status=not_run :: not_run
+[PASS] D1-zero-run to_dict status 一致 :: not_run
+[PASS] D1-zero-run from_dict canonical 往返
+[PASS] D1-all-succeeded status=succeeded :: succeeded
+[PASS] D1-all-succeeded to_dict status 一致 :: succeeded
+[PASS] D1-all-succeeded from_dict canonical 往返
+[PASS] D1-succeeded+not_run status=partial :: partial
+[PASS] D1-succeeded+not_run to_dict status 一致 :: partial
+[PASS] D1-succeeded+not_run from_dict canonical 往返
+[PASS] D1 failed_runs=4 / succeeded_runs=0
+[PASS] D1 failed 报告保留 errors=4
+[PASS] D1 0 run→not_run
+[PASS] D1 0 run 空数组保留
+[PASS] D1-render-all-failed-4 文案与枚举一致
+[PASS] D1-render-all-failed-4 含聚合映射说明
+[PASS] D1-render-all-failed-4 axes[0].status 一致
+[PASS] D1-render-all-failed-4 无 overall 字段
+[PASS] D1-render-mixed-2-2 文案与枚举一致
+[PASS] D1-render-mixed-2-2 含聚合映射说明
+[PASS] D1-render-mixed-2-2 axes[0].status 一致
+[PASS] D1-render-mixed-2-2 无 overall 字段
+[PASS] D1-render-all-not_run 文案与枚举一致
+[PASS] D1-render-all-not_run 含聚合映射说明
+[PASS] D1-render-all-not_run axes[0].status 一致
+[PASS] D1-render-all-not_run 无 overall 字段
+[PASS] D1-render-zero-run 文案与枚举一致
+[PASS] D1-render-zero-run 含聚合映射说明
+[PASS] D1-render-zero-run axes[0].status 一致
+[PASS] D1-render-zero-run 无 overall 字段
+[PASS] D1-render-all-succeeded 文案与枚举一致
+[PASS] D1-render-all-succeeded 含聚合映射说明
+[PASS] D1-render-all-succeeded axes[0].status 一致
+[PASS] D1-render-all-succeeded 无 overall 字段
+[PASS] D1-render-succeeded+not_run 文案与枚举一致
+[PASS] D1-render-succeeded+not_run 含聚合映射说明
+[PASS] D1-render-succeeded+not_run axes[0].status 一致
+[PASS] D1-render-succeeded+not_run 无 overall 字段
+[PASS] D1 failed 报告不出现“状态: not_run”
+[PASS] D1 failed 报告显式“执行失败”
+[PASS] D1 非数组 runs 仍拒绝 :: execution.runs 必须是数组（允许空数组=未开始）
+[PASS] D1 非法 run status 仍拒绝 :: execution.runs[].status 必须是 ['succeeded', 'failed', 'partial', 'not_run']，收到 'bogus'
+
+checks=50 failed=0
+RESULT=PASS
+

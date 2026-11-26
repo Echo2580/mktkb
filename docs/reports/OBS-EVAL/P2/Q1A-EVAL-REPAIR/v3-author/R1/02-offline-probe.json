@@ -1,0 +1,162 @@
+{
+  "schema_version": "p2-v3-authoring-probe/v1",
+  "method": "repository test harness (create_app + offline RAG providers + evidence-echo model double + in-process ASGI); one temp SQLite per run; corpus published from fixtures/acceptance-h2v3; netguard blocked 4/4 outbound attempts (evidence 05); 0 real model/embedding/rerank/OCR calls",
+  "scenario_dates": [
+    "2026-10-15",
+    "2026-07-15",
+    "2026-11-20",
+    "2026-12-15"
+  ],
+  "observations": [
+    {
+      "date": "2026-10-15",
+      "sources_published": 7,
+      "rows": [
+        {
+          "index": 0,
+          "kind": "conflict",
+          "sources": 2,
+          "conflicts": 1,
+          "conflict_entries": 2
+        },
+        {
+          "index": 1,
+          "kind": "service_error",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 2,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 3,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 4,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 5,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-07-15",
+      "sources_published": 8,
+      "rows": [
+        {
+          "index": 0,
+          "kind": "conflict",
+          "sources": 3,
+          "conflicts": 1,
+          "conflict_entries": 3
+        },
+        {
+          "index": 1,
+          "kind": "service_error",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 2,
+          "kind": "clarification",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 3,
+          "kind": "answer",
+          "sources": 1,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 4,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        },
+        {
+          "index": 5,
+          "kind": "not_found",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-11-20",
+      "sources_published": 10,
+      "rows": [
+        {
+          "index": 0,
+          "kind": "conflict",
+          "sources": 3,
+          "conflicts": 1,
+          "conflict_entries": 3
+        },
+        {
+          "index": 1,
+          "kind": "conflict",
+          "sources": 2,
+          "conflicts": 1,
+          "conflict_entries": 2
+        },
+        {
+          "index": 2,
+          "kind": "service_error",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        }
+      ]
+    },
+    {
+      "date": "2026-12-15",
+      "sources_published": 11,
+      "rows": [
+        {
+          "index": 0,
+          "kind": "conflict",
+          "sources": 3,
+          "conflicts": 1,
+          "conflict_entries": 3
+        },
+        {
+          "index": 1,
+          "kind": "clarification",
+          "sources": 0,
+          "conflicts": 0,
+          "conflict_entries": 0
+        }
+      ]
+    }
+  ],
+  "question_index_note": "index 0 = P01 location question (the record whose value differs between V03 and D01); index 2..5 in the run-0 set = the two negative-layer questions and two unknown-store probes; question text and values are intentionally not included",
+  "findings": {
+    "not_found_reachable": true,
+    "not_found_sources": 0,
+    "conflict_reachable_but_cites_superseded_versions": true,
+    "clarification_on_single_turn_multi_item": true
+  }
+}

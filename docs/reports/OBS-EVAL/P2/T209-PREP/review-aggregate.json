@@ -1,0 +1,420 @@
+{
+  "schema": "mktkb.t209p.independent_review.v0.1",
+  "task": "P2-T209-PREP",
+  "reviewer": "E2 T209-PREP independent acceptance context (t209-accept)",
+  "date": "2026-11-14",
+  "repo": "D:/GPT项目/市场部AI知识库",
+  "branch": "codex/p2-e2e",
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "verdict": "PASS",
+  "verdict_scope": "E2 T209-PREP offline preparation only; not formal T209 pass, not quality pass, not baseline/release approval",
+  "items": [
+    {
+      "id": 1,
+      "name": "报告分列",
+      "status": "PASS",
+      "evidence": "independent/02_report_probe.txt",
+      "checks": 74,
+      "key_facts": [
+        "4/4 run succeeded",
+        "30 questions/36 turns",
+        "quality fail 19/30, 11 fail, 2 safety",
+        "missing_evidence_cases=27",
+        "cross_entity 27 unknown",
+        "soft NOT-RUN/UNKNOWN",
+        "no overall/ready field",
+        "control 24/30+0 hard failure -> not_ready",
+        "round2 D1: all-failed->failed, failed reachable, mixed->partial, 0-run/all-not_run->not_run"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "口径反例",
+      "status": "PASS",
+      "evidence": "independent/02_report_probe.txt; independent/03_candidate_probe.txt",
+      "checks": 24,
+      "key_facts": [
+        "single scenario verified cannot be extrapolated",
+        "27 missing != 27 wrong answers",
+        "recorded_status != rescored",
+        "cross-round/pipeline/scope scores_comparable=false",
+        "release_ready=true/detail_export=true rejected",
+        "private fields and extra overall fields rejected"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "candidate 不可发布",
+      "status": "PASS",
+      "evidence": "independent/03_candidate_probe.txt; independent/rework/03_candidate_probe.txt",
+      "checks": 52,
+      "key_facts": [
+        "publishable/release_baseline/gate_approved/has_approval always false",
+        "restored approval is None",
+        "no approval.json",
+        "diff_runs release_blocked_reason=baseline_unapproved",
+        "approve_baseline calls=0",
+        "metadata/state/approved/report tamper rejected",
+        "round2 re-run: 52/52 PASS, candidate non-publishable semantics unchanged"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "坏输入 fail-closed",
+      "status": "PASS",
+      "evidence": "independent/04_bad_inputs_probe.txt; independent/rework/04_bad_inputs_probe.txt",
+      "checks": 22,
+      "bad_input_classes": 18,
+      "key_facts": [
+        "missing/corrupt manifest",
+        "candidate payload path escape",
+        "run_id/suite/identity mismatch",
+        "wrong field types",
+        "payload approval.json",
+        "cross-archive payload digest swap",
+        "archive-root and payload junction",
+        "approved/holdout source",
+        "non-SplitReport",
+        "non-directory path",
+        "existing target unchanged",
+        "missing payload artifact",
+        "no .staging-* half products",
+        "round2 re-run: 22/22 PASS, fail-closed semantics unchanged"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "正常归档可恢复",
+      "status": "PASS",
+      "evidence": "independent/03_candidate_probe.txt; independent/rework/03_candidate_probe.txt",
+      "key_facts": [
+        "archive->verify->restore->list->diff",
+        "restore does not modify source archive",
+        "no formal registry write",
+        "list deterministic and sorted",
+        "diff read-only, no sum/merge",
+        "cross identity not comparable"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "复用/改动对账",
+      "status": "PASS",
+      "evidence": "independent/07_git_scope.txt; independent/01_protected_recheck.txt",
+      "key_facts": [
+        "reused report.py/baseline.py/gate.py + 4 test files git-clean and hash-identical to pre snapshot",
+        "new module calls archive_baseline/verify_archive/restore_baseline on native payload",
+        "diff_runs not reused by new diff_candidates (complementary, residual R4)",
+        "no gate/approval logic duplicated",
+        "reused files still git-clean and hash-identical in round2"
+      ]
+    },
+    {
+      "id": 7,
+      "name": "测试完整性",
+      "status": "PASS",
+      "evidence": "independent/rework/junit-new-40.xml; independent/rework/junit-existing-80.xml; independent/rework/collect-120.txt; independent/rework/setup-show-40.txt; independent/rework/junit-d1-6.xml; independent/rework/guard_canary_expected_failure.txt",
+      "key_facts": [
+        "40 passed, 0 failed/skipped/errors",
+        "80 passed, 0 failed/skipped/errors",
+        "120 collected",
+        "40 netguard SETUP/TEARDOWN",
+        "guard canary expected failure proves active",
+        "no assert True/or True/xfail",
+        "D1 regression tests 6/6 passed",
+        "monkeypatch only approval sentinel (observation O2)"
+      ]
+    },
+    {
+      "id": 8,
+      "name": "零真实调用/保护件",
+      "status": "PASS",
+      "evidence": "independent/05_zero_calls_probe.txt; independent/rework/05_zero_calls_probe.txt; independent/rework/01_protected_recheck.txt",
+      "key_facts": [
+        "40 netguard tests",
+        "source scan hits=0",
+        "import+render external attempts=0",
+        "full candidate chain socket/DNS attempts=0",
+        "funding 4/4",
+        "production locks 2/2",
+        "C freeze 12/12",
+        "E0 6/6",
+        "E1 5/5",
+        "formal baseline 2/2",
+        "real-h2 1/1",
+        "LOCAL-R1 git clean",
+        "formal registry mtime 2026-11-09 unchanged"
+      ]
+    },
+    {
+      "id": 9,
+      "name": "冻结清单",
+      "status": "PASS",
+      "evidence": "independent/rework/06_freeze_recheck.txt; independent/rework/01_protected_recheck.txt",
+      "key_facts": [
+        "20/20 freeze hashes recomputed",
+        "module/test/dev-report hashes match rework freeze",
+        "pre/post 67/67 changed_lines=0",
+        "only D1 red/green evidence added (18->20 objects)",
+        "19 dev files, 0 unlisted dev files vs freeze",
+        "15 tracked modifications all before T209 window"
+      ]
+    },
+    {
+      "id": 10,
+      "name": "报告/契约一致性",
+      "status": "PASS",
+      "evidence": "independent/rework/08_contract_probe.txt; independent/06_freeze_recheck.py; independent/rework/06_freeze_recheck.txt",
+      "checks": 30,
+      "key_facts": [
+        "40/80/120 and red/protected logs self-consistent",
+        "NOT-RUN/residuals four items disclosed",
+        "dev-report references exist",
+        "04 report example byte-reproducible",
+        "05 chain demo text reproducible",
+        "no pass marker recorded",
+        "D1 rework section present; no overclaim"
+      ]
+    }
+  ],
+  "tests": {
+    "new_file": {
+      "path": "backend/tests/evaluation/test_p2_candidate_report.py",
+      "collected": 40,
+      "passed": 40,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "independent/rework/junit-new-40.xml"
+    },
+    "existing_four": {
+      "files": [
+        "test_report.py",
+        "test_baseline_portability.py",
+        "test_diff_release_gate.py",
+        "test_p2_gate.py"
+      ],
+      "collected": 80,
+      "passed": 80,
+      "failed": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit": "independent/rework/junit-existing-80.xml"
+    },
+    "collect_total": 120,
+    "netguard_fixture_setups": 40,
+    "d1_regression_tests": {
+      "selected": 6,
+      "passed": 6,
+      "deselected": 34,
+      "junit": "independent/rework/junit-d1-6.xml"
+    },
+    "guard_canary": {
+      "expected_exit": 1,
+      "result": "guard blocked external attempt and teardown asserted external attempts == []",
+      "evidence": "independent/rework/guard_canary_expected_failure.txt"
+    }
+  },
+  "protected": {
+    "funding": "4/4",
+    "e0_safety": "6/6",
+    "e1_t208_frozen": "5/5",
+    "production_locks": "2/2",
+    "reused_existing_modules_and_tests": "7/7",
+    "formal_baseline": "2/2",
+    "real_h2_public": "1/1",
+    "c_freeze": "12/12",
+    "metadata_fingerprints": "3/3",
+    "pre_post_lines": "67/67",
+    "pre_post_changed_lines": 0,
+    "pre_post_result": "IDENTICAL"
+  },
+  "freeze": {
+    "manifest": "docs/reports/OBS-EVAL/P2/T209-PREP/evidence/11-freeze.txt",
+    "manifest_sha256": "005c240c83011ee623a1d7c5a538dfa3fb61bce7dfefb3a630a1ff1d78e55ce1",
+    "recomputed": "20/20",
+    "module_sha256": "597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405",
+    "test_sha256": "f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811",
+    "dev_report_sha256": "2493ef09d294602c2a7fbdc324abbcf50a37b1a20da44c41d845146957de5d98",
+    "d1_red_sha256": "48101a461116d289524ed08675f0c88ea420c3be6aa648636d3f11f0d928c074",
+    "d1_green_sha256": "5bf008429cff39489a74fd0fc815e7a557c2d29a255e1e727bff036583cb5eec",
+    "unlisted_new_dev_files": 0
+  },
+  "zero_real_calls": {
+    "netguard_tests": 40,
+    "source_scan_hits": 0,
+    "import_render_external_attempts": 0,
+    "full_candidate_chain_external_attempts": 0,
+    "provider_product_judge_retrieval_calls": 0,
+    "real_reservations_or_payments": 0,
+    "supplier_balance_queried": false,
+    "dotenv_or_private_h2_read": false
+  },
+  "git_scope": {
+    "staged_files": 0,
+    "unstaged_tracked_modifications": 15,
+    "tracked_modifications_inside_t209_window": 0,
+    "latest_tracked_modification": "2026-11-14T05:36:54+08:00",
+    "t209_new_paths": [
+      "backend/src/mktkb/evaluation/p2_candidate_report.py",
+      "backend/tests/evaluation/test_p2_candidate_report.py",
+      "docs/reports/OBS-EVAL/P2/T209-PREP/"
+    ],
+    "reused_files_git_diff": "clean",
+    "local_r1_git_status": "clean",
+    "formal_registry_new_entries": 0,
+    "t209_new_hashes": {
+      "module": "597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405",
+      "test": "f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811"
+    }
+  },
+  "defects": [
+    {
+      "id": "D1",
+      "severity": "low",
+      "blocking": false,
+      "status": "resolved",
+      "summary": "build_execution 在全部 run 为 failed 时聚合 status=not_run；ExecutionStatus.failed 枚举不可达。",
+      "evidence": "independent/09_edge_probe.txt (round1); independent/rework/09_edge_probe.txt; independent/rework/11_d1_rework_probe.txt",
+      "resolution": {
+        "round": 2,
+        "module_sha256": "597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405",
+        "test_sha256": "f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811",
+        "independent_checks": "50/50 PASS",
+        "d1_regression_tests": "6/6 PASS",
+        "mapping": {
+          "all_failed": "failed",
+          "mixed": "partial",
+          "all_not_run": "not_run",
+          "zero_run": "not_run",
+          "all_succeeded": "succeeded"
+        },
+        "render_consistent": true,
+        "to_dict_from_dict_consistent": true,
+        "impact": "D1 resolved; candidate non-publishable and fail-closed semantics unchanged (03 52/52, 04 22/22)."
+      }
+    }
+  ],
+  "residuals": [
+    {
+      "code": "R1",
+      "summary": "候选归档无外部签名且无 round-run 成员绑定；可重建 manifest 使 verify 接受伪造报告，但仍不可发布、恢复 approval=None、diff_runs 仍 baseline_unapproved。开发报告已披露，独立复现。"
+    },
+    {
+      "code": "R2",
+      "summary": "自由文本 note/detail 不做内容扫描（仅字段级拒绝）；上游若写入题干/答案文本不会被模块阻止。"
+    },
+    {
+      "code": "R3",
+      "summary": "真实 run card 未消费、无外部签名、无 round-run 绑定、POSIX symlink 未测；开发报告已列。"
+    },
+    {
+      "code": "R4",
+      "summary": "diff_candidates 未复用 diff_runs；为候选归档只读对比，无 gate/审批逻辑复制、无求和/合并；风险低但正式阶段需固定口径。"
+    },
+    {
+      "code": "R5",
+      "summary": "LOCAL-R1 仅元数据指纹（48814 文件/5.10GB），4 个资金/GO 文件逐字节 SHA；开发已披露，未读私有内容。"
+    }
+  ],
+  "observations": [
+    {
+      "id": "O2",
+      "summary": "开发 approval sentinel 只 patch baseline_module.approve_baseline，无法捕获直接导入绑定；模块无该名、源码扫描 0、独立运行期计数 0，结论仍成立。"
+    }
+  ],
+  "differences_from_dev_report": [
+    "round1: 34/80/114、18/18、67/67、04 示例、05 链式 demo 均独立复现一致。",
+    "round1 开发未列 D1；其余残余如实，未发现夸大。",
+    "round2: 开发按 D1 定向返工并给出 12-d1-red（旧行为 4 failed/2 passed）与 13-d1-green（6 passed）；独立复验 50/50。",
+    "round2: 40/80/120、20/20、67/67 独立复现一致；候选与坏输入语义不变。",
+    "开发 approval monkeypatch 单点较弱（O2），结论由源码扫描+运行期计数补强。",
+    "未发现弱化测试、假模块、真实调用、保护件变化、正式 registry/基线写入。"
+  ],
+  "not_claimed": [
+    "formal T209 pass",
+    "quality pass",
+    "baseline approval",
+    "release approval",
+    "T209_PREP marker"
+  ],
+  "artifacts": [
+    "independent/00_environment.txt",
+    "independent/01_protected_recheck.txt",
+    "independent/02_report_probe.txt",
+    "independent/03_candidate_probe.txt",
+    "independent/04_bad_inputs_probe.txt",
+    "independent/05_zero_calls_probe.txt",
+    "independent/06_freeze_recheck.txt",
+    "independent/07_git_scope.txt",
+    "independent/08_contract_probe.txt",
+    "independent/09_edge_probe.txt",
+    "independent/10_command_log.txt",
+    "independent/collect-114.txt",
+    "independent/junit-new-34.xml",
+    "independent/junit-existing-80.xml",
+    "independent/setup-show-34.txt",
+    "independent/guard_canary_expected_failure.txt",
+    "independent/repro-04-report-example.md",
+    "independent/repro-05-chain-demo.txt",
+    "independent/rework/00_environment.txt",
+    "independent/rework/01_protected_recheck.txt",
+    "independent/rework/02_report_probe.txt",
+    "independent/rework/03_candidate_probe.txt",
+    "independent/rework/04_bad_inputs_probe.txt",
+    "independent/rework/05_zero_calls_probe.txt",
+    "independent/rework/06_freeze_recheck.txt",
+    "independent/rework/07_git_scope.txt",
+    "independent/rework/08_contract_probe.txt",
+    "independent/rework/09_edge_probe.txt",
+    "independent/rework/10_command_log.txt",
+    "independent/rework/10_pre_post_compare.txt",
+    "independent/rework/11_d1_rework_probe.txt",
+    "independent/rework/collect-120.txt",
+    "independent/rework/junit-new-40.xml",
+    "independent/rework/junit-existing-80.xml",
+    "independent/rework/junit-d1-6.xml",
+    "independent/rework/setup-show-40.txt",
+    "independent/rework/d1-tests-6.txt",
+    "independent/rework/guard_canary_expected_failure.txt"
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "date": "2026-11-14",
+      "scope": "initial T209-PREP independent acceptance",
+      "verdict": "PASS",
+      "defects": [
+        "D1"
+      ],
+      "tests": {
+        "new": 34,
+        "existing": 80,
+        "collect": 114
+      },
+      "freeze": "18/18",
+      "note": "D1 non-blocking: all-failed aggregate not_run; failed unreachable"
+    },
+    {
+      "round": 2,
+      "date": "2026-11-14",
+      "scope": "D1 targeted rework re-verification",
+      "verdict": "PASS",
+      "defects_resolved": [
+        "D1"
+      ],
+      "tests": {
+        "new": 40,
+        "existing": 80,
+        "collect": 120
+      },
+      "freeze": "20/20",
+      "hashes": {
+        "module": "597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405",
+        "test": "f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811",
+        "dev_report": "2493ef09d294602c2a7fbdc324abbcf50a37b1a20da44c41d845146957de5d98",
+        "freeze": "005c240c83011ee623a1d7c5a538dfa3fb61bce7dfefb3a630a1ff1d78e55ce1"
+      }
+    }
+  ]
+}

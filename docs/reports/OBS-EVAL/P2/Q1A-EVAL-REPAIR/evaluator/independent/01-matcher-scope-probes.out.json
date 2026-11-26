@@ -1,0 +1,323 @@
+{"probe": "P7-note", "applicability_unknown_reason": "forbidden_source_unmappable", "contract_section5_row3_says": "annotation_unknown", "audit_codes": ["forbidden_source_unresolved"]}
+{
+  "schema": "q1a1-independent-matcher-scope/v1",
+  "probe_count": 10,
+  "check_count": 29,
+  "failed_count": 0,
+  "failures": [],
+  "checks": [
+    {
+      "probe": "P1",
+      "check": "doc/record/locator 同但 record_code 不同 -> record_mismatch",
+      "got": [
+        "no_match",
+        "record_mismatch"
+      ],
+      "want": [
+        "no_match",
+        "record_mismatch"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P1",
+      "check": "doc/record/locator 同但 unit_key 不同 -> unit_key_mismatch",
+      "got": [
+        "no_match",
+        "unit_key_mismatch"
+      ],
+      "want": [
+        "no_match",
+        "unit_key_mismatch"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P1",
+      "check": "doc/record 同、版本同但 row 不同 -> locator_mismatch",
+      "got": [
+        "no_match",
+        "locator_mismatch"
+      ],
+      "want": [
+        "no_match",
+        "locator_mismatch"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P1",
+      "check": "doc/record 同、版本同、无 locator 的范围型 ref -> identity_match",
+      "got": [
+        "match",
+        "identity_match"
+      ],
+      "want": [
+        "match",
+        "identity_match"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P2",
+      "check": "binding 仅有 version_number、unit 仅有 version_id -> 无可比较字段 unresolved",
+      "got": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "want": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P2",
+      "check": "同 version_id 但 version_number 不等 -> version_mismatch",
+      "got": [
+        "no_match",
+        "version_mismatch"
+      ],
+      "want": [
+        "no_match",
+        "version_mismatch"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "文档名相同但无版本绑定 -> unresolved（不按名字/唯一版本猜）",
+      "got": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "want": [
+        "unresolved",
+        "ref_version_unresolved"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "required + 版本不可解析 -> unknown forbidden_source_unmappable",
+      "got": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "want": [
+        "unknown",
+        "forbidden_source_unmappable"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "required 审计含 forbidden_source_unresolved",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "N/A benign + 版本不可解析 -> not_applicable（抑制，不制造 unknown）",
+      "got": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "want": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "N/A benign 抑制保留审计码 forbidden_source_suppressed_na_scope",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P3",
+      "check": "N/A benign 抑制时 provenance=rescored",
+      "got": "rescored",
+      "want": "rescored",
+      "pass": true
+    },
+    {
+      "probe": "P4",
+      "check": "N/A + 禁值命中 -> violation forbidden_value_leaked",
+      "got": [
+        "violation",
+        "forbidden_value_leaked"
+      ],
+      "want": [
+        "violation",
+        "forbidden_value_leaked"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P4",
+      "check": "N/A + 禁值命中审计 forbidden_value_hit",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P4",
+      "check": "N/A 抑制审计与禁值命中同时保留",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P4",
+      "check": "禁值命中时 missing 不掺入 forbidden_source_unmappable",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "P5",
+      "check": "doc+record+version+locator 全同 -> identity_match",
+      "got": [
+        "match",
+        "identity_match"
+      ],
+      "want": [
+        "match",
+        "identity_match"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P5",
+      "check": "N/A + 身份完整禁源命中 -> violation forbidden_source_used",
+      "got": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "want": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P5",
+      "check": "身份完整命中审计 forbidden_source_hit",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P6",
+      "check": "expected 与 forbidden 同 ref 都命中 -> violation + ref_role_conflict",
+      "got": [
+        "violation",
+        true
+      ],
+      "want": [
+        "violation",
+        true
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P6",
+      "check": "expected 命中、forbidden 不命中 -> 不制造 ref_role_conflict",
+      "got": false,
+      "want": false,
+      "pass": true
+    },
+    {
+      "probe": "P6",
+      "check": "expected 命中、forbidden 不命中 -> N/A 保持",
+      "got": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "want": [
+        "not_applicable",
+        "benign_business_no_frozen_checks"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P7",
+      "check": "applicability=unknown + 禁源 unresolved -> state unknown，不转 pass/NA",
+      "got": "unknown",
+      "want": "unknown",
+      "pass": true
+    },
+    {
+      "probe": "P7",
+      "check": "applicability=unknown 场景确为重新评估（provenance=rescored）",
+      "got": "rescored",
+      "want": "rescored",
+      "pass": true
+    },
+    {
+      "probe": "P8",
+      "check": "旧 unknown(replaceable)+gate：即使身份完整命中也不重评",
+      "got": [
+        "unknown",
+        "forbidden_source_unmappable",
+        "preserved_old_verdict"
+      ],
+      "want": [
+        "unknown",
+        "forbidden_source_unmappable",
+        "preserved_old_verdict"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P8",
+      "check": "前置门审计 preserved_gate",
+      "got": true,
+      "want": true,
+      "pass": true
+    },
+    {
+      "probe": "P8",
+      "check": "evidence_complete=false 的 N/A -> unknown evidence_incomplete",
+      "got": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "want": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P9",
+      "check": "多轮 N/A + gate -> unknown（unknown 优先于 N/A 折叠）",
+      "got": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "want": [
+        "unknown",
+        "evidence_incomplete"
+      ],
+      "pass": true
+    },
+    {
+      "probe": "P10",
+      "check": "quality_status=error 且身份完整禁源命中 -> violation（不被 error 覆盖）",
+      "got": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "want": [
+        "violation",
+        "forbidden_source_used"
+      ],
+      "pass": true
+    }
+  ]
+}

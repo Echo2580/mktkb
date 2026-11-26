@@ -1,0 +1,23 @@
+GUARD: local socket/urllib/httpx probes blocked; proxies cleared; dotenv forbidden
+F                                                                        [100%]
+================================== FAILURES ===================================
+______ test_unlimited_gate_never_exceeds_item_attempts_even_after_reopen ______
+
+p2_env = namespace(ledger=WindowsPath('D:/GPT��Ŀ/�г���AI֪ʶ��/docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-...cs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/tmp-red-item/test_unlimited_gate_never_exce0'))
+
+    def test_unlimited_gate_never_exceeds_item_attempts_even_after_reopen(p2_env):
+        gate = unlimited_gate(p2_env)
+        ticket = gate.begin("answer-B0-Q01-t1")
+        gate.confirm_before_send(ticket)
+        gate.settle_success(ticket, evidence=_chat_evidence(ticket))
+        reopened = _open_gate(p2_env)
+        before = len(_events(p2_env.ledger))
+>       with pytest.raises(p2a.P2GateError):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       Failed: DID NOT RAISE P2GateError
+
+docs\reports\OBS-EVAL\P2\H2V3\single-case-repair-20261116\request-cap-dev\test_request_cap.py:89: Failed
+=========================== short test summary info ===========================
+FAILED docs/reports/OBS-EVAL/P2/H2V3/single-case-repair-20261116/request-cap-dev/test_request_cap.py::test_unlimited_gate_never_exceeds_item_attempts_even_after_reopen
+1 failed in 2.45s
+GUARD: test network attempts=0; real outbound=0

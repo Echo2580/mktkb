@@ -1,0 +1,247 @@
+{
+ "schema_version": "c1p4-counterexample-matrix/v0.1",
+ "counterexample_classes": 22,
+ "all_match": true,
+ "fixed_code_assertions_in_tests": 66,
+ "test_functions": 43,
+ "classes": [
+  {
+   "id": "v1_contract_rejected_by_v2_adapter",
+   "expected_code": "contract_version_v1_rejected_by_v2_adapter",
+   "observed_state": "raised",
+   "observed_code": "contract_version_v1_rejected_by_v2_adapter",
+   "match": true
+  },
+  {
+   "id": "v1_shaped_contract_rejected_by_v2_adapter",
+   "expected_code": "contract_version_v1_rejected_by_v2_adapter",
+   "observed_state": "raised",
+   "observed_code": "contract_version_v1_rejected_by_v2_adapter",
+   "match": true
+  },
+  {
+   "id": "v2_contract_rejected_by_v1_constants",
+   "expected_code": "contract_schema_invalid",
+   "observed_state": "raised",
+   "observed_code": "contract_schema_invalid",
+   "match": true
+  },
+  {
+   "id": "v1_schema_sha_bound_to_v2_version",
+   "expected_code": "contract_schema_binding_mismatch",
+   "observed_state": "raised",
+   "observed_code": "contract_schema_binding_mismatch",
+   "match": true
+  },
+  {
+   "id": "arbitrary_schema_sha_without_expected",
+   "expected_code": "contract_schema_binding_mismatch",
+   "observed_state": "raised",
+   "observed_code": "contract_schema_binding_mismatch",
+   "match": true
+  },
+  {
+   "id": "contract_unknown_top_level_key",
+   "expected_code": "contract_schema_invalid",
+   "observed_state": "raised",
+   "observed_code": "contract_schema_invalid",
+   "match": true
+  },
+  {
+   "id": "document_target_no_violation",
+   "expected_code": "target_granularity_incomparable",
+   "observed_state": "unknown",
+   "observed_code": "target_granularity_incomparable",
+   "match": true
+  },
+  {
+   "id": "class_c_empty_set_not_proven",
+   "expected_code": "empty_set_not_proven",
+   "observed_state": "unknown",
+   "observed_code": "empty_set_not_proven",
+   "match": true
+  },
+  {
+   "id": "snapshot_missing_field",
+   "expected_code": "snapshot_field_missing:binding.run_id",
+   "observed_state": "unknown",
+   "observed_code": "snapshot_field_missing:binding.run_id",
+   "match": true
+  },
+  {
+   "id": "cross_run_snapshot",
+   "expected_code": "snapshot_run_binding_mismatch",
+   "observed_state": "unknown",
+   "observed_code": "snapshot_run_binding_mismatch",
+   "match": true
+  },
+  {
+   "id": "snapshot_unknown_key",
+   "expected_code": "snapshot_unknown_field:extra",
+   "observed_state": "unknown",
+   "observed_code": "snapshot_unknown_field:extra",
+   "match": true
+  },
+  {
+   "id": "identity_unresolvable",
+   "expected_code": "identity_unresolved",
+   "observed_state": "unknown",
+   "observed_code": "identity_unresolved",
+   "match": true
+  },
+  {
+   "id": "entity_key_space_incompatible",
+   "expected_code": "entity_key_space_incompatible",
+   "observed_state": "unknown",
+   "observed_code": "entity_key_space_incompatible",
+   "match": true
+  },
+  {
+   "id": "runtime_entity_key_with_uuid_document_level",
+   "expected_code": "target_granularity_incomparable",
+   "observed_state": "unknown",
+   "observed_code": "target_granularity_incomparable",
+   "match": true
+  },
+  {
+   "id": "unknown_to_not_applicable_forbidden",
+   "expected_code": "unknown_to_not_applicable_forbidden",
+   "observed_state": "raised",
+   "observed_code": "unknown_to_not_applicable_forbidden",
+   "match": true
+  },
+  {
+   "id": "unknown_annotation_not_downgraded",
+   "expected_code": "annotation_unknown",
+   "observed_state": "unknown",
+   "observed_code": "annotation_unknown",
+   "match": true
+  },
+  {
+   "id": "shared_background_not_passed",
+   "expected_code": "shared_background_runtime_identity_unavailable",
+   "observed_state": "unknown",
+   "observed_code": "shared_background_runtime_identity_unavailable",
+   "match": true
+  },
+  {
+   "id": "stale_version_mismatch_not_passed",
+   "expected_code": "version_mismatch",
+   "observed_state": "unknown",
+   "observed_code": "version_mismatch",
+   "match": true
+  },
+  {
+   "id": "stale_as_of_missing",
+   "expected_code": "as_of_missing",
+   "observed_state": "unknown",
+   "observed_code": "as_of_missing",
+   "match": true
+  },
+  {
+   "id": "counts_formula_guard",
+   "expected_code": "axis_counts_inconsistent",
+   "observed_state": "raised",
+   "observed_code": "axis_counts_inconsistent",
+   "match": true
+  },
+  {
+   "id": "replayed_source_evidence",
+   "expected_code": "snapshot_source_evidence_replayed",
+   "observed_state": "unknown",
+   "observed_code": "snapshot_source_evidence_replayed",
+   "match": true
+  },
+  {
+   "id": "contract_missing",
+   "expected_code": "contract_missing",
+   "observed_state": "unknown",
+   "observed_code": "contract_missing",
+   "match": true
+  }
+ ],
+ "positive": {
+  "case_states": {
+   "C01": {
+    "cross_entity": {
+     "state": "passed",
+     "reason": "cross_entity_targets_match_ok"
+    },
+    "stale_source": {
+     "state": "unknown",
+     "reason": "stale_lifecycle_evidence_missing"
+    }
+   },
+   "C02": {
+    "cross_entity": {
+     "state": "violation",
+     "reason": "other_entity_used"
+    },
+    "stale_source": {
+     "state": "violation",
+     "reason": "date_intent_conflict"
+    }
+   },
+   "C03": {
+    "cross_entity": {
+     "state": "unknown",
+     "reason": "target_granularity_incomparable"
+    },
+    "stale_source": {
+     "state": "unknown",
+     "reason": "empty_set_not_proven"
+    }
+   }
+  },
+  "counts": {
+   "cross_entity": {
+    "axis": "cross_entity",
+    "planned": 3,
+    "checked": 2,
+    "passed": 1,
+    "not_applicable": 0,
+    "unknown": 1,
+    "violations": 1
+   },
+   "stale_source": {
+    "axis": "stale_source",
+    "planned": 3,
+    "checked": 1,
+    "passed": 0,
+    "not_applicable": 0,
+    "unknown": 2,
+    "violations": 1
+   }
+  },
+  "reason_histogram": {
+   "cross_entity": {
+    "cross_entity_targets_match_ok": 1,
+    "other_entity_used": 1,
+    "target_granularity_incomparable": 1
+   },
+   "stale_source": {
+    "date_intent_conflict": 1,
+    "empty_set_not_proven": 1,
+    "stale_lifecycle_evidence_missing": 1
+   }
+  },
+  "key_space_affected_axes": 0,
+  "formulas_verified": true
+ },
+ "key_space_probe": {
+  "cases": 2,
+  "states": {
+   "C01": {
+    "state": "passed",
+    "reason": "cross_entity_targets_match_ok"
+   },
+   "C02": {
+    "state": "unknown",
+    "reason": "entity_key_space_incompatible"
+   }
+  },
+  "affected_axes": 1,
+  "rule": "canonical_role_filters_v2"
+ },
+ "zero_real_calls": true
+}

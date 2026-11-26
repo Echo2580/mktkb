@@ -1,0 +1,30 @@
+{
+ "probe": "entity-key-space",
+ "target_side_rule": "合同 v2 R-ENT-1：chunking._entity(records[record_key], DocumentSpec(doc_id=base_doc_code))",
+ "target_side_computed": {
+  "entity_type": "item",
+  "entity_key": "item|城北店|折叠桌",
+  "label": "城北店的折叠桌",
+  "filters": {
+   "store": "城北店",
+   "item": "折叠桌",
+   "identifier": "W01"
+  },
+  "filters_norm": {
+   "store": "城北店",
+   "item": "折叠桌",
+   "identifier": "w01"
+  }
+ },
+ "runtime_side_keys": [
+  "item|id:w01"
+ ],
+ "key_equality_holds": false,
+ "filters_role_overlap": [
+  "identifier",
+  "item",
+  "store"
+ ],
+ "verdict": "KEY_SPACE_MISMATCH",
+ "note": "目标侧由 chunking._entity 产生名称型键（如 item|城北店|折叠桌）；运行期在有 id 表头时产生 id 型键（item|id:w01），无 id 表头时产生 item|…|doc:<uuid>|unit:<uuid> 复合键。三种键空间互不相等 → 契约 §7.2(3) 的等式匹配不可直接执行。"
+}

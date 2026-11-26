@@ -1,0 +1,75 @@
+﻿T209-PREP independent protected recheck (READ-ONLY)
+repo_root: D:\GPT项目\市场部AI知识库
+
+[funding]
+ca9dceb9019790eb6ba4e25cfaf88232915b607d756d0eae21ad7cdf10c6fec9 *docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl
+79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e *docs/evidence/LOCAL-R1-20261101/budget/budget.json
+c72dc7abf6ba135fb6c53f77c35b40dda34e97cf535d3be212467c6734b27324 *docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json
+f688ec7efb7e8ddc145ae9fd593a482a85a6e4a764a9d49a09eab4f3fc26ea98 *docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.t207-h2-run-20261114.pre.archived.json
+
+[e0-safety]
+8bdbcdb922168095fdaf347f33ab20f1c81c4528bf63e1359e17790b597c3cd1 *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/custodian-a-aggregate.json
+d365dd16b2d0515540dc3d9fc9fc4a13a66b99491d43e21977a990d8a3ba8a19 *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/custodian-a-report.md
+d123032e131daa0509ba90f74009db3560bbbdbc54182d96f9c7835b5d80d8bf *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/custodian-b-review.json
+fbea42c0a4da4464eb4b461db628b6d8cdb1d711fd68d5936f35a788d102a87c *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/custodian-b-review.md
+11daef87fe616b15a0b59a8135a640f881c33a7a597fd64e1a8248f7ed188c65 *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/manager-receipt.json
+b32c24e8c38ab656c6d10bded740e8be3e302a081c42185a745db637135acc81 *docs/reports/OBS-EVAL/P2/T207-SAFETY-TRIAGE-20261114/manager-receipt.md
+
+[e1-t208-frozen]
+b36e0cc8b5e7d72412a30578bcdee5a4f48f94a0feee435ae83161a0f0bc7e22 *backend/src/mktkb/evaluation/ragas_adapter.py
+f1fad71eab833c99f5ab9e0e8964a09c2e110de82dd18796af3f7308a8e17ce7 *backend/tests/evaluation/test_p2_ragas_adapter.py
+5cf1b9bc49dca2bc81ee447c79edd13848d6dc73a7673ccb16b52cbe277bb75c *backend/tests/evaluation/test_p2_judge_budget.py
+e61f6fea912073b8ebf85c16d90e844d4598c12c000f9152c58bd1b16e7bbd4a *docs/evaluation/p2-ragas-contract.md
+6f878dd4a7a74ba63720adb4aa66a26e17493c80fe9de3f01ee179a5228a5ef8 *backend/requirements-ragas-eval.lock
+
+[production-locks]
+e7c09cb8ba7c6b9c5f829034011cf1fbea1c4b461b809f166c09e840796fff49 *backend/requirements.lock
+2e8a23b1f13d2d10599554ade8aa701c0c8988148de2b8a15bd52ef228ec9881 *backend/requirements-dev.lock
+
+[reused-existing-modules]
+48b76efc6c497829ac2212c2b4d676fd2ba7c3b03c6717c64fa6e07d820eac7f *backend/src/mktkb/evaluation/report.py
+b3162eddfa651463b9ca7904efbe207a5286f0475c889ca9deb3e00e83aca8f5 *backend/src/mktkb/evaluation/baseline.py
+7e54fbf672cbc1c02bbe746c164038613d5861070796794f6a41aae1595b7fe7 *backend/src/mktkb/evaluation/gate.py
+6eb7922ca6dc33114c3036b649b533c1a47ea6816dd839fc1f746321be69cf04 *backend/tests/evaluation/test_report.py
+75b7430c9a0e7c705741feeda7f32df9423a4a10bad419a025fb831125bbccce *backend/tests/evaluation/test_baseline_portability.py
+4aebc10658ae5ba96f1d385192928389367037fc9d6b2145228a65540543d206 *backend/tests/evaluation/test_diff_release_gate.py
+ad7e14e8e4aaac88f1987f5e35f2ca85d7749a9a887088da3aabe15d2120d014 *backend/tests/evaluation/test_p2_gate.py
+
+[formal-baseline]
+1924faf86fad52d4495f07c64e2db1a9262a1299a2b0817fe9d604de3ad6b07a *var/eval/baselines/bc6f6f906db1/baseline.json
+80113647d0b640d37b3f6c86c6b67758de7e907f51e3a6ff47dc42b1af9aad43 *var/eval/baselines/bc6f6f906db1/approval.json
+
+[real-h2-public]
+6a8bde93b29726a529ca10fbe115a878323851993b874c6b806f842c2cd2d7c1 *docs/reports/OBS-EVAL/P2/T207-H2-OFFLINE-READINESS/real-h2.md
+
+[c-freeze-12]
+601096bc3b37180e77332d53d15647cc4998c33e44bef4c56cf411509f26e2fb *backend/src/mktkb/evaluation/p2_evidence_capture.py
+1c16a3da1a14becf844207f9de4d031e40622d6096082dd2170a31395944f8a3 *backend/src/mktkb/evaluation/p2_evidence_io.py
+c9378f81088ff3777bd564e43983ecfa37f8889957965e7b6d38b2d35a9f4787 *backend/src/mktkb/evaluation/product_adapter.py
+fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b *backend/src/mktkb/evaluation/p2_hard_evidence.py
+7c93cf435a56a9cab8cd9efbfea15be3d8caea59be3392eb22ec95bf38b56e86 *backend/src/mktkb/evaluation/cli.py
+e95e1b394451620deb0b035abf606701e05eb449b7cf8125921118c3c00eff35 *tools/p2_h2_historical_audit.py
+ad2b5a728117145519acfd8b5fd84c407f48883c7be9d31d24191ce9937638ca *docs/evaluation/p2-hard-evidence-capture-v0_2.md
+fb40f90af5afa06f28c3d101bf550f7742f307519003412feb01cbf63a115bce *docs/evaluation/p2-hard-evidence-classification-v0_2.md
+fc024cb7d7c772790b11c085755b8208f559f4f3fc54f8a1a66263b275a4dd6f *backend/tests/evaluation/test_p2_capture_contract_v02.py
+81d5505334a136935c344178160775bc9d80109cb3124fcf2e3043d432a99573 *backend/tests/evaluation/test_p2_capture_contract_v02_e2e.py
+882024744812aa90eac3d8dae65251ebd25a0f842ebe7258c133fa8107514b4e *backend/tests/evaluation/test_p2_cross_entity_scope_v02.py
+6c9cbc7cf055c80b923ae24aab26c89d6aef4d03fd886e22f27d8c12f1d564cb *backend/tests/evaluation/test_p2_capture_entity_readiness_e2e.py
+
+[metadata-fingerprints]
+1e27157574e0ab7ced2de23c740aed887eaab827104016d5e560d717d6df9f85 *docs/evidence/LOCAL-R1-20261101 (files=48814, bytes=5102939498)
+b5797b24db5b1119b78187c9fa5a4b2fdaf60c11ef753cb15feff0d53d8951dd *docs/reports/OBS-EVAL/P2/T207-H2-OFFLINE-READINESS (files=22, bytes=159741)
+8ba8355f2dd806fbc61ab9cba25c286527b0933d3db175c12c9150b8992a6c48 *docs/reports/OBS-EVAL/P2/T208-OFFLINE (files=90, bytes=260466)
+
+[counts]
+funding=4/4
+e0-safety=6/6
+e1-t208-frozen=5/5
+production-locks=2/2
+reused-existing-modules=7/7
+formal-baseline=2/2
+real-h2-public=1/1
+c-freeze-12=12/12
+
+[compare-pre] expected=42 actual=42 missing=0 changed=0 extra=0 RESULT=IDENTICAL
+[compare-post] expected=42 actual=42 missing=0 changed=0 extra=0 RESULT=IDENTICAL

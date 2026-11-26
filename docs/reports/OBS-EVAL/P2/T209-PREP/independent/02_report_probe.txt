@@ -1,0 +1,78 @@
+﻿[PASS] A1 report_kind=split_axes
+[PASS] A2 五轴固定顺序且分列 :: ['succeeded', 'fail', 'incomplete', 'unknown', 'snapshot_only']
+[PASS] A3 顶层无 overall/ready/success 字段 :: ['axes', 'evidence', 'execution', 'funding', 'publication', 'quality', 'reference', 'report_kind', 'schema_version', 'soft', 'title']
+[PASS] A4 递归无 overall/ready 字段 :: []
+[PASS] A5 四 run 执行 succeeded
+[PASS] A6 30 题 / 36 回合 :: 30/36
+[PASS] A7 质量 FAIL 19/30、11 fail :: fail
+[PASS] A8 2 safety / threshold_met=false
+[PASS] A9 verified=false / release_ready=false
+[PASS] A10 missing_evidence_cases=27
+[PASS] A11 cross_entity 27 unknown 且原因=scope 合同未生成
+[PASS] A12 四轴 unknown 合计 38 / 违例 2 :: 38/2
+[PASS] A13 轴状态分列（succeeded/fail/incomplete）
+[PASS] A14 软评分轴 unknown（NOT-RUN + UNKNOWN）
+[PASS] A15 publication 三项 false
+[PASS] A16 渲染含 执行状态
+[PASS] A16 渲染含 质量状态
+[PASS] A16 渲染含 证据状态
+[PASS] A16 渲染含 软评分状态
+[PASS] A16 渲染含 资金与版本
+[PASS] A16 渲染含 19/30
+[PASS] A16 渲染含 threshold_met: false
+[PASS] A16 渲染含 release_ready: false
+[PASS] A17 渲染声明分列/执行不代表质量
+[PASS] A18 渲染不含 总体通过
+[PASS] A18 渲染不含 全部通过
+[PASS] A18 渲染不含 overall_success
+[PASS] A18 渲染不含 release_ready: true
+[PASS] A18 渲染不含 production_ready
+[PASS] A18 渲染不含 REAL_READY
+[PASS] B1 对照执行 succeeded
+[PASS] B2 对照 24/30 阈值数值达标
+[PASS] B3 对照质量=not_ready（未审批，不是 pass） :: not_ready
+[PASS] B4 对照 verified=false / release_ready=false
+[PASS] B5 对照证据 incomplete（缺 scope 6）
+[PASS] B6 对照软评分 NOT-RUN
+[PASS] B7 not_ready 既不冒充 pass 也不混为 fail
+[PASS] B8 对照渲染 NOT_READY + 24/30
+[PASS] B9 对照区分 threshold_met 与 thresholds_approved
+[PASS] C1 单 scenario verified=true 不得外推整体 :: 整体 verified=true 不能由单个 scenario verified=true 外推；必须所有场景都 verified=true 且证据完整
+[PASS] C2 11 fail 与 27 缺证据是两个数
+[PASS] C3 渲染明确缺 scope 不等于答错
+[PASS] C4 渲染明确 unknown 不是答错
+[PASS] C5 渲染明确 38 是轴×题计数
+[PASS] C6 recorded_status 不得冒充 rescored（无分数被拒） :: soft.rescored=true 时 soft.status 必须是 scored
+[PASS] C7 合法 rescored 需分数+原因
+[PASS] C8 rescored 报告显式打印原因
+[PASS] C9 跨轮分数不得合并 :: rejected=跨轮分数不得合并：execution/quality/evidence/reference 的 round/plan 必须一致，收到 ['P2-T209P-INDEP-ROUND-A', 'P2-T209P-INDEP-ROUND-OTHER']
+[PASS] C10 release_ready=true 拒绝 :: rejected=T209-PREP 只接受 release_ready=false 的公共聚合卡；不得把 candidate 标成发布就绪
+[PASS] C11 detail_export=true 拒绝 :: rejected=card.detail_export 必须为 false（不得解析/导出逐题明细）
+[PASS] C12 threshold_met 与计数不一致拒绝 :: rejected=card.threshold_met 与 (total==30 and passed>=min_pass) 不一致：True != False
+[PASS] C13 缺 scope unknown 被抹成 0 拒绝（计数不自洽） :: rejected=evidence.cross_entity 计数自相矛盾：passed+not_applicable+unknown+violations=3 != planned=30
+[PASS] C14 报告拒绝私字段 question :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.question
+[PASS] C14 报告拒绝私字段 questions :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.questions
+[PASS] C14 报告拒绝私字段 answer :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.answer
+[PASS] C14 报告拒绝私字段 labels :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.labels
+[PASS] C14 报告拒绝私字段 per_case :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.per_case
+[PASS] C14 报告拒绝私字段 case_rows :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.case_rows
+[PASS] C14 报告拒绝私字段 case_ids :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.case_ids
+[PASS] C14 报告拒绝私字段 plaintext :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.plaintext
+[PASS] C14 报告拒绝私字段 ciphertext :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.ciphertext
+[PASS] C15 嵌套逐题字段拒绝 :: rejected=报告 payload 不能包含题干/标签/逐题明文字段: report.quality.per_case
+[PASS] C16 报告拒绝额外总体字段 overall_success :: rejected=report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] C16 报告拒绝额外总体字段 overall :: rejected=report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] C16 报告拒绝额外总体字段 ready :: rejected=report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] C16 报告拒绝额外总体字段 overall_ready :: rejected=report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] C17 派生轴状态被改拒绝 :: rejected=report payload 不是规范形式（派生字段/摘要漂移或含未知字段），拒绝
+[PASS] C18 合法报告 from_dict 规范往返
+[PASS] C19 报告参考路径逃逸拒绝 :: rejected=reference.document 必须是 docs/reports 下的相对 POSIX 路径，收到 'D:/secret/real-h2.md'
+[PASS] C20 plan_id 路径拒绝 :: rejected=reference.plan_id 不能是路径，收到 '../escape'
+[PASS] C21 provider_balance_queried=true 拒绝 :: rejected=报告不得查询/声明供应商余额（provider_balance_queried 必须为 false）
+[PASS] C22 账本变化不得写成源码篡改 :: rejected=账本摘要变化只允许记为 'legitimate_spend'（合法真实花费），不得写成 'source_tampering' / 源码篡改
+[PASS] C23 报告单轮/单 plan
+[PASS] C24 软评分 scored 不能抵消质量 FAIL
+
+checks=74 failed=0
+RESULT=PASS
+

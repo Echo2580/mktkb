@@ -1,0 +1,265 @@
+{
+ "schema_version": "p2h2v3-zero-call/v0.1",
+ "phase": "zero-call",
+ "guard": {
+  "module": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/netguard/v3corpus_netguard.py",
+  "injection": "PYTHONPATH + sitecustomize（进程级）",
+  "blocks": [
+   "socket.connect",
+   "socket.connect_ex",
+   "socket.create_connection",
+   "socket.getaddrinfo",
+   "http.client.HTTPConnection.connect",
+   "httpx.HTTPTransport.handle_request"
+  ],
+  "allows_loopback": true
+ },
+ "runs": [
+  {
+   "label": "positive-control",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/netguard/positive_control.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "{\"connect_blocked\": true, \"dns_blocked\": true, \"errors\": [\"OSError\", \"OSError\"]}"
+   ],
+   "stderr_tail": [
+    "[v3corpus-netguard] BLOCKED create_connection_external: ('203.0.113.1', 9)",
+    "[v3corpus-netguard] BLOCKED dns_getaddrinfo_external: example.invalid"
+   ],
+   "guard_written": true,
+   "guard": {
+    "blocked": 2,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 1,
+     "dns_getaddrinfo_external": 1,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": {
+     "connect_blocked": true,
+     "dns_blocked": true,
+     "errors": [
+      "OSError",
+      "OSError"
+     ]
+    }
+   }
+  },
+  {
+   "label": "build-corpus",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/01-build-corpus.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "verify-cells",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/02-verify-cells.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "determinism",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/03-reproduce-twice.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "keyspace",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/04-keyspace-proof.py",
+   "exit_code": 1,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [
+    "NOT ALIGNABLE: P07@D01v4 ['record_rows_found=0']",
+    "NOT ALIGNABLE: S02@D02v2 ['record_rows_found=0']"
+   ],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "normalized-digest",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/05-normalized-digest.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "source-map",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/06-build-source-map.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "header-finding",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/08-header-detection-finding.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  },
+  {
+   "label": "preservation",
+   "script": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/v3-corpus/evidence/07-preservation.py",
+   "exit_code": 0,
+   "stdout_tail": [
+    "}"
+   ],
+   "stderr_tail": [],
+   "guard_written": true,
+   "guard": {
+    "blocked": 0,
+    "external": {
+     "socket_connect_external": 0,
+     "socket_connect_ex_external": 0,
+     "create_connection_external": 0,
+     "dns_getaddrinfo_external": 0,
+     "http_client_external": 0,
+     "httpx_transport_external": 0
+    },
+    "loopback_connects": 0,
+    "installed": true,
+    "guard_version": "v3corpus-netguard/v0.1",
+    "positive_control": null
+   }
+  }
+ ],
+ "totals": {
+  "runs": 9,
+  "external_attempts": 0,
+  "positive_control_blocked": true,
+  "guards_written": 9,
+  "exits_ok": true
+ },
+ "result": "ZERO_EXTERNAL_CALLS"
+}

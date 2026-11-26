@@ -1,0 +1,58 @@
+﻿=== collect-only ===
+COMMAND: .venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore_axes.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1b --collect-only
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_vocabulary_and_scope_versions_are_frozen
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_cross_entity_entity_bound_target_match_and_mismatch
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_cross_entity_scope_modes_and_shared_background
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_cross_entity_target_refs_reuse_matcher_v2
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_cross_user_ownership_context_and_projection_guards
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_stale_source_lifecycle_version_and_date_checks
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_annotation_and_contract_missing_fail_closed
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_unknown_propagation_and_unknown_never_becomes_na
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_report_four_axis_counts_provenance_and_changed_cases
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_q1a2_contract_view_validates_public_shape
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_q1a2_adapter_maps_axes_and_basis_to_axes_case
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_q1a2_adapter_does_not_touch_private_ciphertext_or_key
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_identity_tamper_is_rejected[contract-contract_hash_mismatch]
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_identity_tamper_is_rejected[base_contract-base_contract_hash_mismatch]
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_identity_tamper_is_rejected[evaluator-evaluator_hash_mismatch]
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_identity_tamper_is_rejected[binding_bytes-old_binding_hash_mismatch]
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_identity_tamper_is_rejected[card_bytes-old_card_hash_mismatch]
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_write_refuses_old_card_and_existing_outputs_and_keeps_old_card_bytes
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_synthetic_fixture_guard_prevents_silent_real_use
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_module_has_no_network_provider_or_frozen_evaluator_imports
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_rescore_axes_run_makes_zero_external_calls
+tests/evaluation/test_p2_evidence_rescore_axes.py::test_contract_v0_2_digests_q1a1_residuals_and_prohibitions
+
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+22 tests collected in 0.25s
+EXIT_CODE: 0
+
+=== run ===
+COMMAND: .venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore_axes.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1b
+......................                                                   [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+22 passed, 1 warning in 0.37s
+EXIT_CODE: 0
+
+=== regression ===
+COMMAND: .venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1b-regress
+....................                                                     [100%]
+============================== warnings summary ===============================
+.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+20 passed, 1 warning in 0.22s
+EXIT_CODE: 0
+

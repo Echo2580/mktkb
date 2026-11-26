@@ -1,0 +1,15 @@
+$ -m pytest tests/evaluation/test_p2_empty_scope_proof.py -q -p no:cacheprovider --basetemp .pytest-tmp/c1p2-netguard
+exit=0
+--- stdout ---
+........................................................................ [ 81%]
+................                                                         [100%]
+============================== warnings summary ===============================
+..\docs\reports\OBS-EVAL\P2\Q1A-EVAL-REPAIR\c1-1\p2\independent\netguard\c1p2_netguard.py:147
+  D:\GPT项目\市场部AI知识库\docs\reports\OBS-EVAL\P2\Q1A-EVAL-REPAIR\c1-1\p2\independent\netguard\c1p2_netguard.py:147: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    module = original_import(name, *args, **kwargs)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+88 passed, 1 warning in 0.43s
+
+--- stderr ---
+

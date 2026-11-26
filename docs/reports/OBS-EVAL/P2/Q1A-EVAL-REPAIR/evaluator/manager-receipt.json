@@ -1,0 +1,93 @@
+{
+  "schema_version": "q1a1-manager-receipt/v1",
+  "date": "2026-11-14",
+  "package": "Q1a-1",
+  "status": "ACCEPTED",
+  "verdict": "PASS_WITHIN_SCOPE",
+  "scope": "safety-axis rescore module + contract v0.1 + synthetic tests only",
+  "independent_review": {
+    "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/evaluator/independent-review.md",
+    "sha256": "0b2d60d2c016c8b6f0cf28c26310bd1f5f7cb72e99081980c56686ab394178ec",
+    "aggregate_path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/evaluator/review-aggregate.json",
+    "aggregate_sha256": "bac140ada55eba04a1c0e4e6b43519e38bb29cdbcc5574b129d206999988a524",
+    "verdict": "PASS",
+    "items": "9/9 PASS",
+    "independent_checks": 261
+  },
+  "dev_objects": {
+    "module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+    "test_sha256": "3eab734260d25dc3c72f23740a8f54c38d8279d209c19c5b94f31bd5ddf91163",
+    "contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+    "dev_report_sha256": "432a41f0fe24fd343dd347b1591f57d6dee734acd9d469829f534c77ba3d3226"
+  },
+  "tests": {
+    "command": ".venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q -p no:cacheprovider",
+    "collected": 20,
+    "passed": 20,
+    "failed": 0,
+    "skipped": 0,
+    "exit_code": 0,
+    "netguard_external_attempts": 0
+  },
+  "protected": {
+    "c_freeze_items": 12,
+    "c_freeze_match": 12,
+    "p2_hard_evidence_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+    "manifest_files": 10,
+    "manifest_match": 10,
+    "staged_entries": 0,
+    "new_commits": false,
+    "tracked_modified_count": 15,
+    "tracked_modified_all_before_package": true
+  },
+  "zero_real": {
+    "network": 0,
+    "provider": 0,
+    "model": 0,
+    "retrieval": 0,
+    "embedding": 0,
+    "rerank": 0,
+    "ocr": 0,
+    "judge": 0,
+    "real_reservations": 0,
+    "private_h2_or_dotenv_read": false
+  },
+  "process_notes": [
+    {
+      "code": "B-01",
+      "disposition": "ACCEPTED",
+      "summary": "独立验收为核对 c-freeze [funding] 只对账本/GO 计算 SHA256，未解析内容、未写入、未产生调用；按零真实调用与不改资金件口径不构成违规，仅记录边界偏差。"
+    }
+  ],
+  "residuals": [
+    {"code": "R-01", "severity": "medium", "owner": "manager", "disposition": "known; c-freeze funding line differs from current gitignored files; pre-existing, no writes after package start, not a Q1a-1 failure."},
+    {"code": "R-02", "severity": "high", "owner": "Q1a-1b/Q1a-3", "disposition": "Q1a-1 is safety-only; cross_user/cross_entity/stale_source are recorded_old. Q1a-3 must not run until a Q1a-1b other-axis re-score module exists; then Q1a-3 consumes Q1a-2 contract and completes 11/11 triage."},
+    {"code": "R-03", "severity": "medium", "owner": "Q1a-3", "disposition": "projection only synthetic; Q1a-3 must verify real document/record/version mappings from decrypted evidence under custody."},
+    {"code": "R-04", "severity": "medium", "owner": "Q1a-3", "disposition": "old_run_id/evidence tree/parsed binding are declarative; Q1a-3 must bind them from custody-side hashes; dev report wording should be narrowed."},
+    {"code": "R-05", "severity": "medium", "owner": "Q1a-3", "disposition": "projection getattr defaults can fail-open; Q1a-3 adapter must explicitly require frozen CaseSpec fields."},
+    {"code": "R-06", "severity": "low", "owner": "contract", "disposition": "contract §5 reason precision; no behavior change; fold into contract v0.2."},
+    {"code": "R-07", "severity": "low", "owner": "contract", "disposition": "ref_doc_missing not listed in contract §4 and unreachable; fix in contract v0.2."},
+    {"code": "R-08", "severity": "low", "owner": "test", "disposition": "redundant monkeypatch in zero-call test; AST+netguard remain primary; optional cleanup."},
+    {"code": "R-09", "severity": "low", "owner": "Q1a-3", "disposition": "real old card not read; Q1a-3 must verify bytes under custody."}
+  ],
+  "scope_limits": {
+    "safety_only": true,
+    "other_axes": "recorded_old",
+    "q1a_2_executed": false,
+    "q1a_3_executed": false,
+    "overall_q1a_complete": false,
+    "t207_pass": false,
+    "release": false
+  },
+  "next": {
+    "q1a_1b": "dev package for cross_user/cross_entity/stale_source re-score using matcher v2 + synthetic contract; independent acceptance; no private data.",
+    "q1a_2": "custody contract (scope/targets) may run in parallel with Q1a-1b.",
+    "q1a_3": "after Q1a-1b + Q1a-2; private re-score + 11 fail triage under custody."
+  },
+  "not_claimed": [
+    "Q1A overall pass",
+    "T207 pass",
+    "quality/B0 pass",
+    "threshold or release approval"
+  ]
+}

@@ -1,0 +1,3086 @@
+{
+ "probe": "05-failclosed",
+ "generated_utc": "2026-11-14T14:27:38.759192+00:00",
+ "check_count": 93,
+ "failure_count": 4,
+ "verdict": "FAIL",
+ "checks": [
+  {
+   "name": "missing_axis",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "extra_axis",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "axis_missing_field",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "target_extra_key",
+   "ok": true,
+   "detail": {
+    "actual": "contract_target_invalid",
+    "expected": "contract_target_invalid"
+   }
+  },
+  {
+   "name": "bad_basis",
+   "ok": true,
+   "detail": {
+    "actual": "contract_basis_invalid",
+    "expected": "contract_basis_invalid"
+   }
+  },
+  {
+   "name": "no_provable_basis_with_required",
+   "ok": true,
+   "detail": {
+    "actual": "contract_basis_invalid",
+    "expected": "contract_basis_invalid"
+   }
+  },
+  {
+   "name": "not_applicable_with_uncertain_reason",
+   "ok": true,
+   "detail": {
+    "actual": "contract_unknown_downgraded",
+    "expected": "contract_unknown_downgraded"
+   }
+  },
+  {
+   "name": "not_applicable_wrong_criterion",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "cross_user_not_required",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "shared_background_with_targets",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "duplicate_target_ref",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "bad_ref_collection",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "projection_missing_key",
+   "ok": true,
+   "detail": {
+    "actual": "contract_projection_invalid",
+    "expected": "contract_projection_invalid"
+   }
+  },
+  {
+   "name": "projection_rule_version",
+   "ok": true,
+   "detail": {
+    "actual": "contract_projection_invalid",
+    "expected": "contract_projection_invalid"
+   }
+  },
+  {
+   "name": "projection_bad_provenance_row",
+   "ok": true,
+   "detail": {
+    "actual": "contract_projection_invalid",
+    "expected": "contract_projection_invalid"
+   }
+  },
+  {
+   "name": "projection_forbidden_token",
+   "ok": true,
+   "detail": {
+    "actual": "contract_projection_invalid",
+    "expected": "contract_projection_invalid"
+   }
+  },
+  {
+   "name": "runs_wrong_scenario",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "case_count_wrong",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "duplicate_case_id",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "unknown_top_level_key",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "binding_missing",
+   "ok": true,
+   "detail": {
+    "actual": "contract_binding_mismatch",
+    "expected": "contract_binding_mismatch"
+   }
+  },
+  {
+   "name": "binding_dataset_version",
+   "ok": true,
+   "detail": {
+    "actual": "contract_binding_mismatch",
+    "expected": "contract_binding_mismatch"
+   }
+  },
+  {
+   "name": "run_plan_sha_invalid",
+   "ok": true,
+   "detail": {
+    "actual": "contract_schema_invalid",
+    "expected": "contract_schema_invalid"
+   }
+  },
+  {
+   "name": "missing_run_id",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_missing:binding.run_id",
+    "expected": "snapshot_field_missing:binding.run_id"
+   }
+  },
+  {
+   "name": "unknown_binding_key",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_unknown_field:binding.extra",
+    "expected": "snapshot_unknown_field:binding.extra"
+   }
+  },
+  {
+   "name": "run_id_type",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:binding.run_id",
+    "expected": "snapshot_field_invalid:binding.run_id"
+   }
+  },
+  {
+   "name": "run_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": null,
+    "expected": null
+   }
+  },
+  {
+   "name": "run_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_run_binding_mismatch",
+    "expected": "snapshot_run_binding_mismatch"
+   }
+  },
+  {
+   "name": "scenario_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_scenario_binding_mismatch",
+    "expected": "snapshot_scenario_binding_mismatch"
+   }
+  },
+  {
+   "name": "turn_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_turn_binding_mismatch",
+    "expected": "snapshot_turn_binding_mismatch"
+   }
+  },
+  {
+   "name": "source_evidence_incomplete",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_source_evidence_incomplete",
+    "expected": "snapshot_source_evidence_incomplete"
+   }
+  },
+  {
+   "name": "source_evidence_replayed",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_source_evidence_replayed",
+    "expected": "snapshot_source_evidence_replayed"
+   }
+  },
+  {
+   "name": "public_boundary_false",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:public_boundary.runtime_ids_only_in_declared_blocks",
+    "expected": "snapshot_field_invalid:public_boundary.runtime_ids_only_in_declared_blocks"
+   }
+  },
+  {
+   "name": "content_sha_bad",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:content_sha256",
+    "expected": "snapshot_field_invalid:content_sha256"
+   }
+  },
+  {
+   "name": "contract_version_bad",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_contract_version_invalid",
+    "expected": "snapshot_contract_version_invalid"
+   }
+  },
+  {
+   "name": "schema_version_bad",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_schema_version_invalid",
+    "expected": "snapshot_schema_version_invalid"
+   }
+  },
+  {
+   "name": "fixture_kind_bad",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_fixture_kind_invalid",
+    "expected": "snapshot_fixture_kind_invalid"
+   }
+  },
+  {
+   "name": "fixture_binding_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_fixture_binding_mismatch",
+    "expected": "snapshot_fixture_binding_mismatch"
+   }
+  },
+  {
+   "name": "nonrecord_with_record_code",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:record_identities[0].record_code",
+    "expected": "snapshot_field_invalid:record_identities[0].record_code"
+   }
+  },
+  {
+   "name": "record_level_with_page_locator",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:record_identities[0].record_level",
+    "expected": "snapshot_field_invalid:record_identities[0].record_level"
+   }
+  },
+  {
+   "name": "summary_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_summary_mismatch",
+    "expected": "snapshot_summary_mismatch"
+   }
+  },
+  {
+   "name": "summary_total_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_summary_mismatch",
+    "expected": "snapshot_summary_mismatch"
+   }
+  },
+  {
+   "name": "empty_use_missing_layer",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_missing:empty_use_scope_input.use_layers.model_evidence",
+    "expected": "snapshot_field_missing:empty_use_scope_input.use_layers.model_evidence"
+   }
+  },
+  {
+   "name": "empty_use_unknown_layer",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_unknown_field:empty_use_scope_input.use_layers.extra",
+    "expected": "snapshot_unknown_field:empty_use_scope_input.use_layers.extra"
+   }
+  },
+  {
+   "name": "empty_use_count_refs_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:empty_use_scope_input.use_layers.model_evidence.count",
+    "expected": "snapshot_field_invalid:empty_use_scope_input.use_layers.model_evidence.count"
+   }
+  },
+  {
+   "name": "empty_use_code_inconsistent",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:empty_use_scope_input.code",
+    "expected": "snapshot_field_invalid:empty_use_scope_input.code"
+   }
+  },
+  {
+   "name": "temporal_observed_without_as_of",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:effective_temporal.as_of",
+    "expected": "snapshot_field_invalid:effective_temporal.as_of"
+   }
+  },
+  {
+   "name": "baseline_used_as_effective",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:effective_temporal.baseline_used_as_effective",
+    "expected": "snapshot_field_invalid:effective_temporal.baseline_used_as_effective"
+   }
+  },
+  {
+   "name": "version_mismatch_equal_numbers",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:effective_temporal.document_versions[0].code",
+    "expected": "snapshot_field_invalid:effective_temporal.document_versions[0].code"
+   }
+  },
+  {
+   "name": "version_observed_without_runtime",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:effective_temporal.document_versions[0].runtime_version_number",
+    "expected": "snapshot_field_invalid:effective_temporal.document_versions[0].runtime_version_number"
+   }
+  },
+  {
+   "name": "candidate_count_refs_mismatch",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:empty_use_scope_input.candidate_layers.retrieval_observed.count",
+    "expected": "snapshot_field_invalid:empty_use_scope_input.candidate_layers.retrieval_observed.count"
+   }
+  },
+  {
+   "name": "request_owner_not_mapping",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:request_owner",
+    "expected": "snapshot_field_invalid:request_owner"
+   }
+  },
+  {
+   "name": "identity_unresolved_code",
+   "ok": true,
+   "detail": {
+    "actual": "identity_unresolved",
+    "expected": "identity_unresolved"
+   }
+  },
+  {
+   "name": "entity_absent_code",
+   "ok": true,
+   "detail": {
+    "actual": "identity_unresolved",
+    "expected": "identity_unresolved"
+   }
+  },
+  {
+   "name": "targets_missing_code",
+   "ok": true,
+   "detail": {
+    "actual": "targets_missing",
+    "expected": "targets_missing"
+   }
+  },
+  {
+   "name": "stale_no_positive_refs_code",
+   "ok": true,
+   "detail": {
+    "actual": "stale_no_positive_refs",
+    "expected": "stale_no_positive_refs"
+   }
+  },
+  {
+   "name": "stale_without_frozen_refs_code",
+   "ok": true,
+   "detail": {
+    "actual": "stale_source_unresolved",
+    "expected": "stale_source_unresolved"
+   }
+  },
+  {
+   "name": "stale_ref_index_out_of_range",
+   "ok": true,
+   "detail": {
+    "actual": "stale_source_unresolved",
+    "expected": "stale_source_unresolved"
+   }
+  },
+  {
+   "name": "stale_ref_without_record_code",
+   "ok": true,
+   "detail": {
+    "actual": "stale_positive_ref_not_record_level",
+    "expected": "stale_positive_ref_not_record_level"
+   }
+  },
+  {
+   "name": "stale_records_not_matching",
+   "ok": true,
+   "detail": {
+    "actual": "stale_source_unresolved",
+    "expected": "stale_source_unresolved"
+   }
+  },
+  {
+   "name": "stale_date_conflict_is_violation",
+   "ok": true,
+   "detail": {
+    "actual": "date_intent_conflict",
+    "expected": "date_intent_conflict"
+   }
+  },
+  {
+   "name": "stale_version_mismatch_code",
+   "ok": true,
+   "detail": {
+    "actual": "version_mismatch",
+    "expected": "version_mismatch"
+   }
+  },
+  {
+   "name": "stale_as_of_missing_code",
+   "ok": true,
+   "detail": {
+    "actual": "as_of_missing",
+    "expected": "as_of_missing"
+   }
+  },
+  {
+   "name": "stale_lifecycle_gap_code",
+   "ok": true,
+   "detail": {
+    "actual": "stale_lifecycle_evidence_missing",
+    "expected": "stale_lifecycle_evidence_missing"
+   }
+  },
+  {
+   "name": "multi_target_lt2_code",
+   "ok": true,
+   "detail": {
+    "actual": "multi_target_lt2",
+    "expected": "multi_target_lt2"
+   }
+  },
+  {
+   "name": "annotation_unknown_code",
+   "ok": true,
+   "detail": {
+    "actual": "annotation_unknown",
+    "expected": "annotation_unknown"
+   }
+  },
+  {
+   "name": "unknown_to_not_applicable_forbidden_for_all_unknown_codes",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "declared_na_is_allowed",
+   "ok": true,
+   "detail": {
+    "actual": false,
+    "expected": false
+   }
+  },
+  {
+   "name": "na_without_no_entity_claim_is_forbidden",
+   "ok": true,
+   "detail": {
+    "actual": "unknown_to_not_applicable_forbidden",
+    "expected": "unknown_to_not_applicable_forbidden"
+   }
+  },
+  {
+   "name": "passed_with_unknown_reason_forbidden",
+   "ok": true,
+   "detail": {
+    "actual": "adapter_invariant_violation",
+    "expected": "adapter_invariant_violation"
+   }
+  },
+  {
+   "name": "violation_with_unknown_reason_forbidden",
+   "ok": true,
+   "detail": {
+    "actual": "adapter_invariant_violation",
+    "expected": "adapter_invariant_violation"
+   }
+  },
+  {
+   "name": "adapter_error_rejects_non_fixed_code",
+   "ok": true,
+   "detail": {
+    "actual": "adapter_invariant_violation",
+    "expected": "adapter_invariant_violation"
+   }
+  },
+  {
+   "name": "axis_counts_inconsistent",
+   "ok": true,
+   "detail": {
+    "actual": "axis_counts_inconsistent",
+    "expected": "axis_counts_inconsistent"
+   }
+  },
+  {
+   "name": "delegated_axis_code",
+   "ok": true,
+   "detail": {
+    "actual": "axis_delegated_to_q1a1b",
+    "expected": "axis_delegated_to_q1a1b"
+   }
+  },
+  {
+   "name": "unknown_axis_code",
+   "ok": true,
+   "detail": {
+    "actual": "axis_not_adapted",
+    "expected": "axis_not_adapted"
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "raised": true,
+    "type": "AdapterError",
+    "code": "adapter_invariant_violation",
+    "value": null
+   }
+  },
+  {
+   "name": "unknown_case_id_code",
+   "ok": true,
+   "detail": {
+    "actual": "contract_case_missing",
+    "expected": "contract_case_missing"
+   }
+  },
+  {
+   "name": "no_getattr_or_hasattr",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "no_bare_except",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "no_pass_statements",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": [
+    {
+     "line": 613,
+     "text": "projection[\"target_provenance\"].get(key, [])"
+    }
+   ]
+  },
+  {
+   "name": "contract_non_scalar_enum_fail_closed",
+   "ok": false,
+   "detail": {
+    "actual": [
+     {
+      "path": "cases.0.axes.cross_entity.criterion",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "cases.0.axes.cross_entity.reason",
+      "value_type": "dict",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "cases.0.basis.cross_entity",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     }
+    ],
+    "expected": []
+   }
+  },
+  {
+   "name": "snapshot_non_scalar_enum_fail_closed",
+   "ok": false,
+   "detail": {
+    "actual": [
+     {
+      "path": "effective_temporal.availability",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "effective_temporal.as_of_source",
+      "value_type": "dict",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "effective_temporal.observed_from",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "effective_temporal.code",
+      "value_type": "dict",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "effective_temporal.document_versions.0.code",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "empty_use_scope_input.code",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "empty_use_scope_input.turn_status",
+      "value_type": "dict",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     },
+     {
+      "path": "source_evidence.completeness_status",
+      "value_type": "list",
+      "raised": true,
+      "type": "TypeError",
+      "code": null
+     }
+    ],
+    "expected": []
+   }
+  },
+  {
+   "name": "scalar_bad_criterion_is_fixed_code",
+   "ok": true,
+   "detail": {
+    "actual": "contract_axis_invalid",
+    "expected": "contract_axis_invalid"
+   }
+  },
+  {
+   "name": "scalar_bad_availability_is_fixed_code",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_enum_invalid",
+    "expected": "snapshot_enum_invalid"
+   }
+  },
+  {
+   "name": "fuzz_contract_no_unfixed_exception",
+   "ok": false,
+   "detail": {
+    "actual": 9,
+    "expected": 0,
+    "extra": [
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "cross_user",
+       "reason"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "safety",
+       "criterion"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "stale_source",
+       "reason"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "cross_entity",
+       "criterion"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "stale_source",
+       "criterion"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "cross_entity",
+       "reason"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "axes",
+       "safety",
+       "criterion"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "basis",
+       "stale_source"
+      ],
+      "code": null,
+      "type": "TypeError"
+     },
+     {
+      "path": [
+       "cases",
+       0,
+       "basis",
+       "stale_source"
+      ],
+      "code": null,
+      "type": "TypeError"
+     }
+    ]
+   }
+  },
+  {
+   "name": "fuzz_contract_all_reasons_are_fixed_codes",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "fuzz_contract_no_unknown_to_na",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "accepted": 74,
+    "rejected": 317
+   }
+  },
+  {
+   "name": "fuzz_snapshot_no_unfixed_exception",
+   "ok": false,
+   "detail": {
+    "actual": 1,
+    "expected": 0,
+    "extra": [
+     {
+      "path": [
+       "effective_temporal",
+       "document_versions",
+       0,
+       "code"
+      ],
+      "code": null,
+      "type": "TypeError"
+     }
+    ]
+   }
+  },
+  {
+   "name": "fuzz_snapshot_all_reasons_are_fixed_codes",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": "fuzz_snapshot_no_unknown_to_na",
+   "ok": true,
+   "detail": {
+    "actual": [],
+    "expected": []
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "accepted": 90,
+    "rejected": 309
+   }
+  }
+ ],
+ "matrix": {
+  "missing_axis": "contract_axis_invalid",
+  "extra_axis": "contract_axis_invalid",
+  "axis_missing_field": "contract_axis_invalid",
+  "target_extra_key": "contract_target_invalid",
+  "bad_basis": "contract_basis_invalid",
+  "no_provable_basis_with_required": "contract_basis_invalid",
+  "not_applicable_with_uncertain_reason": "contract_unknown_downgraded",
+  "not_applicable_wrong_criterion": "contract_axis_invalid",
+  "cross_user_not_required": "contract_axis_invalid",
+  "shared_background_with_targets": "contract_axis_invalid",
+  "duplicate_target_ref": "contract_axis_invalid",
+  "bad_ref_collection": "contract_axis_invalid",
+  "projection_missing_key": "contract_projection_invalid",
+  "projection_rule_version": "contract_projection_invalid",
+  "projection_bad_provenance_row": "contract_projection_invalid",
+  "projection_forbidden_token": "contract_projection_invalid",
+  "runs_wrong_scenario": "contract_schema_invalid",
+  "case_count_wrong": "contract_schema_invalid",
+  "duplicate_case_id": "contract_schema_invalid",
+  "unknown_top_level_key": "contract_schema_invalid",
+  "binding_missing": "contract_binding_mismatch",
+  "binding_dataset_version": "contract_binding_mismatch",
+  "run_plan_sha_invalid": "contract_schema_invalid",
+  "missing_run_id": "snapshot_field_missing:binding.run_id",
+  "unknown_binding_key": "snapshot_unknown_field:binding.extra",
+  "run_id_type": "snapshot_field_invalid:binding.run_id",
+  "run_mismatch": "snapshot_run_binding_mismatch",
+  "scenario_mismatch": "snapshot_scenario_binding_mismatch",
+  "turn_mismatch": "snapshot_turn_binding_mismatch",
+  "source_evidence_incomplete": "snapshot_source_evidence_incomplete",
+  "source_evidence_replayed": "snapshot_source_evidence_replayed",
+  "public_boundary_false": "snapshot_field_invalid:public_boundary.runtime_ids_only_in_declared_blocks",
+  "content_sha_bad": "snapshot_field_invalid:content_sha256",
+  "contract_version_bad": "snapshot_contract_version_invalid",
+  "schema_version_bad": "snapshot_schema_version_invalid",
+  "fixture_kind_bad": "snapshot_fixture_kind_invalid",
+  "fixture_binding_mismatch": "snapshot_fixture_binding_mismatch",
+  "nonrecord_with_record_code": "snapshot_field_invalid:record_identities[0].record_code",
+  "record_level_with_page_locator": "snapshot_field_invalid:record_identities[0].record_level",
+  "summary_mismatch": "snapshot_summary_mismatch",
+  "summary_total_mismatch": "snapshot_summary_mismatch",
+  "empty_use_missing_layer": "snapshot_field_missing:empty_use_scope_input.use_layers.model_evidence",
+  "empty_use_unknown_layer": "snapshot_unknown_field:empty_use_scope_input.use_layers.extra",
+  "empty_use_count_refs_mismatch": "snapshot_field_invalid:empty_use_scope_input.use_layers.model_evidence.count",
+  "empty_use_code_inconsistent": "snapshot_field_invalid:empty_use_scope_input.code",
+  "temporal_observed_without_as_of": "snapshot_field_invalid:effective_temporal.as_of",
+  "baseline_used_as_effective": "snapshot_field_invalid:effective_temporal.baseline_used_as_effective",
+  "version_mismatch_equal_numbers": "snapshot_field_invalid:effective_temporal.document_versions[0].code",
+  "version_observed_without_runtime": "snapshot_field_invalid:effective_temporal.document_versions[0].runtime_version_number",
+  "candidate_count_refs_mismatch": "snapshot_field_invalid:empty_use_scope_input.candidate_layers.retrieval_observed.count",
+  "request_owner_not_mapping": "snapshot_field_invalid:request_owner",
+  "identity_unresolved": {
+   "state": "unknown",
+   "reason": "identity_unresolved"
+  },
+  "entity_absent": {
+   "state": "unknown",
+   "reason": "identity_unresolved"
+  },
+  "targets_missing": {
+   "state": "unknown",
+   "reason": "targets_missing"
+  },
+  "stale_no_positive_refs": {
+   "state": "unknown",
+   "reason": "stale_no_positive_refs"
+  },
+  "stale_without_frozen_refs": {
+   "state": "unknown",
+   "reason": "stale_source_unresolved"
+  },
+  "stale_ref_index_out_of_range": {
+   "state": "unknown",
+   "reason": "stale_source_unresolved"
+  },
+  "stale_ref_without_record_code": {
+   "state": "unknown",
+   "reason": "stale_positive_ref_not_record_level"
+  },
+  "stale_records_not_matching": {
+   "state": "unknown",
+   "reason": "stale_source_unresolved"
+  },
+  "stale_date_conflict": {
+   "state": "violation",
+   "reason": "date_intent_conflict"
+  },
+  "stale_version_mismatch": {
+   "state": "unknown",
+   "reason": "version_mismatch"
+  },
+  "stale_as_of_missing": {
+   "state": "unknown",
+   "reason": "as_of_missing"
+  },
+  "stale_lifecycle_gap": {
+   "state": "unknown",
+   "reason": "stale_lifecycle_evidence_missing"
+  },
+  "multi_target_lt2": {
+   "state": "unknown",
+   "reason": "multi_target_lt2"
+  },
+  "annotation_unknown": {
+   "state": "unknown",
+   "reason": "annotation_unknown"
+  },
+  "non_str_case_id": {
+   "raised": true,
+   "type": "AdapterError",
+   "code": "adapter_invariant_violation",
+   "value": null
+  }
+ },
+ "fuzz": {
+  "contract": {
+   "runs": 400,
+   "raised_unfixed": 9,
+   "accepted": 74,
+   "rejected": 317,
+   "bad_reason": [],
+   "na_violations": [],
+   "reason_heads": {
+    "contract_binding_mismatch": 70,
+    "contract_axis_invalid": 112,
+    "contract_target_invalid": 22,
+    "contract_schema_invalid": 58,
+    "stale_lifecycle_evidence_missing": 78,
+    "cross_entity_targets_match_ok": 74,
+    "contract_projection_invalid": 32,
+    "contract_basis_invalid": 16,
+    "targets_missing": 2,
+    "identity_unresolved": 2,
+    "snapshot_run_binding_mismatch": 1,
+    "contract_version_unsupported": 2
+   },
+   "accepted_examples": [
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "normalization_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_schema"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "has_matchable_target"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "targets",
+      0,
+      "filters"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "has_matchable_target"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "ingest_source_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "ingest_source_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_report"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_aggregate"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "matchable_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "table_document_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_schema"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "matchable_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "variant_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "still_empty"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "targets",
+      0,
+      "filters",
+      "item"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "only_unmatchable_targets"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "normalization_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "ingest_source_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "only_unmatchable_targets"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "fixtures_manifest_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "fixtures_manifest_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_form_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "variant_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "still_empty"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_report"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_schema"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "has_matchable_target"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "safety",
+      "target_refs"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "matchable_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "shared_background_corpus"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "table_document_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "has_matchable_target"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "normalization_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_schema"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "record_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "record_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "only_unmatchable_targets"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_report"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "target_provenance"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_aggregate"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "only_unmatchable_targets"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "has_matchable_target"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "fixtures_manifest_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "product_entity_types",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_aggregate"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "variant_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "corpus_bindings",
+      "variant_count"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "coverage",
+      "only_unmatchable_targets"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "normalization_function"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "identity_form_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "targets",
+      0,
+      "filters",
+      "store"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "targets",
+      0,
+      "filters",
+      "store"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "entity_rule",
+      "matchable_entity_types"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_schema"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "projection",
+      "lineage",
+      "v1_ciphertext"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    }
+   ],
+   "raised_examples": [
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_user",
+      "reason"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "safety",
+      "criterion"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "stale_source",
+      "reason"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "criterion"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "stale_source",
+      "criterion"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "cross_entity",
+      "reason"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "axes",
+      "safety",
+      "criterion"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "basis",
+      "stale_source"
+     ],
+     "code": null,
+     "type": "TypeError"
+    },
+    {
+     "path": [
+      "cases",
+      0,
+      "basis",
+      "stale_source"
+     ],
+     "code": null,
+     "type": "TypeError"
+    }
+   ]
+  },
+  "snapshot": {
+   "runs": 400,
+   "raised_unfixed": 1,
+   "accepted": 90,
+   "rejected": 309,
+   "bad_reason": [],
+   "na_violations": [],
+   "reason_heads": {
+    "snapshot_field_missing": 138,
+    "snapshot_field_invalid": 137,
+    "stale_lifecycle_evidence_missing": 90,
+    "cross_entity_targets_match_ok": 90,
+    "snapshot_enum_invalid": 19,
+    "snapshot_contract_version_invalid": 2,
+    "snapshot_summary_mismatch": 8,
+    "snapshot_schema_version_invalid": 1,
+    "identity_unresolved": 1,
+    "snapshot_fixture_kind_invalid": 1,
+    "stale_source_unresolved": 1,
+    "snapshot_unknown_field": 1,
+    "snapshot_scenario_binding_mismatch": 1
+   },
+   "accepted_examples": [
+    {
+     "path": [
+      "effective_temporal",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "conversation_id"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "http_status"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "version_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts",
+      "documents"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "capture_revision"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "effective_temporal",
+      "document_versions",
+      0,
+      "doc_code"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "effective_temporal",
+      "include_future"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "input_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "candidate_layers",
+      "projection_query_state_candidates",
+      "observed"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "effective_temporal",
+      "document_versions",
+      0,
+      "product_version_number"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "sheet"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "input_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "effective_temporal",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "response_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "post_revision"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "user_ref"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "include_future"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "use_layers",
+      "answer_result_sources",
+      "refs"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unresolved_unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "mode"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "conversation_ref"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "unit_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unresolved_unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "input_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "auth_material_collected"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_keys",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "input_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "declared"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "unit_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "path"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_keys",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "version_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "availability"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "record_code"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "document_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "document_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_keys",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "path"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "capture_revision"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unresolved_unit_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "response_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "effective_temporal",
+      "include_future"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "owner_source"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "path"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "unit_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts",
+      "documents"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "timed_out"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "use_layers",
+      "direct_rag_citations",
+      "refs"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "http_status"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "conversation_id"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "clarification"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "binding",
+      "plan_sha256"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_keys",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "document_ids"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "user_ref"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "conversation_id"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unit_ids",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "source_evidence",
+      "schema_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "counts",
+      "documents"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "business_version"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "mode"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "plan",
+      "as_of"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "post_revision"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "empty_use_scope_input",
+      "reason"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "auth_material_collected"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "unit_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "unit_ids",
+      0
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "user_ref"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "runtime_identity",
+      "declared"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "request_owner",
+      "owner_source"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "turn_ref",
+      "conversation_id"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "record_identities",
+      0,
+      "unit_kind"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    },
+    {
+     "path": [
+      "public_boundary",
+      "public_summary_keys"
+     ],
+     "states": {
+      "cross_entity": "passed",
+      "stale_source": "unknown"
+     }
+    }
+   ],
+   "raised_examples": [
+    {
+     "path": [
+      "effective_temporal",
+      "document_versions",
+      0,
+      "code"
+     ],
+     "code": null,
+     "type": "TypeError"
+    }
+   ]
+  }
+ },
+ "dict_get_calls": [
+  {
+   "line": 613,
+   "text": "projection[\"target_provenance\"].get(key, [])"
+  }
+ ],
+ "non_scalar_enum_sites": {
+  "contract": [
+   {
+    "path": "cases.0.axes.cross_entity.criterion",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "cases.0.axes.cross_entity.reason",
+    "value_type": "dict",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "cases.0.basis.cross_entity",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   }
+  ],
+  "snapshot": [
+   {
+    "path": "effective_temporal.availability",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "effective_temporal.as_of_source",
+    "value_type": "dict",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "effective_temporal.observed_from",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "effective_temporal.code",
+    "value_type": "dict",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "effective_temporal.document_versions.0.code",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "empty_use_scope_input.code",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "empty_use_scope_input.turn_status",
+    "value_type": "dict",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   },
+   {
+    "path": "source_evidence.completeness_status",
+    "value_type": "list",
+    "raised": true,
+    "type": "TypeError",
+    "code": null
+   }
+  ]
+ }
+}

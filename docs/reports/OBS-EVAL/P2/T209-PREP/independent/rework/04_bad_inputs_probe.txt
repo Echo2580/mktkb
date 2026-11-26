@@ -1,0 +1,26 @@
+﻿[PASS] G0 基线样例可用
+[PASS] B01 缺 candidate_manifest.json 被拒绝 :: rejected=候选归档缺少 candidate_manifest.json: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-bad-92992iyr\tampered\missing-manifest
+[PASS] B02 截断 JSON 被拒绝 :: rejected=candidate_manifest.json 不是合法 UTF-8 JSON: Expecting value: line 1 column 20 (char 19)
+[PASS] B03 manifest 额外字段 signature 被拒绝 :: rejected=candidate_manifest 字段集合不符（缺 []；多 ['signature']）；候选归档字段结构固定，不接受额外发布字段
+[PASS] B04a state 为整数被拒绝 :: rejected=candidate_manifest.state 必须是 ['candidate', 'blocked'] 之一，收到 1
+[PASS] B04b payload.files 为数组被拒绝 :: rejected=candidate_manifest 不合法: candidate_manifest.payload.files 必须是 JSON 对象，收到 list
+[PASS] B04c identity 为字符串被拒绝 :: rejected=candidate_manifest 不合法: candidate_manifest.identity 必须是 JSON 对象，收到 str
+[PASS] B04d report 为数组被拒绝 :: rejected=candidate_manifest.report 被拒绝: candidate_manifest.report 必须是 JSON 对象，收到 list
+[PASS] B05 candidate manifest payload 路径逃逸被拒绝 :: rejected=candidate_manifest.payload.files 路径非法（逃逸/空段）: 'payload/../evil.json'
+[PASS] B06 manifest run_id 与 payload 不匹配被拒绝 :: rejected=candidate_manifest.run_id 与内层归档不一致
+[PASS] B07 manifest suite 与 payload 不匹配被拒绝 :: rejected=candidate_manifest.suite 与内层归档不一致
+[PASS] B08 identity 被改（baseline_id 不可重算）被拒绝 :: rejected=candidate_manifest.identity 不能重算出 baseline_id（身份被篡改）
+[PASS] B09 payload 内 approval.json 被拒绝 :: rejected=候选归档 payload 未通过既有证据链校验: 归档文件集合不符（缺 []；多 ['approval.json']）
+[PASS] B10 payload 文件摘要互换被拒绝 :: rejected=候选归档 payload 文件 payload/run/cases.jsonl sha256 与清单不符（被改写）
+[PASS] B11 junction 归档根被拒绝 :: rejected=候选归档目录本身是符号链接/重解析点，拒绝: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-bad-92992iyr\tampered\junction-root-link
+[PASS] B12 payload 目录 junction 被拒绝 :: rejected=candidate_manifest.payload.dir 不是普通目录，拒绝: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-bad-92992iyr\tampered\junction-payload\payload
+[PASS] B13 非目录归档路径被拒绝 :: rejected=候选归档目录不存在: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-bad-92992iyr\not-a-dir.json
+[PASS] B14 已审批源归档被拒绝且无半成品 :: 候选归档源 baseline 已审批：candidate/blocked 只能归档未审批证据，不得把审批状态带入候选（拒绝冒充 release baseline）
+[PASS] B15 holdout 源归档被拒绝且无半成品 :: holdout suite 拒绝进入候选归档（不得导出逐题/标签）
+[PASS] B17 已存在目标被拒绝且原内容未动 :: 候选归档目标已存在，拒绝覆盖: C:\Users\dell1712\AppData\Local\Temp\t209p-indep-bad-92992iyr\candidates\occupied
+[PASS] B18 缺 artifact 被拒绝 :: rejected=候选归档文件集合不符（缺 ['payload/run/summary.json']；多 []）
+[PASS] B16 非 SplitReport 被拒绝 :: report 必须是 SplitReport，收到 dict
+
+checks=22 failed=0
+RESULT=PASS
+

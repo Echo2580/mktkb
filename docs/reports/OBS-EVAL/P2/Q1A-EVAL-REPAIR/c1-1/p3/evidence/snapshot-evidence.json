@@ -1,0 +1,125 @@
+{
+ "schema_version": "c1p3-snapshot-evidence/v0.1",
+ "contract_version": "p2-hard-evidence-capture-identity/v0.3",
+ "snapshot_schema_version": "p2-runtime-identity-snapshot/v0.1",
+ "field_spec_rows": 167,
+ "required_fields": 167,
+ "nullable_fields": 35,
+ "fail_closed_code_families": 49,
+ "public_summary_keys": 25,
+ "turns": [
+  {
+   "turn_index": 0,
+   "record_identity_rows": 4,
+   "record_level": 0,
+   "entity_matchable": 0,
+   "doc_codes": [
+    "D04"
+   ],
+   "record_codes_values": [],
+   "entity_codes": [
+    "entity_identity_absent"
+   ],
+   "temporal": {
+    "availability": "observed",
+    "as_of": "2026-03-15",
+    "as_of_source": "plan_observed",
+    "code": "effective_temporal_observed",
+    "document_versions": 4
+   },
+   "empty_use": {
+    "turn_status": "complete",
+    "code": "empty_use_input_nonempty",
+    "all_use_layers_observed": false,
+    "empty_set_candidate": false
+   },
+   "snapshot_sha256": "b8ade5d768875bfec2bdd885d0d7691b5563454f7a0d0e5332fefcc86e5ed86c",
+   "ciphertext_sha256": "2d706ecf9946b4dd686c01b9ebb28a5a5729f0d1ce52590d020e020d10eb111b",
+   "ciphertext_bytes": 10124,
+   "public_summary_keys": 25
+  },
+  {
+   "turn_index": 1,
+   "record_identity_rows": 2,
+   "record_level": 2,
+   "entity_matchable": 2,
+   "doc_codes": [
+    "D01"
+   ],
+   "record_codes_values": [
+    "P01",
+    "P02"
+   ],
+   "entity_codes": [
+    "entity_identity_matchable_nonrole_filters"
+   ],
+   "temporal": {
+    "availability": "observed",
+    "as_of": "2026-03-15",
+    "as_of_source": "plan_observed",
+    "code": "effective_temporal_observed",
+    "document_versions": 2
+   },
+   "empty_use": {
+    "turn_status": "complete",
+    "code": "empty_use_input_nonempty",
+    "all_use_layers_observed": false,
+    "empty_set_candidate": false
+   },
+   "snapshot_sha256": "914e563166c9bb8997aa9b63fb3fd3bbb8717b4ede4a659d6a357e6c3a3cb121",
+   "ciphertext_sha256": "0fbcd7aebae502d89311fe41c3c812411d396a0fb01ead469bc38f895f7d61fa",
+   "ciphertext_bytes": 8268,
+   "public_summary_keys": 25
+  }
+ ],
+ "negative_cases": {
+  "snapshot_bindings_incomplete": "snapshot_bindings_incomplete",
+  "snapshot_content_digest_mismatch": "snapshot_content_digest_mismatch:content_sha256",
+  "snapshot_contract_version_invalid": "snapshot_contract_version_invalid:contract_version",
+  "snapshot_credential_material_forbidden": "snapshot_credential_material_forbidden:request_owner.auth_material_collected",
+  "snapshot_decrypt_failed": "snapshot_decrypt_failed",
+  "snapshot_doc_code_index_invalid": "snapshot_doc_code_index_invalid",
+  "snapshot_document_version_inconsistent": "snapshot_document_version_inconsistent:effective_temporal.document_versions[0].runtime_version_number",
+  "snapshot_effective_temporal_inconsistent": "snapshot_effective_temporal_inconsistent:effective_temporal.baseline_used_as_effective",
+  "snapshot_empty_use_input_inconsistent": "snapshot_empty_use_input_inconsistent:empty_use_scope_input.empty_set_candidate",
+  "snapshot_encryption_required": "snapshot_encryption_required",
+  "snapshot_entity_code_inconsistent": "snapshot_entity_code_inconsistent:record_identities[0].entity_code",
+  "snapshot_entity_matchability_inconsistent": "snapshot_entity_matchability_inconsistent:record_identities[0].entity_matchable",
+  "snapshot_enum_invalid": "snapshot_enum_invalid:fixture_kind",
+  "snapshot_envelope_invalid": "snapshot_envelope_invalid",
+  "snapshot_evidence_not_supported": "snapshot_evidence_not_supported",
+  "snapshot_expected_bindings_invalid": "snapshot_expected_bindings_invalid",
+  "snapshot_fixture_binding_mismatch": "snapshot_fixture_binding_mismatch",
+  "snapshot_fixture_kind_invalid": "snapshot_fixture_kind_invalid",
+  "snapshot_forbidden_field": "snapshot_forbidden_field:request_owner.session_token",
+  "snapshot_json_invalid": "snapshot_json_invalid:json",
+  "snapshot_list_order_invalid": "snapshot_list_order_invalid:runtime_identity.unit_ids",
+  "snapshot_manifest_binding_mismatch": "snapshot_manifest_binding_mismatch:bindings_sha256",
+  "snapshot_manifest_count_mismatch": "snapshot_manifest_count_mismatch:snapshot_count",
+  "snapshot_missing_field": "snapshot_missing_field:request_owner.owner_source",
+  "snapshot_null_not_allowed": "snapshot_null_not_allowed:binding.run_id",
+  "snapshot_owner_inconsistent": "snapshot_owner_inconsistent:request_owner.user_ref",
+  "snapshot_plaintext_secret_rejected": "snapshot_plaintext_secret_rejected:binding.run_id",
+  "snapshot_public_boundary_violation": "snapshot_public_boundary_violation:public_boundary.public_summary_keys",
+  "snapshot_read_failed": "snapshot_read_failed",
+  "snapshot_record_identity_inconsistent": "snapshot_record_identity_inconsistent:record_identities[0].record_code",
+  "snapshot_record_index_conflict": "snapshot_record_index_conflict:D01|物品位置|8",
+  "snapshot_record_index_invalid": "snapshot_record_index_invalid:sheet",
+  "snapshot_run_binding_mismatch": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+  "snapshot_run_binding_mismatch_write": "snapshot_run_binding_mismatch:binding.bindings_sha256",
+  "snapshot_runtime_id_not_declared": "snapshot_runtime_id_not_declared:public_boundary.document_id",
+  "snapshot_runtime_identity_inconsistent": "snapshot_runtime_identity_inconsistent:runtime_identity.unit_ids",
+  "snapshot_schema_version_invalid": "snapshot_schema_version_invalid:schema_version",
+  "snapshot_size_invalid": "snapshot_size_invalid:ciphertext",
+  "snapshot_source_evidence_invalid": "snapshot_source_evidence_invalid",
+  "snapshot_source_evidence_mismatch": "snapshot_source_evidence_mismatch:source_evidence.sha256",
+  "snapshot_source_evidence_unsupported": "snapshot_source_evidence_unsupported:source_evidence.schema_version",
+  "snapshot_summary_mismatch": "snapshot_summary_mismatch:record_identity_summary.total",
+  "snapshot_turn_binding_mismatch": "snapshot_turn_binding_mismatch:turn_ref.conversation_id",
+  "snapshot_type_invalid": "snapshot_type_invalid:turn_ref.turn_index",
+  "snapshot_unknown_field": "snapshot_unknown_field:record_identities[0].raw_row",
+  "snapshot_write_failed": "snapshot_write_failed:writer_not_active"
+ },
+ "roundtrip_leaf_count_total": 444,
+ "adapter_outbound_attempts": 0
+}

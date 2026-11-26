@@ -1,0 +1,212 @@
+{
+  "A_insufficient": [
+    {
+      "question": "城东店和城西店的价签卡纸那个位置，按店家资料确认一下",
+      "mode": "document",
+      "reason": "DOCUMENT_NOT_FOUND",
+      "clarification_present": true,
+      "enumerate": false,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "items": [
+        "价签卡纸"
+      ],
+      "rag_owns_turn": false
+    },
+    {
+      "question": "城东店和城西店的价签卡纸那个位置在D01和D02里分别是多少",
+      "mode": "record",
+      "reason": "DOCUMENT_AMBIGUOUS",
+      "clarification_present": true,
+      "enumerate": true,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "items": [
+        "价签卡纸"
+      ],
+      "rag_owns_turn": false
+    },
+    {
+      "question": "城东店和城西店的价签卡纸那个位置和门店联系电话是多少，按店家资料一起给我",
+      "mode": "document",
+      "reason": "DOCUMENT_NOT_FOUND",
+      "clarification_present": true,
+      "enumerate": false,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "items": [
+        "价签卡纸"
+      ],
+      "rag_owns_turn": false
+    }
+  ],
+  "A_ambiguous": [
+    {
+      "question": "城东店和城西店的价签卡纸和宣传海报分别放在哪里",
+      "mode": "record",
+      "reason": "ITEM_AMBIGUOUS",
+      "clarification_present": true,
+      "enumerate": true,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "items": [],
+      "rag_owns_turn": false
+    },
+    {
+      "question": "城东店和城西店的这两个分别放在哪里",
+      "mode": "record",
+      "reason": "MULTIPLE_ENTITIES",
+      "clarification_present": true,
+      "enumerate": true,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店",
+        "城西店"
+      ],
+      "items": [],
+      "rag_owns_turn": false
+    },
+    {
+      "question": "城东店和城南店的这两个分别放在哪里",
+      "mode": "record",
+      "reason": "MULTIPLE_ENTITIES",
+      "clarification_present": true,
+      "enumerate": true,
+      "filters": {},
+      "field_role": "location",
+      "field_roles": [],
+      "stores": [
+        "城东店"
+      ],
+      "items": [],
+      "rag_owns_turn": false
+    },
+    {
+      "question": "城东店和城南店的价签卡纸那个位置在哪里",
+      "mode": "record",
+      "reason": null,
+      "clarification_present": false,
+      "enumerate": true,
+      "filters": {
+        "store": "城东店",
+        "item": "价签卡纸"
+      },
+      "field_role": "location",
+      "field_roles": [
+        "location"
+      ],
+      "stores": [
+        "城东店"
+      ],
+      "items": [
+        "价签卡纸"
+      ],
+      "rag_owns_turn": true
+    }
+  ],
+  "B_answerable": [
+    {
+      "question": "城东店的展架那个陈列规矩是怎么定的",
+      "mode": "record",
+      "reason": "ANAPHORA_NEW_CONTENT",
+      "clarification_present": false,
+      "enumerate": true,
+      "filters": {
+        "store": "城东店",
+        "item": "展架"
+      },
+      "field_role": null,
+      "field_roles": [],
+      "stores": [
+        "城东店"
+      ],
+      "items": [
+        "展架"
+      ],
+      "rag_owns_turn": true
+    },
+    {
+      "question": "城东店的宣传海报那个上架节奏如何安排",
+      "mode": "record",
+      "reason": "ANAPHORA_NEW_CONTENT",
+      "clarification_present": false,
+      "enumerate": true,
+      "filters": {
+        "store": "城东店",
+        "item": "宣传海报"
+      },
+      "field_role": null,
+      "field_roles": [],
+      "stores": [
+        "城东店"
+      ],
+      "items": [
+        "宣传海报"
+      ],
+      "rag_owns_turn": true
+    }
+  ],
+  "B_uncovered": [
+    {
+      "question": "城北店的展架那个陈列规矩是怎么定的",
+      "mode": "record",
+      "reason": "UNKNOWN_STORE",
+      "clarification_present": false,
+      "enumerate": false,
+      "filters": {
+        "store": "城北店"
+      },
+      "field_role": null,
+      "field_roles": [],
+      "stores": [],
+      "items": [
+        "展架"
+      ],
+      "rag_owns_turn": false
+    }
+  ],
+  "B_followup_collapse": [
+    {
+      "question": "城东店的展架那个打印材质呢",
+      "mode": "record",
+      "reason": "ANAPHORA_NEW_CONTENT",
+      "clarification_present": false,
+      "enumerate": true,
+      "filters": {
+        "store": "城东店",
+        "item": "展架"
+      },
+      "field_role": null,
+      "field_roles": [],
+      "stores": [
+        "城东店"
+      ],
+      "items": [
+        "展架"
+      ],
+      "rag_owns_turn": true
+    }
+  ]
+}

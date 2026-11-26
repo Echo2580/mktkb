@@ -1,0 +1,135 @@
+{
+ "schema_version": "p2h2v3-defect-repro/v0.1",
+ "phase": "product-defect-repro",
+ "defect_id": "EXCEL-HEADER-EMPTY-COLUMN",
+ "product_file_read_only": {
+  "path": "backend/src/mktkb/ingestion/parsers/excel.py",
+  "sha256": "83a9ade4dad3f54b676585ddca8bc1a89dec9d83cb213803499373698198486e",
+  "region": "112-130 _find_header_index（next_has_same_width 用表头行非空数作阈值）"
+ },
+ "minimal_shape": {
+  "sheet": "示例表",
+  "columns": [
+   "标识",
+   "门店",
+   "物品",
+   "失效日期",
+   "生效日期"
+  ],
+  "header_rows": 1,
+  "data_rows": 2,
+  "condition": "任一张表：某一列的**所有数据格**为空，且该列在表头行有值 ⇒ 表头行非空数 > 数据行占用数 ⇒ 数据行反超表头",
+  "data_is_synthetic": true,
+  "contains_question_or_answer_values": false
+ },
+ "result": {
+  "defective": {
+   "file": "defect.xlsx",
+   "sha256_of_generated": "3d90dd2632b9804848979db7de68202ed9d12c7cc557d832cb985231eaf9911c",
+   "parser_header_row": 2,
+   "ingested": true,
+   "units": 1,
+   "first_unit_fields_keys": [
+    "2026-01-01",
+    "X01",
+    "列4",
+    "示例物品一",
+    "示例门店甲"
+   ],
+   "first_unit_has_id_header": false,
+   "first_unit_effective_to": null,
+   "first_unit_effective_range": [
+    "none",
+    null,
+    null
+   ],
+   "first_unit_text": "X01: X02 | 示例门店甲: 示例门店乙 | 示例物品一: 示例物品二 | 2026-01-01: 2026-01-01",
+   "score_table": [
+    {
+     "row": 1,
+     "nonempty": 5,
+     "occupied": 5,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    },
+    {
+     "row": 2,
+     "nonempty": 4,
+     "occupied": 4,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 3,
+     "nonempty": 4,
+     "occupied": 4,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ]
+  },
+  "bypassed": {
+   "file": "bypassed.xlsx",
+   "sha256_of_generated": "c05671cd2bb147ca58adcad79bc995ef5c9afa21df7971d492f149031080ac72",
+   "parser_header_row": 1,
+   "ingested": true,
+   "units": 2,
+   "first_unit_fields_keys": [
+    "失效日期",
+    "标识",
+    "物品",
+    "生效日期",
+    "门店"
+   ],
+   "first_unit_has_id_header": true,
+   "first_unit_effective_to": "未声明",
+   "first_unit_effective_range": [
+    "range",
+    "2026-01-01",
+    null
+   ],
+   "first_unit_text": "标识: X01 | 门店: 示例门店甲 | 物品: 示例物品一 | 失效日期: 未声明 | 生效日期: 2026-01-01",
+   "score_table": [
+    {
+     "row": 1,
+     "nonempty": 5,
+     "occupied": 5,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 2,
+     "nonempty": 5,
+     "occupied": 5,
+     "all_strings": true,
+     "next_has_same_width": true,
+     "score": 6
+    },
+    {
+     "row": 3,
+     "nonempty": 5,
+     "occupied": 5,
+     "all_strings": true,
+     "next_has_same_width": false,
+     "score": 4
+    }
+   ]
+  }
+ },
+ "checks": {
+  "defect_reproduced_header_lost": true,
+  "defect_reproduced_no_id_header": true,
+  "defect_reproduced_no_effective_to": true,
+  "defect_reproduced_range_degraded": true,
+  "bypass_restores_header": true,
+  "bypass_restores_id_header": true,
+  "bypass_keeps_sentinel": true,
+  "bypass_keeps_range_semantics": true
+ },
+ "verdict": "REPRODUCED",
+ "note": "本脚本只读产品代码、只在临时目录造合成 xlsx；不改产品代码、不写任何题面/标签/答案值。"
+}

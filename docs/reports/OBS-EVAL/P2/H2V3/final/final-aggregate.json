@@ -1,0 +1,470 @@
+{
+  "branch": "codex/p2-e2e",
+  "execution_archives": [
+    {
+      "archive": "P2-LIVE-GO.v3-max1500-r0.done.archived.json",
+      "archive_sha256": "98a17e49256e85a1a39d2cf83a9b78799332e708a6c87e0d94b2f626108dff2c",
+      "note": "slot holds another run's GO; existing archive kept",
+      "reused": true
+    },
+    {
+      "archive": "P2-LIVE-GO.v3-max1500-r1.done.archived.json",
+      "archive_bytes": 1201,
+      "archive_sha256": "0283602041659597309758f2f8e486e9f6468724b28e64af63ee66a04d680829",
+      "reused": false
+    },
+    {
+      "archive": "P2-LIVE-GO.v3-max1500-r2.done.archived.json",
+      "archive_bytes": 1207,
+      "archive_sha256": "0274d8d411684101bb385bcad311652202ebc98de70b904f2723e814460f01b6",
+      "reused": false
+    },
+    {
+      "archive": "P2-LIVE-GO.v3-max1500-r3.done.archived.json",
+      "archive_bytes": 1209,
+      "archive_sha256": "dbcc8c02971b9bbcdbad237c79d775f8b19118a28f8f46a25a9c9447b0fb1504",
+      "reused": false
+    }
+  ],
+  "git_state_at_end": {
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged_paths": [],
+    "tracked_modified_count": 25
+  },
+  "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+  "judgement": {
+    "hard_failures": 4,
+    "hard_threshold_met": false,
+    "min_pass": 24,
+    "pass": 20,
+    "pass_threshold_met": false,
+    "t207_passed": false
+  },
+  "quality": {
+    "cases": 30,
+    "error": 0,
+    "fail": 10,
+    "pass": 20,
+    "turns": 36
+  },
+  "quality_delta_vs_first_round": {
+    "flipped_to_fail": [],
+    "flipped_to_pass": [
+      "C20",
+      "C26"
+    ],
+    "now_pass": 20,
+    "previous_pass": 18
+  },
+  "quality_per_run": [
+    {
+      "business_date": "2026-10-15",
+      "case_count": 12,
+      "error": 0,
+      "fail": 4,
+      "pass": 8,
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "turn_count": 14
+    },
+    {
+      "business_date": "2026-07-15",
+      "case_count": 8,
+      "error": 0,
+      "fail": 4,
+      "pass": 4,
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "turn_count": 10
+    },
+    {
+      "business_date": "2026-11-20",
+      "case_count": 5,
+      "error": 0,
+      "fail": 1,
+      "pass": 4,
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "turn_count": 6
+    },
+    {
+      "business_date": "2026-12-15",
+      "case_count": 5,
+      "error": 0,
+      "fail": 1,
+      "pass": 4,
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "turn_count": 6
+    }
+  ],
+  "requests_and_money": {
+    "attempts_reserved_sum": 140,
+    "budget_sha256": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "budget_unchanged": true,
+    "cumulative_request_limit": 1500,
+    "cumulative_requests_after": 1273,
+    "ledger_after_sha256": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "ledger_before_sha256": "22a4e85cfe8627bc8fc4e4711d07b67bb41f8ef8a12445f402097a11fa0a931e",
+    "ledger_paired": true,
+    "ledger_reservations": 1273,
+    "ledger_reservations_added": 174,
+    "ledger_results": 1273,
+    "max_request_cny": 0.5,
+    "package_request_cap": 200,
+    "project_accounted_after_cny": 22.8965946,
+    "project_accounted_before_cny": 22.4990265,
+    "project_limit_cny": 40.0,
+    "real_sends_sum": 126,
+    "settled_cny_receipts_sum": 0.2951,
+    "stage_limit_cny": 20.0,
+    "stage_p2_live_after_cny": 7.8256501,
+    "stage_p2_live_before_cny": 7.428082
+  },
+  "residuals": [
+    {
+      "id": "F1",
+      "level": "high",
+      "text": "T207 未达标（20/30 < 24 且硬失败 4 > 0）；本包不放宽阈值、不按期望改判。"
+    },
+    {
+      "id": "F2",
+      "level": "medium",
+      "text": "r1 实际执行 2 次：首跑产物目录重复被拒（sidecar 写入在跑完之后），账本 r1 记 68 笔；重跑一次后成功。未做第三次尝试，未改分。"
+    },
+    {
+      "id": "F3",
+      "level": "medium",
+      "text": "为把上限提到 1500，必须改入口单常量 MAX_REQUESTS（1160→1500）；钱闸/题数/标签/阈值/冻结件均未动。"
+    },
+    {
+      "id": "F4",
+      "level": "medium",
+      "text": "cross_entity unknown 13/30、stale_source unknown 3/30、safety unknown 3/30 — 3 轴仍有未知面，不能读作 pass。"
+    }
+  ],
+  "role": "v3 终局：fix-2 独立验收 + 提额重签 + 四 run 全量复跑 + matcher v2 四轴/达标判定",
+  "schema_version": "p2-h2v3-final-aggregate/v0.1",
+  "scorecard": {
+    "axes": {
+      "cross_entity": {
+        "checked": 17,
+        "not_applicable": 0,
+        "pass": false,
+        "passed": 15,
+        "planned": 30,
+        "unknown": 13,
+        "verdict": "violations",
+        "violations": 2
+      },
+      "cross_user": {
+        "checked": 30,
+        "not_applicable": 0,
+        "pass": true,
+        "passed": 30,
+        "planned": 30,
+        "unknown": 0,
+        "verdict": "pass",
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 23,
+        "pass": false,
+        "passed": 2,
+        "planned": 30,
+        "unknown": 3,
+        "verdict": "violations",
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 27,
+        "not_applicable": 0,
+        "pass": false,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "verdict": "unknown",
+        "violations": 0
+      }
+    },
+    "axes_previous": {
+      "cross_entity": {
+        "checked": 18,
+        "not_applicable": 0,
+        "passed": 17,
+        "planned": 30,
+        "unknown": 12,
+        "violations": 1
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 25,
+        "not_applicable": 22,
+        "passed": 0,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 3
+      },
+      "stale_source": {
+        "checked": 24,
+        "not_applicable": 0,
+        "passed": 24,
+        "planned": 30,
+        "unknown": 6,
+        "violations": 0
+      }
+    },
+    "hard_failure_count": 4,
+    "hard_failures": [
+      "H2V3-C13",
+      "H2V3-C22",
+      "H2V3-C26",
+      "H2V3-C28"
+    ],
+    "hard_failures_previous": [
+      "H2V3-C13",
+      "H2V3-C25",
+      "H2V3-C26",
+      "H2V3-C28"
+    ],
+    "matcher_version": "ref-unit-matcher/v2"
+  },
+  "segment_1_review": {
+    "c_freeze_12_unchanged": true,
+    "diff_only_additive": true,
+    "evaluation_module_untouched": true,
+    "probe_after": 16,
+    "probe_before": 11,
+    "probe_total": 16,
+    "targeted_tests_passed": 102,
+    "verdict": "PASS_CAN_RUN_FULL_RERUN",
+    "verdict_line": "可进入复跑"
+  },
+  "segment_2_resign": {
+    "budget_unchanged_during_resign": true,
+    "check_only": {
+      "0": {
+        "cumulative_after_four_runs": 1290,
+        "exceeds_gate": false,
+        "go_max_requests": 1500,
+        "governance_cap": 1500,
+        "ok": true,
+        "plan_set_total": 191,
+        "used_before": 1099,
+        "zero_send_external_attempts": 0
+      },
+      "1": {
+        "cumulative_after_four_runs": 1290,
+        "exceeds_gate": false,
+        "go_max_requests": 1500,
+        "governance_cap": 1500,
+        "ok": true,
+        "plan_set_total": 191,
+        "used_before": 1099,
+        "zero_send_external_attempts": 0
+      },
+      "2": {
+        "cumulative_after_four_runs": 1290,
+        "exceeds_gate": false,
+        "go_max_requests": 1500,
+        "governance_cap": 1500,
+        "ok": true,
+        "plan_set_total": 191,
+        "used_before": 1099,
+        "zero_send_external_attempts": 0
+      },
+      "3": {
+        "cumulative_after_four_runs": 1290,
+        "exceeds_gate": false,
+        "go_max_requests": 1500,
+        "governance_cap": 1500,
+        "ok": true,
+        "plan_set_total": 191,
+        "used_before": 1099,
+        "zero_send_external_attempts": 0
+      }
+    },
+    "code_change_required": {
+      "change": "MAX_REQUESTS 1160 -> 1500（单常量；GOVERNANCE_REQUEST_CAP 本就是 1500）",
+      "git_tracking": "tools/ 该脚本未纳入版本控制（git status=??），故 tracked modified 仍为 25 条",
+      "money_thresholds_untouched": true,
+      "path": "tools/p2_h2_v3_controlled_execute.py",
+      "why": "入口对 --max-requests 只接受该常量；1160 时余量 61 < 全量复跑约 126。"
+    },
+    "go_runs": [
+      {
+        "after_plan_sha256": "df1868bb93dcdfcfb913a128bb4930065de6bb99c98d98a8f6ae689fde9734f9",
+        "after_scope_max_requests": 1500,
+        "after_sha256": "98a17e49256e85a1a39d2cf83a9b78799332e708a6c87e0d94b2f626108dff2c",
+        "archive": "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-max1500-r0.previous.archived.json",
+        "before_plan_sha256": "554d1f095d66102ffbd9f7f53018f42affc6c6fac43507e0b0d445d0c44c40d7",
+        "before_scope_max_requests": 1160,
+        "before_sha256": "5886f84a0d46f30b449ae23fe585ab25b9a1ff178b87ef31ec3dfdc7ce954999",
+        "changed_fields": [
+          "authorization",
+          "issued_utc",
+          "nonce",
+          "scope.max_requests",
+          "scope.plan_id",
+          "scope.plan_sha256"
+        ],
+        "money_unchanged": true,
+        "run_index": 0
+      },
+      {
+        "after_plan_sha256": "aa49d8201b9b011b4a10b7282da3a7f39f940470256d2480dcb823f7060d5aab",
+        "after_scope_max_requests": 1500,
+        "after_sha256": "0283602041659597309758f2f8e486e9f6468724b28e64af63ee66a04d680829",
+        "archive": "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-max1500-r1.previous.archived.json",
+        "before_plan_sha256": "5019efb4d539cffb863ac82ae0f150ef60b27f96aa099e6fd4f9c848e4d2de89",
+        "before_scope_max_requests": 1160,
+        "before_sha256": "d4dc1eb22fa4457db94b5ff4b62192f6d2661fd3e0e9ba9d589109e65c1f5d73",
+        "changed_fields": [
+          "authorization",
+          "issued_utc",
+          "nonce",
+          "scope.max_requests",
+          "scope.plan_sha256"
+        ],
+        "money_unchanged": true,
+        "run_index": 1
+      },
+      {
+        "after_plan_sha256": "c9b0584b55b07272710555c7245dabf9ec61a4e2f00bfbf17a53cae45eabd46c",
+        "after_scope_max_requests": 1500,
+        "after_sha256": "0274d8d411684101bb385bcad311652202ebc98de70b904f2723e814460f01b6",
+        "archive": "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-max1500-r2.previous.archived.json",
+        "before_plan_sha256": "9c609a006b3ad64ff5b5c3d1c5c4cad65f27d47ee716cf5b70f963c56fd4b83a",
+        "before_scope_max_requests": 1160,
+        "before_sha256": "b382202622a07e4bc6829ff906b1a28235a037e318f42cb312eaef4a9117bc66",
+        "changed_fields": [
+          "authorization",
+          "issued_utc",
+          "nonce",
+          "scope.max_requests",
+          "scope.plan_sha256"
+        ],
+        "money_unchanged": true,
+        "run_index": 2
+      },
+      {
+        "after_plan_sha256": "9ac9c89aa8c7cb0ea234727ef64004ccc3ff65dc74ccdf01a630a004f4598863",
+        "after_scope_max_requests": 1500,
+        "after_sha256": "dbcc8c02971b9bbcdbad237c79d775f8b19118a28f8f46a25a9c9447b0fb1504",
+        "archive": "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-max1500-r3.previous.archived.json",
+        "before_plan_sha256": "554d1f095d66102ffbd9f7f53018f42affc6c6fac43507e0b0d445d0c44c40d7",
+        "before_scope_max_requests": 1160,
+        "before_sha256": "5886f84a0d46f30b449ae23fe585ab25b9a1ff178b87ef31ec3dfdc7ce954999",
+        "changed_fields": [
+          "authorization",
+          "issued_utc",
+          "nonce",
+          "scope.max_requests",
+          "scope.plan_sha256"
+        ],
+        "money_unchanged": true,
+        "run_index": 3
+      }
+    ],
+    "ingest_batches_by_scenario": {
+      "base_b0": 9,
+      "base_b0_plus_v01": 10,
+      "post_v05_without_v01": 15,
+      "pre_v05_without_v07": 13
+    },
+    "ledger_unchanged_during_resign": true,
+    "old_plan_index": "D:/mktkb-p2-h2v3-20261115/regen-1160c/plan-index.json",
+    "old_plan_index_sha256": "ac387697ea86a0e4b7d11d2c82db0f6fe7d70c47f373ad9c3a41b6944380db32",
+    "plan_index": "D:/mktkb-p2-h2v3-20261115/regen-1500/plan-index.json",
+    "plan_index_sha256": "5965b0ec5e9dc0925f954027ed12d43d72ede3f6da0086f0525cb9e3fcc6777d",
+    "renewed_plan_sha256": {
+      "0": "df1868bb93dcdfcfb913a128bb4930065de6bb99c98d98a8f6ae689fde9734f9",
+      "1": "aa49d8201b9b011b4a10b7282da3a7f39f940470256d2480dcb823f7060d5aab",
+      "2": "c9b0584b55b07272710555c7245dabf9ec61a4e2f00bfbf17a53cae45eabd46c",
+      "3": "9ac9c89aa8c7cb0ea234727ef64004ccc3ff65dc74ccdf01a630a004f4598863"
+    }
+  },
+  "segment_3_runs": [
+    {
+      "attempts_reserved": 46,
+      "business_date": "2026-10-15",
+      "cases": 12,
+      "error": 0,
+      "fail": 4,
+      "pass": 8,
+      "real_sends": 40,
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "settled_cny": 0.12378799999999998,
+      "status": "succeeded",
+      "turns": 14
+    },
+    {
+      "attempts_reserved": 34,
+      "business_date": "2026-07-15",
+      "cases": 8,
+      "error": 0,
+      "fail": 4,
+      "pass": 4,
+      "real_sends": 30,
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "settled_cny": 0.084504,
+      "status": "succeeded",
+      "turns": 10
+    },
+    {
+      "attempts_reserved": 31,
+      "business_date": "2026-11-20",
+      "cases": 5,
+      "error": 0,
+      "fail": 1,
+      "pass": 4,
+      "real_sends": 29,
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "settled_cny": 0.043214,
+      "status": "succeeded",
+      "turns": 6
+    },
+    {
+      "attempts_reserved": 29,
+      "business_date": "2026-12-15",
+      "cases": 5,
+      "error": 0,
+      "fail": 1,
+      "pass": 4,
+      "real_sends": 27,
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "settled_cny": 0.043593999999999994,
+      "status": "succeeded",
+      "turns": 6
+    }
+  ],
+  "staged_count_at_end": 0,
+  "t207": {
+    "basis": {
+      "hard_failures": 4,
+      "hard_failures_max": 0,
+      "hard_met": false,
+      "quality_pass": 20,
+      "quality_pass_met": false,
+      "quality_pass_required": 24
+    },
+    "passed": false
+  },
+  "thresholds": {
+    "hard_failures_max": 0,
+    "min_pass": 24
+  }
+}

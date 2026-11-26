@@ -1,0 +1,294 @@
+{
+  "proxy_env_removed": [
+    "ALL_PROXY",
+    "HTTPS_PROXY",
+    "HTTP_PROXY",
+    "NODE_USE_ENV_PROXY",
+    "NO_PROXY"
+  ],
+  "guard": [
+    "socket.connect",
+    "socket.connect_ex",
+    "socket.create_connection",
+    "socket.getaddrinfo"
+  ],
+  "loopback_policy": "allowed_and_counted",
+  "positive_controls": [
+    {
+      "probe": "dns",
+      "blocked": true,
+      "attempts": 1,
+      "error": "OSError: netguard: socket.getaddrinfo blocked"
+    },
+    {
+      "probe": "direct",
+      "blocked": true,
+      "attempts": 1,
+      "error": "OSError: netguard: socket.create_connection blocked"
+    },
+    {
+      "probe": "urllib",
+      "blocked": true,
+      "attempts": 1,
+      "error": "URLError: <urlopen error netguard: socket.create_connection blocked>"
+    },
+    {
+      "probe": "httpx",
+      "blocked": true,
+      "attempts": 1,
+      "error": "ConnectError: netguard: socket.create_connection blocked"
+    }
+  ],
+  "all_controls_blocked": true,
+  "external_attempts_total": 4,
+  "external_attempts_during_session": 0,
+  "external_attempts": [
+    {
+      "kind": "socket.getaddrinfo",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('192.0.2.1', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    },
+    {
+      "kind": "socket.create_connection",
+      "detail": "('example.invalid', 80)"
+    }
+  ],
+  "loopback_attempts": [
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56010)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56012)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56014)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56016)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56018)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 56020)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64191)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64193)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64195)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64197)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64199)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64201)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64203)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64205)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64207)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64209)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64212)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64214)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64216)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64218)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64220)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64222)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64224)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64226)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64228)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64230)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64232)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64234)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64236)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64238)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64240)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64242)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64244)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64246)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64248)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64250)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64259)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64261)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64263)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64265)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64267)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64269)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 64271)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52955)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52957)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52959)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52961)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52963)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52965)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52967)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52969)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52971)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52974)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52976)"
+    },
+    {
+      "kind": "socket.connect",
+      "detail": "('127.0.0.1', 52978)"
+    }
+  ],
+  "loopback_attempts_total": 55,
+  "counts": {
+    "collected": 756,
+    "passed": 754,
+    "failed": 2,
+    "skipped": 0,
+    "error": 0
+  },
+  "exitstatus": 1
+}

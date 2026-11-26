@@ -1,0 +1,446 @@
+{
+  "schema": "r2-205d-diagnosis/v0.1",
+  "task": "T-R2-205D",
+  "title": "attempt1 C29 first-divergence layer diagnosis",
+  "ok": true,
+  "cwd_is_repo_root": true,
+  "real_calls": 0,
+  "run": {
+    "run_id": "p2-h2v3-20261115-r2-pre_v05_without_v07",
+    "run_index": 2,
+    "scenario_id": "pre_v05_without_v07",
+    "business_date": "2026-11-20",
+    "real_sends": 27,
+    "code_version": "b45f1ea9aef47104650cd0897edcdaed4c696b00cf0a0ba03103551fb996d32a",
+    "scenario_contract_sha256": "9dfefc3966a437684cfa67cd7c1113b55665956ff3869242887e14506b7c8af8",
+    "dataset_version": "P2-HOLDOUT-v3.1",
+    "label_version": "p2-holdout-v3.1-2026-11-15",
+    "holdout_manifest_sha256": "de4125ca9c1d1f68baa30209a12047f1f7753d25a4aa6e8a0d33815dc6b536e8",
+    "index_revision": "10",
+    "case_plan_sha256": "43dafc64ca4b3df09eae20d3f6a2a3afb48e568c826e1837e3647c6240fbbc17",
+    "receipt_sha256": "e809b887fd7a92a861b7f9c26c75bd42ae15df0f8d14693bd5fab3ebd7e22cdb",
+    "evidence_manifest_sha256": "cf39ae8e987ce2ea4c18a13ec2e8c7cd9df8c6d32a4386276bc47965a1e9580d",
+    "envelope_count": 6,
+    "turn_count": 6,
+    "case_count": 5,
+    "old_run": {
+      "code_version": "e3b4b29cfdd0ef14ddc6cbfd7a7fc7a31efb380318b66ae7995d98e605e9f540",
+      "finished_utc": "2026-11-16T01:49:09+00:00",
+      "real_sends": 29,
+      "case_plan_sha256": "fe8741861e74edb8bab8ea1ee07dfd37a1ede60c766d53ba30699fd25ea325da",
+      "receipt_sha256": "2f9378566bf1201fb91347b68ea77236195ff788dc15b7bb20c1b6c20790e3a0"
+    }
+  },
+  "quality_c29": {
+    "new": {
+      "source": "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/01-safe-projection/r2-quality-checks.json",
+      "source_sha256": "76b04e8a63fd3ab3ffe69b11c6f017af4641332110cf0f5ec8c3898d75012ec2",
+      "quality_status": "fail",
+      "failed_check_ids": ["value_hit", "source_hit", "kind_correct", "refusal_unexpected"],
+      "failed_check_count": 4,
+      "kind": "not_found",
+      "refusal_effective": true,
+      "should_refuse": false,
+      "value_expected": 2,
+      "value_matched": 0,
+      "value_missing": 2,
+      "value_extra": 0,
+      "source_expected": 2,
+      "source_matched": 0,
+      "source_forbidden_hit": 0
+    },
+    "old": {
+      "source": "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/01-safe-projection/r2-quality-checks.json",
+      "source_sha256": "2c322e16ef5b7fcc9444512c6b4f0138ad5a38b9026f0b8265ee649553ccad17",
+      "quality_status": "fail",
+      "failed_check_ids": ["value_hit", "source_hit"],
+      "failed_check_count": 2,
+      "kind": "answer",
+      "refusal_effective": false,
+      "should_refuse": false,
+      "value_expected": 2,
+      "value_matched": 1,
+      "value_missing": 1,
+      "value_extra": 0,
+      "source_expected": 2,
+      "source_matched": 1,
+      "source_forbidden_hit": 0
+    }
+  },
+  "layers": {
+    "order": [
+      "intent_fields",
+      "candidates",
+      "retrieval",
+      "model_input",
+      "fact_admission",
+      "render",
+      "citation",
+      "commit"
+    ],
+    "new_source": {
+      "path": "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/02-case-boundary/H2V3-C29.json",
+      "sha256": "736fc61065af117232bb3b15ae0d16f34c6f9492ebed4f905f02d5da1de00327",
+      "producer": "work/r2_boundary_ext.py (unmodified, CLI paths only)"
+    },
+    "old_source": {
+      "path": "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/02-case-boundary/H2V3-C29.json",
+      "sha256": "cb9d47ba609008a2472c1688230fb313547e5417fdd61f37d73f1f943dad0740",
+      "producer": "work/r2_boundary_ext.py (same projection code; pinned loader sha 9a38c4f8 differs from current only in _fail where-labels)"
+    },
+    "new": {
+      "intent_fields": {
+        "state": "present",
+        "path_code": "rag",
+        "mode_code": "record",
+        "enumerate": true,
+        "include_future": false,
+        "clarification": false,
+        "as_of_present": true,
+        "state_as_of_present": true,
+        "terms_count": 12,
+        "filters_count": 0,
+        "filter_codes": [],
+        "field_role_name": "location",
+        "field_roles_count": 0,
+        "field_roles_codes": [],
+        "state_keys_count": 23,
+        "state_pending_slot_present": false,
+        "state_last_kind_present": false,
+        "state_stores_published": false,
+        "credential_term_hit_count": 0,
+        "request_id_present": true
+      },
+      "candidates": {"state": "not_captured", "event_count": 0, "unit_total": 0, "distinct_units": 0},
+      "retrieval": {"state": "not_captured", "event_count": 0, "unit_total": 0, "empty_count": 0, "truncated_count": 0},
+      "model_input": {"state": "not_applicable", "input_event_count": 0, "output_event_count": 0},
+      "fact_admission": {
+        "state": "empty",
+        "event_count": 1,
+        "kind_code": "no_answer",
+        "answer_source_code": "refusal",
+        "reason_code": "SECURITY_RESTRICTED_CONTACT",
+        "fact_rows": 0,
+        "fact_count": 0,
+        "cited_unit_count": 0,
+        "fact_entity_label_present": 0,
+        "fact_entity_key_present": 0,
+        "fact_field_role_codes": [],
+        "projection_units": 0,
+        "values_backed_by_used_units": 0,
+        "values_missing_from_used_units": 2
+      },
+      "render": {
+        "state": "present",
+        "kind_code": "not_found",
+        "text_chars": 98,
+        "line_count": 1,
+        "digit_token_count": 0,
+        "digit_span_count": 0,
+        "absent_marker_present": false,
+        "marker_codes": [],
+        "marker_hit_count": 0,
+        "value_matched": 0,
+        "value_expected": 2,
+        "answer_commit_text_equal": true,
+        "text_sha256_16": "2ad69949b4b55fdf"
+      },
+      "citation": {"state": "empty", "source_ids_count": 0, "citation_total": 0, "source_expected": 2, "source_matched": 0, "source_missing": 2},
+      "commit": {"state": "present", "kind_code": "not_found", "requested_kind": "not_found", "text_chars": 98, "revision_before": 10, "revision_after": 10, "knowledge_changed": false, "kind_matches_answer": true}
+    },
+    "old": {
+      "intent_fields": {
+        "state": "present",
+        "path_code": "rag",
+        "mode_code": "record",
+        "enumerate": true,
+        "include_future": false,
+        "clarification": false,
+        "as_of_present": true,
+        "state_as_of_present": true,
+        "terms_count": 12,
+        "filters_count": 1,
+        "filter_codes": ["item"],
+        "field_role_name": "not_projected",
+        "field_roles_count": null,
+        "field_roles_codes": "not_projected",
+        "state_keys_count": 23,
+        "state_pending_slot_present": false,
+        "state_last_kind_present": false,
+        "state_stores_published": false,
+        "credential_term_hit_count": null,
+        "request_id_present": true
+      },
+      "candidates": {"state": "not_captured", "event_count": 0, "unit_total": 0, "distinct_units": 0},
+      "retrieval": {"state": "not_captured", "event_count": 0, "unit_total": 0, "empty_count": 0, "truncated_count": 0},
+      "model_input": {"state": "not_applicable", "input_event_count": 0, "output_event_count": 0},
+      "fact_admission": {
+        "state": "present",
+        "event_count": 1,
+        "kind_code": "answer",
+        "answer_source_code": "structured_enumeration",
+        "reason_code": "none",
+        "fact_rows": 1,
+        "fact_count": 1,
+        "cited_unit_count": 1,
+        "fact_entity_label_present": null,
+        "fact_entity_label_note": "not_projected_by_old_layer_tool",
+        "fact_entity_key_present": 1,
+        "fact_source_unit_id_present": 1,
+        "fact_field_role_codes": ["location"],
+        "projection_units": 1,
+        "values_backed_by_used_units": 1,
+        "values_missing_from_used_units": 1
+      },
+      "render": {
+        "state": "present",
+        "kind_code": "answer",
+        "text_chars": 81,
+        "line_count": 3,
+        "digit_token_count": 5,
+        "digit_span_count": 5,
+        "absent_marker_present": true,
+        "marker_codes": ["absent_marker_3"],
+        "marker_hit_count": 1,
+        "value_matched": 1,
+        "value_expected": 2,
+        "answer_commit_text_equal": true,
+        "text_sha256_16": null
+      },
+      "citation": {"state": "present", "source_ids_count": 1, "citation_total": 1, "source_expected": 2, "source_matched": 1, "source_missing": 1},
+      "commit": {"state": "present", "kind_code": "answer", "requested_kind": "answer", "text_chars": 81, "revision_before": 10, "revision_after": 10, "knowledge_changed": false, "kind_matches_answer": true}
+    },
+    "deltas": [
+      {"layer": "intent_fields", "field": "filters_count", "old": 1, "new": 0, "kind": "count"},
+      {"layer": "intent_fields", "field": "filter_codes", "old": ["item"], "new": [], "kind": "code_list"},
+      {"layer": "intent_fields", "field": "field_roles_count", "old": "not_projected", "new": 0, "kind": "count"},
+      {"layer": "candidates", "field": "state", "old": "not_captured", "new": "not_captured", "kind": "same"},
+      {"layer": "retrieval", "field": "state", "old": "not_captured", "new": "not_captured", "kind": "same"},
+      {"layer": "model_input", "field": "state", "old": "not_applicable", "new": "not_applicable", "kind": "same"},
+      {"layer": "fact_admission", "field": "state", "old": "present", "new": "empty", "kind": "state"},
+      {"layer": "fact_admission", "field": "answer_source_code", "old": "structured_enumeration", "new": "refusal", "kind": "code"},
+      {"layer": "fact_admission", "field": "fact_rows", "old": 1, "new": 0, "kind": "count"},
+      {"layer": "render", "field": "kind_code", "old": "answer", "new": "not_found", "kind": "code"},
+      {"layer": "render", "field": "text_chars", "old": 81, "new": 98, "kind": "count"},
+      {"layer": "render", "field": "marker_hit_count", "old": 1, "new": 0, "kind": "count"},
+      {"layer": "render", "field": "digit_token_count", "old": 5, "new": 0, "kind": "count"},
+      {"layer": "citation", "field": "source_ids_count", "old": 1, "new": 0, "kind": "count"},
+      {"layer": "commit", "field": "kind_code", "old": "answer", "new": "not_found", "kind": "code"}
+    ],
+    "first_difference_layer": "intent_fields",
+    "first_difference_fields": ["filters_count", "filter_codes"],
+    "first_difference_interpretation": "symptom_of_plan_short_circuit",
+    "first_difference_note": "filters={} 与 field_roles=() 都是 query.py:1816-1822 早退计划的两处硬编码/默认值，不是意图解析算法本身的变化；因此首偏离层是 plan（intent_fields），但机制在该层的安全早退分支，不在检索/取行/事实/模型/渲染/引用/commit。"
+  },
+  "cause": {
+    "winner": "plan_layer_security_refusal",
+    "reason_code": "SECURITY_RESTRICTED_CONTACT",
+    "site": "backend/src/mktkb/rag/query.py:1812-1822",
+    "predicate": "not is_policy_question(question) and (((bool(item_hits) or identifier is not None) and set(field_roles) & REFUSAL_CONTACT_ROLES) or is_contract_credential_question(question))",
+    "disjunct_that_fired": "contact_disjunct",
+    "refusal_contact_role_hit_codes": ["phone"],
+    "credential_disjunct": false,
+    "credential_word_match_count": 0,
+    "policy_disjunct": false,
+    "question_field_roles_codes": ["location", "phone", "status"],
+    "item_or_identifier_named": "derived_true",
+    "item_or_identifier_note": "信封不发布 item_hits/identifier；但观察到 field_roles=() 只可能来自 1816-1822 早退（正常末尾构造会传 state.field_roles=(location,phone,status)），而该早退又要求 item_hits/identifier 非空——两条观测互相约束，无需词表复算。",
+    "early_return_signature": {
+      "filters_count": 0,
+      "field_role_present": true,
+      "field_roles_count": 0,
+      "mode_code": "record",
+      "terms_count": 12
+    },
+    "render_text_is_fixed_template": {
+      "template": "SECURITY_RESTRICTED_CONTACT",
+      "template_chars": 98,
+      "template_digits": false,
+      "template_lines": 1,
+      "template_sha256_16": "2ad69949b4b55fdf",
+      "answer_text_sha256_16": "2ad69949b4b55fdf",
+      "equal": true
+    },
+    "downstream_effects": {
+      "retrieval_observed_events": 0,
+      "model_input_events": 0,
+      "fact_rows": 0,
+      "citation_total": 0,
+      "public_kind": "not_found",
+      "kind_map_rule": "conversations/service.py:2260 _RAG_KIND_MAP no_answer->not_found",
+      "failed_checks_mechanical": ["kind_correct", "refusal_unexpected", "value_hit", "source_hit"]
+    }
+  },
+  "excluded_causes": {
+    "candidates_store_join_empty": {
+      "verdict": "excluded",
+      "evidence": {"retrieval_observed_events_new": 0, "retrieval_observed_events_old": 0, "old_answer_present": true},
+      "why": "retrieval_observed 在 direct-RAG 路径根本不发（旧轮为 0 事件却正常作答）；且该早退在 index.search 之前"
+    },
+    "fact_admission_validate": {
+      "verdict": "excluded",
+      "evidence": {"reason_code": "SECURITY_RESTRICTED_CONTACT", "fact_rejected_code_domain": ["CROSS_ENTITY", "CROSS_FIELD", "FORGED_VALUE", "STALE_SOURCE", "UNSUPPORTED_CLAIM", "FACT_REJECTED"], "fact_rows": 0},
+      "why": "reason 不属于 FactRejected 码域（rag/errors.py:95-125），且本次没有任何 fact 被构造；_reject 分支（answer.py:1349-1360）要求已有 facts"
+    },
+    "model_output_contract": {
+      "verdict": "excluded",
+      "evidence": {"model_input_events": 0, "model_output_events": 0, "model_output_error_codes": []},
+      "why": "本路径结构化作答，模型面结构上不适用；无 MODEL_OUTPUT_INVALID 事件码"
+    },
+    "answer_layer_contact_refusal": {
+      "verdict": "excluded",
+      "site": "backend/src/mktkb/rag/answer.py:842-849",
+      "evidence": {"requires": "not plan.field_role", "observed_field_role": "location"},
+      "why": "该分支只在“没有请求任何字段角色”时判拒答；本轮请求了 location"
+    },
+    "legacy_intent_security_refusal": {
+      "verdict": "excluded",
+      "evidence": {"path_code": "rag", "service_site": "conversations/service.py:2228"},
+      "why": "路径是 rag，legacy 计划的安全拒答分支不参与"
+    },
+    "layer_c_202c_202d": {
+      "verdict": "excluded",
+      "evidence": {"plan_layer_precedes_retrieval": true, "batch_touched_files": ["rag/retrieval.py", "rag/answer.py", "rag/facts.py"], "query_py_in_batch": false},
+      "why": "本批补丁不触及 rag/query.py；早退发生在检索/取行/事实绑定之前，202C/202D 代码路径未被执行"
+    },
+    "r0_r1_other_guards": {
+      "verdict": "not_triggered",
+      "evidence": {"reason_code": "SECURITY_RESTRICTED_CONTACT", "primary_store_reason_present": false, "document_not_found_present": false, "unknown_store_present": false},
+      "why": "106b（PRIMARY_STORE_TARGET）/106a（legacy 范围）/102b（话题切换）都会给出各自不同的 reason；本次 reason 只可能是 C12 联系族闸"
+    }
+  },
+  "attribution": {
+    "this_batch": "excluded",
+    "introduced_by": "r0_c12_contact_gate_with_phone_role",
+    "precise_delta": "undetermined",
+    "precise_delta_gap": "old_code_version_unavailable",
+    "evidence": [
+      {"code": "batch_rollback_surface", "files": ["backend/src/mktkb/rag/retrieval.py", "backend/src/mktkb/rag/answer.py", "backend/src/mktkb/rag/facts.py"], "query_py_present": false, "patch_sha256": {"202c": "ccd78c0d45cf2f558dd941d08c0ca143871e7dc1c8b34be224821d96203ab12b", "202d": "40fc137152e7a1ae996fc264f269d18d3c4147f6f0af62f74b67cbc3f460977b"}},
+      {"code": "batch_answer_hunks_outside_gate", "answer_hunk_headers": ["-284,6 +284,37", "-318,7 +349,9", "-822,6 +855,10", "-843,17 +880,18", "-892,7 +930,12"], "gate_lines": "124-141"},
+      {"code": "gate_self_dating", "query_py_lines": "34-61", "markers": ["R0/C12 2026-11-16", "R1/T-R1-102c 2026-11-17"]},
+      {"code": "timeline", "old_run_finished_utc": "2026-11-16T01:49:09+00:00", "first_r0fix_workdir_local": "2026-11-16 16:11:23", "r1_workdir_local": "2026-11-17 10:45:33"},
+      {"code": "old_layer_signature", "old_kind": "answer", "old_fact_field_role_codes": ["location"], "old_filters_count": 1},
+      {"code": "synthetic_gate_owner", "node": "backend/tests/integration/test_r2_202c_c29_join_rag.py", "test": "test_c3_item_plus_phone_is_still_refused_before_retrieval_and_model", "asserts": "reason=SECURITY_RESTRICTED_CONTACT, model calls 0", "status": "passed"}
+    ]
+  },
+  "synthetic": {
+    "verdict": "synthetic_green_real_refused",
+    "network": "tests acceptance/support/netguard fixture (t09_network_guard) active in all three nodes",
+    "nodes": [
+      {"path": "backend/tests/integration/test_r2_202c_c29_join_rag.py", "passed": 13, "failed": 0, "exit_code": 0, "seconds": 8.91},
+      {"path": "backend/tests/integration/test_r2_202d_uniqueness.py", "passed": 14, "failed": 0, "exit_code": 0, "seconds": 8.95},
+      {"path": "backend/tests/integration/test_r2_203c_f1_http_join_witness.py", "passed": 5, "failed": 0, "exit_code": 0, "seconds": 4.12}
+    ],
+    "totals": {"passed": 32, "failed": 0},
+    "same_shape_assertions_still_hold": {
+      "filters_item": true,
+      "two_entity_facts_and_citations": true,
+      "two_values_two_sources": true,
+      "zero_model_calls_on_join": true
+    },
+    "shape_table": [
+      {"shape": "synthetic_join_a", "field_roles": ["location", "status"], "roles_count": 2, "contains_phone": false, "contact_gate": false, "expected_behavior": "answer", "observed_behavior": "answer"},
+      {"shape": "synthetic_join_b", "field_roles": ["location", "status"], "roles_count": 2, "contains_phone": false, "contact_gate": false, "expected_behavior": "answer", "observed_behavior": "answer"},
+      {"shape": "synthetic_c1_location_only", "field_roles": ["location"], "roles_count": 1, "contains_phone": false, "contact_gate": false, "expected_behavior": "answer", "observed_behavior": "answer"},
+      {"shape": "synthetic_c2_store_status_only", "field_roles": ["status"], "roles_count": 1, "contains_phone": false, "contact_gate": false, "expected_behavior": "answer", "observed_behavior": "answer"},
+      {"shape": "synthetic_c3_item_phone", "field_roles": ["phone"], "roles_count": 1, "contains_phone": true, "contact_gate": true, "expected_behavior": "refuse", "observed_behavior": "refuse"},
+      {"shape": "real_c29", "field_roles": ["location", "phone", "status"], "roles_count": 3, "contains_phone": true, "contact_gate": true, "expected_behavior": "answer", "observed_behavior": "refuse", "should_refuse": false, "expected_values_numeric": 0, "expected_values_text": 2}
+    ],
+    "difference_list": [
+      "角色集合大小：合成联结形态 2（location,status），真实 C29 3（location,phone,status）",
+      "是否含 phone：合成联结形态 false，真实 true",
+      "期望值形态：真实 C29 期望 2 个**非数字**文本值（numeric_expected_count=0），即 phone 不是被判分的期望值",
+      "合成件覆盖的拒答反例只有 phone-only（C3），没有 'location+phone+status' 这种混合形态"
+    ]
+  },
+  "fix_candidates": [
+    {
+      "id": "F1",
+      "site": "backend/src/mktkb/rag/query.py:1812-1822",
+      "one_line": "把“物品 + 联系族角色 ⇒ 整体拒答”改为“仅在联系族是唯一请求面时整体拒答；同时请求非联系角色时剔除 phone/address 角色后继续作答”。",
+      "expected_effect": "C29 得到正常计划（filters 含 item、field_roles=(location,status)），202C 联结与 202D 唯一性守卫按设计生效，期望 2 值 2 来源",
+      "risk": "触碰 R0/C12 冻结面：C12 t7（物品+对接人+合作状态，should_refuse=false）与 C3（物品+电话 ⇒ 拒答）必须逐条复验；若题面真的在索取电话值，会从“整体拒答”退化为“少渲染”，需要口径确认",
+      "verification_set": ["backend/tests/rag/test_r0_11_contact_family.py", "backend/tests/integration/test_r2_202c_c29_join_rag.py::test_c3_item_plus_phone_is_still_refused_before_retrieval_and_model", "C12/C19/C25 安全面"]
+    },
+    {
+      "id": "F2",
+      "site": "backend/src/mktkb/rag/query.py:62-85",
+      "one_line": "复核 phone 词表（“电话/联系电话/手机号/手机号码/联系方式”）是否把非电话诉求误判成 phone 请求；若属误命中，只收窄该词条。",
+      "expected_effect": "field_roles 不再含 phone → C12 闸不触发，C29 按原名计划作答",
+      "risk": "R0/C27 正是为让 contact 列进证据面而补“联系方式”等泛词；收窄会回退 C27（value_hit 缺值 / role_missing）",
+      "needs_input": "human_readable_question_wording（本诊断不解封题面，无法判定命中来源）"
+    },
+    {
+      "id": "F3",
+      "verdict": "insufficient_evidence",
+      "why": "封存证据只能证明“本次在 C12 联系族闸拒答”，无法区分是闸门本身新增还是请求角色集合扩张先变（旧 code_version e3b4b29 不可得；旧轮 envelope 未投影 field_roles）",
+      "minimal_capture": [
+        "取回 code_version e3b4b29 快照（或 r0/r1 轮 query.py 快照），对同一题面离线复算 field_roles 与 C12 闸，判定先后",
+        "在 202C 合成件中补“location+phone+status”三形态（当前只有 location/status 与 phone-only）并按冻结口径断言",
+        "由可读题面者确认该题是否真的在问电话/联系方式（决定走 F1 还是 F2）"
+      ]
+    }
+  ],
+  "guard": {
+    "tool": "r2_safe_project.NetGuard",
+    "socket_blocked": true,
+    "urllib_blocked": true,
+    "httpx_blocked": true,
+    "subprocess_guard_installed": true,
+    "outbound_allowed": 0,
+    "blocked_attempts": 2,
+    "blocked_subprocess_attempts": 1,
+    "positive_control_attempts": 3,
+    "positive_control_blocked": true,
+    "observed_in": [
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/01-safe-projection/r2-quality-checks.json",
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/02-case-boundary/summary.json",
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/03-c29-probe/c29-layers.json",
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/09-attempt1/03-c29-probe/c29-plan-predicate.json"
+    ]
+  },
+  "not_run": [
+    {"item": "real_r2_execution", "reason": "已由上游执行，本诊断零真实调用", "gap": "none"},
+    {"item": "full_pytest", "reason": "任务约束：只跑点名的合成节点", "gap": "none"},
+    {"item": "old_envelope_reprobe", "reason": "旧轮证据 key 不可得（搜索 <RUN_ROOT> 旧轮与 <HOLDOUT_ROOT>，无 sha256 命中）", "gap": "old_evidence_key_unavailable"},
+    {"item": "old_plan_field_roles_and_reason", "reason": "旧轮 8 层投影不含 plan.field_roles / plan.reason", "gap": "old_layer_not_projected"},
+    {"item": "old_code_presence", "reason": "code_version e3b4b29 不在仓库（未提交工作树且无快照）", "gap": "old_code_version_unavailable"},
+    {"item": "c14_plan_predicate", "reason": "两回合案在契约里没有单一 question 字段", "gap": "case_question_absent"},
+    {"item": "pagination_checks_for_c29", "reason": "C29 未曾进入检索，分页无输入", "gap": "not_reached"}
+  ],
+  "integrity": {
+    "attempt1_bytes_touched": false,
+    "attempt1_tree_sha_matches_receipt": true,
+    "attempt1_seal_manifest_sha_matches_receipt": true,
+    "product_source_modified": false,
+    "scorer_or_criteria_modified": false,
+    "git_write_operations": 0
+  },
+  "hashes": {
+    "repo_files": {
+      "backend/src/mktkb/rag/query.py": "69ab6a8cbb6366f6e3674663f7fde624cef9229ab4a03b8e52205ecf951e0cbd",
+      "backend/src/mktkb/rag/answer.py": "b89622beb20f0d73849f2af9dab91a54835a24006059b3ff38a8d67b40e20288",
+      "backend/src/mktkb/rag/retrieval.py": "d43530922355206746e40316d6dd5a875da6a3081c68db866cffa2d61b2abdaa",
+      "backend/src/mktkb/rag/facts.py": "cf795cfd16fe15fdfa73f9bc12311cf9bcf55b2fafdb67a9a8f6719192dc7001",
+      "backend/src/mktkb/copy.py": "a0db1d3e948467b83bf45a9ee856a239cfb683e2588104845d4569f82ac0a776",
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/05-fix/R2-202C-MINE-rollback.patch.txt": "ccd78c0d45cf2f558dd941d08c0ca143871e7dc1c8b34be224821d96203ab12b",
+      "docs/reports/OBS-EVAL/P2/H2V3/r2-repair-external-20261117/evidence/05-fix/R2-202D-MINE-rollback.patch.txt": "40fc137152e7a1ae996fc264f269d18d3c4147f6f0af62f74b67cbc3f460977b"
+    },
+    "new_evidence": {
+      "R2-205D-DIAGNOSIS.md": "22783896eed2fcc961e2c9d27648554560654ab7a1521abf4ca0ccdabf491a62",
+      "02-case-boundary/summary.json": "2a8c425359d5db6a893e572608aeeb98c356dd68c11b2f37bca34d3d975e8a02",
+      "02-case-boundary/H2V3-C29.json": "736fc61065af117232bb3b15ae0d16f34c6f9492ebed4f905f02d5da1de00327",
+      "02-case-boundary/H2V3-C08.json": "12b7b9b010d37de81a586a4babd9fde3954069a5d0079379046ba1eed507e10e",
+      "02-case-boundary/H2V3-C14.json": "ee09db6963134a87d54a9c1d067cb976715a39f3e042e42810f9395a045f2fae",
+      "02-case-boundary/H2V3-C19.json": "dba5a8aecf469e9a0d4385b77a27e4919bf231b44018bfaa1cc1864ca9dd1965",
+      "02-case-boundary/H2V3-C25.json": "197e1d5c7bdb2d9bf4e5ea4cf77f91257a6d17bcbf8ea62f7f960d10dbea2b91",
+      "03-c29-probe/c29-layers.json": "0ae348e51921872419d95039d0939f51eb868039bdfb38e64aaa9b4af7eccc8a",
+      "03-c29-probe/c29-plan-predicate.json": "aaa03bd8548235b799720f13105c49d043c5aae2d78ca442a1a457721ee35599",
+      "03-c29-probe/plan-predicate-H2V3-C08.json": "da1f4fea8d5d0802ab21f7883ab355f862551e8aa5d20483a797d305d6d232e1",
+      "03-c29-probe/plan-predicate-H2V3-C19.json": "898347e0c2076b64ba042d96a8f0c4afdd486ed228eeb302c45095a2796cc1fc",
+      "03-c29-probe/plan-predicate-H2V3-C25.json": "5bcfe64f8c890d0c8db282bc36c33c312ee9f4644e9fcfab4c28dcb02790eed9",
+      "work/probe_c29_layers.py": "352dc0ac8761df8a3203f84577d0532be3cc0ef94bb8e9df9e56701d2c9f4c83",
+      "work/probe_c29_plan_predicate.py": "5cc8a5e6427b6905102797004e4188a0242e64759a3a194cc8a9eaa7ff9dbd84"
+    }
+  }
+}

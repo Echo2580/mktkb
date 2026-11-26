@@ -1,0 +1,301 @@
+{
+  "schema_version": "q1a-c1p1-review-aggregate/v1",
+  "role": "custodian-b-independent-review",
+  "date": "2026-11-14",
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "subject": {
+    "schema_sha256": "b98f9f4aab296dd3bec610dc81485142d9cb751a1402a117f14dc30fc515ce25",
+    "schema_bytes": 26521,
+    "aggregate_sha256": "745f9c71ba84f284eafffe2e5d063083f630af1c4c36b0eccdd18a5abaee1992",
+    "aggregate_bytes": 26565,
+    "report_sha256": "ce9116c30559ad8461c08d0c4dc1de3ec8436c40f0c56e50ecf0fa1168939526",
+    "report_bytes": 17491,
+    "ciphertext_sha256": "7ed0bf411908790423944d5ea151fcdd47baaa9c4871d1fb2d645a017418e260",
+    "ciphertext_bytes": 99128,
+    "plaintext_bytes": 74282,
+    "v1_ciphertext_sha256": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461",
+    "v1_schema_sha256": "cb1257fac56a68e5eef791c23cffba9d4e915e5e9a840abce7bde5b96e0e4690",
+    "v1_aggregate_sha256": "9abfa5f25617b03bb8566b031335610eb66c00d0c6aa0323371a9287143e7089",
+    "v1_report_sha256": "b063a432545fbd1a19f66baec26b92a4dfef5e69e3354a89e6fecb400fdacc1d"
+  },
+  "checks": {
+    "dataset": {
+      "cases": 30,
+      "questions": 36,
+      "axes": 120,
+      "cases_sha256_match": true
+    },
+    "structure": {
+      "top_keys": 6,
+      "bindings_keys": 17,
+      "runs": 4,
+      "case_count": 30,
+      "cases": 30,
+      "axes": 120,
+      "case_keys_exact": true,
+      "axis_fields_exact": true,
+      "target_keys_exact": true
+    },
+    "bindings": {
+      "keys": 17,
+      "equal_v1": 16,
+      "changed_vs_v1": [
+        "contract_schema_sha256"
+      ],
+      "extra": 0,
+      "contract_schema_matches": true,
+      "lineage_ok": true,
+      "corpus_bindings_ok": true,
+      "corpus_counts": {
+        "record_count": 12,
+        "table_document_count": 10,
+        "variant_count": 15,
+        "ingest_source_count": 12
+      }
+    },
+    "semantics": {
+      "six_field_diff": 0,
+      "target_refs_diff": 0,
+      "basis_diff": 0,
+      "runs_case_order_diff": 0,
+      "merged_annotation_diff": 0,
+      "unknown_total": 0,
+      "unknown_to_not_applicable": 0,
+      "v1_target_prefix": true,
+      "v1_target_objects_modified": 1,
+      "completion_count": 1,
+      "completion_recompute_equal": true
+    },
+    "targets": {
+      "v1_total": 6,
+      "v2_total": 24,
+      "cross_entity_v1": 5,
+      "cross_entity_v2": 23,
+      "new_total": 18,
+      "new_from_refs": 17,
+      "new_from_v1_repair": 1,
+      "v2_types": {
+        "item": 10,
+        "store": 10,
+        "record_collection": 2,
+        "document": 2
+      },
+      "new_types": {
+        "item": 9,
+        "store": 9
+      },
+      "matchable_targets": 19
+    },
+    "record_identity": {
+      "refs_total": 76,
+      "by_collection": {
+        "expected_sources": 58,
+        "forbidden_sources": 18
+      },
+      "by_axis": {
+        "cross_entity": 29,
+        "stale_source": 44,
+        "safety": 3
+      },
+      "verified": 53,
+      "row_not_in_record_index": 2,
+      "not_record_level": 21,
+      "projection_diff": 0,
+      "axes_all_positive_refs_resolved": {
+        "cross_entity": 14,
+        "stale_source": 14
+      },
+      "business_version_materialized": false
+    },
+    "coverage": {
+      "matchable": 16,
+      "only_unmatchable": 3,
+      "empty": 11,
+      "projected_from_refs": 14,
+      "repaired_only": 2,
+      "only_unmatchable_types": {
+        "record_collection": 2,
+        "document": 1
+      },
+      "empty_non_record_level": 4,
+      "empty_non_record_level_pure": 3,
+      "empty_non_record_level_mixed_row_not_in_index": 1,
+      "addendum_blocked": 2,
+      "addendum_blocked_within_only_unmatchable": 2,
+      "shared_background_axes": 7,
+      "v1_strict_matchable": 0,
+      "no_positive_refs_axes": 5,
+      "no_positive_refs_matchable": 2,
+      "no_positive_refs_only_unmatchable": 3
+    },
+    "shared_background": {
+      "axes": 7,
+      "corpus_projected": 6,
+      "no_positive_ref": 1,
+      "not_shared_background": 23,
+      "entries": 6,
+      "consumer_entries": 0,
+      "recompute_equal": true
+    },
+    "boundary": {
+      "uuid_target_keys": 0,
+      "long_hex_target_keys": 0,
+      "uuid_filter_values": 0,
+      "long_hex_filter_values": 0,
+      "new_target_types": [
+        "item",
+        "store"
+      ],
+      "document_targets": 2,
+      "record_collection_targets": 2,
+      "shared_runtime_unit_ids_nonempty": 0
+    },
+    "preservation": {
+      "c_freeze": "12/12",
+      "funding": "3/3",
+      "a_named_input_bindings": "23/23",
+      "r2_repo_files": "28/28",
+      "r2_external_files": "115/115",
+      "foreign_untracked_files": "1974/1974",
+      "handoff_files_existence_only": "110/110",
+      "tracked_modified": 15,
+      "tracked_modified_set_equal": true,
+      "staged": 0,
+      "commits": 0,
+      "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+      "branch": "codex/p2-e2e",
+      "worktree_created": false,
+      "subagents": 0
+    },
+    "zero_real_calls": {
+      "netguard_verdict": "zero_network_attempts",
+      "positive_control": "blocked",
+      "socket_constructed": 0,
+      "connect_attempts": 0,
+      "dns_attempts": 0,
+      "create_connection": 0,
+      "provider_entries": 0,
+      "model": 0,
+      "retrieval": 0,
+      "real": 0
+    },
+    "privacy": {
+      "needles": 214,
+      "long_needle_hits": 0,
+      "short_metadata_hits": 2,
+      "question_hits": 0,
+      "reference_hits": 0,
+      "expected_value_hits": 0,
+      "forbidden_value_hits": 0,
+      "target_key_hits": 0,
+      "filter_value_hits": 0,
+      "record_code_hits": 0,
+      "unit_code_hits": 0,
+      "doc_code_hits": 2,
+      "doc_code_hit_kind": "3-char variant-code example in schema rule text",
+      "case_id_hits": 0,
+      "hash_collisions": 0,
+      "key_material_hits": 0,
+      "gap_axis_ordinals_in_public_report": 4
+    }
+  },
+  "conformality": {
+    "affected_axes": 16,
+    "affected_ratio": "16/30",
+    "ref_projected_axes": 14,
+    "repaired_axes": 2,
+    "corpus_records": 12,
+    "distinct_record_identities": 12,
+    "duplicate_identity_groups": 0,
+    "ref_records_in_matchable_axes": 17,
+    "ref_records_with_duplicate_identity": 0,
+    "judgment": "form co-definition with product _entity, not value circularity from runtime output; limited to identity dimension"
+  },
+  "transition_risk": {
+    "nonempty_axes": 19,
+    "newly_matchable_axes": 16,
+    "legacy_only_unmatchable_axes": 3,
+    "scenarios": 4,
+    "scenarios_with_non_table_sources": 4,
+    "matchable_axes_with_non_table_sources": 16,
+    "matchable_axes_structurally_excluded": 0,
+    "legacy_axes_with_non_table_sources": 3,
+    "judgment": "16/19 nonempty axes are newly matchable; 0/16 matchable axes can be structurally ruled out; document-level units can become violations unless P4 disposes them as unknown or maps doc_code via P3"
+  },
+  "disagreements": [
+    {
+      "id": "D1",
+      "severity": "substantive",
+      "topic": "v1 matchable baseline",
+      "summary": "A report uses 1/30 for v1; strict v2 section 3.4 recomputation gives 0/30. v2 16/30 is unaffected; improvement is +16, not +15."
+    },
+    {
+      "id": "D2",
+      "severity": "substantive",
+      "topic": "coverage reason table is not a partition",
+      "summary": "The code no_positive_refs appears on 5 axes: 2 already repaired to matchable and 3 only-unmatchable. Top-level 16+3+11 remains exhaustive; reason codes must not be added to it."
+    },
+    {
+      "id": "D3",
+      "severity": "substantive",
+      "topic": "transition risk not quantified",
+      "summary": "All 4 scenarios contain docx/pdf-text/xlsx; 16/16 matchable axes are exposed, 0/16 excluded. P4 must decide document-level unit handling before C1-2."
+    },
+    {
+      "id": "D4",
+      "severity": "minor",
+      "topic": "record identity tuple",
+      "summary": "R-RC-1 lists business_version in the record identity, but section 3.5 and actual record_identities omit it. 76/76 record_key/record_code/code recomputation still passes."
+    },
+    {
+      "id": "D5",
+      "severity": "minor",
+      "topic": "variant ref count",
+      "summary": "R-RC-5 says 2 variant refs; independent enumeration finds 7 variant-code refs (2 cross_entity expected, 5 stale; 6 with record_code, 1 non-record-level). All recompute."
+    },
+    {
+      "id": "D6",
+      "severity": "compliance",
+      "topic": "public metadata",
+      "summary": "Public report discloses 4 gap-axis case_index ordinals; schema uses 2 three-character variant-code examples. No question text, answer, target value, long needle, hash collision, or key material found."
+    }
+  ],
+  "c1_2_estimate": {
+    "cross_entity": {
+      "current_unknown": 29,
+      "matchable_axes": 16,
+      "non_matchable_axes": 14,
+      "best_case_unknown": [
+        13,
+        14
+      ],
+      "realistic_unknown": [
+        16,
+        20
+      ],
+      "existing_pass_uncertain": true,
+      "basis": "16 target-bearing axes; 14 non-target axes remain unknown; existing single pass may or may not be among the 16; document-unit transition and missing runtime entity identity can raise the count"
+    },
+    "stale_source": {
+      "current_unknown": 17,
+      "p1_alone": 17,
+      "best_case_unknown": [
+        4,
+        6
+      ],
+      "realistic_unknown": [
+        6,
+        10
+      ],
+      "basis": "v2 deliberately adds no stale targets and the frozen stale check does not read axis.targets; runtime UnitView.record_code remains empty. P1 alone cannot lower it; P3 record_code capture plus P4 can resolve 13 source_unresolved; 2 empty-set need P2; 2 model-events-missing remain"
+    }
+  },
+  "not_claimed": [
+    "T207 pass",
+    "P2 completion",
+    "Q1A quality pass",
+    "threshold or release approval",
+    "runtime axis evidence",
+    "live H2 rerun or GO"
+  ]
+}

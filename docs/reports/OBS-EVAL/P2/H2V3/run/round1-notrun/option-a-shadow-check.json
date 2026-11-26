@@ -1,0 +1,55 @@
+{
+  "schema_version": "p2-h2v3-v3-run-option-a-shadow/v0.1",
+  "generated_local": "2026-11-15T07:39:00+08:00",
+  "purpose": "离线验证：在 R1 当前代码上重生成计划/binding，是否会改动计划字节或 GO 绑定。仅诊断，未安装、未发请求。",
+  "code_version_at_generation": "1e5930664cb0fdd62ee5a4d9d7166b27688e9dbd3e70e1fa29c16145dc473002",
+  "shadow_plan_set": "D:\\mktkb-p2-h2v3-20261115\\plans-shadow-r1",
+  "shadow_index_sha256": "ae46b7a85579890b961434d92de43f00db7f125c004156b8d68233c124e8ea34",
+  "installed": false,
+  "go_changed": false,
+  "sent_http": false,
+  "plans": [
+    {
+      "run_index": 0,
+      "plan_id": "P2-H2V3-20261115-r0-base_b0",
+      "plan_file_sha256": "3f1c0014c766e1317ecaa018ff3352ea30d38b0e5cee197319984eee5e5dad81",
+      "equal_to_rollback40_bytes": true,
+      "plan_sha256": "a109894e6ff99bbe2019e783b5bf379fea42c9574b56c3d957fb627ad5953c65",
+      "go_plan_sha_match": true
+    },
+    {
+      "run_index": 1,
+      "plan_id": "P2-H2V3-20261115-r1-base_b0_plus_v01",
+      "plan_file_sha256": "b1ba1ffc4e173906371d445ce1d60d8d0c8f3cbc94e765d3efba686ac3b4f577",
+      "equal_to_rollback40_bytes": true,
+      "plan_sha256": "4691e9c366fa4393640f7bbf4d5e25de7b012b8f9fd4a5425f519867d281ad97",
+      "go_plan_sha_match": true
+    },
+    {
+      "run_index": 2,
+      "plan_id": "P2-H2V3-20261115-r2-pre_v05_without_v07",
+      "plan_file_sha256": "59ae317b34d72a459606d23ff80faa0a05421193eb7273cd8f9a0643b146b6e2",
+      "equal_to_rollback40_bytes": true,
+      "plan_sha256": "9896ae4ecb30ea5c696dcc160bb9a318194808f15badccde4f92e75980f857bb",
+      "go_plan_sha_match": true
+    },
+    {
+      "run_index": 3,
+      "plan_id": "P2-H2V3-20261115-r3-post_v05_without_v01",
+      "plan_file_sha256": "989cdc94852190bc4e657c831000a2be189c3db2127787a9560edec0f7c01293",
+      "equal_to_rollback40_bytes": true,
+      "plan_sha256": "8f662d59f9a8988f601e5c8de419ba46f118fae498f48b0c5e74ff25c0e48e9f",
+      "go_plan_sha_match": true
+    }
+  ],
+  "binding_delta_vs_rollback40": [
+    "code_version (efe1c66e… → 1e593066…)",
+    "config.code_version",
+    "runs[0].evidence_bindings.code_version",
+    "runs[0].evidence_bindings.config_sha256",
+    "plan_file (绝对路径指向 shadow 目录)",
+    "binding_sha256 (自哈希)"
+  ],
+  "binding_config_otherwise_identical": true,
+  "note": "四份 plan 逐字节不变、plan_sha256 不变，因此现有 GO（plan_sha 绑定）仍有效；只需刷新 binding 的代码身份。shadow 计划集未安装、未替换 rollback-40、未换 GO 槽。"
+}

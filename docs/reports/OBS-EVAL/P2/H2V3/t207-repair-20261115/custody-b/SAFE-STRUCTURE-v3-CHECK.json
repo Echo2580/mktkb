@@ -1,0 +1,45 @@
+{
+  "status": "blocked",
+  "review_scope": "source_and_synthetic_only",
+  "wrapper": {
+    "artifact": "docs/reports/OBS-EVAL/P2/H2V3/t207-repair-20261115/custody-a/safe_structure_v3.py",
+    "sha256": "b84939bf0b67b02e9fd1305b5251ad169b0656d0b14398d94ed3fa59ef12e552"
+  },
+  "baseline": {
+    "artifact": "docs/reports/OBS-EVAL/P2/H2V3/final/work/recompute_axes_final.py",
+    "sha256": "5950bb7acd655dac6ab8ff40d190e9a20c558c60e0f34cf4d1a5011ef1bd612a"
+  },
+  "existing_batch_evidence_key_initialization_matches": true,
+  "self_test_exit_code": 0,
+  "self_test_positive_controls": {
+    "socket": true,
+    "urllib": true,
+    "httpx": true
+  },
+  "synthetic_duplicate_event_outputs_determined_value": true,
+  "direct_evidence_loader": "read_encrypted_evidence",
+  "additional_private_material_loader_used": true,
+  "fixed_case_run_pair_explicitly_enforced": false,
+  "wrapper_runtime_private_output_verified": false,
+  "real_evidence_read": false,
+  "product_test_run": false,
+  "network_controls": {
+    "socket": true,
+    "urllib": true,
+    "httpx": true
+  },
+  "protected_hash_before": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  },
+  "protected_hash_after": {
+    "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl": "e007fee3456e5d13f737a82ed29af45eb4707e3576c444e3520d9ca941dc2899",
+    "docs/evidence/LOCAL-R1-20261101/budget/budget.json": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e"
+  },
+  "required_changes": [
+    "duplicate_higher_priority_event_must_remain_unknown",
+    "constrain_private_loaders_to_authorized_readonly_scope",
+    "bind_case_to_expected_run_and_validate_plan_run",
+    "verify_loader_diagnostics_suppression_and_safe_output"
+  ]
+}

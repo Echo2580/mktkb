@@ -1,0 +1,459 @@
+python.exe : 
+所在位置 行:8 字符: 1
++ & $py -X utf8 -m pytest tests/integration/test_r2_202a_c29_mechanism_ ...
++ ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[r2baseline] VERIFIED mktkb.__file__=D:\mktkb-p2-h2v3-r2-20261117\baseline\pre202c\backend\src\mktkb\__init__.py
+[r2baseline] alt_src=D:\mktkb-p2-h2v3-r2-20261117\baseline\pre202c\backend\src other_mktkb_path_entries_removed=2
+FFFFFF.......FFF.....FFFF.                                               [100%]
+================================== FAILURES ===================================
+________ test_a_item_only_cross_table_question_now_covers_both_sources ________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2FE865F40>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FF05A120>, csrf='d55030e25000ccafc2bc400e7d121a0...0e7d121a0c5ae60fc23cf0d18c033cd05e30dbbf8c'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2FE7DFD80>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FF05AB70>, csrf='a35b8985161090b2bfd80145c8906f6...45c8906f6733a693317085143536ff6d6a725bd4d4'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2FEFE7B00>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A2FCEFBAA0>
+
+    def test_a_item_only_cross_table_question_now_covers_both_sources(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """A（C29 历史形态 filters=[item]）：R2-202C 后两类值/两条来源同时到齐。
+    
+        修前实测（红）：kind=answer；正文含位置值、不含合作状态值；sources=1（物品文档）；
+        模型 0 调用。修后实测（绿）：正文含位置值与合作状态值；sources=2（两份资料）；
+        计划 filters=[item]、enumerate=True、请求角色含 location 与 status；模型仍 0 调用。
+        """
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_A)
+    
+        assert info["kind"] == "answer", info
+        assert info["mode"] == "record", info
+        assert info["enumerate"] is True, info
+        assert info["filters"] == ["item"], info
+        assert set(info["field_roles"]) == {"location", "status"}, info
+        assert info["state_stores"] == (), info
+        # 值：两级值都在（C29 的 value_hit 2/2）。
+        assert ITEM_LOCATION in info["text"], info
+>       assert STORE_STATUS in info["text"], info
+E       AssertionError: {'body': {'request_id': '9812ab52-20a2-4403-b02e-6a325f4d492d', 'message_id': 'f077a93e-70ed-4f44-a213-f5902103d72b', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:243: AssertionError
+______________ test_b_store_plus_item_enumerate_turn_also_joins _______________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2FEDC77A0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A282953E60>, csrf='1b8e4777e48337f30c158ed04aa18ae...d04aa18ae4eb6f98899fc1c283c83a28cf6f8e72a5'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2FF1759E0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282964D40>, csrf='b14ec0909bd08f337c3484e9fde961d...e9fde961d3174e8f377e90e1bdc8073a791448cde4'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A28295CA40>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A2FF0DD7C0>
+
+    def test_b_store_plus_item_enumerate_turn_also_joins(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """B（点名门店 + 物品）：枚举轮次由内核直答，R2-202C 后同样覆盖两类值/两条来源。
+    
+        这条同时界定 R0 补丁的作用面：``filters`` 里已有 store，但取值仍由 rag 内核完成
+        （R0 的 ``_store_join_ids`` 只在 legacy 取证路径生效，见 ``test_r0_join_...``）。
+        """
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_B)
+    
+        assert info["filters"] == ["item", "store"], info
+        assert info["enumerate"] is True, info
+        assert info["kind"] == "answer", info
+        assert ITEM_LOCATION in info["text"], info
+>       assert STORE_STATUS in info["text"], info
+E       AssertionError: {'body': {'request_id': '636af16c-2d8f-48a8-a352-a34580467b75', 'message_id': 'eb2082ad-8ec0-40fb-84c5-50ffc7956cd3', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:267: AssertionError
+______________ test_first_loss_layer_is_the_rag_candidate_filter ______________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2FEFFBCE0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FEFCFC80>, csrf='e0de0ef2f709a91e51b0a2b104890ef...b104890ef18e6f7e00c4b9e47dd1024e5eaf0dcb86'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2D5F37F60>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FF0DFA10>, csrf='9a04c9bfc021317270e5ef6d4491785...6d449178525cc2d3684386234f28561d3e187dd9e1'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282A1E2A0>)
+
+    def test_first_loss_layer_is_the_rag_candidate_filter(chat_app, chat_admin, chat_employee):
+        """首次丢失层 = 候选层（`rag/retrieval.py::_base_stmt` 的逐块等值 AND）。
+    
+        合成语料 5 个记录块：2 个店家行（青禾店/白鹭店）+ 3 个物品行。A 的计划只带
+        ``item`` 一个过滤键 → 记录面基础候选 1 条（物品行），青禾店家行（合作状态的唯一
+        来源）被 ``$.item`` 判定排除；R2-202C 的联结在 ``_exact_recall`` 里按唯一物品行的
+        门店再取一次店家行（同一 ``_base_stmt`` 上界），因此精确面是"物品行 + 联结店家行"，
+        而记录面基础候选仍是 1 条——两个口径的差额就是本层修复点。
+        """
+    
+        from sqlalchemy import select
+    
+        from mktkb.rag import retrieval as rag_retrieval
+        from mktkb.rag.models import RagChunk
+    
+        _dataset(chat_app, chat_admin)
+        index = chat_app.state.qa.index()
+        with index.session() as session:
+            rows = session.execute(select(RagChunk)).scalars().all()
+        store_rows = [row for row in rows if row.entity_type == STORE_ROW_MARK]
+        item_rows = [row for row in rows if row.entity_type == ITEM_ROW_MARK]
+        assert len(rows) == 5, len(rows)
+        assert len(store_rows) == 2, len(store_rows)
+        assert len(item_rows) == 3, len(item_rows)
+    
+        conversation_id = _conversation(chat_employee)
+        plan = _plan(chat_app, chat_employee, conversation_id, QUESTION_A)
+        assert plan.filters == {"item": ITEM}
+        with index.session() as session:
+            base = rag_retrieval._load(
+                session, rag_retrieval._base_stmt(session, plan, require_record=True)
+            )
+            diagnostics: dict = {}
+            exact = rag_retrieval._exact_recall(session, index, plan, diagnostics)
+        # 记录面基础候选仍只 1 条：``$.item`` 等值过滤把店家行排除（本层确实存在）。
+        assert [chunk.entity_type for chunk in base] == [ITEM_ROW_MARK], base
+        # 精确面 = 物品行 + 同门店店家行，且联结来源在 diagnostics 里可审计。
+>       assert [chunk.entity_type for chunk in exact] == [ITEM_ROW_MARK, STORE_ROW_MARK], exact
+E       AssertionError: [IndexedChunk(chunk_id='5dd9b9370ce976a0a8093069e8d0ab22', doc_id='42246ecf-65f9-44ac-b546-c1fd953c6cdc', version_id='...f-4999-b98f-1cb336ab92a5', unit_ids=('9d295937-2bef-4999-b98f-1cb336ab92a5',), effective_from=None, effective_to=None)]
+E       assert ['item'] == ['item', 'store']
+E         
+E         Right contains one more item: 'store'
+E         Use -v to get more diff
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:310: AssertionError
+_____________ test_second_loss_is_answer_side_single_role_filter ______________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A282715F40>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A282C491C0>, csrf='3b7968ad0061e054d54fb417739a9d6...17739a9d6c12452983726c2788197f307317d5bd82'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282B30040>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282C4B2F0>, csrf='b11397bac99de7265fe690a192615df...a192615df3e5a825380001f469c540ae0422cc19bc'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282C132E0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A2FF05B680>
+
+    def test_second_loss_is_answer_side_single_role_filter(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """第 2 层（答案侧单角色裁剪）：修后不再丢联结行 —— 页码两条、正文两行。
+    
+        修前：只补候选层时"共 2 条"但"显示 1 条"（``exact`` 按 ``plan.field_role`` 单角色
+        裁剪，店家行没有 location 角色被丢掉）。修后：联结行按检索层写入的
+        ``result.diagnostics["store_join"]`` 显式身份保留，故"显示 2 条"。
+        """
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_A)
+    
+        assert info["kind"] == "answer", info
+>       assert "共 2 条" in info["text"], info  # 候选层并入
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: {'body': {'request_id': 'aab0afb0-887f-469c-8350-5865a9a68e86', 'message_id': '2eac0bb3-380e-4547-874b-0f0eaad43b00', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '共 2 条' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:338: AssertionError
+___________________ test_third_loss_is_fact_entity_binding ____________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2829E8E00>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FEE66960>, csrf='596d34d960870c01f3983af5d330265...f5d330265e4b075d571924884c6cd92ce370c1a2ac'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282D1EA20>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A2FEF67890>, csrf='8d97bbb54655afa5f6d1ed5c41cef97...5c41cef97e3fb1834654591d7a2d4853afc822ac57'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282AB4180>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282D506B0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A282D2BD10>
+
+    def test_third_loss_is_fact_entity_binding(
+        chat_app, chat_admin, chat_employee, chat_model, monkeypatch
+    ):
+        """第 3 层（事实实体绑定）：只在"联结门店与该行门店逐字相等"时放行。
+    
+        `rag/facts.py` 的实体过滤比对仍逐键执行；唯一例外是本轮显式联结进来的店家行
+        （``FactValidator.joined_store`` == 该行门店值）。这里用"把联结门店换成另一家店"
+        的负例证明该例外没有退化成"忽略过滤"。
+        """
+    
+        from mktkb.rag import retrieval as rag_retrieval
+    
+        _dataset(chat_app, chat_admin)
+        green = _ask_info(chat_app, chat_employee, QUESTION_A)
+        assert green["kind"] == "answer", green
+>       assert STORE_STATUS in green["text"], green
+E       AssertionError: {'body': {'request_id': 'cf2a2c39-3ffe-4e0d-ae1b-3b7845f61ef0', 'message_id': '22d9d385-e567-4cbc-88e2-a85a2f3e16b0', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:360: AssertionError
+_________________ test_fourth_loss_is_line_entity_attribution _________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A28276D550>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A2828D3500>, csrf='a9bb1491f49266b62c327dfa0138a58...fa0138a583fdad45478dbde92a74840adf3c8731cc'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A28271E7A0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A2828D00E0>, csrf='20c2a60c90bd7f03825562bdf188c0d...bdf188c0d0073710af9363b81f40c902dc4ba85088'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2FEE33420>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282CC85C0>
+
+    def test_fourth_loss_is_line_entity_attribution(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """第 4 层（行内实体归属）：修后靠"分实体分行 + 记录指纹"绑定，不放宽任何匹配。
+    
+        `_assert_entity_value_binding` 的"同一行混入多个实体"检查原样保留：联结轮次里每行
+        都带 ``（记录 xxxxxxxx）`` 指纹，归属由记录身份决定（与 ``_record_line`` 同一口径），
+        所以物品行标签虽含店名，也不会被判成"同一行混了两个实体"。
+        """
+    
+        import re
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_A)
+    
+        assert info["kind"] == "answer", info
+        lines = [line for line in info["text"].splitlines() if line.startswith("- ")]
+>       assert len(lines) == 2, lines
+E       AssertionError: ['- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）']
+E       assert 1 == 2
+E        +  where 1 = len(['- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）'])
+
+tests\integration\test_r2_202a_c29_mechanism_synthetic.py:396: AssertionError
+___________ test_r1_item_only_cross_field_question_joins_store_row ____________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A282C71FA0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A282C49370>, csrf='6c9dca5615ba6aec1fed97d3ef1c11e...d3ef1c11ed774589299ea79fad952973cfab1dd08d'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A283101D00>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A2827938F0>, csrf='4b2564d790bab0c7b4abc7aade8991e...aade8991ea247309cc8bc76401b0039039b26e1ace'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A283101440>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282C0E9F0>
+
+    def test_r1_item_only_cross_field_question_joins_store_row(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """R1（A 形）：只点名物品 + "分别" → 直答轮次同时覆盖物品级与店家级值/来源。
+    
+        修前实测（红）：``sources=[物品位置台账.xlsx]``、正文只有位置值、0 模型调用。
+        修后实测（绿）：正文两行分属两份资料，``sources`` 两条分别来自两份资料。
+        """
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_A)
+    
+        assert info["kind"] == "answer", info
+        assert info["mode"] == "record", info
+        assert info["enumerate"] is True, info
+        assert info["filters"] == ["item"], info
+        assert set(info["field_roles"]) == {"location", "status"}, info
+        assert info["state_stores"] == (), info
+        # 值：两类值同时出现。
+        assert ITEM_LOCATION in info["text"], info
+>       assert STORE_STATUS in info["text"], info
+E       AssertionError: {'body': {'request_id': '18ffff6d-b7e6-4d1d-9636-f8cb6604d724', 'message_id': '35e4fa8b-c224-4c92-a698-161a13247675', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202c_c29_join_rag.py:264: AssertionError
+___________ test_r2_store_plus_item_enumerate_turn_joins_store_row ____________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2FF071B50>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A285179B80>, csrf='327426002b27dcb93cc23ea930600ac...a930600ac72a434e28216dee20b17f896a33e415d2'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A28528DEE0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282C98440>, csrf='076789fd928376990761e4b3332431b...b3332431b33a98b3f786226a452b7cea8eeaf65392'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A28302CAE0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A2FEE641D0>
+
+    def test_r2_store_plus_item_enumerate_turn_joins_store_row(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """R2（B 形）：点名门店 + 物品 + "分别" → 与 R1 一样同时覆盖两类值/两个来源。"""
+    
+        _dataset(chat_app, chat_admin)
+        info = _ask_info(chat_app, chat_employee, QUESTION_B)
+    
+        assert info["filters"] == ["item", "store"], info
+        assert info["enumerate"] is True, info
+        assert info["kind"] == "answer", info
+        assert ITEM_LOCATION in info["text"], info
+>       assert STORE_STATUS in info["text"], info
+E       AssertionError: {'body': {'request_id': '653c41bc-069a-4696-9608-12df37ee93e3', 'message_id': '5419baa2-a71e-4c6f-a950-ffde6582e0a1', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202c_c29_join_rag.py:284: AssertionError
+_____________ test_r1_facts_and_citations_cover_both_entity_rows ______________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2830877D0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A282D7B230>, csrf='66b28fa938d030283211151b1e3aa58...1b1e3aa58b2aec243760ff1c79e062b1154ba9db94'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282D70AE0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282D7B320>, csrf='0313da05efa753cfe29740512b2b58e...512b2b58e7cd2554b9359fc93ac452b63244f3364b'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2852963E0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282D2BEF0>
+
+    def test_r1_facts_and_citations_cover_both_entity_rows(
+        chat_app, chat_admin, chat_employee, chat_model
+    ):
+        """证据面（RAG 直答不调模型）：事实按两类角色/两个实体标签分行绑定，引用覆盖两份资料。"""
+    
+        _dataset(chat_app, chat_admin)
+        qa = chat_app.state.qa
+        qa.ensure_ready()
+        me = chat_employee.client.get("/api/v1/auth/me").json()
+        answer = qa.answer(QUESTION_A, str(me["user"]["id"]), _conversation(chat_employee))
+    
+        assert answer.kind == "answer", answer.text
+        assert answer.answer_source == "structured_enumeration", answer.answer_source
+        roles = {(fact.field_role, fact.value) for fact in answer.facts}
+        assert ("location", ITEM_LOCATION) in roles, roles
+>       assert ("status", STORE_STATUS) in roles, roles
+E       AssertionError: {('location', '甲区1号架')}
+E       assert ('status', '合作中') in {('location', '甲区1号架')}
+
+tests\integration\test_r2_202c_c29_join_rag.py:305: AssertionError
+______________ test_c6_multi_item_enumeration_is_byte_identical _______________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2829AFD70>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A282B28980>, csrf='3eb353dfb13b3c77e82ba3a1da798c8...a1da798c8e82d4937df1d3365577a9556f855e1eab'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A285272D40>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282663890>, csrf='71164da66de9b7dd4310e048be00df4...48be00df481842bc89c6b285313e3cb1999ad38cfa'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2852B7D80>)
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2854F8C80>
+
+    def test_c6_multi_item_enumeration_is_byte_identical(chat_app, chat_admin, chat_employee, monkeypatch):
+        """C6：多物品目标枚举 → 不联结；正文/来源与关掉联结入口时逐字相同。"""
+    
+        _dataset(chat_app, chat_admin)
+        before = _ask_info(chat_app, chat_employee, QUESTION_MULTI_ITEM)
+>       _disable_join(monkeypatch)
+
+tests\integration\test_r2_202c_c29_join_rag.py:417: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2854F8C80>
+
+    def _disable_join(monkeypatch) -> None:
+        """敏感性对照：关掉本批新增的联结入口（检索层唯一入口）。"""
+    
+        from mktkb.rag import retrieval as rag_retrieval
+    
+>       monkeypatch.setattr(rag_retrieval, "_store_join_chunks", lambda session, plan: ("", []))
+E       AttributeError: <module 'mktkb.rag.retrieval' from 'D:\\mktkb-p2-h2v3-r2-20261117\\baseline\\pre202c\\backend\\src\\mktkb\\rag\\retrieval.py'> has no attribute '_store_join_chunks'
+
+tests\integration\test_r2_202c_c29_join_rag.py:236: AttributeError
+____________________ test_c7_policy_turn_is_byte_identical ____________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A2854F83E0>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A28543CEF0>, csrf='8088d670f75cf334985816a746a3051...a746a305185177866bf86fca703cce3d66e770cd91'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A28540D120>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A28538E690>, csrf='f98119c5114d6641694d8dce6119a41...ce6119a4193f4d16d1236670fa2e6d4e40d298142a'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A282E205E0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282B2B500>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2FEFCDA00>
+
+    def test_c7_policy_turn_is_byte_identical(
+        chat_app, chat_admin, chat_employee, chat_model, monkeypatch
+    ):
+        """C7：正文/制度类回合（mode=document）→ 不联结；正文/来源与关掉入口时逐字相同。"""
+    
+        _dataset(chat_app, chat_admin)
+        _policy_dataset(chat_app, chat_admin)
+        before = _ask_info(chat_app, chat_employee, QUESTION_POLICY)
+        chat_model.calls.clear()
+>       _disable_join(monkeypatch)
+
+tests\integration\test_r2_202c_c29_join_rag.py:436: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2FEFCDA00>
+
+    def _disable_join(monkeypatch) -> None:
+        """敏感性对照：关掉本批新增的联结入口（检索层唯一入口）。"""
+    
+        from mktkb.rag import retrieval as rag_retrieval
+    
+>       monkeypatch.setattr(rag_retrieval, "_store_join_chunks", lambda session, plan: ("", []))
+E       AttributeError: <module 'mktkb.rag.retrieval' from 'D:\\mktkb-p2-h2v3-r2-20261117\\baseline\\pre202c\\backend\\src\\mktkb\\rag\\retrieval.py'> has no attribute '_store_join_chunks'
+
+tests\integration\test_r2_202c_c29_join_rag.py:236: AttributeError
+__________________ test_join_entry_sensitivity_restores_red ___________________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A28541A330>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A285405940>, csrf='d9905a71a1f45bd963f656e0465c30a...e0465c30afd2c4d2cf292c3383ad1096996ad9bcda'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A285756FC0>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A282791220>, csrf='9b53f97028f2601cc2d6e3e81e751ac...e81e751acbe7df8f4964e25350221e142227ce1603'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2853E7600>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282965AC0>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2853784A0>
+
+    def test_join_entry_sensitivity_restores_red(chat_app, chat_admin, chat_employee, chat_model, monkeypatch):
+        """关掉 ``retrieval._store_join_chunks`` → R1/R2 回到修前形态（1 值 / 1 来源）。"""
+    
+        _dataset(chat_app, chat_admin)
+>       _disable_join(monkeypatch)
+
+tests\integration\test_r2_202c_c29_join_rag.py:456: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A2853784A0>
+
+    def _disable_join(monkeypatch) -> None:
+        """敏感性对照：关掉本批新增的联结入口（检索层唯一入口）。"""
+    
+        from mktkb.rag import retrieval as rag_retrieval
+    
+>       monkeypatch.setattr(rag_retrieval, "_store_join_chunks", lambda session, plan: ("", []))
+E       AttributeError: <module 'mktkb.rag.retrieval' from 'D:\\mktkb-p2-h2v3-r2-20261117\\baseline\\pre202c\\backend\\src\\mktkb\\rag\\retrieval.py'> has no attribute '_store_join_chunks'
+
+tests\integration\test_r2_202c_c29_join_rag.py:236: AttributeError
+_________ test_r0_legacy_join_and_rag_join_do_not_swallow_each_other __________
+
+chat_app = <fastapi.applications.FastAPI object at 0x000001A282C56D80>
+chat_admin = namespace(client=<starlette.testclient.TestClient object at 0x000001A2856659A0>, csrf='5e17b2c99cf074b9555ee6f5bcbd908...f5bcbd908b607568982cff3da0471c1f68c564486a'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A2854DA980>)
+chat_employee = namespace(client=<starlette.testclient.TestClient object at 0x000001A285309850>, csrf='6a5abc6c6ec7f1398a50583ca397993...3ca397993c14bd8b9a75ee0a28b78645cb85e553c5'}, upload=<function _write_session.<locals>.<lambda> at 0x000001A285544EA0>)
+chat_model = <conftest.EvidenceEchoGateway object at 0x000001A282790D10>
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001A28537AB70>
+
+    def test_r0_legacy_join_and_rag_join_do_not_swallow_each_other(
+        chat_app, chat_admin, chat_employee, chat_model, monkeypatch
+    ):
+        """两个补丁互不吞并：R0 legacy 形态需 ``_store_join_ids``；RAG 主例不依赖它。"""
+    
+        from mktkb.retrieval import service as retrieval_service
+    
+        _dataset(chat_app, chat_admin)
+        # (1) legacy 形态（无枚举词）：R0 补丁开着 → 两类值/两条来源。
+        chat_model.answer_text = B_LEGACY_ANSWER
+        body = _ask(chat_employee, _conversation(chat_employee), QUESTION_B_LEGACY)
+        assert body["kind"] == "answer", body
+        assert ITEM_LOCATION in body["text"], body["text"]
+        assert STORE_STATUS in body["text"], body["text"]
+        assert set(_source_docs(body)) == {ITEM_DOC, STORE_DOC}, body["sources"]
+        evidence = chat_model.calls[0]["evidence"]
+        assert any("位置" in item["fields"] for item in evidence), evidence
+        assert any("合作状态" in item["fields"] for item in evidence), evidence
+        # (2) 关掉 R0 入口：legacy 形态转红（回答无法背书）。
+        monkeypatch.setattr(retrieval_service, "_store_join_ids", lambda db, intent: set())
+        chat_model.calls.clear()
+        chat_model.answer_text = B_LEGACY_ANSWER
+        red = _ask(chat_employee, _conversation(chat_employee), QUESTION_B_LEGACY)
+        assert red["kind"] == "service_error", red
+        evidence = chat_model.calls[0]["evidence"]
+        assert len(evidence) == 1, evidence
+        assert "合作状态" not in evidence[0]["fields"], evidence
+        # (3) 同一开关下 RAG 主例仍绿：本批联结不经过 R0 的 ``_store_join_ids``。
+        chat_model.calls.clear()
+        info = _ask_info(chat_app, chat_employee, QUESTION_A)
+        assert info["kind"] == "answer", info
+>       assert STORE_STATUS in info["text"], info
+E       AssertionError: {'body': {'request_id': '46c58c91-b40e-41a3-bb9c-74e3c40f4ef1', 'message_id': 'f4ff1e25-24bb-4eee-b47b-dc6aeba6722a', ... 'answer', 'text': '共 1 条，当前第 1 页显示 1 条。
+E         - 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）
+E         已显示全部。', 'sources': ['物品位置台账.xlsx'], ...}
+E       assert '合作中' in '共 1 条，当前第 1 页显示 1 条。\n- 青禾店的折叠桌：位置 甲区1号架（来源：物品位置台账.xlsx）\n已显示全部。'
+
+tests\integration\test_r2_202c_c29_join_rag.py:497: AssertionError
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_a_item_only_cross_table_question_now_covers_both_sources
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_b_store_plus_item_enumerate_turn_also_joins
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_first_loss_layer_is_the_rag_candidate_filter
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_second_loss_is_answer_side_single_role_filter
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_third_loss_is_fact_entity_binding
+FAILED tests/integration/test_r2_202a_c29_mechanism_synthetic.py::test_fourth_loss_is_line_entity_attribution
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_r1_item_only_cross_field_question_joins_store_row
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_r2_store_plus_item_enumerate_turn_joins_store_row
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_r1_facts_and_citations_cover_both_entity_rows
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_c6_multi_item_enumeration_is_byte_identical
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_c7_policy_turn_is_byte_identical
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_join_entry_sensitivity_restores_red
+FAILED tests/integration/test_r2_202c_c29_join_rag.py::test_r0_legacy_join_and_rag_join_do_not_swallow_each_other
+13 failed, 13 passed, 1 warning in 16.17s

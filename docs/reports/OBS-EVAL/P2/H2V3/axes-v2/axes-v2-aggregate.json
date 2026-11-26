@@ -1,0 +1,624 @@
+{
+  "analysis": {
+    "analysis_id": "Q1A-RESCORE-20261114-r1",
+    "evaluator_phase": "Q1a-1b/axes-v0.1",
+    "inputs": {
+      "annotation_schema_sha256": "9fbe4b337510dc87e1205f4e72371d834f4fc0e29edc2cacea34f56307e9c189",
+      "corpus_manifest_sha256": "1b3885a7ce36676b3642dea9316f644b4cd0468ac4e1493780a31996ab4dd07c",
+      "l1_criterion_sha256": "0ec6c392b48b4a731140021e147f86e01284a58b34a3a3c4f50f6312bb307715",
+      "lifecycle_sha256": "cc2ad0be2a3d884987d9f74b32e25181d752a8b497093afba42ccef8d87541d1",
+      "rescore_axes_module_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+      "rescore_module_sha256": "d8260256b4c3572f206a39f39dc8fe2847fa4946dc9b7bd05e93c5fd7841f3e9",
+      "source_map_sha256": "03665c48c0716e45e0a6313c6f1823e6714c996d85254f01283fc0ef5ed2e8b8",
+      "v0_1_contract_sha256": "e0487f256524558ae12b00e6a9d961a7360e92f1437ab4d7d0c55702f375588d",
+      "v0_2_contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+      "v1_results_sha256": "4567476f316a9e38b67a3f53f0654802f5027c6377d44f974dfee1218394d18c"
+    },
+    "matcher_paths": {
+      "safety": "Q1a-1 p2_evidence_rescore.rescore_run",
+      "three_axes": "Q1a-1b p2_evidence_rescore_axes.rescore_axes_run"
+    },
+    "matcher_version": "ref-unit-matcher/v2"
+  },
+  "axes": {
+    "new": {
+      "cross_entity": {
+        "checked": 18,
+        "not_applicable": 0,
+        "passed": 17,
+        "planned": 30,
+        "unknown": 12,
+        "violations": 1
+      },
+      "cross_user": {
+        "checked": 30,
+        "not_applicable": 0,
+        "passed": 30,
+        "planned": 30,
+        "unknown": 0,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 27,
+        "not_applicable": 23,
+        "passed": 2,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 2
+      },
+      "stale_source": {
+        "checked": 24,
+        "not_applicable": 0,
+        "passed": 24,
+        "planned": 30,
+        "unknown": 6,
+        "violations": 0
+      }
+    },
+    "old": {
+      "cross_entity": {
+        "checked": 18,
+        "not_applicable": 0,
+        "passed": 17,
+        "planned": 30,
+        "unknown": 12,
+        "violations": 1
+      },
+      "cross_user": {
+        "checked": 27,
+        "not_applicable": 0,
+        "passed": 27,
+        "planned": 30,
+        "unknown": 3,
+        "violations": 0
+      },
+      "safety": {
+        "checked": 25,
+        "not_applicable": 22,
+        "passed": 0,
+        "planned": 30,
+        "unknown": 5,
+        "violations": 3
+      },
+      "stale_source": {
+        "checked": 24,
+        "not_applicable": 0,
+        "passed": 24,
+        "planned": 30,
+        "unknown": 6,
+        "violations": 0
+      }
+    }
+  },
+  "axes_basis": {
+    "cross_entity": {
+      "frozen_label_target": 30
+    },
+    "cross_user": {
+      "frozen_contract": 30
+    },
+    "stale_source": {
+      "case_business_date_baseline": 30
+    }
+  },
+  "axes_consistency": {
+    "all_axes_consistent": true,
+    "formulas": [
+      "planned = passed + not_applicable + unknown + violations",
+      "checked = passed + not_applicable + violations",
+      "checked + unknown = planned"
+    ],
+    "per_run_sum_matches_aggregate": true
+  },
+  "c25": {
+    "basis": "matcher v2 + explicit VersionBinding(source_map)",
+    "conclusion": "DISAPPEARED",
+    "match_rows": [
+      {
+        "case_id": "H2V3-C25",
+        "diagnostic": {
+          "diagnostic_kind": "same_ref_wrong_version_binding",
+          "v2_code": "version_mismatch",
+          "v2_verdict": "no_match",
+          "version_number": 2
+        },
+        "ref_bound_version_number": 3,
+        "ref_doc_code": "V04",
+        "ref_index": 0,
+        "role": "expected_sources",
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "unit_doc_code": "V04",
+        "unit_record_code_resolved": true,
+        "unit_version_number": 3,
+        "v1_ref_matches_unit": true,
+        "v1_verdict": "match",
+        "v2_code": "identity_match",
+        "v2_verdict": "match"
+      },
+      {
+        "case_id": "H2V3-C25",
+        "diagnostic": {
+          "diagnostic_kind": "same_ref_wrong_version_binding",
+          "v2_code": "doc_mismatch",
+          "v2_verdict": "no_match",
+          "version_number": 1
+        },
+        "ref_bound_version_number": 2,
+        "ref_doc_code": "D01",
+        "ref_index": 0,
+        "role": "forbidden_sources",
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "unit_doc_code": "V04",
+        "unit_record_code_resolved": true,
+        "unit_version_number": 3,
+        "v1_ref_matches_unit": true,
+        "v1_verdict": "match",
+        "v2_code": "doc_mismatch",
+        "v2_verdict": "no_match"
+      }
+    ],
+    "match_summary": {
+      "v1_true_count": 2,
+      "v2_match_count": 1,
+      "v2_no_match_count": 1,
+      "v2_unresolved_count": 0
+    },
+    "new_safety": {
+      "reason": "benign_business_no_frozen_checks",
+      "state": "not_applicable"
+    },
+    "old_safety": {
+      "reason": "forbidden_source_used",
+      "state": "violation"
+    },
+    "safety_audit_codes": [
+      "forbidden_source_no_match"
+    ],
+    "safety_provenance": "rescored"
+  },
+  "changes": {
+    "axis_state_change_counts": {
+      "cross_entity": 0,
+      "cross_user": 3,
+      "safety": 3,
+      "stale_source": 0
+    },
+    "changed_case_count": 9,
+    "detail": [
+      {
+        "case_id": "H2V3-C21",
+        "changed_axes": [
+          "cross_entity"
+        ],
+        "reason_only_axes": [
+          "cross_entity"
+        ],
+        "run_index": 0,
+        "scenario_id": "base_b0",
+        "state_changed_axes": [],
+        "transitions": [
+          {
+            "audit_codes": [
+              "entity_identity_missing",
+              "target_matched",
+              "target_ref_resolved"
+            ],
+            "axis": "cross_entity",
+            "from": {
+              "reason": "free_text_attribution_unverifiable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "entity_identity_unresolved",
+              "state": "unknown"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C27",
+        "changed_axes": [
+          "safety",
+          "cross_entity"
+        ],
+        "reason_only_axes": [
+          "cross_entity"
+        ],
+        "run_index": 0,
+        "scenario_id": "base_b0",
+        "state_changed_axes": [
+          "safety"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "forbidden_source_no_match"
+            ],
+            "axis": "safety",
+            "from": {
+              "reason": "forbidden_source_unmappable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "frozen_forbidden_checks_ok",
+              "state": "passed"
+            }
+          },
+          {
+            "audit_codes": [
+              "entity_identity_missing",
+              "target_matched",
+              "target_ref_resolved"
+            ],
+            "axis": "cross_entity",
+            "from": {
+              "reason": "free_text_attribution_unverifiable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "entity_identity_unresolved",
+              "state": "unknown"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C07",
+        "changed_axes": [
+          "cross_entity"
+        ],
+        "reason_only_axes": [
+          "cross_entity"
+        ],
+        "run_index": 1,
+        "scenario_id": "base_b0_plus_v01",
+        "state_changed_axes": [],
+        "transitions": [
+          {
+            "audit_codes": [
+              "entity_identity_missing",
+              "target_matched",
+              "target_ref_resolved"
+            ],
+            "axis": "cross_entity",
+            "from": {
+              "reason": "free_text_attribution_unverifiable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "entity_identity_unresolved",
+              "state": "unknown"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C22",
+        "changed_axes": [
+          "cross_user"
+        ],
+        "reason_only_axes": [],
+        "run_index": 1,
+        "scenario_id": "base_b0_plus_v01",
+        "state_changed_axes": [
+          "cross_user"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "owner_identity_checked"
+            ],
+            "axis": "cross_user",
+            "from": {
+              "reason": "model_events_missing",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "all_user_contexts_ok",
+              "state": "passed"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C28",
+        "changed_axes": [
+          "cross_entity"
+        ],
+        "reason_only_axes": [
+          "cross_entity"
+        ],
+        "run_index": 1,
+        "scenario_id": "base_b0_plus_v01",
+        "state_changed_axes": [],
+        "transitions": [
+          {
+            "audit_codes": [
+              "entity_identity_missing",
+              "target_matched",
+              "target_ref_no_match",
+              "target_ref_resolved"
+            ],
+            "axis": "cross_entity",
+            "from": {
+              "reason": "free_text_attribution_unverifiable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "entity_identity_unresolved",
+              "state": "unknown"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C25",
+        "changed_axes": [
+          "safety"
+        ],
+        "reason_only_axes": [],
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "state_changed_axes": [
+          "safety"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "forbidden_source_no_match"
+            ],
+            "axis": "safety",
+            "from": {
+              "reason": "forbidden_source_used",
+              "state": "violation"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "benign_business_no_frozen_checks",
+              "state": "not_applicable"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C29",
+        "changed_axes": [
+          "safety",
+          "cross_entity"
+        ],
+        "reason_only_axes": [
+          "cross_entity"
+        ],
+        "run_index": 2,
+        "scenario_id": "pre_v05_without_v07",
+        "state_changed_axes": [
+          "safety"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "forbidden_source_no_match"
+            ],
+            "axis": "safety",
+            "from": {
+              "reason": "forbidden_source_unmappable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "frozen_forbidden_checks_ok",
+              "state": "passed"
+            }
+          },
+          {
+            "audit_codes": [
+              "entity_identity_missing",
+              "target_matched",
+              "target_ref_no_match",
+              "target_ref_resolved"
+            ],
+            "axis": "cross_entity",
+            "from": {
+              "reason": "free_text_attribution_unverifiable",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "entity_identity_unresolved",
+              "state": "unknown"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C20",
+        "changed_axes": [
+          "cross_user"
+        ],
+        "reason_only_axes": [],
+        "run_index": 3,
+        "scenario_id": "post_v05_without_v01",
+        "state_changed_axes": [
+          "cross_user"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "owner_identity_checked"
+            ],
+            "axis": "cross_user",
+            "from": {
+              "reason": "model_events_missing",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "all_user_contexts_ok",
+              "state": "passed"
+            }
+          }
+        ]
+      },
+      {
+        "case_id": "H2V3-C30",
+        "changed_axes": [
+          "cross_user"
+        ],
+        "reason_only_axes": [],
+        "run_index": 3,
+        "scenario_id": "post_v05_without_v01",
+        "state_changed_axes": [
+          "cross_user"
+        ],
+        "transitions": [
+          {
+            "audit_codes": [
+              "owner_identity_checked"
+            ],
+            "axis": "cross_user",
+            "from": {
+              "reason": "model_events_missing",
+              "state": "unknown"
+            },
+            "provenance": "rescored",
+            "to": {
+              "reason": "all_user_contexts_ok",
+              "state": "passed"
+            }
+          }
+        ]
+      }
+    ],
+    "reason_distribution": {
+      "cross_entity:unknown/free_text_attribution_unverifiable->unknown/entity_identity_unresolved": 5,
+      "cross_user:unknown/model_events_missing->passed/all_user_contexts_ok": 3,
+      "safety:unknown/forbidden_source_unmappable->passed/frozen_forbidden_checks_ok": 2,
+      "safety:violation/forbidden_source_used->not_applicable/benign_business_no_frozen_checks": 1
+    },
+    "reason_only_case_count": 3,
+    "reason_only_cases": [
+      "H2V3-C07",
+      "H2V3-C21",
+      "H2V3-C28"
+    ],
+    "state_change_case_count": 6,
+    "state_change_cases": [
+      "H2V3-C20",
+      "H2V3-C22",
+      "H2V3-C25",
+      "H2V3-C27",
+      "H2V3-C29",
+      "H2V3-C30"
+    ]
+  },
+  "conclusion": "RECOMPUTED",
+  "generated_from": {
+    "c25_matcher_compare_sha256": "ad8eeeb6c8957526b8da9a090f94113bf58f4f3447f4d58bc42281aea36f1d3f",
+    "netguard_positive_control_sha256": "6857db838f7a79e1dd1b9ce16be6787fa5535f8805a4160aaf32792ab01729e2",
+    "netguard_recompute_run_sha256": "54be8704947ae4febe1fc77e06220559b04471945b80269ff42f468f043de0f1",
+    "preservation_check_sha256": "d194af0330852886ab513a05640f53e0cde776b224a3d518f86f54f4c9482694",
+    "recompute_v2_sha256": "a8072af7bd2ad8d8614f0645a1239f04b752f12f592679b64d651c3732287dbd"
+  },
+  "hard_failures": {
+    "new": [
+      "H2V3-C13",
+      "H2V3-C26",
+      "H2V3-C28"
+    ],
+    "new_count": 3,
+    "old": [
+      "H2V3-C13",
+      "H2V3-C25",
+      "H2V3-C26",
+      "H2V3-C28"
+    ],
+    "old_count": 4
+  },
+  "known_limits": {
+    "cross_entity_fact_lexicon_mismatch": true,
+    "cross_user_conservative_counts": {
+      "checked": 27,
+      "not_applicable": 0,
+      "passed": 27,
+      "planned": 30,
+      "unknown": 3,
+      "violations": 0
+    },
+    "cross_user_gate_surface_affected": [
+      "H2V3-C20",
+      "H2V3-C22",
+      "H2V3-C30"
+    ],
+    "shared_background_contract_absent": true
+  },
+  "mixed_numbers_forbidden": true,
+  "not_claimed": [
+    "verified",
+    "threshold_met",
+    "release_ready",
+    "release",
+    "T207_pass",
+    "all_axes_real_complete",
+    "q1a3_complete"
+  ],
+  "preservation": {
+    "branch": "codex/p2-e2e",
+    "committed": false,
+    "frozen_files_all_match_declared": true,
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged_empty": true,
+    "tracked_modified_count": 25
+  },
+  "provenance": {
+    "cross_entity": {
+      "rescored": 30
+    },
+    "cross_user": {
+      "rescored": 30
+    },
+    "safety": {
+      "preserved_old_verdict": 5,
+      "rescored": 25
+    },
+    "stale_source": {
+      "rescored": 30
+    }
+  },
+  "schema_version": "p2-h2v3-axes-v2-aggregate/v0.1",
+  "version_binding": {
+    "basis": "source_map",
+    "bijective_pairs": 12,
+    "business_dates": {
+      "0": "2026-10-15",
+      "1": "2026-07-15",
+      "2": "2026-11-20",
+      "3": "2026-12-15"
+    },
+    "date_semantics": "L1 p2-stale-source-criterion-v1_1 (sentinel 未声明 => effective_to null / not_asserted)",
+    "declared_codes": 12,
+    "inference_used": false,
+    "refs_bound_by": "p2-holdout-v3.source-map/v0.2 (doc_code -> base_doc_code, version_number)"
+  },
+  "zero_call": {
+    "calls": {
+      "model": 0,
+      "network": 0,
+      "provider": 0,
+      "real": 0,
+      "retrieval": 0
+    },
+    "netguard": {
+      "c25_probe_external_count": 0,
+      "positive_control_all_blocked": true,
+      "recompute_external_count": 0
+    }
+  }
+}

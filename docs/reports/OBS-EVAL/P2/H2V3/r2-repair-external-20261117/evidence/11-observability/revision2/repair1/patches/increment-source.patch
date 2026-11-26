@@ -1,0 +1,16 @@
+--- a/backend/src/mktkb/observability/evaluation_capture.py
++++ b/backend/src/mktkb/observability/evaluation_capture.py
+@@ -570,6 +570,13 @@
+     if "stores_state" in cleaned and "stores_count" in cleaned:
+         if (cleaned["stores_state"] == "unknown") != (cleaned["stores_count"] is None):
+             raise CaptureEventError("stores_state_count_mismatch")
++    if kind == "retrieval_observed" and cleaned.get("scope") == "direct_rag_retrieval" and "candidate_count" in cleaned:
++        count = cleaned["candidate_count"]
++        ids = cleaned["unit_ids"]
++        if (not cleaned["candidate"] or len(ids) != min(count, MAX_LIST_ITEMS)
++                or len(set(ids)) != len(ids) or cleaned["empty"] != (count == 0)
++                or cleaned["truncated"] != (count > MAX_LIST_ITEMS)):
++            raise CaptureEventError("candidate_observation_inconsistent")
+     return cleaned
+ 
+ 

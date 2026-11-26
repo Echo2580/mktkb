@@ -1,0 +1,160 @@
+python.exe : 
+所在位置 行:17 字符: 3
++   & $py -X utf8 -m pytest tests/integration/test_s2b_intent_semantics ...
++   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    + CategoryInfo          : NotSpecified: (:String) [], RemoteException
+    + FullyQualifiedErrorId : NativeCommandError
+ 
+[r2baseline] VERIFIED mktkb.__file__=D:\mktkb-p2-h2v3-r2-20261117\baseline\mix5\backend\src\mktkb\__init__.py
+[r2baseline] alt_src=D:\mktkb-p2-h2v3-r2-20261117\baseline\mix5\backend\src other_mktkb_path_entries_removed=2
+..FF.FFF                                                                 [100%]
+================================== FAILURES ===================================
+________________ test_ambiguous_identifier_candidates_converge ________________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A4F2735C40>, 'admin': <starlette.testclient.TestClient object ...0f9237d556458eb6b2ff9d8127dbe78269b'}, 'employee': <starlette.testclient.TestClient object at 0x000001A4F60FEEA0>, ...}
+
+    def test_ambiguous_identifier_candidates_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+        opening = _ask(client, conversation, "标识 IB-777 在哪里？")
+>       assert opening["kind"] == "clarification", opening
+E       AssertionError: {'request_id': 'fcb28e64-6441-4a5d-bdb8-2b35b37d46d3', 'message_id': 'bc9aa8f8-1343-44bd-877f-1a735e857fbf', 'kind': 'conflict', 'text': '资料中存在冲突：江湾店的立牌的位置有多个有效值：C区一层（来源：dup.xlsx）；C区二层（来源：dup.xlsx）。未按上传时间自动选择其一。', ...}
+E       assert 'conflict' == 'clarification'
+E         
+E         - clarification
+E         + conflict
+
+tests\integration\test_s2b_intent_semantics.py:196: AssertionError
+___________ test_multi_row_candidates_carry_identifier_and_converge ___________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A4F2E41100>, 'admin': <starlette.testclient.TestClient object ...49059afe3255bf2aced031ae880f92221bf'}, 'employee': <starlette.testclient.TestClient object at 0x000001A4F27BFEC0>, ...}
+
+    def test_multi_row_candidates_carry_identifier_and_converge(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+>       opening = _ask(client, conversation, "湖滨店的展架在哪里？")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:208: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = <starlette.testclient.TestClient object at 0x000001A4F27BFEC0>
+conversation = '2405eb73-627c-449e-a29c-b68370c1a1da', question = '湖滨店的展架在哪里？'
+
+    def _ask(client, conversation: str, question: str) -> dict:
+        response = client.post(
+            f"/api/v1/conversations/{conversation}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=write_headers(_csrf(client)),
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"19b982c2-5f7e-4b9e-aa25-88afcecfb461"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_s2b_intent_semantics.py:146: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=19b982c2-5f7e-4b9e-aa25-88afcecfb461
+________________ test_bare_store_followup_keeps_item_and_field ________________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A4F2B4BDD0>, 'admin': <starlette.testclient.TestClient object ...e1384bb976b754ed5060b205a8a5da9eec4'}, 'employee': <starlette.testclient.TestClient object at 0x000001A4F271B440>, ...}
+
+    def test_bare_store_followup_keeps_item_and_field(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+>       opening = _ask(client, conversation, "展架的数量是多少？")
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:239: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = <starlette.testclient.TestClient object at 0x000001A4F271B440>
+conversation = '734ac826-1418-4c55-824c-e6840d0f16af', question = '展架的数量是多少？'
+
+    def _ask(client, conversation: str, question: str) -> dict:
+        response = client.post(
+            f"/api/v1/conversations/{conversation}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=write_headers(_csrf(client)),
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"2e00b525-5ca4-4b95-9065-470728a5c8a6"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_s2b_intent_semantics.py:146: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=2e00b525-5ca4-4b95-9065-470728a5c8a6
+_____________ test_item_switch_and_store_level_field_reset_slots ______________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A4F88DFCE0>, 'admin': <starlette.testclient.TestClient object ...dbbf0c7410a37c48daea190db6c906d7549'}, 'employee': <starlette.testclient.TestClient object at 0x000001A4F2D91940>, ...}
+
+    def test_item_switch_and_store_level_field_reset_slots(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+>       assert _ask(client, conversation, "展架的数量是多少？")["kind"] == "answer"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:250: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = <starlette.testclient.TestClient object at 0x000001A4F2D91940>
+conversation = 'ecd89f00-37ae-40c3-ab15-976fbe7b0486', question = '展架的数量是多少？'
+
+    def _ask(client, conversation: str, question: str) -> dict:
+        response = client.post(
+            f"/api/v1/conversations/{conversation}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=write_headers(_csrf(client)),
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"99eda761-0528-40e9-b0b2-80131a3bd1b9"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_s2b_intent_semantics.py:146: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=99eda761-0528-40e9-b0b2-80131a3bd1b9
+_____________ test_bare_store_after_store_level_field_keeps_field _____________
+
+b_fixture = {'app': <fastapi.applications.FastAPI object at 0x000001A4F6154500>, 'admin': <starlette.testclient.TestClient object ...739ebe4a5bbc63b285cd7cf25042cf1956d'}, 'employee': <starlette.testclient.TestClient object at 0x000001A4F87262D0>, ...}
+
+    def test_bare_store_after_store_level_field_keeps_field(b_fixture):
+        client = b_fixture["employee"]
+        conversation = _conversation(client)
+>       assert _ask(client, conversation, "湖滨店的电话是多少？")["kind"] == "answer"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\integration\test_s2b_intent_semantics.py:268: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+client = <starlette.testclient.TestClient object at 0x000001A4F87262D0>
+conversation = 'f40dfce3-b0ec-4a25-acca-cad18ca7ab4a', question = '湖滨店的电话是多少？'
+
+    def _ask(client, conversation: str, question: str) -> dict:
+        response = client.post(
+            f"/api/v1/conversations/{conversation}/messages",
+            json={"client_request_id": str(uuid.uuid4()), "question": question},
+            headers=write_headers(_csrf(client)),
+        )
+>       assert response.status_code == 200, response.text
+E       AssertionError: {"error":{"code":"INTERNAL_ERROR","message":"服务处理失败","retryable":true,"details":null},"request_id":"1d21a2e3-82fc-4d1b-b9ab-5ccdf28a88b7"}
+E       assert 500 == 200
+E        +  where 500 = <Response [500 Internal Server Error]>.status_code
+
+tests\integration\test_s2b_intent_semantics.py:146: AssertionError
+------------------------------ Captured log call ------------------------------
+ERROR    mktkb.errors:errors.py:366 unhandled_error type=TypeError request_id=1d21a2e3-82fc-4d1b-b9ab-5ccdf28a88b7
+============================== warnings summary ===============================
+..\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT项目\市场部AI知识库\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED tests/integration/test_s2b_intent_semantics.py::test_ambiguous_identifier_candidates_converge
+FAILED tests/integration/test_s2b_intent_semantics.py::test_multi_row_candidates_carry_identifier_and_converge
+FAILED tests/integration/test_s2b_intent_semantics.py::test_bare_store_followup_keeps_item_and_field
+FAILED tests/integration/test_s2b_intent_semantics.py::test_item_switch_and_store_level_field_reset_slots
+FAILED tests/integration/test_s2b_intent_semantics.py::test_bare_store_after_store_level_field_keeps_field
+5 failed, 3 passed, 1 warning in 6.49s

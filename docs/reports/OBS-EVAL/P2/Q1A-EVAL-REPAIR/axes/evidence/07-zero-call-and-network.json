@@ -1,0 +1,89 @@
+{
+  "analysis_id": "Q1A-RESCORE-20261114-r1",
+  "calls": {
+    "embedding": 0,
+    "judge": 0,
+    "model": 0,
+    "network": 0,
+    "ocr": 0,
+    "provider": 0,
+    "real": 0,
+    "rerank": 0,
+    "retrieval": 0
+  },
+  "commands": [
+    ".venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore_axes.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1b",
+    ".venv/Scripts/python.exe -m pytest backend/tests/evaluation/test_p2_evidence_rescore.py -q -p no:cacheprovider --basetemp backend/.pytest-tmp/q1a1b-regress",
+    ".venv/Scripts/python.exe docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/evidence/03-gen-counterexamples.py docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/axes/evidence/02-synthetic-counterexamples.json"
+  ],
+  "contract_sha256": "747e3656bfbaf0bb4f0e40444d96d20d2b30806d80d061fbca13b962a46c8db5",
+  "evaluator_phase": "Q1a-1b/axes-v0.1",
+  "execution_entrypoints_used": [
+    "pytest（仅新增 22 项测试与 Q1a-1 20 项回归）",
+    "合成反例脚本 03-gen-counterexamples.py",
+    "保护件 hash 复核 05-verify-protected.py",
+    "本证据脚本 07-build-zero-call-evidence.py"
+  ],
+  "module_sha256": "57495943c763977e62fa7acded407e99ba360336fc5ee8c822f5e084f200f08e",
+  "real_inputs_read": {
+    "key_or_env_file": false,
+    "ledger_or_go": false,
+    "private_ciphertext": false,
+    "private_custody_sessions": false,
+    "real_h2_cases_or_outputs": false
+  },
+  "runtime_network_guard": {
+    "applied_to": [
+      "backend/tests/evaluation/test_p2_evidence_rescore_axes.py",
+      "backend/tests/evaluation/test_p2_evidence_rescore.py"
+    ],
+    "asserted_at_teardown": true,
+    "external_attempts": 0,
+    "fixture": "acceptance.support.netguard.t09_network_guard",
+    "regression_tests": 20,
+    "source": "01-pytest.txt（两次 run exit 0）",
+    "tests": 22
+  },
+  "schema_version": "q1a1b-zero-call-and-network/v1",
+  "staged_or_committed": false,
+  "static_import_scan": {
+    "forbidden_modules": [
+      "base64",
+      "cryptography",
+      "http.client",
+      "httpx",
+      "mktkb.evaluation.p2_hard_evidence",
+      "mktkb.evaluation.p2_live",
+      "mktkb.evaluation.product_adapter",
+      "mktkb.rag",
+      "openai",
+      "requests",
+      "socket",
+      "urllib",
+      "urllib3"
+    ],
+    "imports": [
+      "__future__",
+      "collections.abc",
+      "dataclasses",
+      "datetime",
+      "hashlib",
+      "json",
+      "os",
+      "p2_evidence_rescore",
+      "pathlib",
+      "re",
+      "types",
+      "typing"
+    ],
+    "matched_forbidden_modules": [],
+    "module": "backend/src/mktkb/evaluation/p2_evidence_rescore_axes.py",
+    "no_ciphertext_or_key_access": true,
+    "no_frozen_evaluator_import": true,
+    "no_monkeypatch_calls": true,
+    "no_os_environ": true,
+    "no_subprocess": true,
+    "scan_result": "PASS"
+  },
+  "test_sha256": "1de091b6b43603aa53b6e62514e28407f1dcb24d00564df7328aba9a2131e063"
+}

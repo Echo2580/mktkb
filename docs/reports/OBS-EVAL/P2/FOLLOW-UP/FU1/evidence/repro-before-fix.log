@@ -1,0 +1,18 @@
+﻿STATUS succeeded None
+PRODUCT_REVISION 3
+INDEX_STATUS {'ready': True, 'product_revision': 3, 'index_revision': 4, 'documents': 2, 'units': 16, 'chunks': 11, 'provider_mode': 'offline', 'degraded': [], 'error_code': None, 'error': None, 'synced_at': '2026-11-20T18:42:50+00:00', 'db_path': 'C:\\Users\\dell1712\\AppData\\Local\\Temp\\pytest-of-dell1712\\pytest-900\\test_probe_fu10\\probe\\data\\rag-index.sqlite3', 'engine_version': 's2-a-2', 'config': {'provider_mode': 'offline', 'embedding_model': 'text-embedding-v4', 'embedding_dimensions': 1024, 'embedding_base_url': 'https://dashscope.aliyuncs.com', 'rerank_model': 'gte-rerank-v2', 'rerank_base_url': 'https://dashscope.aliyuncs.com', 'chat_model': None, 'chunk_max_chars': 900, 'chunk_max_units': 6, 'top_k': 8, 'candidate_limit': 5000, 'stage': 'S1-DEV', 'stage_limit_cny': 3.0, 'max_request_cny': 0.1, 'max_output_tokens': 800, 'chat_reserve_profile': None, 'chat_context_ceiling_tokens': None, 'max_retries': 2, 'require_zero_retries': False, 'require_token_meter': False, 'tokenizer_configured': False, 'tokenizer_sha256': None, 'disable_query_embedding': False, 'record_only': False, 'credentials_present': False}}
+MANIFEST_INDEX_REVISION 3
+BINDING {'binding_version': 'p2-binding/v0.1', 'complete': True, 'config_hash': '1987b70d45cedb18ac1ffdca421d580ecc963b75abd8d3b5c694b16b23c1adf8', 'dataset_sha256': '33f2e8aa086e4dc8825a8f7130685e51f7a5e624115ed0c3ac4d5eb04af5174b', 'dataset_version': 'p2-synthetic-v1', 'gate_config_hash': 'd10975732dd50616f959fde71a3ead42822b877e98c55c4367902cb053cfd2a8', 'gate_version': 'mktkb.gate.v0.3', 'index_revision': 3, 'label_version': 'synthetic-v1', 'manifest_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'missing': [], 'pipeline_version': 'd3ca88d2c515', 'provider': {'chat': {'model': 'mock-chat', 'provider': 'p2-mock', 'transport': 'MockTransport'}, 'embedding': {'impl': 'MockEmbeddingProvider', 'model': 'text-embedding-v4', 'provider': 'p2-mock'}, 'ocr': 'disabled', 'rerank': {'impl': 'MockReranker', 'model': 'gte-rerank-v2', 'provider': 'p2-mock'}}, 'trace_identity_bound': True}
+TRACE 7cdcabaa6ee746048f0d8ee6d90f9063 4 rag 1987b70d45cedb18ac1ffdca421d580ecc963b75abd8d3b5c694b16b23c1adf8
+TRACE ec38b372f5e94a919b54eb76fd907063 3 legacy 1987b70d45cedb18ac1ffdca421d580ecc963b75abd8d3b5c694b16b23c1adf8
+GATE_STATUS {'security_leak': 'not_applicable', 'cross_entity': 'not_applicable', 'stale_bypass': 'not_applicable', 'conflict_not_rejected': 'not_applicable', 'exact_value_contract': 'not_applicable', 'pagination_contract': 'pass', 'citation_required': 'pass', 'trace_integrity': 'fail'}
+HARD_FAILURES ('trace_integrity',)
+FAIL trace_integrity version_binding {'trace_id': '7cdcabaa6ee746048f0d8ee6d90f9063', 'mismatched': ['index_revision'], 'expected': {'dataset_version': 'p2-synthetic-v1', 'pipeline_version': 'd3ca88d2c515', 'run_id': 'p2run-9cc2419d5bdd4b99', 'index_revision': 3, 'manifest_sha256': 'bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb', 'config_hash': '1987b70d45cedb18ac1ffdca421d580ecc963b75abd8d3b5c694b16b23c1adf8', 'mode': 'local'}}
+.
+============================== warnings summary ===============================
+..\..\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1
+  D:\GPT��Ŀ\�г���AI֪ʶ��\.venv\Lib\site-packages\fastapi\testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+1 passed, 1 warning in 2.29s

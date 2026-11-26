@@ -1,0 +1,38 @@
+T209-PREP D1 返工独立复验命令日志（round 2）
+环境：MKTKB_NO_DOTENV=1 / PYTHONDONTWRITEBYTECODE=1 / PYTHONIOENCODING=utf-8 / pytest -p no:cacheprovider
+cwd：D:\GPT项目\市场部AI知识库
+branch=codex/p2-e2e  head=97b0066726e5b8d6f94cbc0b63a890084550c106
+新对象 hash（复算，与 lead 提供一致）：
+  模块 597be014f67ecb131aa1326c9d0fa30b85adad0be11b38334723246bf5b41405
+  测试 f1edcaed7a50b416dfa1e4c7316da23b055b733bbf83ebe21a401702b0e46811
+  dev-report 2493ef09d294602c2a7fbdc324abbcf50a37b1a20da44c41d845146957de5d98
+  freeze 005c240c83011ee623a1d7c5a538dfa3fb61bce7dfefb3a630a1ff1d78e55ce1（20 项）
+
+01  pytest backend/tests/evaluation/test_p2_candidate_report.py -q -rs --junitxml=rework\junit-new-40.xml
+    exit=0  40 passed；junit tests=40 failures=0 errors=0 skipped=0
+02  pytest test_report.py test_baseline_portability.py test_diff_release_gate.py test_p2_gate.py -q -rs --junitxml=rework\junit-existing-80.xml
+    exit=0  80 passed；junit tests=80 failures=0 errors=0 skipped=0
+03  pytest <new + 4 existing> --collect-only -q
+    exit=0  120 tests collected（40+80）
+04  pytest test_p2_candidate_report.py -q --setup-show
+    exit=0  40 passed；t09_network_guard SETUP=40 / TEARDOWN=40
+05  pytest test_p2_candidate_report.py -q -k "execution_aggregate or failed_execution_report" --junitxml=rework\junit-d1-6.xml
+    exit=0  6 passed, 34 deselected；D1 定向回归用例真实执行
+06  pytest independent\guard_canary.py -q -p no:cacheprovider
+    exit=1（预期负向 canary）teardown AssertionError：检测到真实外部出站尝试，guard 非空
+07  independent\11_d1_rework_probe.py
+    exit=0  checks=50 failed=0：4 failed→failed、failed 可达、2+2→partial、全 not_run/0 run→not_run、全 succeeded→succeeded；to_dict/from_dict/render 一致；非数组/非法 status 仍拒绝
+08  independent\02_report_probe.py  exit=0  checks=74 failed=0
+09  independent\03_candidate_probe.py exit=0 checks=52 failed=0（候选不可发布/恢复/diff 语义不变）
+10  independent\04_bad_inputs_probe.py exit=0 checks=22 failed=0（18 类坏输入仍 fail-closed）
+11  independent\01_protected_recheck.py exit=0 42/42；pre/post 均 IDENTICAL
+12  independent\05_zero_calls_probe.py exit=0 checks=7 failed=0（源码 0、import+渲染 0、完整链 0）
+13  independent\06_freeze_recheck.py exit=0 checks=9 failed=0（20/20；模块/测试/dev-report hash 一致；04 示例与 chain demo 可复现）
+14  independent\08_contract_probe.py exit=0 checks=30 failed=0（40/80/120 与 red/protected 日志自洽；NOT-RUN 如实；无通过标记）
+15  independent\09_edge_probe.py exit=0 OBSERVATIONS_RECORDED（all_failed=failed、failed 可达；R1/R2 残余未变）
+16  git rev-parse / status / diff
+    branch=codex/p2-e2e；head=97b00…；staged=0；tracked_diff=15（全部早于 T209 窗口）
+    reused 7 文件 git diff 干净；LOCAL-R1 git clean；正式 registry 仅 bc6f6f906db1（mtime 2026-11-09）
+17  pre/post 行比较：pre_lines=67 post_lines=67 changed_lines=0 RESULT=IDENTICAL
+
+结论：D1 resolved；40/80/120；冻结 20/20；保护件/零真实调用不变；候选与坏输入语义不变；最终 overall PASS。

@@ -1,0 +1,359 @@
+{
+ "probe": "03-class-c",
+ "generated_utc": "2026-11-14T14:27:35.044662+00:00",
+ "check_count": 23,
+ "failure_count": 0,
+ "verdict": "PASS",
+ "checks": [
+  {
+   "name": "class_c_cross_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown"
+   }
+  },
+  {
+   "name": "class_c_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "class_c_stale_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown"
+   }
+  },
+  {
+   "name": "class_c_stale_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "class_c_proof_audit_marker",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   }
+  },
+  {
+   "name": true,
+   "ok": true,
+   "detail": {
+    "empty_set_candidate": true
+   }
+  },
+  {
+   "name": "class_c2_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "truncated_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "truncated_marker",
+   "ok": true,
+   "detail": {
+    "actual": true,
+    "expected": true
+   }
+  },
+  {
+   "name": "nonempty_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "unobserved_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "partial_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "empty_set_not_proven",
+    "expected": "empty_set_not_proven"
+   }
+  },
+  {
+   "name": "genuine_cross_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed"
+   }
+  },
+  {
+   "name": "genuine_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "cross_entity_empty_use_scope_ok",
+    "expected": "cross_entity_empty_use_scope_ok"
+   }
+  },
+  {
+   "name": "genuine_stale_state",
+   "ok": true,
+   "detail": {
+    "actual": "passed",
+    "expected": "passed"
+   }
+  },
+  {
+   "name": "genuine_stale_reason",
+   "ok": true,
+   "detail": {
+    "actual": "stale_source_dates_ok",
+    "expected": "stale_source_dates_ok"
+   }
+  },
+  {
+   "name": "contradictory_empty_set_candidate_rejected",
+   "ok": true,
+   "detail": {
+    "actual": "snapshot_field_invalid:empty_use_scope_input.empty_set_candidate",
+    "expected": "snapshot_field_invalid:empty_use_scope_input.empty_set_candidate"
+   }
+  },
+  {
+   "name": "na_state",
+   "ok": true,
+   "detail": {
+    "actual": "not_applicable",
+    "expected": "not_applicable"
+   }
+  },
+  {
+   "name": "na_reason",
+   "ok": true,
+   "detail": {
+    "actual": "no_entity_scope_verified",
+    "expected": "no_entity_scope_verified"
+   }
+  },
+  {
+   "name": "na_stale_still_unknown",
+   "ok": true,
+   "detail": {
+    "actual": "stale_source_unresolved",
+    "expected": "stale_source_unresolved"
+   }
+  },
+  {
+   "name": "unresolved_records_cross_state",
+   "ok": true,
+   "detail": {
+    "actual": "unknown",
+    "expected": "unknown"
+   }
+  },
+  {
+   "name": "unresolved_records_cross_reason",
+   "ok": true,
+   "detail": {
+    "actual": "identity_unresolved",
+    "expected": "identity_unresolved"
+   }
+  },
+  {
+   "name": "no_class_c_shape_becomes_proven_or_na",
+   "ok": true,
+   "detail": {
+    "actual": {},
+    "expected": {}
+   }
+  }
+ ],
+ "shapes": {
+  "class_c_standard": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "class_c_retrieval_not_observed",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "class_c_retrieval_not_observed",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "class_c_query_state_observed": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "class_c_retrieval_not_observed",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "class_c_retrieval_not_observed",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "retrieval_truncated": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "retrieval_candidates_truncated",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "retrieval_candidates_truncated",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "retrieval_nonempty": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "retrieval_candidates_nonempty",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "retrieval_candidates_nonempty",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "use_layer_unobserved": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "use_layer_not_observed",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "use_layer_not_observed",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "turn_partial": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "turn_status_not_complete",
+     "empty_set_not_proven"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "empty_set_not_proven",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "turn_status_not_complete",
+     "empty_set_not_proven"
+    ]
+   }
+  },
+  "genuine_empty": {
+   "cross_entity": {
+    "state": "passed",
+    "reason": "cross_entity_empty_use_scope_ok",
+    "evidence": [
+     "retrieval_observed_empty_unit_ids",
+     "cross_entity_empty_use_scope_ok"
+    ]
+   },
+   "stale_source": {
+    "state": "passed",
+    "reason": "stale_source_dates_ok",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "retrieval_observed_empty_unit_ids"
+    ]
+   }
+  },
+  "no_entity_claim_with_records": {
+   "cross_entity": {
+    "state": "not_applicable",
+    "reason": "no_entity_scope_verified",
+    "evidence": []
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "stale_source_unresolved",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "stale_source_unresolved"
+    ]
+   }
+  },
+  "records_unresolved_with_class_c": {
+   "cross_entity": {
+    "state": "unknown",
+    "reason": "identity_unresolved",
+    "evidence": [
+     "record_identities[0]:identity_unresolved"
+    ]
+   },
+   "stale_source": {
+    "state": "unknown",
+    "reason": "stale_source_unresolved",
+    "evidence": [
+     "target_refs[0]:record_identity_resolved",
+     "stale_source_unresolved"
+    ]
+   }
+  }
+ },
+ "checked_shape_count": 6
+}

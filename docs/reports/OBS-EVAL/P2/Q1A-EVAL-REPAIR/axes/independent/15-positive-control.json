@@ -1,0 +1,30 @@
+{
+  "blocked": [
+    {
+      "label": "create_connection",
+      "error": "NetworkBlocked",
+      "message": "T09-D1 网络闸门：本轮禁止真实外部调用（0 次），已拦截出站连接: create_connection ('203.0.113.7', 80)"
+    },
+    {
+      "label": "socket.connect",
+      "error": "NetworkBlocked",
+      "message": "T09-D1 网络闸门：本轮禁止真实外部调用（0 次），已拦截出站连接: connect ('example.com', 443)"
+    },
+    {
+      "label": "getaddrinfo",
+      "error": "NetworkBlocked",
+      "message": "T09-D1 网络闸门：本轮禁止真实外部调用（0 次），已拦截出站连接: getaddrinfo 'example.com'"
+    },
+    {
+      "label": "httpx.get",
+      "error": "NetworkBlocked",
+      "message": "T09-D1 网络闸门：本轮禁止真实外部调用（0 次），已拦截出站连接: HTTP http://example.com/"
+    }
+  ],
+  "external_attempts": [
+    "socket.create_connection ('203.0.113.7', 80)",
+    "socket.connect ('example.com', 443)",
+    "socket.getaddrinfo 'example.com'",
+    "httpx.HTTPTransport http://example.com/"
+  ]
+}

@@ -1,0 +1,359 @@
+{
+  "artifacts": {
+    "aggregate": "round2-notrun/aggregate.json",
+    "cards": [
+      "round2-notrun/card-r0.json",
+      "round2-notrun/card-r1.json",
+      "round2-notrun/card-r2.json",
+      "round2-notrun/card-r3.json"
+    ],
+    "diagnosis": "diagnosis.md",
+    "go_check": "diagnosis/go-amend-check-r2.json",
+    "go_evidence": "go-amend-evidence.json",
+    "preservation": "round2-notrun/preservation-check.json",
+    "previous_round_preserved": [
+      "run-report.md",
+      "conclusion.json",
+      "r0/",
+      "r1/",
+      "r2/",
+      "r3/",
+      "preflight/",
+      "round1-notrun/",
+      "rebind-evidence.json"
+    ],
+    "probe": "diagnosis/probe_index_ready.py",
+    "repro": "diagnosis/offline-repro.json"
+  },
+  "budget_sha256": {
+    "after": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "before": "79b21700b630be92148e2a8498ed47386dab08d6daa401601dc3d22a910b1a9e",
+    "unchanged": true
+  },
+  "cny": {
+    "delta": 0.0,
+    "ledger_after": 22.22373629999994,
+    "ledger_before": 22.22373629999994,
+    "max_request": 0.5,
+    "p2_stage_limit": 20.0,
+    "project_limit": 40.0,
+    "stage_p2_live_after": 7.152791800000005,
+    "stage_p2_live_before": 7.152791800000005
+  },
+  "conclusion": "NOT_RUN",
+  "diagnosis": {
+    "caps_probe": {
+      "all_four_measured_with_own_B": true,
+      "cap8_chunk_embeddings": "19/20",
+      "cap8_error_code": "BUDGET_LEDGER_INVALID",
+      "cap8_posts_at_prepare": 0,
+      "cap8_reproduces_live": true,
+      "cap8_status": "degraded",
+      "cap_none_r0_posts": 9,
+      "cap_none_r0_prepare_ok": true,
+      "note": "四 run 各用自己的 B 实测：全部在第 B+1 批发送前被拒→degraded→prepare 0 POST→INDEX_NOT_READY；不带 cap 时 9/10/13/15 批全部 ready"
+    },
+    "caps_probe_by_run": {
+      "base_b0": {
+        "cap": 8,
+        "chunk_embeddings": 19,
+        "chunks": 20,
+        "posts": 8,
+        "posts_at_prepare": 0,
+        "prepare_error_code": "INDEX_NOT_READY",
+        "refused_before_send": true,
+        "sync_error_code": "BUDGET_LEDGER_INVALID",
+        "sync_status": "degraded"
+      },
+      "base_b0_plus_v01": {
+        "cap": 9,
+        "chunk_embeddings": 20,
+        "chunks": 21,
+        "posts": 9,
+        "posts_at_prepare": 0,
+        "prepare_error_code": "INDEX_NOT_READY",
+        "refused_before_send": true,
+        "sync_error_code": "BUDGET_LEDGER_INVALID",
+        "sync_status": "degraded"
+      },
+      "post_v05_without_v01": {
+        "cap": 13,
+        "chunk_embeddings": 18,
+        "chunks": 20,
+        "posts": 13,
+        "posts_at_prepare": 0,
+        "prepare_error_code": "INDEX_NOT_READY",
+        "refused_before_send": true,
+        "sync_error_code": "BUDGET_LEDGER_INVALID",
+        "sync_status": "degraded"
+      },
+      "pre_v05_without_v07": {
+        "cap": 11,
+        "chunk_embeddings": 19,
+        "chunks": 21,
+        "posts": 11,
+        "posts_at_prepare": 0,
+        "prepare_error_code": "INDEX_NOT_READY",
+        "refused_before_send": true,
+        "sync_error_code": "BUDGET_LEDGER_INVALID",
+        "sync_status": "degraded"
+      }
+    },
+    "defer_sync_all_ready": true,
+    "defer_sync_batches_under_existing_B": {
+      "base_b0": 7,
+      "base_b0_plus_v01": 8,
+      "post_v05_without_v01": 8,
+      "pre_v05_without_v07": 8
+    },
+    "fix_options": [
+      {
+        "file": "backend/src/mktkb/evaluation/product_adapter.py::ingest",
+        "id": "A",
+        "lines": 8,
+        "offline_result": "四 run 7/8/8/8 批 ≤ 现有 B，status=ready、chunks==chunk_embeddings、prepare ok",
+        "recommended": true,
+        "requires": [
+          "改 C 冻结 12 之一 → code_version 变",
+          "重绑四份 binding",
+          "P2 定向测试 + 离线复现重跑"
+        ],
+        "semantics_change": "无（索引内容一致；仅把逐次发布同步改为灌库后一次性同步）"
+      },
+      {
+        "file": "p2_holdout_scenarios.py::RECIPES + docs/evaluation/p2-h2-scenarios-H2v3.json",
+        "id": "B",
+        "offline_result": "cap=9 时 r0 ready、prepare ok；成本 +1/+1/+2/+2 请求/run",
+        "recommended": false,
+        "requires": [
+          "重新冻结 scenario contract",
+          "重发四份计划 + 新 GO（plan_sha256 变）+ 重绑"
+        ],
+        "semantics_change": "无运行时语义变化，但冻结契约与配方常量变更"
+      }
+    ],
+    "mechanism": [
+      "发布钩子每次 publish 触发整体 sync（documents/routes.py:179 → qa.notify_knowledge_changed）",
+      "计划项 index_embedding.requests 是 POST 批数上界（p2_live.py:301-308）",
+      "超限批在发送前被拒（p2_live.py:569-573），不开 reservation、无 http_status",
+      "产品把该异常吞成 embedding_error→degraded（rag/index.py:349、qa/service.py:361）",
+      "下一回合 ensure_ready 因 require_zero_retries 直接 fail-closed（qa/service.py:293-302）",
+      "prepare 失败→无 plan_observed→EvidenceCaptureIncomplete→adapter_error（conversations/service.py:2357-2392）"
+    ],
+    "needed_batches": {
+      "base_b0": 9,
+      "base_b0_plus_v01": 10,
+      "post_v05_without_v01": 15,
+      "pre_v05_without_v07": 13
+    },
+    "not_the_cause": [
+      "写未落盘/事务未提交/异步未 flush",
+      "就绪检查用了错误 revision",
+      "v3 入口漏了“等待索引就绪”（v2 入口同样没有；产品就绪判定本就在回合内懒执行）"
+    ],
+    "plan_batches": {
+      "base_b0": 8,
+      "base_b0_plus_v01": 9,
+      "post_v05_without_v01": 13,
+      "pre_v05_without_v07": 11
+    },
+    "r0_after_fix": {
+      "fix_A": "不会因 INDEX_NOT_READY abort（7 批 ≤ 8，ready，prepare ok）",
+      "fix_B": "不会（cap=9 → ready）",
+      "no_fix": "ABORT（同码同因）"
+    },
+    "root_cause_one_line": "8 POST 全 200 → 第 9 批（1 个 chunk）在发送前被计划项配额拒绝（attempt_quota_exhausted→BUDGET_LEDGER_INVALID，不开 reservation、无 http_status）→ sync 写 degraded/BUDGET_LEDGER_INVALID（19/20 块已嵌入）→ 首个回合 qa.prepare 的 ensure_ready 因 require_zero_retries 直接 fail-closed（EMBEDDING_DEGRADED_NO_RETRY，0 次 POST）→ 对外 INDEX_NOT_READY → 无 plan_observed",
+    "shortfall": {
+      "base_b0": 1,
+      "base_b0_plus_v01": 1,
+      "post_v05_without_v01": 2,
+      "pre_v05_without_v07": 2
+    }
+  },
+  "go_amendment": {
+    "after": 1150,
+    "authorized_by": "owner 总量 1500；本包授权 1137→1150（仅 scope.max_requests）",
+    "before": 1137,
+    "effective_cap": {
+      "remaining": 176,
+      "to_reach_185": "plan-private --max-requests 1150 重发计划 + GO 重发 scope.plan_sha256 + 重绑",
+      "value": 1137,
+      "why": "p2_authorization.py:620 min(plan.max_requests=1137, GO=1150)；计划未重发"
+    },
+    "files": [
+      {
+        "archive_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-max1150-r0.previous.archived.json",
+        "file_sha256_after": "b7d1aae4cd5e22cae3a248b62414034084f58cb900587b401ef8068cff6fc93b",
+        "file_sha256_before": "dbc198c8bf8ee11c844d0393c9091b25a0b5e6d1281c872cd6b254854fe5217d",
+        "go_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.json",
+        "only_max_requests_changed": true,
+        "payload_sha256_after": "4dbfabe48634f8fb9f9c691cc359c17ac339e97bc68a23ebd07f90fa4cd7f92f",
+        "payload_sha256_before": "7bc70c01b8cc82841cdcdf63aa6a0162ffac7a888dd12be1229bd45af3c00bef",
+        "run_index": 0
+      },
+      {
+        "archive_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-max1150-r1.previous.archived.json",
+        "file_sha256_after": "967809e046f9897495fc02f26f2f9beb587e9c234c6755479a3527939f1d314b",
+        "file_sha256_before": "a8516ac3d71a9fd9595a000652c534b4809b6cc288cc505a40773688a82fb1b2",
+        "go_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-r1.pending.json",
+        "only_max_requests_changed": true,
+        "payload_sha256_after": "1511a84f3375d77d8547c06d46d6ff077c7827623eafc703f9e76b46c5d90c83",
+        "payload_sha256_before": "6d7ff5a3ec7a63e23032a0bcbc93bf0a5aa395b448421576646b38b460993ae4",
+        "run_index": 1
+      },
+      {
+        "archive_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-max1150-r2.previous.archived.json",
+        "file_sha256_after": "0fe202e2a28575339d2bccf92d6522349ee51c31a4c01f73acaa836576ed68de",
+        "file_sha256_before": "d7edf6d256cd19882a682604bb31689e9f0be9ed76a8d8d6f8f09de2a3e4d4e1",
+        "go_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-r2.pending.json",
+        "only_max_requests_changed": true,
+        "payload_sha256_after": "6413252f4573746b0f1746043060ee2d3b8dcd666a3fd6d465166e1c57021e7b",
+        "payload_sha256_before": "2f14d75a403698a19c0b84b9ccbc9c782c3499b77338d678414bc6ccb6163425",
+        "run_index": 2
+      },
+      {
+        "archive_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-max1150-r3.previous.archived.json",
+        "file_sha256_after": "161ba99c2ce98ad0e29ac500648aa2d66cbdbf7a61088af998a1efdfd15b9a94",
+        "file_sha256_before": "d681b673837d681574dfcf18a11984463599d1856c0641411580146916e3b1a4",
+        "go_path": "docs\\evidence\\LOCAL-R1-20261101\\PM\\P2-LIVE-GO.v3-r3.pending.json",
+        "only_max_requests_changed": true,
+        "payload_sha256_after": "9026c1c3dbfa8267b6242754b08ef47ee646f9a8af6e4c327088d18cabb3428c",
+        "payload_sha256_before": "b2ec8ccdbd20b4aedf4e37223ace4bb33269d4d8ca28808c4a4a74b2abb36ec0",
+        "run_index": 3
+      }
+    ],
+    "headroom_after_four_runs": 4,
+    "lower_bound": 1146,
+    "only_field": "scope.max_requests",
+    "owner_cap": 1500,
+    "plaintext_authorization_string_unchanged": true,
+    "zero_send_recheck": "diagnosis/go-amend-check-r2.json（go_binding/plan_binding/zero_write/zero_send 全绿）"
+  },
+  "interruption": null,
+  "ledger": {
+    "chain_sha256": "f4710b1869fe43b9a609b58f772549f76370fbadd54f93685b76211d4b47a014",
+    "file_sha256_after": "9d4b957ac431acfe7b04d0c441dd0c77e31c15849e84806fbbc8c23c4e3de413",
+    "file_sha256_before": "9d4b957ac431acfe7b04d0c441dd0c77e31c15849e84806fbbc8c23c4e3de413",
+    "lines": 1923,
+    "paired": true,
+    "reservation": 961,
+    "result": 961
+  },
+  "package": "v3-run-r2",
+  "preservation": {
+    "c_freeze_12": 12,
+    "external": 13,
+    "fixtures": 13,
+    "ok": true,
+    "protected_changed_allowed": [
+      "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.json",
+      "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-r1.pending.json",
+      "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-r2.pending.json",
+      "docs/evidence/LOCAL-R1-20261101/PM/P2-LIVE-GO.v3-r3.pending.json",
+      "docs/evidence/LOCAL-R1-20261101/budget/live-ledger.jsonl"
+    ],
+    "unexpected_changed": []
+  },
+  "reason": "诊断已出结论：现状必在首回合以 INDEX_NOT_READY 中止（离线逐码复现）；最小修复需改 C 冻结件或冻结配方，本包未获授权，故未开任何付费尝试（0 请求/0 元）。",
+  "reason_code": "INDEX_EMBEDDING_BUDGET_SHORT_UNFIXED",
+  "requests": {
+    "attempts": 0,
+    "cumulative_after": 961,
+    "cumulative_before": 961,
+    "effective_cap_go": 1137,
+    "outbound": 0,
+    "package_cap": 185,
+    "remaining_after": 176
+  },
+  "residual": [
+    "D1 索引批数缺口（高）：方案 A（改 1 个 C 冻结评测文件 8 行 + 重绑）或方案 B（改冻结配方/契约 + 重发计划/GO + 重绑）；需经理授权",
+    "D2 有效请求上限仍 1137（min(plan=1137, GO=1150)），余量 176；需 plan-private --max-requests 1150 重发计划",
+    "D3 GO 散文字符串仍写 “1137 cumulative requests”（按“保持其余字段不变”未改）",
+    "D4 方案 A 改代码身份 → 四份 binding 失效，需重绑",
+    "D5 Dxx_ 上传名前缀 → 文档标题解析退化；双门店 store 槽位按既有语义丢弃（不阻塞 run）",
+    "D6 方案 A 把真实 embedding 故障的失败码从首回合 INDEX_NOT_READY 迁移为 ingest_failed"
+  ],
+  "runs": [
+    {
+      "business_date": "2026-10-15",
+      "error_code": "INDEX_EMBEDDING_BUDGET_SHORT",
+      "four_axis": null,
+      "index_embedding_needed_batches": 9,
+      "pass_fail_error": null,
+      "planned_ingest_batches": 8,
+      "planned_requests": 64,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 0,
+      "scenario_id": "base_b0",
+      "status": "NOT_RUN",
+      "stop_code": "precondition_blocked"
+    },
+    {
+      "business_date": "2026-07-15",
+      "error_code": "INDEX_EMBEDDING_BUDGET_SHORT",
+      "four_axis": null,
+      "index_embedding_needed_batches": 10,
+      "pass_fail_error": null,
+      "planned_ingest_batches": 9,
+      "planned_requests": 49,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 1,
+      "scenario_id": "base_b0_plus_v01",
+      "status": "NOT_RUN",
+      "stop_code": "precondition_blocked"
+    },
+    {
+      "business_date": "2026-11-20",
+      "error_code": "INDEX_EMBEDDING_BUDGET_SHORT",
+      "four_axis": null,
+      "index_embedding_needed_batches": 13,
+      "pass_fail_error": null,
+      "planned_ingest_batches": 11,
+      "planned_requests": 35,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 2,
+      "scenario_id": "pre_v05_without_v07",
+      "status": "NOT_RUN",
+      "stop_code": "precondition_blocked"
+    },
+    {
+      "business_date": "2026-12-15",
+      "error_code": "INDEX_EMBEDDING_BUDGET_SHORT",
+      "four_axis": null,
+      "index_embedding_needed_batches": 15,
+      "pass_fail_error": null,
+      "planned_ingest_batches": 13,
+      "planned_requests": 37,
+      "real_sends": 0,
+      "requests": {
+        "attempts": 0,
+        "reserved_cny": 0.0,
+        "sent": 0,
+        "settled_cny": 0.0
+      },
+      "run_index": 3,
+      "scenario_id": "post_v05_without_v01",
+      "status": "NOT_RUN",
+      "stop_code": "precondition_blocked"
+    }
+  ],
+  "schema_version": "p2-h2v3-v3-run-conclusion/v0.3"
+}

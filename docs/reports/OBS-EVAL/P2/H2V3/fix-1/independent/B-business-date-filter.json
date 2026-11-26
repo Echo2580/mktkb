@@ -1,0 +1,380 @@
+{
+  "after": {
+    "ids": [
+      "147668bb-f921-51dc-a939-68f6b385fbbc"
+    ],
+    "kind": "matches",
+    "locations": [
+      "现C柜"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 1,
+    "windows": [
+      [
+        "2026-09-01",
+        "2026-12-31"
+      ]
+    ]
+  },
+  "before": {
+    "ids": [
+      "f003b6d7-0030-5590-8160-2dc5c2577283",
+      "147668bb-f921-51dc-a939-68f6b385fbbc",
+      "833960ba-d74c-5942-8e09-11462de19129",
+      "73e665ce-5a7a-5b62-96b5-7b08b8329c6a"
+    ],
+    "kind": "conflict",
+    "locations": [
+      "旧A架",
+      "现C柜",
+      "旧B架",
+      "新D区"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 4,
+    "windows": [
+      [
+        "2025-11-01",
+        "2026-02-28"
+      ],
+      [
+        "2026-09-01",
+        "2026-12-31"
+      ],
+      [
+        "2026-03-01",
+        "2026-08-31"
+      ],
+      [
+        "2027-01-01",
+        "未声明"
+      ]
+    ]
+  },
+  "checks": {
+    "after_is_v3": true,
+    "after_matches_1": true,
+    "all_invalid_rejected": true,
+    "before_conflict_4": true,
+    "diff_hunks": [
+      "@@ -13,0 +14 @@ from contextlib import contextmanager",
+      "@@ -43,0 +45,38 @@ def _visible_version_ids(db: Session) -> set:",
+      "@@ -291,0 +331 @@ def _retrieve_records(",
+      "@@ -317,0 +358,2 @@ def _retrieve_records(",
+      "@@ -404 +446,7 @@ def _retrieve_records(",
+      "@@ -424,0 +473,2 @@ def _retrieve_documents(db: Session, intent: QueryIntent, revision: int, limit:",
+      "@@ -438,0 +489 @@ def retrieve(",
+      "@@ -443,0 +495,3 @@ def retrieve(",
+      "@@ -446,0 +501 @@ def retrieve(",
+      "@@ -455,2 +510,4 @@ def retrieve("
+    ],
+    "drop_call_after_visible": true,
+    "drop_is_subset": true,
+    "endpoint:2026-02-28_end_of_v1": true,
+    "endpoint:2026-03-01_start_of_v2": true,
+    "endpoint:2026-08-31_end_of_v2": true,
+    "endpoint:2026-09-01_start_of_v3": true,
+    "endpoint:2026-10-15_inside_v3": true,
+    "endpoint:2026-12-31_end_of_v3": true,
+    "endpoint:2027-01-01_start_of_v4": true,
+    "endpoint:2028-01-01_undeclared_end": true,
+    "invalid_as_of": {
+      "2026-02-30": "QueryRejected",
+      "2026-1-5": "QueryRejected",
+      "2026/10/15": "QueryRejected",
+      "int:20261015": "QueryRejected",
+      "not-a-date": "QueryRejected"
+    },
+    "no_changes_to_fts_or_sort": true,
+    "service_forward_dated": true,
+    "service_forward_none": true,
+    "single_not_killed": true,
+    "single_same_units": true,
+    "subsequence_order": true,
+    "undeclared_start_kept": true,
+    "visible_units_unchanged": true,
+    "wire": {
+      "as_of_date": "2026-10-15",
+      "as_of_none": null,
+      "include_future": null,
+      "plan_none": null,
+      "qa_none": null
+    },
+    "wire_ok": true
+  },
+  "endpoints": {
+    "2026-02-28_end_of_v1": {
+      "ids": [
+        "f003b6d7-0030-5590-8160-2dc5c2577283"
+      ],
+      "kind": "matches",
+      "locations": [
+        "旧A架"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2025-11-01",
+          "2026-02-28"
+        ]
+      ]
+    },
+    "2026-03-01_start_of_v2": {
+      "ids": [
+        "833960ba-d74c-5942-8e09-11462de19129"
+      ],
+      "kind": "matches",
+      "locations": [
+        "旧B架"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2026-03-01",
+          "2026-08-31"
+        ]
+      ]
+    },
+    "2026-08-31_end_of_v2": {
+      "ids": [
+        "833960ba-d74c-5942-8e09-11462de19129"
+      ],
+      "kind": "matches",
+      "locations": [
+        "旧B架"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2026-03-01",
+          "2026-08-31"
+        ]
+      ]
+    },
+    "2026-09-01_start_of_v3": {
+      "ids": [
+        "147668bb-f921-51dc-a939-68f6b385fbbc"
+      ],
+      "kind": "matches",
+      "locations": [
+        "现C柜"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2026-09-01",
+          "2026-12-31"
+        ]
+      ]
+    },
+    "2026-10-15_inside_v3": {
+      "ids": [
+        "147668bb-f921-51dc-a939-68f6b385fbbc"
+      ],
+      "kind": "matches",
+      "locations": [
+        "现C柜"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2026-09-01",
+          "2026-12-31"
+        ]
+      ]
+    },
+    "2026-12-31_end_of_v3": {
+      "ids": [
+        "147668bb-f921-51dc-a939-68f6b385fbbc"
+      ],
+      "kind": "matches",
+      "locations": [
+        "现C柜"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2026-09-01",
+          "2026-12-31"
+        ]
+      ]
+    },
+    "2027-01-01_start_of_v4": {
+      "ids": [
+        "73e665ce-5a7a-5b62-96b5-7b08b8329c6a"
+      ],
+      "kind": "matches",
+      "locations": [
+        "新D区"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2027-01-01",
+          "未声明"
+        ]
+      ]
+    },
+    "2028-01-01_undeclared_end": {
+      "ids": [
+        "73e665ce-5a7a-5b62-96b5-7b08b8329c6a"
+      ],
+      "kind": "matches",
+      "locations": [
+        "新D区"
+      ],
+      "total": 1,
+      "truncated": false,
+      "units": 1,
+      "windows": [
+        [
+          "2027-01-01",
+          "未声明"
+        ]
+      ]
+    }
+  },
+  "failures": [],
+  "forwarded_dated": {
+    "ids": [
+      "147668bb-f921-51dc-a939-68f6b385fbbc"
+    ],
+    "kind": "matches",
+    "locations": [
+      "现C柜"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 1,
+    "windows": [
+      [
+        "2026-09-01",
+        "2026-12-31"
+      ]
+    ]
+  },
+  "forwarded_none": {
+    "ids": [
+      "f003b6d7-0030-5590-8160-2dc5c2577283",
+      "147668bb-f921-51dc-a939-68f6b385fbbc",
+      "833960ba-d74c-5942-8e09-11462de19129",
+      "73e665ce-5a7a-5b62-96b5-7b08b8329c6a"
+    ],
+    "kind": "conflict",
+    "locations": [
+      "旧A架",
+      "现C柜",
+      "旧B架",
+      "新D区"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 4,
+    "windows": [
+      [
+        "2025-11-01",
+        "2026-02-28"
+      ],
+      [
+        "2026-09-01",
+        "2026-12-31"
+      ],
+      [
+        "2026-03-01",
+        "2026-08-31"
+      ],
+      [
+        "2027-01-01",
+        "未声明"
+      ]
+    ]
+  },
+  "invalid_as_of": {
+    "2026-02-30": "QueryRejected",
+    "2026-1-5": "QueryRejected",
+    "2026/10/15": "QueryRejected",
+    "int:20261015": "QueryRejected",
+    "not-a-date": "QueryRejected"
+  },
+  "kept_units": 0,
+  "outbound_attempts": [],
+  "schema_version": "v3-fix1-independent-B/v0.1",
+  "single_dated": {
+    "ids": [
+      "09681661-8a8a-500f-8bb1-3e1b98eba71c"
+    ],
+    "kind": "matches",
+    "locations": [
+      "西区唯一架"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 1,
+    "windows": [
+      [
+        "2026-01-01",
+        "2026-12-31"
+      ]
+    ]
+  },
+  "single_none": {
+    "ids": [
+      "09681661-8a8a-500f-8bb1-3e1b98eba71c"
+    ],
+    "kind": "matches",
+    "locations": [
+      "西区唯一架"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 1,
+    "windows": [
+      [
+        "2026-01-01",
+        "2026-12-31"
+      ]
+    ]
+  },
+  "undeclared_start": {
+    "ids": [
+      "d7ac1c8f-bd4d-5b8e-adb7-191ffba98bec"
+    ],
+    "kind": "matches",
+    "locations": [
+      "北区无起点架"
+    ],
+    "total": 1,
+    "truncated": false,
+    "units": 1,
+    "windows": [
+      [
+        "未声明",
+        "2026-10-31"
+      ]
+    ]
+  },
+  "visible_units": 0,
+  "wire": {
+    "as_of_date": "2026-10-15",
+    "as_of_none": null,
+    "include_future": null,
+    "plan_none": null,
+    "qa_none": null
+  }
+}

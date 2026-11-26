@@ -1,0 +1,1309 @@
+{
+ "schema_version": "p2-holdout-v3-keyspace-proof/v0.1",
+ "phase": "keyspace-proof",
+ "method": "真实解析器 parse_document + 真实 analyze_fields/normalize_value；target 声明取自出题计划 §5；窗口与上传集取自 L1",
+ "code_facts": {
+  "id_headers": [
+   "标识",
+   "编号",
+   "id",
+   "ID"
+  ],
+  "entity_key_form": "f\"{entity_type}|id:{normalize_value(标识)}\"（retrieval/index.py:121-126）",
+  "entity_types_allowed": [
+   "item",
+   "store"
+  ],
+  "runtime_role_keys": [
+   "item",
+   "item_id",
+   "store",
+   "store_id"
+  ],
+  "expected_type_by_prefix": {
+   "P": "item",
+   "S": "store"
+  }
+ },
+ "l1": {
+  "path": "docs/evaluation/p2-source-lifecycle-v1.json",
+  "sha256": "92f1186927b458aa65eda7b7abd5aa8f3e9e52323627a398d8560c02e17451aa"
+ },
+ "corpus_manifest": {
+  "path": "fixtures/acceptance-h2v3/manifest.json",
+  "sha256": "c69baa8f1c963a37c2c414f7e56bdc0b30388295fe7d01ca30980e1e9a7f3e15"
+ },
+ "parsed_sources": {
+  "D01": {
+   "path": "normal/D01_物品位置表.xlsx",
+   "units": 9,
+   "sheets": [
+    "物品位置",
+    "备用物料表",
+    "旧草稿|hidden"
+   ],
+   "hidden_sheet_count": 1,
+   "ingested_sheets": [
+    "物品位置",
+    "备用物料表"
+   ],
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row": 7,
+   "header_detection_agrees": true,
+   "id_header_detected_units": 8
+  },
+  "D02": {
+   "path": "normal/D02_合作店家信息.xlsx",
+   "units": 4,
+   "sheets": [
+    "店家信息"
+   ],
+   "hidden_sheet_count": 0,
+   "ingested_sheets": [
+    "店家信息"
+   ],
+   "target_sheet": "店家信息",
+   "declared_header_row": 4,
+   "parser_header_row": 4,
+   "header_detection_agrees": true,
+   "id_header_detected_units": 4
+  },
+  "V03": {
+   "path": "variants/V03_物品位置表_历史V1.xlsx",
+   "units": 9,
+   "sheets": [
+    "物品位置",
+    "备用物料表",
+    "旧草稿|hidden"
+   ],
+   "hidden_sheet_count": 1,
+   "ingested_sheets": [
+    "物品位置",
+    "备用物料表"
+   ],
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row": 7,
+   "header_detection_agrees": true,
+   "id_header_detected_units": 8
+  },
+  "V04": {
+   "path": "variants/V04_物品位置表_新版V3.xlsx",
+   "units": 9,
+   "sheets": [
+    "物品位置",
+    "备用物料表",
+    "旧草稿|hidden"
+   ],
+   "hidden_sheet_count": 1,
+   "ingested_sheets": [
+    "物品位置",
+    "备用物料表"
+   ],
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row": 7,
+   "header_detection_agrees": true,
+   "id_header_detected_units": 8
+  },
+  "V05": {
+   "path": "variants/V05_物品位置表_新版V3_移除P01.xlsx",
+   "units": 7,
+   "sheets": [
+    "物品位置",
+    "备用物料表",
+    "旧草稿|hidden"
+   ],
+   "hidden_sheet_count": 1,
+   "ingested_sheets": [
+    "物品位置",
+    "备用物料表"
+   ],
+   "target_sheet": "物品位置",
+   "declared_header_row": 7,
+   "parser_header_row": 8,
+   "header_detection_agrees": false,
+   "id_header_detected_units": 0
+  },
+  "V06": {
+   "path": "variants/V06_合作店家信息_新电话.xlsx",
+   "units": 3,
+   "sheets": [
+    "店家信息"
+   ],
+   "hidden_sheet_count": 0,
+   "ingested_sheets": [
+    "店家信息"
+   ],
+   "target_sheet": "店家信息",
+   "declared_header_row": 4,
+   "parser_header_row": 5,
+   "header_detection_agrees": false,
+   "id_header_detected_units": 0
+  }
+ },
+ "summary": {
+  "declared_cases": 30,
+  "declared_targets": 36,
+  "alignable": 29,
+  "not_alignable": 7,
+  "multi_target_cases": 6,
+  "distinct_records_used": 10,
+  "units_total": 41,
+  "units_id_typed": 28,
+  "runs": [
+   0,
+   1,
+   2,
+   3
+  ],
+  "cases_with_any_unalignable_target": 6,
+  "header_detection_mismatch_sources": [
+   "V05",
+   "V06"
+  ],
+  "negative_probes_ok": true
+ },
+ "negative_probes": {
+  "spare_sheet_units": 4,
+  "spare_sheet_units_non_id_typed": 4,
+  "spare_sheet_units_id_typed": 0,
+  "hidden_draft_sheet_ingested": 0,
+  "hidden_draft_sheet_present_in_files": 4,
+  "non_id_units_total": 13,
+  "p05_p06_in_declared_targets": 0,
+  "document_or_uuid_keys": 0,
+  "record_key_stability_violations": 0,
+  "records_with_stable_key": 12
+ },
+ "result": "misaligned",
+ "targets": [
+  {
+   "case_id": "C01",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P01@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C02",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P03@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p03",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:10",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C03",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S01@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s01",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:5",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C04",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P02@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p02",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-07-15",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:9",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C05",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P07@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p07",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:14",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C06",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "S03@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s03",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:7",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C07",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P04@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p04",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:11",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C07",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P08@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p08",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-15"
+   ],
+   "unit_key": "sheet:物品位置:row:15",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C08",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "P02@D01v3",
+   "source_id": "V04",
+   "entity_type": "item",
+   "entity_key": "item|id:p02",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "unit_key": "sheet:物品位置:row:9",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C09",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "P08@D01v4",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C10",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "S02@D02v2",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C11",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P01@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C12",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P02@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p02",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-07-15",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:9",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C12",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S02@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s02",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:6",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C13",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P03@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p03",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:10",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C14",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "P04@D01v3",
+   "source_id": "V04",
+   "entity_type": "item",
+   "entity_key": "item|id:p04",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "unit_key": "sheet:物品位置:row:11",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C15",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "P07@D01v4",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C16",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S03@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s03",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:7",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C17",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S04@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s04",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C18",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P07@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p07",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:14",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C19",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "P02@D01v3",
+   "source_id": "V04",
+   "entity_type": "item",
+   "entity_key": "item|id:p02",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "unit_key": "sheet:物品位置:row:9",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C20",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "P08@D01v4",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C21",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P01@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C22",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P01@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C23",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P08@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p08",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-15"
+   ],
+   "unit_key": "sheet:物品位置:row:15",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C24",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P02@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p02",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-07-15",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:9",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C25",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "P01@D01v3",
+   "source_id": "V04",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C26",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "P01@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p01",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-31"
+   ],
+   "unit_key": "sheet:物品位置:row:8",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C26",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S01@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s01",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:5",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C27",
+   "run_index": 0,
+   "business_date": "2026-10-15",
+   "scenario_id": "base_b0",
+   "target": "S01@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s01",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:5",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C28",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "P08@D01v2",
+   "source_id": "D01",
+   "entity_type": "item",
+   "entity_key": "item|id:p08",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-05-01",
+    "2026-10-15"
+   ],
+   "unit_key": "sheet:物品位置:row:15",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C28",
+   "run_index": 1,
+   "business_date": "2026-07-15",
+   "scenario_id": "base_b0_plus_v01",
+   "target": "S02@D02v1",
+   "source_id": "D02",
+   "entity_type": "store",
+   "entity_key": "store|id:s02",
+   "filters_keys": [
+    "store",
+    "store_id"
+   ],
+   "window": [
+    "2026-02-02",
+    "2026-11-15"
+   ],
+   "unit_key": "sheet:店家信息:row:6",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C29",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "P03@D01v3",
+   "source_id": "V04",
+   "entity_type": "item",
+   "entity_key": "item|id:p03",
+   "filters_keys": [
+    "item",
+    "item_id",
+    "store"
+   ],
+   "window": [
+    "2026-11-01",
+    "2026-11-30"
+   ],
+   "unit_key": "sheet:物品位置:row:10",
+   "alignable": true,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": true,
+    "record_unit_unique_in_version": true,
+    "id_typed_key": true,
+    "entity_type_matches_record_prefix": true,
+    "not_document_or_uuid": true,
+    "filters_keys_runtime_only": true,
+    "filters_values_match_runtime": true,
+    "version_uploaded_in_run_scenario": true,
+    "active_at_run_date_closed_interval": true,
+    "raw_fields_dates_match_l1": true
+   },
+   "reasons": []
+  },
+  {
+   "case_id": "C29",
+   "run_index": 2,
+   "business_date": "2026-11-20",
+   "scenario_id": "pre_v05_without_v07",
+   "target": "S03@D02v2",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C30",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "P07@D01v4",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  },
+  {
+   "case_id": "C30",
+   "run_index": 3,
+   "business_date": "2026-12-15",
+   "scenario_id": "post_v05_without_v01",
+   "target": "S02@D02v2",
+   "entity_key": null,
+   "alignable": false,
+   "checks": {
+    "source_in_corpus": true,
+    "record_in_declared_version": false,
+    "record_unit_unique_in_version": false
+   },
+   "reasons": [
+    "record_rows_found=0"
+   ]
+  }
+ ]
+}

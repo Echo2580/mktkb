@@ -1,0 +1,344 @@
+{
+  "schema_version": "q1a3-independent-review-r2/v0.1",
+  "reviewer": "custody-B",
+  "role": "independent_review_second_isolated_custody_role",
+  "generated_utc": "2026-11-14T12:22:00Z",
+  "baseline": {
+    "branch": "codex/p2-e2e",
+    "head": "97b0066726e5b8d6f94cbc0b63a890084550c106",
+    "staged_entries": 0,
+    "commits_after_head": 0,
+    "tracked_modified_count": 15
+  },
+  "subjects": {
+    "report": {
+      "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-report-r2.md",
+      "sha256": "689e51e5fef36614257a14eeceb328f13d434dca303155dabb1cd2e1305ad98b",
+      "bytes": 22893
+    },
+    "aggregate": {
+      "path": "docs/reports/OBS-EVAL/P2/Q1A-EVAL-REPAIR/rescore/rescore-aggregate-r2.json",
+      "sha256": "2447d945485fb89e75dc3dbf6553f68073ec467cf8cbc415b900143f7908daaf",
+      "bytes": 46804
+    },
+    "private_detail": {
+      "path": "D:\\mktkb-q1a3-rescore\\rescore-detail-r2.fernet",
+      "sha256": "fef978b73a4bd7e5c51b39eebf759f35826492632d5509cead6126153b1072b1",
+      "bytes": 108108
+    }
+  },
+  "verdict": "PASS_WITH_DISAGREEMENTS",
+  "verdict_basis": [
+    "all recomputable numeric claims reproduced exactly (0 mismatches over 120 axis state/reason pairs and 30 case statuses)",
+    "preservation, zero-call and privacy claims independently reproduced",
+    "four material disagreements on metric construction, cause-code attribution, one vacuous safety pass, and one incorrect residual statement",
+    "no evidence of fabrication, no fabricated old per-case values, no unknown downgraded to not_applicable"
+  ],
+  "method": {
+    "independent_driver": true,
+    "reused_executor_adapter": false,
+    "own_public_structure_derivation": true,
+    "contract_decrypted_in_process_via_existing_key_container": true,
+    "evidence_decrypted_in_process_via_existing_loader": true,
+    "frozen_modules_called_read_only": [
+      "mktkb.evaluation.p2_evidence_rescore._evaluate_turn",
+      "mktkb.evaluation.p2_evidence_rescore._fold_safety",
+      "mktkb.evaluation.p2_evidence_rescore_axes._rescore_cross_user",
+      "mktkb.evaluation.p2_evidence_rescore_axes._rescore_cross_entity",
+      "mktkb.evaluation.p2_evidence_rescore_axes._rescore_stale_source",
+      "mktkb.evaluation.p2_hard_evidence._empty_use_scope_proof"
+    ],
+    "answer_or_trace_text_read": false,
+    "question_text_read": false
+  },
+  "reproduction": {
+    "cases": 30,
+    "axes": 120,
+    "axis_state_or_reason_mismatch_vs_private_detail": 0,
+    "case_status_mismatch": 0,
+    "case_level": {"pass": 1, "hard_failure": 0, "unknown": 29},
+    "four_axis_new": {
+      "safety": {"planned": 30, "checked": 29, "passed": 1, "not_applicable": 28, "unknown": 1, "violations": 0},
+      "cross_user": {"planned": 30, "checked": 30, "passed": 30, "not_applicable": 0, "unknown": 0, "violations": 0},
+      "cross_entity": {"planned": 30, "checked": 1, "passed": 1, "not_applicable": 0, "unknown": 29, "violations": 0},
+      "stale_source": {"planned": 30, "checked": 13, "passed": 13, "not_applicable": 0, "unknown": 17, "violations": 0}
+    },
+    "self_consistency_formulas_hold": true,
+    "audit_code_distribution_equal_to_aggregate": true,
+    "reason_distribution_equal_to_aggregate": true,
+    "axis_provenance_all_rescored": 120,
+    "old_side_provenance": "recorded_old_aggregate_only",
+    "old_per_case_axes": "NOT_AVAILABLE",
+    "old_per_case_values_constructed": false,
+    "old_cards": {
+      "count": 4,
+      "detail_export_all_false": true,
+      "totals": {
+        "safety": {"planned": 30, "checked": 27, "passed": 1, "not_applicable": 24, "unknown": 3, "violations": 2},
+        "cross_user": {"planned": 30, "checked": 27, "passed": 27, "not_applicable": 0, "unknown": 3, "violations": 0},
+        "cross_entity": {"planned": 30, "checked": 3, "passed": 3, "not_applicable": 0, "unknown": 27, "violations": 0},
+        "stale_source": {"planned": 30, "checked": 25, "passed": 25, "not_applicable": 0, "unknown": 5, "violations": 0}
+      }
+    },
+    "transitions_r1_to_r2": {"stale_source:unknown->passed": 9},
+    "triage": {
+      "total": 11,
+      "category_counts": {"annotation_or_criterion_issue": 1, "product_error": 0, "evidence_insufficient": 10, "undetermined": 0},
+      "by_run": {"r0": 8, "r1": 0, "r2": 2, "r3": 1},
+      "correction_code_counts": {
+        "contract_entity_targets_missing": 6,
+        "version_binding_missing": 3,
+        "shared_background_entries_missing": 3,
+        "empty_scope_closure_proof_not_reimplemented": 1,
+        "other_input_gap": 2,
+        "na_scope_benign_suppression": 1
+      }
+    },
+    "sensitivity_band": {
+      "reading_a_pass": 1,
+      "reading_b_d1_only_pass": 8,
+      "reading_b_plus_one_d2_candidate_pass": [8, 8, 9, 8],
+      "bracket_min_pass": 1,
+      "bracket_max_pass": 9,
+      "selection": "none",
+      "both_readings_reported": true
+    },
+    "residual_marks": {
+      "D5_empty_entity_key": {"expected": 1, "measured": 1},
+      "D7_historical_intent_uses_business_baseline_as_of": {"expected": 2, "measured": 2},
+      "D6_stale_source_only_as_of": {"registered": 3, "structural_candidates": 5},
+      "D4_explicit_time_window_not_in_filters": {"registered": 2, "locatable": false},
+      "claim_scope_fully_resolved": false
+    },
+    "contract_consumer": {
+      "cases": 30,
+      "axes_deep_equal_to_merged_annotation": true,
+      "unknown_axes": 0,
+      "reason_codes_all_in_18": true,
+      "reason_code_table_size": 18,
+      "documented_19_is_known_typo": true,
+      "target_refs_total": 76,
+      "target_refs_by_collection": {"expected_sources": 58, "forbidden_sources": 18, "relevant_units": 0},
+      "cross_entity_axes_with_entity_targets": 5,
+      "safety_axes_with_entity_targets": 1
+    },
+    "version_binding": {
+      "refs": 73,
+      "bound": 71,
+      "unbound": 2,
+      "unbound_by_reason": {"ref_version_not_active": 2},
+      "unbound_collection": "forbidden_sources",
+      "bound_by_basis": {"ingest_order": 63, "source_map": 8},
+      "active_table_canonical_sha256_reproduced": true,
+      "historical_identity_alternative_rule_axis_changes": 0
+    },
+    "document_codes": {
+      "ingest_sources": 12,
+      "distinct_product_names": 11,
+      "product_names_with_multiple_base_codes": 0,
+      "base_doc_codes_after_alias": 8,
+      "legacy_rule_mapped_names": 2,
+      "used_units": 91,
+      "used_unit_doc_code_unresolved": 0,
+      "distinct_product_names_present_in_used_units": 7,
+      "unit_level_mapping_exercised_by_real_data_for_4_names": false
+    },
+    "empty_scope": {
+      "executed_turns": 36,
+      "proven_true": 2,
+      "proven_false": 34,
+      "reason_counts": {"empty_set_not_proven": 32, "model_events_missing": 2},
+      "primitive_raised": 0,
+      "module_sha256": "fba6e606991cd4bcf06f9e2ef1a50b60fd5d302979844a53de3bfb45a843529b",
+      "module_unchanged": true,
+      "proven_cases_used_units": [0, 0],
+      "effect": "2 stale_source axes unknown->passed (vacuous pass on empty use scope)"
+    },
+    "cross_entity_decidability": {
+      "unknowns_total": 29,
+      "unknown_from_missing_or_incomplete_targets": 19,
+      "unknown_free_text_attribution": 9,
+      "unknown_model_events_missing": 1,
+      "soundly_decidable_as_pass": 0,
+      "confirmable_violations": 0,
+      "subset_rule_would_flag_cases": 23,
+      "subset_rule_would_flag_units": 60,
+      "subset_flagged_units_with_entity_identity": 21,
+      "refs_with_record_code_unresolved": 35,
+      "projection_has_record_code_field": false
+    },
+    "stale_source_sampling": {
+      "pass_chain_checked": 3,
+      "unknown_chain_checked": 3,
+      "pass_chain_resolved_to_match_and_lifecycle_ok": 3,
+      "unknown_chain_caused_by_unit_record_unresolved": 3,
+      "unknown_with_version_binding_audit": 0,
+      "violations_r1": 0,
+      "violations_r2": 0,
+      "unknown_converted_to_not_applicable": 0
+    },
+    "safety_r0_r2": {
+      "r0_old_violations": 1,
+      "r0_new_violations": 0,
+      "r0_conclusion": "false_positive_under_new_criteria",
+      "r0_grounded_in_e0": true,
+      "r2_old_violations": 1,
+      "r2_new_violations": 0,
+      "r2_conclusion": "undetermined",
+      "r2_self_consistent_with_zero_new_violations": true,
+      "required_safety_axes": 2,
+      "required_safety_vacuous_pass": 1,
+      "required_safety_unknown_forbidden_source_unmappable": 1
+    }
+  },
+  "challenges": [
+    {
+      "id": "C1_version_binding_legality",
+      "judgement": "path_legal_but_active_only_rule_is_an_unstated_inference",
+      "source_map_and_ingest_order_allowed_by_contract_section_1": true,
+      "source_map_states_historical_identity_not_active_assertion": true,
+      "under_bound_refs": 2,
+      "under_bound_rate": "2/73",
+      "under_bound_direction": "fail_closed_unknown_only",
+      "alternative_historical_rule_axis_state_changes": 0,
+      "alternative_historical_rule_case_status_changes": 0,
+      "materiality": "low"
+    },
+    {
+      "id": "C2_document_codes_overfit",
+      "judgement": "rule_deterministic_no_answer_reverse_derivation_but_published_metric_is_constructive",
+      "samples_re_derived": 3,
+      "samples_re_derived_kinds": ["normal_document", "source_map_variant", "independent_notice_without_source_map"],
+      "sample_results_deterministic": true,
+      "unit_level_measured_by_reviewer": "91/91 resolved, 0 unresolved",
+      "published_counters_constructed_not_measured": ["mapped_product_names", "unmapped_units", "unit_resolution_reason_counts"],
+      "metric_can_fail_by_construction": false,
+      "materiality": "medium_metric_only"
+    },
+    {
+      "id": "C3_empty_set_primitive_reuse",
+      "judgement": "read_only_reuse_verified_bytes_unchanged_direction_unknown_to_pass_vacuous_not_a_wash",
+      "bytes_unchanged": true,
+      "can_hide_violation": false,
+      "case_level_pass_changes": 0,
+      "not_proven_32_reasonable": true,
+      "materiality": "low"
+    },
+    {
+      "id": "C4_cross_entity_irreducibility",
+      "judgement": "not_decidable_subset_rule_insufficient_and_over_inclusive",
+      "soundly_decidable": 0,
+      "reasons": [
+        "target_refs are positive source pointers not an exhaustive entity allowlist",
+        "unit record identity absent at evidence schema level, so ref granularity is coarser than entity granularity",
+        "frozen entity_bound criterion requires entity targets and compares entity_type/entity_key",
+        "subset rule would flag 23 cases / 60 used units without entity evidence"
+      ],
+      "materiality": "none_for_this_round"
+    },
+    {
+      "id": "C5_stale_source_recheck",
+      "judgement": "chains_reproduced_zero_violation_not_a_wash",
+      "samples_checked": 6,
+      "reproduced": 6,
+      "violation_changes": 0,
+      "unknown_downgraded": 0,
+      "materiality": "none"
+    },
+    {
+      "id": "C6_triage_and_safety",
+      "judgement": "categories_stand_cause_codes_partly_mislabeled_one_vacuous_safety_pass",
+      "evidence_insufficient_is_blanket_dodge": false,
+      "mislabeled_cause_cases": 3,
+      "confirmable_violation_exists": false,
+      "product_error_zero_defensible": true,
+      "r2_undetermined_self_consistent": true,
+      "r0_false_positive_requires_e0": true,
+      "materiality": "medium_disclosure"
+    }
+  ],
+  "disagreements": [
+    {
+      "id": "D-1",
+      "severity": "medium",
+      "subject": "document_codes_coverage_metric",
+      "finding": "mapped_product_names equals distinct_product_names by construction and unmapped_units is hardcoded to 0, so the published 11/11 and 91/91 cannot fail; reviewer measurement confirms 91/91 with 0 unresolved but only 7 product names are exercised by real used units",
+      "affects_counts": false,
+      "recommendation": "publish measured counters and state which product names are unexercised"
+    },
+    {
+      "id": "D-2",
+      "severity": "medium",
+      "subject": "triage_cause_codes",
+      "finding": "3 fail cases are labelled version_binding_missing while their stale audit contains no binding gap; recomputing their stale target_refs yields 5 unit_record_unresolved instances (2 further refs are doc_mismatch no_match and do not create unknowns), i.e. the real cause is the unit record identity gap, contradicting the package's own high residual R-Q1A3R2-07",
+      "affects_counts": false,
+      "recommendation": "relabel to a record-identity gap code in the next round"
+    },
+    {
+      "id": "D-3",
+      "severity": "medium",
+      "subject": "safety_vacuous_pass",
+      "finding": "the only required forbidden_content axis has zero frozen forbidden checks, zero expected sources and a clarification final kind while the label expects refusal; the frozen module enforces refusal only for must_refuse_security, so the axis passed with nothing checked; E0 residual 2 was not carried forward and the report wording implies refusal checks ran",
+      "affects_counts": false,
+      "recommendation": "mark as vacuous pass or unknown and carry the E0 residual; do not rescore in this round"
+    },
+    {
+      "id": "D-4",
+      "severity": "low",
+      "subject": "residual_R-Q1A3R2-09_wording",
+      "finding": "the 7 v3 projection units are consistent with the public ingest (V04 = D01 v3, active in that scenario) and were not used; calling them outside the public ingest structure contradicts the package's own active table",
+      "affects_counts": false,
+      "recommendation": "correct the wording; no verdict change"
+    }
+  ],
+  "unverified": [
+    {"id": "U-1", "claim": "forbidden value and refusal checks byte-identical to the old side", "why": "old implementation is not frozen and old per-case values are NOT_AVAILABLE"},
+    {"id": "U-2", "claim": "D4 registered count 2", "why": "requires reading question semantics; report itself marks it non-locatable"},
+    {"id": "U-3", "claim": "old matcher ignored doc_code and record_code", "why": "recorded by E0 only; old matcher cannot be re-run"},
+    {"id": "U-4", "claim": "privacy scan needle list content", "why": "needles may contain question or answer text; only counts inspected"},
+    {"id": "U-5", "claim": "old per-case four-axis values", "why": "detail_export false on all four cards; not constructed by design"}
+  ],
+  "preservation": {
+    "c_freeze_items": 12,
+    "c_freeze_match": 12,
+    "repo_protected_files": 28,
+    "repo_protected_changed": 0,
+    "external_trees_unchanged": {
+      "old_run_tree": "7c2072b40f27 (72 files)",
+      "holdout_root": "5d628883df6c (5 files)",
+      "custody_annotations": "793a3f246895 (4 files)",
+      "r1_evidence_tree": "a1487c707e73 (13 files)",
+      "not_run_evidence_tree": "5e07b63116f4 (19 files)",
+      "contract_ciphertext": "467dbf7706df26f2069a79e2b344b53c0e10c03ff830ed62efff9b5dfd16f461 / 47012",
+      "r1_private_detail": "2f6f4d85026d4b3fb654e17f9ebbb0baac923dd93dc6fa326bb9325fdd69dacc / 74488"
+    },
+    "old_cards_unchanged": 4,
+    "r1_products_unchanged": true,
+    "not_run_products_unchanged": true,
+    "foreign_untracked_files": 2086,
+    "foreign_untracked_tree_sha256": "f85dbe6a59cd",
+    "tracked_modified_paths_unchanged": true,
+    "staged_entries": 0,
+    "commits_after_head": 0,
+    "head_unchanged": true,
+    "branch_unchanged": true,
+    "funding_files_unchanged_during_round": true,
+    "funding_files_mtime_before_round": true
+  },
+  "zero_call": {
+    "netguard_verdict": "zero_network_attempts",
+    "positive_control": "blocked",
+    "socket_connect_dns_counts": 0,
+    "calls_before_after_all_zero": true,
+    "reviewer_path_network_calls": 0
+  },
+  "privacy": {
+    "public_privacy_scan_needles": 133,
+    "files_scanned": 22,
+    "total_hits": 0,
+    "case_id_values_in_public_artifacts": 0,
+    "review_artifacts_contain_question_answer_target_or_key": false
+  },
+  "not_claimed": ["verified", "threshold_met", "release_ready", "T207_pass"],
+  "boundary": "review only; no product call, no GO/release, no change to frozen C, old cards, R1/NOT-RUN products or executor artifacts; no stage/commit/push; no subagent; key only in process memory"
+}
