@@ -10,7 +10,9 @@ if not exist ".venv\Scripts\python.exe" (
 rem Live Q&A runtime parameters (process-scope only; .env is not modified):
 rem   - official deepseek-flash (.env still has the old deepseek-chat alias)
 rem   - official peak prices 2/8 CNY per million, context ceiling 1048576, max_tokens 800
-rem   - owner acceptance: project cap 100 CNY, trial cap 10 CNY, 106 new requests
+rem   - owner acceptance (GO re-issued 2026-11-22 20:14, full QA regression, budgets raised):
+rem     project cap 1000 CNY (must equal budget.json limit_cny; owner-approved raise), stage cap 500 CNY, 1600 requests, no ledger reset
+rem   - plan sizes must match GO bindings request_plan_sha256: UA_PLAN overrides 350/800/437/8/5 (defaults 83/105/88/11/1 mismatch)
 set PYTHONUTF8=1
 set PYTHONDONTWRITEBYTECODE=1
 set OPENBLAS_NUM_THREADS=1
@@ -22,12 +24,17 @@ set MKTKB_MODEL_MAX_INPUT_TOKENS=6144
 set MKTKB_MODEL_MAX_OUTPUT_TOKENS=800
 set MKTKB_MODEL_CONTEXT_CEILING_TOKENS=1048576
 set MKTKB_MODEL_RESERVE_PROFILE=model_context_ceiling
-set MKTKB_PROJECT_TOTAL_LIMIT_CNY=100.0
+set MKTKB_PROJECT_TOTAL_LIMIT_CNY=1000.0
 set MKTKB_LIVE_STAGE=S2-OWNER-ACCEPTANCE
-set MKTKB_RAG_STAGE_LIMIT_CNY=10.0
-set MKTKB_RAG_MAX_REQUESTS=300
+set MKTKB_RAG_STAGE_LIMIT_CNY=500.0
+set MKTKB_RAG_MAX_REQUESTS=1600
 set MKTKB_RAG_MAX_REQUEST_CNY=2.103552
 set MKTKB_RAG_MAX_RETRIES=0
+set MKTKB_UA_PLAN_CHAT=350
+set MKTKB_UA_PLAN_EMBEDDING=800
+set MKTKB_UA_PLAN_RERANK=437
+set MKTKB_UA_PLAN_OCR_TEXT=8
+set MKTKB_UA_PLAN_OCR_TABLE=5
 set DASHSCOPE_BASE_URL=https://dashscope.aliyuncs.com
 set MKTKB_OCR_ENDPOINT=https://ocr.tencentcloudapi.com
 set MKTKB_OCR_REGION=ap-guangzhou
