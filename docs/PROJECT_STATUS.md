@@ -8,7 +8,7 @@
 
 | 状态 | 盘点结论 | 依据 |
 | --- | --- | --- |
-| 本地已提交版本 | `codex/p2-e2e @ 2f4b0063a6ee9c9909addb484d91eddbbdb60e91`，领先 GitHub 同名分支 5 个提交 | `git rev-parse HEAD`；[GitHub 分支当前提交](https://github.com/Echo2580/mktkb/commit/0d6ba61d0c6253550adf26888dab935ffe4310b1) |
+| 本地已提交版本 | `codex/p2-e2e @ 2d118c4`，工作区已干净，与 GitHub 同名分支一致（2026-11-26 同步） | `git rev-parse HEAD`；`git status --short --branch` |
 | 评测与可观测性 P0、修复与检索评测 P1 | P0 已有收尾提交，P1 已集成到 `main`，两个阶段的提交均在当前 HEAD 历史中 | `35815c3`、`f54cd77`、`59107fc` |
 | P2 真实效果评测 | 重新资格化的 v0.3 冻结候选已有负责人发布决定。正式 B0 实测正确 38/40、精确题 24/24。发布决定保留了 H2、合成证据、真实亲验及费用口径等限制，仅适用于相应冻结候选 | `cb74457` 中的 `docs/reports/OBS-EVAL/P2/FOLLOW-UP/requalification/release-decision.v0_3.md` |
 | P3 知识运营 | 运营总览、问答诊断（含评测页签）、知识资产三页及管理员只读接口已提交。T306 独立验收通过，负责人批准后完成四组本地提交。该验收的真实环境验证标为 `NOT-RUN`，当前部署状态待核实 | `206d40f`、`546ae88`、`f17fe69`、`828ce5f`；`2f4b006` 中的 `docs/reports/OBS-EVAL/P3/T306-acceptance.md` §八至十 |
